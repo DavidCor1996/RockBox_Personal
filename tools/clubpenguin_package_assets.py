@@ -16,25 +16,25 @@ from pathlib import Path
 
 
 WORLD_ROWS = [
-    ("My Place", "Enter your offline igloo.", 427, 240, 45, "player_home",
+    ("My Place", "Enter your offline igloo.", 1763, 1309, 110, "player_home",
      160, 170),
-    ("Town", "Enter Town.", 585, 382, 48, "town", 160, 170),
-    ("Plaza", "Enter the Plaza.", 638, 292, 50, "plaza", 160, 170),
-    ("Dock", "Enter the Dock.", 112, 362, 50, "dock", 160, 170),
-    ("Ski Village", "Enter Ski Village.", 320, 257, 44, "ski_village",
+    ("Town", "Enter Town.", 1034, 1102, 135, "town", 160, 170),
+    ("Plaza", "Enter the Plaza.", 1942, 1044, 150, "plaza", 160, 170),
+    ("Dock", "Enter the Dock.", 322, 1276, 140, "dock", 160, 170),
+    ("Ski Village", "Enter Ski Village.", 848, 505, 120, "ski_village",
      160, 170),
-    ("Dojo", "Enter the Dojo.", 494, 52, 44, "dojo", 160, 170),
-    ("Cove", "Enter the Cove.", 723, 161, 50, "cove", 160, 170),
-    ("Beach", "Enter the Beach.", 126, 112, 42, "beach", 160, 170),
-    ("Snow Forts", "Enter the Snow Forts.", 456, 352, 45, "snow_forts",
+    ("Dojo", "Enter the Dojo.", 1492, 133, 110, "dojo", 160, 170),
+    ("Cove", "Enter the Cove.", 2170, 472, 125, "cove", 160, 170),
+    ("Beach", "Enter the Beach.", 271, 679, 130, "beach", 160, 170),
+    ("Snow Forts", "Enter the Snow Forts.", 1475, 1061, 120, "snow_forts",
      160, 170),
-    ("Forest", "Enter the Forest.", 694, 410, 44, "forest", 160, 170),
-    ("Mine", "Enter the Mine Shack.", 756, 332, 42, "mine", 160, 170),
-    ("Iceberg", "Enter the Iceberg.", 760, 67, 42, "iceberg", 160, 170),
+    ("Forest", "Enter the Forest.", 1950, 688, 120, "forest", 160, 170),
+    ("Mine", "Enter the Mine Shack.", 1755, 389, 110, "mine", 160, 170),
+    ("Iceberg", "Enter the Iceberg.", 2416, 290, 110, "iceberg", 160, 170),
 ]
 
-WORLD_SOURCE_WIDTH = 854
-WORLD_SOURCE_HEIGHT = 480
+WORLD_SOURCE_WIDTH = 2713
+WORLD_SOURCE_HEIGHT = 1823
 WORLD_OUTPUT_WIDTH = 320
 WORLD_OUTPUT_HEIGHT = 220
 
@@ -115,6 +115,14 @@ ROOM_SWFS = {
 def validate_interactions() -> None:
     rooms = {row[0]: row for row in ROOM_ROWS}
     seen: set[tuple[str, str]] = set()
+    room_links: set[tuple[str, str]] = set()
+
+    world_targets = {row[5] for row in WORLD_ROWS}
+    missing_map_entries = set(rooms) - world_targets
+    if missing_map_entries:
+        raise SystemExit(
+            "rooms missing map entries: " + ", ".join(sorted(missing_map_entries))
+        )
 
     for row in INTERACTION_ROWS:
         room, interaction_id, x, y, radius, action, target, _, to_x, to_y = row
@@ -145,11 +153,16 @@ def validate_interactions() -> None:
                     f"interaction spawn is not walkable: "
                     f"{room}/{interaction_id}"
                 )
+            room_links.add((room, target))
         elif action == "minigame":
             if target != "cart_surfer":
                 raise SystemExit(f"unknown minigame target: {target}")
         elif action not in {"map", "message"}:
             raise SystemExit(f"unknown interaction action: {action}")
+
+    for room, target in room_links:
+        if (target, room) not in room_links:
+            raise SystemExit(f"room link has no return path: {room} -> {target}")
 
 
 def sha256(path: Path) -> str:
@@ -245,6 +258,12 @@ def write_manifest(out: Path, source: Path, generated: list[Path],
         if waddle_source is not None:
             f.write("room_source_repo=nhaar/Waddle-Forever\n")
             f.write(f"room_source_commit={git_commit(waddle_source)}\n")
+            cover_logo = (waddle_source / "media/default/websites/modern/"
+                          "assets/sites/default/themes/snowball/img/"
+                          "club-penguin-logo.png")
+            f.write("cover_source=media/default/websites/modern/assets/"
+                    "sites/default/themes/snowball/img/club-penguin-logo.png"
+                    f"\t{sha256(cover_logo)}\n")
             for room_id, rel in ROOM_SWFS.items():
                 swf = waddle_source / rel
                 f.write(f"room_source={room_id}\t{rel}\t{sha256(swf)}\n")
@@ -252,8 +271,8 @@ def write_manifest(out: Path, source: Path, generated: list[Path],
             f.write(f"generated={path.relative_to(out)}\n")
             f.write(f"sha256={sha256(path)}\n")
         f.write("world_scale=320x220\n")
-        f.write("world_coordinate_source=854x480\n")
-        f.write("player_strip=16x36x38\n")
+        f.write("world_coordinate_source=2713x1823\n")
+        f.write("player_strip=13x36x38 animation=4x3 selector=1\n")
         f.write("data=data/world.tsv\n")
         f.write("data=data/rooms.tsv\n")
         f.write("data=data/interactions.tsv\n")
@@ -491,26 +510,30 @@ def package_freeroam(source: Path, out: Path,
     frames = [
         ("sprite2-sheet0.png", 1, 1, 36, 35),
         ("sprite2-sheet0.png", 39, 1, 35, 35),
-        ("sprite2-sheet0.png", 1, 1, 36, 35),
         ("sprite2-sheet0.png", 76, 36, 34, 35),
         ("sprite2-sheet0.png", 1, 77, 22, 41),
         ("sprite2-sheet0.png", 88, 73, 24, 41),
-        ("sprite2-sheet0.png", 1, 77, 22, 41),
         ("sprite2-sheet1.png", 1, 1, 22, 41),
         ("sprite2-sheet0.png", 76, 1, 37, 33),
         ("sprite2-sheet0.png", 31, 38, 28, 36),
         ("sprite2-sheet0.png", 1, 38, 28, 37),
-        ("sprite2-sheet0.png", 31, 38, 28, 36),
         ("sprite2-sheet0.png", 31, 76, 23, 42),
         ("sprite2-sheet0.png", 61, 73, 25, 40),
         ("sprite2-sheet1.png", 25, 1, 22, 41),
-        ("sprite2-sheet0.png", 61, 73, 25, 40),
     ]
     frame_paths = []
     for i, frame in enumerate(frames):
         frame_path = out / f".player_frame_{i}.bmp"
         make_player_frame(source, frame, frame_path)
         frame_paths.append(frame_path)
+
+    selector_path = out / ".player_selector.bmp"
+    run_magick([
+        str(frame_paths[0]), "-trim", "+repage", "-resize", "20x22",
+        "-gravity", "south", "-background", "magenta", "-extent",
+        "36x38", f"BMP3:{selector_path}",
+    ])
+    frame_paths.append(selector_path)
 
     hstack_args = []
     for frame_path in frame_paths:
@@ -524,13 +547,27 @@ def package_freeroam(source: Path, out: Path,
         frame_path.unlink()
     generated.append(player_out)
 
-    run_ffmpeg([
-        "-i", str(world_src),
-        "-vf", "scale=174:174:force_original_aspect_ratio=increase,"
-               "crop=174:174",
-        "-pix_fmt", "bgr24",
-        str(cover_out),
-    ])
+    cover_logo = None
+    if waddle_source is not None:
+        cover_logo = (waddle_source / "media/default/websites/modern/"
+                      "assets/sites/default/themes/snowball/img/"
+                      "club-penguin-logo.png")
+    if cover_logo is not None and cover_logo.exists():
+        run_magick([
+            str(world_src), "-crop", "2600x1660+55+55", "+repage",
+            "-resize", "120x140^", "-gravity", "west",
+            "-extent", "120x140", "(", str(cover_logo), "-resize",
+            "110x53", ")", "-gravity", "north", "-geometry", "+0+8",
+            "-composite",
+            f"BMP3:{cover_out}",
+        ])
+    else:
+        run_ffmpeg([
+            "-i", str(world_src),
+            "-vf", "scale=120:140:force_original_aspect_ratio=increase,"
+                   "crop=120:140",
+            "-pix_fmt", "bgr24", str(cover_out),
+        ])
     generated.append(cover_out)
     shutil.copyfile(cover_out, cover_space_out)
     shutil.copyfile(cover_out, cover_lower_out)

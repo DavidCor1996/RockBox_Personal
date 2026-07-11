@@ -48,6 +48,11 @@
 #define GWATCH_PLUGIN_PATH   PLUGIN_GAMES_DIR "/gwatch.rock"
 #define STICKRPG_SWF_PATH     ROCKBOX_DIR "/flash/stickrpg/stickrpg.swf"
 #define STICKRPG_COVER_BMP    ROCKBOX_DIR "/ipodjs/stickrpg/covers/Stick RPG.bmp"
+#define CLUBPENGUIN_PLUGIN_PATH PLUGIN_GAMES_DIR "/clubpenguin.rock"
+#define CLUBPENGUIN_COVER_BMP ROCKBOX_DIR \
+    "/ipodjs/clubpenguin/covers/Club Penguin.bmp"
+#define FLASH_ROM_DIR         ROCKBOX_DIR "/flash"
+#define FLASH_SYSTEM_COVER_BMP GAME_LIBRARY_COVERS_DIR "/systems/flash.bmp"
 #define DOOM_PLAY_PLUGIN_PATH PLUGIN_GAMES_DIR "/doom_play.rock"
 #define DOOM_PLUGIN_PATH      PLUGIN_GAMES_DIR "/doom.rock"
 #define DOOM_COVER_BMP        ROCKBOY_LAUNCHER_DIR "/covers/Doom.bmp"
@@ -577,6 +582,7 @@ static bool ensure_library_dirs(void)
     mkdir_if_needed(GAME_LIBRARY_COVERS_DIR "/smsgg");
     mkdir_if_needed(GAME_LIBRARY_COVERS_DIR "/arduboy");
     mkdir_if_needed(GAME_LIBRARY_COVERS_DIR "/doom");
+    mkdir_if_needed(GAME_LIBRARY_COVERS_DIR "/flash");
     mkdir_if_needed(GAME_LIBRARY_COVERS_DIR "/native");
     mkdir_if_needed(GAME_LIBRARY_CACHE_DIR);
     mkdir_if_needed(ROCKBOX_DIR "/games/smsgg");
@@ -634,6 +640,9 @@ static bool write_default_system_manifest(void)
     rb->fdprintf(fd, "gwatch\tGame & Watch\tLCD handhelds\t%s\t%s\t%s\t1\t50\n",
                  GWATCH_PLUGIN_PATH, GWATCH_ROM_DIR,
                  GAME_LIBRARY_COVERS_DIR "/systems/gwatch.bmp");
+    rb->fdprintf(fd, "flash\tFlash\tSWF games\t%s\t%s\t%s\t1\t55\n",
+                 FLASHPLAYER_PLUGIN_PATH, FLASH_ROM_DIR,
+                 FLASH_SYSTEM_COVER_BMP);
     rb->fdprintf(fd, "doom\tDoom\tWAD launcher\t%s\t%s\t%s\t1\t60\n",
                  DOOM_PLUGIN_PATH, DOOM_WAD_DIR,
                  GAME_LIBRARY_COVERS_DIR "/systems/doom.bmp");
@@ -665,6 +674,8 @@ static void set_system_extensions(struct system_entry *system)
                     sizeof(system->extensions));
     else if (!rb->strcmp(system->id, "doom"))
         rb->strlcpy(system->extensions, ".wad", sizeof(system->extensions));
+    else if (!rb->strcmp(system->id, "flash"))
+        rb->strlcpy(system->extensions, ".swf", sizeof(system->extensions));
     else if (!rb->strcmp(system->id, "native"))
     {
         rb->strlcpy(system->extensions, ".rock", sizeof(system->extensions));
@@ -693,6 +704,10 @@ static void set_system_setup_message(struct system_entry *system)
     else if (!rb->strcmp(system->id, "pokemini"))
         rb->strlcpy(system->setup_message,
                     "No Pokemon Mini games found. Put .min files in /PokeMini/",
+                    sizeof(system->setup_message));
+    else if (!rb->strcmp(system->id, "flash"))
+        rb->strlcpy(system->setup_message,
+                    "No Flash games found. Put .swf files in .rockbox/flash/",
                     sizeof(system->setup_message));
     else
         rb->snprintf(system->setup_message, sizeof(system->setup_message),
@@ -784,6 +799,9 @@ static void load_default_systems(void)
     add_system_entry("gwatch", "Game & Watch", "LCD handhelds",
                      GWATCH_PLUGIN_PATH, GWATCH_ROM_DIR,
                      GAME_LIBRARY_COVERS_DIR "/systems/gwatch.bmp", true, 50);
+    add_system_entry("flash", "Flash", "SWF games",
+                     FLASHPLAYER_PLUGIN_PATH, FLASH_ROM_DIR,
+                     FLASH_SYSTEM_COVER_BMP, true, 55);
     add_system_entry("doom", "Doom", "WAD launcher",
                      DOOM_PLUGIN_PATH, DOOM_WAD_DIR,
                      GAME_LIBRARY_COVERS_DIR "/systems/doom.bmp", true, 60);
@@ -863,6 +881,20 @@ static void apply_builtin_system_defaults(struct system_entry *system)
         system->enabled = true;
         system->sort = 40;
     }
+    else if (!rb->strcmp(system->id, "flash"))
+    {
+        rb->strlcpy(system->title, "Flash", sizeof(system->title));
+        rb->strlcpy(system->subtitle, "SWF games",
+                    sizeof(system->subtitle));
+        rb->strlcpy(system->plugin_path, FLASHPLAYER_PLUGIN_PATH,
+                    sizeof(system->plugin_path));
+        rb->strlcpy(system->rom_path, FLASH_ROM_DIR,
+                    sizeof(system->rom_path));
+        rb->strlcpy(system->cover_path, FLASH_SYSTEM_COVER_BMP,
+                    sizeof(system->cover_path));
+        system->enabled = true;
+        system->sort = 55;
+    }
 
     set_system_extensions(system);
     set_system_setup_message(system);
@@ -872,6 +904,7 @@ static void apply_builtin_system_defaults(struct system_entry *system)
 static void add_missing_builtin_systems(void)
 {
     apply_builtin_system_defaults(find_system_entry("gwatch"));
+    apply_builtin_system_defaults(find_system_entry("flash"));
 
     if (!system_entry_exists("gameboy"))
         add_system_entry("gameboy", "Game Boy", "Rockboy library",
@@ -908,6 +941,10 @@ static void add_missing_builtin_systems(void)
                          GWATCH_PLUGIN_PATH, GWATCH_ROM_DIR,
                          GAME_LIBRARY_COVERS_DIR "/systems/gwatch.bmp",
                          true, 50);
+    if (!system_entry_exists("flash"))
+        add_system_entry("flash", "Flash", "SWF games",
+                         FLASHPLAYER_PLUGIN_PATH, FLASH_ROM_DIR,
+                         FLASH_SYSTEM_COVER_BMP, true, 55);
     if (!system_entry_exists("doom"))
         add_system_entry("doom", "Doom", "WAD launcher",
                          DOOM_PLUGIN_PATH, DOOM_WAD_DIR,
@@ -1858,24 +1895,15 @@ static bool cover_for_system_id(const char *system_id,
     if (!rb->strcmp(system_id, "doom"))
         return copy_cover_if_exists(cover_path, cover_path_size,
                                     GAME_LIBRARY_COVERS_DIR "/systems/doom.bmp");
+    if (!rb->strcmp(system_id, "flash"))
+        return copy_cover_if_exists(cover_path, cover_path_size,
+                                    FLASH_SYSTEM_COVER_BMP);
 
     return false;
 }
 
 static void add_builtin_game_entries(void)
 {
-    if (launcher.show_builtin_stickrpg &&
-        rb->file_exists(FLASHPLAYER_PLUGIN_PATH) &&
-        rb->file_exists(STICKRPG_SWF_PATH) &&
-        !game_entry_path_exists(FLASHPLAYER_PLUGIN_PATH))
-    {
-        add_game_entry("Stick RPG", FLASHPLAYER_PLUGIN_PATH,
-                       STICKRPG_COVER_BMP, "native", "",
-                       FLAG_FAVORITE, SAVE_HINT_NO,
-                       "2003", "Flash RPG", "XGen Studios", "XGen Studios",
-                       STICKRPG_SWF_PATH);
-    }
-
     if (launcher.show_builtin_doom &&
         rb->file_exists(DOOM_PLAY_PLUGIN_PATH) &&
         !game_entry_path_exists(DOOM_PLAY_PLUGIN_PATH))
@@ -1996,7 +2024,8 @@ static void scan_system_rom_dir(struct system_entry *system,
             continue;
         }
 
-        if (has_extension_in_list(entry->d_name, system->extensions))
+        if (has_extension_in_list(entry->d_name, system->extensions) &&
+            !game_entry_path_exists(child))
         {
             char cover[MAX_PATH];
             detect_sidecar_cover(child, cover, sizeof(cover));
@@ -2459,6 +2488,14 @@ static void count_system_games(void)
         {
             system->game_count = tamagotchi_rom_available() ? 1 : 0;
         }
+        else if (!rb->strcmp(system->id, "flash"))
+        {
+            system->game_count = rb->file_exists(STICKRPG_SWF_PATH) ? 1 : 0;
+            if (rb->file_exists(CLUBPENGUIN_PLUGIN_PATH))
+                system->game_count++;
+            system->game_count += count_system_files_quick(system,
+                                                           system->rom_path);
+        }
         else if (system->old_index)
         {
             system->game_count = count_system_files_quick(system,
@@ -2895,6 +2932,29 @@ static bool load_system_games(int system_index)
                            0, SAVE_HINT_YES, "", "Virtual pet",
                            "Bandai", "TamaLIB", NULL);
         }
+    }
+    else if (!rb->strcmp(system->id, "flash"))
+    {
+        if (rb->file_exists(CLUBPENGUIN_PLUGIN_PATH))
+        {
+            add_game_entry("Club Penguin", CLUBPENGUIN_PLUGIN_PATH,
+                           CLUBPENGUIN_COVER_BMP, system->id, "",
+                           FLAG_FAVORITE, SAVE_HINT_YES,
+                           "2005", "Virtual world", "Disney",
+                           "New Horizon Interactive", NULL);
+        }
+        if (launcher.show_builtin_stickrpg &&
+            rb->file_exists(FLASHPLAYER_PLUGIN_PATH) &&
+            rb->file_exists(STICKRPG_SWF_PATH))
+        {
+            add_game_entry("Stick RPG", STICKRPG_SWF_PATH,
+                           STICKRPG_COVER_BMP, system->id,
+                           FLASHPLAYER_PLUGIN_PATH,
+                           FLAG_FAVORITE, SAVE_HINT_NO,
+                           "2003", "Flash RPG", "XGen Studios",
+                           "XGen Studios", NULL);
+        }
+        scan_system_rom_dir(system, system->rom_path, 0);
     }
     else if (system->old_index)
     {

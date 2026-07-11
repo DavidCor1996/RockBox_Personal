@@ -407,11 +407,18 @@ The importer must:
 4. emit the transformed values in `data/world.tsv`
 5. record source and generated checksums in `source.manifest`
 
-The map scene should draw a highlighted destination marker or cursor, not the
-room walking sprite. `LEFT`, `RIGHT`, and wheel movement select the nearest
-destination in that direction; `SELECT` enters it. This makes map navigation
-distinct from room movement and removes the misleading appearance that the
-penguin is walking across the island illustration.
+The map scene draws a dedicated 20x22 selector derived from the preserved
+penguin art. It is a separately packed thirteenth player-sheet cell, not the
+full-size room sprite. Its feet are anchored to the exact transformed hotspot
+coordinate. `LEFT`, `RIGHT`, and wheel movement select the nearest destination
+in that direction; `SELECT` enters it. Holding physical `LEFT` and `RIGHT`
+together opens the map from any room or Cart Surfer state, with a release latch
+that prevents repeated transitions from one hold.
+
+The preserved map sheet is 2713x1823. `WORLD_ROWS` stores coordinates in that
+actual source space and the packager transforms them to 320x220. The earlier
+854x480 assumption was incorrect and placed selectors away from their visible
+buildings.
 
 Memory acceptance gate:
 
@@ -882,6 +889,12 @@ The bottom 320x20 toolbar is real preserved interface art extracted from the
 pinned 2010 interface SWF. It replaces Rockbox instruction text in the map,
 rooms, and Cart Surfer. Unsupported chat and social buttons remain visual-only
 until their offline actions are implemented.
+
+The Game Cover Flow Flash system includes Club Penguin as a native plugin
+entry alongside preserved SWF titles. Selecting it launches
+`clubpenguin.rock` directly. Its 120x140 cover combines only the preserved
+island-map source and archived official Club Penguin logo; both source paths
+and checksums are recorded in `source.manifest`.
 
 ## Controls
 

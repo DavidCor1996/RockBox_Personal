@@ -685,12 +685,15 @@ sub buildzip {
 
     if(-e "$temp_dir/rocks/games/rockboy_launcher.rock") {
         mkpath("$temp_dir/rocks/games/rockboy_launcher/covers", $verbose, 0777);
+        mkpath("$temp_dir/games/library/covers/systems", $verbose, 0777);
         if ($width == 320 && $height == 240) {
             copy("$ROOT/apps/plugins/bitmaps/native/rockboy_loading_bg.320x240x24.bmp",
                  "$temp_dir/rocks/games/rockboy_launcher/loading_bg.bmp");
         }
         copy("$ROOT/apps/plugins/bitmaps/native/doom_cover.120x140x24.bmp",
              "$temp_dir/rocks/games/rockboy_launcher/covers/Doom.bmp");
+        copy("$ROOT/assets/ipodjs/rockbox/clubpenguin/covers/Club Penguin.bmp",
+             "$temp_dir/games/library/covers/systems/flash.bmp");
     }
 
     if(-e "$temp_dir/rocks/games/pokemini_launcher.rock" &&

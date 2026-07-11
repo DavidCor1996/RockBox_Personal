@@ -42,7 +42,9 @@
 #define CP_WORLD_H CP_VIEW_H
 #define CP_PLAYER_W 36
 #define CP_PLAYER_H 38
-#define CP_PLAYER_FRAMES 16
+#define CP_PLAYER_ANIM_FRAMES 3
+#define CP_PLAYER_SELECTOR_FRAME 12
+#define CP_PLAYER_FRAMES 13
 #define CP_PLAYER_STRIP_W (CP_PLAYER_W * CP_PLAYER_FRAMES)
 #define CP_PLAYER_STRIP_H CP_PLAYER_H
 #define CP_INPUT_STEP 6
@@ -283,12 +285,16 @@ struct cp_game
     long next_walk_tick;
     bool assets_loaded;
     bool dirty;
+    bool map_chord_latched;
 };
 
 static fb_data scene_pixels[CP_WORLD_W * CP_WORLD_H
                             + CP_BMP_SCRATCH_ELEMS(CP_WORLD_W)];
-static fb_data player_pixels[CP_PLAYER_STRIP_W * CP_PLAYER_STRIP_H
-                             + CP_BMP_SCRATCH_ELEMS(CP_PLAYER_STRIP_W)];
+static fb_data player_pixels[
+    MAX(CP_PLAYER_STRIP_W * CP_PLAYER_STRIP_H +
+        CP_BMP_SCRATCH_ELEMS(CP_PLAYER_STRIP_W),
+        CP_CART_SHEET_W * CP_CART_SHEET_H +
+        CP_BMP_SCRATCH_ELEMS(CP_CART_SHEET_W))];
 static fb_data toolbar_pixels[CP_VIEW_W * CP_STATUS_H];
 static char text_buf[CP_TEXT_BUF];
 
@@ -939,6 +945,15 @@ static void cp_select_map_direction(int dx, int dy)
     game.selected_hotspot = best;
     game.x = game.hotspots[best].x;
     game.y = game.hotspots[best].y;
+    if (dx < 0)
+        game.direction = CP_DIR_LEFT;
+    else if (dx > 0)
+        game.direction = CP_DIR_RIGHT;
+    else if (dy < 0)
+        game.direction = CP_DIR_UP;
+    else if (dy > 0)
+        game.direction = CP_DIR_DOWN;
+    game.anim_frame = (game.anim_frame + 1) % CP_PLAYER_ANIM_FRAMES;
     game.map_x = game.x;
     game.map_y = game.y;
     game.dirty = true;
@@ -1649,7 +1664,7 @@ static void cp_move_player(int dx, int dy)
     if (game.anim_tick >= CP_ANIM_RATE)
     {
         game.anim_tick = 0;
-        game.anim_frame = (game.anim_frame + 1) & 3;
+        game.anim_frame = (game.anim_frame + 1) % CP_PLAYER_ANIM_FRAMES;
     }
     game.selected_hotspot = cp_nearest_hotspot();
     game.dirty = true;
@@ -1811,6 +1826,34 @@ static void cp_go_back(void)
     }
 }
 
+static bool cp_map_chord_held(void)
+{
+#if (CONFIG_KEYPAD == IPOD_1G2G_PAD) || \
+    (CONFIG_KEYPAD == IPOD_3G_PAD) || \
+    (CONFIG_KEYPAD == IPOD_4G_PAD)
+    return (rb->button_status() & (BUTTON_LEFT | BUTTON_RIGHT)) ==
+           (BUTTON_LEFT | BUTTON_RIGHT);
+#else
+    return false;
+#endif
+}
+
+static void cp_open_map(void)
+{
+    if (game.scene_type == CP_SCENE_MAP)
+        return;
+
+    if (game.scene_type >= CP_SCENE_CART_TITLE &&
+        game.scene_type <= CP_SCENE_CART_RESULTS && !cp_load_player_asset())
+        return;
+
+    if (cp_enter_map_at(game.map_x, game.map_y))
+    {
+        cp_set_message("Returned to the island map.");
+        cp_write_save();
+    }
+}
+
 static void cp_quit(enum plugin_status *status, bool *running)
 {
     cp_write_save();
@@ -1836,19 +1879,34 @@ static void cp_draw_status(void)
                    CP_VIEW_W, CP_STATUS_H);
 }
 
+static void cp_draw_player_frame(int frame, int x, int y);
+
 static void cp_draw_room_markers(void)
 {
     int i;
     int old_fg = rb->lcd_get_foreground();
+
+    if (game.scene_type == CP_SCENE_MAP)
+    {
+        if (game.selected_hotspot >= 0 &&
+            game.selected_hotspot < game.hotspot_count)
+        {
+            int x = game.hotspots[game.selected_hotspot].x - game.cam_x;
+            int y = game.hotspots[game.selected_hotspot].y - game.cam_y;
+
+            cp_draw_player_frame(CP_PLAYER_SELECTOR_FRAME,
+                                 x - CP_PLAYER_W / 2,
+                                 y - CP_PLAYER_H + 4);
+        }
+        return;
+    }
 
     for (i = 0; i < game.hotspot_count; i++)
     {
         int x = game.hotspots[i].x - game.cam_x;
         int y = game.hotspots[i].y - game.cam_y;
 
-        if (game.scene_type == CP_SCENE_ROOM &&
-            (game.hotspots[i].action == CP_ACTION_ROOM ||
-             game.hotspots[i].action == CP_ACTION_MINIGAME))
+        if (game.scene_type == CP_SCENE_ROOM)
             continue;
 
         if (x < -5 || y < -5 || x >= CP_VIEW_W + 5 || y >= CP_VIEW_H + 5)
@@ -1864,9 +1922,8 @@ static void cp_draw_room_markers(void)
     rb->lcd_set_foreground(old_fg);
 }
 
-static void cp_draw_player(int x, int y)
+static void cp_draw_player_frame(int frame, int x, int y)
 {
-    int frame = game.direction * 4 + game.anim_frame;
     int src_x = frame * CP_PLAYER_W;
     int src_y = 0;
     int width = CP_PLAYER_W;
@@ -1893,6 +1950,13 @@ static void cp_draw_player(int x, int y)
         rb->lcd_bitmap_transparent_part((const fb_data *)game.player.data,
                                         src_x, src_y, game.player.width,
                                         x, y, width, height);
+}
+
+static void cp_draw_player(int x, int y)
+{
+    int frame = game.direction * CP_PLAYER_ANIM_FRAMES + game.anim_frame;
+
+    cp_draw_player_frame(frame, x, y);
 }
 
 static void cp_draw_cart_sprite(void)
@@ -2077,8 +2141,16 @@ enum plugin_status plugin_start(const void *parameter)
         if (game.dirty)
             cp_render();
         action = cp_get_input();
+        if (!cp_map_chord_held())
+            game.map_chord_latched = false;
         if (cp_quit_chord_held())
             action = CP_QUIT_ACTION;
+        else if (cp_map_chord_held() && !game.map_chord_latched)
+        {
+            game.map_chord_latched = true;
+            cp_open_map();
+            continue;
+        }
 
         switch (action)
         {
