@@ -271,6 +271,15 @@ class RockboxProfileStore:
             ),
             "games_device_target_dir": games_device_target_dir,
             "games_simulator_target_dir": games_simulator_target_dir,
+            "games_show_builtin_doom": bool(
+                item.get("games_show_builtin_doom", self._config.get("games_show_builtin_doom", True))
+            ),
+            "games_show_builtin_stickrpg": bool(
+                item.get("games_show_builtin_stickrpg", self._config.get("games_show_builtin_stickrpg", True))
+            ),
+            "games_show_builtin_runescape": bool(
+                item.get("games_show_builtin_runescape", self._config.get("games_show_builtin_runescape", True))
+            ),
         }
 
     @staticmethod

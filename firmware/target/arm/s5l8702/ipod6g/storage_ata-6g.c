@@ -1137,12 +1137,14 @@ void ata_sleepnow(void)
         PWRCON(0) |= (1 << 9);
         ata_power_down();
     } else if (ata_ssd_mode) {
-        /* SSD: gate ATA controller clock.  Flash stays powered,
-         * GPIOs stay configured, controller state preserved through
-         * clock gate.  Near-instant wake via fast-path in
-         * ata_power_up(). */
-        logf("ata SSD SLEEP %ld", current_tick);
-        PWRCON(0) |= (1 << 5);
+        /*
+         * iFlash/SSD adapters are not reliable with the custom iPod 6G ATA
+         * clock-gate/deep-sleep path.  Treat SSD sleep as a logical idle
+         * state only: flush writes and report inactive, but leave the ATA
+         * controller and adapter power rails alone.  The fast wake path in
+         * ata_power_up() will simply mark the device active again.
+         */
+        logf("ata SSD IDLE %ld", current_tick);
         ata_powered = false;
         ssd_deep_asleep = false;
         ssd_sleep_tick = current_tick;
@@ -1346,26 +1348,6 @@ int ata_event(long id, intptr_t data)
         if (!ata_powered ||
             TIME_BEFORE(current_tick, ata_last_activity_value + ata_sleep_timeout))
         {
-            /* Phase 2: SSD deep sleep — cut AUTOLDO after 30s of
-             * clock-gate sleep when backlight is off */
-            if (ata_ssd_mode && !ata_powered && !ssd_deep_asleep
-                && !is_backlight_on(true)
-                && TIME_AFTER(current_tick, ssd_sleep_tick + 10 * HZ))
-            {
-                mutex_lock(&ata_mutex);
-                if (!ata_powered && !ssd_deep_asleep)
-                {
-                    logf("ata SSD DEEP %ld", current_tick);
-                    PCON(7) = 0;
-                    PCON(8) = 0;
-                    PCON(9) = 0;
-                    PCON(10) &= ~0xffff;
-                    PCON(11) &= ~0xf;
-                    ide_power_enable(false);
-                    ssd_deep_asleep = true;
-                }
-                mutex_unlock(&ata_mutex);
-            }
             STG_EVENT_ASSERT_ACTIVE(STORAGE_ATA);
         }
     }

@@ -44,6 +44,8 @@ enum wps_do_action_type
 };
 
 void wps_do_action(enum wps_do_action_type, bool updatewps);
+void wps_state_init(void);
+void wps_state_deinit(void);
 /* fade (if enabled) and pause the audio, optionally rewind a little */
 #define pause_action(update) wps_do_action(WPS_PAUSE, update)
 #define unpause_action(update) wps_do_action(WPS_PLAY, update)

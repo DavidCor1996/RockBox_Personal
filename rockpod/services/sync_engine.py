@@ -166,6 +166,87 @@ def _video_episode_label(row):
     return title
 
 
+def _clean_inferred_show_title(value):
+    text = Path(str(value or "")).stem.replace("_", " ")
+    text = re.sub(r"\s+", " ", text).strip(" ._-")
+    text = re.sub(r"\s+FULL\s+EPISODE\b.*$", "", text, flags=re.IGNORECASE).strip(" ._-")
+    text = re.sub(r"\s+RETRO\s+RERUN\b.*$", "", text, flags=re.IGNORECASE).strip(" ._-")
+    return text
+
+
+def _infer_video_episode_metadata(row):
+    item = dict(row) if hasattr(row, "keys") else dict(row or {})
+    candidates = [
+        item.get("title"),
+        Path(str(item.get("file_path") or "")).stem,
+    ]
+    for candidate in candidates:
+        text = str(candidate or "").replace("_", " ")
+        text = re.sub(r"\s+", " ", text).strip()
+        if not text:
+            continue
+
+        match = re.match(
+            r"^(.+?)\s+S(\d{1,2})E(\d{1,3})(?:\s*[-:]\s*(.+))?$",
+            text,
+            flags=re.IGNORECASE,
+        )
+        if match:
+            title = (match.group(4) or item.get("title") or text).strip()
+            return {
+                "show_title": _clean_inferred_show_title(match.group(1)),
+                "season_number": int(match.group(2)),
+                "episode_number": int(match.group(3)),
+                "title": title,
+            }
+
+        match = re.match(
+            r"^(.+?)\s*[-:]\s*(?:season|series)\s*(\d{1,2})\s*[-: ]+"
+            r"(?:episode|ep)\s*(\d{1,3})(?:\s*[-:]\s*(.+))?$",
+            text,
+            flags=re.IGNORECASE,
+        )
+        if match:
+            title = (match.group(4) or item.get("title") or text).strip()
+            return {
+                "show_title": _clean_inferred_show_title(match.group(1)),
+                "season_number": int(match.group(2)),
+                "episode_number": int(match.group(3)),
+                "title": title,
+            }
+
+        match = re.match(
+            r"^(?:episode|ep)\s*(\d{1,4})\s*[-:]\s*(.+)$",
+            text,
+            flags=re.IGNORECASE,
+        )
+        if match:
+            show_title = _clean_inferred_show_title(match.group(2))
+            if show_title:
+                return {
+                    "show_title": show_title,
+                    "season_number": 1,
+                    "episode_number": int(match.group(1)),
+                }
+
+    return {}
+
+
+def _video_manifest_group_key(row):
+    item = _normalize_video_show_fields(dict(row) if hasattr(row, "keys") else dict(row or {}))
+    kind = _normalize_video_kind_value(item.get("video_kind")) or "movie"
+    if kind == "show":
+        show = _clean_inferred_show_title(item.get("show_title"))
+        if show:
+            return "show:" + re.sub(r"[^a-z0-9]+", "-", show.casefold()).strip("-")
+    if kind == "home_video":
+        return "home_video"
+    title = _clean_inferred_show_title(item.get("title") or Path(str(item.get("file_path") or "")).stem)
+    if title:
+        return "movie:" + re.sub(r"[^a-z0-9]+", "-", title.casefold()).strip("-")
+    return kind
+
+
 def _recompute_row_metadata_hash(row):
     item = dict(row) if hasattr(row, "keys") else dict(row or {})
     item["metadata_hash"] = compute_metadata_hash(
@@ -405,6 +486,17 @@ def _normalize_video_show_fields(row):
         if parsed is not None:
             normalized["episode_number"] = parsed
 
+    inferred = _infer_video_episode_metadata(normalized)
+    if inferred:
+        if inferred.get("show_title") and not str(normalized.get("show_title") or "").strip():
+            normalized["show_title"] = inferred["show_title"]
+        if inferred.get("season_number") is not None and not normalized.get("season_number"):
+            normalized["season_number"] = inferred["season_number"]
+        if inferred.get("episode_number") is not None and not normalized.get("episode_number"):
+            normalized["episode_number"] = inferred["episode_number"]
+        if inferred.get("title") and _is_generic_downloaded_video_title(normalized.get("title")):
+            normalized["title"] = inferred["title"]
+
     if (not normalized.get("track_number")) and normalized.get("episode_number") is not None:
         normalized["track_number"] = normalized.get("episode_number")
 
@@ -427,6 +519,48 @@ def _normalize_video_show_fields(row):
 
 
 _VIDEO_EPISODE_OVERRIDES = {
+    "disney's recess - randall's friends": {
+        "show_title": "Recess",
+        "title": "Randall's Friends",
+        "season_number": 3,
+        "episode_number": 35,
+    },
+    "recess - randall's friends": {
+        "show_title": "Recess",
+        "title": "Randall's Friends",
+        "season_number": 3,
+        "episode_number": 35,
+    },
+    "randall's friends": {
+        "show_title": "Recess",
+        "title": "Randall's Friends",
+        "season_number": 3,
+        "episode_number": 35,
+    },
+    "disney's recess - space cadet": {
+        "show_title": "Recess",
+        "title": "Space Cadet",
+        "season_number": 3,
+        "episode_number": 29,
+    },
+    "recess - space cadet": {
+        "show_title": "Recess",
+        "title": "Space Cadet",
+        "season_number": 3,
+        "episode_number": 29,
+    },
+    "disney's recess - dodgeball city": {
+        "show_title": "Recess",
+        "title": "Dodgeball City",
+        "season_number": 3,
+        "episode_number": 36,
+    },
+    "recess - dodgeball city": {
+        "show_title": "Recess",
+        "title": "Dodgeball City",
+        "season_number": 3,
+        "episode_number": 36,
+    },
     "disney's recess - lord of the nerds": {
         "show_title": "Recess",
         "title": "Lord of the Nerds",
@@ -1381,6 +1515,16 @@ class SyncEngine(QObject):
         self._db = db
         self._config = config
         self._device_detector = device_detector
+        if artwork_manager is None:
+            try:
+                from services.artwork_manager import ArtworkManager
+                artwork_manager = ArtworkManager(
+                    getattr(self._config, "artwork_cache_dir", "")
+                    or os.path.join(getattr(self._config, "cache_dir", ""), "artwork"),
+                    self._config,
+                )
+            except Exception:
+                artwork_manager = None
         self._artwork_manager = artwork_manager
         cache_root = getattr(self._config, "artwork_cache_dir", "") or os.path.join(
             getattr(self._config, "cache_dir", ""),
@@ -2373,7 +2517,7 @@ class SyncEngine(QObject):
             item["video_kind"] = "show"
             if not str(item.get("album") or "").strip() and item.get("season_number") is not None:
                 season_number = _to_video_int(item.get("season_number") or 0) or 0
-                item["album"] = "Specials" if season_number == 0 else f"Season {season_number}"
+                item["album"] = "Specials" if season_number == 0 else f"Season {season_number:02d}"
             if not str(item.get("artist") or "").strip() and item.get("show_title"):
                 item["artist"] = item["show_title"]
             if not str(item.get("album_artist") or "").strip() and item.get("show_title"):
@@ -2607,7 +2751,7 @@ class SyncEngine(QObject):
             rel_path = str(device_rel_path or "").strip()
             if not rel_path:
                 return
-            key = str(item.get("video_group_key") or item.get("file_path") or rel_path)
+            key = str(item.get("file_path") or rel_path)
             video_targets[key] = {"row": item, "device_path": rel_path}
 
         for row, rel_path in plan.to_copy:
@@ -2672,7 +2816,7 @@ class SyncEngine(QObject):
                     "preview": os.path.join("previews", preview_name) if preview_rel else "",
                     "title": title,
                     "kind": row.get("video_kind") or "movie",
-                    "group_key": key,
+                    "group_key": _video_manifest_group_key(row),
                     "device_path": target["device_path"],
                     "show": row.get("show_title") or "",
                     "season": str(row.get("season_number") or ""),

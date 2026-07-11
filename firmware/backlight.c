@@ -493,10 +493,6 @@ static inline void do_backlight_off(void)
     backlight_lcd_sleep_countdown(true);
 #endif
 #endif
-    /* Accelerate SSD sleep when backlight turns off — the deep sleep
-     * timer in the storage driver uses backlight state as a gate. */
-    if (storage_get_ssd_mode())
-        storage_sleep();
 }
 
 /* Update state of backlight according to timeout setting */

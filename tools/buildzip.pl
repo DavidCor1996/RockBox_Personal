@@ -741,6 +741,13 @@ sub buildzip {
         tree_copy("$ROOT/assets/ipodjs/rockbox", "$temp_dir/ipodjs");
     }
 
+    if(-d "$ROOT/apps/plugins/offlineweb_seed/.rockbox/offlineweb") {
+        tree_copy(
+            "$ROOT/apps/plugins/offlineweb_seed/.rockbox/offlineweb",
+            "$temp_dir/offlineweb"
+        );
+    }
+
     # and the info file
     copy("rockbox-info.txt", "$temp_dir/rockbox-info.txt");
 

@@ -33,6 +33,7 @@ struct ipod_engine_memory {
     void *shared;
     size_t shared_size;
     bool shared_acquired;
+    bool cpu_boosted;
 };
 
 struct ipod_engine_frame_clock {

@@ -31,6 +31,7 @@ def test_rom_discovery_and_extension_filtering(tmp_dir):
     roms = os.path.join(tmp_dir, "roms")
     _make_file(os.path.join(roms, "Pokemon.gb"), b"gb")
     _make_file(os.path.join(roms, "Mario.nes"), b"nes")
+    _make_file(os.path.join(roms, "Sonic.gg"), b"gg")
     _make_file(os.path.join(roms, "Zelda.gbc"), b"gbc")
     _make_file(os.path.join(roms, "notes.txt"), b"ignore")
 
@@ -42,7 +43,7 @@ def test_rom_discovery_and_extension_filtering(tmp_dir):
     service = RockboxGameService()
     games = service.list_games(profile)
 
-    assert [game["filename"] for game in games] == ["Mario.nes", "Pokemon.gb", "Zelda.gbc"]
+    assert [game["filename"] for game in games] == ["Mario.nes", "Pokemon.gb", "Sonic.gg", "Zelda.gbc"]
 
 
 def test_profiles_default_games_library_to_documents_gameboy(tmp_dir):
@@ -584,6 +585,198 @@ def test_game_sync_bundle_stages_cover_sidecars_for_launcher_scan(tmp_dir):
 
     assert result["success"] is True
     assert os.path.isfile(os.path.join(device, "gameboy", "Tetris.bmp"))
+
+
+def test_nes_game_sync_writes_device_system_manifest(tmp_dir):
+    repo_root = os.path.join(tmp_dir, "repo")
+    roms = os.path.join(tmp_dir, "roms")
+    device = os.path.join(tmp_dir, "device")
+    rom_path = os.path.join(roms, "Super Mario Bros.nes")
+    cover_path = os.path.join(roms, "Super Mario Bros.png")
+    _make_file(rom_path, b"rom")
+
+    from PIL import Image
+    os.makedirs(roms, exist_ok=True)
+    Image.new("RGB", (256, 256), color="red").save(cover_path, format="PNG")
+    os.makedirs(device, exist_ok=True)
+
+    config, store = _make_store(tmp_dir, repo_root)
+    profile = store.current_profile()
+    profile["games_library_path"] = roms
+    profile["device_mount_path"] = device
+    profile = store.save_profile(profile)
+
+    service = RockboxGameService()
+    deploy = RockboxDeployService()
+    games = service.list_games(profile, config=config)
+    bundle = service.build_sync_bundle(profile, games, "device")
+
+    assert any(
+        asset["destination_rel"] == ".rockbox/games/nes/games.tsv"
+        for asset in bundle["assets"]
+    )
+
+    diff = deploy.build_diff(service.deploy_profile(profile, "device"), bundle)
+    result = deploy.apply_diff(service.deploy_profile(profile, "device"), diff)
+
+    assert result["success"] is True
+    manifest_path = os.path.join(device, ".rockbox", "games", "nes", "games.tsv")
+    entries = service.parse_system_manifest(manifest_path)
+    assert entries[0]["title"] == "Super Mario Bros"
+    assert entries[0]["file_path"] == os.path.join(device, "gameboy", "Super Mario Bros.nes")
+    assert entries[0]["cover_path"] == os.path.join(device, "gameboy", "Super Mario Bros.bmp")
+
+
+def test_smsgg_game_sync_uses_plugin_launcher_entry(tmp_dir):
+    repo_root = os.path.join(tmp_dir, "repo")
+    roms = os.path.join(tmp_dir, "roms")
+    device = os.path.join(tmp_dir, "device")
+    rom_path = os.path.join(roms, "Sonic The Hedgehog 2 (World).gg")
+    cover_path = os.path.join(roms, "Sonic The Hedgehog 2 (World).png")
+    _make_file(rom_path, b"rom")
+
+    from PIL import Image
+    os.makedirs(roms, exist_ok=True)
+    Image.new("RGB", (256, 256), color="blue").save(cover_path, format="PNG")
+    _make_file(os.path.join(device, ".rockbox", "rocks", "games", "smsgg.rock"), b"plugin")
+
+    config, store = _make_store(tmp_dir, repo_root)
+    profile = store.current_profile()
+    profile["games_library_path"] = roms
+    profile["device_mount_path"] = device
+    profile = store.save_profile(profile)
+
+    service = RockboxGameService()
+    deploy = RockboxDeployService()
+    games = service.list_games(profile, config=config)
+    bundle = service.build_sync_bundle(profile, games, "device")
+
+    assert any(
+        asset["destination_rel"] == ".rockbox/games/smsgg/roms/Sonic The Hedgehog 2 (World).gg"
+        for asset in bundle["assets"]
+    )
+
+    diff = deploy.build_diff(service.deploy_profile(profile, "device"), bundle)
+    result = deploy.apply_diff(service.deploy_profile(profile, "device"), diff)
+
+    assert result["success"] is True
+    index_path = os.path.join(device, ".rockbox", "rocks", "games", "rockboy_launcher", "games.tsv")
+    entries = service.parse_launcher_index(index_path)
+    assert entries[0]["rom_path"] == os.path.join(device, ".rockbox", "rocks", "games", "smsgg.rock")
+    assert entries[0]["plugin_param"] == os.path.join(device, ".rockbox", "games", "smsgg", "roms", "Sonic The Hedgehog 2 (World).gg")
+    manifest_path = os.path.join(device, ".rockbox", "games", "smsgg", "games.tsv")
+    system_entries = service.parse_system_manifest(manifest_path)
+    assert system_entries[0]["title"] == "Sonic The Hedgehog 2 (World)"
+    assert system_entries[0]["file_path"] == os.path.join(device, ".rockbox", "games", "smsgg", "roms", "Sonic The Hedgehog 2 (World).gg")
+    assert system_entries[0]["cover_path"] == os.path.join(device, ".rockbox", "games", "smsgg", "roms", "Sonic The Hedgehog 2 (World).bmp")
+
+
+def test_gwatch_game_sync_uses_console_manifest_and_plugin_launcher_entry(tmp_dir):
+    repo_root = os.path.join(tmp_dir, "repo")
+    roms = os.path.join(tmp_dir, "roms")
+    device = os.path.join(tmp_dir, "device")
+    rom_path = os.path.join(roms, "Parachute (Nintendo, Wide Screen).mgw")
+    cover_path = os.path.join(roms, "Parachute (Nintendo, Wide Screen).png")
+    _make_file(rom_path, b"mgw")
+
+    from PIL import Image
+    os.makedirs(roms, exist_ok=True)
+    Image.new("RGB", (256, 256), color="white").save(cover_path, format="PNG")
+    _make_file(os.path.join(device, ".rockbox", "rocks", "games", "gwatch.rock"), b"plugin")
+
+    config, store = _make_store(tmp_dir, repo_root)
+    profile = store.current_profile()
+    profile["games_library_path"] = roms
+    profile["device_mount_path"] = device
+    profile = store.save_profile(profile)
+
+    service = RockboxGameService()
+    deploy = RockboxDeployService()
+    games = service.list_games(profile, config=config)
+    bundle = service.build_sync_bundle(profile, games, "device")
+
+    assert [game["filename"] for game in games] == ["Parachute (Nintendo, Wide Screen).mgw"]
+    assert any(
+        asset["destination_rel"] == ".rockbox/games/gwatch/roms/Parachute (Nintendo, Wide Screen).mgw"
+        for asset in bundle["assets"]
+    )
+    assert any(
+        asset["destination_rel"] == ".rockbox/games/gwatch/games.tsv"
+        for asset in bundle["assets"]
+    )
+
+    diff = deploy.build_diff(service.deploy_profile(profile, "device"), bundle)
+    result = deploy.apply_diff(service.deploy_profile(profile, "device"), diff)
+
+    assert result["success"] is True
+    index_path = os.path.join(device, ".rockbox", "rocks", "games", "rockboy_launcher", "games.tsv")
+    entries = service.parse_launcher_index(index_path)
+    assert entries[0]["rom_path"] == os.path.join(device, ".rockbox", "rocks", "games", "gwatch.rock")
+    assert entries[0]["plugin_param"] == os.path.join(device, ".rockbox", "games", "gwatch", "roms", "Parachute (Nintendo, Wide Screen).mgw")
+
+    manifest_path = os.path.join(device, ".rockbox", "games", "gwatch", "games.tsv")
+    system_entries = service.parse_system_manifest(manifest_path)
+    assert system_entries[0]["title"] == "Parachute (Nintendo, Wide Screen)"
+    assert system_entries[0]["file_path"] == os.path.join(device, ".rockbox", "games", "gwatch", "roms", "Parachute (Nintendo, Wide Screen).mgw")
+    assert system_entries[0]["cover_path"] == os.path.join(device, ".rockbox", "games", "gwatch", "roms", "Parachute (Nintendo, Wide Screen).bmp")
+
+
+def test_smsgg_game_remove_deletes_rom_cover_and_index_row(tmp_dir):
+    repo_root = os.path.join(tmp_dir, "repo")
+    roms = os.path.join(tmp_dir, "roms")
+    device = os.path.join(tmp_dir, "device")
+    rom_path = os.path.join(roms, "Columns.sms")
+    _make_file(rom_path, b"rom")
+    _make_file(os.path.join(device, ".rockbox", "rocks", "games", "smsgg.rock"), b"plugin")
+
+    _config, store = _make_store(tmp_dir, repo_root)
+    profile = store.current_profile()
+    profile["games_library_path"] = roms
+    profile["device_mount_path"] = device
+    profile = store.save_profile(profile)
+
+    service = RockboxGameService()
+    deploy = RockboxDeployService()
+    games = service.list_games(profile)
+    deploy_profile = service.deploy_profile(profile, "device")
+    deploy.apply_diff(deploy_profile, deploy.build_diff(deploy_profile, service.build_sync_bundle(profile, games, "device")))
+
+    assert os.path.isfile(os.path.join(device, ".rockbox", "games", "smsgg", "roms", "Columns.sms"))
+
+    remove_diff = deploy.build_diff(deploy_profile, service.build_remove_bundle(profile, games, "device"))
+    result = deploy.apply_diff(deploy_profile, remove_diff)
+
+    assert result["success"] is True
+    assert not os.path.exists(os.path.join(device, ".rockbox", "games", "smsgg", "roms", "Columns.sms"))
+    assert not os.path.exists(os.path.join(device, ".rockbox", "rocks", "games", "rockboy_launcher", "games.tsv"))
+    assert not os.path.exists(os.path.join(device, ".rockbox", "games", "smsgg", "games.tsv"))
+
+
+def test_launcher_config_bundle_controls_builtin_games(tmp_dir):
+    repo_root = os.path.join(tmp_dir, "repo")
+    device = os.path.join(tmp_dir, "device")
+    os.makedirs(device, exist_ok=True)
+
+    _config, store = _make_store(tmp_dir, repo_root)
+    profile = store.current_profile()
+    profile["device_mount_path"] = device
+    profile["games_show_builtin_doom"] = False
+    profile["games_show_builtin_stickrpg"] = True
+    profile["games_show_builtin_runescape"] = False
+    profile = store.save_profile(profile)
+
+    service = RockboxGameService()
+    deploy = RockboxDeployService()
+    bundle = service.build_launcher_config_bundle(profile, "device")
+    diff = deploy.build_diff(service.deploy_profile(profile, "device"), bundle)
+    result = deploy.apply_diff(service.deploy_profile(profile, "device"), diff)
+
+    assert result["success"] is True
+    with open(os.path.join(device, ".rockbox", "rocks", "games", "rockboy_launcher", "config.cfg"), "r", encoding="utf-8") as handle:
+        text = handle.read()
+    assert "show_builtin_doom=0" in text
+    assert "show_builtin_stickrpg=1" in text
+    assert "show_builtin_runescape=0" in text
 
 
 def test_game_performance_and_cover_optimization_report(tmp_dir):

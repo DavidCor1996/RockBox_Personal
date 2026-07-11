@@ -28,10 +28,11 @@ endif
 endif
 PLUGIN_CXX ?= $(PLUGIN_CXX_BASE)
 ifeq ($(PLUGIN_CXX_BASE),arm-none-eabi-g++)
+PLUGIN_CXX_INCLUDE := $(lastword $(sort $(wildcard /usr/arm-none-eabi/include/c++/*)))
 PLUGIN_CXX += -nostdinc \
-	-isystem /usr/arm-none-eabi/include/c++/14.2.0 \
-	-isystem /usr/arm-none-eabi/include/c++/14.2.0/arm-none-eabi \
-	-isystem /usr/arm-none-eabi/include/c++/14.2.0/backward \
+	-isystem $(PLUGIN_CXX_INCLUDE) \
+	-isystem $(PLUGIN_CXX_INCLUDE)/arm-none-eabi \
+	-isystem $(PLUGIN_CXX_INCLUDE)/backward \
 	-isystem /usr/local/lib/gcc/arm-elf-eabi/9.5.0/include \
 	-isystem /usr/local/lib/gcc/arm-elf-eabi/9.5.0/include-fixed
 endif

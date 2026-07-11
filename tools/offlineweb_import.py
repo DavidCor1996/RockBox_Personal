@@ -32,8 +32,16 @@ ASSET_EXTS = {
     ".xm",
     ".s3m",
     ".it",
+    ".css",
+    ".js",
+    ".ico",
+    ".svg",
+    ".webp",
+    ".woff",
+    ".woff2",
+    ".ttf",
 }
-SOURCE_NAMES = ("geocities", "angelfire", "tripod", "yahoo", "archive")
+SOURCE_NAMES = ("geocities", "angelfire", "tripod", "yahoo", "myspace", "archive")
 GEOCITIES_NEIGHBORHOODS = (
     "Area51",
     "Hollywood",
@@ -89,9 +97,17 @@ def clean_field(value: str, fallback: str = "Unknown") -> str:
 def classify(path: Path) -> tuple[str, str]:
     parts_lower = [p.lower() for p in path.parts]
     source = "Archive"
+    source_map = {
+        "geocities": "GeoCities",
+        "angelfire": "Angelfire",
+        "tripod": "Tripod",
+        "yahoo": "Yahoo",
+        "myspace": "MySpace",
+        "archive": "Archive",
+    }
     for name in SOURCE_NAMES:
         if name in parts_lower or any(name in p for p in parts_lower):
-            source = "GeoCities" if name == "geocities" else name.title()
+            source = source_map.get(name, name.title())
             break
 
     neighborhood = "Unknown"
@@ -128,12 +144,18 @@ def safe_rel(path: Path, root: Path) -> Path:
 
 
 def url_for(path: Path, root: Path, source: str) -> str:
-    rel = path.relative_to(root).as_posix()
+    rel_path = path.relative_to(root)
+    rel = rel_path.as_posix()
+    host_segment = rel_path.parts[0] if rel_path.parts else ""
+    if re.fullmatch(r"[A-Za-z0-9.-]+\.[A-Za-z]{2,}", host_segment):
+        tail = "/".join(rel_path.parts[1:])
+        return f"http://{host_segment}/{tail}" if tail else f"http://{host_segment}/"
     host = {
         "GeoCities": "www.geocities.com",
         "Angelfire": "www.angelfire.com",
         "Tripod": "members.tripod.com",
         "Yahoo": "www.yahoo.com",
+        "MySpace": "myspace.com",
     }.get(source, "offline.archive")
     return f"http://{host}/{rel}"
 
@@ -189,7 +211,12 @@ def import_archive(source: Path, ipod_root: Path) -> None:
 
     html_files = copy_tree(source, offline / "archive")
     rows: list[tuple[str, str, str, str, str, str, str, str]] = []
+    seen_urls: set[str] = set()
+    seen_paths: set[str] = set()
     for path in sorted(html_files):
+        rel_archive = path.relative_to(offline / "archive").as_posix()
+        if ".rockbox/offlineweb/archive/" in rel_archive:
+            continue
         meta = read_metadata(path)
         source_name, neighborhood = classify(path)
         title = clean_field(" ".join(meta.title_parts), path.stem)
@@ -198,6 +225,12 @@ def import_archive(source: Path, ipod_root: Path) -> None:
         archived = archive_date(path)
         url = url_for(path, offline / "archive", source_name)
         device_path = "/" + path.relative_to(ipod_root).as_posix()
+        url_key = url.lower()
+        path_key = device_path.lower()
+        if url_key in seen_urls or path_key in seen_paths:
+            continue
+        seen_urls.add(url_key)
+        seen_paths.add(path_key)
         rows.append((title, url, device_path, source_name, neighborhood, author, archived, keywords))
 
     with (cache / "pages.tsv").open("w", encoding="utf-8", newline="\n") as out:

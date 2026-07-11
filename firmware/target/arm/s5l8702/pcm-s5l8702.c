@@ -228,13 +228,13 @@ void pcm_play_dma_stop(void)
     ipodnano3g_audio_output_stop();
 #endif
 
-    /* gate I2S clock to save power when idle */
-    I2SCLKCON = 0;
-    PWRCON(1) |= (1 << 7);
-
-#if defined(HAVE_CS42L55)
-    audiohw_idle_powerdown();
-#endif
+    /*
+     * Keep I2S/MCLK and CS42L55 awake across normal playback idle.  The
+     * mixer stops PCM after a few seconds of paused playback; gating clocks
+     * or putting PDN_CODEC back here can wedge real iPod 6G hardware during
+     * the paused Now Playing idle window.  Full shutdown still closes the
+     * codec through audiohw_close().
+     */
 }
 
 /* MCLK = 12MHz (MCLKDIV2=1), [CS42L55 DS, s4.8] */

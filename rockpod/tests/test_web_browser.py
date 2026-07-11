@@ -304,6 +304,24 @@ def test_browser_panel_browser_only_mode_can_show_downloads():
     assert panel._web_frame is not None
 
 
+def test_browser_panel_website_sync_bar_emits_urls():
+    QApplication.instance() or QApplication([])
+    panel = BrowserPanel(
+        music_store=False,
+        title="iPod Games",
+        web_title="iPod Games Browser",
+        enable_website_sync=True,
+    )
+    emitted = []
+    panel.website_sync_requested.connect(emitted.append)
+
+    assert not panel._website_sync_bar.isHidden()
+    panel._website_sync_edit.setText("example.com, https://private.example/")
+    panel._website_sync_btn.click()
+
+    assert emitted == ["example.com, https://private.example/"]
+
+
 def test_browser_panel_music_store_does_not_embed_web_store():
     QApplication.instance() or QApplication([])
     panel = BrowserPanel()

@@ -790,24 +790,24 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0xb189b
+.debug_info     0x0000000000000000    0xb1c3b
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x8ecd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/main.o
- .debug_info    0x0000000000008ecd     0x9502 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_assets.o
- .debug_info    0x00000000000123cf     0x78b0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_catch.o
- .debug_info    0x0000000000019c7f     0x7d41 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_input.o
- .debug_info    0x00000000000219c0     0x7c64 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_physics.o
- .debug_info    0x0000000000029624     0xde37 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_render.o
- .debug_info    0x000000000003745b     0x84c8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_state.o
- .debug_info    0x000000000003f923    0x28ed6 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world.o
- .debug_info    0x00000000000687f9     0x766c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world_input.o
- .debug_info    0x000000000006fe65    0x11ad6 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world_render.o
- .debug_info    0x000000000008193b     0x7d5b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
- .debug_info    0x0000000000089696     0x830f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_draw.o)
- .debug_info    0x00000000000919a5     0x8aaf /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_bmp.o)
- .debug_info    0x000000000009a454     0x778b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
- .debug_info    0x00000000000a1bdf     0x870f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_resize.o)
- .debug_info    0x00000000000aa2ee     0x75ad /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_core.o)
+ .debug_info    0x0000000000000000     0x8f07 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/main.o
+ .debug_info    0x0000000000008f07     0x953c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_assets.o
+ .debug_info    0x0000000000012443     0x78ea /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_catch.o
+ .debug_info    0x0000000000019d2d     0x7d7b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_input.o
+ .debug_info    0x0000000000021aa8     0x7c9e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_physics.o
+ .debug_info    0x0000000000029746     0xde71 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_render.o
+ .debug_info    0x00000000000375b7     0x8502 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_state.o
+ .debug_info    0x000000000003fab9    0x28f10 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world.o
+ .debug_info    0x00000000000689c9     0x76a6 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world_input.o
+ .debug_info    0x000000000007006f    0x11b10 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world_render.o
+ .debug_info    0x0000000000081b7f     0x7d95 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+ .debug_info    0x0000000000089914     0x8349 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_draw.o)
+ .debug_info    0x0000000000091c5d     0x8ae9 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_bmp.o)
+ .debug_info    0x000000000009a746     0x77c5 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+ .debug_info    0x00000000000a1f0b     0x8749 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_resize.o)
+ .debug_info    0x00000000000aa654     0x75e7 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_core.o)
 
 .debug_abbrev   0x0000000000000000     0x4e8b
  *(.debug_abbrev)
@@ -850,40 +850,40 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x9fc1
+.debug_str      0x0000000000000000     0xa006
  *(.debug_str)
- .debug_str     0x0000000000000000     0x9fc1 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/main.o
-                                       0x65cf (size before relaxing)
- .debug_str     0x0000000000009fc1        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_assets.o
-                                       0x5803 (size before relaxing)
- .debug_str     0x0000000000009fc1        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_catch.o
-                                       0x4ba0 (size before relaxing)
- .debug_str     0x0000000000009fc1        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_input.o
-                                       0x4b91 (size before relaxing)
- .debug_str     0x0000000000009fc1        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_physics.o
-                                       0x4c5b (size before relaxing)
- .debug_str     0x0000000000009fc1        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_render.o
-                                       0x54e5 (size before relaxing)
- .debug_str     0x0000000000009fc1        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_state.o
-                                       0x50b5 (size before relaxing)
- .debug_str     0x0000000000009fc1        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world.o
-                                       0x832f (size before relaxing)
- .debug_str     0x0000000000009fc1        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world_input.o
-                                       0x498d (size before relaxing)
- .debug_str     0x0000000000009fc1        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world_render.o
-                                       0x6f47 (size before relaxing)
- .debug_str     0x0000000000009fc1        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
-                                       0x5249 (size before relaxing)
- .debug_str     0x0000000000009fc1        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_draw.o)
-                                       0x4aaf (size before relaxing)
- .debug_str     0x0000000000009fc1        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_bmp.o)
-                                       0x53ca (size before relaxing)
- .debug_str     0x0000000000009fc1        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
-                                       0x48f0 (size before relaxing)
- .debug_str     0x0000000000009fc1        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_resize.o)
-                                       0x52af (size before relaxing)
- .debug_str     0x0000000000009fc1        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_core.o)
-                                       0x4903 (size before relaxing)
+ .debug_str     0x0000000000000000     0xa006 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/main.o
+                                       0x6614 (size before relaxing)
+ .debug_str     0x000000000000a006        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_assets.o
+                                       0x5848 (size before relaxing)
+ .debug_str     0x000000000000a006        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_catch.o
+                                       0x4be5 (size before relaxing)
+ .debug_str     0x000000000000a006        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_input.o
+                                       0x4bd6 (size before relaxing)
+ .debug_str     0x000000000000a006        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_physics.o
+                                       0x4ca0 (size before relaxing)
+ .debug_str     0x000000000000a006        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_render.o
+                                       0x552a (size before relaxing)
+ .debug_str     0x000000000000a006        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_state.o
+                                       0x50fa (size before relaxing)
+ .debug_str     0x000000000000a006        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world.o
+                                       0x8374 (size before relaxing)
+ .debug_str     0x000000000000a006        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world_input.o
+                                       0x49d2 (size before relaxing)
+ .debug_str     0x000000000000a006        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world_render.o
+                                       0x6f8c (size before relaxing)
+ .debug_str     0x000000000000a006        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+                                       0x528e (size before relaxing)
+ .debug_str     0x000000000000a006        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_draw.o)
+                                       0x4af4 (size before relaxing)
+ .debug_str     0x000000000000a006        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_bmp.o)
+                                       0x540f (size before relaxing)
+ .debug_str     0x000000000000a006        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+                                       0x4935 (size before relaxing)
+ .debug_str     0x000000000000a006        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_resize.o)
+                                       0x52f4 (size before relaxing)
+ .debug_str     0x000000000000a006        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_core.o)
+                                       0x4948 (size before relaxing)
 
 .debug_loc
  *(.debug_loc)

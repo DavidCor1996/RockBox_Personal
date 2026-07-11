@@ -67,8 +67,13 @@ bool ipod_engine_acquire_memory(struct ipod_engine_memory *memory)
     memory->shared_acquired = memory->shared != NULL;
 
     if (memory->plugin && memory->plugin_size > 0 &&
-        memory->shared && memory->shared_size > 0)
+        memory->shared && memory->shared_size > 0) {
+#ifdef HAVE_ADJUSTABLE_CPU_FREQ
+        rb->cpu_boost(true);
+        memory->cpu_boosted = true;
+#endif
         return true;
+    }
 
     ipod_engine_release_memory(memory);
     return false;
@@ -81,6 +86,11 @@ void ipod_engine_release_memory(struct ipod_engine_memory *memory)
 
     if (memory->shared_acquired)
         rb->plugin_release_audio_buffer();
+
+#ifdef HAVE_ADJUSTABLE_CPU_FREQ
+    if (memory->cpu_boosted)
+        rb->cpu_boost(false);
+#endif
 
     ipod_engine_memory_init(memory);
 }

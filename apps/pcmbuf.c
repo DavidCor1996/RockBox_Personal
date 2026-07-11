@@ -857,11 +857,6 @@ void pcmbuf_play_stop(void)
     /* Reset channel */
     mixer_channel_stop(PCM_MIXER_CHAN_PLAYBACK);
 
-#if defined(HAVE_CS42L55) && !defined(SIMULATOR)
-    /* Power down codec DAC after I2S/DMA has stopped */
-    audiohw_idle_powerdown();
-#endif
-
     /* Reset buffer */
     init_buffer_state();
 

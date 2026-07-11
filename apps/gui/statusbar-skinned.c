@@ -85,13 +85,19 @@ static char sb_ipone_video_stream_path[MAX_PATH];
 static long sb_ipone_video_missing_retry_until;
 static char sb_ipone_video_missing_path[MAX_PATH];
 static long sb_ipone_video_idle_free_tick;
+static char sb_ipone_video_path_sbs_cache[MAX_PATH];
+static char sb_ipone_video_path_cache[MAX_PATH];
+static bool sb_ipone_video_path_valid;
 
-static bool sb_ipone_right_pane_hold_settled(void)
+static bool sb_ipone_right_pane_hold_blocked(void)
 {
 #ifdef HAS_BUTTON_HOLD
     static bool initialized;
     static bool last_hold;
     static long unblock_tick;
+    static long storm_window_start;
+    static int storm_toggle_count;
+    static long storm_until;
     bool hold = button_hold();
 
     if (!initialized)
@@ -103,13 +109,33 @@ static bool sb_ipone_right_pane_hold_settled(void)
     {
         last_hold = hold;
         unblock_tick = current_tick + HZ / 5;
+
+        if (!storm_window_start ||
+            TIME_AFTER(current_tick, storm_window_start + HZ))
+        {
+            storm_window_start = current_tick;
+            storm_toggle_count = 1;
+        }
+        else
+        {
+            storm_toggle_count++;
+            if (storm_toggle_count >= 4)
+            {
+                storm_until = current_tick + HZ * 2;
+                storm_window_start = 0;
+                storm_toggle_count = 0;
+            }
+        }
     }
 
-    if (TIME_BEFORE(current_tick, unblock_tick))
-        return false;
+    if (hold || TIME_BEFORE(current_tick, unblock_tick) ||
+        TIME_BEFORE(current_tick, storm_until))
+    {
+        return true;
+    }
 #endif
 
-    return true;
+    return false;
 }
 
 static bool sb_ipone_right_pane_can_draw(void)
@@ -143,7 +169,7 @@ static bool sb_ipone_right_pane_slideshow_eligible(enum screen_type screen)
         global_settings.ipone_right_pane != 1 ||
         !sb_ipone_right_pane_theme_compatible() ||
         !sb_ipone_right_pane_can_draw() ||
-        !sb_ipone_right_pane_hold_settled())
+        sb_ipone_right_pane_hold_blocked())
     {
         return false;
     }
@@ -162,7 +188,7 @@ static bool sb_ipone_right_pane_video_eligible(enum screen_type screen)
         global_settings.ipone_right_pane != 0 ||
         !sb_ipone_right_pane_theme_compatible() ||
         !sb_ipone_right_pane_can_draw() ||
-        !sb_ipone_right_pane_hold_settled())
+        sb_ipone_right_pane_hold_blocked())
     {
         return false;
     }
@@ -250,21 +276,41 @@ static bool sb_ipone_video_path(char *path, size_t path_size)
     const char *sbs_file = (const char *)global_settings.sbs_file;
     const char *base;
 
-    if (!sbs_file ||
-        (!strstr(sbs_file, "iPoneDesigner-") &&
-         !strstr(sbs_file, "iPoneD-") &&
-         !strstr(sbs_file, "iPD-")))
+    if (!sbs_file)
         return false;
 
-    base = strrchr(sbs_file, '/');
-    strmemccpy(name, base ? base + 1 : sbs_file, sizeof(name));
-    char *ext = strrchr(name, '.');
-    if (!ext || strcmp(ext, ".sbs"))
-        return false;
-    *ext = '\0';
+    if (strcmp(sbs_file, sb_ipone_video_path_sbs_cache))
+    {
+        char *ext;
 
-    snprintf(path, path_size, "/.rockbox/wps/%s/RightPaneVideo.rbvp", name);
-    return true;
+        strmemccpy(sb_ipone_video_path_sbs_cache, sbs_file,
+                   sizeof(sb_ipone_video_path_sbs_cache));
+        sb_ipone_video_path_valid = false;
+
+        if (!strstr(sbs_file, "iPoneDesigner-") &&
+            !strstr(sbs_file, "iPoneD-") &&
+            !strstr(sbs_file, "iPD-"))
+        {
+            return false;
+        }
+
+        base = strrchr(sbs_file, '/');
+        strmemccpy(name, base ? base + 1 : sbs_file, sizeof(name));
+        ext = strrchr(name, '.');
+        if (!ext || strcmp(ext, ".sbs"))
+            return false;
+        *ext = '\0';
+
+        snprintf(sb_ipone_video_path_cache, sizeof(sb_ipone_video_path_cache),
+                 "/.rockbox/wps/%s/RightPaneVideo.rbvp", name);
+        sb_ipone_video_path_valid = true;
+    }
+
+    if (!sb_ipone_video_path_valid)
+        return false;
+
+    strmemccpy(path, sb_ipone_video_path_cache, path_size);
+    return path[0] != '\0';
 }
 
 static bool sb_ipone_video_load_frame(const char *path, int frame)
@@ -400,10 +446,30 @@ static bool sb_ipone_update_right_pane_video(enum screen_type screen, bool force
     return drawn;
 }
 
+static bool sb_ipone_update_right_pane_slideshow(enum screen_type screen,
+                                                 bool force);
+
+static bool sb_ipone_update_right_pane(enum screen_type screen, bool force)
+{
+    if (screen == SCREEN_MAIN && sb_ipone_right_pane_hold_blocked())
+    {
+        albumlist_slideshow_set_paused(true);
+        sb_ipone_video_release_cache();
+        return false;
+    }
+
+    if (global_settings.ipone_right_pane == 0)
+        return sb_ipone_update_right_pane_video(screen, force);
+
+    sb_ipone_video_release_cache();
+    return sb_ipone_update_right_pane_slideshow(screen, force);
+}
+
 static bool sb_ipone_right_pane_slideshow_paused_by_hold(enum screen_type screen)
 {
 #ifdef HAS_BUTTON_HOLD
-    return sb_ipone_right_pane_slideshow_eligible(screen) && button_hold();
+    (void)screen;
+    return sb_ipone_right_pane_hold_blocked();
 #else
     (void)screen;
     return false;
@@ -456,6 +522,16 @@ static bool sb_ipone_update_right_pane_slideshow(enum screen_type screen,
 static void sb_ipone_right_pane_track_active_state(enum screen_type screen,
                                                    bool *force)
 {
+    if (global_settings.ipone_right_pane != 1)
+    {
+        if (sb_ipone_slideshow_was_active[screen])
+        {
+            sb_ipone_slideshow_was_active[screen] = false;
+            *force = true;
+        }
+        return;
+    }
+
     albumlist_slideshow_set_paused(
         sb_ipone_right_pane_slideshow_paused_by_hold(screen));
 
@@ -718,6 +794,8 @@ void sb_skin_update(enum screen_type screen, bool force)
 #if (defined(IPOD_VIDEO) || defined(IPOD_6G)) && defined(HAVE_LCD_COLOR)
     sb_ipone_right_pane_track_active_state(screen, &force);
 #endif
+    bool refreshed_skin = false;
+
     if (TIME_AFTER(current_tick, next_update[i]) || force || force_waiting)
     {
         force_waiting = false;
@@ -730,10 +808,10 @@ void sb_skin_update(enum screen_type screen, bool force)
             if (force)
                 skin_request_full_update(CUSTOM_STATUSBAR);
             skin_update(CUSTOM_STATUSBAR, screen, SKIN_REFRESH_NON_STATIC);
+            refreshed_skin = true;
 
 #if (defined(IPOD_VIDEO) || defined(IPOD_6G)) && defined(HAVE_LCD_COLOR)
-            sb_ipone_update_right_pane_video(screen, true);
-            sb_ipone_update_right_pane_slideshow(screen, true);
+            sb_ipone_update_right_pane(screen, true);
 #endif
 
 #if CONFIG_KEYPAD == IPOD_3G_PAD
@@ -774,12 +852,13 @@ void sb_skin_update(enum screen_type screen, bool force)
         next_update[i] = current_tick + update_delay; /* don't update too often */
     }
 #if (defined(IPOD_VIDEO) || defined(IPOD_6G)) && defined(HAVE_LCD_COLOR)
+    if (refreshed_skin)
+        return;
 #if defined(HAVE_LCD_ENABLE) || defined(HAVE_LCD_SLEEP)
     if (lcd_active() || (i != SCREEN_MAIN))
 #endif
     {
-        sb_ipone_update_right_pane_video(screen, false);
-        sb_ipone_update_right_pane_slideshow(screen, false);
+        sb_ipone_update_right_pane(screen, false);
     }
 #endif
 }

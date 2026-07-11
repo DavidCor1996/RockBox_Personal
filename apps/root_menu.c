@@ -42,11 +42,11 @@
 #include "sound.h"
 #include "talk.h"
 #include "audio.h"
+#include "storage.h"
 #include "shortcuts.h"
 #include "version.h"
 
 #ifdef HAVE_HOTSWAP
-#include "storage.h"
 #include "mv.h"
 #endif
 /* gui api */
@@ -67,6 +67,8 @@
 #include "recording.h"
 #endif
 #include "wps.h"
+#include "skin_engine/skin_engine.h"
+#include "gui/ipodjs_ui.h"
 #include "bookmark.h"
 #include "playlist.h"
 #include "playlist_viewer.h"
@@ -2426,6 +2428,98 @@ static int launch_weather_plugin(void *param)
     return GO_TO_ROOT;
 }
 
+static int launch_tamagotchi_plugin(void *param)
+{
+    (void)param;
+    char path[MAX_PATH];
+    static const char *paths[] = {
+        PLUGIN_APPS_DIR "/tamagotchi.rock",
+        PLUGIN_DIR "/apps/tamagotchi.rock",
+        ROCKBOX_DIR "/rocks/apps/tamagotchi.rock",
+    };
+
+    for (size_t i = 0; i < sizeof(paths) / sizeof(paths[0]); i++)
+    {
+        strcpy(path, paths[i]);
+        if (file_exists(path))
+            return load_plugin_path_screen(path, NULL);
+    }
+
+    splash(HZ, "Tamagotchi plugin missing\nInstall to .rockbox/rocks/apps/tamagotchi.rock");
+    return GO_TO_ROOT;
+}
+
+MENUITEM_FUNCTION(tamagotchi_item, MENU_FUNC_CHECK_RETVAL,
+                  "Tamagotchi", launch_tamagotchi_plugin,
+                  NULL, Icon_Plugin);
+
+static int launch_clock_plugin(void *param)
+{
+    (void)param;
+    char path[MAX_PATH];
+    static const char *paths[] = {
+        PLUGIN_APPS_DIR "/clock.rock",
+        PLUGIN_DIR "/apps/clock.rock",
+        ROCKBOX_DIR "/rocks/apps/clock.rock",
+    };
+
+    for (size_t i = 0; i < sizeof(paths) / sizeof(paths[0]); i++)
+    {
+        strcpy(path, paths[i]);
+        if (file_exists(path))
+            return load_plugin_path_screen(path, NULL);
+    }
+
+    splash(HZ, "Clock plugin missing\nInstall to .rockbox/rocks/apps/clock.rock");
+    return GO_TO_ROOT;
+}
+
+static int launch_stopwatch_plugin(void *param)
+{
+    (void)param;
+    char path[MAX_PATH];
+    static const char *paths[] = {
+        PLUGIN_APPS_DIR "/stopwatch.rock",
+        PLUGIN_DIR "/apps/stopwatch.rock",
+        ROCKBOX_DIR "/rocks/apps/stopwatch.rock",
+    };
+
+    for (size_t i = 0; i < sizeof(paths) / sizeof(paths[0]); i++)
+    {
+        strcpy(path, paths[i]);
+        if (file_exists(path))
+            return load_plugin_path_screen(path, NULL);
+    }
+
+    splash(HZ, "Stopwatch plugin missing\nInstall to .rockbox/rocks/apps/stopwatch.rock");
+    return GO_TO_ROOT;
+}
+
+static int launch_alarmclock_plugin(void *param)
+{
+    (void)param;
+    char path[MAX_PATH];
+    static const char *paths[] = {
+        PLUGIN_APPS_DIR "/alarmclock.rock",
+        PLUGIN_DIR "/apps/alarmclock.rock",
+        ROCKBOX_DIR "/rocks/apps/alarmclock.rock",
+    };
+
+    for (size_t i = 0; i < sizeof(paths) / sizeof(paths[0]); i++)
+    {
+        strcpy(path, paths[i]);
+        if (file_exists(path))
+            return load_plugin_path_screen(path, NULL);
+    }
+
+    splash(HZ, "Alarm Clock plugin missing\nInstall to .rockbox/rocks/apps/alarmclock.rock");
+    return GO_TO_ROOT;
+}
+
+MENUITEM_FUNCTION(clock_item, MENU_FUNC_CHECK_RETVAL,
+                  "Clock", launch_clock_plugin,
+                  NULL, Icon_Plugin);
+
 static int launch_lrcplayer_plugin(void *param)
 {
     (void)param;
@@ -2459,7 +2553,8 @@ static int launch_pokemini(void *param);
                   "Maps", launch_maps_plugin,
                   NULL, Icon_Folder);
     MAKE_MENU(applications_menu, "Extras", NULL, Icon_Plugin,
-          &maps_item, &weather_item);
+          &clock_item, &tamagotchi_item, &maps_item, &weather_item,
+          &offlineweb_item);
 
 static const struct browse_folder_info gameboy_folder = {"/gameboy/", SHOW_ALL};
 static const struct browse_folder_info pokemini_folder = {"/PokeMini/", SHOW_ALL};
@@ -2732,6 +2827,18 @@ static int launch_runescape_classic(void* param)
                                    NULL);
 }
 
+static int launch_smsgg(void* param)
+{
+    (void)param;
+    if (!file_exists(PLUGIN_GAMES_DIR "/smsgg.rock"))
+    {
+        splash(HZ, "SMSGG not installed");
+        return GO_TO_ROOT;
+    }
+
+    return load_plugin_path_screen(PLUGIN_GAMES_DIR "/smsgg.rock", NULL);
+}
+
 static int browse_pokemini_roms(void* param)
 {
     (void)param;
@@ -2756,6 +2863,9 @@ MENUITEM_FUNCTION(wwe_backstage_item, MENU_FUNC_CHECK_RETVAL,
 MENUITEM_FUNCTION(runescape_classic_item, MENU_FUNC_CHECK_RETVAL,
                   "RuneScape Classic", launch_runescape_classic,
                   NULL, Icon_Plugin);
+MENUITEM_FUNCTION(smsgg_item, MENU_FUNC_CHECK_RETVAL,
+                  "Sega Master System / Game Gear", launch_smsgg,
+                  NULL, Icon_Plugin);
 MENUITEM_FUNCTION(infones_sound_item, MENU_FUNC_CHECK_RETVAL,
                   "Toggle NES Sound", infones_toggle_sound,
                   NULL, Icon_NOICON);
@@ -2770,7 +2880,7 @@ MENUITEM_FUNCTION(infones_clear_saves_item, MENU_FUNC_CHECK_RETVAL,
                   NULL, Icon_NOICON);
 MAKE_MENU(gameboy_context_menu, "Games", NULL, Icon_NOICON,
           &club_penguin_item, &runescape_classic_item, &wwe_backstage_item,
-          &stickrpg_item,
+          &stickrpg_item, &smsgg_item,
           &gameboy_coverflow_item,
           &gameboy_files_item,
           &infones_sound_item, &infones_autosave_item,
@@ -3665,8 +3775,6 @@ static int root_menu_nano2g_dashboard(int *selectedp)
 #define IPODJS_HEADER_MID       LCD_RGBPACK(216, 219, 223)
 #define IPODJS_HEADER_BOTTOM    LCD_RGBPACK(174, 178, 183)
 #define IPODJS_HEADER_BORDER    LCD_RGBPACK(126, 134, 143)
-#define IPODJS_SCREEN_BG        LCD_RGBPACK(255, 255, 255)
-#define IPODJS_TEXT             LCD_RGBPACK(0, 0, 0)
 #define IPODJS_PREVIEW_TEXT     LCD_RGBPACK(255, 255, 255)
 #define IPODJS_PREVIEW_TOP      LCD_RGBPACK(185, 192, 202)
 #define IPODJS_PREVIEW_MID      LCD_RGBPACK(130, 138, 151)
@@ -3676,17 +3784,7 @@ static int root_menu_nano2g_dashboard(int *selectedp)
 #define IPODJS_LOCK_BOTTOM      LCD_RGBPACK(116, 126, 140)
 #define IPODJS_ACTIVE_TOP       LCD_RGBPACK(107, 200, 254)
 #define IPODJS_ACTIVE_MID       LCD_RGBPACK(38, 146, 226)
-#define IPODJS_ACTIVE_BOTTOM    LCD_RGBPACK(0, 92, 192)
-#define IPODJS_GRAPHITE         LCD_RGBPACK(84, 90, 100)
-#define IPODJS_U2_RED           LCD_RGBPACK(182, 24, 35)
-#define IPODJS_TEAL             LCD_RGBPACK(0, 128, 132)
-#define IPODJS_GREEN            LCD_RGBPACK(55, 142, 64)
-#define IPODJS_GOLD             LCD_RGBPACK(184, 135, 38)
-#define IPODJS_ORANGE           LCD_RGBPACK(208, 104, 32)
-#define IPODJS_PURPLE           LCD_RGBPACK(113, 82, 170)
-#define IPODJS_PINK             LCD_RGBPACK(195, 72, 128)
 #define IPODJS_SPLIT            LCD_RGBPACK(210, 210, 210)
-#define IPODJS_MUTED_TEXT       LCD_RGBPACK(99, 101, 103)
 #define IPODJS_BATTERY_BORDER   LCD_RGBPACK(98, 98, 98)
 #define IPODJS_BATTERY_BG       LCD_RGBPACK(84, 88, 91)
 #define IPODJS_BATTERY_HEALTHY  LCD_RGBPACK(165, 224, 127)
@@ -3708,15 +3806,24 @@ static int root_menu_nano2g_dashboard(int *selectedp)
 #define IPODJS_STOCK_ART_SIZE   96
 #define IPODJS_PREVIEW_IMAGE_SIZE 320
 #define IPODJS_PREVIEW_IMAGE_CACHE 2
+/* A second static pane avoids re-decoding recent root-menu previews on 6G. */
+#if defined(IPOD_6G)
+#define IPODJS_MENU_PREVIEW_CACHE 2
+#else
+#define IPODJS_MENU_PREVIEW_CACHE 1
+#endif
 #define IPODJS_PREVIEW_MAX_ITEMS 64
 #define IPODJS_SLIDESHOW_DELAY  MAX(1, HZ / 12)
 #define IPODJS_SLIDESHOW_AUDIO_DELAY MAX(1, HZ / 10)
+#define IPODJS_PREVIEW_DECODE_INTERVAL (HZ / 6)
+#define IPODJS_PREVIEW_DECODE_BURST 2
 #define IPODJS_DB_AUTOLOAD_MARGIN 4
+#define IPODJS_DB_ALBUM_CACHE_TTL (HZ * 120)
 #define IPODJS_DB_PLAYPAUSE_DEBOUNCE MAX(1, HZ / 5)
 #define IPODJS_ASSET_DIR        ROCKBOX_DIR "/ipodjs"
 #define IPODJS_APPLE_ASSET_DIR  ROCKBOX_DIR "/ipodjs/apple"
 
-#if defined(LOGF_ENABLE)
+#if defined(LOGF_ENABLE) && defined(SIMULATOR)
 #define IPODJS_LOGF(...) logf(__VA_ARGS__)
 #else
 #define IPODJS_LOGF(...) do { } while (0)
@@ -3724,6 +3831,15 @@ static int root_menu_nano2g_dashboard(int *selectedp)
 
 static int root_menu_video_theme_depth;
 static long root_menu_video_last_playpause_tick;
+static long root_menu_video_hold_storm_until;
+static long root_menu_video_hold_storm_window_start;
+static int root_menu_video_hold_storm_toggles;
+static bool root_menu_video_hold_static_frame_valid;
+
+static bool root_menu_video_hold_storm_active(void)
+{
+    return TIME_BEFORE(current_tick, root_menu_video_hold_storm_until);
+}
 
 static int root_menu_video_count(void)
 {
@@ -3797,15 +3913,7 @@ static int root_menu_video_finish_native_screen(int ret)
 
 static int root_menu_video_row_height(void)
 {
-    int row_h = global_settings.ui_engine_density == UI_ENGINE_DENSITY_COMPACT ?
-        20 : 24;
-
-    if (global_settings.ui_engine_font_scale == UI_ENGINE_FONT_SMALL)
-        row_h -= 2;
-    else if (global_settings.ui_engine_font_scale == UI_ENGINE_FONT_LARGE)
-        row_h += 4;
-
-    return MAX(18, row_h);
+    return ipodjs_ui_row_height();
 }
 
 static int root_menu_video_visible_rows(int row_h)
@@ -3817,28 +3925,7 @@ static int root_menu_video_visible_rows(int row_h)
 
 static unsigned root_menu_video_accent(void)
 {
-    switch (global_settings.ui_engine_accent)
-    {
-        case UI_ENGINE_ACCENT_GRAPHITE:
-            return IPODJS_GRAPHITE;
-        case UI_ENGINE_ACCENT_U2:
-            return IPODJS_U2_RED;
-        case UI_ENGINE_ACCENT_TEAL:
-            return IPODJS_TEAL;
-        case UI_ENGINE_ACCENT_GREEN:
-            return IPODJS_GREEN;
-        case UI_ENGINE_ACCENT_GOLD:
-            return IPODJS_GOLD;
-        case UI_ENGINE_ACCENT_ORANGE:
-            return IPODJS_ORANGE;
-        case UI_ENGINE_ACCENT_PURPLE:
-            return IPODJS_PURPLE;
-        case UI_ENGINE_ACCENT_PINK:
-            return IPODJS_PINK;
-        case UI_ENGINE_ACCENT_BLUE:
-        default:
-            return IPODJS_ACTIVE_BOTTOM;
-    }
+    return ipodjs_ui_accent();
 }
 
 static const char *root_menu_video_accent_name(void)
@@ -3874,101 +3961,42 @@ static bool root_menu_video_dark(void)
 
 static unsigned root_menu_video_screen_bg(void)
 {
-    return root_menu_video_dark() ? LCD_RGBPACK(18, 20, 24) :
-                                    IPODJS_SCREEN_BG;
+    return ipodjs_ui_screen_bg();
 }
 
 static unsigned root_menu_video_row_bg(void)
 {
-    return root_menu_video_dark() ? LCD_RGBPACK(24, 27, 32) :
-                                    IPODJS_SCREEN_BG;
+    return ipodjs_ui_row_bg();
 }
 
 static unsigned root_menu_video_text(void)
 {
-    return root_menu_video_dark() ? LCD_RGBPACK(239, 242, 246) :
-                                    IPODJS_TEXT;
+    return ipodjs_ui_text();
 }
 
 static unsigned root_menu_video_muted_text(void)
 {
-    return root_menu_video_dark() ? LCD_RGBPACK(166, 173, 184) :
-                                    IPODJS_MUTED_TEXT;
+    return ipodjs_ui_muted_text();
 }
 
 static unsigned root_menu_video_header_text(void)
 {
-    return root_menu_video_dark() ? LCD_RGBPACK(246, 248, 250) :
-                                    IPODJS_TEXT;
+    return ipodjs_ui_header_text();
 }
 
 static unsigned root_menu_video_header_bg(void)
 {
-    return root_menu_video_dark() ? LCD_RGBPACK(24, 29, 38) :
-                                    IPODJS_HEADER_BOTTOM;
+    return ipodjs_ui_header_bg();
 }
 
 static int root_menu_video_font(void)
 {
-    static int small_font = -2;
-    static int normal_font = -2;
-    static int large_font = -2;
-    int *fontp;
-    const char *path;
-    const char *fallback_path;
-
-    if (global_settings.ui_engine_font_scale == UI_ENGINE_FONT_SMALL)
-    {
-        fontp = &small_font;
-        path = IPODJS_ASSET_DIR "/14-Adobe-Helvetica-Bold.fnt";
-        fallback_path = FONT_DIR "/14-Adobe-Helvetica-Bold.fnt";
-    }
-    else if (global_settings.ui_engine_font_scale == UI_ENGINE_FONT_LARGE)
-    {
-        fontp = &large_font;
-        path = IPODJS_ASSET_DIR "/18-Adobe-Helvetica-Bold.fnt";
-        fallback_path = FONT_DIR "/18-Adobe-Helvetica-Bold.fnt";
-    }
-    else
-    {
-        fontp = &normal_font;
-        path = IPODJS_ASSET_DIR "/16-Adobe-Helvetica-Bold.fnt";
-        fallback_path = FONT_DIR "/16-Adobe-Helvetica-Bold.fnt";
-    }
-
-    if (*fontp < 0)
-    {
-        if (file_exists(path))
-        {
-            int loaded = font_load(path);
-            if (loaded >= 0)
-            {
-                font_lock(loaded, true);
-                *fontp = loaded;
-            }
-        }
-
-        if (*fontp < 0 && file_exists(fallback_path))
-        {
-            int loaded = font_load(fallback_path);
-            if (loaded >= 0)
-            {
-                font_lock(loaded, true);
-                *fontp = loaded;
-            }
-        }
-    }
-
-    return *fontp >= 0 ? *fontp : FONT_SYSFIXED;
+    return ipodjs_ui_font();
 }
 
 static int root_menu_video_text_y_offset(void)
 {
-    if (global_settings.ui_engine_font_scale == UI_ENGINE_FONT_SMALL)
-        return -1;
-    if (global_settings.ui_engine_font_scale == UI_ENGINE_FONT_LARGE)
-        return 1;
-    return 0;
+    return ipodjs_ui_text_y_offset();
 }
 
 static int root_menu_video_lock_font(void)
@@ -3991,13 +4019,7 @@ static int root_menu_video_lock_font(void)
 
 static unsigned root_menu_video_panel(void)
 {
-    if (root_menu_video_dark())
-        return LCD_RGBPACK(24, 27, 32);
-    if (global_settings.ui_engine_surface == UI_ENGINE_SURFACE_TRANSPARENT)
-        return LCD_RGBPACK(248, 249, 250);
-    if (global_settings.ui_engine_surface == UI_ENGINE_SURFACE_SOFT)
-        return LCD_RGBPACK(236, 238, 241);
-    return IPODJS_SCREEN_BG;
+    return ipodjs_ui_panel();
 }
 
 static const char *root_menu_video_label(const struct menu_item_ex *item)
@@ -4100,38 +4122,21 @@ static unsigned root_menu_video_rgb_blend(int br, int bg, int bb,
                                           int fr, int fg, int fb,
                                           int alpha)
 {
-    alpha = MAX(0, MIN(alpha, 255));
-    return LCD_RGBPACK((br * (255 - alpha) + fr * alpha) / 255,
-                       (bg * (255 - alpha) + fg * alpha) / 255,
-                       (bb * (255 - alpha) + fb * alpha) / 255);
+    return ipodjs_ui_rgb_blend(br, bg, bb, fr, fg, fb, alpha);
 }
 
 static void root_menu_video_gradient(int x, int y, int w, int h,
                                      unsigned top, unsigned bottom)
 {
-#ifdef HAVE_LCD_COLOR
-    lcd_gradient_fillrect(x, y, w, h, top, bottom);
-#else
-    lcd_set_foreground(bottom);
-    lcd_fillrect(x, y, w, h);
-#endif
+    ipodjs_ui_gradient(&screens[SCREEN_MAIN], x, y, w, h, top, bottom);
 }
 
 static void root_menu_video_glass_gradient(int x, int y, int w, int h,
                                            unsigned top, unsigned mid,
                                            unsigned bottom)
 {
-    int upper;
-
-    if (h <= 1)
-    {
-        root_menu_video_gradient(x, y, w, h, top, bottom);
-        return;
-    }
-
-    upper = MAX(1, (h * 45) / 100);
-    root_menu_video_gradient(x, y, w, upper, top, mid);
-    root_menu_video_gradient(x, y + upper, w, h - upper, mid, bottom);
+    ipodjs_ui_glass_gradient(&screens[SCREEN_MAIN], x, y, w, h,
+                             top, mid, bottom);
 }
 
 static void root_menu_video_header_gradient(int x, int y, int w, int h)
@@ -4186,27 +4191,7 @@ static void root_menu_video_lock_gradient(int x, int y, int w, int h)
 
 static void root_menu_video_selection_gradient(int x, int y, int w, int h)
 {
-    unsigned accent = root_menu_video_accent();
-    unsigned top;
-    unsigned bottom;
-
-    if (global_settings.ui_engine_accent == UI_ENGINE_ACCENT_BLUE)
-    {
-        root_menu_video_glass_gradient(x, y, w, h, IPODJS_ACTIVE_TOP,
-                                       IPODJS_ACTIVE_MID,
-                                       IPODJS_ACTIVE_BOTTOM);
-        return;
-    }
-
-    top = root_menu_video_rgb_blend(FB_UNPACK_RED(accent),
-                                    FB_UNPACK_GREEN(accent),
-                                    FB_UNPACK_BLUE(accent),
-                                    255, 255, 255, 112);
-    bottom = root_menu_video_rgb_blend(FB_UNPACK_RED(accent),
-                                       FB_UNPACK_GREEN(accent),
-                                       FB_UNPACK_BLUE(accent),
-                                       0, 0, 0, 70);
-    root_menu_video_glass_gradient(x, y, w, h, top, accent, bottom);
+    ipodjs_ui_selection_gradient(&screens[SCREEN_MAIN], x, y, w, h, NULL);
 }
 
 static void root_menu_video_puts_fit(int x, int y, int width,
@@ -4620,31 +4605,6 @@ static void root_menu_video_draw_play_icon(int x, int y, bool paused)
         lcd_bmp(bm, x, y);
 }
 
-static void root_menu_video_draw_bolt_icon(int x, int y)
-{
-    lcd_set_foreground(LCD_RGBPACK(36, 36, 36));
-    lcd_hline(x + 12, x + 16, y + 1);
-    lcd_hline(x + 11, x + 15, y + 2);
-    lcd_hline(x + 10, x + 14, y + 3);
-    lcd_hline(x + 9, x + 13, y + 4);
-    lcd_hline(x + 8, x + 12, y + 5);
-    lcd_hline(x + 12, x + 16, y + 6);
-    lcd_hline(x + 11, x + 15, y + 7);
-    lcd_hline(x + 10, x + 14, y + 8);
-    lcd_hline(x + 9, x + 13, y + 9);
-}
-
-static void root_menu_video_draw_plug_icon(int x, int y)
-{
-    lcd_set_foreground(LCD_RGBPACK(36, 36, 36));
-    lcd_fillrect(x + 4, y + 5, 6, 2);
-    lcd_fillrect(x + 9, y + 3, 6, 6);
-    lcd_fillrect(x + 15, y + 3, 2, 2);
-    lcd_fillrect(x + 15, y + 7, 2, 2);
-    lcd_fillrect(x + 17, y + 4, 2, 1);
-    lcd_fillrect(x + 17, y + 8, 2, 1);
-}
-
 static void root_menu_video_draw_battery(int x, int y, int percent,
                                          bool charging)
 {
@@ -4706,54 +4666,7 @@ static void root_menu_video_draw_battery(int x, int y, int percent,
         lcd_fillrect(x + 24, y + 3, 3, 6);
     }
 
-    if (charging)
-    {
-        if (percent >= 100)
-            root_menu_video_draw_plug_icon(x, y);
-        else
-            root_menu_video_draw_bolt_icon(x, y);
-    }
-}
-
-static void root_menu_video_draw_album_card(int x, int y, int size,
-                                            unsigned accent,
-                                            const char *label,
-                                            bool skew)
-{
-    int i;
-
-    lcd_set_foreground(LCD_RGBPACK(235, 235, 235));
-    if (skew)
-    {
-        for (i = 0; i < size; i++)
-        {
-            int inset = i / 7;
-            lcd_hline(x + inset, x + size - 1, y + i);
-        }
-    }
-    else
-        lcd_fillrect(x, y, size, size);
-
-    lcd_set_foreground(LCD_RGBPACK(243, 243, 243));
-    lcd_drawrect(x, y, size, size);
-    root_menu_video_gradient(x + 4, y + 4, size - 8, size - 8,
-                             accent, LCD_RGBPACK(30, 34, 42));
-    lcd_set_foreground(IPODJS_PREVIEW_TEXT);
-    lcd_set_background(accent);
-    lcd_setfont(root_menu_video_font());
-    root_menu_video_puts_fit(x + 8, y + size / 2 - 6, size - 16,
-                             label, true);
-
-    if (global_settings.ui_engine_surface != UI_ENGINE_SURFACE_SOLID)
-    {
-        unsigned reflection = root_menu_video_rgb_blend(104, 110, 122,
-                                                       240, 240, 240, 55);
-        lcd_set_foreground(reflection);
-        lcd_fillrect(x + 8, y + size + 2, size - 16, 5);
-        lcd_set_foreground(root_menu_video_rgb_blend(104, 110, 122,
-                                                     240, 240, 240, 25));
-        lcd_fillrect(x + 12, y + size + 8, size - 24, 3);
-    }
+    (void)charging;
 }
 
 #ifdef HAVE_ALBUMART
@@ -5306,11 +5219,12 @@ static void root_menu_video_draw_album_thumb(const char *album,
         root_menu_video_gradient(x, y, size, size,
                                  LCD_RGBPACK(242, 243, 245),
                                  LCD_RGBPACK(213, 217, 222));
+        lcd_setfont(root_menu_video_font());
         lcd_set_foreground(active ? LCD_RGBPACK(245, 250, 255) :
-                                    LCD_RGBPACK(164, 169, 176));
-        lcd_drawrect(x + 5, y + 7, size - 10, size - 14);
-        lcd_drawline(x + 7, y + size - 9, x + size / 2, y + 9);
-        lcd_drawline(x + size / 2, y + 9, x + size - 7, y + size - 9);
+                                    LCD_RGBPACK(150, 156, 164));
+        lcd_set_background(LCD_RGBPACK(226, 229, 234));
+        root_menu_video_puts_fit(x + 3, y + size / 2 - 6, size - 6,
+                                 "Art", true);
     }
 
     lcd_set_foreground(active ? LCD_RGBPACK(235, 246, 255) :
@@ -5360,34 +5274,89 @@ static bool root_menu_video_draw_slanted_art(int x, int y, int size,
     (void)id3;
 #endif
 
-    root_menu_video_draw_album_card(x, y, size, accent, "iPod", true);
+    (void)x;
+    (void)y;
+    (void)size;
+    (void)accent;
     return false;
+}
+
+static bool root_menu_video_draw_slanted_cached_art(int x, int y, int size,
+                                                    unsigned accent)
+{
+#ifdef HAVE_ALBUMART
+    if (root_menu_video_wps_art_valid)
+    {
+        root_menu_video_draw_slanted_bitmap(&root_menu_video_wps_art_bm,
+                                            x, y, size);
+        return true;
+    }
+
+    struct bitmap *bm = root_menu_video_buffered_art();
+    if (!bm)
+        bm = root_menu_video_default_art();
+    if (bm)
+    {
+        root_menu_video_draw_slanted_bitmap(bm, x, y, size);
+        return true;
+    }
+#endif
+
+    (void)x;
+    (void)y;
+    (void)size;
+    (void)accent;
+    return false;
+}
+
+static bool root_menu_video_draw_slanted_resident_art(int x, int y, int size,
+                                                      unsigned accent)
+{
+#ifdef HAVE_ALBUMART
+    if (root_menu_video_wps_art_valid)
+    {
+        root_menu_video_draw_slanted_bitmap(&root_menu_video_wps_art_bm,
+                                            x, y, size);
+        return true;
+    }
+
+    struct bitmap *bm = root_menu_video_buffered_art();
+    if (!bm)
+        bm = root_menu_video_default_art();
+    if (bm)
+    {
+        root_menu_video_draw_slanted_bitmap(bm, x, y, size);
+        return true;
+    }
+#endif
+
+    (void)x;
+    (void)y;
+    (void)size;
+    (void)accent;
+    return false;
+}
+
+static bool root_menu_video_paused_locked(void)
+{
+    int status = audio_status();
+
+    return button_hold() &&
+           (status & AUDIO_STATUS_PLAY) &&
+           (status & AUDIO_STATUS_PAUSE);
+}
+
+static bool root_menu_video_paused_playback(void)
+{
+    int status = audio_status();
+
+    return (status & AUDIO_STATUS_PLAY) && (status & AUDIO_STATUS_PAUSE);
 }
 
 static void root_menu_video_puts_fit(int x, int y, int width,
                                      const char *text, bool center)
 {
-    char buf[64];
-    int w, h, len;
-
-    if (!text || !text[0])
-        return;
-
-    strmemccpy(buf, text, sizeof(buf));
-    len = strlen(buf);
-    lcd_getstringsize((const unsigned char *)buf, &w, &h);
-    while (len > 1 && w > width)
-    {
-        buf[--len] = '\0';
-        lcd_getstringsize((const unsigned char *)buf, &w, &h);
-    }
-
-    if (center && w < width)
-        x += (width - w) / 2;
-
-    lcd_set_drawmode(DRMODE_FG);
-    lcd_putsxy(x, y, (const unsigned char *)buf);
-    lcd_set_drawmode(DRMODE_SOLID);
+    ipodjs_ui_puts_fit(&screens[SCREEN_MAIN], x, y, width, text, center);
 }
 
 static void root_menu_video_duration(char *buf, size_t buf_size,
@@ -5607,16 +5576,34 @@ static char root_menu_video_preview_paths[IPODJS_PREVIEW_MAX_ITEMS][MAX_PATH];
 static struct root_menu_video_preview_slot
     root_menu_video_preview_slots[IPODJS_PREVIEW_IMAGE_CACHE];
 static int root_menu_video_preview_victim;
+static long root_menu_video_preview_decode_window_tick;
+static int root_menu_video_preview_decode_budget;
 static struct root_menu_video_preview_source_cache
     root_menu_video_preview_source_caches[IPODJS_PREVIEW_POKEMINI + 1];
 static struct root_menu_video_preview_failure
     root_menu_video_preview_failures[8];
-static struct bitmap root_menu_video_menu_preview_bm;
-static unsigned char root_menu_video_menu_preview_data[
-    BM_SIZE(174, LCD_HEIGHT, FORMAT_NATIVE, false)];
-static char root_menu_video_menu_preview_path[MAX_PATH];
-static int root_menu_video_menu_preview_dark = -1;
-static bool root_menu_video_menu_preview_valid;
+struct root_menu_video_menu_preview_slot {
+    bool valid;
+    unsigned long stamp;
+    int dark;
+    char path[MAX_PATH];
+    struct bitmap bm;
+    unsigned char data[BM_SIZE(174, LCD_HEIGHT, FORMAT_NATIVE, false)];
+};
+
+static struct root_menu_video_menu_preview_slot
+    root_menu_video_menu_preview_slots[IPODJS_MENU_PREVIEW_CACHE];
+static unsigned long root_menu_video_menu_preview_stamp;
+
+struct root_menu_video_menu_preview_failure {
+    bool valid;
+    int dark;
+    long retry_after;
+    char path[MAX_PATH];
+};
+
+static struct root_menu_video_menu_preview_failure
+    root_menu_video_menu_preview_failures[8];
 
 static const char *root_menu_video_preview_asset_name(const char *title)
 {
@@ -5632,6 +5619,9 @@ static const char *root_menu_video_preview_asset_name(const char *title)
         return "pokemini";
     if (!strcmp(title, "Stick RPG"))
         return "stickrpg";
+    if (!strcmp(title, "RuneScape Classic") ||
+        !strcmp(title, "Club Penguin"))
+        return "games";
     if (!strcmp(title, "Clock"))
         return "clock";
     if (!strcmp(title, "Applications"))
@@ -5639,6 +5629,8 @@ static const char *root_menu_video_preview_asset_name(const char *title)
     if (!strcmp(title, "Game Cover Flow"))
         return "games";
     if (!strcmp(title, "Browse ROM Files"))
+        return "games";
+    if (!strcmp(title, "Sega Master System / Game Gear"))
         return "games";
     if (!strncmp(title, "Toggle NES", 10))
         return "games";
@@ -5686,6 +5678,10 @@ root_menu_video_preview_source_for_title(const char *title)
         !strcmp(title, "Browse PokeMini ROMs"))
         return IPODJS_PREVIEW_POKEMINI;
     if (!strcmp(title, "Games") ||
+        !strcmp(title, "RuneScape Classic") ||
+        !strcmp(title, "Stick RPG") ||
+        !strcmp(title, "Club Penguin") ||
+        !strcmp(title, "Sega Master System / Game Gear") ||
         !strcmp(title, "Game Cover Flow") ||
         !strcmp(title, "Browse ROM Files"))
         return IPODJS_PREVIEW_GAMES;
@@ -5716,6 +5712,139 @@ static bool root_menu_video_preview_asset_top_aligned(const char *title)
     return false;
 }
 
+static bool root_menu_video_menu_preview_recent_failure(const char *path,
+                                                        int dark)
+{
+    if (!path || !path[0])
+        return false;
+
+    for (int i = 0; i < (int)ARRAYLEN(root_menu_video_menu_preview_failures); i++)
+    {
+        struct root_menu_video_menu_preview_failure *failure =
+            &root_menu_video_menu_preview_failures[i];
+
+        if (!failure->valid || failure->dark != dark ||
+            strcmp(failure->path, path))
+            continue;
+
+        if (!TIME_AFTER(current_tick, failure->retry_after))
+            return true;
+
+        failure->valid = false;
+        return false;
+    }
+
+    return false;
+}
+
+static void root_menu_video_menu_preview_record_failure(const char *path,
+                                                        int dark)
+{
+    int victim = 0;
+    long oldest = root_menu_video_menu_preview_failures[0].retry_after;
+
+    if (!path || !path[0])
+        return;
+
+    for (int i = 0; i < (int)ARRAYLEN(root_menu_video_menu_preview_failures); i++)
+    {
+        struct root_menu_video_menu_preview_failure *failure =
+            &root_menu_video_menu_preview_failures[i];
+
+        if (!failure->valid ||
+            (failure->dark == dark && !strcmp(failure->path, path)))
+        {
+            victim = i;
+            break;
+        }
+
+        if (TIME_BEFORE(failure->retry_after, oldest))
+        {
+            oldest = failure->retry_after;
+            victim = i;
+        }
+    }
+
+    struct root_menu_video_menu_preview_failure *failure =
+        &root_menu_video_menu_preview_failures[victim];
+    failure->valid = true;
+    failure->dark = dark;
+    failure->retry_after = current_tick + HZ * 60;
+    strmemccpy(failure->path, path, sizeof(failure->path));
+}
+
+static void root_menu_video_menu_preview_clear_failure(const char *path,
+                                                       int dark)
+{
+    if (!path || !path[0])
+        return;
+
+    for (int i = 0; i < (int)ARRAYLEN(root_menu_video_menu_preview_failures); i++)
+    {
+        struct root_menu_video_menu_preview_failure *failure =
+            &root_menu_video_menu_preview_failures[i];
+
+        if (failure->valid && failure->dark == dark &&
+            !strcmp(failure->path, path))
+        {
+            failure->valid = false;
+            return;
+        }
+    }
+}
+
+static struct root_menu_video_menu_preview_slot *
+root_menu_video_menu_preview_find(const char *path, int dark)
+{
+    if (!path || !path[0])
+        return NULL;
+
+    for (int i = 0; i < (int)ARRAYLEN(root_menu_video_menu_preview_slots); i++)
+    {
+        struct root_menu_video_menu_preview_slot *slot =
+            &root_menu_video_menu_preview_slots[i];
+
+        if (slot->valid && slot->dark == dark && !strcmp(slot->path, path))
+            return slot;
+    }
+
+    return NULL;
+}
+
+static struct root_menu_video_menu_preview_slot *
+root_menu_video_menu_preview_victim(void)
+{
+    int victim = 0;
+    unsigned long oldest = root_menu_video_menu_preview_slots[0].stamp;
+
+    for (int i = 0; i < (int)ARRAYLEN(root_menu_video_menu_preview_slots); i++)
+    {
+        struct root_menu_video_menu_preview_slot *slot =
+            &root_menu_video_menu_preview_slots[i];
+
+        if (!slot->valid)
+            return slot;
+
+        if (slot->stamp < oldest)
+        {
+            oldest = slot->stamp;
+            victim = i;
+        }
+    }
+
+    return &root_menu_video_menu_preview_slots[victim];
+}
+
+static void root_menu_video_draw_menu_preview_slot(
+    struct root_menu_video_menu_preview_slot *slot,
+    int x, int y, int w, int h, bool top_aligned)
+{
+    slot->stamp = ++root_menu_video_menu_preview_stamp;
+    lcd_bmp_part(&slot->bm, 0, 0, x,
+                 top_aligned ? y : y + MAX(0, h - slot->bm.height),
+                 MIN(w, slot->bm.width), MIN(h, slot->bm.height));
+}
+
 static bool root_menu_video_draw_menu_preview_asset(const char *title,
                                                     int x, int y, int w,
                                                     int h)
@@ -5727,6 +5856,7 @@ static bool root_menu_video_draw_menu_preview_asset(const char *title,
     int dark = root_menu_video_dark() ? 1 : 0;
     bool top_aligned = root_menu_video_preview_asset_top_aligned(title);
     int asset_h = top_aligned ? LCD_HEIGHT : 220;
+    struct root_menu_video_menu_preview_slot *slot;
     int rc;
 
     snprintf(path, sizeof(path), IPODJS_ASSET_DIR
@@ -5734,49 +5864,63 @@ static bool root_menu_video_draw_menu_preview_asset(const char *title,
              root_menu_video_preview_asset_name(title), asset_h);
     load_path = root_menu_video_asset_path(path, themed_path,
                                            sizeof(themed_path));
-    if (!file_exists(load_path) && top_aligned)
+    slot = root_menu_video_menu_preview_find(load_path, dark);
+    if (slot)
     {
+        root_menu_video_draw_menu_preview_slot(slot, x, y, w, h,
+                                               top_aligned);
+        return true;
+    }
+
+    if (top_aligned &&
+        (root_menu_video_menu_preview_recent_failure(load_path, dark) ||
+         !file_exists(load_path)))
+    {
+        if (!root_menu_video_menu_preview_recent_failure(load_path, dark))
+            root_menu_video_menu_preview_record_failure(load_path, dark);
         snprintf(fallback_path, sizeof(fallback_path), IPODJS_ASSET_DIR
                  "/previews/%s.174x220x24.bmp",
                  root_menu_video_preview_asset_name(title));
         load_path = root_menu_video_asset_path(fallback_path, themed_path,
                                                sizeof(themed_path));
         asset_h = 220;
+        top_aligned = false;
     }
 
-    if (!root_menu_video_menu_preview_valid ||
-        root_menu_video_menu_preview_dark != dark ||
-        strcmp(root_menu_video_menu_preview_path, load_path))
+    slot = root_menu_video_menu_preview_find(load_path, dark);
+    if (!slot)
     {
-        root_menu_video_menu_preview_valid = false;
-        root_menu_video_menu_preview_dark = dark;
-        root_menu_video_menu_preview_path[0] = '\0';
-        if (!file_exists(load_path))
+        if (root_menu_video_menu_preview_recent_failure(load_path, dark))
             return false;
+        if (!file_exists(load_path))
+        {
+            root_menu_video_menu_preview_record_failure(load_path, dark);
+            return false;
+        }
 
-        memset(&root_menu_video_menu_preview_bm, 0,
-               sizeof(root_menu_video_menu_preview_bm));
-        root_menu_video_menu_preview_bm.width = 174;
-        root_menu_video_menu_preview_bm.height = asset_h;
-        root_menu_video_menu_preview_bm.format = FORMAT_NATIVE;
-        root_menu_video_menu_preview_bm.data =
-            root_menu_video_menu_preview_data;
-        rc = read_bmp_file(load_path, &root_menu_video_menu_preview_bm,
-                           sizeof(root_menu_video_menu_preview_data),
+        slot = root_menu_video_menu_preview_victim();
+        memset(&slot->bm, 0, sizeof(slot->bm));
+        slot->valid = false;
+        slot->path[0] = '\0';
+        slot->dark = dark;
+        slot->bm.width = 174;
+        slot->bm.height = asset_h;
+        slot->bm.format = FORMAT_NATIVE;
+        slot->bm.data = slot->data;
+        rc = read_bmp_file(load_path, &slot->bm, sizeof(slot->data),
                            FORMAT_NATIVE | FORMAT_TRANSPARENT, NULL);
         if (rc < 0)
+        {
+            root_menu_video_menu_preview_record_failure(load_path, dark);
             return false;
+        }
 
-        strmemccpy(root_menu_video_menu_preview_path, load_path,
-                   sizeof(root_menu_video_menu_preview_path));
-        root_menu_video_menu_preview_valid = true;
+        strmemccpy(slot->path, load_path, sizeof(slot->path));
+        slot->valid = true;
+        root_menu_video_menu_preview_clear_failure(load_path, dark);
     }
 
-    lcd_bmp_part(&root_menu_video_menu_preview_bm, 0, 0, x,
-                 top_aligned ? y :
-                 y + MAX(0, h - root_menu_video_menu_preview_bm.height),
-                 MIN(w, root_menu_video_menu_preview_bm.width),
-                 MIN(h, root_menu_video_menu_preview_bm.height));
+    root_menu_video_draw_menu_preview_slot(slot, x, y, w, h, top_aligned);
     return true;
 }
 
@@ -5881,6 +6025,55 @@ static void root_menu_video_preview_clear_failure(
     }
 }
 
+static DIR *root_menu_video_preview_opendir(
+    enum root_menu_video_preview_source source, const char *path)
+{
+    DIR *dir;
+
+    if (!path || !path[0])
+        return NULL;
+
+    if (root_menu_video_preview_recent_failure(source, -1, path))
+        return NULL;
+
+    dir = opendir(path);
+    if (!dir)
+    {
+        root_menu_video_preview_record_failure(source, -1, path);
+        return NULL;
+    }
+
+    root_menu_video_preview_clear_failure(source, -1, path);
+    return dir;
+}
+
+static bool root_menu_video_preview_decode_permitted(void)
+{
+    if (button_hold())
+        return false;
+
+    if (audio_status() & AUDIO_STATUS_PAUSE)
+        return false;
+
+    if (root_menu_video_hold_storm_active())
+        return false;
+
+    if (TIME_AFTER(current_tick,
+                   root_menu_video_preview_decode_window_tick +
+                   IPODJS_PREVIEW_DECODE_INTERVAL) ||
+        root_menu_video_preview_decode_window_tick == 0)
+    {
+        root_menu_video_preview_decode_window_tick = current_tick;
+        root_menu_video_preview_decode_budget = IPODJS_PREVIEW_DECODE_BURST;
+    }
+
+    if (root_menu_video_preview_decode_budget <= 0)
+        return false;
+
+    root_menu_video_preview_decode_budget--;
+    return true;
+}
+
 static void root_menu_video_preview_invalidate_source_cache(
     enum root_menu_video_preview_source source)
 {
@@ -5970,11 +6163,13 @@ static void root_menu_video_preview_load_video_paths(void)
         close(fd);
 
     bool scanning_previews = true;
-    dir = opendir(VIDEO_LIST_ROOT "/previews");
+    dir = root_menu_video_preview_opendir(IPODJS_PREVIEW_VIDEOS,
+                                          VIDEO_LIST_ROOT "/previews");
     if (!dir)
     {
         scanning_previews = false;
-        dir = opendir(VIDEO_LIST_ROOT "/thumbs");
+        dir = root_menu_video_preview_opendir(IPODJS_PREVIEW_VIDEOS,
+                                              VIDEO_LIST_ROOT "/thumbs");
     }
     if (!dir)
         return;
@@ -6033,7 +6228,10 @@ static void root_menu_video_preview_load_game_paths(void)
         ROCKBOX_DIR "/rocks/games/clubpenguin/covers",
         ROCKBOX_DIR "/rocks/games/runescape_classic/covers",
         ROCKBOX_DIR "/rocks/games/wwe_backstage/covers",
+        ROCKBOX_DIR "/rocks/games/smsgg/covers",
         ROCKBOX_DIR "/rocks/games/pokemini_launcher/covers",
+        IPODJS_ASSET_DIR "/clubpenguin/covers",
+        IPODJS_ASSET_DIR "/runescape_classic/covers",
         IPODJS_ASSET_DIR "/stickrpg/covers",
         IPODJS_ASSET_DIR "/pokemini/covers",
     };
@@ -6071,7 +6269,8 @@ static void root_menu_video_preview_load_game_paths(void)
 
     for (int i = 0; i < (int)ARRAYLEN(cover_dirs); i++)
     {
-        DIR *dir = opendir(cover_dirs[i]);
+        DIR *dir = root_menu_video_preview_opendir(IPODJS_PREVIEW_GAMES,
+                                                   cover_dirs[i]);
         struct dirent *entry;
 
         if (!dir)
@@ -6110,7 +6309,8 @@ static void root_menu_video_preview_load_pokemini_paths(void)
 
     for (int i = 0; i < (int)ARRAYLEN(cover_dirs); i++)
     {
-        DIR *dir = opendir(cover_dirs[i]);
+        DIR *dir = root_menu_video_preview_opendir(IPODJS_PREVIEW_POKEMINI,
+                                                   cover_dirs[i]);
         struct dirent *entry;
 
         if (!dir)
@@ -6160,6 +6360,8 @@ static void root_menu_video_preview_ensure_paths(
     cache = &root_menu_video_preview_source_caches[source];
     root_menu_video_preview_loaded = source;
     root_menu_video_preview_reset_slots();
+    root_menu_video_preview_decode_budget = IPODJS_PREVIEW_DECODE_BURST;
+    root_menu_video_preview_decode_window_tick = current_tick;
 
     if (cache->loaded && !TIME_AFTER(current_tick, cache->next_reload))
     {
@@ -6230,6 +6432,9 @@ root_menu_video_preview_get_slot(enum root_menu_video_preview_source source,
     if (root_menu_video_preview_recent_failure(source, index, path))
         return NULL;
 
+    if (!root_menu_video_preview_decode_permitted())
+        return NULL;
+
     struct root_menu_video_preview_slot *slot =
         root_menu_video_preview_slot_victim();
     memset(&slot->bm, 0, sizeof(slot->bm));
@@ -6265,6 +6470,15 @@ static void root_menu_video_preview_prefetch_next(
 static bool root_menu_video_draw_source_slideshow(
     enum root_menu_video_preview_source source, int x, int y, int w, int h)
 {
+    if (button_hold())
+        return false;
+
+    if (audio_status() & AUDIO_STATUS_PAUSE)
+        return false;
+
+    if (root_menu_video_hold_storm_active())
+        return false;
+
     root_menu_video_preview_ensure_paths(source);
     if (root_menu_video_preview_path_count <= 0)
         return false;
@@ -6328,6 +6542,87 @@ static bool root_menu_video_draw_source_slideshow(
 static void root_menu_video_draw_clock_date(int x, int y, int w, int h,
                                             bool show_time);
 
+static const char *root_menu_video_preview_subtitle(const char *title)
+{
+    if (!title || !title[0])
+        return "Select to open";
+    if (!strcmp(title, "Music"))
+        return "Artists  Albums  Songs";
+    if (!strcmp(title, "Cover Flow"))
+        return "Browse album artwork";
+    if (!strcmp(title, "Now Playing"))
+        return "Current track";
+    if (!strcmp(title, "Videos"))
+        return "Movies and clips";
+    if (!strcmp(title, "Photos"))
+        return "Photo library";
+    if (!strcmp(title, "Games") || !strcmp(title, "Game Cover Flow"))
+        return "Games and emulators";
+    if (!strcmp(title, "PokeMini"))
+        return "Pokemon Mini games";
+    if (!strcmp(title, "RuneScape Classic"))
+        return "Offline Lumbridge";
+    if (!strcmp(title, "Stick RPG"))
+        return "Flash game";
+    if (!strcmp(title, "Club Penguin"))
+        return "Offline world";
+    if (!strcmp(title, "Sega Master System / Game Gear"))
+        return "Classic console games";
+    if (!strcmp(title, "Browse ROM Files"))
+        return "Game Boy and NES";
+    if (!strcmp(title, "Browse PokeMini ROMs"))
+        return "Pokemon Mini files";
+    if (!strcmp(title, "Toggle NES Sound"))
+        return "Audio setting";
+    if (!strcmp(title, "Toggle NES Autosave"))
+        return "Save setting";
+    if (!strcmp(title, "Toggle NES Audio Quality"))
+        return "Audio quality";
+    if (!strcmp(title, "Clear NES Saves"))
+        return "Delete save files";
+    if (!strcmp(title, "Extras") || !strcmp(title, "Applications"))
+        return "Clock  Apps  Tools";
+    if (!strcmp(title, "Files"))
+        return "Browse storage";
+    if (!strcmp(title, "Playlists"))
+        return "Saved playlists";
+    if (!strcmp(title, "Plugins"))
+        return "Rockbox plugins";
+    if (!strcmp(title, "Settings"))
+        return "iPod settings";
+    if (!strcmp(title, "System"))
+        return "System tools";
+    if (!strcmp(title, "Shortcuts"))
+        return "Favorites";
+    if (!strcmp(title, "Radio"))
+        return "FM radio";
+    if (!strcmp(title, "Weather"))
+        return "Forecast";
+    if (!strcmp(title, "Maps"))
+        return "Offline maps";
+    if (!strcmp(title, "Database"))
+        return "Music database";
+    return "Select to open";
+}
+
+static void root_menu_video_draw_stock_preview_pane(const char *title,
+                                                    int x, int y, int w,
+                                                    int h)
+{
+    int center_y = y + h / 2 - 16;
+
+    root_menu_video_preview_gradient(x, y, w, h);
+    lcd_setfont(root_menu_video_font());
+    lcd_set_foreground(IPODJS_PREVIEW_TEXT);
+    lcd_set_background(root_menu_video_dark() ?
+                       LCD_RGBPACK(18, 22, 30) : IPODJS_PREVIEW_BOTTOM);
+    root_menu_video_puts_fit(x + 16, center_y, w - 32,
+                             title && title[0] ? title : "iPod", true);
+    lcd_set_foreground(LCD_RGBPACK(222, 226, 232));
+    root_menu_video_puts_fit(x + 16, center_y + 23, w - 32,
+                             root_menu_video_preview_subtitle(title), true);
+}
+
 static bool root_menu_video_should_animate(
     enum root_menu_video_preview_source source, long *next_tick)
 {
@@ -6335,7 +6630,13 @@ static bool root_menu_video_should_animate(
     long delay = (status & AUDIO_STATUS_PLAY) ?
                  IPODJS_SLIDESHOW_AUDIO_DELAY : IPODJS_SLIDESHOW_DELAY;
 
+    if (button_hold() || (status & AUDIO_STATUS_PAUSE))
+        return false;
+
     if (!root_menu_video_preview_uses_slideshow(source))
+        return false;
+
+    if (root_menu_video_hold_storm_active())
         return false;
 
     if (!TIME_AFTER(current_tick, *next_tick))
@@ -6351,23 +6652,30 @@ static void root_menu_video_draw_preview_for_title(const char *title,
     enum root_menu_video_preview_source source =
         root_menu_video_preview_source_for_title(title);
     bool drew = false;
+    int status = audio_status();
 
     root_menu_video_preview_gradient(x, y, w, h);
     lcd_setfont(root_menu_video_font());
     lcd_set_foreground(IPODJS_PREVIEW_TEXT);
     lcd_set_background(IPODJS_PREVIEW_BOTTOM);
 
+    if (title && !strcmp(title, "Clock"))
+    {
+        root_menu_video_draw_clock_date(x, y, w, h, true);
+        root_menu_video_puts_fit(x + 16, y + h / 2 - 24, w - 32,
+                                 "Clock", true);
+        root_menu_video_puts_fit(x + 16, y + h / 2 - 2, w - 32,
+                                 "World Clock", true);
+        root_menu_video_puts_fit(x + 16, y + h / 2 + 20, w - 32,
+                                 "Stopwatch  Timer  Alarms", true);
+        return;
+    }
+
+    if (button_hold() || (status & AUDIO_STATUS_PAUSE))
+        source = IPODJS_PREVIEW_NONE;
+
     if (source == IPODJS_PREVIEW_MUSIC)
         drew = albumlist_draw_slideshow(&screens[SCREEN_MAIN], x, y, w, h);
-    else if ((audio_status() & AUDIO_STATUS_PLAY) &&
-             (source == IPODJS_PREVIEW_VIDEOS ||
-              source == IPODJS_PREVIEW_GAMES ||
-              source == IPODJS_PREVIEW_POKEMINI))
-    {
-        drew = albumlist_draw_slideshow(&screens[SCREEN_MAIN], x, y, w, h);
-        if (!drew)
-            drew = root_menu_video_draw_source_slideshow(source, x, y, w, h);
-    }
     else if (source == IPODJS_PREVIEW_VIDEOS ||
              source == IPODJS_PREVIEW_GAMES ||
              source == IPODJS_PREVIEW_POKEMINI)
@@ -6381,11 +6689,7 @@ static void root_menu_video_draw_preview_for_title(const char *title,
 
     if (!drew)
     {
-        lcd_set_foreground(root_menu_video_dark() ?
-                           LCD_RGBPACK(18, 22, 30) : IPODJS_PREVIEW_BOTTOM);
-        lcd_fillrect(x, y, w, h);
-        root_menu_video_puts_fit(x + 14, y + h / 2 - 8,
-                                 w - 28, title ? title : "iPod", true);
+        root_menu_video_draw_stock_preview_pane(title, x, y, w, h);
     }
 }
 
@@ -6434,9 +6738,32 @@ static bool root_menu_video_hold_update(bool *held, bool *redraw)
 {
     bool now = button_hold();
 
-    albumlist_slideshow_set_paused(now);
     if (now != *held)
     {
+        root_menu_video_hold_static_frame_valid = false;
+        albumlist_slideshow_set_paused(now);
+        IPODJS_LOGF("ipodjs: hold=%d paused=%d status=%d",
+                    now ? 1 : 0,
+                    (audio_status() & AUDIO_STATUS_PAUSE) ? 1 : 0,
+                    audio_status());
+        if (!root_menu_video_hold_storm_window_start ||
+            TIME_AFTER(current_tick,
+                       root_menu_video_hold_storm_window_start + HZ))
+        {
+            root_menu_video_hold_storm_window_start = current_tick;
+            root_menu_video_hold_storm_toggles = 1;
+        }
+        else
+        {
+            root_menu_video_hold_storm_toggles++;
+            if (root_menu_video_hold_storm_toggles >= 4)
+            {
+                root_menu_video_hold_storm_until = current_tick + HZ * 2;
+                root_menu_video_hold_storm_window_start = 0;
+                root_menu_video_hold_storm_toggles = 0;
+            }
+        }
+
         *held = now;
         *redraw = true;
         button_clear_queue();
@@ -6507,12 +6834,7 @@ static void root_menu_video_draw_status(void)
 
 static void root_menu_video_draw_arrow(int x, int y)
 {
-    lcd_set_foreground(IPODJS_PREVIEW_TEXT);
-    lcd_fillrect(x, y + 1, 2, 1);
-    lcd_fillrect(x + 2, y + 2, 2, 1);
-    lcd_fillrect(x + 4, y + 3, 2, 1);
-    lcd_fillrect(x + 2, y + 4, 2, 1);
-    lcd_fillrect(x, y + 5, 2, 1);
+    ipodjs_ui_draw_arrow(&screens[SCREEN_MAIN], x, y, IPODJS_PREVIEW_TEXT);
 }
 
 static void root_menu_video_draw_preview(int selected)
@@ -6531,7 +6853,21 @@ static void root_menu_video_draw_preview(int selected)
         title = root_menu_video_preview(item);
     }
 
-    if (root_menu_video_item_is_settings(item))
+    if (root_menu_video_paused_playback())
+    {
+        root_menu_video_preview_gradient(x, y, w, h);
+        lcd_setfont(root_menu_video_font());
+        lcd_set_foreground(IPODJS_PREVIEW_TEXT);
+        lcd_set_background(IPODJS_PREVIEW_BOTTOM);
+        root_menu_video_puts_fit(x + 14, 70, w - 28,
+                                 root_menu_video_now_title(), true);
+        lcd_set_foreground(LCD_RGBPACK(220, 226, 234));
+        root_menu_video_puts_fit(x + 14, 95, w - 28,
+                                 root_menu_video_now_artist(), true);
+        root_menu_video_puts_fit(x + 14, 132, w - 28,
+                                 "Paused", true);
+    }
+    else if (root_menu_video_item_is_settings(item))
     {
         root_menu_video_preview_gradient(x, y, w, h);
         lcd_setfont(root_menu_video_font());
@@ -6562,6 +6898,9 @@ static unsigned char root_menu_video_weather_icon_data[
     BM_SIZE(40, 40, FORMAT_NATIVE, false)];
 static char root_menu_video_weather_icon_path[MAX_PATH];
 static bool root_menu_video_weather_icon_valid;
+static char root_menu_video_weather_icon_miss[32];
+static bool root_menu_video_weather_icon_miss_night;
+static long root_menu_video_weather_icon_retry;
 
 static int root_menu_video_weather_stamp_key(const char *stamp)
 {
@@ -6651,14 +6990,35 @@ static struct bitmap *root_menu_video_weather_icon_asset(const char *icon,
                                                          bool night)
 {
     char path[MAX_PATH];
+    char fallback_path[MAX_PATH];
     const char *name = root_menu_video_weather_icon_name(icon, night);
     int rc;
+
+    if (root_menu_video_weather_icon_miss[0] &&
+        root_menu_video_weather_icon_miss_night == night &&
+        !strcmp(root_menu_video_weather_icon_miss, name) &&
+        !TIME_AFTER(current_tick, root_menu_video_weather_icon_retry))
+    {
+        return NULL;
+    }
 
     snprintf(path, sizeof(path), ROCKBOX_DIR
              "/rockpod/weather/apple-icons/%s.40x40x24.bmp", name);
     if (!file_exists(path))
-        snprintf(path, sizeof(path), ROCKBOX_DIR
+    {
+        snprintf(fallback_path, sizeof(fallback_path), ROCKBOX_DIR
                  "/rockpod/weather/icons/%s.40x40x24.bmp", name);
+        if (file_exists(fallback_path))
+            strmemccpy(path, fallback_path, sizeof(path));
+        else
+        {
+            strmemccpy(root_menu_video_weather_icon_miss, name,
+                       sizeof(root_menu_video_weather_icon_miss));
+            root_menu_video_weather_icon_miss_night = night;
+            root_menu_video_weather_icon_retry = current_tick + HZ * 600;
+            return NULL;
+        }
+    }
 
     if (root_menu_video_weather_icon_valid &&
         !strcmp(path, root_menu_video_weather_icon_path))
@@ -6666,8 +7026,6 @@ static struct bitmap *root_menu_video_weather_icon_asset(const char *icon,
 
     root_menu_video_weather_icon_valid = false;
     root_menu_video_weather_icon_path[0] = '\0';
-    if (!file_exists(path))
-        return NULL;
 
     memset(&root_menu_video_weather_icon_bm, 0,
            sizeof(root_menu_video_weather_icon_bm));
@@ -6679,7 +7037,13 @@ static struct bitmap *root_menu_video_weather_icon_asset(const char *icon,
                        sizeof(root_menu_video_weather_icon_data),
                        FORMAT_NATIVE | FORMAT_TRANSPARENT, NULL);
     if (rc < 0)
+    {
+        strmemccpy(root_menu_video_weather_icon_miss, name,
+                   sizeof(root_menu_video_weather_icon_miss));
+        root_menu_video_weather_icon_miss_night = night;
+        root_menu_video_weather_icon_retry = current_tick + HZ * 600;
         return NULL;
+    }
 
     fb_data *pixels = (fb_data *)root_menu_video_weather_icon_bm.data;
     int count = root_menu_video_weather_icon_bm.width *
@@ -6698,6 +7062,7 @@ static struct bitmap *root_menu_video_weather_icon_asset(const char *icon,
     strmemccpy(root_menu_video_weather_icon_path, path,
                sizeof(root_menu_video_weather_icon_path));
     root_menu_video_weather_icon_valid = true;
+    root_menu_video_weather_icon_miss[0] = '\0';
     return &root_menu_video_weather_icon_bm;
 }
 
@@ -6935,16 +7300,59 @@ static void root_menu_video_draw_clock_lock(void)
     }
 }
 
-static void root_menu_video_draw_list(int selected)
+struct root_menu_video_list_draw_state {
+    int selected;
+    int top;
+    int row_h;
+    int visible;
+    bool valid;
+};
+
+static int root_menu_video_list_top(int selected, int visible)
+{
+    if (selected >= visible)
+        return selected - visible + 1;
+
+    return 0;
+}
+
+static void root_menu_video_draw_list_row(int index, int screen_row,
+                                          int row_h, bool active)
+{
+    int y = IPODJS_HEADER_HEIGHT + screen_row * row_h;
+    const char *label = root_menu_video_label(root_menu__[index]);
+
+    if (active)
+    {
+        unsigned accent = root_menu_video_accent();
+        root_menu_video_selection_gradient(0, y, IPODJS_LIST_WIDTH, row_h);
+        lcd_set_foreground(IPODJS_PREVIEW_TEXT);
+        lcd_set_background(accent);
+    }
+    else
+    {
+        lcd_set_foreground(root_menu_video_row_bg());
+        lcd_fillrect(0, y, IPODJS_LIST_WIDTH, row_h);
+        lcd_set_foreground(root_menu_video_text());
+        lcd_set_background(root_menu_video_row_bg());
+    }
+
+    root_menu_video_puts_fit(6, y + 4, IPODJS_LIST_WIDTH - 24,
+                             label, false);
+    if (active)
+        root_menu_video_draw_arrow(IPODJS_LIST_WIDTH - 13,
+                                   y + (row_h - 6) / 2);
+}
+
+static void root_menu_video_draw_list(int selected,
+                                      struct root_menu_video_list_draw_state
+                                      *state)
 {
     int count = root_menu_video_count();
     int row_h = root_menu_video_row_height();
     int visible = root_menu_video_visible_rows(row_h);
-    int top = 0;
+    int top = root_menu_video_list_top(selected, visible);
     int i;
-
-    if (selected >= visible)
-        top = selected - visible + 1;
 
     lcd_setfont(root_menu_video_font());
     lcd_set_foreground(root_menu_video_row_bg());
@@ -6954,36 +7362,21 @@ static void root_menu_video_draw_list(int selected)
     for (i = 0; i < visible && top + i < count; i++)
     {
         int index = top + i;
-        int y = IPODJS_HEADER_HEIGHT + i * row_h;
-        bool active = index == selected;
-        const char *label = root_menu_video_label(root_menu__[index]);
-
-        if (active)
-        {
-            unsigned accent = root_menu_video_accent();
-            root_menu_video_selection_gradient(0, y, IPODJS_LIST_WIDTH,
-                                               row_h);
-            lcd_set_foreground(IPODJS_PREVIEW_TEXT);
-            lcd_set_background(accent);
-        }
-        else
-        {
-            lcd_set_foreground(root_menu_video_row_bg());
-            lcd_fillrect(0, y, IPODJS_LIST_WIDTH, row_h);
-            lcd_set_foreground(root_menu_video_text());
-            lcd_set_background(root_menu_video_row_bg());
-        }
-
-        root_menu_video_puts_fit(6, y + 4, IPODJS_LIST_WIDTH - 24,
-                                 label, false);
-        if (active)
-            root_menu_video_draw_arrow(IPODJS_LIST_WIDTH - 13,
-                                       y + (row_h - 6) / 2);
+        root_menu_video_draw_list_row(index, i, row_h, index == selected);
     }
 
     lcd_set_foreground(root_menu_video_dark() ?
                        LCD_RGBPACK(58, 64, 74) : IPODJS_SPLIT);
     lcd_vline(IPODJS_LIST_WIDTH, 0, LCD_HEIGHT - 1);
+
+    if (state)
+    {
+        state->selected = selected;
+        state->top = top;
+        state->row_h = row_h;
+        state->visible = visible;
+        state->valid = true;
+    }
 }
 
 static void ipodjs_video_draw_hold_overlay(void)
@@ -6995,8 +7388,7 @@ static void ipodjs_video_draw_hold_overlay(void)
     if (global_settings.ui_engine_hold_effect == UI_ENGINE_HOLD_LOCKSCREEN)
     {
         struct mp3entry *id3 = audio_current_track();
-        if (!(audio_status() & AUDIO_STATUS_PLAY) ||
-            (audio_status() & AUDIO_STATUS_PAUSE))
+        if (!(audio_status() & AUDIO_STATUS_PLAY))
         {
             root_menu_video_draw_clock_lock();
             return;
@@ -7005,18 +7397,26 @@ static void ipodjs_video_draw_hold_overlay(void)
         lcd_set_foreground(LCD_RGBPACK(34, 36, 42));
         lcd_fillrect(0, 0, LCD_WIDTH, LCD_HEIGHT);
         root_menu_video_draw_status_title("HOLD");
-        root_menu_video_draw_slanted_art(32, 54, IPODJS_STOCK_ART_SIZE,
-                                         root_menu_video_accent(), id3);
+        (void)id3;
+        bool art_drawn = root_menu_video_draw_slanted_cached_art(32, 54,
+            IPODJS_STOCK_ART_SIZE, root_menu_video_accent());
+        int text_x = art_drawn ? 150 : 30;
+        int text_w = art_drawn ? 142 : LCD_WIDTH - 60;
+        int text_y = art_drawn ? 78 : 76;
+
         lcd_setfont(root_menu_video_font());
         lcd_set_foreground(IPODJS_PREVIEW_TEXT);
         lcd_set_background(LCD_RGBPACK(34, 36, 42));
-        root_menu_video_puts_fit(150, 78, 142,
-                                 root_menu_video_now_title(), false);
+        root_menu_video_puts_fit(text_x, text_y, text_w,
+                                 root_menu_video_now_title(), !art_drawn);
         lcd_set_foreground(LCD_RGBPACK(190, 194, 200));
-        root_menu_video_puts_fit(150, 100, 142,
-                                 root_menu_video_now_artist(), false);
-        root_menu_video_puts_fit(150, 140, 142, "Hold", false);
-        root_menu_video_puts_fit(150, 160, 142, "Controls Locked", false);
+        root_menu_video_puts_fit(text_x, text_y + 22, text_w,
+                                 root_menu_video_now_artist(), !art_drawn);
+        root_menu_video_puts_fit(text_x, text_y + 62, text_w,
+                                 (audio_status() & AUDIO_STATUS_PAUSE) ?
+                                 "Paused" : "Hold", !art_drawn);
+        root_menu_video_puts_fit(text_x, text_y + 82, text_w,
+                                 "Controls Locked", !art_drawn);
     }
     else
     {
@@ -7057,6 +7457,7 @@ static void ipodjs_video_draw_wps(void)
     int progress_w = LCD_WIDTH - progress_x * 2;
     int progress_y = LCD_HEIGHT - 50;
     bool volume_active = root_menu_video_volume_overlay_active();
+    bool paused = (audio_status() & AUDIO_STATUS_PAUSE) != 0;
 
     lcd_set_viewport(NULL);
     lcd_set_drawmode(DRMODE_SOLID);
@@ -7087,25 +7488,31 @@ static void ipodjs_video_draw_wps(void)
     lcd_set_foreground(split);
     lcd_hline(0, LCD_WIDTH - 1, IPODJS_HEADER_HEIGHT);
 
-    root_menu_video_draw_slanted_art(art_x, art_y, artwork, accent, id3);
+    bool art_drawn = paused ?
+        root_menu_video_draw_slanted_resident_art(art_x, art_y, artwork,
+                                                  accent) :
+        root_menu_video_draw_slanted_art(art_x, art_y, artwork, accent, id3);
+    if (!art_drawn)
+    {
+        info_x = 30;
+        info_w = LCD_WIDTH - 60;
+    }
 
     lcd_set_foreground(text);
     lcd_set_background(panel);
     lcd_setfont(root_menu_video_font());
     root_menu_video_puts_fit(info_x, 62, info_w,
-                             root_menu_video_now_title(), false);
+                             root_menu_video_now_title(), !art_drawn);
     lcd_set_foreground(muted);
     root_menu_video_puts_fit(info_x, 84, info_w,
-                             root_menu_video_now_artist(), false);
+                             root_menu_video_now_artist(), !art_drawn);
     root_menu_video_puts_fit(info_x, 104, info_w,
-                             root_menu_video_now_album(), false);
+                             root_menu_video_now_album(), !art_drawn);
 
-    lcd_set_foreground((audio_status() & AUDIO_STATUS_PAUSE) ?
-                       muted : accent);
+    lcd_set_foreground(paused ? muted : accent);
     lcd_set_background(panel);
     root_menu_video_puts_fit(info_x, 135, info_w,
-                             (audio_status() & AUDIO_STATUS_PAUSE) ?
-                             "Paused" : "Playing", false);
+                             paused ? "Paused" : "Playing", !art_drawn);
 
     root_menu_video_duration(elapsed, sizeof(elapsed),
         id3 ? id3->elapsed : 0);
@@ -7263,18 +7670,8 @@ static bool root_menu_video_handle_play_pause(bool allow_enter_wps,
 
     if (status & AUDIO_STATUS_PLAY)
     {
-        if ((status & AUDIO_STATUS_PAUSE) && root_menu_video_has_current_track())
-        {
-            audio_resume();
-            IPODJS_LOGF("ipodjs: resumed paused playback");
-        }
-        else if (!(status & AUDIO_STATUS_PAUSE))
-        {
-            audio_pause();
-            IPODJS_LOGF("ipodjs: paused active playback");
-        }
-
-        button_clear_queue();
+        wps_do_playpause(false);
+        IPODJS_LOGF("ipodjs: toggled active playback");
         return false;
     }
 
@@ -7293,7 +7690,9 @@ static bool root_menu_video_handle_play_pause(bool allow_enter_wps,
 
 static void ipodjs_video_play_pause(void)
 {
+    IPODJS_LOGF("ipodjs: wps playpause before status=%d", audio_status());
     (void)root_menu_video_handle_play_pause(false, NULL);
+    IPODJS_LOGF("ipodjs: wps playpause after status=%d", audio_status());
 }
 
 static void ipodjs_video_pause_for_exit(void)
@@ -7306,37 +7705,63 @@ static void ipodjs_video_pause_for_exit(void)
     button_clear_queue();
 }
 
+static int ipodjs_video_wps_finish(int ret)
+{
+    wps_state_deinit();
+    return root_menu_video_finish_native_screen(ret);
+}
+
 static int ipodjs_video_wps(void)
 {
     bool redraw = true;
     bool held = button_hold();
     bool volume_overlay_was_active = false;
+    bool deferred_status_save = false;
     long next_hold_refresh = 0;
     long last_elapsed_sec = -1;
     bool last_paused = false;
     char last_track_path[MAX_PATH] = "";
 
     root_menu_video_enter_native_screen();
+    wps_state_init();
     root_menu_video_ensure_aa_slot();
 #ifdef HAVE_ALBUMART
+    root_menu_video_default_art();
     root_menu_video_volume_left_stock_icon();
     root_menu_video_volume_right_stock_icon();
 #endif
+    root_menu_video_status_play_asset(false);
+    root_menu_video_status_play_asset(true);
     root_menu_wait_for_button_release();
     button_clear_queue();
 
-    while (audio_status() & AUDIO_STATUS_PLAY)
+    while (true)
     {
         int action;
+        int status = audio_status();
+        bool paused;
+
+        if (!(status & AUDIO_STATUS_PLAY))
+            break;
+
+        paused = (status & AUDIO_STATUS_PAUSE) != 0;
 
         root_menu_video_hold_update(&held, &redraw);
         if (root_menu_video_volume_overlay_active() != volume_overlay_was_active)
             redraw = true;
+        if (paused)
+        {
+            if (paused != last_paused)
+            {
+                last_paused = paused;
+                redraw = true;
+            }
+        }
+        else
         {
             struct mp3entry *id3 = audio_current_track();
             const char *path = id3 ? id3->path : "";
             long elapsed_sec = id3 ? (long)(id3->elapsed / 1000) : -1;
-            bool paused = (audio_status() & AUDIO_STATUS_PAUSE) != 0;
 
             if (strcmp(last_track_path, path))
             {
@@ -7354,6 +7779,11 @@ static int ipodjs_video_wps(void)
                 last_paused = paused;
                 redraw = true;
             }
+            if (deferred_status_save)
+            {
+                status_save(false);
+                deferred_status_save = false;
+            }
         }
         if (redraw)
         {
@@ -7364,7 +7794,14 @@ static int ipodjs_video_wps(void)
 
         if (held)
         {
-            if (TIME_AFTER(current_tick, next_hold_refresh))
+            if (paused)
+            {
+                sleep(HZ / 20);
+                continue;
+            }
+
+            if (!(audio_status() & AUDIO_STATUS_PAUSE) &&
+                TIME_AFTER(current_tick, next_hold_refresh))
             {
                 next_hold_refresh = current_tick + HZ;
                 redraw = true;
@@ -7374,9 +7811,13 @@ static int ipodjs_video_wps(void)
             continue;
         }
 
-        action = get_action(CONTEXT_WPS|ALLOW_SOFTLOCK, HZ/5);
+        action = paused ? skin_wait_for_action(WPS, CONTEXT_WPS|ALLOW_SOFTLOCK,
+                                               HZ/5)
+                        : get_action(CONTEXT_WPS|ALLOW_SOFTLOCK, HZ/5);
         if (action == ACTION_NONE)
             continue;
+        if (!paused && !IS_SYSEVENT(action))
+            storage_spin();
         if (root_menu_video_hold_update(&held, &redraw))
             continue;
 
@@ -7399,39 +7840,44 @@ static int ipodjs_video_wps(void)
 
             case ACTION_WPS_VOLUP:
             case ACTION_WPS_VOLDOWN:
-                adjust_volume(action == ACTION_WPS_VOLUP ? 1 : -1);
-                global_status.last_volume_change = current_tick;
+                if (paused)
+                {
+                    adjust_volume_no_save(action == ACTION_WPS_VOLUP ? 1 : -1);
+                    deferred_status_save = true;
+                }
+                else
+                    adjust_volume(action == ACTION_WPS_VOLUP ? 1 : -1);
                 redraw = true;
                 break;
 
             case ACTION_WPS_BROWSE:
-                return root_menu_video_finish_native_screen(
-                    GO_TO_PREVIOUS_BROWSER);
+                return ipodjs_video_wps_finish(GO_TO_PREVIOUS_BROWSER);
 
             case ACTION_WPS_CONTEXT:
             {
                 int ret;
 
                 root_menu_video_finish_native_screen(0);
+                wps_state_deinit();
                 ret = launch_lrcplayer_plugin(NULL);
                 root_menu_video_enter_native_screen();
+                wps_state_init();
                 if (ret == GO_TO_ROOT || ret == GO_TO_WPS)
-                    return root_menu_video_finish_native_screen(ret);
+                    return ipodjs_video_wps_finish(ret);
                 redraw = true;
                 break;
             }
 
             case ACTION_WPS_VIEW_PLAYLIST:
-                return root_menu_video_finish_native_screen(
-                    GO_TO_PLAYLIST_VIEWER);
+                return ipodjs_video_wps_finish(GO_TO_PLAYLIST_VIEWER);
 
             case ACTION_WPS_MENU:
                 button_clear_queue();
-                return root_menu_video_finish_native_screen(GO_TO_ROOT);
+                return ipodjs_video_wps_finish(GO_TO_ROOT);
 
             case ACTION_WPS_STOP:
                 ipodjs_video_pause_for_exit();
-                return root_menu_video_finish_native_screen(GO_TO_ROOT);
+                return ipodjs_video_wps_finish(GO_TO_ROOT);
 
             default:
                 redraw = true;
@@ -7439,22 +7885,101 @@ static int ipodjs_video_wps(void)
         }
     }
 
-    return root_menu_video_finish_native_screen(GO_TO_ROOT);
+    return ipodjs_video_wps_finish(GO_TO_ROOT);
 }
 
-static void root_menu_video_draw_home(int selected)
+static void root_menu_video_draw_home(
+    int selected, struct root_menu_video_list_draw_state *state)
 {
     lcd_set_viewport(NULL);
     lcd_set_drawmode(DRMODE_SOLID);
     lcd_set_background(root_menu_video_screen_bg());
     lcd_clear_display();
 
+    if (button_hold() &&
+        global_settings.ui_engine_hold_effect == UI_ENGINE_HOLD_LOCKSCREEN)
+    {
+        if (!root_menu_video_hold_static_frame_valid)
+        {
+            ipodjs_video_draw_hold_overlay();
+            lcd_update();
+            root_menu_video_hold_static_frame_valid = true;
+        }
+        return;
+    }
+
     root_menu_video_draw_status();
-    root_menu_video_draw_list(selected);
+    root_menu_video_draw_list(selected, state);
     root_menu_video_draw_preview(selected);
     ipodjs_video_draw_hold_overlay();
 
     lcd_update();
+}
+
+static bool root_menu_video_draw_home_selection_delta(
+    int previous_selected, int selected,
+    struct root_menu_video_list_draw_state *state)
+{
+    int previous_row;
+    int selected_row;
+    int preview_x = IPODJS_LIST_WIDTH + 1;
+    bool previous_visible;
+    bool selected_visible;
+
+    if (button_hold())
+    {
+        root_menu_video_draw_home(selected, state);
+        return true;
+    }
+
+    if (!state || !state->valid || previous_selected == selected)
+        return false;
+
+    if (root_menu_video_list_top(selected, state->visible) != state->top)
+        return false;
+
+    lcd_set_viewport(NULL);
+    lcd_set_drawmode(DRMODE_SOLID);
+    lcd_setfont(root_menu_video_font());
+
+    previous_row = previous_selected - state->top;
+    selected_row = selected - state->top;
+    previous_visible = previous_row >= 0 && previous_row < state->visible;
+    selected_visible = selected_row >= 0 && selected_row < state->visible;
+    if (previous_visible)
+        root_menu_video_draw_list_row(previous_selected, previous_row,
+                                      state->row_h, false);
+    if (selected_visible)
+        root_menu_video_draw_list_row(selected, selected_row,
+                                      state->row_h, true);
+
+    root_menu_video_draw_preview(selected);
+
+    state->selected = selected;
+    if (previous_visible)
+        lcd_update_rect(0, IPODJS_HEADER_HEIGHT + previous_row * state->row_h,
+                        IPODJS_LIST_WIDTH, state->row_h);
+    if (selected_visible)
+        lcd_update_rect(0, IPODJS_HEADER_HEIGHT + selected_row * state->row_h,
+                        IPODJS_LIST_WIDTH, state->row_h);
+    lcd_update_rect(preview_x, 0, LCD_WIDTH - preview_x, LCD_HEIGHT);
+    return true;
+}
+
+static void root_menu_video_draw_home_preview_only(int selected)
+{
+    if (button_hold())
+    {
+        root_menu_video_draw_home(selected, NULL);
+        return;
+    }
+
+    int x = IPODJS_LIST_WIDTH + 1;
+
+    lcd_set_viewport(NULL);
+    lcd_set_drawmode(DRMODE_SOLID);
+    root_menu_video_draw_preview(selected);
+    lcd_update_rect(x, 0, LCD_WIDTH - x, LCD_HEIGHT);
 }
 
 struct root_menu_video_music_item {
@@ -7488,16 +8013,78 @@ static int root_menu_video_music_count(void)
     return ARRAYLEN(root_menu_video_music_items);
 }
 
-static void root_menu_video_draw_music_menu(int selected)
+static int root_menu_video_music_top(int selected, int visible)
+{
+    if (selected >= visible)
+        return selected - visible + 1;
+
+    return 0;
+}
+
+static void root_menu_video_draw_music_row(int index, int screen_row,
+                                           int row_h, bool active)
+{
+    int item_y = IPODJS_HEADER_HEIGHT + screen_row * row_h;
+
+    if (active)
+    {
+        unsigned accent = root_menu_video_accent();
+        root_menu_video_selection_gradient(0, item_y, LCD_WIDTH, row_h);
+        lcd_set_foreground(IPODJS_PREVIEW_TEXT);
+        lcd_set_background(accent);
+    }
+    else
+    {
+        lcd_set_foreground(root_menu_video_row_bg());
+        lcd_fillrect(0, item_y, LCD_WIDTH, row_h);
+        lcd_set_foreground(root_menu_video_text());
+        lcd_set_background(root_menu_video_row_bg());
+    }
+
+    root_menu_video_puts_fit(7, item_y + 4, LCD_WIDTH - 28,
+                             root_menu_video_music_items[index].label,
+                             false);
+    if (active)
+        root_menu_video_draw_arrow(LCD_WIDTH - 16,
+                                   item_y + (row_h - 6) / 2);
+}
+
+static void root_menu_video_draw_music_selection_delta(
+    int previous_selected, int selected,
+    struct root_menu_video_list_draw_state *state)
+{
+    int previous_row;
+    int selected_row;
+
+    if (!state || !state->valid || previous_selected == selected)
+        return;
+
+    lcd_set_viewport(NULL);
+    lcd_set_drawmode(DRMODE_SOLID);
+    lcd_setfont(root_menu_video_font());
+
+    previous_row = previous_selected - state->top;
+    selected_row = selected - state->top;
+    if (previous_row >= 0 && previous_row < state->visible)
+        root_menu_video_draw_music_row(previous_selected, previous_row,
+                                       state->row_h, false);
+    if (selected_row >= 0 && selected_row < state->visible)
+        root_menu_video_draw_music_row(selected, selected_row,
+                                       state->row_h, true);
+
+    state->selected = selected;
+    lcd_update_rect(0, IPODJS_HEADER_HEIGHT, LCD_WIDTH,
+                    LCD_HEIGHT - IPODJS_HEADER_HEIGHT);
+}
+
+static void root_menu_video_draw_music_menu(
+    int selected, struct root_menu_video_list_draw_state *state)
 {
     int count = root_menu_video_music_count();
     int row_h = root_menu_video_row_height();
     int visible = root_menu_video_visible_rows(row_h);
-    int top = 0;
+    int top = root_menu_video_music_top(selected, visible);
     int i;
-
-    if (selected >= visible)
-        top = selected - visible + 1;
 
     lcd_set_viewport(NULL);
     lcd_set_drawmode(DRMODE_SOLID);
@@ -7514,30 +8101,16 @@ static void root_menu_video_draw_music_menu(int selected)
     for (i = 0; i < visible && top + i < count; i++)
     {
         int index = top + i;
-        int item_y = IPODJS_HEADER_HEIGHT + i * row_h;
-        bool active = index == selected;
+        root_menu_video_draw_music_row(index, i, row_h, index == selected);
+    }
 
-        if (active)
-        {
-            unsigned accent = root_menu_video_accent();
-            root_menu_video_selection_gradient(0, item_y, LCD_WIDTH, row_h);
-            lcd_set_foreground(IPODJS_PREVIEW_TEXT);
-            lcd_set_background(accent);
-        }
-        else
-        {
-            lcd_set_foreground(root_menu_video_row_bg());
-            lcd_fillrect(0, item_y, LCD_WIDTH, row_h);
-            lcd_set_foreground(root_menu_video_text());
-            lcd_set_background(root_menu_video_row_bg());
-        }
-
-        root_menu_video_puts_fit(7, item_y + 4, LCD_WIDTH - 28,
-                                 root_menu_video_music_items[index].label,
-                                 false);
-        if (active)
-            root_menu_video_draw_arrow(LCD_WIDTH - 16,
-                                       item_y + (row_h - 6) / 2);
+    if (state)
+    {
+        state->selected = selected;
+        state->top = top;
+        state->row_h = row_h;
+        state->visible = visible;
+        state->valid = true;
     }
 
     ipodjs_video_draw_hold_overlay();
@@ -7564,6 +8137,20 @@ enum root_menu_video_db_context {
 static struct root_menu_video_db_row
     root_menu_video_db_rows[IPODJS_DB_MAX_DEPTH][IPODJS_DB_MAX_ROWS];
 static uint32_t root_menu_video_db_uniq[IPODJS_DB_MAX_ROWS * 2];
+
+struct root_menu_video_album_group_cache {
+    bool valid;
+    int filter_tag;
+    int filter_seek;
+    int filter_tag2;
+    int filter_seek2;
+    long built_tick;
+    int count;
+    struct root_menu_video_db_row rows[IPODJS_DB_MAX_ROWS];
+};
+
+static struct root_menu_video_album_group_cache
+    root_menu_video_album_groups;
 
 static int root_menu_video_ascii_cmp(const char *a, const char *b)
 {
@@ -7595,6 +8182,300 @@ static int root_menu_video_db_track_cmp(const void *pa, const void *pb)
     return root_menu_video_ascii_cmp(a->label, b->label);
 }
 
+static bool root_menu_video_valid_artist_name(const char *name)
+{
+    return name && name[0] && strcmp(name, UNTAGGED) != 0;
+}
+
+static bool root_menu_video_db_single_album_tag_value(int result_tag,
+                                                      int album_seek,
+                                                      int filter_tag,
+                                                      int filter_seek,
+                                                      int filter_tag2,
+                                                      int filter_seek2,
+                                                      char *buf,
+                                                      size_t buf_size,
+                                                      bool *multiple)
+{
+    struct tagcache_search tcs;
+    char tcs_buf[TAGCACHE_BUFSZ];
+    char first[IPODJS_DB_LABEL_LEN];
+    bool found = false;
+
+    if (multiple)
+        *multiple = false;
+    if (buf && buf_size > 0)
+        buf[0] = '\0';
+
+    if (!tagcache_search(&tcs, result_tag))
+        return false;
+
+    tagcache_search_set_uniqbuf(&tcs, root_menu_video_db_uniq,
+                                sizeof(root_menu_video_db_uniq));
+    if (!tagcache_search_add_filter(&tcs, tag_album, album_seek))
+    {
+        tagcache_search_finish(&tcs);
+        return false;
+    }
+    if (filter_tag >= 0 &&
+        !tagcache_search_add_filter(&tcs, filter_tag, filter_seek))
+    {
+        tagcache_search_finish(&tcs);
+        return false;
+    }
+    if (filter_tag2 >= 0 &&
+        !tagcache_search_add_filter(&tcs, filter_tag2, filter_seek2))
+    {
+        tagcache_search_finish(&tcs);
+        return false;
+    }
+
+    first[0] = '\0';
+    while (tagcache_get_next(&tcs, tcs_buf, sizeof(tcs_buf)))
+    {
+        if (!root_menu_video_valid_artist_name(tcs.result))
+            continue;
+
+        if (!found)
+        {
+            strmemccpy(first, tcs.result, sizeof(first));
+            found = true;
+        }
+        else if (strcasecmp(first, tcs.result) != 0)
+        {
+            if (multiple)
+                *multiple = true;
+            found = false;
+            break;
+        }
+    }
+
+    tagcache_search_finish(&tcs);
+
+    if (found && buf && buf_size > 0)
+        strmemccpy(buf, first, buf_size);
+
+    return found;
+}
+
+static void root_menu_video_db_resolve_album_artist(int album_seek,
+                                                    int filter_tag,
+                                                    int filter_seek,
+                                                    int filter_tag2,
+                                                    int filter_seek2,
+                                                    int fallback_idxid,
+                                                    char *buf,
+                                                    size_t buf_size)
+{
+    struct tagcache_search tcs;
+    bool multiple = false;
+
+    if (!buf || buf_size == 0)
+        return;
+
+    buf[0] = '\0';
+    if (root_menu_video_db_single_album_tag_value(tag_albumartist,
+            album_seek, filter_tag, filter_seek, filter_tag2, filter_seek2,
+            buf, buf_size, &multiple))
+        return;
+    if (multiple)
+    {
+        strmemccpy(buf, "Various Artists", buf_size);
+        return;
+    }
+
+    if (root_menu_video_db_single_album_tag_value(tag_artist,
+            album_seek, filter_tag, filter_seek, filter_tag2, filter_seek2,
+            buf, buf_size, &multiple))
+        return;
+    if (multiple)
+    {
+        strmemccpy(buf, "Various Artists", buf_size);
+        return;
+    }
+
+    if (!tagcache_search(&tcs, tag_filename))
+        return;
+
+    if (tagcache_retrieve(&tcs, fallback_idxid, tag_albumartist, buf,
+                          buf_size) &&
+        root_menu_video_valid_artist_name(buf))
+    {
+        tagcache_search_finish(&tcs);
+        return;
+    }
+    if (!tagcache_retrieve(&tcs, fallback_idxid, tag_artist, buf, buf_size) ||
+        !root_menu_video_valid_artist_name(buf))
+        buf[0] = '\0';
+
+    tagcache_search_finish(&tcs);
+}
+
+static int root_menu_video_db_album_cmp(const void *pa, const void *pb)
+{
+    const struct root_menu_video_db_row *a = pa;
+    const struct root_menu_video_db_row *b = pb;
+    int cmp = root_menu_video_ascii_cmp(a->label, b->label);
+
+    if (cmp)
+        return cmp;
+
+    return root_menu_video_ascii_cmp(a->sublabel, b->sublabel);
+}
+
+static bool root_menu_video_db_album_cache_matches(int filter_tag,
+                                                   int filter_seek,
+                                                   int filter_tag2,
+                                                   int filter_seek2)
+{
+    return root_menu_video_album_groups.valid &&
+           TIME_BEFORE(current_tick,
+                       root_menu_video_album_groups.built_tick +
+                       IPODJS_DB_ALBUM_CACHE_TTL) &&
+           root_menu_video_album_groups.filter_tag == filter_tag &&
+           root_menu_video_album_groups.filter_seek == filter_seek &&
+           root_menu_video_album_groups.filter_tag2 == filter_tag2 &&
+           root_menu_video_album_groups.filter_seek2 == filter_seek2;
+}
+
+static int root_menu_video_db_find_album_group(const char *album,
+                                               const char *artist)
+{
+    for (int i = 0; i < root_menu_video_album_groups.count; i++)
+    {
+        struct root_menu_video_db_row *row =
+            &root_menu_video_album_groups.rows[i];
+
+        if (!strcasecmp(row->label, album) &&
+            !strcasecmp(row->sublabel, artist))
+            return i;
+    }
+
+    return -1;
+}
+
+static void root_menu_video_db_row_artist(struct tagcache_search *tcs,
+                                          int idxid, char *artist,
+                                          size_t artist_size)
+{
+    if (!artist || artist_size == 0)
+        return;
+
+    artist[0] = '\0';
+    if (tagcache_retrieve(tcs, idxid, tag_albumartist, artist,
+                          artist_size) &&
+        root_menu_video_valid_artist_name(artist))
+        return;
+
+    if (!tagcache_retrieve(tcs, idxid, tag_artist, artist, artist_size) ||
+        !root_menu_video_valid_artist_name(artist))
+        artist[0] = '\0';
+}
+
+static int root_menu_video_db_build_album_cache(int filter_tag,
+                                                int filter_seek,
+                                                int filter_tag2,
+                                                int filter_seek2)
+{
+    struct tagcache_search tcs;
+    char album[TAGCACHE_BUFSZ];
+    char artist[IPODJS_DB_LABEL_LEN];
+
+    if (root_menu_video_db_album_cache_matches(filter_tag, filter_seek,
+                                               filter_tag2, filter_seek2))
+        return root_menu_video_album_groups.count;
+
+    memset(&root_menu_video_album_groups, 0,
+           sizeof(root_menu_video_album_groups));
+    root_menu_video_album_groups.filter_tag = filter_tag;
+    root_menu_video_album_groups.filter_seek = filter_seek;
+    root_menu_video_album_groups.filter_tag2 = filter_tag2;
+    root_menu_video_album_groups.filter_seek2 = filter_seek2;
+    root_menu_video_album_groups.built_tick = current_tick;
+    root_menu_video_album_groups.valid = true;
+
+    if (!tagcache_is_usable() || !tagcache_search(&tcs, tag_album))
+    {
+        root_menu_video_album_groups.valid = false;
+        return -1;
+    }
+
+    if (filter_tag >= 0)
+        tagcache_search_add_filter(&tcs, filter_tag, filter_seek);
+    if (filter_tag2 >= 0)
+        tagcache_search_add_filter(&tcs, filter_tag2, filter_seek2);
+
+    while (tagcache_get_next(&tcs, album, sizeof(album)))
+    {
+        int group;
+
+        if (!album[0] || !strcasecmp(album, UNTAGGED))
+            continue;
+
+        root_menu_video_db_row_artist(&tcs, tcs.idx_id, artist,
+                                      sizeof(artist));
+
+        group = root_menu_video_db_find_album_group(album, artist);
+        if (group >= 0)
+            continue;
+
+        if (root_menu_video_album_groups.count >= IPODJS_DB_MAX_ROWS)
+            break;
+
+        struct root_menu_video_db_row *row =
+            &root_menu_video_album_groups.rows[
+                root_menu_video_album_groups.count++];
+        strmemccpy(row->label, album, sizeof(row->label));
+        strmemccpy(row->sublabel, artist, sizeof(row->sublabel));
+        row->seek = tcs.result_seek;
+        row->idxid = tcs.idx_id;
+        row->disc = 0;
+        row->track = 0;
+    }
+
+    tagcache_search_finish(&tcs);
+
+    if (root_menu_video_album_groups.count > 1)
+        qsort(root_menu_video_album_groups.rows,
+              root_menu_video_album_groups.count,
+              sizeof(root_menu_video_album_groups.rows[0]),
+              root_menu_video_db_album_cmp);
+
+    return root_menu_video_album_groups.count;
+}
+
+static int root_menu_video_db_load_album_groups(int filter_tag,
+                                                int filter_seek,
+                                                int filter_tag2,
+                                                int filter_seek2,
+                                                int offset,
+                                                struct root_menu_video_db_row *rows,
+                                                int row_count,
+                                                bool *has_more)
+{
+    int total = root_menu_video_db_build_album_cache(filter_tag, filter_seek,
+                                                     filter_tag2,
+                                                     filter_seek2);
+    int copied = 0;
+
+    *has_more = false;
+    if (total < 0)
+        return -1;
+
+    if (offset < 0)
+        offset = 0;
+    while (copied < row_count && offset + copied < total)
+    {
+        rows[copied] = root_menu_video_album_groups.rows[offset + copied];
+        copied++;
+    }
+
+    if (offset + copied < total)
+        *has_more = true;
+
+    return copied;
+}
+
 static int root_menu_video_db_load(int tag, int filter_tag, int filter_seek,
                                    int filter_tag2, int filter_seek2,
                                    int offset,
@@ -7608,6 +8489,13 @@ static int root_menu_video_db_load(int tag, int filter_tag, int filter_seek,
     int count = 0;
 
     *has_more = false;
+    if (tag == tag_album)
+        return root_menu_video_db_load_album_groups(filter_tag, filter_seek,
+                                                    filter_tag2,
+                                                    filter_seek2, offset,
+                                                    rows, row_count,
+                                                    has_more);
+
     if (!tagcache_is_usable() || !tagcache_search(&tcs, tag))
         return -1;
 
@@ -7639,15 +8527,10 @@ static int root_menu_video_db_load(int tag, int filter_tag, int filter_seek,
         rows[count].track = 0;
         if (tag == tag_album)
         {
-            if (!tagcache_retrieve(&tcs, tcs.idx_id, tag_albumartist,
-                                   rows[count].sublabel,
-                                   sizeof(rows[count].sublabel)) ||
-                !rows[count].sublabel[0])
-            {
-                (void)tagcache_retrieve(&tcs, tcs.idx_id, tag_artist,
-                                        rows[count].sublabel,
-                                        sizeof(rows[count].sublabel));
-            }
+            root_menu_video_db_resolve_album_artist(rows[count].seek,
+                filter_tag, filter_seek, filter_tag2, filter_seek2,
+                rows[count].idxid, rows[count].sublabel,
+                sizeof(rows[count].sublabel));
         }
         if (tag == tag_title)
         {
@@ -7919,10 +8802,11 @@ static int root_menu_video_db_browser_level(const char *title, int tag,
         root_menu_video_hold_update(&held, &redraw);
         if (reload)
         {
+            int fetch_rows = tag == tag_album ? IPODJS_DB_MAX_ROWS :
+                             IPODJS_DB_FETCH_ROWS;
             row_count = root_menu_video_db_load(tag, filter_tag, filter_seek,
                                                 filter_tag2, filter_seek2,
-                                                offset, rows,
-                                                IPODJS_DB_FETCH_ROWS,
+                                                offset, rows, fetch_rows,
                                                 tracks, &has_more);
             if (row_count < 0)
             {
@@ -7947,7 +8831,8 @@ static int root_menu_video_db_browser_level(const char *title, int tag,
             redraw = false;
         }
 
-        action = get_action(CONTEXT_TREE, HZ/20);
+        action = get_action(CONTEXT_TREE|ALLOW_SOFTLOCK,
+                            root_menu_video_paused_locked() ? HZ : HZ/20);
         switch (action)
         {
             case ACTION_NONE:
@@ -8088,11 +8973,17 @@ static int root_menu_video_db_browser(const char *title, int tag,
 static int root_menu_video_music_menu(void)
 {
     int selected = 0;
+    int previous_selected = 0;
     bool redraw = true;
+    bool redraw_rows = false;
     bool held = button_hold();
     long next_hold_refresh = 0;
+    struct root_menu_video_list_draw_state draw_state = {
+        .valid = false
+    };
 
     root_menu_video_enter_native_screen();
+    root_menu_video_ensure_aa_slot();
     button_clear_queue();
 
     while (true)
@@ -8103,8 +8994,15 @@ static int root_menu_video_music_menu(void)
         root_menu_video_hold_update(&held, &redraw);
         if (redraw)
         {
-            root_menu_video_draw_music_menu(selected);
+            root_menu_video_draw_music_menu(selected, &draw_state);
             redraw = false;
+            redraw_rows = false;
+        }
+        else if (redraw_rows)
+        {
+            root_menu_video_draw_music_selection_delta(previous_selected,
+                                                      selected, &draw_state);
+            redraw_rows = false;
         }
 
         action = get_action(CONTEXT_TREE, HZ/20);
@@ -8122,16 +9020,28 @@ static int root_menu_video_music_menu(void)
             case ACTION_STD_PREVREPEAT:
                 if (root_menu_video_hold_update(&held, &redraw))
                     break;
+                previous_selected = selected;
                 selected = selected <= 0 ? count - 1 : selected - 1;
-                redraw = true;
+                if (draw_state.valid &&
+                    root_menu_video_music_top(selected,
+                        draw_state.visible) == draw_state.top)
+                    redraw_rows = true;
+                else
+                    redraw = true;
                 break;
 
             case ACTION_STD_NEXT:
             case ACTION_STD_NEXTREPEAT:
                 if (root_menu_video_hold_update(&held, &redraw))
                     break;
+                previous_selected = selected;
                 selected = selected >= count - 1 ? 0 : selected + 1;
-                redraw = true;
+                if (draw_state.valid &&
+                    root_menu_video_music_top(selected,
+                        draw_state.visible) == draw_state.top)
+                    redraw_rows = true;
+                else
+                    redraw = true;
                 break;
 
             case ACTION_STD_OK:
@@ -8302,11 +9212,102 @@ static const struct root_menu_video_extras_item root_menu_video_extras_items[] =
     { "System", GO_TO_SYSTEM_SCREEN },
 };
 
-static void root_menu_video_draw_analog_clock(bool show_time)
+enum root_menu_video_clock_item {
+    IPODJS_CLOCK_WORLD = 0,
+    IPODJS_CLOCK_STOPWATCH,
+    IPODJS_CLOCK_TIMER,
+    IPODJS_CLOCK_ALARMS,
+    IPODJS_CLOCK_COUNT,
+};
+
+static const char * const root_menu_video_clock_rows[IPODJS_CLOCK_COUNT] = {
+    "World Clock", "Stopwatch", "Timer", "Alarms"
+};
+
+static const char *root_menu_video_sleep_timer_text(char *buf, size_t size)
 {
-    static const char * const rows[] = {
-        "World Clock", "Stopwatch", "Timer", "Alarms"
-    };
+    int seconds = get_sleep_timer();
+
+    if (seconds <= 0)
+        snprintf(buf, size, "Sleep Timer Off");
+    else
+        snprintf(buf, size, "%d min remaining", (seconds + 59) / 60);
+
+    return buf;
+}
+
+static void root_menu_video_draw_clock_pane(int selected, int x, int y,
+                                            int w, int h)
+{
+    struct tm *tm = get_time();
+    char line[48];
+    int center_y = y + h / 2 - 33;
+    int hour;
+
+    root_menu_video_preview_gradient(x, y, w, h);
+    root_menu_video_draw_clock_date(x, y, w, h, selected == IPODJS_CLOCK_WORLD);
+
+    lcd_setfont(root_menu_video_font());
+    lcd_set_foreground(IPODJS_PREVIEW_TEXT);
+    lcd_set_background(IPODJS_PREVIEW_BOTTOM);
+
+    if (!tm)
+        return;
+
+    switch (selected)
+    {
+        case IPODJS_CLOCK_WORLD:
+            hour = tm->tm_hour % 12;
+            if (hour == 0)
+                hour = 12;
+            snprintf(line, sizeof(line), "%d:%02d %s", hour, tm->tm_min,
+                     tm->tm_hour >= 12 ? "PM" : "AM");
+            root_menu_video_puts_fit(x + 16, center_y, w - 32,
+                                     "Local Time", true);
+            root_menu_video_puts_fit(x + 16, center_y + 20, w - 32,
+                                     line, true);
+            root_menu_video_puts_fit(x + 16, center_y + 42, w - 32,
+                                     "Select for Clock", true);
+            break;
+
+        case IPODJS_CLOCK_STOPWATCH:
+            root_menu_video_puts_fit(x + 16, center_y, w - 32,
+                                     "Stopwatch", true);
+            root_menu_video_puts_fit(x + 16, center_y + 22, w - 32,
+                                     "Laps and elapsed time", true);
+            root_menu_video_puts_fit(x + 16, center_y + 44, w - 32,
+                                     "Select to open", true);
+            break;
+
+        case IPODJS_CLOCK_TIMER:
+            root_menu_video_puts_fit(x + 16, center_y, w - 32,
+                                     "Timer", true);
+            root_menu_video_puts_fit(x + 16, center_y + 22, w - 32,
+                                     root_menu_video_sleep_timer_text(
+                                         line, sizeof(line)), true);
+            root_menu_video_puts_fit(x + 16, center_y + 44, w - 32,
+                                     "Select toggles", true);
+            break;
+
+        case IPODJS_CLOCK_ALARMS:
+        default:
+            root_menu_video_puts_fit(x + 16, center_y, w - 32,
+                                     "Alarms", true);
+#ifdef HAVE_RTC_ALARM
+            root_menu_video_puts_fit(x + 16, center_y + 22, w - 32,
+                                     "Wake alarm settings", true);
+#else
+            root_menu_video_puts_fit(x + 16, center_y + 22, w - 32,
+                                     "Alarm Clock app", true);
+#endif
+            root_menu_video_puts_fit(x + 16, center_y + 44, w - 32,
+                                     "Select to open", true);
+            break;
+    }
+}
+
+static void root_menu_video_draw_analog_clock(int selected)
+{
     int row_h = root_menu_video_row_height();
     int x = IPODJS_LIST_WIDTH + 1;
     int y = 0;
@@ -8324,11 +9325,12 @@ static void root_menu_video_draw_analog_clock(bool show_time)
     lcd_fillrect(0, IPODJS_HEADER_HEIGHT, IPODJS_LIST_WIDTH,
                  LCD_HEIGHT - IPODJS_HEADER_HEIGHT);
 
-    for (int i = 0; i < (int)ARRAYLEN(rows); i++)
+    for (int i = 0; i < IPODJS_CLOCK_COUNT; i++)
     {
         int item_y = IPODJS_HEADER_HEIGHT + i * row_h;
+        bool active = i == selected;
 
-        if (i == 0)
+        if (active)
         {
             root_menu_video_selection_gradient(0, item_y,
                                                IPODJS_LIST_WIDTH, row_h);
@@ -8344,8 +9346,8 @@ static void root_menu_video_draw_analog_clock(bool show_time)
         }
 
         root_menu_video_puts_fit(6, item_y + 4, IPODJS_LIST_WIDTH - 24,
-                                 rows[i], false);
-        if (i == 0)
+                                 root_menu_video_clock_rows[i], false);
+        if (active)
             root_menu_video_draw_arrow(IPODJS_LIST_WIDTH - 13,
                                        item_y + (row_h - 6) / 2);
     }
@@ -8354,19 +9356,65 @@ static void root_menu_video_draw_analog_clock(bool show_time)
                        LCD_RGBPACK(54, 60, 70) : IPODJS_SPLIT);
     lcd_vline(IPODJS_LIST_WIDTH, 0, LCD_HEIGHT - 1);
 
-    if (!root_menu_video_draw_menu_preview_asset("Clock", x, y, w, h))
-        root_menu_video_preview_gradient(x, y, w, h);
-    root_menu_video_draw_clock_date(x, y, w, h, show_time);
+    root_menu_video_draw_clock_pane(selected, x, y, w, h);
 
     ipodjs_video_draw_hold_overlay();
     lcd_update();
 }
 
+static void root_menu_video_set_sleep_duration(void)
+{
+    int duration = global_settings.sleeptimer_duration;
+
+    root_menu_video_finish_native_screen(0);
+    if (set_int((const unsigned char *)"Timer Duration", "min", UNIT_MIN,
+                &duration, NULL, 5, 5, 300, NULL))
+    {
+        global_settings.sleeptimer_duration = duration;
+        if (get_sleep_timer())
+            set_sleeptimer_duration(duration);
+    }
+    root_menu_video_enter_native_screen();
+}
+
+static int root_menu_video_clock_open(int selected)
+{
+    int ret = GO_TO_PREVIOUS;
+
+    root_menu_video_finish_native_screen(0);
+    switch (selected)
+    {
+        case IPODJS_CLOCK_WORLD:
+            ret = launch_clock_plugin(NULL);
+            break;
+        case IPODJS_CLOCK_STOPWATCH:
+            ret = launch_stopwatch_plugin(NULL);
+            break;
+        case IPODJS_CLOCK_TIMER:
+        {
+            char timer_status[48];
+
+            toggle_sleeptimer();
+            splash(HZ, root_menu_video_sleep_timer_text(
+                       timer_status, sizeof(timer_status)));
+            ret = GO_TO_PREVIOUS;
+            break;
+        }
+        case IPODJS_CLOCK_ALARMS:
+        default:
+            ret = launch_alarmclock_plugin(NULL);
+            break;
+    }
+    root_menu_video_enter_native_screen();
+    return ret;
+}
+
 static int root_menu_video_clock_screen(void)
 {
-    bool show_time = false;
+    int selected = 0;
     bool redraw = true;
     bool held = button_hold();
+    long next_refresh = 0;
 
     button_clear_queue();
     while (true)
@@ -8376,20 +9424,49 @@ static int root_menu_video_clock_screen(void)
         root_menu_video_hold_update(&held, &redraw);
         if (redraw)
         {
-            root_menu_video_draw_analog_clock(show_time);
+            root_menu_video_draw_analog_clock(selected);
             redraw = false;
         }
 
-        action = get_action(CONTEXT_TREE, HZ);
+        action = get_action(CONTEXT_TREE, HZ / 5);
         switch (action)
         {
             case ACTION_NONE:
+                if (TIME_AFTER(current_tick, next_refresh))
+                {
+                    next_refresh = current_tick + HZ;
+                    redraw = true;
+                }
+                break;
+            case ACTION_STD_PREV:
+            case ACTION_STD_PREVREPEAT:
+                if (root_menu_video_hold_update(&held, &redraw))
+                    break;
+                selected = selected <= 0 ? IPODJS_CLOCK_COUNT - 1 : selected - 1;
+                redraw = true;
+                break;
+            case ACTION_STD_NEXT:
+            case ACTION_STD_NEXTREPEAT:
+                if (root_menu_video_hold_update(&held, &redraw))
+                    break;
+                selected = selected >= IPODJS_CLOCK_COUNT - 1 ? 0 : selected + 1;
                 redraw = true;
                 break;
             case ACTION_STD_OK:
                 if (root_menu_video_hold_update(&held, &redraw))
                     break;
-                show_time = !show_time;
+            {
+                int ret = root_menu_video_clock_open(selected);
+                if (ret == GO_TO_WPS || ret == MENU_ATTACHED_USB)
+                    return ret;
+                redraw = true;
+                break;
+            }
+            case ACTION_STD_CONTEXT:
+                if (root_menu_video_hold_update(&held, &redraw))
+                    break;
+                if (selected == IPODJS_CLOCK_TIMER)
+                    root_menu_video_set_sleep_duration();
                 redraw = true;
                 break;
             case ACTION_STD_CANCEL:
@@ -8591,6 +9668,7 @@ static const struct root_menu_video_games_item root_menu_video_games_items[] = {
     { "RuneScape Classic", launch_runescape_classic },
     { "Stick RPG", launch_stickrpg },
     { "Club Penguin", launch_club_penguin },
+    { "Sega Master System / Game Gear", launch_smsgg },
     { "Game Cover Flow", launch_gameboy_browser },
     { "Browse ROM Files", browse_gameboy_roms },
     { "PokeMini", launch_pokemini },
@@ -8666,6 +9744,26 @@ static void root_menu_video_draw_games_menu(int selected)
     lcd_update();
 }
 
+static void root_menu_video_draw_games_preview_only(int selected)
+{
+    if (button_hold())
+    {
+        root_menu_video_draw_games_menu(selected);
+        return;
+    }
+
+    int count = ARRAYLEN(root_menu_video_games_items);
+    int x = IPODJS_LIST_WIDTH + 1;
+
+    selected = MAX(0, MIN(selected, count - 1));
+    lcd_set_viewport(NULL);
+    lcd_set_drawmode(DRMODE_SOLID);
+    root_menu_video_draw_preview_for_title(
+        root_menu_video_games_items[selected].label,
+        x, 0, LCD_WIDTH - x, LCD_HEIGHT);
+    lcd_update_rect(x, 0, LCD_WIDTH - x, LCD_HEIGHT);
+}
+
 static int root_menu_video_games_menu(void)
 {
     int selected = 0;
@@ -8703,7 +9801,7 @@ static int root_menu_video_games_menu(void)
                             root_menu_video_preview_source_for_title(
                                 root_menu_video_games_items[selected].label),
                             &next_slideshow))
-                    redraw = true;
+                    root_menu_video_draw_games_preview_only(selected);
                 break;
             case ACTION_STD_PREV:
             case ACTION_STD_PREVREPEAT:
@@ -9117,14 +10215,19 @@ static bool root_menu_video_qs_adjust(int item, int delta)
     return changed;
 }
 
-static void root_menu_video_draw_qs_icon(int x, int y, int item, bool active)
+static bool root_menu_video_draw_qs_icon(int x, int y, int item, bool active)
 {
     struct bitmap *bm = root_menu_video_qs_icon_asset(item);
 
     (void)active;
     if (bm)
+    {
         lcd_bitmap_transparent((fb_data *)bm->data, x, y,
                                bm->width, bm->height);
+        return true;
+    }
+
+    return false;
 }
 
 static void root_menu_video_qs_rect(int item, int *xp, int *yp,
@@ -9192,6 +10295,9 @@ static void root_menu_video_draw_quick_settings(int selected)
             root_menu_video_muted_text();
         int icon_y;
         int text_y;
+        int label_x;
+        int label_w;
+        bool has_icon;
 
         root_menu_video_qs_rect(i, &x, &y, &w, &h);
         root_menu_video_qs_value(i, value, sizeof(value));
@@ -9201,12 +10307,14 @@ static void root_menu_video_draw_quick_settings(int selected)
         text_y = y + MAX(1, (h - font_get(root_menu_video_font())->height) /
                             2) + root_menu_video_text_y_offset();
 
-        root_menu_video_draw_qs_icon(x + 7, icon_y, i, active);
+        has_icon = root_menu_video_draw_qs_icon(x + 7, icon_y, i, active);
+        label_x = has_icon ? x + 32 : x + 9;
+        label_w = slider ? (has_icon ? 118 : 141) : w - 104;
         lcd_setfont(root_menu_video_font());
         lcd_set_foreground(text);
         lcd_set_background(active ? root_menu_video_accent() :
                            list_bg);
-        root_menu_video_puts_fit(x + 32, text_y, slider ? 118 : w - 104,
+        root_menu_video_puts_fit(label_x, text_y, label_w,
                                  root_menu_video_qs_label(i), false);
 
         if (slider)
@@ -9530,19 +10638,26 @@ static int root_menu_video_settings_menu(void)
 static int root_menu_video_dashboard(int *selectedp)
 {
     int selected = MAX(0, MIN(*selectedp, root_menu_video_count() - 1));
+    int previous_selected = selected;
+    int drawn_selected = -1;
     bool redraw = true;
+    bool redraw_list_only = false;
     bool held = button_hold();
+    bool last_paused = false;
     long next_slideshow = 0;
     long next_hold_refresh = 0;
+    struct root_menu_video_list_draw_state draw_state = {
+        .valid = false
+    };
 
     root_menu_video_enter_native_screen();
-    root_menu_video_ensure_aa_slot();
     button_clear_queue();
 
     while (true)
     {
         int action;
         int count = root_menu_video_count();
+        bool paused;
         const struct menu_item_ex *item;
         enum root_menu_video_preview_source preview_source;
 
@@ -9551,19 +10666,47 @@ static int root_menu_video_dashboard(int *selectedp)
 
         selected = MAX(0, MIN(selected, count - 1));
         root_menu_video_hold_update(&held, &redraw);
+        paused = root_menu_video_paused_playback();
+        if (paused != last_paused)
+        {
+            last_paused = paused;
+            redraw = true;
+        }
+        if (selected != drawn_selected && !redraw_list_only)
+            redraw = true;
+
         if (redraw)
         {
-            root_menu_video_draw_home(selected);
+            root_menu_video_draw_home(selected, &draw_state);
+            drawn_selected = selected;
             redraw = false;
+            redraw_list_only = false;
+        }
+        else if (redraw_list_only)
+        {
+            if (!root_menu_video_draw_home_selection_delta(previous_selected,
+                    selected, &draw_state))
+            {
+                root_menu_video_draw_home(selected, &draw_state);
+            }
+            drawn_selected = selected;
+            redraw_list_only = false;
         }
 
         item = root_menu__[selected];
-        action = get_action(CONTEXT_TREE, HZ/20);
-        preview_source = root_menu_video_preview_source_for_item(item);
+        action = get_action(CONTEXT_TREE|ALLOW_SOFTLOCK,
+                            paused ? HZ/5 : HZ/20);
+        if (action != ACTION_NONE && !IS_SYSEVENT(action))
+            storage_spin();
         switch (action)
         {
             case ACTION_NONE:
-                if (held && TIME_AFTER(current_tick, next_hold_refresh))
+                if (paused)
+                    break;
+
+                preview_source = root_menu_video_preview_source_for_item(item);
+                if (held && !(audio_status() & AUDIO_STATUS_PAUSE) &&
+                    TIME_AFTER(current_tick, next_hold_refresh))
                 {
                     next_hold_refresh = current_tick + HZ;
                     redraw = true;
@@ -9571,23 +10714,35 @@ static int root_menu_video_dashboard(int *selectedp)
                 else if (!held &&
                          root_menu_video_should_animate(preview_source,
                                                         &next_slideshow))
-                    redraw = true;
+                    root_menu_video_draw_home_preview_only(selected);
                 break;
 
             case ACTION_STD_PREV:
             case ACTION_STD_PREVREPEAT:
                 if (root_menu_video_hold_update(&held, &redraw))
                     break;
+                previous_selected = selected;
                 selected = selected <= 0 ? count - 1 : selected - 1;
-                redraw = true;
+                if (draw_state.valid &&
+                    root_menu_video_list_top(selected,
+                        draw_state.visible) == draw_state.top)
+                    redraw_list_only = true;
+                else
+                    redraw = true;
                 break;
 
             case ACTION_STD_NEXT:
             case ACTION_STD_NEXTREPEAT:
                 if (root_menu_video_hold_update(&held, &redraw))
                     break;
+                previous_selected = selected;
                 selected = selected >= count - 1 ? 0 : selected + 1;
-                redraw = true;
+                if (draw_state.valid &&
+                    root_menu_video_list_top(selected,
+                        draw_state.visible) == draw_state.top)
+                    redraw_list_only = true;
+                else
+                    redraw = true;
                 break;
 
             case ACTION_STD_OK:

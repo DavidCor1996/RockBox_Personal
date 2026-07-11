@@ -18,6 +18,13 @@
 #include "InfoNES_System.h"
 #include "InfoNES_pAPU.h"
 
+static inline BYTE InfoNES_ReadPPU( WORD wAddr )
+{
+  wAddr &= 0x3fff;
+
+  return PPUBANK[ wAddr >> 10 ][ wAddr & 0x3ff ];
+}
+
 /*===================================================================*/
 /*                                                                   */
 /*            K6502_ReadZp() : Reading from the zero page            */
@@ -76,14 +83,20 @@ static inline BYTE K6502_Read( WORD wAddr )
       {
         WORD addr = PPU_Addr & 0x3fff;
 
-        // Set return value;
-	byRet = PPU_R7;
-
         // Increment PPU Address
         PPU_Addr += PPU_Increment;
 
         // Read PPU Memory
-        PPU_R7 = PPUBANK[ addr >> 10 ][ addr & 0x3ff ];
+        if ( addr >= 0x3f00 )
+        {
+          byRet = PPURAM[ 0x3f00 + ( addr & 0x1f ) ] & 0x3f;
+          PPU_R7 = InfoNES_ReadPPU( addr & 0x2fff );
+        }
+        else
+        {
+          byRet = PPU_R7;
+          PPU_R7 = InfoNES_ReadPPU( addr );
+        }
 
         return byRet;
       }
@@ -98,10 +111,8 @@ static inline BYTE K6502_Read( WORD wAddr )
         // Set return value
         byRet = PPU_R2;
 
-#if 0
         // Reset a V-Blank flag
         PPU_R2 &= ~R2_IN_VBLANK;
-#endif
 
         // Reset address latch
         PPU_Latch_Flag = 0;
@@ -266,7 +277,6 @@ static inline void K6502_Write( WORD wAddr, BYTE byData )
           {
             // V-Scroll Register
             PPU_Scr_V_Next = ( byData > 239 ) ? byData - 240 : byData;	    
-	    if ( byData > 239 ) PPU_NameTableBank ^= NAME_TABLE_V_MASK; 
             PPU_Scr_V_Byte_Next = PPU_Scr_V_Next >> 3;
             PPU_Scr_V_Bit_Next = PPU_Scr_V_Next & 7;
 

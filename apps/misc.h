@@ -168,6 +168,7 @@ void setvol(void);
 void set_normalized_volume(int vol);
 int get_normalized_volume(void);
 void adjust_volume(int steps);
+void adjust_volume_no_save(int steps);
 void adjust_volume_ex(int steps, enum volume_adjust_mode mode);
 
 #ifdef HAVE_LCD_COLOR

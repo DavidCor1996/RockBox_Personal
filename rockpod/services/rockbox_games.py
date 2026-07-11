@@ -18,10 +18,20 @@ from services.file_safety import atomic_write_json, atomic_write_text
 from services.online_game_metadata import OnlineGameMetadataLookup
 
 
-SUPPORTED_ROM_EXTENSIONS = {".gb", ".gbc", ".nes"}
+SUPPORTED_ROM_EXTENSIONS = {".gb", ".gbc", ".nes", ".sms", ".gg", ".sg", ".mgw", ".gw", ".gwz"}
+SMSGG_ROM_EXTENSIONS = {".sms", ".gg", ".sg"}
+GWATCH_PACKAGE_EXTENSIONS = {".mgw", ".gw", ".gwz"}
 ROM_TARGET_DIR = "gameboy"
 SAVE_TARGET_DIR = ".rockbox/rockboy"
+SMSGG_ROM_TARGET_DIR = ".rockbox/games/smsgg/roms"
+SMSGG_SAVE_TARGET_DIR = ".rockbox/games/smsgg/saves"
+SMSGG_STATE_TARGET_DIR = ".rockbox/games/smsgg/states"
+SMSGG_PLUGIN_PATH = ".rockbox/rocks/games/smsgg.rock"
+GWATCH_ROM_TARGET_DIR = ".rockbox/games/gwatch/roms"
+GWATCH_SAVE_TARGET_DIR = ".rockbox/games/gwatch/saves"
+GWATCH_PLUGIN_PATH = ".rockbox/rocks/games/gwatch.rock"
 LAUNCHER_INDEX_RELATIVE_PATH = ".rockbox/rocks/games/rockboy_launcher/games.tsv"
+LAUNCHER_CONFIG_RELATIVE_PATH = ".rockbox/rocks/games/rockboy_launcher/config.cfg"
 LAUNCHER_SCAN_MAX_DEPTH = 6
 LAUNCHER_COVER_EXTENSIONS = (".bmp", ".jpg", ".jpeg")
 LOCAL_COVER_EXTENSIONS = (".png", ".jpg", ".jpeg", ".webp")
@@ -34,17 +44,37 @@ LIBRETRO_BOXART_BASE_URLS = {
     ".gb": "https://thumbnails.libretro.com/Nintendo%20-%20Game%20Boy/Named_Boxarts",
     ".gbc": "https://thumbnails.libretro.com/Nintendo%20-%20Game%20Boy%20Color/Named_Boxarts",
     ".nes": "https://thumbnails.libretro.com/Nintendo%20-%20Nintendo%20Entertainment%20System/Named_Boxarts",
+    ".gg": "https://thumbnails.libretro.com/Sega%20-%20Game%20Gear/Named_Boxarts",
+    ".sms": "https://thumbnails.libretro.com/Sega%20-%20Master%20System%20-%20Mark%20III/Named_Boxarts",
+    ".sg": "https://thumbnails.libretro.com/Sega%20-%20SG-1000/Named_Boxarts",
 }
 ROM_PLATFORM_CACHE_DIRS = {
     ".gb": "gameboy",
     ".gbc": "gameboy-color",
     ".nes": "nes",
+    ".gg": "game-gear",
+    ".sms": "master-system",
+    ".sg": "sg-1000",
+    ".mgw": "game-watch",
+    ".gw": "game-watch",
+    ".gwz": "game-watch",
 }
 PERF_THRESHOLDS = {
     "320x240": {"warn": 1024 * 1024, "critical": 2 * 1024 * 1024},
     "176x132": {"warn": 512 * 1024, "critical": 1024 * 1024},
 }
-LAUNCHER_INDEX_COLUMN_COUNT = 10
+LAUNCHER_INDEX_COLUMN_COUNT = 11
+SYSTEM_MANIFEST_COLUMNS = 7
+SYSTEM_MANIFEST_RELATIVE_PATHS = {
+    "nes": ".rockbox/games/nes/games.tsv",
+    "smsgg": ".rockbox/games/smsgg/games.tsv",
+    "gwatch": ".rockbox/games/gwatch/games.tsv",
+}
+SYSTEM_MANIFEST_EXTENSIONS = {
+    "nes": {".nes"},
+    "smsgg": SMSGG_ROM_EXTENSIONS,
+    "gwatch": GWATCH_PACKAGE_EXTENSIONS,
+}
 
 
 class RockboxGameService:
@@ -58,7 +88,17 @@ class RockboxGameService:
         entries = self.parse_launcher_index(index_path)
         if entries:
             return entries
-        return self.scan_launcher_roms(self.rom_target_root(profile, target_mode, simulator_target))
+        entries = self.scan_launcher_roms(self.rom_target_root(profile, target_mode, simulator_target))
+        smsgg_root = self.smsgg_rom_target_root(profile, target_mode, simulator_target)
+        if smsgg_root != self.rom_target_root(profile, target_mode, simulator_target):
+            entries.extend(self.scan_launcher_roms(smsgg_root))
+        gwatch_root = self.gwatch_rom_target_root(profile, target_mode, simulator_target)
+        if gwatch_root not in {
+            self.rom_target_root(profile, target_mode, simulator_target),
+            smsgg_root,
+        }:
+            entries.extend(self.scan_launcher_roms(gwatch_root))
+        return self._sort_launcher_entries(entries)
 
     def parse_launcher_index(self, index_path):
         index_path = os.path.abspath(index_path or "")
@@ -74,16 +114,22 @@ class RockboxGameService:
                     continue
                 parts = [part.strip() for part in raw_line.rstrip("\r\n").split("\t")]
                 parts.extend([""] * (LAUNCHER_INDEX_COLUMN_COUNT - len(parts)))
-                title, rom_path, cover_path, favorite, save_hint, year, genre, publisher, developer, description = parts[:LAUNCHER_INDEX_COLUMN_COUNT]
+                title, rom_path, cover_path, favorite, save_hint, year, genre, publisher, developer, description, plugin_param = parts[:LAUNCHER_INDEX_COLUMN_COUNT]
                 resolved_rom = self._launcher_resolve_path(index_dir, rom_path, mount_root)
-                if os.path.splitext(resolved_rom)[1].lower() not in SUPPORTED_ROM_EXTENSIONS:
+                resolved_plugin_param = self._launcher_resolve_path(index_dir, plugin_param, mount_root)
+                effective_rom = resolved_plugin_param or resolved_rom
+                resolved_ext = os.path.splitext(effective_rom)[1].lower()
+                if resolved_ext not in SUPPORTED_ROM_EXTENSIONS:
                     continue
                 if not os.path.isfile(resolved_rom):
                     continue
+                if resolved_plugin_param and not os.path.isfile(resolved_plugin_param):
+                    continue
                 entries.append(
                     {
-                        "title": title or self._launcher_title_from_path(resolved_rom),
+                        "title": title or self._launcher_title_from_path(effective_rom),
                         "rom_path": resolved_rom,
+                        "plugin_param": resolved_plugin_param,
                         "cover_path": self._launcher_resolve_path(index_dir, cover_path, mount_root),
                         "favorite": self._launcher_parse_bool(favorite),
                         "save_hint": save_hint,
@@ -132,10 +178,10 @@ class RockboxGameService:
                         "source_path": full,
                         "size": stat.st_size,
                         "modified_time": stat.st_mtime,
-                        "on_device": os.path.isfile(os.path.join(device_root, name)) if device_root else False,
-                        "on_simulator": os.path.isfile(os.path.join(sim_root, name)) if sim_root else False,
-                        "device_save_exists": self._save_exists(device_save_root, {"filename": name, "source_path": full}),
-                        "simulator_save_exists": self._save_exists(sim_save_root, {"filename": name, "source_path": full}),
+                        "on_device": os.path.isfile(self._rom_abs_path(profile, {"filename": name}, "device")) if device_root else False,
+                        "on_simulator": os.path.isfile(self._rom_abs_path(profile, {"filename": name}, "simulator", simulator_target)) if sim_root else False,
+                        "device_save_exists": self._save_exists_for_target(profile, {"filename": name, "source_path": full}, "device"),
+                        "simulator_save_exists": self._save_exists_for_target(profile, {"filename": name, "source_path": full}, "simulator", simulator_target),
                         "cover_path": self.cover_path_for_game(
                             {
                                 "filename": name,
@@ -160,8 +206,8 @@ class RockboxGameService:
             merged_entry = {}
             merged_entry.update(device_entry)
             merged_entry.update(sim_entry)
-            device_path = str(device_entry.get("rom_path") or "").strip()
-            sim_path = str(sim_entry.get("rom_path") or "").strip()
+            device_path = str(device_entry.get("plugin_param") or device_entry.get("rom_path") or "").strip()
+            sim_path = str(sim_entry.get("plugin_param") or sim_entry.get("rom_path") or "").strip()
             existing_path = ""
             for candidate in (device_path, sim_path):
                 if candidate and os.path.isfile(candidate):
@@ -178,8 +224,8 @@ class RockboxGameService:
                     "modified_time": stat.st_mtime if stat else 0,
                     "on_device": bool(device_path and os.path.isfile(device_path)),
                     "on_simulator": bool(sim_path and os.path.isfile(sim_path)),
-                    "device_save_exists": self._save_exists(device_save_root, {"filename": name, "source_path": ""}),
-                    "simulator_save_exists": self._save_exists(sim_save_root, {"filename": name, "source_path": ""}),
+                    "device_save_exists": self._save_exists_for_target(profile, {"filename": name, "source_path": ""}, "device"),
+                    "simulator_save_exists": self._save_exists_for_target(profile, {"filename": name, "source_path": ""}, "simulator", simulator_target),
                     "cover_path": merged_entry.get("cover_path") or "",
                     "year": merged_entry.get("year", ""),
                     "genre": merged_entry.get("genre", ""),
@@ -215,13 +261,58 @@ class RockboxGameService:
             return ""
         return os.path.abspath(os.path.join(mount_root, SAVE_TARGET_DIR.lstrip("/")))
 
+    def smsgg_rom_target_root(self, profile, target_mode="device", simulator_target=None):
+        mount_root = self.mount_root(profile, target_mode, simulator_target)
+        if not mount_root:
+            return ""
+        return os.path.abspath(os.path.join(mount_root, SMSGG_ROM_TARGET_DIR))
+
+    def smsgg_save_target_root(self, profile, target_mode="device", simulator_target=None):
+        mount_root = self.mount_root(profile, target_mode, simulator_target)
+        if not mount_root:
+            return ""
+        return os.path.abspath(os.path.join(mount_root, SMSGG_SAVE_TARGET_DIR))
+
+    def gwatch_rom_target_root(self, profile, target_mode="device", simulator_target=None):
+        mount_root = self.mount_root(profile, target_mode, simulator_target)
+        if not mount_root:
+            return ""
+        return os.path.abspath(os.path.join(mount_root, GWATCH_ROM_TARGET_DIR))
+
+    def gwatch_save_target_root(self, profile, target_mode="device", simulator_target=None):
+        mount_root = self.mount_root(profile, target_mode, simulator_target)
+        if not mount_root:
+            return ""
+        return os.path.abspath(os.path.join(mount_root, GWATCH_SAVE_TARGET_DIR))
+
     def target_root(self, profile, target_mode="device", simulator_target=None):
         return self.rom_target_root(profile, target_mode, simulator_target)
+
+    def rom_abs_path_for_game(self, profile, game, target_mode="device", simulator_target=None):
+        return self._rom_abs_path(profile, game, target_mode, simulator_target)
 
     def _rom_target_dir(self, profile, target_mode="device"):
         if target_mode == "simulator":
             return str(profile.get("games_simulator_target_dir") or ROM_TARGET_DIR).strip() or ROM_TARGET_DIR
         return str(profile.get("games_device_target_dir") or ROM_TARGET_DIR).strip() or ROM_TARGET_DIR
+
+    def _rom_target_dir_for_game(self, profile, game, target_mode="device"):
+        ext = os.path.splitext(str(game.get("filename") or ""))[1].lower()
+        if ext in SMSGG_ROM_EXTENSIONS:
+            return SMSGG_ROM_TARGET_DIR
+        if ext in GWATCH_PACKAGE_EXTENSIONS:
+            return GWATCH_ROM_TARGET_DIR
+        return self._rom_target_dir(profile, target_mode)
+
+    def _rom_destination_rel(self, profile, game, target_mode="device"):
+        filename = str(game.get("filename") or "").strip()
+        return f"{self._rom_target_dir_for_game(profile, game, target_mode).rstrip('/')}/{filename}"
+
+    def _rom_abs_path(self, profile, game, target_mode="device", simulator_target=None):
+        mount_root = self.mount_root(profile, target_mode, simulator_target)
+        if not mount_root:
+            return ""
+        return os.path.abspath(os.path.join(mount_root, self._rom_destination_rel(profile, game, target_mode).lstrip("/")))
 
     def deploy_profile(self, profile, target_mode="device", simulator_target=None):
         mount_root = self.mount_root(profile, target_mode, simulator_target)
@@ -239,7 +330,6 @@ class RockboxGameService:
 
     def build_sync_bundle(self, profile, games, target_mode="device", simulator_target=None):
         assets = []
-        rom_target_dir = self._rom_target_dir(profile, target_mode).rstrip("/")
         stage_root = self._sync_stage_root(profile, target_mode)
         shutil.rmtree(stage_root, ignore_errors=True)
         os.makedirs(stage_root, exist_ok=True)
@@ -250,12 +340,12 @@ class RockboxGameService:
                     "kind": "rom",
                     "source_rel": game["filename"],
                     "source_abs": game["source_path"],
-                    "destination_rel": f"{rom_target_dir}/{game['filename']}",
+                    "destination_rel": self._rom_destination_rel(profile, game, target_mode),
                     "exists": True,
                     "size": game["size"],
                 }
             )
-            cover_asset = self._build_cover_sync_asset(profile, game, rom_target_dir, stage_root)
+            cover_asset = self._build_cover_sync_asset(profile, game, stage_root, target_mode)
             if cover_asset:
                 cover_assets[game["filename"]] = cover_asset
                 assets.append(cover_asset)
@@ -270,6 +360,20 @@ class RockboxGameService:
         )
         if index_asset:
             assets.append(index_asset)
+        assets.extend(
+            self._build_system_manifest_assets(
+                profile,
+                target_mode,
+                simulator_target,
+                stage_root,
+                add_games=games,
+                include_missing=True,
+                synced_cover_assets=cover_assets,
+            )
+        )
+        config_asset = self._build_launcher_config_asset(profile, stage_root)
+        if config_asset:
+            assets.append(config_asset)
         return {
             "id": f"games-sync-{profile['id']}",
             "name": "Rockboy Game Sync",
@@ -278,26 +382,26 @@ class RockboxGameService:
 
     def build_remove_bundle(self, profile, games, target_mode="device", simulator_target=None):
         assets = []
-        rom_target_dir = self._rom_target_dir(profile, target_mode).rstrip("/")
         for game in games:
             assets.append(
                 {
                     "kind": "rom",
                     "source_rel": "",
                     "source_abs": "",
-                    "destination_rel": f"{rom_target_dir}/{game['filename']}",
+                    "destination_rel": self._rom_destination_rel(profile, game, target_mode),
                     "exists": False,
                     "action": "remove",
                 }
             )
             stem = os.path.splitext(game["filename"])[0]
+            cover_target_dir = self._rom_target_dir_for_game(profile, game, target_mode).rstrip("/")
             for extension in SYNC_COVER_EXTENSIONS:
                 assets.append(
                     {
                         "kind": "cover",
                         "source_rel": "",
                         "source_abs": "",
-                        "destination_rel": f"{rom_target_dir}/{stem}{extension}",
+                        "destination_rel": f"{cover_target_dir}/{stem}{extension}",
                         "exists": False,
                         "action": "remove",
                     }
@@ -312,6 +416,18 @@ class RockboxGameService:
         )
         if index_asset:
             assets.append(index_asset)
+        assets.extend(
+            self._build_system_manifest_assets(
+                profile,
+                target_mode,
+                simulator_target,
+                self._sync_stage_root(profile, target_mode),
+                remove_filenames=remove_filenames,
+            )
+        )
+        config_asset = self._build_launcher_config_asset(profile, self._sync_stage_root(profile, target_mode))
+        if config_asset:
+            assets.append(config_asset)
         return {
             "id": f"games-remove-{profile['id']}",
             "name": "Remove Rockboy Games",
@@ -336,8 +452,36 @@ class RockboxGameService:
             "assets": assets,
         }
 
+    def build_system_manifest_bundle(self, profile, target_mode="device", simulator_target=None, games=None, include_missing=False):
+        stage_root = self._sync_stage_root(profile, target_mode)
+        os.makedirs(stage_root, exist_ok=True)
+        assets = self._build_system_manifest_assets(
+            profile,
+            target_mode,
+            simulator_target,
+            stage_root,
+            add_games=(games or []),
+            include_missing=include_missing,
+        )
+        return {
+            "id": f"games-system-manifests-{profile['id']}-{target_mode}",
+            "name": "Game System Manifests",
+            "assets": assets,
+        }
+
+    def build_launcher_config_bundle(self, profile, target_mode="device"):
+        stage_root = self._sync_stage_root(profile, target_mode)
+        os.makedirs(stage_root, exist_ok=True)
+        asset = self._build_launcher_config_asset(profile, stage_root, force=True)
+        return {
+            "id": f"games-launcher-config-{profile['id']}-{target_mode}",
+            "name": "Game Cover Flow Options",
+            "assets": [asset] if asset else [],
+        }
+
     def backup_saves(self, profile, games, target_mode="device", simulator_target=None):
         target_root = self.save_target_root(profile, target_mode, simulator_target)
+        mount_root = self.mount_root(profile, target_mode, simulator_target)
         backup_root = os.path.join(
             profile["source_repo_path"],
             "rockpod",
@@ -348,13 +492,13 @@ class RockboxGameService:
             datetime.now().strftime("%Y%m%d-%H%M%S"),
         )
         copied = []
-        if not target_root or not os.path.isdir(target_root):
+        if not target_root and not mount_root:
             return {"success": False, "backup_dir": backup_root, "copied": copied, "message": "Target game directory does not exist"}
         for game in games:
-            for source in self._save_candidate_paths(target_root, game):
+            for source in self._save_candidate_paths_for_target(profile, game, target_mode, simulator_target):
                 if not os.path.isfile(source):
                     continue
-                dest = os.path.join(backup_root, os.path.basename(source))
+                dest = os.path.join(backup_root, self._backup_rel_for_save_source(source))
                 os.makedirs(os.path.dirname(dest), exist_ok=True)
                 shutil.copy2(source, dest)
                 copied.append(dest)
@@ -367,14 +511,14 @@ class RockboxGameService:
 
     def restore_saves(self, profile, games, target_mode="device", simulator_target=None, backup_dir=None):
         save_root = self.save_target_root(profile, target_mode, simulator_target)
-        if not save_root:
+        if not save_root and not self.mount_root(profile, target_mode, simulator_target):
             return {"success": False, "restored": [], "message": "Target save directory does not exist", "backup_dir": backup_dir or ""}
         backup_dir = backup_dir or self.latest_save_backup_dir(profile, target_mode)
         if not backup_dir or not os.path.isdir(backup_dir):
             return {"success": False, "restored": [], "message": "No save backup found", "backup_dir": backup_dir or ""}
         restored = []
         for game in games:
-            for source, dest in self._backup_restore_pairs(backup_dir, save_root, game):
+            for source, dest in self._backup_restore_pairs_for_target(profile, backup_dir, game, target_mode, simulator_target):
                 if not os.path.isfile(source):
                     continue
                 os.makedirs(os.path.dirname(dest), exist_ok=True)
@@ -389,14 +533,14 @@ class RockboxGameService:
 
     def export_save_bundle(self, profile, games, target_mode="device", simulator_target=None, archive_path=""):
         save_root = self.save_target_root(profile, target_mode, simulator_target)
-        if not save_root:
+        if not save_root and not self.mount_root(profile, target_mode, simulator_target):
             return {"success": False, "message": "Target save directory does not exist", "archive_path": archive_path}
         archive_path = os.path.abspath(archive_path)
         os.makedirs(os.path.dirname(archive_path), exist_ok=True)
         written = 0
         with zipfile.ZipFile(archive_path, "w", compression=zipfile.ZIP_DEFLATED) as bundle:
             for game in games:
-                for source in self._save_candidate_paths(save_root, game):
+                for source in self._save_candidate_paths_for_target(profile, game, target_mode, simulator_target):
                     if not os.path.isfile(source):
                         continue
                     bundle.write(source, arcname=os.path.basename(source))
@@ -596,11 +740,36 @@ class RockboxGameService:
             return False
         return any(os.path.isfile(path) for path in self._save_candidate_paths(target_root, game))
 
-    def _build_cover_sync_asset(self, profile, game, rom_target_dir, stage_root):
+    def _save_exists_for_target(self, profile, game, target_mode="device", simulator_target=None):
+        ext = os.path.splitext(str(game.get("filename") or ""))[1].lower()
+        if ext in SMSGG_ROM_EXTENSIONS:
+            save_root = self.smsgg_save_target_root(profile, target_mode, simulator_target)
+            state_root = os.path.abspath(
+                os.path.join(
+                    self.mount_root(profile, target_mode, simulator_target),
+                    SMSGG_STATE_TARGET_DIR,
+                )
+            ) if self.mount_root(profile, target_mode, simulator_target) else ""
+            return (
+                any(os.path.isfile(path) for path in self._smsgg_save_candidate_paths(save_root, game)) or
+                any(os.path.isfile(path) for path in self._smsgg_save_candidate_paths(state_root, game))
+            )
+        if ext in GWATCH_PACKAGE_EXTENSIONS:
+            return any(
+                os.path.isfile(path)
+                for path in self._gwatch_save_candidate_paths(
+                    self.gwatch_save_target_root(profile, target_mode, simulator_target),
+                    game,
+                )
+            )
+        return self._save_exists(self.save_target_root(profile, target_mode, simulator_target), game)
+
+    def _build_cover_sync_asset(self, profile, game, stage_root, target_mode):
         cover_source = os.path.abspath(game.get("cover_path") or "")
         if not cover_source or not os.path.isfile(cover_source):
             return None
         stem = os.path.splitext(game.get("filename") or "game")[0]
+        rom_target_dir = self._rom_target_dir_for_game(profile, game, target_mode).rstrip("/")
         destination_ext = ".bmp"
         staged_abs = os.path.join(stage_root, f"{stem}{destination_ext}")
         if not self._stage_sync_cover(cover_source, staged_abs, profile):
@@ -644,6 +813,7 @@ class RockboxGameService:
                 {
                     "title": self._launcher_title_from_path(child),
                     "rom_path": child,
+                    "plugin_param": "",
                     "cover_path": self._launcher_detect_sidecar_cover(child),
                     "favorite": False,
                     "save_hint": "",
@@ -661,9 +831,85 @@ class RockboxGameService:
             filename = stem + extension
             yield os.path.join(backup_root, filename), os.path.join(save_root, filename)
 
+    def _backup_restore_pairs_for_target(self, profile, backup_root, game, target_mode="device", simulator_target=None):
+        ext = os.path.splitext(str(game.get("filename") or ""))[1].lower()
+        if ext in SMSGG_ROM_EXTENSIONS:
+            for source in self._save_candidate_paths_for_target(profile, game, target_mode, simulator_target):
+                rel_dir = os.path.basename(os.path.dirname(source))
+                yield (
+                    os.path.join(backup_root, rel_dir, os.path.basename(source)),
+                    source,
+            )
+            return
+        if ext in GWATCH_PACKAGE_EXTENSIONS:
+            for source in self._save_candidate_paths_for_target(profile, game, target_mode, simulator_target):
+                yield (
+                    os.path.join(backup_root, "saves", os.path.basename(source)),
+                    source,
+                )
+            return
+        yield from self._backup_restore_pairs(
+            backup_root,
+            self.save_target_root(profile, target_mode, simulator_target),
+            game,
+        )
+
     def _save_candidate_paths(self, target_root, game):
         stem = self._save_stem_for_game(game)
         return [os.path.join(target_root, stem + extension) for extension in (".sav", ".rtc", ".sn")]
+
+    @staticmethod
+    def _backup_rel_for_save_source(source):
+        parent = os.path.basename(os.path.dirname(source))
+        if parent in {"saves", "states"}:
+            return os.path.join(parent, os.path.basename(source))
+        return os.path.basename(source)
+
+    def _save_candidate_paths_for_target(self, profile, game, target_mode="device", simulator_target=None):
+        ext = os.path.splitext(str(game.get("filename") or ""))[1].lower()
+        if ext in SMSGG_ROM_EXTENSIONS:
+            mount_root = self.mount_root(profile, target_mode, simulator_target)
+            if not mount_root:
+                return []
+            save_root = os.path.join(mount_root, SMSGG_SAVE_TARGET_DIR)
+            state_root = os.path.join(mount_root, SMSGG_STATE_TARGET_DIR)
+            return (
+                self._smsgg_save_candidate_paths(save_root, game) +
+                self._smsgg_save_candidate_paths(state_root, game)
+            )
+        if ext in GWATCH_PACKAGE_EXTENSIONS:
+            return self._gwatch_save_candidate_paths(
+                self.gwatch_save_target_root(profile, target_mode, simulator_target),
+                game,
+            )
+        return self._save_candidate_paths(
+            self.save_target_root(profile, target_mode, simulator_target),
+            game,
+        )
+
+    @staticmethod
+    def _smsgg_save_candidate_paths(target_root, game):
+        if not target_root or not os.path.isdir(target_root):
+            return []
+        safe_stem = re.sub(r"[^A-Za-z0-9._ -]+", "_", os.path.splitext(game.get("filename") or "game")[0]).strip() or "game"
+        candidates = []
+        for name in os.listdir(target_root):
+            if name.startswith(safe_stem + "-") and name.lower().endswith((".sav", ".state")):
+                candidates.append(os.path.join(target_root, name))
+        return candidates
+
+    @staticmethod
+    def _gwatch_save_candidate_paths(target_root, game):
+        if not target_root or not os.path.isdir(target_root):
+            return []
+        stem = os.path.splitext(game.get("filename") or "game")[0]
+        safe_stem = re.sub(r"[^A-Za-z0-9._ -]+", "_", stem).strip() or "game"
+        candidates = []
+        for name in os.listdir(target_root):
+            lower = name.lower()
+            if name.startswith(safe_stem) and lower.endswith((".state", ".sav")):
+                candidates.append(os.path.join(target_root, name))
+        return candidates
 
     @staticmethod
     def _save_stem_for_game(game):
@@ -761,11 +1007,11 @@ class RockboxGameService:
             indexed_entries = self.parse_launcher_index(os.path.join(mount_root, LAUNCHER_INDEX_RELATIVE_PATH.lstrip("/")))
         entries_by_filename = {}
         for entry in current_entries:
-            filename = os.path.basename(entry.get("rom_path") or "")
+            filename = os.path.basename(entry.get("plugin_param") or entry.get("rom_path") or "")
             if filename:
                 entries_by_filename[filename] = dict(entry)
         for entry in indexed_entries:
-            filename = os.path.basename(entry.get("rom_path") or "")
+            filename = os.path.basename(entry.get("plugin_param") or entry.get("rom_path") or "")
             if not filename:
                 continue
             merged = dict(entries_by_filename.get(filename) or {})
@@ -797,15 +1043,19 @@ class RockboxGameService:
 
     def _target_entry_for_local_game(self, profile, game, target_mode, current_entry=None, synced_cover_asset=None):
         current_entry = dict(current_entry or {})
-        rom_target_dir = self._rom_target_dir(profile, target_mode).rstrip("/")
         filename = game.get("filename") or ""
         stem = os.path.splitext(filename)[0]
+        ext = os.path.splitext(filename)[1].lower()
+        rom_path = f"/{self._rom_target_dir_for_game(profile, game, target_mode).rstrip('/')}/{filename}"
+        plugin_path = f"/{GWATCH_PLUGIN_PATH}" if ext in GWATCH_PACKAGE_EXTENSIONS else f"/{SMSGG_PLUGIN_PATH}"
+        uses_plugin_launcher = ext in SMSGG_ROM_EXTENSIONS or ext in GWATCH_PACKAGE_EXTENSIONS
         metadata = self.cached_metadata_for_game(profile, game)
         return {
             "title": game.get("title") or current_entry.get("title") or self._launcher_title_from_path(filename),
-            "rom_path": f"/{rom_target_dir}/{filename}",
+            "rom_path": plugin_path if uses_plugin_launcher else rom_path,
+            "plugin_param": rom_path if uses_plugin_launcher else "",
             "cover_path": (
-                f"/{rom_target_dir}/{stem}.bmp"
+                f"/{self._rom_target_dir_for_game(profile, game, target_mode).rstrip('/')}/{stem}.bmp"
                 if synced_cover_asset
                 else current_entry.get("cover_path", "")
             ),
@@ -823,7 +1073,7 @@ class RockboxGameService:
         lines = [
             "# Rockboy launcher index",
             "# Format:",
-            "# title\\trom_path\\tcover_path\\tfavorite\\tsave_hint\\tyear\\tgenre\\tpublisher\\tdeveloper\\tdescription",
+            "# title\\trom_path\\tcover_path\\tfavorite\\tsave_hint\\tyear\\tgenre\\tpublisher\\tdeveloper\\tdescription\\tplugin_param",
         ]
         for entry in entries:
             lines.append(
@@ -839,10 +1089,315 @@ class RockboxGameService:
                         self._sanitize_index_field(entry.get("publisher")),
                         self._sanitize_index_field(entry.get("developer")),
                         self._sanitize_index_field(entry.get("description")),
+                        self._index_path(entry.get("plugin_param"), mount_root),
                     ]
                 )
             )
         atomic_write_text(index_path, "\n".join(lines) + "\n")
+
+    def _build_launcher_config_asset(self, profile, stage_root, force=False):
+        show_doom = bool(profile.get("games_show_builtin_doom", True))
+        show_stickrpg = bool(profile.get("games_show_builtin_stickrpg", True))
+        show_runescape = bool(profile.get("games_show_builtin_runescape", True))
+        if not force and show_doom and show_stickrpg and show_runescape:
+            return None
+        os.makedirs(stage_root, exist_ok=True)
+        staged_abs = os.path.join(stage_root, "rockboy_launcher.cfg")
+        lines = [
+            "# Game Cover Flow options",
+            f"show_builtin_doom={1 if show_doom else 0}",
+            f"show_builtin_stickrpg={1 if show_stickrpg else 0}",
+            f"show_builtin_runescape={1 if show_runescape else 0}",
+        ]
+        atomic_write_text(staged_abs, "\n".join(lines) + "\n")
+        return {
+            "kind": "config",
+            "source_rel": "rockboy_launcher.cfg",
+            "source_abs": staged_abs,
+            "destination_rel": LAUNCHER_CONFIG_RELATIVE_PATH,
+            "exists": True,
+            "size": os.stat(staged_abs).st_size,
+        }
+
+    def _build_system_manifest_assets(
+        self,
+        profile,
+        target_mode,
+        simulator_target,
+        stage_root,
+        add_games=None,
+        remove_filenames=None,
+        include_missing=False,
+        synced_cover_assets=None,
+    ):
+        system_ids = set()
+        for game in add_games or []:
+            system_id = self._system_manifest_id_for_game(game)
+            if system_id:
+                system_ids.add(system_id)
+        for filename in remove_filenames or set():
+            system_id = self._system_manifest_id_for_filename(filename)
+            if system_id:
+                system_ids.add(system_id)
+
+        assets = []
+        for system_id in sorted(system_ids):
+            asset = self._build_system_manifest_asset(
+                profile,
+                target_mode,
+                simulator_target,
+                stage_root,
+                system_id,
+                add_games=add_games,
+                remove_filenames=remove_filenames,
+                include_missing=include_missing,
+                synced_cover_assets=synced_cover_assets,
+            )
+            if asset:
+                assets.append(asset)
+        return assets
+
+    def _build_system_manifest_asset(
+        self,
+        profile,
+        target_mode,
+        simulator_target,
+        stage_root,
+        system_id,
+        add_games=None,
+        remove_filenames=None,
+        include_missing=False,
+        synced_cover_assets=None,
+    ):
+        mount_root = self.mount_root(profile, target_mode, simulator_target)
+        destination_rel = SYSTEM_MANIFEST_RELATIVE_PATHS.get(system_id)
+        if not destination_rel:
+            return None
+
+        entries = self._merged_system_manifest_entries(
+            profile,
+            target_mode,
+            simulator_target,
+            system_id,
+            add_games=add_games,
+            remove_filenames=remove_filenames,
+            include_missing=include_missing,
+            synced_cover_assets=synced_cover_assets,
+        )
+        if not entries:
+            return {
+                "kind": "system_manifest",
+                "source_rel": "",
+                "source_abs": "",
+                "destination_rel": destination_rel,
+                "exists": False,
+                "action": "remove",
+            } if mount_root else None
+
+        os.makedirs(stage_root, exist_ok=True)
+        staged_abs = os.path.join(stage_root, f"{system_id}-games.tsv")
+        self._write_system_manifest(staged_abs, mount_root, entries)
+        return {
+            "kind": "system_manifest",
+            "source_rel": os.path.basename(staged_abs),
+            "source_abs": staged_abs,
+            "destination_rel": destination_rel,
+            "exists": True,
+            "size": os.stat(staged_abs).st_size,
+        }
+
+    def _merged_system_manifest_entries(
+        self,
+        profile,
+        target_mode,
+        simulator_target,
+        system_id,
+        add_games=None,
+        remove_filenames=None,
+        include_missing=False,
+        synced_cover_assets=None,
+    ):
+        mount_root = self.mount_root(profile, target_mode, simulator_target)
+        entries_by_filename = {}
+        for entry in self._scan_system_manifest_files(profile, target_mode, simulator_target, system_id):
+            filename = os.path.basename(entry.get("file_path") or "")
+            if filename:
+                entries_by_filename[filename] = dict(entry)
+
+        manifest_rel = SYSTEM_MANIFEST_RELATIVE_PATHS.get(system_id, "")
+        if mount_root and manifest_rel:
+            manifest_path = os.path.join(mount_root, manifest_rel)
+            for entry in self.parse_system_manifest(manifest_path):
+                filename = os.path.basename(entry.get("file_path") or "")
+                if not filename:
+                    continue
+                merged = dict(entries_by_filename.get(filename) or {})
+                merged.update({key: value for key, value in dict(entry).items() if value not in ("", None)})
+                entries_by_filename[filename] = merged
+
+        remove_filenames = {str(name or "").strip() for name in (remove_filenames or set()) if str(name or "").strip()}
+        for filename in remove_filenames:
+            entries_by_filename.pop(filename, None)
+
+        synced_cover_assets = synced_cover_assets or {}
+        for game in add_games or []:
+            if self._system_manifest_id_for_game(game) != system_id:
+                continue
+            filename = str(game.get("filename") or "").strip()
+            if not filename:
+                continue
+            if not include_missing and filename not in entries_by_filename:
+                continue
+            current = entries_by_filename.get(filename, {})
+            entries_by_filename[filename] = self._system_manifest_entry_for_local_game(
+                profile,
+                game,
+                target_mode,
+                current_entry=current,
+                synced_cover_asset=synced_cover_assets.get(filename),
+            )
+
+        return self._sort_launcher_entries(list(entries_by_filename.values()))
+
+    def parse_system_manifest(self, manifest_path):
+        manifest_path = os.path.abspath(manifest_path or "")
+        if not manifest_path or not os.path.isfile(manifest_path):
+            return []
+        index_dir = os.path.dirname(manifest_path)
+        mount_root = self._system_manifest_mount_root(manifest_path)
+        entries = []
+        with open(manifest_path, "r", encoding="utf-8") as handle:
+            for raw_line in handle:
+                line = raw_line.strip()
+                if not line or line.startswith("#"):
+                    continue
+                parts = [part.strip() for part in raw_line.rstrip("\r\n").split("\t")]
+                parts.extend([""] * (SYSTEM_MANIFEST_COLUMNS - len(parts)))
+                entry_id, title, file_path, cover_path, favorite, last_played, haptic_profile = parts[:SYSTEM_MANIFEST_COLUMNS]
+                if entry_id.lower() == "id":
+                    continue
+                resolved_file = self._launcher_resolve_path(index_dir, file_path, mount_root)
+                if not resolved_file or not os.path.isfile(resolved_file):
+                    continue
+                entries.append(
+                    {
+                        "id": entry_id,
+                        "title": title or self._launcher_title_from_path(resolved_file),
+                        "file_path": resolved_file,
+                        "cover_path": self._launcher_resolve_path(index_dir, cover_path, mount_root),
+                        "favorite": self._launcher_parse_bool(favorite),
+                        "last_played": last_played,
+                        "haptic_profile": haptic_profile,
+                    }
+                )
+        return self._sort_launcher_entries(entries)
+
+    def _scan_system_manifest_files(self, profile, target_mode, simulator_target, system_id):
+        root = self._system_manifest_scan_root(profile, target_mode, simulator_target, system_id)
+        extensions = SYSTEM_MANIFEST_EXTENSIONS.get(system_id, set())
+        entries = []
+        for entry in self.scan_launcher_roms(root):
+            file_path = entry.get("rom_path") or ""
+            if os.path.splitext(file_path)[1].lower() not in extensions:
+                continue
+            entries.append(
+                {
+                    "id": self._system_manifest_entry_id(file_path),
+                    "title": entry.get("title") or self._launcher_title_from_path(file_path),
+                    "file_path": file_path,
+                    "cover_path": entry.get("cover_path") or "",
+                    "favorite": bool(entry.get("favorite")),
+                    "last_played": "",
+                    "haptic_profile": "",
+                }
+            )
+        return entries
+
+    def _system_manifest_entry_for_local_game(self, profile, game, target_mode, current_entry=None, synced_cover_asset=None):
+        current_entry = dict(current_entry or {})
+        filename = str(game.get("filename") or "").strip()
+        stem = os.path.splitext(filename)[0]
+        file_path = f"/{self._rom_target_dir_for_game(profile, game, target_mode).rstrip('/')}/{filename}"
+        cover_path = ""
+        if synced_cover_asset:
+            cover_path = f"/{self._rom_target_dir_for_game(profile, game, target_mode).rstrip('/')}/{stem}.bmp"
+        else:
+            cover_path = current_entry.get("cover_path", "")
+        return {
+            "id": current_entry.get("id") or self._system_manifest_entry_id(filename),
+            "title": game.get("title") or current_entry.get("title") or self._launcher_title_from_path(filename),
+            "file_path": file_path,
+            "cover_path": cover_path,
+            "favorite": bool(current_entry.get("favorite")),
+            "last_played": current_entry.get("last_played", ""),
+            "haptic_profile": current_entry.get("haptic_profile", ""),
+        }
+
+    def _write_system_manifest(self, manifest_path, mount_root, entries):
+        os.makedirs(os.path.dirname(manifest_path), exist_ok=True)
+        lines = [
+            "# RockPod game system manifest",
+            "id\ttitle\tfile\tcover\tfavorite\tlast_played\thaptic_profile",
+        ]
+        for entry in entries:
+            lines.append(
+                "\t".join(
+                    [
+                        self._sanitize_index_field(entry.get("id") or self._system_manifest_entry_id(entry.get("file_path"))),
+                        self._sanitize_index_field(entry.get("title")),
+                        self._index_path(entry.get("file_path"), mount_root),
+                        self._index_path(entry.get("cover_path"), mount_root),
+                        "1" if entry.get("favorite") else "0",
+                        self._sanitize_index_field(entry.get("last_played")),
+                        self._sanitize_index_field(entry.get("haptic_profile")),
+                    ]
+                )
+            )
+        atomic_write_text(manifest_path, "\n".join(lines) + "\n")
+
+    def _system_manifest_scan_root(self, profile, target_mode, simulator_target, system_id):
+        mount_root = self.mount_root(profile, target_mode, simulator_target)
+        if not mount_root:
+            return ""
+        if system_id == "smsgg":
+            return os.path.abspath(os.path.join(mount_root, SMSGG_ROM_TARGET_DIR))
+        if system_id == "gwatch":
+            return os.path.abspath(os.path.join(mount_root, GWATCH_ROM_TARGET_DIR))
+        if system_id == "nes":
+            return self.rom_target_root(profile, target_mode, simulator_target)
+        return ""
+
+    @staticmethod
+    def _system_manifest_id_for_filename(filename):
+        ext = os.path.splitext(str(filename or ""))[1].lower()
+        if ext == ".nes":
+            return "nes"
+        if ext in SMSGG_ROM_EXTENSIONS:
+            return "smsgg"
+        if ext in GWATCH_PACKAGE_EXTENSIONS:
+            return "gwatch"
+        return ""
+
+    def _system_manifest_id_for_game(self, game):
+        return self._system_manifest_id_for_filename(game.get("filename"))
+
+    @staticmethod
+    def _system_manifest_entry_id(path):
+        stem = os.path.splitext(os.path.basename(str(path or "")))[0]
+        return re.sub(r"[^A-Za-z0-9._-]+", "-", stem).strip("-._") or "game"
+
+    @staticmethod
+    def _system_manifest_mount_root(manifest_path):
+        manifest_abs = os.path.abspath(manifest_path or "")
+        for relative_path in SYSTEM_MANIFEST_RELATIVE_PATHS.values():
+            relative_manifest = os.path.normpath(relative_path)
+            if not manifest_abs.endswith(relative_manifest):
+                continue
+            mount_root = manifest_abs
+            for _part in relative_manifest.split(os.sep):
+                mount_root = os.path.dirname(mount_root)
+            return mount_root
+        return ""
 
     @staticmethod
     def _sanitize_index_field(value):
@@ -967,7 +1522,7 @@ class RockboxGameService:
     def _launcher_entries_by_filename(entries):
         by_filename = {}
         for entry in entries or []:
-            filename = os.path.basename(str(entry.get("rom_path") or "").strip())
+            filename = os.path.basename(str(entry.get("plugin_param") or entry.get("rom_path") or "").strip())
             if filename:
                 by_filename[filename] = dict(entry)
         return by_filename

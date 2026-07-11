@@ -114,7 +114,7 @@ def main(argv=None) -> int:
     log_path = _write_device_log(mount, log_lines)
     print(f"Device log: {log_path}")
 
-    plan = engine.build_sync_plan(track_ids=set(ids), force_full=True)
+    plan = engine.build_sync_plan(track_ids=set(ids), force_full=True, media_type="video")
     print(plan.summary())
     if plan.errors:
         for error in plan.errors:
@@ -135,7 +135,7 @@ def main(argv=None) -> int:
     failed = int(results.get("failed", 0))
     skipped = int(results.get("skipped", 0))
     removed = []
-    if copied and not failed:
+    if (plan.to_copy or plan.to_resync) and copied and not failed:
         removed = _remove_replaced_device_files(mount, rows, planned_paths)
     finished = time.strftime("%Y-%m-%d %H:%M:%S")
     _write_device_log(

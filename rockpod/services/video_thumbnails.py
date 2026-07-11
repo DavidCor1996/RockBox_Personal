@@ -40,7 +40,7 @@ class VideoThumbnailService:
     def is_available(self):
         return bool(self._ffmpeg)
 
-    def thumbnail_path(self, track, size=232):
+    def thumbnail_path(self, track, size=232, allow_online=False):
         path = str((track or {}).get("file_path") or "")
         if not path or not os.path.isfile(path):
             return ""
@@ -59,7 +59,7 @@ class VideoThumbnailService:
         else:
             poster_mtime = 0
 
-        online_poster = self._online_poster_path(track)
+        online_poster = self._online_poster_path(track, allow_online=allow_online)
         if online_poster:
             poster_mtime = os.stat(online_poster).st_mtime
 
@@ -93,28 +93,39 @@ class VideoThumbnailService:
                 pass
         return target if os.path.exists(target) else ""
 
-    def _online_poster_path(self, track):
+    def _online_poster_path(self, track, allow_online=False):
         if not self._artwork:
             return ""
         video_info = self._video_info(track)
-        return self._artwork.get_video_poster(video_info, size="thumb", allow_online=False)
+        poster = self._artwork.get_video_poster(video_info, size="thumb", allow_online=False)
+        if poster or not allow_online:
+            return poster
+        if not self._config_value("enable_online_artwork_lookup", False):
+            return ""
+        fetched = self._artwork.fetch_online_artwork_now(video_info, force=False)
+        if fetched:
+            return self._artwork.get_video_poster(video_info, size="thumb", allow_online=False) or fetched
+        return ""
 
     def video_list_id(self, track):
         video_info = self._video_info(track)
         identity = str(
-            video_info.get("group_key")
-            or video_info.get("album")
+            (track or {}).get("device_path")
             or (track or {}).get("file_path")
+            or video_info.get("group_key")
+            or video_info.get("album")
             or "video"
         )
         return hashlib.sha1(identity.encode("utf-8", "replace")).hexdigest()[:24]
 
-    def export_video_list_thumbnail(self, track, force=False, size=None):
+    def export_video_list_thumbnail(self, track, force=False, size=None, allow_online=None):
         target_size = size or _VIDEO_LIST_THUMB_SIZE
         width = max(int(target_size[0]), 1)
         height = max(int(target_size[1]), 1)
         video_id = self.video_list_id(track)
-        source = self.thumbnail_path(track, size=max(width, height) * 4)
+        if allow_online is None:
+            allow_online = self._config_value("enable_online_artwork_lookup", False)
+        source = self.thumbnail_path(track, size=max(width, height) * 4, allow_online=allow_online)
         if not source:
             return "", "", "", video_id
 
@@ -129,12 +140,14 @@ class VideoThumbnailService:
             return "", "", "", video_id
         return cache_target, self._file_hash(cache_target), f"{video_id}.bmp", video_id
 
-    def export_video_list_preview(self, track, force=False, size=None):
+    def export_video_list_preview(self, track, force=False, size=None, allow_online=None):
         target_size = size or _VIDEO_LIST_PREVIEW_SIZE
         width = max(int(target_size[0]), 1)
         height = max(int(target_size[1]), 1)
         video_id = self.video_list_id(track)
-        source = self.thumbnail_path(track, size=max(width, height))
+        if allow_online is None:
+            allow_online = self._config_value("enable_online_artwork_lookup", False)
+        source = self.thumbnail_path(track, size=max(width, height), allow_online=allow_online)
         if not source:
             return "", "", "", video_id
 
@@ -197,7 +210,7 @@ class VideoThumbnailService:
             artist = str(first.get("artist") or first.get("album_artist") or "")
             scope = video_kind
         return {
-            "group_key": str(first.get("video_group_key") or first.get("file_path") or album),
+            "group_key": str(first.get("video_group_key") or album or first.get("file_path")),
             "album": album,
             "artist": artist,
             "tracks": tracks,
@@ -212,6 +225,8 @@ class VideoThumbnailService:
             return ""
         path = Path(path_text)
         scope = str((track or {}).get("_video_scope") or "")
+        if not scope and str((track or {}).get("video_kind") or "") == "show":
+            scope = "show"
         season_number = int((track or {}).get("season_number") or 0)
         show_title = str((track or {}).get("show_title") or "").strip()
 
@@ -220,9 +235,6 @@ class VideoThumbnailService:
             f"{path.stem}.jpg",
             f"{path.stem}.png",
         )
-        for name in stem_variants:
-            candidates.append(path.with_name(name))
-
         current_dir = path.parent
         parent_dir = current_dir.parent if current_dir.parent != current_dir else current_dir
         search_dirs = [current_dir]
@@ -250,6 +262,20 @@ class VideoThumbnailService:
         for directory in search_dirs:
             for name in season_specific + list(_VIDEO_POSTER_FILENAMES):
                 candidates.append(directory / name)
+            if show_title:
+                safe_show = show_title.replace("/", " ").replace("\\", " ").strip()
+                candidates.extend(
+                    [
+                        directory / f"{safe_show}.jpg",
+                        directory / f"{safe_show}.png",
+                        directory / f"{safe_show} poster.jpg",
+                        directory / f"{safe_show} poster.png",
+                    ]
+                )
+
+        if scope != "show":
+            for name in stem_variants:
+                candidates.append(path.with_name(name))
 
         seen = set()
         for candidate in candidates:
@@ -384,3 +410,12 @@ class VideoThumbnailService:
     @staticmethod
     def _manifest_field(value):
         return str(value or "").replace("\t", " ").replace("\r", " ").replace("\n", " ").strip()
+
+    def _config_value(self, key, default=None):
+        config = self._config
+        if config is None:
+            return default
+        getter = getattr(config, "get", None)
+        if callable(getter):
+            return getter(key, default)
+        return getattr(config, key, default)

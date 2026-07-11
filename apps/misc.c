@@ -1096,16 +1096,27 @@ int get_normalized_volume(void)
 }
 #endif
 
-void adjust_volume(int steps)
+static void setvol_maybe_save(bool save)
 {
-#ifdef HAVE_PERCEPTUAL_VOLUME
-    adjust_volume_ex(steps, global_settings.volume_adjust_mode);
-#else
-    adjust_volume_ex(steps, VOLUME_ADJUST_DIRECT);
-#endif
+    const int min_vol = sound_min(SOUND_VOLUME);
+    const int max_vol = sound_max(SOUND_VOLUME);
+    int volume = global_status.volume;
+    if (volume < min_vol)
+        volume = min_vol;
+    if (volume > max_vol)
+        volume = max_vol;
+    if (volume > global_settings.volume_limit)
+        volume = global_settings.volume_limit;
+
+    sound_set_volume(volume);
+    global_status.last_volume_change = current_tick;
+    if (save)
+        status_save(false);
 }
 
-void adjust_volume_ex(int steps, enum volume_adjust_mode mode)
+static void adjust_volume_ex_maybe_save(int steps,
+                                        enum volume_adjust_mode mode,
+                                        bool save)
 {
     switch (mode)
     {
@@ -1120,7 +1131,31 @@ void adjust_volume_ex(int steps, enum volume_adjust_mode mode)
         break;
     }
 
-    setvol();
+    setvol_maybe_save(save);
+}
+
+void adjust_volume(int steps)
+{
+#ifdef HAVE_PERCEPTUAL_VOLUME
+    adjust_volume_ex(steps, global_settings.volume_adjust_mode);
+#else
+    adjust_volume_ex(steps, VOLUME_ADJUST_DIRECT);
+#endif
+}
+
+void adjust_volume_no_save(int steps)
+{
+#ifdef HAVE_PERCEPTUAL_VOLUME
+    adjust_volume_ex_maybe_save(steps, global_settings.volume_adjust_mode,
+                                false);
+#else
+    adjust_volume_ex_maybe_save(steps, VOLUME_ADJUST_DIRECT, false);
+#endif
+}
+
+void adjust_volume_ex(int steps, enum volume_adjust_mode mode)
+{
+    adjust_volume_ex_maybe_save(steps, mode, true);
 }
 
 char* strrsplt(char* str, int c)

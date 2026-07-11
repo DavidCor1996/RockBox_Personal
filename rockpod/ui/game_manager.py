@@ -16,6 +16,7 @@ from PySide6.QtWidgets import (
     QLineEdit,
     QListWidget,
     QListWidgetItem,
+    QCheckBox,
     QPushButton,
     QVBoxLayout,
     QWidget,
@@ -39,6 +40,7 @@ class GameManagerWidget(QWidget):
     fetch_metadata_requested = Signal()
     optimize_cover_requested = Signal()
     launch_simulator_requested = Signal()
+    default_games_changed = Signal()
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -72,6 +74,12 @@ class GameManagerWidget(QWidget):
         self._settings_help = QLabel("")
         self._settings_help.setWordWrap(True)
         self._settings_help.setObjectName("theme_hub_status")
+        self._show_doom_check = QCheckBox("Doom")
+        self._show_stickrpg_check = QCheckBox("Stick RPG")
+        self._show_runescape_check = QCheckBox("RuneScape Classic")
+        self._show_doom_check.toggled.connect(self.default_games_changed)
+        self._show_stickrpg_check.toggled.connect(self.default_games_changed)
+        self._show_runescape_check.toggled.connect(self.default_games_changed)
 
         grid.addWidget(QLabel("Profile:"), 0, 0)
         grid.addWidget(self._profile_combo, 0, 1)
@@ -89,6 +97,14 @@ class GameManagerWidget(QWidget):
         grid.addWidget(self._backup_label, 4, 1, 1, 3)
         grid.addWidget(QLabel("Rockboy Tips:"), 5, 0)
         grid.addWidget(self._settings_help, 5, 1, 1, 3)
+        builtins = QHBoxLayout()
+        builtins.setSpacing(8)
+        builtins.addWidget(self._show_doom_check)
+        builtins.addWidget(self._show_stickrpg_check)
+        builtins.addWidget(self._show_runescape_check)
+        builtins.addStretch(1)
+        grid.addWidget(QLabel("Show Defaults:"), 6, 0)
+        grid.addLayout(builtins, 6, 1, 1, 3)
         layout.addWidget(header)
 
         body = QHBoxLayout()
@@ -196,6 +212,24 @@ class GameManagerWidget(QWidget):
         self._status_label.setText(status_text or "")
         self._settings_help.setText("\n".join(settings_help or []))
         self._backup_label.setText(last_backup_text or "None")
+
+    def set_default_game_visibility(self, show_doom, show_stickrpg, show_runescape):
+        checks = [
+            (self._show_doom_check, show_doom),
+            (self._show_stickrpg_check, show_stickrpg),
+            (self._show_runescape_check, show_runescape),
+        ]
+        for check, enabled in checks:
+            check.blockSignals(True)
+            check.setChecked(bool(enabled))
+            check.blockSignals(False)
+
+    def default_game_visibility(self):
+        return {
+            "games_show_builtin_doom": self._show_doom_check.isChecked(),
+            "games_show_builtin_stickrpg": self._show_stickrpg_check.isChecked(),
+            "games_show_builtin_runescape": self._show_runescape_check.isChecked(),
+        }
 
     def set_games(self, games, selected_ids=None):
         selected_ids = set(selected_ids or [])

@@ -77,8 +77,6 @@
 static struct wps_state wps_state;
 static bool wps_playback_events_registered;
 
-static void wps_state_init(void);
-static void wps_state_deinit(void);
 static void track_info_callback(unsigned short id, void *param);
 
 #define WPS_DEFAULTCFG WPS_DIR "/rockbox_default.wps"
@@ -552,7 +550,6 @@ long gui_wps_show(void)
         #endif
         button = do_party_mode(button);
         button = action_wpsab_single(button);
-
         switch(button)
         {
             #ifdef HAVE_HOTKEY
@@ -717,7 +714,7 @@ static void track_info_callback(unsigned short id, void *param)
     skin_request_full_update(WPS);
 }
 
-static void wps_state_init(void)
+void wps_state_init(void)
 {
     struct wps_state *state = get_wps_state();
     state->paused = (audio_status() & AUDIO_STATUS_PAUSE) ? true : false;
@@ -736,7 +733,7 @@ static void wps_state_init(void)
     DEBUGF("wps: playback callbacks registered\n");
 }
 
-static void wps_state_deinit(void)
+void wps_state_deinit(void)
 {
     if (!wps_playback_events_registered)
         return;

@@ -405,7 +405,6 @@ struct RockboxRenderHandler : public gameswf::render_handler {
 #ifdef SIMULATOR
         maybe_dump_framebuffer_ppm();
 #endif
-        rb->lcd_update();
     }
 
 #ifdef SIMULATOR
@@ -1219,6 +1218,8 @@ struct FlashState {
     bool loading_bmp_tried;
     bool loading_bmp_loaded;
     int load_progress;
+    long progress_checkpoint_tick;
+    int progress_checkpoint_value;
     int load_stage_base;
     int load_stage_span;
     bool loading_overlay_full;
@@ -1584,17 +1585,27 @@ static bool flash_cache_path_for_url(const char *url_or_path, char *path,
     return false;
 }
 
-static void flash_progress_checkpoint(const char *status, int progress)
+static bool flash_progress_checkpoint(const char *status, int progress)
 {
 #ifndef SIMULATOR
     int fd;
     char line[192];
     int len;
+    long now = *rb->current_tick;
+    bool phase_advance = g.progress_checkpoint_value < 0 ||
+        progress >= g.progress_checkpoint_value + 4 || progress >= 100;
+
+    if (!phase_advance &&
+        TIME_BEFORE(now, g.progress_checkpoint_tick + HZ / 2))
+        return false;
+
+    g.progress_checkpoint_tick = now;
+    g.progress_checkpoint_value = progress;
 
     rb->mkdir(FLASH_DIR);
     fd = rb->open(FLASH_PROGRESS_PATH, O_WRONLY | O_CREAT | O_TRUNC, 0666);
     if (fd < 0)
-        return;
+        return true;
 
     len = rb->snprintf(line, sizeof(line),
                        "tick=%ld progress=%d tag=%d type=%d pos=%d "
@@ -1610,9 +1621,11 @@ static void flash_progress_checkpoint(const char *status, int progress)
         rb->write(fd, line, len);
     }
     rb->close(fd);
+    return true;
 #else
     (void)status;
     (void)progress;
+    return true;
 #endif
 }
 
@@ -1998,7 +2011,8 @@ static void show_load_status_progress(const char *status, int progress)
             progress = 100;
         g.load_progress = progress;
     }
-    flash_progress_checkpoint(g.status, g.load_progress);
+    if (!flash_progress_checkpoint(g.status, g.load_progress))
+        return;
 
     if (load_loading_bitmap())
     {
@@ -2106,7 +2120,7 @@ extern "C" int flashplayer_should_stop_movie_load(int loading_frame,
                                                   int tag_count,
                                                   int stream_pos)
 {
-    int stop_frame = 10;
+    int stop_frame = 0;
 
 #ifdef SIMULATOR
     const char *env = getenv("FLASHPLAYER_STOP_AFTER_FRAME");
@@ -2134,33 +2148,10 @@ extern "C" int flashplayer_should_skip_movie_tag(int loading_frame,
                                                  int tag_type,
                                                  int stream_pos)
 {
-    bool skip = false;
-
-    if (!g.stickrpg_fast_load || loading_frame != 0)
-        return 0;
-
-    if (tag_type == 14 || tag_type == 15 || tag_type == 17 ||
-        tag_type == 18 || tag_type == 19 || tag_type == 45 ||
-        tag_type == 89)
-        skip = true;
-
-    if (skip) {
-        if (tag_count <= 64 || (tag_count & 63) == 0) {
-            rb->snprintf(g.status, sizeof(g.status), "skip t%d type %d",
-                         tag_count, tag_type);
-            show_load_status_progress(g.status, g.load_stage_base);
-        }
-#ifdef SIMULATOR
-        flash_logf("skip movie tag frame=%d tag=%d type=%d pos=%d",
-                   loading_frame, tag_count, tag_type, stream_pos);
-#else
-        if (tag_count <= 8 || (tag_count & 31) == 0)
-            flash_logf("skip movie tag frame=%d tag=%d type=%d pos=%d",
-                       loading_frame, tag_count, tag_type, stream_pos);
-#endif
-        return 1;
-    }
-
+    (void)loading_frame;
+    (void)tag_count;
+    (void)tag_type;
+    (void)stream_pos;
     return 0;
 }
 
@@ -2801,7 +2792,7 @@ static bool load_swf(const char *path)
     g.shape_def_cache_in = NULL;
     g.shape_def_cache_out = NULL;
     g.stickrpg_fast_load = g.input_profile == FLASH_INPUT_PROFILE_STICKRPG;
-    g.stickrpg_gameplay_shortcut_enabled = g.stickrpg_fast_load;
+    g.stickrpg_gameplay_shortcut_enabled = false;
     g.startup_prerender_frames = g.stickrpg_fast_load ?
         FLASH_STARTUP_PRERENDER_FRAMES : 0;
 #ifdef SIMULATOR
@@ -4306,6 +4297,7 @@ extern "C" enum plugin_status plugin_start(const void *parameter)
     g.log_fd = -1;
     g.shape_mesh_budget_base = FLASH_SHAPE_MESH_BUDGET;
     g.load_progress = 0;
+    g.progress_checkpoint_value = -1;
 #ifdef HAVE_WHEEL_POSITION
     g.wheel_touch_pos = -1;
 #endif
@@ -4603,10 +4595,8 @@ extern "C" enum plugin_status plugin_start(const void *parameter)
             }
         } else if (bare == BUTTON_SELECT) {
             if (g.runtime_loaded) {
-#ifdef SIMULATOR
                 g.mouse_down = true;
                 g.click_frames = 2;
-#endif
             } else if (start_runtime()) {
                 /* Runtime started. */
             } else if (load_swf(g.path)) {

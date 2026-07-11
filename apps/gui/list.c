@@ -42,6 +42,7 @@
 #include "statusbar-skinned.h"
 #include "skin_engine/skin_albumart_color.h"
 #include "skin_engine/skin_engine.h"
+#include "ipodjs_ui.h"
 
 static bool list_is_ipodvideo_iclassic_theme(void)
 {
@@ -111,6 +112,9 @@ static bool need_full_update = false;
 static void list_apply_default_top_inset(struct viewport *vp,
                                          enum screen_type screen)
 {
+    if (list_use_ipodjs_native(screen))
+        return;
+
     if (screen == SCREEN_MAIN && vp->height > LIST_TOP_INSET_MAIN)
     {
         vp->y += LIST_TOP_INSET_MAIN;
@@ -240,15 +244,7 @@ void list_init_item_height(struct gui_synclist *list, enum screen_type screen)
 
     if (list_use_ipodjs_native(screen) && !list->force_fullscreen_albumlist)
     {
-        int row_h = global_settings.ui_engine_density ==
-                    UI_ENGINE_DENSITY_COMPACT ? 20 : 24;
-
-        if (global_settings.ui_engine_font_scale == UI_ENGINE_FONT_SMALL)
-            row_h -= 2;
-        else if (global_settings.ui_engine_font_scale == UI_ENGINE_FONT_LARGE)
-            row_h += 4;
-
-        list->line_height[screen] = MAX(18, row_h);
+        list->line_height[screen] = ipodjs_ui_row_height();
         return;
     }
 

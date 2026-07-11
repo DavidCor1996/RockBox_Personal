@@ -15,18 +15,41 @@
 #include "lib/pluginlib_actions.h"
 #include "lib/pluginlib_bmp.h"
 #include "lib/read_image.h"
+#include "pluginbitmaps/game_system_arduboy.h"
+#include "pluginbitmaps/game_system_doom.h"
+#include "pluginbitmaps/game_system_gameboy.h"
+#include "pluginbitmaps/game_system_gwatch.h"
+#include "pluginbitmaps/game_system_native.h"
+#include "pluginbitmaps/game_system_nes.h"
+#include "pluginbitmaps/game_system_pokemini.h"
+#include "pluginbitmaps/game_system_smsgg.h"
+#include "pluginbitmaps/game_system_tamagotchi.h"
 #include "rockboy/settings.h"
 #include <ctype.h>
 
 #define ROCKBOY_LAUNCHER_DIR  PLUGIN_GAMES_DATA_DIR "/rockboy_launcher"
 #define ROCKBOY_INDEX_PATH    ROCKBOY_LAUNCHER_DIR "/games.tsv"
+#define ROCKBOY_CONFIG_PATH   ROCKBOY_LAUNCHER_DIR "/config.cfg"
 #define ROCKBOY_STATE_PATH    ROCKBOY_LAUNCHER_DIR "/state.dat"
+#define GAME_LIBRARY_DIR      ROCKBOX_DIR "/games/library"
+#define GAME_LIBRARY_SYSTEMS_DIR GAME_LIBRARY_DIR "/systems"
+#define GAME_LIBRARY_COVERS_DIR  GAME_LIBRARY_DIR "/covers"
+#define GAME_LIBRARY_CACHE_DIR   GAME_LIBRARY_DIR "/cache"
+#define GAME_LIBRARY_CONFIG_PATH GAME_LIBRARY_DIR "/config.cfg"
+#define GAME_LIBRARY_SYSTEMS_PATH GAME_LIBRARY_DIR "/systems.tsv"
+#define GAME_LIBRARY_STATE_PATH GAME_LIBRARY_CACHE_DIR "/state.dat"
 #define ROCKBOY_PLUGIN_PATH   VIEWERS_DIR "/rockboy.rock"
 #define INFONES_PLUGIN_PATH   VIEWERS_DIR "/infones.rock"
 #define FLASHPLAYER_PLUGIN_PATH VIEWERS_DIR "/flashplayer.rock"
+#define SMSGG_PLUGIN_PATH     PLUGIN_GAMES_DIR "/smsgg.rock"
+#define ARDUBOY_PLUGIN_PATH   PLUGIN_GAMES_DIR "/arduboy.rock"
+#define POKEMINI_PLUGIN_PATH  VIEWERS_DIR "/pokemini.rock"
+#define TAMAGOTCHI_PLUGIN_PATH PLUGIN_APPS_DIR "/tamagotchi.rock"
+#define GWATCH_PLUGIN_PATH   PLUGIN_GAMES_DIR "/gwatch.rock"
 #define STICKRPG_SWF_PATH     ROCKBOX_DIR "/flash/stickrpg/stickrpg.swf"
 #define STICKRPG_COVER_BMP    ROCKBOX_DIR "/ipodjs/stickrpg/covers/Stick RPG.bmp"
 #define DOOM_PLAY_PLUGIN_PATH PLUGIN_GAMES_DIR "/doom_play.rock"
+#define DOOM_PLUGIN_PATH      PLUGIN_GAMES_DIR "/doom.rock"
 #define DOOM_COVER_BMP        ROCKBOY_LAUNCHER_DIR "/covers/Doom.bmp"
 #define WWE_BACKSTAGE_PLUGIN_PATH PLUGIN_GAMES_DIR "/wwe_backstage.rock"
 #define WWE_BACKSTAGE_MANIFEST_PATH PLUGIN_GAMES_DATA_DIR "/wwe_backstage/wwe-backstage.twv"
@@ -34,10 +57,23 @@
 #define RUNESCAPE_CLASSIC_PLUGIN_PATH PLUGIN_GAMES_DIR "/runescape_classic.rock"
 #define RUNESCAPE_CLASSIC_COVER_BMP PLUGIN_GAMES_DATA_DIR "/runescape_classic/covers/RuneScape Classic.bmp"
 #define ROCKBOY_ROM_DIR       "/gameboy"
+#define NES_ROM_DIR           ROCKBOY_ROM_DIR
+#define SMSGG_ROM_DIR         ROCKBOX_DIR "/games/smsgg/roms"
+#define ARDUBOY_ROM_DIR       ROCKBOX_DIR "/games/arduboy/roms"
+#define POKEMINI_ROM_DIR      "/PokeMini"
+#define POKEMINI_ALT_ROM_DIR  ROCKBOX_DIR "/games/pokemini/roms"
+#define POKEMINI_COVERS_DIR   PLUGIN_GAMES_DATA_DIR "/pokemini_launcher/covers"
+#define TAMAGOTCHI_ROM_DIR    ROCKBOX_DIR "/games/tamagotchi/roms"
+#define TAMAGOTCHI_ROM_PATH   TAMAGOTCHI_ROM_DIR "/tama.b"
+#define TAMAGOTCHI_APP_ROM_DIR ROCKBOX_DIR "/apps/tamagotchi/roms"
+#define TAMAGOTCHI_APP_ROM_PATH TAMAGOTCHI_APP_ROM_DIR "/tama.b"
+#define GWATCH_ROM_DIR        ROCKBOX_DIR "/games/gwatch/roms"
+#define DOOM_WAD_DIR          ROCKBOX_DIR "/games/doom/wads"
+#define NATIVE_GAMES_DIR      PLUGIN_GAMES_DIR
 #define ROCKBOY_LOADING_BACKGROUND_BMP ROCKBOY_LAUNCHER_DIR "/loading_bg.bmp"
-#define ROCKBOY_FALLBACK_COVER_BMP PLUGIN_DEMOS_DIR "/pictureflow_emptyslide.bmp"
 #define ROCKBOY_LOADING_BAR_HEIGHT 22
 #define ROCKBOY_LOADING_BAR_MARGIN 10
+#define GAME_LIBRARY_NOTIFY_SOURCE "Game Library"
 
 #define MAX_ENTRY_TITLE       96
 #define MAX_SAVE_BASENAME     24
@@ -45,14 +81,50 @@
 #define MAX_ENTRY_GENRE       32
 #define MAX_ENTRY_PUBLISHER   48
 #define MAX_ENTRY_DEVELOPER   48
+#define MAX_SYSTEM_ID         24
+#define MAX_SYSTEM_SUBTITLE   64
+#define MAX_SYSTEM_EXTS       64
+#define MAX_SYSTEMS           16
 #define MIN_ENTRY_CAPACITY    16
 #define MAX_SCAN_DEPTH        6
+#define MAX_SYSTEM_QUICK_COUNT 99
 
 #define SAVE_HINT_UNKNOWN     0
 #define SAVE_HINT_NO          1
 #define SAVE_HINT_YES         2
 
 #define FLAG_FAVORITE         0x01
+#define FLAG_NEEDS_SETUP      0x02
+
+enum launcher_view_mode {
+    VIEW_SYSTEMS = 0,
+    VIEW_GAMES,
+};
+
+enum launcher_start_view {
+    START_SYSTEMS = 0,
+    START_LAST_SYSTEM,
+    START_LAST_GAME,
+};
+
+struct system_entry {
+    char id[MAX_SYSTEM_ID];
+    char title[MAX_ENTRY_TITLE];
+    char subtitle[MAX_SYSTEM_SUBTITLE];
+    char plugin_path[MAX_PATH];
+    char rom_path[MAX_PATH];
+    char cover_path[MAX_PATH];
+    char extensions[MAX_SYSTEM_EXTS];
+    char setup_message[128];
+    char controls[128];
+    int sort;
+    int game_count;
+    bool enabled;
+    bool native_plugins;
+    bool old_index;
+    bool has_saves;
+    bool has_haptics;
+};
 
 #define COVER_SLOT_COUNT      7
 #define COVER_CACHE_RADIUS    3
@@ -84,7 +156,10 @@ enum launcher_filter_mode {
 
 struct game_entry {
     char title[MAX_ENTRY_TITLE];
+    char system_id[MAX_SYSTEM_ID];
+    char subtitle[MAX_SYSTEM_SUBTITLE];
     char rom_path[MAX_PATH];
+    char plugin_path[MAX_PATH];
     char plugin_param[MAX_PATH];
     char cover_path[MAX_PATH];
     char save_name[MAX_SAVE_BASENAME];
@@ -95,6 +170,8 @@ struct game_entry {
     unsigned char flags;
     unsigned char save_hint;
     signed char has_save;
+    int system_index;
+    bool is_system;
 };
 
 struct cover_slot {
@@ -115,8 +192,22 @@ struct launcher_state {
     int total_count;
     int selected;
     bool used_index;
+    bool show_builtin_doom;
+    bool show_builtin_stickrpg;
+    bool show_builtin_runescape;
     int sort_mode;
     int filter_mode;
+    int start_view;
+    int coverflow_mode;
+    bool show_empty_systems;
+    bool show_missing_systems;
+    bool haptic_ticks;
+    bool show_save_indicators;
+    enum launcher_view_mode view_mode;
+    int current_system;
+    int system_count;
+    int system_selected;
+    struct system_entry systems[MAX_SYSTEMS];
 
     int line_height;
     int cover_box_x;
@@ -135,6 +226,7 @@ struct launcher_state {
     struct viewport vp;
 
     char state_rom[MAX_PATH];
+    char state_system[MAX_SYSTEM_ID];
 
     struct bitmap decode_scratch;
     fb_data *decode_scratch_data;
@@ -157,16 +249,21 @@ struct launcher_state {
 
 static struct launcher_state launcher;
 
-static void warm_cover_cache(void);
 static void request_cover_cache_warm(void);
 static void warm_cover_cache_step(int budget);
 static enum plugin_status launcher_context_menu(void);
 static void draw_loading_splashscreen(void);
 static void draw_loading_progress(int step, int count, const char *msg);
 static void load_selected_cover_with_progress(const char *msg);
+static void load_selected_cover_quiet(void);
 static bool entry_matches_filter(const struct game_entry *entry);
 static void apply_launcher_filter(void);
 static bool reload_game_library_with_current_modes(void);
+static bool allocate_launcher_buffers(void);
+static bool load_system_games(int system_index);
+static bool load_system_browser(void);
+static enum plugin_status draw_empty_system_library(struct system_entry *system);
+static void draw_system_browser_screen(void);
 
 #if (CONFIG_KEYPAD == IPOD_1G2G_PAD) || \
     (CONFIG_KEYPAD == IPOD_3G_PAD) || \
@@ -216,6 +313,29 @@ static unsigned launcher_fg_color(void)
     return launcher_dark_mode() ? LCD_WHITE : LCD_RGBPACK(36, 36, 38);
 }
 
+static unsigned launcher_muted_fg_color(void)
+{
+    return launcher_dark_mode() ? LCD_RGBPACK(196, 198, 204) :
+                                  LCD_RGBPACK(70, 70, 76);
+}
+
+static unsigned launcher_selected_text_color(void)
+{
+    return launcher_dark_mode() ? LCD_WHITE : LCD_RGBPACK(20, 20, 24);
+}
+
+static unsigned launcher_selected_muted_color(void)
+{
+    return launcher_dark_mode() ? LCD_RGBPACK(222, 224, 230) :
+                                  LCD_RGBPACK(70, 70, 76);
+}
+
+static unsigned launcher_selected_outline_color(void)
+{
+    return launcher_dark_mode() ? LCD_RGBPACK(92, 94, 104) :
+                                  LCD_RGBPACK(202, 203, 208);
+}
+
 static bool has_supported_rom_ext(const char *path)
 {
     const char *ext = rb->strrchr(path, '.');
@@ -226,6 +346,43 @@ static bool has_supported_rom_ext(const char *path)
            !rb->strcasecmp(ext, ".gbc") ||
            !rb->strcasecmp(ext, ".nes") ||
            !rb->strcasecmp(ext, ".rock");
+}
+
+static bool has_extension_in_list(const char *path, const char *extensions)
+{
+    const char *ext = rb->strrchr(path, '.');
+    const char *cursor;
+
+    if (!ext || !extensions || !*extensions)
+        return false;
+
+    cursor = extensions;
+    while (*cursor)
+    {
+        char token[12];
+        size_t len = 0;
+
+        while (*cursor == ',' || *cursor == ' ' || *cursor == '\t')
+            cursor++;
+
+        while (cursor[len] && cursor[len] != ',' &&
+               cursor[len] != ' ' && cursor[len] != '\t' &&
+               len + 1 < sizeof(token))
+        {
+            token[len] = cursor[len];
+            len++;
+        }
+        token[len] = '\0';
+
+        if (token[0] != '\0' && !rb->strcasecmp(ext, token))
+            return true;
+
+        cursor += len;
+        while (*cursor && *cursor != ',' && *cursor != ' ' && *cursor != '\t')
+            cursor++;
+    }
+
+    return false;
 }
 
 static bool is_nes_rom(const char *path)
@@ -263,6 +420,19 @@ static bool is_bmp_cover(const char *path)
     return ext && !rb->strcasecmp(ext, ".bmp");
 }
 
+static bool tamagotchi_rom_available(void)
+{
+    return rb->file_exists(TAMAGOTCHI_ROM_PATH) ||
+           rb->file_exists(TAMAGOTCHI_APP_ROM_PATH);
+}
+
+static const char *tamagotchi_rom_path(void)
+{
+    if (rb->file_exists(TAMAGOTCHI_ROM_PATH))
+        return TAMAGOTCHI_ROM_PATH;
+    return TAMAGOTCHI_APP_ROM_PATH;
+}
+
 static char *trim_whitespace(char *text)
 {
     char *end;
@@ -275,6 +445,22 @@ static char *trim_whitespace(char *text)
         end--;
     *end = '\0';
     return text;
+}
+
+static void launcher_notify(const char *body, int priority)
+{
+    (void)body;
+    (void)priority;
+}
+
+static bool launcher_notify_handle(int action)
+{
+    (void)action;
+    return false;
+}
+
+static void launcher_notify_overlay(void)
+{
 }
 
 static bool parse_bool(const char *value)
@@ -326,6 +512,23 @@ static void derive_title_from_path(const char *path, char *title, size_t title_s
     }
 }
 
+static void derive_stem_from_path(const char *path, char *stem, size_t stem_size)
+{
+    const char *name;
+    char *ext;
+
+    name = rb->strrchr(path, '/');
+    if (name)
+        name++;
+    else
+        name = path;
+
+    rb->strlcpy(stem, name, stem_size);
+    ext = rb->strrchr(stem, '.');
+    if (ext)
+        *ext = '\0';
+}
+
 static void make_path_absolute(const char *base_dir, const char *value,
                                char *out, size_t out_size)
 {
@@ -356,6 +559,471 @@ static bool ensure_launcher_dir(void)
     }
 
     return rb->mkdir(ROCKBOY_LAUNCHER_DIR) >= 0;
+}
+
+static void mkdir_if_needed(const char *path)
+{
+    if (!rb->dir_exists(path))
+        rb->mkdir(path);
+}
+
+static bool ensure_library_dirs(void)
+{
+    mkdir_if_needed(ROCKBOX_DIR "/games");
+    mkdir_if_needed(GAME_LIBRARY_DIR);
+    mkdir_if_needed(GAME_LIBRARY_SYSTEMS_DIR);
+    mkdir_if_needed(GAME_LIBRARY_COVERS_DIR);
+    mkdir_if_needed(GAME_LIBRARY_COVERS_DIR "/systems");
+    mkdir_if_needed(GAME_LIBRARY_COVERS_DIR "/smsgg");
+    mkdir_if_needed(GAME_LIBRARY_COVERS_DIR "/arduboy");
+    mkdir_if_needed(GAME_LIBRARY_COVERS_DIR "/doom");
+    mkdir_if_needed(GAME_LIBRARY_COVERS_DIR "/native");
+    mkdir_if_needed(GAME_LIBRARY_CACHE_DIR);
+    mkdir_if_needed(ROCKBOX_DIR "/games/smsgg");
+    mkdir_if_needed(SMSGG_ROM_DIR);
+    mkdir_if_needed(ROCKBOX_DIR "/games/arduboy");
+    mkdir_if_needed(ARDUBOY_ROM_DIR);
+    mkdir_if_needed(ROCKBOX_DIR "/games/arduboy/saves");
+    mkdir_if_needed(ROCKBOX_DIR "/games/arduboy/states");
+    mkdir_if_needed(ROCKBOX_DIR "/games/pokemini");
+    mkdir_if_needed(POKEMINI_ROM_DIR);
+    mkdir_if_needed(ROCKBOX_DIR "/games/tamagotchi");
+    mkdir_if_needed(TAMAGOTCHI_ROM_DIR);
+    mkdir_if_needed(ROCKBOX_DIR "/games/gwatch");
+    mkdir_if_needed(GWATCH_ROM_DIR);
+    mkdir_if_needed(ROCKBOX_DIR "/games/doom");
+    mkdir_if_needed(DOOM_WAD_DIR);
+    mkdir_if_needed(ROCKBOX_DIR "/games/native");
+
+    return rb->dir_exists(GAME_LIBRARY_DIR);
+}
+
+static bool write_default_system_manifest(void)
+{
+    int fd;
+
+    if (rb->file_exists(GAME_LIBRARY_SYSTEMS_PATH))
+        return true;
+    if (!ensure_library_dirs())
+        return false;
+
+    fd = rb->open(GAME_LIBRARY_SYSTEMS_PATH,
+                  O_WRONLY | O_CREAT | O_TRUNC, 0666);
+    if (fd < 0)
+        return false;
+
+    rb->fdprintf(fd, "id\ttitle\tsubtitle\tplugin\tpath\tcover\tenabled\tsort\n");
+    rb->fdprintf(fd, "gameboy\tGame Boy\tRockboy library\t%s\t%s\t%s\t1\t5\n",
+                 ROCKBOY_PLUGIN_PATH, ROCKBOY_ROM_DIR,
+                 GAME_LIBRARY_COVERS_DIR "/systems/gameboy.bmp");
+    rb->fdprintf(fd, "nes\tNES\tNintendo Entertainment System\t%s\t%s\t%s\t1\t8\n",
+                 INFONES_PLUGIN_PATH, NES_ROM_DIR,
+                 GAME_LIBRARY_COVERS_DIR "/systems/nes.bmp");
+    rb->fdprintf(fd, "smsgg\tSega\tMaster System / Game Gear\t%s\t%s\t%s\t1\t10\n",
+                 SMSGG_PLUGIN_PATH, SMSGG_ROM_DIR,
+                 GAME_LIBRARY_COVERS_DIR "/systems/smsgg.bmp");
+    rb->fdprintf(fd, "arduboy\tArduboy\tTiny homebrew handheld\t%s\t%s\t%s\t1\t20\n",
+                 ARDUBOY_PLUGIN_PATH, ARDUBOY_ROM_DIR,
+                 GAME_LIBRARY_COVERS_DIR "/systems/arduboy.bmp");
+    rb->fdprintf(fd, "tamagotchi\tTamagotchi\tVirtual pet\t%s\t%s\t%s\t1\t30\n",
+                 TAMAGOTCHI_PLUGIN_PATH, TAMAGOTCHI_ROM_DIR,
+                 GAME_LIBRARY_COVERS_DIR "/systems/tamagotchi.bmp");
+    rb->fdprintf(fd, "pokemini\tPokemon Mini\tNintendo mini handheld\t%s\t%s\t%s\t1\t40\n",
+                 POKEMINI_PLUGIN_PATH, POKEMINI_ROM_DIR,
+                 GAME_LIBRARY_COVERS_DIR "/systems/pokemini.bmp");
+    rb->fdprintf(fd, "gwatch\tGame & Watch\tLCD handhelds\t%s\t%s\t%s\t1\t50\n",
+                 GWATCH_PLUGIN_PATH, GWATCH_ROM_DIR,
+                 GAME_LIBRARY_COVERS_DIR "/systems/gwatch.bmp");
+    rb->fdprintf(fd, "doom\tDoom\tWAD launcher\t%s\t%s\t%s\t1\t60\n",
+                 DOOM_PLUGIN_PATH, DOOM_WAD_DIR,
+                 GAME_LIBRARY_COVERS_DIR "/systems/doom.bmp");
+    rb->fdprintf(fd, "native\tNative Games\tRockbox plugins\t\t%s\t%s\t1\t100\n",
+                 NATIVE_GAMES_DIR, GAME_LIBRARY_COVERS_DIR "/systems/native.bmp");
+    rb->close(fd);
+    return true;
+}
+
+static void set_system_extensions(struct system_entry *system)
+{
+    if (!rb->strcmp(system->id, "gameboy"))
+    {
+        rb->strlcpy(system->extensions, ".gb,.gbc,.rock",
+                    sizeof(system->extensions));
+        system->old_index = true;
+    }
+    else if (!rb->strcmp(system->id, "nes"))
+        rb->strlcpy(system->extensions, ".nes", sizeof(system->extensions));
+    else if (!rb->strcmp(system->id, "smsgg"))
+        rb->strlcpy(system->extensions, ".sms,.gg", sizeof(system->extensions));
+    else if (!rb->strcmp(system->id, "arduboy"))
+        rb->strlcpy(system->extensions, ".hex,.arduboy,.bin",
+                    sizeof(system->extensions));
+    else if (!rb->strcmp(system->id, "pokemini"))
+        rb->strlcpy(system->extensions, ".min", sizeof(system->extensions));
+    else if (!rb->strcmp(system->id, "gwatch"))
+        rb->strlcpy(system->extensions, ".mgw,.gw,.gwz",
+                    sizeof(system->extensions));
+    else if (!rb->strcmp(system->id, "doom"))
+        rb->strlcpy(system->extensions, ".wad", sizeof(system->extensions));
+    else if (!rb->strcmp(system->id, "native"))
+    {
+        rb->strlcpy(system->extensions, ".rock", sizeof(system->extensions));
+        system->native_plugins = true;
+    }
+}
+
+static void set_system_setup_message(struct system_entry *system)
+{
+    if (!rb->strcmp(system->id, "arduboy"))
+        rb->strlcpy(system->setup_message,
+                    "No Arduboy games found. Put .hex files in .rockbox/games/arduboy/roms/",
+                    sizeof(system->setup_message));
+    else if (!rb->strcmp(system->id, "smsgg"))
+        rb->strlcpy(system->setup_message,
+                    "No Sega ROMs found. Put .sms or .gg files in .rockbox/games/smsgg/roms/",
+                    sizeof(system->setup_message));
+    else if (!rb->strcmp(system->id, "tamagotchi"))
+        rb->strlcpy(system->setup_message,
+                    "Missing tama.b. Put your legally obtained Tamagotchi P1 ROM in .rockbox/games/tamagotchi/roms/ or .rockbox/apps/tamagotchi/roms/",
+                    sizeof(system->setup_message));
+    else if (!rb->strcmp(system->id, "gwatch"))
+        rb->strlcpy(system->setup_message,
+                    "No Game & Watch packages found. Put .mgw files in .rockbox/games/gwatch/roms/",
+                    sizeof(system->setup_message));
+    else if (!rb->strcmp(system->id, "pokemini"))
+        rb->strlcpy(system->setup_message,
+                    "No Pokemon Mini games found. Put .min files in /PokeMini/",
+                    sizeof(system->setup_message));
+    else
+        rb->snprintf(system->setup_message, sizeof(system->setup_message),
+                     "No games found. Put supported files in %s",
+                     system->rom_path);
+}
+
+static void set_system_controls(struct system_entry *system)
+{
+    if (!rb->strcmp(system->id, "arduboy"))
+    {
+        rb->strlcpy(system->controls,
+                    "Menu Up, Play Down, Left/Right D-pad, Select A, Long Select B",
+                    sizeof(system->controls));
+    }
+    else if (!rb->strcmp(system->id, "smsgg"))
+    {
+        rb->strlcpy(system->controls,
+                    "Wheel or click buttons move, Select A, Play/Pause B, Menu emulator menu",
+                    sizeof(system->controls));
+    }
+    else if (!rb->strcmp(system->id, "gwatch"))
+    {
+        rb->strlcpy(system->controls,
+                    "Wheel or click buttons move, Select action, Play/Pause secondary, Menu exits",
+                    sizeof(system->controls));
+    }
+    else
+    {
+        rb->strlcpy(system->controls,
+                    "Wheel scrolls, Select launches, Menu goes back",
+                    sizeof(system->controls));
+    }
+}
+
+static struct system_entry *add_system_entry(const char *id, const char *title,
+                                             const char *subtitle,
+                                             const char *plugin_path,
+                                             const char *rom_path,
+                                             const char *cover_path,
+                                             bool enabled, int sort)
+{
+    struct system_entry *system;
+
+    if (launcher.system_count >= MAX_SYSTEMS || !id || !*id ||
+        !title || !*title || !rom_path || !*rom_path)
+        return NULL;
+
+    system = &launcher.systems[launcher.system_count++];
+    rb->memset(system, 0, sizeof(*system));
+    rb->strlcpy(system->id, id, sizeof(system->id));
+    rb->strlcpy(system->title, title, sizeof(system->title));
+    if (subtitle)
+        rb->strlcpy(system->subtitle, subtitle, sizeof(system->subtitle));
+    if (plugin_path)
+        rb->strlcpy(system->plugin_path, plugin_path, sizeof(system->plugin_path));
+    rb->strlcpy(system->rom_path, rom_path, sizeof(system->rom_path));
+    if (cover_path)
+        rb->strlcpy(system->cover_path, cover_path, sizeof(system->cover_path));
+    system->enabled = enabled;
+    system->sort = sort;
+    set_system_extensions(system);
+    set_system_setup_message(system);
+    set_system_controls(system);
+    return system;
+}
+
+static void load_default_systems(void)
+{
+    launcher.system_count = 0;
+    add_system_entry("gameboy", "Game Boy", "Rockboy library",
+                     ROCKBOY_PLUGIN_PATH, ROCKBOY_ROM_DIR,
+                     GAME_LIBRARY_COVERS_DIR "/systems/gameboy.bmp", true, 5);
+    add_system_entry("nes", "NES", "Nintendo Entertainment System",
+                     INFONES_PLUGIN_PATH, NES_ROM_DIR,
+                     GAME_LIBRARY_COVERS_DIR "/systems/nes.bmp", true, 8);
+    add_system_entry("smsgg", "Sega", "Master System / Game Gear",
+                     SMSGG_PLUGIN_PATH, SMSGG_ROM_DIR,
+                     GAME_LIBRARY_COVERS_DIR "/systems/smsgg.bmp", true, 10);
+    add_system_entry("arduboy", "Arduboy", "Tiny homebrew handheld",
+                     ARDUBOY_PLUGIN_PATH, ARDUBOY_ROM_DIR,
+                     GAME_LIBRARY_COVERS_DIR "/systems/arduboy.bmp", true, 20);
+    add_system_entry("tamagotchi", "Tamagotchi", "Virtual pet",
+                     TAMAGOTCHI_PLUGIN_PATH, TAMAGOTCHI_ROM_DIR,
+                     GAME_LIBRARY_COVERS_DIR "/systems/tamagotchi.bmp", true, 30);
+    add_system_entry("pokemini", "Pokemon Mini", "Nintendo mini handheld",
+                     POKEMINI_PLUGIN_PATH, POKEMINI_ROM_DIR,
+                     GAME_LIBRARY_COVERS_DIR "/systems/pokemini.bmp", true, 40);
+    add_system_entry("gwatch", "Game & Watch", "LCD handhelds",
+                     GWATCH_PLUGIN_PATH, GWATCH_ROM_DIR,
+                     GAME_LIBRARY_COVERS_DIR "/systems/gwatch.bmp", true, 50);
+    add_system_entry("doom", "Doom", "WAD launcher",
+                     DOOM_PLUGIN_PATH, DOOM_WAD_DIR,
+                     GAME_LIBRARY_COVERS_DIR "/systems/doom.bmp", true, 60);
+    add_system_entry("native", "Native Games", "Rockbox plugins",
+                     "", NATIVE_GAMES_DIR,
+                     GAME_LIBRARY_COVERS_DIR "/systems/native.bmp", true, 100);
+}
+
+static int compare_systems(const void *a, const void *b)
+{
+    const struct system_entry *left = a;
+    const struct system_entry *right = b;
+
+    if (left->sort != right->sort)
+        return left->sort - right->sort;
+    return rb->strcasecmp(left->title, right->title);
+}
+
+static bool system_entry_exists(const char *id)
+{
+    int i;
+
+    for (i = 0; i < launcher.system_count; i++)
+    {
+        if (!rb->strcmp(launcher.systems[i].id, id))
+            return true;
+    }
+
+    return false;
+}
+
+static struct system_entry *find_system_entry(const char *id)
+{
+    int i;
+
+    for (i = 0; i < launcher.system_count; i++)
+    {
+        if (!rb->strcmp(launcher.systems[i].id, id))
+            return &launcher.systems[i];
+    }
+
+    return NULL;
+}
+
+static void apply_builtin_system_defaults(struct system_entry *system)
+{
+    if (system == NULL)
+        return;
+
+    if (!rb->strcmp(system->id, "gwatch"))
+    {
+        rb->strlcpy(system->title, "Game & Watch", sizeof(system->title));
+        rb->strlcpy(system->subtitle, "LCD handhelds",
+                    sizeof(system->subtitle));
+        rb->strlcpy(system->plugin_path, GWATCH_PLUGIN_PATH,
+                    sizeof(system->plugin_path));
+        rb->strlcpy(system->rom_path, GWATCH_ROM_DIR,
+                    sizeof(system->rom_path));
+        rb->strlcpy(system->cover_path,
+                    GAME_LIBRARY_COVERS_DIR "/systems/gwatch.bmp",
+                    sizeof(system->cover_path));
+        system->enabled = true;
+        system->sort = 50;
+    }
+    else if (!rb->strcmp(system->id, "pokemini"))
+    {
+        rb->strlcpy(system->title, "Pokemon Mini", sizeof(system->title));
+        rb->strlcpy(system->subtitle, "Nintendo mini handheld",
+                    sizeof(system->subtitle));
+        rb->strlcpy(system->plugin_path, POKEMINI_PLUGIN_PATH,
+                    sizeof(system->plugin_path));
+        rb->strlcpy(system->rom_path, POKEMINI_ROM_DIR,
+                    sizeof(system->rom_path));
+        rb->strlcpy(system->cover_path,
+                    GAME_LIBRARY_COVERS_DIR "/systems/pokemini.bmp",
+                    sizeof(system->cover_path));
+        system->enabled = true;
+        system->sort = 40;
+    }
+
+    set_system_extensions(system);
+    set_system_setup_message(system);
+    set_system_controls(system);
+}
+
+static void add_missing_builtin_systems(void)
+{
+    apply_builtin_system_defaults(find_system_entry("gwatch"));
+
+    if (!system_entry_exists("gameboy"))
+        add_system_entry("gameboy", "Game Boy", "Rockboy library",
+                         ROCKBOY_PLUGIN_PATH, ROCKBOY_ROM_DIR,
+                         GAME_LIBRARY_COVERS_DIR "/systems/gameboy.bmp",
+                         true, 5);
+    if (!system_entry_exists("nes"))
+        add_system_entry("nes", "NES", "Nintendo Entertainment System",
+                         INFONES_PLUGIN_PATH, NES_ROM_DIR,
+                         GAME_LIBRARY_COVERS_DIR "/systems/nes.bmp",
+                         true, 8);
+    if (!system_entry_exists("smsgg"))
+        add_system_entry("smsgg", "Sega", "Master System / Game Gear",
+                         SMSGG_PLUGIN_PATH, SMSGG_ROM_DIR,
+                         GAME_LIBRARY_COVERS_DIR "/systems/smsgg.bmp",
+                         true, 10);
+    if (!system_entry_exists("arduboy"))
+        add_system_entry("arduboy", "Arduboy", "Tiny homebrew handheld",
+                         ARDUBOY_PLUGIN_PATH, ARDUBOY_ROM_DIR,
+                         GAME_LIBRARY_COVERS_DIR "/systems/arduboy.bmp",
+                         true, 20);
+    if (!system_entry_exists("tamagotchi"))
+        add_system_entry("tamagotchi", "Tamagotchi", "Virtual pet",
+                         TAMAGOTCHI_PLUGIN_PATH, TAMAGOTCHI_ROM_DIR,
+                         GAME_LIBRARY_COVERS_DIR "/systems/tamagotchi.bmp",
+                         true, 30);
+    if (!system_entry_exists("pokemini"))
+        add_system_entry("pokemini", "Pokemon Mini", "Nintendo mini handheld",
+                         POKEMINI_PLUGIN_PATH, POKEMINI_ROM_DIR,
+                         GAME_LIBRARY_COVERS_DIR "/systems/pokemini.bmp",
+                         true, 40);
+    if (!system_entry_exists("gwatch"))
+        add_system_entry("gwatch", "Game & Watch", "LCD handhelds",
+                         GWATCH_PLUGIN_PATH, GWATCH_ROM_DIR,
+                         GAME_LIBRARY_COVERS_DIR "/systems/gwatch.bmp",
+                         true, 50);
+    if (!system_entry_exists("doom"))
+        add_system_entry("doom", "Doom", "WAD launcher",
+                         DOOM_PLUGIN_PATH, DOOM_WAD_DIR,
+                         GAME_LIBRARY_COVERS_DIR "/systems/doom.bmp",
+                         true, 60);
+    if (!system_entry_exists("native"))
+        add_system_entry("native", "Native Games", "Rockbox plugins",
+                         "", NATIVE_GAMES_DIR,
+                         GAME_LIBRARY_COVERS_DIR "/systems/native.bmp",
+                         true, 100);
+}
+
+static bool load_systems_from_manifest(void)
+{
+    int fd;
+    char line[768];
+    ssize_t len;
+
+    launcher.system_count = 0;
+    fd = rb->open(GAME_LIBRARY_SYSTEMS_PATH, O_RDONLY);
+    if (fd < 0)
+        return false;
+
+    while ((len = rb->read_line(fd, line, sizeof(line))) > 0 &&
+           launcher.system_count < MAX_SYSTEMS)
+    {
+        char *id;
+        char *title;
+        char *subtitle;
+        char *plugin;
+        char *path;
+        char *cover;
+        char *enabled;
+        char *sort;
+        char *next;
+
+        (void)len;
+        id = trim_whitespace(line);
+        if (id[0] == '\0' || id[0] == '#')
+            continue;
+
+        next = rb->strchr(id, '\t');
+        if (!next)
+            continue;
+        *next++ = '\0';
+        if (!rb->strcasecmp(id, "id"))
+            continue;
+
+        title = next;
+        next = rb->strchr(next, '\t');
+        if (!next)
+            continue;
+        *next++ = '\0';
+
+        subtitle = next;
+        next = rb->strchr(next, '\t');
+        if (!next)
+            continue;
+        *next++ = '\0';
+
+        plugin = next;
+        next = rb->strchr(next, '\t');
+        if (!next)
+            continue;
+        *next++ = '\0';
+
+        path = next;
+        next = rb->strchr(next, '\t');
+        if (!next)
+            continue;
+        *next++ = '\0';
+
+        cover = next;
+        next = rb->strchr(next, '\t');
+        enabled = "";
+        sort = "";
+        if (next)
+        {
+            *next++ = '\0';
+            enabled = next;
+            next = rb->strchr(next, '\t');
+            if (next)
+            {
+                *next++ = '\0';
+                sort = next;
+                next = rb->strchr(next, '\t');
+                if (next)
+                    *next = '\0';
+            }
+        }
+
+        add_system_entry(trim_whitespace(id), trim_whitespace(title),
+                         trim_whitespace(subtitle), trim_whitespace(plugin),
+                         trim_whitespace(path), trim_whitespace(cover),
+                         enabled[0] == '\0' || parse_bool(trim_whitespace(enabled)),
+                         sort[0] == '\0' ? 100 : rb->atoi(trim_whitespace(sort)));
+    }
+
+    rb->close(fd);
+    add_missing_builtin_systems();
+    if (launcher.system_count > 1)
+        rb->qsort(launcher.systems, launcher.system_count,
+                  sizeof(struct system_entry), compare_systems);
+    return launcher.system_count > 0;
+}
+
+static bool load_system_library(void)
+{
+    ensure_library_dirs();
+    write_default_system_manifest();
+    if (!load_systems_from_manifest())
+        load_default_systems();
+    if (launcher.system_count > 1)
+        rb->qsort(launcher.systems, launcher.system_count,
+                  sizeof(struct system_entry), compare_systems);
+    return launcher.system_count > 0;
 }
 
 #if CONFIG_KEYPAD == IPOD_4G_PAD && defined(IPOD_VIDEO)
@@ -666,45 +1334,177 @@ static enum plugin_status launcher_rockboy_settings_menu(void)
 }
 #endif
 
-static void save_launcher_state(const char *rom_path)
+static void write_launcher_state_file(const char *path, const char *system_id,
+                                      const char *rom_path)
 {
     int fd;
 
-    if (!ensure_launcher_dir())
-        return;
-
-    fd = rb->open(ROCKBOY_STATE_PATH, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+    fd = rb->open(path, O_WRONLY | O_CREAT | O_TRUNC, 0666);
     if (fd < 0)
         return;
 
-    rb->write(fd, rom_path, rb->strlen(rom_path));
+    rb->fdprintf(fd, "system=%s\n", system_id ? system_id : "");
+    rb->fdprintf(fd, "game=%s\n", rom_path ? rom_path : "");
     rb->close(fd);
 }
 
-static void load_launcher_state(void)
+static void save_launcher_state(const char *rom_path)
+{
+    const char *system_id = "";
+
+    if (launcher.view_mode == VIEW_SYSTEMS &&
+        launcher.selected >= 0 && launcher.selected < launcher.entry_count &&
+        launcher.entries[launcher.selected].is_system)
+    {
+        system_id = launcher.entries[launcher.selected].system_id;
+    }
+    else if (launcher.current_system >= 0 &&
+             launcher.current_system < launcher.system_count)
+    {
+        system_id = launcher.systems[launcher.current_system].id;
+    }
+
+    if (ensure_library_dirs())
+        write_launcher_state_file(GAME_LIBRARY_STATE_PATH, system_id, rom_path);
+    if (ensure_launcher_dir())
+        write_launcher_state_file(ROCKBOY_STATE_PATH, system_id, rom_path);
+}
+
+static void load_launcher_config_file(const char *path)
+{
+    int fd;
+    char line[128];
+
+    fd = rb->open(path, O_RDONLY);
+    if (fd < 0)
+        return;
+
+    while (rb->read_line(fd, line, sizeof(line)) > 0)
+    {
+        char *eq = rb->strchr(line, '=');
+        char *key;
+        char *val;
+        bool enabled;
+
+        if (!eq)
+            continue;
+        *eq++ = '\0';
+        key = trim_whitespace(line);
+        val = trim_whitespace(eq);
+        enabled = parse_bool(val);
+
+        if (!rb->strcmp(key, "show_builtin_doom"))
+            launcher.show_builtin_doom = enabled;
+        else if (!rb->strcmp(key, "show_builtin_stickrpg"))
+            launcher.show_builtin_stickrpg = enabled;
+        else if (!rb->strcmp(key, "show_builtin_runescape"))
+            launcher.show_builtin_runescape = enabled;
+        else if (!rb->strcmp(key, "start_view"))
+        {
+            if (!rb->strcasecmp(val, "last_system"))
+                launcher.start_view = START_LAST_SYSTEM;
+            else if (!rb->strcasecmp(val, "last_game"))
+                launcher.start_view = START_LAST_GAME;
+            else
+                launcher.start_view = START_SYSTEMS;
+        }
+        else if (!rb->strcmp(key, "show_empty_systems"))
+            launcher.show_empty_systems = enabled;
+        else if (!rb->strcmp(key, "show_missing_systems"))
+            launcher.show_missing_systems = enabled;
+        else if (!rb->strcmp(key, "haptic_ticks"))
+            launcher.haptic_ticks = enabled;
+        else if (!rb->strcmp(key, "show_save_indicators"))
+            launcher.show_save_indicators = enabled;
+    }
+
+    rb->close(fd);
+}
+
+static void load_launcher_config(void)
+{
+    launcher.show_builtin_doom = true;
+    launcher.show_builtin_stickrpg = true;
+    launcher.show_builtin_runescape = true;
+    launcher.start_view = START_SYSTEMS;
+    launcher.show_empty_systems = true;
+    launcher.show_missing_systems = true;
+    launcher.haptic_ticks = false;
+    launcher.show_save_indicators = true;
+    launcher.coverflow_mode = 0;
+
+    load_launcher_config_file(GAME_LIBRARY_CONFIG_PATH);
+    load_launcher_config_file(ROCKBOY_CONFIG_PATH);
+    launcher.haptic_ticks = false;
+}
+
+static bool load_launcher_state_file(const char *path)
 {
     int fd;
     ssize_t bytes;
     char *trimmed;
 
     launcher.state_rom[0] = '\0';
+    launcher.state_system[0] = '\0';
 
-    fd = rb->open(ROCKBOY_STATE_PATH, O_RDONLY);
+    fd = rb->open(path, O_RDONLY);
     if (fd < 0)
-        return;
+        return false;
 
     bytes = rb->read(fd, launcher.state_rom, sizeof(launcher.state_rom) - 1);
     rb->close(fd);
     if (bytes <= 0)
     {
         launcher.state_rom[0] = '\0';
-        return;
+        return false;
     }
 
     launcher.state_rom[bytes] = '\0';
-    trimmed = trim_whitespace(launcher.state_rom);
-    if (trimmed != launcher.state_rom)
-        rb->memmove(launcher.state_rom, trimmed, rb->strlen(trimmed) + 1);
+    if (!rb->strncmp(launcher.state_rom, "system=", 7) ||
+        rb->strstr(launcher.state_rom, "\ngame="))
+    {
+        char *line = launcher.state_rom;
+
+        while (line && *line)
+        {
+            char *next = rb->strchr(line, '\n');
+            char *eq;
+
+            if (next)
+                *next++ = '\0';
+            eq = rb->strchr(line, '=');
+            if (eq)
+            {
+                *eq++ = '\0';
+                trimmed = trim_whitespace(eq);
+                if (!rb->strcmp(trim_whitespace(line), "system"))
+                    rb->strlcpy(launcher.state_system, trimmed,
+                                sizeof(launcher.state_system));
+                else if (!rb->strcmp(trim_whitespace(line), "game"))
+                    rb->strlcpy(launcher.state_rom, trimmed,
+                                sizeof(launcher.state_rom));
+            }
+            line = next;
+        }
+    }
+    else
+    {
+        trimmed = trim_whitespace(launcher.state_rom);
+        if (trimmed != launcher.state_rom)
+            rb->memmove(launcher.state_rom, trimmed, rb->strlen(trimmed) + 1);
+        rb->strlcpy(launcher.state_system, "gameboy",
+                    sizeof(launcher.state_system));
+    }
+
+    return launcher.state_system[0] != '\0' || launcher.state_rom[0] != '\0';
+}
+
+static void load_launcher_state(void)
+{
+    if (load_launcher_state_file(GAME_LIBRARY_STATE_PATH))
+        return;
+
+    load_launcher_state_file(ROCKBOY_STATE_PATH);
 }
 
 static bool derive_rockboy_save_name(const char *rom_path,
@@ -818,8 +1618,16 @@ static void apply_launcher_filter(void)
     launcher.entry_count = write_index;
 }
 
+static bool cover_for_known_plugin(const char *path, const char *title,
+                                   char *cover_path, size_t cover_path_size);
+static bool cover_for_pokemini_rom(const char *path,
+                                   char *cover_path, size_t cover_path_size);
+static bool cover_for_system_id(const char *system_id,
+                                char *cover_path, size_t cover_path_size);
+
 static void add_game_entry(const char *title, const char *rom_path,
-                           const char *cover_path, unsigned char flags,
+                           const char *cover_path, const char *system_id,
+                           const char *plugin_path, unsigned char flags,
                            unsigned char save_hint, const char *year,
                            const char *genre, const char *publisher,
                            const char *developer, const char *plugin_param)
@@ -828,7 +1636,7 @@ static void add_game_entry(const char *title, const char *rom_path,
 
     if (!rom_path || !*rom_path || launcher.entry_count >= launcher.entry_capacity)
         return;
-    if (!has_supported_rom_ext(rom_path))
+    if ((!plugin_path || !*plugin_path) && !has_supported_rom_ext(rom_path))
         return;
 
     entry = &launcher.entries[launcher.entry_count++];
@@ -840,11 +1648,25 @@ static void add_game_entry(const char *title, const char *rom_path,
         derive_title_from_path(rom_path, entry->title, sizeof(entry->title));
 
     rb->strlcpy(entry->rom_path, rom_path, sizeof(entry->rom_path));
+    if (system_id && *system_id)
+        rb->strlcpy(entry->system_id, system_id, sizeof(entry->system_id));
+    if (plugin_path && *plugin_path)
+        rb->strlcpy(entry->plugin_path, plugin_path, sizeof(entry->plugin_path));
     if (plugin_param && *plugin_param)
         rb->strlcpy(entry->plugin_param, plugin_param,
                     sizeof(entry->plugin_param));
-    if (cover_path && *cover_path)
+    if (cover_path && *cover_path && rb->file_exists(cover_path))
         rb->strlcpy(entry->cover_path, cover_path, sizeof(entry->cover_path));
+    else if (is_plugin_entry(rom_path))
+        cover_for_known_plugin(rom_path, entry->title,
+                               entry->cover_path, sizeof(entry->cover_path));
+    if (entry->cover_path[0] == '\0' &&
+        !rb->strcmp(entry->system_id, "pokemini"))
+        cover_for_pokemini_rom(rom_path, entry->cover_path,
+                               sizeof(entry->cover_path));
+    if (entry->cover_path[0] == '\0')
+        cover_for_system_id(entry->system_id,
+                            entry->cover_path, sizeof(entry->cover_path));
     if (year && *year)
         rb->strlcpy(entry->year, year, sizeof(entry->year));
     if (genre && *genre)
@@ -856,6 +1678,7 @@ static void add_game_entry(const char *title, const char *rom_path,
 
     entry->flags = flags;
     entry->save_hint = save_hint;
+    entry->system_index = launcher.current_system;
 }
 
 static bool game_entry_path_exists(const char *path)
@@ -871,22 +1694,194 @@ static bool game_entry_path_exists(const char *path)
     return false;
 }
 
+static bool copy_cover_if_exists(char *out, size_t out_size, const char *path)
+{
+    if (path && path[0] != '\0' && rb->file_exists(path))
+    {
+        rb->strlcpy(out, path, out_size);
+        return true;
+    }
+
+    return false;
+}
+
+static bool cover_for_known_plugin(const char *path, const char *title,
+                                   char *cover_path, size_t cover_path_size)
+{
+    char stem[MAX_ENTRY_TITLE];
+
+    cover_path[0] = '\0';
+    derive_stem_from_path(path, stem, sizeof(stem));
+
+    rb->snprintf(cover_path, cover_path_size, "%s/native/%s.bmp",
+                 GAME_LIBRARY_COVERS_DIR, stem);
+    if (rb->file_exists(cover_path))
+        return true;
+    cover_path[0] = '\0';
+
+    if (!rb->strcasecmp(stem, "clubpenguin") ||
+        (title && !rb->strcasecmp(title, "Club Penguin")))
+    {
+        return copy_cover_if_exists(cover_path, cover_path_size,
+                    PLUGIN_GAMES_DIR "/clubpenguin/covers/Club Penguin.bmp") ||
+               copy_cover_if_exists(cover_path, cover_path_size,
+                    ROCKBOX_DIR "/ipodjs/clubpenguin/covers/Club Penguin.bmp");
+    }
+
+    if (!rb->strcasecmp(stem, "runescape_classic") ||
+        (title && !rb->strcasecmp(title, "RuneScape Classic")))
+    {
+        return copy_cover_if_exists(cover_path, cover_path_size,
+                                    RUNESCAPE_CLASSIC_COVER_BMP) ||
+               copy_cover_if_exists(cover_path, cover_path_size,
+                    ROCKBOX_DIR "/ipodjs/runescape_classic/covers/RuneScape Classic.bmp");
+    }
+
+    if (!rb->strcasecmp(stem, "wwe_backstage") ||
+        (title && !rb->strcasecmp(title, "WWE Backstage")))
+    {
+        return copy_cover_if_exists(cover_path, cover_path_size,
+                                    WWE_BACKSTAGE_COVER_BMP) ||
+               copy_cover_if_exists(cover_path, cover_path_size,
+                    PLUGIN_GAMES_DIR "/wwe_backstage/cover.bmp");
+    }
+
+    if (!rb->strcasecmp(stem, "doom") || !rb->strcasecmp(stem, "doom_play") ||
+        (title && !rb->strcasecmp(title, "Doom")))
+    {
+        return copy_cover_if_exists(cover_path, cover_path_size,
+                                    DOOM_COVER_BMP) ||
+               copy_cover_if_exists(cover_path, cover_path_size,
+                                    GAME_LIBRARY_COVERS_DIR "/systems/doom.bmp");
+    }
+
+    if (!rb->strcasecmp(stem, "smsgg"))
+    {
+        return copy_cover_if_exists(cover_path, cover_path_size,
+                    PLUGIN_GAMES_DIR "/smsgg/covers/Sega Master System - Game Gear.bmp") ||
+               copy_cover_if_exists(cover_path, cover_path_size,
+                                    GAME_LIBRARY_COVERS_DIR "/systems/smsgg.bmp");
+    }
+
+    if (!rb->strcasecmp(stem, "pocketcatch"))
+    {
+        return copy_cover_if_exists(cover_path, cover_path_size,
+                    PLUGIN_GAMES_DIR "/pocketcatch/backgrounds/new_bark_town_hgss.bmp");
+    }
+
+    if (!rb->strcasecmp(stem, "pokemini") ||
+        !rb->strcasecmp(stem, "pokemini_launcher"))
+    {
+        return copy_cover_if_exists(cover_path, cover_path_size,
+                                    GAME_LIBRARY_COVERS_DIR "/systems/pokemini.bmp");
+    }
+
+    if (!rb->strcasecmp(stem, "arduboy"))
+    {
+        return copy_cover_if_exists(cover_path, cover_path_size,
+                                    GAME_LIBRARY_COVERS_DIR "/systems/arduboy.bmp");
+    }
+
+    if (!rb->strcasecmp(stem, "tamagotchi"))
+    {
+        return copy_cover_if_exists(cover_path, cover_path_size,
+                                    GAME_LIBRARY_COVERS_DIR "/systems/tamagotchi.bmp");
+    }
+
+    return false;
+}
+
+static bool cover_for_pokemini_rom(const char *path,
+                                   char *cover_path, size_t cover_path_size)
+{
+    char stem[MAX_ENTRY_TITLE];
+
+    cover_path[0] = '\0';
+    derive_stem_from_path(path, stem, sizeof(stem));
+
+    rb->snprintf(cover_path, cover_path_size, "%s/%s.bmp",
+                 POKEMINI_COVERS_DIR, stem);
+    if (rb->file_exists(cover_path))
+        return true;
+
+    rb->snprintf(cover_path, cover_path_size, "%s/%s.png",
+                 POKEMINI_COVERS_DIR, stem);
+    if (rb->file_exists(cover_path))
+        return true;
+
+    cover_path[0] = '\0';
+    return false;
+}
+
+static bool cover_for_system_id(const char *system_id,
+                                char *cover_path, size_t cover_path_size)
+{
+    int i;
+
+    if (!system_id || system_id[0] == '\0')
+        return false;
+
+    for (i = 0; i < launcher.system_count; i++)
+    {
+        if (!rb->strcmp(launcher.systems[i].id, system_id) &&
+            copy_cover_if_exists(cover_path, cover_path_size,
+                                 launcher.systems[i].cover_path))
+        {
+            return true;
+        }
+    }
+
+    if (!rb->strcmp(system_id, "native"))
+        return copy_cover_if_exists(cover_path, cover_path_size,
+                                    GAME_LIBRARY_COVERS_DIR "/systems/native.bmp");
+    if (!rb->strcmp(system_id, "gameboy"))
+        return copy_cover_if_exists(cover_path, cover_path_size,
+                                    GAME_LIBRARY_COVERS_DIR "/systems/gameboy.bmp");
+    if (!rb->strcmp(system_id, "nes"))
+        return copy_cover_if_exists(cover_path, cover_path_size,
+                                    GAME_LIBRARY_COVERS_DIR "/systems/nes.bmp");
+    if (!rb->strcmp(system_id, "smsgg"))
+        return copy_cover_if_exists(cover_path, cover_path_size,
+                                    GAME_LIBRARY_COVERS_DIR "/systems/smsgg.bmp");
+    if (!rb->strcmp(system_id, "arduboy"))
+        return copy_cover_if_exists(cover_path, cover_path_size,
+                                    GAME_LIBRARY_COVERS_DIR "/systems/arduboy.bmp");
+    if (!rb->strcmp(system_id, "tamagotchi"))
+        return copy_cover_if_exists(cover_path, cover_path_size,
+                                    GAME_LIBRARY_COVERS_DIR "/systems/tamagotchi.bmp");
+    if (!rb->strcmp(system_id, "pokemini"))
+        return copy_cover_if_exists(cover_path, cover_path_size,
+                                    GAME_LIBRARY_COVERS_DIR "/systems/pokemini.bmp");
+    if (!rb->strcmp(system_id, "gwatch"))
+        return copy_cover_if_exists(cover_path, cover_path_size,
+                                    GAME_LIBRARY_COVERS_DIR "/systems/gwatch.bmp");
+    if (!rb->strcmp(system_id, "doom"))
+        return copy_cover_if_exists(cover_path, cover_path_size,
+                                    GAME_LIBRARY_COVERS_DIR "/systems/doom.bmp");
+
+    return false;
+}
+
 static void add_builtin_game_entries(void)
 {
-    if (rb->file_exists(FLASHPLAYER_PLUGIN_PATH) &&
+    if (launcher.show_builtin_stickrpg &&
+        rb->file_exists(FLASHPLAYER_PLUGIN_PATH) &&
         rb->file_exists(STICKRPG_SWF_PATH) &&
         !game_entry_path_exists(FLASHPLAYER_PLUGIN_PATH))
     {
         add_game_entry("Stick RPG", FLASHPLAYER_PLUGIN_PATH,
-                       STICKRPG_COVER_BMP, FLAG_FAVORITE, SAVE_HINT_NO,
+                       STICKRPG_COVER_BMP, "native", "",
+                       FLAG_FAVORITE, SAVE_HINT_NO,
                        "2003", "Flash RPG", "XGen Studios", "XGen Studios",
                        STICKRPG_SWF_PATH);
     }
 
-    if (rb->file_exists(DOOM_PLAY_PLUGIN_PATH) &&
+    if (launcher.show_builtin_doom &&
+        rb->file_exists(DOOM_PLAY_PLUGIN_PATH) &&
         !game_entry_path_exists(DOOM_PLAY_PLUGIN_PATH))
     {
         add_game_entry("Doom", DOOM_PLAY_PLUGIN_PATH, DOOM_COVER_BMP,
+                       "doom", "",
                        FLAG_FAVORITE, SAVE_HINT_NO,
                        "1993", "Shooter", "Rockbox", "Rockdoom", NULL);
     }
@@ -896,16 +1891,19 @@ static void add_builtin_game_entries(void)
         !game_entry_path_exists(WWE_BACKSTAGE_PLUGIN_PATH))
     {
         add_game_entry("WWE Backstage", WWE_BACKSTAGE_PLUGIN_PATH,
-                       WWE_BACKSTAGE_COVER_BMP, FLAG_FAVORITE, SAVE_HINT_NO,
+                       WWE_BACKSTAGE_COVER_BMP, "native", "",
+                       FLAG_FAVORITE, SAVE_HINT_NO,
                        "2015", "Interactive Video", "YouTube", "WWE",
                        WWE_BACKSTAGE_MANIFEST_PATH);
     }
 
-    if (rb->file_exists(RUNESCAPE_CLASSIC_PLUGIN_PATH) &&
+    if (launcher.show_builtin_runescape &&
+        rb->file_exists(RUNESCAPE_CLASSIC_PLUGIN_PATH) &&
         !game_entry_path_exists(RUNESCAPE_CLASSIC_PLUGIN_PATH))
     {
         add_game_entry("RuneScape Classic", RUNESCAPE_CLASSIC_PLUGIN_PATH,
-                       RUNESCAPE_CLASSIC_COVER_BMP, FLAG_FAVORITE,
+                       RUNESCAPE_CLASSIC_COVER_BMP, "native", "",
+                       FLAG_FAVORITE,
                        SAVE_HINT_NO, "2001", "RPG", "Jagex",
                        "Offline Lumbridge", NULL);
     }
@@ -963,12 +1961,194 @@ static void scan_rom_dir(const char *dir_path, int depth)
         {
             char cover[MAX_PATH];
             detect_sidecar_cover(child, cover, sizeof(cover));
-            add_game_entry(NULL, child, cover, 0, SAVE_HINT_UNKNOWN, "",
-                           "", "", "", NULL);
+            add_game_entry(NULL, child, cover, "gameboy", "",
+                           0, SAVE_HINT_UNKNOWN, "", "", "", "", NULL);
         }
     }
 
     rb->closedir(dir);
+}
+
+static void scan_system_rom_dir(struct system_entry *system,
+                                const char *dir_path, int depth)
+{
+    DIR *dir;
+    struct dirent *entry;
+    char child[MAX_PATH];
+
+    if (depth > MAX_SCAN_DEPTH || launcher.entry_count >= launcher.entry_capacity)
+        return;
+
+    dir = rb->opendir(dir_path);
+    if (!dir)
+        return;
+
+    while ((entry = rb->readdir(dir)) != NULL &&
+           launcher.entry_count < launcher.entry_capacity)
+    {
+        if (!rb->strcmp(entry->d_name, ".") || !rb->strcmp(entry->d_name, ".."))
+            continue;
+
+        rb->snprintf(child, sizeof(child), "%s/%s", dir_path, entry->d_name);
+        if (rb->dir_get_info(dir, entry).attribute & ATTR_DIRECTORY)
+        {
+            scan_system_rom_dir(system, child, depth + 1);
+            continue;
+        }
+
+        if (has_extension_in_list(entry->d_name, system->extensions))
+        {
+            char cover[MAX_PATH];
+            detect_sidecar_cover(child, cover, sizeof(cover));
+            add_game_entry(NULL, child, cover, system->id, system->plugin_path,
+                           0, SAVE_HINT_UNKNOWN, "", "", "", "", NULL);
+        }
+    }
+
+    rb->closedir(dir);
+}
+
+static int count_system_files_quick(struct system_entry *system,
+                                    const char *dir_path)
+{
+    DIR *dir;
+    struct dirent *entry;
+    char child[MAX_PATH];
+    int count = 0;
+
+    dir = rb->opendir(dir_path);
+    if (!dir)
+        return 0;
+
+    while ((entry = rb->readdir(dir)) != NULL && count < MAX_SYSTEM_QUICK_COUNT)
+    {
+        if (!rb->strcmp(entry->d_name, ".") || !rb->strcmp(entry->d_name, ".."))
+            continue;
+
+        rb->snprintf(child, sizeof(child), "%s/%s", dir_path, entry->d_name);
+        if ((rb->dir_get_info(dir, entry).attribute & ATTR_DIRECTORY) == 0 &&
+            has_extension_in_list(entry->d_name, system->extensions))
+        {
+            count++;
+        }
+    }
+
+    rb->closedir(dir);
+    return count;
+}
+
+static bool load_games_from_system_manifest(struct system_entry *system)
+{
+    int fd;
+    char line[1024];
+    char index_path[MAX_PATH];
+    char index_dir[MAX_PATH];
+    char *last_slash;
+    ssize_t len;
+
+    rb->snprintf(index_path, sizeof(index_path), ROCKBOX_DIR "/games/%s/games.tsv",
+                 system->id);
+    fd = rb->open(index_path, O_RDONLY);
+    if (fd < 0)
+        return false;
+
+    rb->strlcpy(index_dir, index_path, sizeof(index_dir));
+    last_slash = rb->strrchr(index_dir, '/');
+    if (last_slash)
+        *last_slash = '\0';
+
+    while ((len = rb->read_line(fd, line, sizeof(line))) > 0 &&
+           launcher.entry_count < launcher.entry_capacity)
+    {
+        char *id;
+        char *title;
+        char *file;
+        char *cover;
+        char *favorite;
+        char *last_played;
+        char *haptic_profile;
+        char *next;
+        char resolved_file[MAX_PATH];
+        char resolved_cover[MAX_PATH];
+        unsigned char flags = 0;
+
+        (void)len;
+        id = trim_whitespace(line);
+        if (id[0] == '\0' || id[0] == '#')
+            continue;
+
+        next = rb->strchr(id, '\t');
+        if (!next)
+            continue;
+        *next++ = '\0';
+        if (!rb->strcasecmp(id, "id"))
+            continue;
+
+        title = next;
+        next = rb->strchr(next, '\t');
+        if (!next)
+            continue;
+        *next++ = '\0';
+
+        file = next;
+        next = rb->strchr(next, '\t');
+        if (next)
+        {
+            *next++ = '\0';
+            cover = next;
+            next = rb->strchr(next, '\t');
+        }
+        else
+            cover = "";
+
+        favorite = "";
+        last_played = "";
+        haptic_profile = "";
+        if (next)
+        {
+            *next++ = '\0';
+            favorite = next;
+            next = rb->strchr(next, '\t');
+            if (next)
+            {
+                *next++ = '\0';
+                last_played = next;
+                next = rb->strchr(next, '\t');
+                if (next)
+                {
+                    *next++ = '\0';
+                    haptic_profile = next;
+                    next = rb->strchr(next, '\t');
+                    if (next)
+                        *next = '\0';
+                }
+            }
+        }
+
+        (void)last_played;
+        make_path_absolute(index_dir, trim_whitespace(file),
+                           resolved_file, sizeof(resolved_file));
+        make_path_absolute(index_dir, trim_whitespace(cover),
+                           resolved_cover, sizeof(resolved_cover));
+        if (!rb->file_exists(resolved_file))
+            continue;
+        if (resolved_cover[0] != '\0' && !rb->file_exists(resolved_cover))
+            resolved_cover[0] = '\0';
+        if (resolved_cover[0] == '\0')
+            detect_sidecar_cover(resolved_file, resolved_cover,
+                                 sizeof(resolved_cover));
+        if (parse_bool(trim_whitespace(favorite)))
+            flags |= FLAG_FAVORITE;
+        if (trim_whitespace(haptic_profile)[0] != '\0')
+            system->has_haptics = true;
+
+        add_game_entry(trim_whitespace(title), resolved_file, resolved_cover,
+                       system->id, system->plugin_path, flags,
+                       SAVE_HINT_UNKNOWN, "", "", "", "", NULL);
+    }
+
+    rb->close(fd);
+    return launcher.entry_count > 0;
 }
 
 static bool load_games_from_index(void)
@@ -1000,10 +2180,13 @@ static bool load_games_from_index(void)
         char *genre;
         char *publisher;
         char *developer;
+        char *description;
+        char *plugin_param;
         char *cursor;
         char *next;
         char resolved_rom[MAX_PATH];
         char resolved_cover[MAX_PATH];
+        char resolved_plugin_param[MAX_PATH];
         unsigned char flags;
 
         cursor = trim_whitespace(line);
@@ -1035,6 +2218,8 @@ static bool load_games_from_index(void)
         genre = "";
         publisher = "";
         developer = "";
+        description = "";
+        plugin_param = "";
         if (next)
         {
             *next++ = '\0';
@@ -1066,7 +2251,19 @@ static bool load_games_from_index(void)
                                 developer = next;
                                 next = rb->strchr(next, '\t');
                                 if (next)
-                                    *next = '\0';
+                                {
+                                    *next++ = '\0';
+                                    description = next;
+                                    next = rb->strchr(next, '\t');
+                                    if (next)
+                                    {
+                                        *next++ = '\0';
+                                        plugin_param = next;
+                                        next = rb->strchr(next, '\t');
+                                        if (next)
+                                            *next = '\0';
+                                    }
+                                }
                             }
                         }
                     }
@@ -1083,11 +2280,21 @@ static bool load_games_from_index(void)
         genre = trim_whitespace(genre);
         publisher = trim_whitespace(publisher);
         developer = trim_whitespace(developer);
+        description = trim_whitespace(description);
+        plugin_param = trim_whitespace(plugin_param);
+        (void)description;
 
         make_path_absolute(index_dir, rom_path, resolved_rom, sizeof(resolved_rom));
         make_path_absolute(index_dir, cover_path, resolved_cover, sizeof(resolved_cover));
+        make_path_absolute(index_dir, plugin_param, resolved_plugin_param,
+                           sizeof(resolved_plugin_param));
         if (!rb->file_exists(resolved_rom))
             continue;
+        if (is_nes_rom(resolved_rom))
+            continue;
+        if (resolved_plugin_param[0] != '\0' &&
+            !rb->file_exists(resolved_plugin_param))
+            resolved_plugin_param[0] = '\0';
         if (resolved_cover[0] != '\0' && !rb->file_exists(resolved_cover))
             resolved_cover[0] = '\0';
         if (resolved_cover[0] == '\0')
@@ -1097,9 +2304,10 @@ static bool load_games_from_index(void)
         if (parse_bool(favorite))
             flags |= FLAG_FAVORITE;
 
-        add_game_entry(title, resolved_rom, resolved_cover, flags,
+        add_game_entry(title, resolved_rom, resolved_cover, "gameboy", "",
+                       flags,
                        parse_save_hint(save_hint), year, genre, publisher,
-                       developer, NULL);
+                       developer, resolved_plugin_param);
     }
 
     rb->close(fd);
@@ -1187,6 +2395,141 @@ static void reset_entry_list(void)
         rb->memset(launcher.entries, 0,
                    (size_t)launcher.entry_capacity * sizeof(struct game_entry));
     }
+}
+
+static void add_system_card(struct system_entry *system, int index)
+{
+    char subtitle[MAX_SYSTEM_SUBTITLE];
+    struct game_entry *entry;
+    unsigned char flags = 0;
+
+    if (launcher.entry_count >= launcher.entry_capacity)
+        return;
+
+    entry = &launcher.entries[launcher.entry_count++];
+    rb->memset(entry, 0, sizeof(*entry));
+    rb->strlcpy(entry->title, system->title, sizeof(entry->title));
+    rb->strlcpy(entry->system_id, system->id, sizeof(entry->system_id));
+    rb->strlcpy(entry->subtitle, system->subtitle, sizeof(entry->subtitle));
+    rb->strlcpy(entry->rom_path, system->rom_path, sizeof(entry->rom_path));
+    rb->strlcpy(entry->plugin_path, system->plugin_path, sizeof(entry->plugin_path));
+
+    if (launcher.view_mode != VIEW_SYSTEMS &&
+        system->cover_path[0] != '\0' && rb->file_exists(system->cover_path))
+    {
+        rb->strlcpy(entry->cover_path, system->cover_path, sizeof(entry->cover_path));
+    }
+
+    if (system->game_count == 0)
+        flags |= FLAG_NEEDS_SETUP;
+
+    rb->snprintf(subtitle, sizeof(subtitle), "%s", system->subtitle);
+    if (system->game_count < 0)
+        rb->strlcpy(entry->genre, "Open to scan", sizeof(entry->genre));
+    else if (system->game_count == 1)
+        rb->strlcpy(entry->genre, "1 game", sizeof(entry->genre));
+    else if (system->game_count >= MAX_SYSTEM_QUICK_COUNT)
+        rb->snprintf(entry->genre, sizeof(entry->genre), "%d+ games",
+                     MAX_SYSTEM_QUICK_COUNT);
+    else
+        rb->snprintf(entry->genre, sizeof(entry->genre), "%d games",
+                     system->game_count);
+    rb->strlcpy(entry->publisher, subtitle, sizeof(entry->publisher));
+    if (system->game_count == 0)
+        rb->strlcpy(entry->developer, "Needs setup", sizeof(entry->developer));
+
+    entry->flags = flags;
+    entry->system_index = index;
+    entry->is_system = true;
+}
+
+static void count_system_games(void)
+{
+    int i;
+
+    for (i = 0; i < launcher.system_count; i++)
+    {
+        struct system_entry *system = &launcher.systems[i];
+
+        system->game_count = 0;
+        if (!system->enabled)
+            continue;
+
+        if (!rb->strcmp(system->id, "tamagotchi"))
+        {
+            system->game_count = tamagotchi_rom_available() ? 1 : 0;
+        }
+        else if (system->old_index)
+        {
+            system->game_count = count_system_files_quick(system,
+                                                          system->rom_path);
+            if (system->game_count == 0 &&
+                (rb->file_exists(ROCKBOY_INDEX_PATH) ||
+                 rb->file_exists(DOOM_PLAY_PLUGIN_PATH) ||
+                 rb->file_exists(FLASHPLAYER_PLUGIN_PATH) ||
+                 rb->file_exists(WWE_BACKSTAGE_PLUGIN_PATH) ||
+                 rb->file_exists(RUNESCAPE_CLASSIC_PLUGIN_PATH)))
+            {
+                system->game_count = -1;
+            }
+        }
+        else
+        {
+            if (system->native_plugins)
+                system->game_count = -1;
+            else
+                system->game_count = count_system_files_quick(system,
+                                                              system->rom_path);
+            if (!rb->strcmp(system->id, "doom") &&
+                system->game_count == 0 &&
+                rb->file_exists(DOOM_PLAY_PLUGIN_PATH))
+            {
+                system->game_count = 1;
+            }
+        }
+    }
+}
+
+static bool load_system_browser(void)
+{
+    int i;
+
+    if (!launcher.entries && !allocate_launcher_buffers())
+        return false;
+
+    reset_entry_list();
+    launcher.view_mode = VIEW_SYSTEMS;
+    launcher.current_system = -1;
+    count_system_games();
+
+    for (i = 0; i < launcher.system_count; i++)
+    {
+        if (!launcher.systems[i].enabled)
+            continue;
+        if (!launcher.show_empty_systems && launcher.systems[i].game_count <= 0)
+            continue;
+        add_system_card(&launcher.systems[i], i);
+    }
+
+    launcher.total_count = launcher.entry_count;
+    if (launcher.state_system[0] != '\0')
+    {
+        for (i = 0; i < launcher.entry_count; i++)
+        {
+            if (!rb->strcmp(launcher.entries[i].system_id,
+                            launcher.state_system))
+            {
+                launcher.selected = i;
+                break;
+            }
+        }
+    }
+    if (launcher.selected >= launcher.entry_count)
+        launcher.selected = launcher.entry_count - 1;
+    if (launcher.selected < 0)
+        launcher.selected = 0;
+    request_cover_cache_warm();
+    return launcher.entry_count > 0;
 }
 
 static void reset_cover_slot(struct cover_slot *slot)
@@ -1523,12 +2866,58 @@ static bool load_game_library(void)
     if (!launcher.entries && !allocate_launcher_buffers())
         return false;
 
-    reset_entry_list();
+    load_launcher_config();
     load_launcher_state();
-    launcher.used_index = load_games_from_index();
-    if (!launcher.used_index)
-        scan_rom_dir(ROCKBOY_ROM_DIR, 0);
-    add_builtin_game_entries();
+    if (!load_system_library())
+        return false;
+    return load_system_browser();
+}
+
+static bool load_system_games(int system_index)
+{
+    struct system_entry *system;
+
+    if (system_index < 0 || system_index >= launcher.system_count)
+        return false;
+
+    system = &launcher.systems[system_index];
+    clear_cover_cache();
+    reset_entry_list();
+    launcher.view_mode = VIEW_GAMES;
+    launcher.current_system = system_index;
+
+    if (!rb->strcmp(system->id, "tamagotchi"))
+    {
+        if (tamagotchi_rom_available())
+        {
+            add_game_entry("Tamagotchi", tamagotchi_rom_path(),
+                           system->cover_path, system->id, system->plugin_path,
+                           0, SAVE_HINT_YES, "", "Virtual pet",
+                           "Bandai", "TamaLIB", NULL);
+        }
+    }
+    else if (system->old_index)
+    {
+        launcher.used_index = load_games_from_index();
+        if (!launcher.used_index)
+            scan_rom_dir(ROCKBOY_ROM_DIR, 0);
+        add_builtin_game_entries();
+    }
+    else
+    {
+        launcher.used_index = load_games_from_system_manifest(system);
+        if (!launcher.used_index)
+            scan_system_rom_dir(system, system->rom_path, 0);
+        if (!rb->strcmp(system->id, "doom") &&
+            launcher.entry_count == 0 &&
+            rb->file_exists(DOOM_PLAY_PLUGIN_PATH))
+        {
+            add_game_entry("Doom Setup", DOOM_PLAY_PLUGIN_PATH,
+                           DOOM_COVER_BMP, system->id, "",
+                           FLAG_FAVORITE, SAVE_HINT_NO,
+                           "1993", "Shooter", "Rockbox", "Rockdoom", NULL);
+        }
+    }
 
     prime_game_metadata();
     apply_launcher_filter();
@@ -1538,28 +2927,25 @@ static bool load_game_library(void)
                   sizeof(struct game_entry), compare_entries);
     }
     restore_selection();
+    load_selected_cover_quiet();
     return launcher.entry_count > 0;
 }
 
 static bool reload_game_library(void)
 {
-    reset_entry_list();
     clear_cover_cache();
     load_launcher_state();
-    launcher.used_index = load_games_from_index();
-    if (!launcher.used_index)
-        scan_rom_dir(ROCKBOY_ROM_DIR, 0);
-    add_builtin_game_entries();
-
-    prime_game_metadata();
-    apply_launcher_filter();
-    if (launcher.entry_count > 1)
+    if (launcher.view_mode == VIEW_GAMES)
     {
-        rb->qsort(launcher.entries, launcher.entry_count,
-                  sizeof(struct game_entry), compare_entries);
+        if (!load_system_games(launcher.current_system))
+            return false;
     }
-    restore_selection();
-    warm_cover_cache();
+    else if (!load_system_library() || !load_system_browser())
+    {
+        return false;
+    }
+
+    request_cover_cache_warm();
     return launcher.entry_count > 0;
 }
 
@@ -1568,7 +2954,7 @@ static bool reload_game_library_with_current_modes(void)
     if (!reload_game_library())
         return false;
 
-    load_selected_cover_with_progress("Preparing Covers");
+    load_selected_cover_quiet();
     return true;
 }
 
@@ -1602,6 +2988,9 @@ static void launcher_layout_init(void)
 {
     int font_height;
     int margin;
+    int detail_rows_h;
+    int detail_top_max;
+    int detail_gap;
 
     margin = 8;
 
@@ -1617,6 +3006,9 @@ static void launcher_layout_init(void)
         launcher.cover_box_w = 128;
     if (launcher.cover_box_w < 96)
         launcher.cover_box_w = 96;
+
+    detail_rows_h = launcher.line_height * 3;
+    detail_gap = margin - 2;
 
     launcher.cover_box_h = launcher.vp.height / 2 + 4;
     if (launcher.cover_box_h > 140)
@@ -1641,10 +3033,27 @@ static void launcher_layout_init(void)
     if (launcher.reflection_max_h > 34)
         launcher.reflection_max_h = 34;
 
+    detail_top_max = launcher.vp.height - detail_rows_h - 2;
+    while (margin + launcher.line_height + 4 + launcher.cover_box_h +
+           launcher.reflection_gap + launcher.reflection_max_h + detail_gap >
+           detail_top_max &&
+           launcher.cover_box_h > 96)
+    {
+        launcher.cover_box_h -= 4;
+        launcher.reflection_max_h = launcher.cover_box_h / 5;
+        if (launcher.reflection_max_h < 14)
+            launcher.reflection_max_h = 14;
+        if (launcher.reflection_max_h > 28)
+            launcher.reflection_max_h = 28;
+    }
+
     launcher.cover_box_x = (launcher.vp.width - launcher.cover_box_w) / 2;
     launcher.cover_box_y = margin + launcher.line_height + 4;
     launcher.detail_y = launcher.cover_box_y + launcher.cover_box_h +
-                        launcher.reflection_gap + launcher.reflection_max_h + margin - 2;
+                        launcher.reflection_gap + launcher.reflection_max_h +
+                        detail_gap;
+    if (launcher.detail_y > detail_top_max)
+        launcher.detail_y = detail_top_max;
     launcher.detail_w = launcher.vp.width - margin * 2;
 }
 
@@ -1687,20 +3096,6 @@ static bool decode_cover_bitmap(const char *path, struct bitmap *bitmap,
     bitmap->format = FORMAT_NATIVE;
     bitmap->data = (unsigned char *)data;
     return true;
-}
-
-static bool ensure_fallback_cover(void)
-{
-    if (launcher.fallback_cover_loaded)
-        return true;
-
-    launcher.fallback_cover_loaded = decode_cover_bitmap(
-        ROCKBOY_FALLBACK_COVER_BMP,
-        &launcher.fallback_cover,
-        launcher.fallback_cover_data,
-        launcher.fallback_cover_bytes
-    );
-    return launcher.fallback_cover_loaded;
 }
 
 static struct cover_slot *find_cover_slot(int entry_index)
@@ -1788,48 +3183,29 @@ static struct cover_slot *get_cover_slot(int entry_index)
             slot->loaded = true;
             slot->fallback = false;
         }
-        else if (ensure_fallback_cover())
-        {
-            slot->bitmap = launcher.fallback_cover;
-            slot->loaded = true;
-            slot->fallback = true;
-            rb->strlcpy(slot->path, ROCKBOY_FALLBACK_COVER_BMP, sizeof(slot->path));
-        }
     }
 
     slot->last_used = ++launcher.cover_use_clock;
     return slot;
 }
 
-static void warm_cover_cache(void)
-{
-    int start;
-    int end;
-    int i;
-
-    if (launcher.entry_count <= 0)
-        return;
-
-    start = launcher.selected - COVER_CACHE_RADIUS;
-    end = launcher.selected + COVER_CACHE_RADIUS;
-    if (start < 0)
-        start = 0;
-    if (end >= launcher.entry_count)
-        end = launcher.entry_count - 1;
-
-    for (i = start; i <= end; i++)
-        get_cover_slot(i);
-}
-
 static void request_cover_cache_warm(void)
 {
+    if (launcher.view_mode == VIEW_SYSTEMS)
+    {
+        launcher.cache_warm_center = -1;
+        launcher.cache_warm_step = COVER_CACHE_RADIUS * 2 + 1;
+        return;
+    }
+
     launcher.cache_warm_center = launcher.selected;
     launcher.cache_warm_step = 0;
 }
 
 static void warm_cover_cache_step(int budget)
 {
-    if (launcher.entry_count <= 0 || budget <= 0)
+    if (launcher.view_mode == VIEW_SYSTEMS || launcher.entry_count <= 0 ||
+        budget <= 0)
         return;
 
     while (budget > 0)
@@ -2004,6 +3380,8 @@ static void load_selected_cover_with_progress(const char *msg)
 {
     if (launcher.entry_count <= 0)
         return;
+    if (launcher.view_mode == VIEW_SYSTEMS)
+        return;
 
     draw_loading_progress(0, 1, msg);
     get_cover_slot(launcher.selected);
@@ -2011,16 +3389,168 @@ static void load_selected_cover_with_progress(const char *msg)
     request_cover_cache_warm();
 }
 
-static void draw_cover_placeholder(const struct game_entry *entry,
-                                   int x, int y, int w, int h)
+static void load_selected_cover_quiet(void)
 {
-    char title[MAX_ENTRY_TITLE];
+    if (launcher.entry_count <= 0 || launcher.view_mode == VIEW_SYSTEMS)
+        return;
+
+    get_cover_slot(launcher.selected);
+    request_cover_cache_warm();
+}
+
+static const struct bitmap *system_art_for_id(const char *system_id)
+{
+    if (!rb->strcmp(system_id, "gameboy"))
+        return &bm_game_system_gameboy;
+    if (!rb->strcmp(system_id, "nes"))
+        return &bm_game_system_nes;
+    if (!rb->strcmp(system_id, "smsgg"))
+        return &bm_game_system_smsgg;
+    if (!rb->strcmp(system_id, "arduboy"))
+        return &bm_game_system_arduboy;
+    if (!rb->strcmp(system_id, "tamagotchi"))
+        return &bm_game_system_tamagotchi;
+    if (!rb->strcmp(system_id, "pokemini"))
+        return &bm_game_system_pokemini;
+    if (!rb->strcmp(system_id, "gwatch"))
+        return &bm_game_system_gwatch;
+    if (!rb->strcmp(system_id, "doom"))
+        return &bm_game_system_doom;
+    if (!rb->strcmp(system_id, "native"))
+        return &bm_game_system_native;
+    return NULL;
+}
+
+static void draw_system_badge(int x, int y, int w, int h,
+                              const struct game_entry *entry, bool selected)
+{
+    char initials[4];
+    int len = 0;
     int text_w;
     int text_h;
+    const char *p = entry->title;
+    const struct bitmap *art = system_art_for_id(entry->system_id);
 
-    truncate_to_width(entry->title, title, sizeof(title), w - 20);
-    rb->lcd_getstringsize(title, &text_w, &text_h);
-    rb->lcd_putsxy(x + (w - text_w) / 2, y + (h - text_h) / 2, title);
+    if (art != NULL)
+    {
+        rb->lcd_bmp_part(art, 0, 0,
+                         x + (w - art->width) / 2,
+                         y + (h - art->height) / 2,
+                         art->width, art->height);
+        return;
+    }
+
+    while (*p && len < 3)
+    {
+        while (*p == ' ' || *p == '&' || *p == '/')
+            p++;
+        if (*p)
+            initials[len++] = (char)toupper((unsigned char)*p++);
+        while (*p && *p != ' ' && *p != '&' && *p != '/')
+            p++;
+    }
+    initials[len] = '\0';
+    if (initials[0] == '\0')
+        rb->strlcpy(initials, "SYS", sizeof(initials));
+
+    rb->lcd_set_foreground(selected ? LCD_RGBPACK(92, 86, 110) :
+                           LCD_RGBPACK(180, 182, 188));
+    rb->lcd_fillrect(x, y, w, h);
+    rb->lcd_set_foreground(selected ? LCD_WHITE : LCD_RGBPACK(60, 60, 64));
+    rb->lcd_drawrect(x, y, w, h);
+    rb->lcd_getstringsize(initials, &text_w, &text_h);
+    rb->lcd_putsxy(x + (w - text_w) / 2, y + (h - text_h) / 2, initials);
+}
+
+static void draw_system_row(int index, int y, int row_h)
+{
+    struct game_entry *entry = &launcher.entries[index];
+    bool selected = index == launcher.selected;
+    char line[96];
+    char title[MAX_ENTRY_TITLE];
+    int text_w;
+    int badge_w = 50;
+    int margin = 8;
+    int text_x = margin + badge_w + 10;
+    int text_max = launcher.vp.width - text_x - margin;
+
+    if (selected)
+    {
+        rb->lcd_set_foreground(LCD_RGBPACK(104, 96, 128));
+        rb->lcd_fillrect(4, y + 4, 3, row_h - 8);
+        rb->lcd_set_foreground(launcher_selected_outline_color());
+        rb->lcd_drawrect(4, y - 2, launcher.vp.width - 8, row_h);
+    }
+
+    draw_system_badge(margin, y + 4, badge_w, row_h - 8, entry, selected);
+
+    rb->lcd_set_foreground(selected ? launcher_selected_text_color() :
+                           launcher_fg_color());
+    truncate_to_width(entry->title, title, sizeof(title), text_max);
+    rb->lcd_putsxy(text_x, y + 2, title);
+
+    rb->lcd_set_foreground(selected ? launcher_selected_muted_color() :
+                           launcher_muted_fg_color());
+    rb->snprintf(line, sizeof(line), "%s", entry->publisher);
+    truncate_to_width(line, title, sizeof(title), text_max);
+    rb->lcd_putsxy(text_x, y + launcher.line_height, title);
+
+    rb->snprintf(line, sizeof(line), "%s", entry->genre);
+    truncate_to_width(line, title, sizeof(title), text_max);
+    rb->lcd_getstringsize(title, &text_w, NULL);
+    rb->lcd_putsxy(launcher.vp.width - margin - text_w,
+                   y + launcher.line_height, title);
+}
+
+static void draw_system_browser_screen(void)
+{
+    struct viewport *last_vp;
+    struct screen *display;
+    int row_h;
+    int visible;
+    int first;
+    int i;
+    char line[40];
+    int text_w;
+
+    if (launcher.entry_count <= 0)
+        return;
+
+    display = rb->screens[SCREEN_MAIN];
+    last_vp = rb->lcd_set_viewport(&launcher.vp);
+
+    rb->lcd_set_background(launcher_bg_color());
+    rb->lcd_set_foreground(launcher_fg_color());
+    display->clear_viewport();
+
+    rb->lcd_set_foreground(launcher_fg_color());
+    rb->lcd_putsxy(8, 4, "Systems");
+    rb->snprintf(line, sizeof(line), "%d / %d",
+                 launcher.selected + 1, launcher.entry_count);
+    rb->lcd_getstringsize(line, &text_w, NULL);
+    rb->lcd_putsxy(launcher.vp.width - 8 - text_w, 4, line);
+
+    row_h = (launcher.vp.height - launcher.line_height - 12) / 3;
+    if (row_h < launcher.line_height * 2 + 8)
+        row_h = launcher.line_height * 2 + 8;
+
+    visible = (launcher.vp.height - launcher.line_height - 10) / row_h;
+    if (visible < 1)
+        visible = 1;
+
+    first = launcher.selected - visible / 2;
+    if (first < 0)
+        first = 0;
+    if (first + visible > launcher.entry_count)
+        first = launcher.entry_count - visible;
+    if (first < 0)
+        first = 0;
+
+    for (i = 0; i < visible && first + i < launcher.entry_count; i++)
+        draw_system_row(first + i, launcher.line_height + 8 + i * row_h, row_h);
+
+    rb->lcd_set_viewport(last_vp);
+    rb->lcd_update();
 }
 
 static void draw_flow_cover_pose(const struct game_entry *entry, struct cover_slot *slot,
@@ -2064,8 +3594,15 @@ static void draw_flow_cover_pose(const struct game_entry *entry, struct cover_sl
 
     if (!slot || !slot->loaded)
     {
-        draw_cover_placeholder(entry,
-                               draw_x, draw_y, draw_w, draw_h);
+        const struct bitmap *art = system_art_for_id(entry->system_id);
+        if (art != NULL)
+        {
+            int art_x = draw_x + (draw_w - art->width) / 2;
+            int art_y = draw_y + (draw_h - art->height) / 2;
+
+            rb->lcd_bmp_part(art, 0, 0, art_x, art_y,
+                             art->width, art->height);
+        }
         return;
     }
 
@@ -2129,7 +3666,10 @@ static void draw_entry_details(struct game_entry *entry)
     y = launcher.detail_y;
     margin = 8;
 
-    if (launcher.total_count > launcher.entry_count)
+    if (entry->is_system)
+        rb->snprintf(line, sizeof(line), "Systems  %d / %d",
+                     launcher.selected + 1, launcher.entry_count);
+    else if (launcher.total_count > launcher.entry_count)
         rb->snprintf(line, sizeof(line), "%d / %d (%d total)",
                      launcher.selected + 1, launcher.entry_count, launcher.total_count);
     else
@@ -2138,7 +3678,9 @@ static void draw_entry_details(struct game_entry *entry)
     rb->lcd_putsxy(launcher.vp.width - margin - text_w, 0, line);
 
     badges[0] = '\0';
-    if (entry->has_save > 0)
+    if ((entry->flags & FLAG_NEEDS_SETUP) != 0)
+        rb->strlcpy(badges, "SETUP", sizeof(badges));
+    if (!entry->is_system && launcher.show_save_indicators && entry->has_save > 0)
         rb->strlcpy(badges, "SAVE", sizeof(badges));
     if (entry->flags & FLAG_FAVORITE)
     {
@@ -2160,6 +3702,20 @@ static void draw_entry_details(struct game_entry *entry)
         rb->strlcpy(meta_line, entry->year, sizeof(meta_line));
     else if (entry->genre[0] != '\0')
         rb->strlcpy(meta_line, entry->genre, sizeof(meta_line));
+
+    if (entry->is_system)
+    {
+        truncate_to_width(entry->publisher, line, sizeof(line), launcher.detail_w);
+        rb->lcd_getstringsize(line, &text_w, NULL);
+        rb->lcd_putsxy((launcher.vp.width - text_w) / 2,
+                       y + launcher.line_height, line);
+
+        truncate_to_width(entry->genre, line, sizeof(line), launcher.detail_w);
+        rb->lcd_getstringsize(line, &text_w, NULL);
+        rb->lcd_putsxy((launcher.vp.width - text_w) / 2,
+                       y + launcher.line_height * 2, line);
+        return;
+    }
 
     if (meta_line[0] != '\0')
     {
@@ -2336,6 +3892,11 @@ static void draw_launcher_screen(void)
 
     if (launcher.entry_count <= 0)
         return;
+    if (launcher.view_mode == VIEW_SYSTEMS)
+    {
+        draw_system_browser_screen();
+        return;
+    }
 
     selected = &launcher.entries[launcher.selected];
     display = rb->screens[SCREEN_MAIN];
@@ -2348,6 +3909,7 @@ static void draw_launcher_screen(void)
     draw_entry_details(selected);
 
     rb->lcd_set_viewport(last_vp);
+    launcher_notify_overlay();
     rb->lcd_update();
 }
 
@@ -2371,6 +3933,7 @@ static void draw_launcher_transition(int old_selected, int new_selected, int pro
     draw_entry_details(selected);
 
     rb->lcd_set_viewport(last_vp);
+    launcher_notify_overlay();
     rb->lcd_update();
 }
 
@@ -2386,12 +3949,13 @@ static enum plugin_status draw_empty_library(void)
     rb->lcd_set_background(launcher_bg_color());
     rb->lcd_set_foreground(launcher_fg_color());
     display->clear_viewport();
-    rb->lcd_putsxy(8, 8, "No game ROMs found");
-    rb->lcd_putsxy(8, 8 + launcher.line_height, "Place ROMs in " ROCKBOY_ROM_DIR);
-    rb->lcd_putsxy(8, 8 + launcher.line_height * 2, "or add " ROCKBOY_INDEX_PATH);
+    rb->lcd_putsxy(8, 8, "No game systems found");
+    rb->lcd_putsxy(8, 8 + launcher.line_height, "Check " GAME_LIBRARY_SYSTEMS_PATH);
     rb->lcd_putsxy(8, 8 + launcher.line_height * 4, "Back: Exit");
 
     rb->lcd_set_viewport(last_vp);
+    launcher_notify("No game systems found", 0);
+    launcher_notify_overlay();
     rb->lcd_update();
 
     while (true)
@@ -2400,7 +3964,50 @@ static enum plugin_status draw_empty_library(void)
 
         action = pluginlib_getaction(TIMEOUT_BLOCK, plugin_contexts,
                                      ARRAYLEN(plugin_contexts));
+        if (launcher_notify_handle(action))
+            continue;
         if (action == PLA_CANCEL || action == PLA_EXIT || action == ACTION_STD_CANCEL)
+            return PLUGIN_OK;
+        if (action == SYS_USB_CONNECTED)
+            return PLUGIN_USB_CONNECTED;
+    }
+}
+
+static enum plugin_status draw_empty_system_library(struct system_entry *system)
+{
+    struct viewport *last_vp;
+    struct screen *display;
+    char line[128];
+
+    display = rb->screens[SCREEN_MAIN];
+    launcher_layout_init();
+    last_vp = rb->lcd_set_viewport(&launcher.vp);
+
+    rb->lcd_set_background(launcher_bg_color());
+    rb->lcd_set_foreground(launcher_fg_color());
+    display->clear_viewport();
+    rb->lcd_putsxy(8, 8, system->title);
+    rb->lcd_putsxy(8, 8 + launcher.line_height, "Needs setup");
+    rb->strlcpy(line, system->setup_message, sizeof(line));
+    truncate_to_width(line, line, sizeof(line), launcher.vp.width - 16);
+    rb->lcd_putsxy(8, 8 + launcher.line_height * 3, line);
+    rb->lcd_putsxy(8, 8 + launcher.line_height * 5, "Menu: Back to Systems");
+
+    rb->lcd_set_viewport(last_vp);
+    launcher_notify(system->setup_message, 0);
+    launcher_notify_overlay();
+    rb->lcd_update();
+
+    while (true)
+    {
+        int action = pluginlib_getaction(TIMEOUT_BLOCK, plugin_contexts,
+                                         ARRAYLEN(plugin_contexts));
+
+        if (launcher_notify_handle(action))
+            continue;
+        if (action == PLA_CANCEL || action == PLA_EXIT ||
+            action == ACTION_STD_CANCEL || action == PLA_SELECT ||
+            action == ACTION_STD_OK)
             return PLUGIN_OK;
         if (action == SYS_USB_CONNECTED)
             return PLUGIN_USB_CONNECTED;
@@ -2413,7 +4020,47 @@ static enum plugin_status launch_selected_game(void)
     char launch_param[MAX_PATH];
 
     entry = &launcher.entries[launcher.selected];
+    if (entry->is_system)
+    {
+        enum plugin_status status;
+        int system_index = entry->system_index;
+
+        save_launcher_state("");
+        launcher.system_selected = launcher.selected;
+        if (!load_system_games(system_index))
+        {
+            if (system_index >= 0 && system_index < launcher.system_count)
+            {
+                status = draw_empty_system_library(
+                    &launcher.systems[system_index]);
+                load_system_browser();
+                return status;
+            }
+            return PLUGIN_OK;
+        }
+        return PLUGIN_OK;
+    }
+
     save_launcher_state(entry->rom_path);
+    if (entry->plugin_path[0] != '\0')
+    {
+        if (!rb->file_exists(entry->plugin_path))
+        {
+            launcher_notify("Plugin missing", 0);
+            rb->splash(HZ * 2, "Plugin missing");
+            return PLUGIN_OK;
+        }
+
+        if (!rb->strcmp(entry->plugin_path, ROCKBOY_PLUGIN_PATH))
+        {
+            rb->snprintf(launch_param, sizeof(launch_param), "@%s",
+                         entry->rom_path + 1);
+            return rb->plugin_open(entry->plugin_path, launch_param);
+        }
+
+        return rb->plugin_open(entry->plugin_path, entry->rom_path);
+    }
+
     if (is_plugin_entry(entry->rom_path))
         return rb->plugin_open(entry->rom_path,
                                entry->plugin_param[0] ?
@@ -2430,6 +4077,13 @@ static enum plugin_status launch_selected_game_setup(void)
 {
     struct game_entry *entry = &launcher.entries[launcher.selected];
 
+    if (entry->is_system)
+    {
+        if (entry->system_index >= 0 && entry->system_index < launcher.system_count)
+            return draw_empty_system_library(&launcher.systems[entry->system_index]);
+        return PLUGIN_OK;
+    }
+
     save_launcher_state(entry->rom_path);
     if (is_doom_entry(entry->rom_path))
         return rb->plugin_open(PLUGIN_GAMES_DIR "/doom.rock", "--setup");
@@ -2439,13 +4093,20 @@ static enum plugin_status launch_selected_game_setup(void)
 
 static enum plugin_status handle_select_press(void)
 {
+    long timeout = *rb->current_tick + HZ / 3;
+
     while (true)
     {
-        int action = pluginlib_getaction(TIMEOUT_BLOCK, plugin_contexts,
+        int action = pluginlib_getaction(HZ / 20, plugin_contexts,
                                          ARRAYLEN(plugin_contexts));
 
         switch (action)
         {
+            case ACTION_NONE:
+                if (TIME_AFTER(*rb->current_tick, timeout))
+                    return launch_selected_game();
+                break;
+
             case PLA_SELECT_REPEAT:
             {
                 enum plugin_status status = launch_selected_game_setup();
@@ -2467,6 +4128,9 @@ static void move_selection(int delta, bool animate)
 {
     int old_selected;
     int next;
+
+    if (launcher.view_mode == VIEW_SYSTEMS)
+        animate = false;
 
     next = launcher.selected + delta;
     if (next < 0)
@@ -2660,6 +4324,8 @@ static enum plugin_status launcher_run(void)
         draw_launcher_screen();
         action = pluginlib_getaction(HZ / 25, plugin_contexts,
                                      ARRAYLEN(plugin_contexts));
+        if (launcher_notify_handle(action))
+            continue;
 
         switch (action)
         {
@@ -2692,13 +4358,33 @@ static enum plugin_status launcher_run(void)
                 break;
 
             case PLA_SELECT:
+            {
+                enum plugin_status status = handle_select_press();
+                if (status != PLUGIN_OK)
+                    return status;
+                break;
+            }
+
             case ACTION_STD_OK:
-                return handle_select_press();
+            {
+                enum plugin_status status = launch_selected_game();
+                if (status != PLUGIN_OK)
+                    return status;
+                break;
+            }
 
             case PLA_CANCEL:
             case PLA_EXIT:
             case ACTION_STD_CANCEL:
-                save_launcher_state(launcher.entries[launcher.selected].rom_path);
+                if (launcher.view_mode == VIEW_GAMES)
+                {
+                    save_launcher_state(launcher.entries[launcher.selected].rom_path);
+                    if (!load_system_browser())
+                        return PLUGIN_OK;
+                    break;
+                }
+
+                save_launcher_state("");
                 return PLUGIN_OK;
 
             case SYS_USB_CONNECTED:
@@ -2720,6 +4406,7 @@ enum plugin_status plugin_start(const void *parameter)
     if (!load_game_library())
         return draw_empty_library();
 
-    load_selected_cover_with_progress("Preparing Covers");
+    if (launcher.view_mode != VIEW_SYSTEMS)
+        load_selected_cover_quiet();
     return launcher_run();
 }

@@ -139,6 +139,7 @@ class BrowserPanel(QWidget):
     store_album_details_requested = Signal(dict)
     store_home_tab_requested = Signal(str)
     store_preview_requested = Signal(dict, list)
+    website_sync_requested = Signal(str)
 
     STORE_HOME_TABS = [
         ("featured", "Featured"),
@@ -157,11 +158,13 @@ class BrowserPanel(QWidget):
         title="Music Store",
         web_title="Tidal Web Store",
         show_downloads=None,
+        enable_website_sync=False,
     ):
         super().__init__(parent)
         self.setObjectName("browser_panel")
         self._music_store = bool(music_store)
         self._show_downloads = self._music_store if show_downloads is None else bool(show_downloads)
+        self._enable_website_sync = bool(enable_website_sync)
         self._home_url = ""
         self._download_dir = ""
         self._download_items = {}
@@ -307,6 +310,33 @@ class BrowserPanel(QWidget):
         self._store_tab_bar.setVisible(self._music_store)
         self._store_import_bar.setVisible(self._music_store)
         self.set_store_home_tab("featured", emit=False)
+
+        self._website_sync_bar = QFrame()
+        self._website_sync_bar.setObjectName("itunes_store_import_bar")
+        website_sync_layout = QHBoxLayout(self._website_sync_bar)
+        website_sync_layout.setContentsMargins(9, 6, 9, 6)
+        website_sync_layout.setSpacing(6)
+        self._website_sync_edit = QLineEdit()
+        self._website_sync_edit.setObjectName("itunes_store_import_url")
+        self._website_sync_edit.setPlaceholderText("Paste website URLs (space/comma separated) to cache for Offline Internet")
+        self._website_sync_edit.returnPressed.connect(self._emit_website_sync)
+        self._website_sync_btn = QPushButton("Sync Websites")
+        self._website_sync_btn.setObjectName("store_buy_button")
+        self._website_sync_btn.clicked.connect(self._emit_website_sync)
+        website_sync_label = QLabel("Website Sync")
+        website_sync_label.setObjectName("itunes_store_small_title")
+        website_sync_layout.addWidget(website_sync_label)
+        website_sync_layout.addWidget(self._website_sync_edit, 1)
+        website_sync_layout.addWidget(self._website_sync_btn)
+        self._website_sync_bar.setVisible(self._enable_website_sync and not self._music_store)
+        shell_layout.addWidget(self._website_sync_bar)
+
+        self._website_sync_status = QLabel("")
+        self._website_sync_status.setObjectName("theme_hub_status")
+        self._website_sync_status.setWordWrap(True)
+        self._website_sync_status.setTextInteractionFlags(Qt.TextSelectableByMouse | Qt.LinksAccessibleByMouse)
+        self._website_sync_status.setVisible(False)
+        shell_layout.addWidget(self._website_sync_status)
 
         if self._music_store:
             store_scroll = QScrollArea()
@@ -1033,6 +1063,13 @@ class BrowserPanel(QWidget):
         index = self._store_format.findData(wanted)
         self._store_format.setCurrentIndex(index if index >= 0 else 0)
 
+    def set_website_sync_status(self, status, running=False):
+        text = str(status or "")
+        self._website_sync_status.setText(text)
+        self._website_sync_status.setVisible(bool(text) and self._website_sync_bar.isVisible())
+        self._website_sync_btn.setEnabled(not running)
+        self._website_sync_edit.setEnabled(not running)
+
     def search_store(self, query):
         self._store_search_edit.setText(str(query or ""))
         self._emit_store_search()
@@ -1105,6 +1142,10 @@ class BrowserPanel(QWidget):
         query = self._store_search_edit.text().strip()
         source = self._store_source.currentData() or "tidal"
         self.store_search_requested.emit(query, source)
+
+    def _emit_website_sync(self):
+        urls = self._website_sync_edit.text().strip()
+        self.website_sync_requested.emit(urls)
 
     def _on_download_requested(self, request):  # pragma: no cover - depends on Qt WebEngine runtime
         if not self._download_dir:

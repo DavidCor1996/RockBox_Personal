@@ -7,6 +7,33 @@
 /*-------------------------------------------------------------------*/
 /*  Initialize Mapper 3                                              */
 /*-------------------------------------------------------------------*/
+static BYTE Map3_ReadPrg( WORD wAddr )
+{
+  switch ( wAddr & 0xe000 )
+  {
+    case 0x8000:
+      return ROMBANK0[ wAddr & 0x1fff ];
+    case 0xa000:
+      return ROMBANK1[ wAddr & 0x1fff ];
+    case 0xc000:
+      return ROMBANK2[ wAddr & 0x1fff ];
+    default:
+      return ROMBANK3[ wAddr & 0x1fff ];
+  }
+}
+
+static int Map3_HasBusConflicts( void )
+{
+  if ( ( NesHeader.byInfo2 & 0x0c ) == 0x08 )
+  {
+    BYTE bySubMapper = NesHeader.byReserve[ 0 ] >> 4;
+
+    return bySubMapper != 1;
+  }
+
+  return 1;
+}
+
 void Map3_Init()
 {
   int nPage;
@@ -76,6 +103,9 @@ void Map3_Init()
 void Map3_Write( WORD wAddr, BYTE byData )
 {
   DWORD dwBase;
+
+  if ( Map3_HasBusConflicts() )
+    byData &= Map3_ReadPrg( wAddr );
 
   /* Set PPU Banks */
   byData %= NesHeader.byVRomSize;

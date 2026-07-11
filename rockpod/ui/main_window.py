@@ -57,6 +57,7 @@ from services.youtube_movies import (
     parse_movie_import_progress,
     persist_movie_import_poster,
 )
+from services.offlineweb_sync import OfflineWebSyncImporter, OfflineWebSyncError
 from services.playback import PlaybackService, STATE_STOPPED
 from services.sync_engine import SyncEngine, SyncPlanBuilder
 from services.theme_assets import ThemeAssetManager
@@ -165,6 +166,7 @@ class MainWindow(QMainWindow):
         self._streamrip_importer = StreamripImporter(self._config)
         self._music_sharing = MusicSharingService(self._config)
         self._youtube_movie_importer = YoutubeMovieImporter(self._config)
+        self._offlineweb_sync = OfflineWebSyncImporter(self._config)
         self._scanner = LibraryScanner(self._db, self._config)
         self._device_detector = DeviceDetector(self._config)
         self._device_storage_analyzer = DeviceStorageAnalyzer(self)
@@ -266,6 +268,10 @@ class MainWindow(QMainWindow):
         self._movie_browse_output = []
         self._movie_browse_query = ""
         self._movie_browse_loaded = False
+        self._website_sync_process = None
+        self._website_sync_output_path = ""
+        self._website_sync_log_path = ""
+        self._website_sync_output = []
         self._linux_install_process = None
         self._linux_install_dialog = None
 
@@ -379,6 +385,7 @@ class MainWindow(QMainWindow):
             title="iPod Games",
             web_title="iPod Games Browser",
             show_downloads=True,
+            enable_website_sync=True,
         )
         self._store_page = QTabWidget()
         self._store_page.setObjectName("store_tabs")
@@ -590,6 +597,7 @@ class MainWindow(QMainWindow):
         self._game_manager.fetch_metadata_requested.connect(self._fetch_selected_game_metadata)
         self._game_manager.optimize_cover_requested.connect(self._optimize_selected_game_cover)
         self._game_manager.launch_simulator_requested.connect(self._launch_selected_game_in_simulator)
+        self._game_manager.default_games_changed.connect(self._on_game_default_visibility_changed)
         self._photo_manager.profile_selected.connect(self._on_photo_profile_selected)
         self._photo_manager.target_mode_selected.connect(self._on_photo_target_mode_selected)
         self._photo_manager.choose_library_requested.connect(self._choose_photo_library)
@@ -613,6 +621,7 @@ class MainWindow(QMainWindow):
         self._movie_store_panel.movie_import_requested.connect(self._start_movie_import)
         self._movie_store_panel.movie_browse_requested.connect(self._start_movie_browse)
         self._game_browser_panel.open_external_requested.connect(self._open_browser_external)
+        self._game_browser_panel.website_sync_requested.connect(self._start_website_sync)
         self._simulator_panel.profile_selected.connect(self._on_simulator_profile_selected)
         self._simulator_panel.simulator_selected.connect(self._on_simulator_target_selected)
         self._simulator_panel.bind_requested.connect(self._bind_simulator_to_profile)
@@ -4155,6 +4164,126 @@ class MainWindow(QMainWindow):
             download_dir,
         )
 
+    def _website_sync_target_root(self):
+        profile = self._rockbox_profiles.current_profile()
+        if profile:
+            candidate = str(profile.get("device_mount_path") or "").strip()
+            if candidate:
+                return os.path.abspath(os.path.expanduser(candidate))
+        if self._device_detector.current_device:
+            mount_path = str(getattr(self._device_detector.current_device, "mount_path", "") or "").strip()
+            if mount_path:
+                return os.path.abspath(os.path.expanduser(mount_path))
+        fallback = str(self._config.get("device_mount_path", "") or "").strip()
+        if fallback:
+            return os.path.abspath(os.path.expanduser(fallback))
+        return ""
+
+    def _start_website_sync(self, urls):
+        panel = self._game_browser_panel
+        if self._website_sync_process is not None:
+            panel.set_website_sync_status("Website sync is already running.", running=True)
+            return
+
+        target_root = self._website_sync_target_root()
+        try:
+            request = self._offlineweb_sync.prepare_sync(urls, target_root)
+        except OfflineWebSyncError as exc:
+            panel.set_website_sync_status(str(exc), running=False)
+            self._status_bar.set_left_text("Website sync not started")
+            return
+
+        process = self._create_child_process(
+            request,
+            request.device_root,
+            self._on_website_sync_output,
+            self._on_website_sync_finished,
+            self._on_website_sync_error,
+        )
+        self._website_sync_process = process
+        self._website_sync_output_path = request.output_path
+        self._website_sync_log_path = request.log_path
+        self._website_sync_output = []
+        panel.set_website_sync_status(
+            f"Syncing websites to Offline Internet... Log: {request.log_path}",
+            running=True,
+        )
+        self._status_bar.set_left_text("Syncing websites to Offline Internet")
+        process.start(request.command[0], request.command[1:])
+
+    def _on_website_sync_output(self):
+        process = self._website_sync_process
+        if process is None:
+            return
+        text = compact_process_text(read_process_text(process))
+        if text:
+            self._website_sync_output.append(text)
+            self._game_browser_panel.set_website_sync_status(
+                f"{text[-500:]}\nLog: {self._website_sync_log_path}",
+                running=True,
+            )
+
+    def _on_website_sync_finished(self, exit_code, exit_status):
+        process = self._website_sync_process
+        self._website_sync_process = None
+        if process is not None:
+            text = compact_process_text(read_process_text(process))
+            if text:
+                self._website_sync_output.append(text)
+
+        output_path = self._website_sync_output_path
+        log_path = self._website_sync_log_path
+        self._website_sync_output_path = ""
+        self._website_sync_log_path = ""
+
+        if exit_code != 0:
+            detail = " ".join(self._website_sync_output).strip()
+            self._website_sync_output = []
+            self._game_browser_panel.set_website_sync_status(
+                f"Website sync failed (exit {exit_code}): {detail[-500:]}\nLog: {log_path}",
+                running=False,
+            )
+            self._status_bar.set_left_text("Website sync failed")
+            return
+
+        try:
+            with open(output_path, "r") as handle:
+                result = json.load(handle)
+        except (OSError, json.JSONDecodeError) as exc:
+            self._website_sync_output = []
+            self._game_browser_panel.set_website_sync_status(
+                f"Website sync result could not be read: {exc}\nLog: {log_path}",
+                running=False,
+            )
+            self._status_bar.set_left_text("Website sync failed")
+            return
+
+        self._website_sync_output = []
+        completed = int(result.get("completed") or 0)
+        requested = int(result.get("requested") or 0)
+        html_saved = int(result.get("html_saved") or 0)
+        assets_saved = int(result.get("assets_saved") or 0)
+        offline_root = str(result.get("offlineweb_root") or "")
+        status = (
+            f"Website sync complete: {completed}/{requested} links cached "
+            f"({html_saved} pages, {assets_saved} assets). Offline root: {offline_root}\n"
+            f"Log: {log_path}"
+        )
+        self._game_browser_panel.set_website_sync_status(status, running=False)
+        self._status_bar.set_left_text(f"Website sync complete ({completed}/{requested})")
+
+    def _on_website_sync_error(self, error):
+        log_path = self._website_sync_log_path
+        self._website_sync_process = None
+        self._website_sync_output_path = ""
+        self._website_sync_log_path = ""
+        self._website_sync_output = []
+        self._game_browser_panel.set_website_sync_status(
+            f"Website sync could not start: {error}\nLog: {log_path}",
+            running=False,
+        )
+        self._status_bar.set_left_text("Website sync failed")
+
     def _refresh_movie_store_panel(self):
         if self._movie_browse_loaded:
             return
@@ -6688,6 +6817,11 @@ class MainWindow(QMainWindow):
             self._rockbox_games.settings_guidance(profile),
             latest_backup_text,
         )
+        self._game_manager.set_default_game_visibility(
+            profile.get("games_show_builtin_doom", True),
+            profile.get("games_show_builtin_stickrpg", True),
+            profile.get("games_show_builtin_runescape", True),
+        )
         selected_ids = [game["id"] for game in self._game_manager.selected_games()]
         self._game_manager.set_games(games, selected_ids)
         self._on_game_selection_changed()
@@ -6703,6 +6837,36 @@ class MainWindow(QMainWindow):
 
     def _on_game_target_mode_selected(self, target_mode):
         self._current_game_target_mode = target_mode or "device"
+        self._refresh_game_manager()
+
+    def _on_game_default_visibility_changed(self):
+        profile = self._rockbox_profiles.current_profile()
+        if not profile:
+            return
+        profile.update(self._game_manager.default_game_visibility())
+        profile = self._rockbox_profiles.save_profile(profile)
+
+        sim_target = self._simulator_target_by_id(profile.get("simulator_target"))
+        deploy_profile = self._rockbox_games.deploy_profile(
+            profile,
+            self._current_game_target_mode,
+            sim_target,
+        )
+        try:
+            bundle = self._rockbox_games.build_launcher_config_bundle(
+                profile,
+                self._current_game_target_mode,
+            )
+            diff = self._rockbox_deploy.build_diff(deploy_profile, bundle)
+            result = self._rockbox_deploy.apply_diff(deploy_profile, diff)
+        except ValueError:
+            self._status_bar.set_left_text("Game coverflow options saved")
+            return
+        if result["success"]:
+            self._status_bar.set_left_text("Game coverflow options updated")
+        else:
+            self._status_bar.set_left_text("Game coverflow option sync failed")
+            QMessageBox.warning(self, "Game Cover Flow Options", "\n".join(result["failures"]))
         self._refresh_game_manager()
 
     def _choose_game_library(self):
@@ -6956,7 +7120,7 @@ class MainWindow(QMainWindow):
         if diff["summary"]["add"] or diff["summary"]["overwrite"]:
             self._rockbox_games.backup_saves(profile, [games[0]], "simulator", sim_target)
             self._rockbox_deploy.apply_diff(deploy_profile, diff)
-        rom_path = os.path.join(self._rockbox_games.rom_target_root(profile, "simulator", sim_target), games[0]["filename"])
+        rom_path = self._rockbox_games.rom_abs_path_for_game(profile, games[0], "simulator", sim_target)
         launched = self._rockbox_simulator.launch_with_rom(sim_target, rom_path)
         if launched.get("autoload_supported"):
             self._status_bar.set_left_text(f"Launched {games[0]['filename']} in simulator")
