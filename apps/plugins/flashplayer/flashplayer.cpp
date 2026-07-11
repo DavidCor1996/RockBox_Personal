@@ -2392,8 +2392,17 @@ extern "C" void flashplayer_trace_movie_state(const char *name, int value,
     (void)aux_a;
     (void)aux_b;
 
-    if (g.runtime_ready)
+    if (g.runtime_ready) {
+        if (name && g.rendered_frames < 8 &&
+            (rb->strcmp(name, "loader_enter_frame") == 0 ||
+             rb->strcmp(name, "getBytesLoaded") == 0 ||
+             rb->strcmp(name, "getBytesTotal") == 0)) {
+            flash_logf("%s value=%d aux=%d/%d frame=%d heap_free=%luK",
+                       name, value, aux_a, aux_b, g.rendered_frames,
+                       (unsigned long)(plugin_cxx_available() / 1024));
+        }
         return;
+    }
 
     if (!name)
         return;

@@ -1657,12 +1657,14 @@ namespace gameswf
 
 						// Read the actions for event(s)
 						action_buffer action;
-						action.read(in);
+						int action_start = in->get_position();
+						action.read(in, event_length);
 
-						if (action.get_length() != static_cast<int>(event_length))
+						if (in->get_position() - action_start !=
+							static_cast<int>(event_length))
 						{
 							log_error("swf_event::read(), event_length = %d, but read %d\n",
-								event_length, action.get_length());
+								event_length, in->get_position() - action_start);
 							break;
 						}
 

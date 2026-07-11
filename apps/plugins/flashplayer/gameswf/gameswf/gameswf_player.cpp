@@ -847,7 +847,7 @@ namespace gameswf
 
 		ensure_loaders_registered();
 
-		movie_def_impl*	m = new movie_def_impl(this, DO_LOAD_BITMAPS, DO_NOT_LOAD_FONT_SHAPES);
+		movie_def_impl*	m = new movie_def_impl(this, DO_LOAD_BITMAPS, DO_LOAD_FONT_SHAPES);
 		flashplayer_trace_movie_state("create_movie_read_begin", 0, 0, 0);
 
 		if (s_use_cached_movie_def)

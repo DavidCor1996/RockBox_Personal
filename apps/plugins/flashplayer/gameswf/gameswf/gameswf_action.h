@@ -163,6 +163,7 @@ namespace gameswf
 	{
 		action_buffer();
 		void	read(stream* in);
+		void	read(stream* in, int byte_length);
 		void	execute(as_environment* env);
 		void	execute(
 			as_environment* env,

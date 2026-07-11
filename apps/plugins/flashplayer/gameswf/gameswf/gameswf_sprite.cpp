@@ -1167,7 +1167,15 @@ namespace gameswf
 		// In ActionScript 1.0, event method names are CASE INSENSITIVE.
 		const tu_stringi&	method_name = id.get_function_name().to_tu_stringi();
 		as_value	method;
-		if (get_member(method_name, &method))
+		bool has_method = get_member(method_name, &method);
+		if (id.m_id == event_id::ENTER_FRAME &&
+			(get_id() == 206 || get_id() == 251 ||
+			 get_id() == 254 || get_id() == 267))
+		{
+			flashplayer_trace_movie_state("loader_enter_frame", get_id(),
+				get_current_frame(), has_method ? 1 : 0);
+		}
+		if (has_method)
 		{
 			int nargs = 0;
 			if (id.m_args)

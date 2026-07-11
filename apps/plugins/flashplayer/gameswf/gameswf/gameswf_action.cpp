@@ -641,12 +641,26 @@ namespace gameswf
 
 	void	action_buffer::read(stream* in)
 	{
+		in->align();
+		read(in, in->get_tag_end_position() - in->get_position());
+	}
+
+
+	void	action_buffer::read(stream* in, int byte_length)
+	{
 		// Parse this tag as raw bytes bounded by the current tag boundary.
 		// This avoids pathological stalls if the opcode length stream is
-		// malformed on a specific SWF build.
+		// malformed on a specific SWF build.  Clip-event actions are nested
+		// inside PlaceObject tags, so their declared event length must be used
+		// instead of consuming the rest of the enclosing tag.
 		in->align();
 		int	start_pos = in->get_position();
-		int	tag_end = in->get_tag_end_position();
+		int	outer_end = in->get_tag_end_position();
+		int	tag_end = start_pos + byte_length;
+		if (tag_end > outer_end)
+		{
+			tag_end = outer_end;
+		}
 		int	bytes_remaining = tag_end - start_pos;
 		unsigned char*	dst = NULL;
 		int	total = 0;
@@ -663,7 +677,7 @@ namespace gameswf
 			bytes_remaining = 0;
 		}
 
-		m_buffer->resize(bytes_remaining + 1);
+		m_buffer->resize(bytes_remaining);
 		dst = (unsigned char*) m_buffer->data();
 
 		while (bytes_remaining > 0)
@@ -710,9 +724,9 @@ namespace gameswf
 			in->set_position(tag_end);
 		}
 
-		if (total + 1 < m_buffer->size())
+		if (total < m_buffer->size())
 		{
-			m_buffer->resize(total + 1);
+			m_buffer->resize(total);
 			dst = (unsigned char*) m_buffer->data();
 		}
 
@@ -720,9 +734,9 @@ namespace gameswf
 		{
 			m_buffer->append((Uint8) 0);
 		}
-		else
+		else if ((*m_buffer.get_ptr())[m_buffer->size() - 1] != 0)
 		{
-			(*m_buffer.get_ptr())[m_buffer->size() - 1] = 0;
+			m_buffer->append((Uint8) 0);
 		}
 
 		flashplayer_trace_movie_state("action_read_end",
