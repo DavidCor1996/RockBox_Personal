@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import hashlib
 import os
 import re
 import shutil
@@ -18,7 +19,8 @@ from services.file_safety import atomic_write_json, atomic_write_text
 from services.online_game_metadata import OnlineGameMetadataLookup
 
 
-SUPPORTED_ROM_EXTENSIONS = {".gb", ".gbc", ".nes", ".sms", ".gg", ".sg", ".mgw", ".gw", ".gwz"}
+SUPPORTED_ROM_EXTENSIONS = {".gb", ".gbc", ".nes", ".sms", ".gg", ".sg", ".mgw", ".gw", ".gwz", ".sfc", ".smc"}
+SNES_ROM_EXTENSIONS = {".sfc", ".smc"}
 SMSGG_ROM_EXTENSIONS = {".sms", ".gg", ".sg"}
 GWATCH_PACKAGE_EXTENSIONS = {".mgw", ".gw", ".gwz"}
 ROM_TARGET_DIR = "gameboy"
@@ -30,6 +32,12 @@ SMSGG_PLUGIN_PATH = ".rockbox/rocks/games/smsgg.rock"
 GWATCH_ROM_TARGET_DIR = ".rockbox/games/gwatch/roms"
 GWATCH_SAVE_TARGET_DIR = ".rockbox/games/gwatch/saves"
 GWATCH_PLUGIN_PATH = ".rockbox/rocks/games/gwatch.rock"
+SNES_ROM_TARGET_DIR = ".rockbox/roms/snes"
+SNES_SAVE_TARGET_DIR = ".rockbox/saves/snes"
+SNES_PLUGIN_PATH = ".rockbox/rocks/games/snes_lite.rock"
+SNES_CONFIG_PATH = ".rockbox/config/snes_lite.cfg"
+SNES_GAME_CONFIG_DIR = ".rockbox/config/snes_lite"
+SYSTEMS_INDEX_PATH = ".rockbox/games/library/systems.tsv"
 LAUNCHER_INDEX_RELATIVE_PATH = ".rockbox/rocks/games/rockboy_launcher/games.tsv"
 LAUNCHER_CONFIG_RELATIVE_PATH = ".rockbox/rocks/games/rockboy_launcher/config.cfg"
 LAUNCHER_SCAN_MAX_DEPTH = 6
@@ -47,6 +55,8 @@ LIBRETRO_BOXART_BASE_URLS = {
     ".gg": "https://thumbnails.libretro.com/Sega%20-%20Game%20Gear/Named_Boxarts",
     ".sms": "https://thumbnails.libretro.com/Sega%20-%20Master%20System%20-%20Mark%20III/Named_Boxarts",
     ".sg": "https://thumbnails.libretro.com/Sega%20-%20SG-1000/Named_Boxarts",
+    ".sfc": "https://thumbnails.libretro.com/Nintendo%20-%20Super%20Nintendo%20Entertainment%20System/Named_Boxarts",
+    ".smc": "https://thumbnails.libretro.com/Nintendo%20-%20Super%20Nintendo%20Entertainment%20System/Named_Boxarts",
 }
 ROM_PLATFORM_CACHE_DIRS = {
     ".gb": "gameboy",
@@ -58,6 +68,8 @@ ROM_PLATFORM_CACHE_DIRS = {
     ".mgw": "game-watch",
     ".gw": "game-watch",
     ".gwz": "game-watch",
+    ".sfc": "super-nintendo",
+    ".smc": "super-nintendo",
 }
 PERF_THRESHOLDS = {
     "320x240": {"warn": 1024 * 1024, "critical": 2 * 1024 * 1024},
@@ -69,16 +81,60 @@ SYSTEM_MANIFEST_RELATIVE_PATHS = {
     "nes": ".rockbox/games/nes/games.tsv",
     "smsgg": ".rockbox/games/smsgg/games.tsv",
     "gwatch": ".rockbox/games/gwatch/games.tsv",
+    "snes": ".rockbox/games/snes/games.tsv",
 }
 SYSTEM_MANIFEST_EXTENSIONS = {
     "nes": {".nes"},
     "smsgg": SMSGG_ROM_EXTENSIONS,
     "gwatch": GWATCH_PACKAGE_EXTENSIONS,
+    "snes": SNES_ROM_EXTENSIONS,
 }
 
 
 class RockboxGameService:
-    """Manage user-supplied Game Boy, Game Boy Color, and NES ROMs."""
+    """Index and sync supported handheld and console ROM libraries."""
+
+    def __init__(self):
+        self._snes_inspection_cache = {}
+
+    @staticmethod
+    def recommend_snes_controls(title, genre=""):
+        """Choose a click-wheel-first layout from title and local metadata."""
+        text = f"{title or ''} {genre or ''}".casefold()
+        rules = (
+            ("fighting", 3, "Fighting", (
+                "killer instinct", "street fighter", "mortal kombat",
+                "fatal fury", "samurai shodown", "fighting", "fighter",
+            )),
+            ("racing", 4, "Racing", (
+                "mario kart", "f-zero", "top gear", "racing", "race",
+            )),
+            ("sports", 5, "Sports", (
+                "nhl ", "nba ", "nfl ", "fifa", "madden", "baseball",
+                "soccer", "hockey", "football", "basketball", "sports",
+            )),
+            ("action", 2, "Action", (
+                "secret of mana", "zelda", "metroid", "mega man",
+                "megaman", "contra", "shoot", "action",
+            )),
+            ("rpg", 1, "RPG", (
+                "chrono trigger", "final fantasy",
+                "earthbound", "dragon quest", "role-playing", "rpg",
+                "adventure",
+            )),
+        )
+        for game_type, profile, profile_name, keywords in rules:
+            if any(keyword in text for keyword in keywords):
+                return {
+                    "game_type": game_type,
+                    "input_profile": profile,
+                    "input_profile_name": profile_name,
+                }
+        return {
+            "game_type": "platformer",
+            "input_profile": 0,
+            "input_profile_name": "Platformer",
+        }
 
     def launcher_library(self, profile, target_mode="device", simulator_target=None):
         mount_root = self.mount_root(profile, target_mode, simulator_target)
@@ -154,22 +210,59 @@ class RockboxGameService:
         library_path = os.path.abspath(profile.get("games_library_path") or "")
         device_root = self.rom_target_root(profile, "device")
         sim_root = self.rom_target_root(profile, "simulator", simulator_target)
-        device_save_root = self.save_target_root(profile, "device")
-        sim_save_root = self.save_target_root(profile, "simulator", simulator_target)
+        device_save_inventory = self._save_inventory(profile, "device", simulator_target)
+        sim_save_inventory = self._save_inventory(profile, "simulator", simulator_target)
         device_entries = self._launcher_entries_by_filename(self.launcher_library(profile, "device"))
         sim_entries = self._launcher_entries_by_filename(self.launcher_library(profile, "simulator", simulator_target))
+        named_save_extensions = (
+            SNES_ROM_EXTENSIONS | SMSGG_ROM_EXTENSIONS | GWATCH_PACKAGE_EXTENSIONS
+        )
         games = []
         filenames = set()
         if library_path and os.path.isdir(library_path):
-            for name in sorted(os.listdir(library_path)):
-                full = os.path.join(library_path, name)
-                if not os.path.isfile(full):
+            try:
+                library_entries = sorted(
+                    os.scandir(library_path),
+                    key=lambda entry: entry.name.casefold(),
+                )
+            except OSError:
+                library_entries = []
+            for entry in library_entries:
+                name = entry.name
+                try:
+                    if not entry.is_file():
+                        continue
+                except OSError:
                     continue
                 ext = os.path.splitext(name)[1].lower()
                 if ext not in SUPPORTED_ROM_EXTENSIONS:
                     continue
-                stat = os.stat(full)
+                full = entry.path
+                try:
+                    stat = entry.stat()
+                except OSError:
+                    continue
                 metadata = self.cached_metadata_for_game(profile, {"filename": name, "source_path": full})
+                snes_metadata = self.inspect_snes_rom(full) if ext in SNES_ROM_EXTENSIONS else {}
+                snes_controls = self.recommend_snes_controls(
+                    snes_metadata.get("title") or os.path.splitext(name)[0],
+                    metadata.get("genre", ""),
+                ) if ext in SNES_ROM_EXTENSIONS else {}
+                game_ref = {"filename": name, "source_path": full}
+                cover_path = self.cover_path_for_game(game_ref, config=config)
+                if not cover_path and ext in SNES_ROM_EXTENSIONS:
+                    fallback_cover = os.path.join(
+                        profile.get("source_repo_path") or "",
+                        "rockpod",
+                        "assets",
+                        "snes_lite_fallback.png",
+                    )
+                    if os.path.isfile(fallback_cover):
+                        cover_path = fallback_cover
+                save_stem = (
+                    "" if ext in named_save_extensions
+                    else self._save_stem_for_game(game_ref)
+                )
                 games.append(
                     {
                         "id": name,
@@ -178,22 +271,32 @@ class RockboxGameService:
                         "source_path": full,
                         "size": stat.st_size,
                         "modified_time": stat.st_mtime,
-                        "on_device": os.path.isfile(self._rom_abs_path(profile, {"filename": name}, "device")) if device_root else False,
-                        "on_simulator": os.path.isfile(self._rom_abs_path(profile, {"filename": name}, "simulator", simulator_target)) if sim_root else False,
-                        "device_save_exists": self._save_exists_for_target(profile, {"filename": name, "source_path": full}, "device"),
-                        "simulator_save_exists": self._save_exists_for_target(profile, {"filename": name, "source_path": full}, "simulator", simulator_target),
-                        "cover_path": self.cover_path_for_game(
-                            {
-                                "filename": name,
-                                "source_path": full,
-                            },
-                            config=config,
+                        "added_time": self._file_added_time(stat),
+                        "platform": self._platform_label(ext),
+                        "on_device": bool(device_root and name in device_entries),
+                        "on_simulator": bool(sim_root and name in sim_entries),
+                        "device_save_exists": self._save_exists_in_inventory(
+                            game_ref, device_save_inventory, save_stem
                         ),
+                        "simulator_save_exists": self._save_exists_in_inventory(
+                            game_ref, sim_save_inventory, save_stem
+                        ),
+                        "cover_path": cover_path,
                         "year": metadata.get("year", ""),
                         "genre": metadata.get("genre", ""),
                         "publisher": metadata.get("publisher", ""),
                         "developer": metadata.get("developer", ""),
                         "description": metadata.get("description", ""),
+                        "console": "Super Nintendo" if ext in SNES_ROM_EXTENSIONS else self._platform_label(ext),
+                        "rom_hash": snes_metadata.get("rom_hash", ""),
+                        "internal_title": snes_metadata.get("title", ""),
+                        "region": snes_metadata.get("region", ""),
+                        "mapper": snes_metadata.get("mapper", ""),
+                        "special_chip": snes_metadata.get("special_chip", ""),
+                        "compatibility": snes_metadata.get("compatibility", "Untested"),
+                        "game_type": snes_controls.get("game_type", ""),
+                        "input_profile": snes_controls.get("input_profile", 0),
+                        "input_profile_name": snes_controls.get("input_profile_name", ""),
                         "missing_source": False,
                     }
                 )
@@ -214,6 +317,20 @@ class RockboxGameService:
                     existing_path = candidate
                     break
             stat = os.stat(existing_path) if existing_path else None
+            game_ref = {"filename": name, "source_path": ""}
+            ext = os.path.splitext(name)[1].lower()
+            snes_metadata = self.inspect_snes_rom(existing_path) if (
+                ext in SNES_ROM_EXTENSIONS and existing_path
+            ) else {}
+            snes_controls = self.recommend_snes_controls(
+                snes_metadata.get("title") or
+                merged_entry.get("title") or os.path.splitext(name)[0],
+                merged_entry.get("genre", ""),
+            ) if ext in SNES_ROM_EXTENSIONS else {}
+            save_stem = (
+                "" if ext in named_save_extensions
+                else self._save_stem_for_game(game_ref)
+            )
             games.append(
                 {
                     "id": name,
@@ -222,22 +339,149 @@ class RockboxGameService:
                     "source_path": "",
                     "size": stat.st_size if stat else 0,
                     "modified_time": stat.st_mtime if stat else 0,
+                    "added_time": self._file_added_time(stat) if stat else 0,
+                    "platform": self._platform_label(os.path.splitext(name)[1].lower()),
                     "on_device": bool(device_path and os.path.isfile(device_path)),
                     "on_simulator": bool(sim_path and os.path.isfile(sim_path)),
-                    "device_save_exists": self._save_exists_for_target(profile, {"filename": name, "source_path": ""}, "device"),
-                    "simulator_save_exists": self._save_exists_for_target(profile, {"filename": name, "source_path": ""}, "simulator", simulator_target),
+                    "device_save_exists": self._save_exists_in_inventory(
+                        game_ref, device_save_inventory, save_stem
+                    ),
+                    "simulator_save_exists": self._save_exists_in_inventory(
+                        game_ref, sim_save_inventory, save_stem
+                    ),
                     "cover_path": merged_entry.get("cover_path") or "",
                     "year": merged_entry.get("year", ""),
                     "genre": merged_entry.get("genre", ""),
                     "publisher": merged_entry.get("publisher", ""),
                     "developer": merged_entry.get("developer", ""),
                     "description": merged_entry.get("description", ""),
+                    "console": "Super Nintendo" if ext in SNES_ROM_EXTENSIONS else self._platform_label(ext),
+                    "rom_hash": snes_metadata.get("rom_hash", ""),
+                    "internal_title": snes_metadata.get("title", ""),
+                    "region": snes_metadata.get("region", ""),
+                    "mapper": snes_metadata.get("mapper", ""),
+                    "special_chip": snes_metadata.get("special_chip", ""),
+                    "compatibility": snes_metadata.get("compatibility", "Untested"),
+                    "game_type": snes_controls.get("game_type", ""),
+                    "input_profile": snes_controls.get("input_profile", 0),
+                    "input_profile_name": snes_controls.get("input_profile_name", ""),
                     "missing_source": True,
                 }
             )
         for game in games:
             game["performance"] = self.performance_report(game, profile)
-        return games
+        return sorted(
+            games,
+            key=lambda game: (
+                -float(game.get("added_time") or 0),
+                str(game.get("title") or game.get("filename") or "").casefold(),
+            ),
+        )
+
+    @staticmethod
+    def _file_added_time(stat_result):
+        if stat_result is None:
+            return 0
+        # Creation time is available on Windows/macOS. On Linux, ctime records
+        # when a ROM entered or changed within this library, which is a closer
+        # approximation of "added" than an archival ROM's embedded mtime.
+        return float(
+            getattr(stat_result, "st_birthtime", 0)
+            or getattr(stat_result, "st_ctime", 0)
+            or getattr(stat_result, "st_mtime", 0)
+            or 0
+        )
+
+    @staticmethod
+    def _platform_label(extension):
+        return {
+            ".gb": "Game Boy",
+            ".gbc": "Game Boy Color",
+            ".nes": "NES",
+            ".sms": "Master System",
+            ".gg": "Game Gear",
+            ".sg": "SG-1000",
+            ".mgw": "Game & Watch",
+            ".gw": "Game & Watch",
+            ".gwz": "Game & Watch",
+            ".sfc": "Super Nintendo",
+            ".smc": "Super Nintendo",
+        }.get(str(extension or "").lower(), "Game")
+
+    def inspect_snes_rom(self, path):
+        path = os.path.abspath(path or "")
+        try:
+            stat = os.stat(path)
+            cache_key = (path, stat.st_size, stat.st_mtime_ns)
+            cached = self._snes_inspection_cache.get(cache_key)
+            if cached is not None:
+                return dict(cached)
+            with open(path, "rb") as handle:
+                digest = hashlib.sha256()
+                while True:
+                    chunk = handle.read(1024 * 1024)
+                    if not chunk:
+                        break
+                    digest.update(chunk)
+        except OSError:
+            return {}
+        if stat.st_size < 0x8000:
+            return {"compatibility": "Invalid ROM"}
+        copier = 512 if stat.st_size % 1024 == 512 else 0
+
+        def read_header(offset):
+            if offset < 0 or offset + 0x40 > stat.st_size:
+                return b""
+            try:
+                with open(path, "rb") as handle:
+                    handle.seek(offset)
+                    return handle.read(0x40)
+            except OSError:
+                return b""
+
+        def score(header):
+            if len(header) < 0x40:
+                return -1
+            checksum = int.from_bytes(header[0x1E:0x20], "little")
+            inverse = int.from_bytes(header[0x1C:0x1E], "little")
+            return (4 if checksum ^ inverse == 0xFFFF else 0) + (2 if header[0x3D] & 0x80 else 0)
+
+        lo_offset = copier + 0x7FC0
+        hi_offset = copier + 0xFFC0
+        lo_header = read_header(lo_offset)
+        hi_header = read_header(hi_offset)
+        hirom = score(hi_header) > score(lo_header)
+        header = hi_header if hirom and len(hi_header) == 0x40 else lo_header
+        if len(header) < 0x40:
+            return {"compatibility": "Invalid ROM"}
+        map_mode = header[0x15]
+        cartridge_type = header[0x16]
+        special_chip = ""
+        if (map_mode & 0x2F) == 0x23 or cartridge_type in {0x34, 0x35}:
+            special_chip = "SA-1"
+        elif (map_mode & 0x3F) == 0x32 or cartridge_type in {0x43, 0x45}:
+            special_chip = "S-DD1"
+        elif 0x13 <= cartridge_type <= 0x1A:
+            special_chip = "SuperFX"
+        title = header[:21].decode("ascii", "replace").strip(" \x00")
+        if (cartridge_type & 0xF0) == 0xF0 and title.upper().startswith(
+            ("MEGAMAN X", "ROCKMAN X")
+        ):
+            special_chip = "C4"
+        result = {
+            "title": title,
+            "rom_hash": digest.hexdigest(),
+            "region": "NTSC" if header[0x19] in {0, 1, 13} else "PAL/Other",
+            "mapper": "HiROM" if hirom else "LoROM",
+            "map_mode": f"0x{map_mode:02x}",
+            "cartridge_type": f"0x{cartridge_type:02x}",
+            "special_chip": special_chip,
+            "compatibility": "Unsupported special chip" if special_chip else "Untested",
+        }
+        if len(self._snes_inspection_cache) >= 256:
+            self._snes_inspection_cache.clear()
+        self._snes_inspection_cache[cache_key] = dict(result)
+        return result
 
     def mount_root(self, profile, target_mode="device", simulator_target=None):
         mount_root = profile.get("device_mount_path") or ""
@@ -285,6 +529,12 @@ class RockboxGameService:
             return ""
         return os.path.abspath(os.path.join(mount_root, GWATCH_SAVE_TARGET_DIR))
 
+    def snes_save_target_root(self, profile, target_mode="device", simulator_target=None):
+        mount_root = self.mount_root(profile, target_mode, simulator_target)
+        if not mount_root:
+            return ""
+        return os.path.abspath(os.path.join(mount_root, SNES_SAVE_TARGET_DIR))
+
     def target_root(self, profile, target_mode="device", simulator_target=None):
         return self.rom_target_root(profile, target_mode, simulator_target)
 
@@ -298,6 +548,8 @@ class RockboxGameService:
 
     def _rom_target_dir_for_game(self, profile, game, target_mode="device"):
         ext = os.path.splitext(str(game.get("filename") or ""))[1].lower()
+        if ext in SNES_ROM_EXTENSIONS:
+            return SNES_ROM_TARGET_DIR
         if ext in SMSGG_ROM_EXTENSIONS:
             return SMSGG_ROM_TARGET_DIR
         if ext in GWATCH_PACKAGE_EXTENSIONS:
@@ -333,6 +585,19 @@ class RockboxGameService:
         stage_root = self._sync_stage_root(profile, target_mode)
         shutil.rmtree(stage_root, ignore_errors=True)
         os.makedirs(stage_root, exist_ok=True)
+        snes_games = [
+            game for game in games
+            if os.path.splitext(game.get("filename") or "")[1].lower() in SNES_ROM_EXTENSIONS
+        ]
+        if snes_games:
+            assets.extend(self._build_snes_runtime_assets(
+                profile, target_mode, stage_root, snes_games
+            ))
+            systems_asset = self._build_snes_systems_index_asset(
+                profile, target_mode, stage_root
+            )
+            if systems_asset:
+                assets.append(systems_asset)
         cover_assets = {}
         for game in games:
             assets.append(
@@ -376,8 +641,151 @@ class RockboxGameService:
             assets.append(config_asset)
         return {
             "id": f"games-sync-{profile['id']}",
-            "name": "Rockboy Game Sync",
+            "name": "RockPod Game Sync",
             "assets": assets,
+        }
+
+    def _build_snes_runtime_assets(self, profile, target_mode, stage_root,
+                                   snes_games=None):
+        repo_root = os.path.abspath(profile.get("source_repo_path") or "")
+        build_dir = "build-sim-ipod6g" if target_mode == "simulator" else "build-hw-ipod6g"
+        plugin_source = os.path.join(
+            repo_root, build_dir, "apps", "plugins", "snes_lite", "snes_lite.rock"
+        )
+        assets = []
+        if os.path.isfile(plugin_source):
+            assets.append(
+                {
+                    "kind": "emulator_plugin",
+                    "source_rel": os.path.relpath(plugin_source, repo_root),
+                    "source_abs": plugin_source,
+                    "destination_rel": SNES_PLUGIN_PATH,
+                    "exists": True,
+                    "size": os.path.getsize(plugin_source),
+                }
+            )
+        launcher_source = os.path.join(
+            repo_root, build_dir, "apps", "plugins", "rockboy_launcher.rock"
+        )
+        if os.path.isfile(launcher_source):
+            assets.append(
+                {
+                    "kind": "games_launcher",
+                    "source_rel": os.path.relpath(launcher_source, repo_root),
+                    "source_abs": launcher_source,
+                    "destination_rel": ".rockbox/rocks/games/rockboy_launcher.rock",
+                    "exists": True,
+                    "size": os.path.getsize(launcher_source),
+                }
+            )
+        config_source = os.path.join(stage_root, "snes_lite.cfg")
+        atomic_write_text(
+            config_source,
+            "# SNES Lite experimental defaults\n"
+            "frameskip=auto\n"
+            "audio=auto\n"
+            "input_profile=0\n"
+            "show_fps=0\n"
+            "performance_mode=1\n"
+            "video_mode=0\n"
+            "performance_preset=0\n",
+        )
+        assets.append(
+            {
+                "kind": "emulator_config",
+                "source_rel": "snes_lite.cfg",
+                "source_abs": config_source,
+                "destination_rel": SNES_CONFIG_PATH,
+                "exists": True,
+                "size": os.path.getsize(config_source),
+            }
+        )
+        config_stage = os.path.join(stage_root, "snes_lite")
+        os.makedirs(config_stage, exist_ok=True)
+        for game in snes_games or []:
+            filename = os.path.basename(str(game.get("filename") or ""))
+            if not filename:
+                continue
+            stem = os.path.splitext(filename)[0]
+            recommendation = self.recommend_snes_controls(
+                game.get("internal_title") or game.get("title") or stem,
+                game.get("genre") or "",
+            )
+            profile_id = int(game.get("input_profile",
+                                      recommendation["input_profile"]))
+            per_game_source = os.path.join(config_stage, f"{stem}.cfg")
+            atomic_write_text(
+                per_game_source,
+                "# Generated by RockPod for this SNES game\n"
+                f"# type={recommendation['game_type']}\n"
+                "frameskip=auto\n"
+                "audio=auto\n"
+                f"input_profile={max(0, min(5, profile_id))}\n"
+                "show_fps=0\n"
+                "performance_mode=1\n"
+                "video_mode=0\n"
+                "performance_preset=0\n",
+            )
+            assets.append(
+                {
+                    "kind": "game_config",
+                    "source_rel": os.path.relpath(per_game_source, stage_root),
+                    "source_abs": per_game_source,
+                    "destination_rel": f"{SNES_GAME_CONFIG_DIR}/{stem}.cfg",
+                    "exists": True,
+                    "size": os.path.getsize(per_game_source),
+                    "game_type": recommendation["game_type"],
+                    "input_profile": profile_id,
+                }
+            )
+        for cache_path in (".rockbox/rocks/plugin.dat", ".rockbox/rocks/rb_plugins.dat"):
+            assets.append(
+                {
+                    "kind": "plugin_cache",
+                    "source_rel": "",
+                    "source_abs": "",
+                    "destination_rel": cache_path,
+                    "exists": False,
+                    "action": "remove",
+                }
+            )
+        return assets
+
+    def _build_snes_systems_index_asset(self, profile, target_mode, stage_root):
+        mount_root = self.mount_root(profile, target_mode)
+        current_path = os.path.join(mount_root, SYSTEMS_INDEX_PATH) if mount_root else ""
+        header = "id\ttitle\tsubtitle\tplugin\tpath\tcover\tenabled\tsort"
+        entries = []
+        if current_path and os.path.isfile(current_path):
+            with open(current_path, "r", encoding="utf-8", errors="replace") as handle:
+                entries = [
+                    line.rstrip("\r\n") for line in handle
+                    if line.strip() and not line.startswith("id\t")
+                ]
+        entries = [line for line in entries if line.split("\t", 1)[0] != "snes"]
+        entries.append(
+            "snes\tSuper Nintendo\tSNES Lite experimental\t"
+            "/.rockbox/rocks/games/snes_lite.rock\t/.rockbox/roms/snes\t"
+            "/.rockbox/games/library/covers/systems/snes.bmp\t1\t12"
+        )
+
+        def sort_key(line):
+            parts = line.split("\t")
+            try:
+                order = int(parts[7])
+            except (IndexError, ValueError):
+                order = 9999
+            return order, parts[1].casefold() if len(parts) > 1 else line.casefold()
+
+        staged = os.path.join(stage_root, "systems.tsv")
+        atomic_write_text(staged, header + "\n" + "\n".join(sorted(entries, key=sort_key)) + "\n")
+        return {
+            "kind": "systems_index",
+            "source_rel": "systems.tsv",
+            "source_abs": staged,
+            "destination_rel": SYSTEMS_INDEX_PATH,
+            "exists": True,
+            "size": os.path.getsize(staged),
         }
 
     def build_remove_bundle(self, profile, games, target_mode="device", simulator_target=None):
@@ -565,7 +973,7 @@ class RockboxGameService:
                 if member.is_dir():
                     continue
                 filename = os.path.basename(member.filename)
-                if not filename.lower().endswith((".sav", ".rtc", ".sn")):
+                if not filename.lower().endswith((".sav", ".rtc", ".sn", ".srm")):
                     continue
                 target = os.path.join(save_root, filename)
                 with bundle.open(member, "r") as src, open(target, "wb") as dest:
@@ -742,6 +1150,14 @@ class RockboxGameService:
 
     def _save_exists_for_target(self, profile, game, target_mode="device", simulator_target=None):
         ext = os.path.splitext(str(game.get("filename") or ""))[1].lower()
+        if ext in SNES_ROM_EXTENSIONS:
+            return any(
+                os.path.isfile(path)
+                for path in self._snes_save_candidate_paths(
+                    self.snes_save_target_root(profile, target_mode, simulator_target),
+                    game,
+                )
+            )
         if ext in SMSGG_ROM_EXTENSIONS:
             save_root = self.smsgg_save_target_root(profile, target_mode, simulator_target)
             state_root = os.path.abspath(
@@ -763,6 +1179,65 @@ class RockboxGameService:
                 )
             )
         return self._save_exists(self.save_target_root(profile, target_mode, simulator_target), game)
+
+    def _save_inventory(self, profile, target_mode="device", simulator_target=None):
+        mount_root = self.mount_root(profile, target_mode, simulator_target)
+
+        def names(path):
+            if not path or not os.path.isdir(path):
+                return set()
+            try:
+                return set(os.listdir(path))
+            except OSError:
+                return set()
+
+        smsgg_names = names(
+            self.smsgg_save_target_root(profile, target_mode, simulator_target)
+        )
+        if mount_root:
+            smsgg_names.update(names(os.path.join(mount_root, SMSGG_STATE_TARGET_DIR)))
+        return {
+            "rockboy": names(
+                self.save_target_root(profile, target_mode, simulator_target)
+            ),
+            "smsgg": smsgg_names,
+            "gwatch": names(
+                self.gwatch_save_target_root(profile, target_mode, simulator_target)
+            ),
+            "snes": names(
+                self.snes_save_target_root(profile, target_mode, simulator_target)
+            ),
+        }
+
+    @staticmethod
+    def _save_exists_in_inventory(game, inventory, save_stem=""):
+        ext = os.path.splitext(str(game.get("filename") or ""))[1].lower()
+        filename_stem = os.path.splitext(game.get("filename") or "game")[0]
+        if ext in SNES_ROM_EXTENSIONS:
+            return filename_stem + ".srm" in inventory.get("snes", set())
+        if ext in SMSGG_ROM_EXTENSIONS:
+            safe_stem = re.sub(
+                r"[^A-Za-z0-9._ -]+", "_", filename_stem
+            ).strip() or "game"
+            return any(
+                name.startswith(safe_stem + "-")
+                and name.lower().endswith((".sav", ".state"))
+                for name in inventory.get("smsgg", set())
+            )
+        if ext in GWATCH_PACKAGE_EXTENSIONS:
+            safe_stem = re.sub(
+                r"[^A-Za-z0-9._ -]+", "_", filename_stem
+            ).strip() or "game"
+            return any(
+                name.startswith(safe_stem)
+                and name.lower().endswith((".state", ".sav"))
+                for name in inventory.get("gwatch", set())
+            )
+        stem = save_stem or filename_stem
+        return any(
+            stem + extension in inventory.get("rockboy", set())
+            for extension in (".sav", ".rtc", ".sn")
+        )
 
     def _build_cover_sync_asset(self, profile, game, stage_root, target_mode):
         cover_source = os.path.abspath(game.get("cover_path") or "")
@@ -833,6 +1308,10 @@ class RockboxGameService:
 
     def _backup_restore_pairs_for_target(self, profile, backup_root, game, target_mode="device", simulator_target=None):
         ext = os.path.splitext(str(game.get("filename") or ""))[1].lower()
+        if ext in SNES_ROM_EXTENSIONS:
+            for source in self._save_candidate_paths_for_target(profile, game, target_mode, simulator_target):
+                yield os.path.join(backup_root, "snes", os.path.basename(source)), source
+            return
         if ext in SMSGG_ROM_EXTENSIONS:
             for source in self._save_candidate_paths_for_target(profile, game, target_mode, simulator_target):
                 rel_dir = os.path.basename(os.path.dirname(source))
@@ -861,12 +1340,17 @@ class RockboxGameService:
     @staticmethod
     def _backup_rel_for_save_source(source):
         parent = os.path.basename(os.path.dirname(source))
-        if parent in {"saves", "states"}:
+        if parent in {"saves", "states", "snes"}:
             return os.path.join(parent, os.path.basename(source))
         return os.path.basename(source)
 
     def _save_candidate_paths_for_target(self, profile, game, target_mode="device", simulator_target=None):
         ext = os.path.splitext(str(game.get("filename") or ""))[1].lower()
+        if ext in SNES_ROM_EXTENSIONS:
+            return self._snes_save_candidate_paths(
+                self.snes_save_target_root(profile, target_mode, simulator_target),
+                game,
+            )
         if ext in SMSGG_ROM_EXTENSIONS:
             mount_root = self.mount_root(profile, target_mode, simulator_target)
             if not mount_root:
@@ -910,6 +1394,13 @@ class RockboxGameService:
             if name.startswith(safe_stem) and lower.endswith((".state", ".sav")):
                 candidates.append(os.path.join(target_root, name))
         return candidates
+
+    @staticmethod
+    def _snes_save_candidate_paths(target_root, game):
+        if not target_root:
+            return []
+        stem = os.path.splitext(game.get("filename") or "game")[0]
+        return [os.path.join(target_root, stem + ".srm")]
 
     @staticmethod
     def _save_stem_for_game(game):
@@ -1047,8 +1538,17 @@ class RockboxGameService:
         stem = os.path.splitext(filename)[0]
         ext = os.path.splitext(filename)[1].lower()
         rom_path = f"/{self._rom_target_dir_for_game(profile, game, target_mode).rstrip('/')}/{filename}"
-        plugin_path = f"/{GWATCH_PLUGIN_PATH}" if ext in GWATCH_PACKAGE_EXTENSIONS else f"/{SMSGG_PLUGIN_PATH}"
-        uses_plugin_launcher = ext in SMSGG_ROM_EXTENSIONS or ext in GWATCH_PACKAGE_EXTENSIONS
+        if ext in GWATCH_PACKAGE_EXTENSIONS:
+            plugin_path = f"/{GWATCH_PLUGIN_PATH}"
+        elif ext in SNES_ROM_EXTENSIONS:
+            plugin_path = f"/{SNES_PLUGIN_PATH}"
+        else:
+            plugin_path = f"/{SMSGG_PLUGIN_PATH}"
+        uses_plugin_launcher = (
+            ext in SMSGG_ROM_EXTENSIONS
+            or ext in GWATCH_PACKAGE_EXTENSIONS
+            or ext in SNES_ROM_EXTENSIONS
+        )
         metadata = self.cached_metadata_for_game(profile, game)
         return {
             "title": game.get("title") or current_entry.get("title") or self._launcher_title_from_path(filename),
@@ -1363,6 +1863,8 @@ class RockboxGameService:
             return os.path.abspath(os.path.join(mount_root, SMSGG_ROM_TARGET_DIR))
         if system_id == "gwatch":
             return os.path.abspath(os.path.join(mount_root, GWATCH_ROM_TARGET_DIR))
+        if system_id == "snes":
+            return os.path.abspath(os.path.join(mount_root, SNES_ROM_TARGET_DIR))
         if system_id == "nes":
             return self.rom_target_root(profile, target_mode, simulator_target)
         return ""
@@ -1376,6 +1878,8 @@ class RockboxGameService:
             return "smsgg"
         if ext in GWATCH_PACKAGE_EXTENSIONS:
             return "gwatch"
+        if ext in SNES_ROM_EXTENSIONS:
+            return "snes"
         return ""
 
     def _system_manifest_id_for_game(self, game):

@@ -58,6 +58,7 @@
 #include "statusbar-skinned.h"
 #include "skin_engine/skin_engine.h"
 #include "debug.h"
+#include "ipodjs_ui.h"
 
 #define VPSTACK_DEPTH 16
 struct viewport_stack_item
@@ -140,7 +141,10 @@ static void toggle_theme(enum screen_type screen, bool force)
          * could cause a tiny flicker.
          * Redo your screen code if that happens */
         #ifdef HAVE_BACKDROP_IMAGE
-        skin_backdrop_show(sb_get_backdrop(screen));
+        if (ipodjs_ui_enabled(screen))
+            screens[screen].backdrop_show(NULL);
+        else
+            skin_backdrop_show(sb_get_backdrop(screen));
         #endif
 
         if (LIKELY(after_boot[screen]) && (!was_enabled[screen] || force))

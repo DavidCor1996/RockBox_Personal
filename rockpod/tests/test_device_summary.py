@@ -522,3 +522,139 @@ def test_clear_rockbox_database_cache_action_updates_state(config, monkeypatch):
         assert not os.path.exists(os.path.join(db_dir, "database_0.tcd"))
     finally:
         window.close()
+
+
+def test_repair_database_menu_rebuilds_and_validates_indexes(config, monkeypatch):
+    from PySide6.QtCore import QTimer
+
+    from services.library_scanner import LibraryScanner
+    from ui.main_window import MainWindow
+
+    app = QApplication.instance() or QApplication([])
+    monkeypatch.setattr(DeviceDetector, "start_polling", lambda self: None)
+    monkeypatch.setattr(QTimer, "singleShot", lambda *args, **kwargs: None)
+    monkeypatch.setattr(LibraryScanner, "start_scan", lambda self, force_full=False: None)
+    monkeypatch.setattr(
+        "ui.main_window.MainWindow._refresh_device_storage_breakdown",
+        lambda self, device=None: None,
+    )
+    monkeypatch.setattr(
+        "ui.main_window.QMessageBox.question",
+        lambda *args, **kwargs: QMessageBox.Yes,
+    )
+    infos = []
+    warnings = []
+    monkeypatch.setattr(
+        "ui.main_window.QMessageBox.information",
+        lambda *args, **kwargs: infos.append(args[2] if len(args) > 2 else ""),
+    )
+    monkeypatch.setattr(
+        "ui.main_window.QMessageBox.warning",
+        lambda *args, **kwargs: warnings.append(args[2] if len(args) > 2 else ""),
+    )
+
+    create_mock_device(config.mock_device_path)
+    music_dir = os.path.join(config.mock_device_path, "Music", "Artist", "Album")
+    os.makedirs(music_dir, exist_ok=True)
+    with open(os.path.join(music_dir, "01 - Song.mp3"), "wb") as handle:
+        handle.write(b"song")
+    device = DeviceInfo(config.mock_device_path)
+
+    window = MainWindow(config)
+    starts = []
+    try:
+        window._device_detector._current_device = device
+        window._sync_engine.set_current_device(device)
+        window._db.upsert_device_track(
+            {
+                "device_id": device.stable_device_key,
+                "device_path": "Music/Artist/Album/01 - Song.mp3",
+                "title": "Song",
+                "artist": "Artist",
+                "album": "Album",
+                "album_artist": "Artist",
+                "duration": 45.0,
+                "bitrate": 192,
+            }
+        )
+        window._db.commit()
+        monkeypatch.setattr(
+            window._device_inventory,
+            "start",
+            lambda started_device, force_full=False: starts.append(
+                (started_device.stable_device_key, force_full)
+            ),
+        )
+
+        device_action = next(
+            action
+            for action in window.menuBar().actions()
+            if action.text() == "Device"
+        )
+        device_menu = device_action.menu()
+        assert "Repair Database" in [action.text() for action in device_menu.actions()]
+
+        window._repair_rockbox_database()
+
+        assert starts == [(device.stable_device_key, True)]
+        assert window._device_state == "Updating Database"
+        request = dict(window._database_repair_pending)
+        window._finish_rockbox_database_repair(
+            {"device_key": device.stable_device_key},
+            request,
+        )
+
+        assert warnings == []
+        assert window._database_repair_pending is None
+        assert window._rockbox_db_stale is False
+        assert window._device_state == "Ready"
+        assert any("validated with 1 track" in text for text in infos)
+        state = detect_rockbox_database_state(device)
+        assert state["database_present"] is True
+        assert state["tagcache_autoupdate"] is True
+    finally:
+        window.close()
+
+
+def test_repair_database_rejects_device_swap(config, monkeypatch):
+    from PySide6.QtCore import QTimer
+
+    from services.library_scanner import LibraryScanner
+    from ui.main_window import MainWindow
+
+    app = QApplication.instance() or QApplication([])
+    monkeypatch.setattr(DeviceDetector, "start_polling", lambda self: None)
+    monkeypatch.setattr(QTimer, "singleShot", lambda *args, **kwargs: None)
+    monkeypatch.setattr(LibraryScanner, "start_scan", lambda self, force_full=False: None)
+    monkeypatch.setattr(
+        "ui.main_window.MainWindow._refresh_device_storage_breakdown",
+        lambda self, device=None: None,
+    )
+    warnings = []
+    monkeypatch.setattr(
+        "ui.main_window.QMessageBox.warning",
+        lambda *args, **kwargs: warnings.append(args[2] if len(args) > 2 else ""),
+    )
+
+    create_mock_device(config.mock_device_path)
+    device = DeviceInfo(config.mock_device_path)
+    window = MainWindow(config)
+    try:
+        window._device_detector._current_device = device
+        request = {
+            "mount_path": os.path.realpath(device.mount_path),
+            "device_key": "rockbox:different-device",
+            "rockbox_target": device.rockbox_target,
+            "disconnected": False,
+        }
+
+        window._finish_rockbox_database_repair(
+            {"device_key": request["device_key"]},
+            request,
+        )
+
+        assert window._rockbox_db_stale is True
+        assert window._device_state == "Sync Complete (DB stale)"
+        assert any("mounted device changed" in text for text in warnings)
+    finally:
+        window.close()

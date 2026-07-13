@@ -119,6 +119,31 @@ class TestTrackMatcher:
         assert len(matched) == 1
         assert len(resync) == 1
 
+    def test_device_baseline_overrides_legacy_global_sync_state(self):
+        local = [_make_local(
+            1,
+            "Song",
+            "Art",
+            "Alb",
+            metadata_hash="current",
+            last_synced_metadata_hash="other-device-old",
+        )]
+        device = [_make_device(
+            10,
+            "Song",
+            "Art",
+            "Alb",
+            metadata_hash="current",
+            local_track_id=1,
+        )]
+        device[0]["last_synced_metadata_hash"] = "current"
+        device[0]["last_synced_file_hash"] = ""
+
+        matched, _unmatched, _orphaned, resync = TrackMatcher().match_all(local, device)
+
+        assert len(matched) == 1
+        assert resync == []
+
     def test_filename_match_is_not_used(self):
         local = [_make_local(1, "X", "Y", "Z", file_path="/music/My Song.mp3")]
         device = [_make_device(10, "A", "B", "C", device_path="Music/Other/My Song.mp3")]
@@ -228,7 +253,47 @@ class TestTrackMatcher:
         assert matcher.last_profile["matched_count"] == 500
         assert matcher.last_profile["unmatched_count"] == 0
         assert matcher.last_profile["orphaned_count"] == 0
+        assert matcher.last_profile["identity_candidates_examined"] == 500
+        assert matcher.last_profile["similarity_candidates_examined"] == 0
         assert matcher.last_profile["match_seconds"] >= 0.0
+
+    def test_indexed_identity_match_preserves_device_order_with_multiple_artists(self):
+        local = [_make_local(
+            1,
+            "Song",
+            "Primary",
+            "Album",
+            album_artist="Compilation Artist",
+        )]
+        device = [
+            _make_device(
+                10,
+                "Song",
+                "Guest",
+                "Album",
+                album_artist="Compilation Artist",
+            ),
+            _make_device(11, "Song", "Primary", "Album"),
+        ]
+
+        matcher = TrackMatcher()
+        matched, unmatched, _, _ = matcher.match_all(local, device)
+
+        assert not unmatched
+        assert matched[0].device_track["id"] == 10
+
+    def test_bulk_unmatched_explanations_match_single_row_api(self):
+        rows = [
+            _make_local(1, "Known", "Wrong Artist", "Album"),
+            _make_local(2, "Missing", "Artist", "Album"),
+        ]
+        device = [_make_device(10, "Known", "Artist", "Album")]
+        matcher = TrackMatcher()
+
+        bulk = matcher.explain_unmatched_many(rows, device)
+
+        assert bulk == [matcher.explain_unmatched(row, device) for row in rows]
+        assert bulk == ["artist mismatch", "title mismatch"]
 
     def test_similar_numbered_titles_do_not_false_match(self):
         local = [_make_local(1, "Song 1", "Artist", "Album", duration=200.0)]

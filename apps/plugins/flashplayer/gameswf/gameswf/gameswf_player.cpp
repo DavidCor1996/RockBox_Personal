@@ -997,11 +997,11 @@ namespace gameswf
 		for (hash<gc_ptr<as_object>, bool>::iterator it = m_heap.begin();
 			it != m_heap.end(); ++it)
 		{
-			as_object* obj = it->first.get_ptr();
-			if (obj)
-			{
-				m_heap.set(obj, true);
-			}
+			/* Updating through hash::set() while iterating can rehash the
+			 * table if a damaged or transient key lookup misses.  That
+			 * invalidates the active iterator and eventually corrupts the
+			 * AVM1 heap.  The entry is already in hand, so update it in place. */
+			it->second = true;
 		}
 	}
 
@@ -1021,7 +1021,7 @@ namespace gameswf
 						hash<as_object*, bool> visited_objects;
 						obj->clear_refs(&visited_objects, obj);
 					}
-					m_heap.erase(obj);
+					m_heap.erase(it);
 				}
 			}
 		}

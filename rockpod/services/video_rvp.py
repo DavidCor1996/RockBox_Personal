@@ -175,7 +175,7 @@ class VideoRvpTranscoder:
                 hash_paths.extend([segment["yuv"], segment["pcm"]])
         else:
             hash_paths.extend([yuv_path, pcm_path])
-        row["file_hash"] = self._bundle_hash(*hash_paths)
+        row["file_hash"] = self._bundle_hash_cached(marker_path, *hash_paths)
         row["codec"] = "RVP"
         row["bitrate"] = 0
         row["metadata_hash"] = compute_metadata_hash(
@@ -489,16 +489,14 @@ class VideoRvpTranscoder:
         fps: int = RVP_FPS,
         sample_rate: int = RVP_SAMPLE_RATE,
     ):
-        with open(marker_path, "w", encoding="utf-8", newline="\n") as handle:
-            handle.write(
-                VideoRvpTranscoder.marker_text(
-                    os.path.basename(marker_path),
-                    width=width,
-                    height=height,
-                    fps=fps,
-                    sample_rate=sample_rate,
-                )
-            )
+        content = VideoRvpTranscoder.marker_text(
+            os.path.basename(marker_path),
+            width=width,
+            height=height,
+            fps=fps,
+            sample_rate=sample_rate,
+        )
+        VideoRvpTranscoder._write_text_if_changed(marker_path, content)
 
     @staticmethod
     def _write_segmented_marker(
@@ -509,17 +507,30 @@ class VideoRvpTranscoder:
         fps: int = RVP_FPS,
         sample_rate: int = RVP_SAMPLE_RATE,
     ):
-        with open(marker_path, "w", encoding="utf-8", newline="\n") as handle:
-            names = [(os.path.basename(s["yuv"]), os.path.basename(s["pcm"])) for s in segments]
-            handle.write(
-                VideoRvpTranscoder.segmented_marker_text(
-                    parts=names,
-                    width=width,
-                    height=height,
-                    fps=fps,
-                    sample_rate=sample_rate,
-                )
-            )
+        names = [(os.path.basename(s["yuv"]), os.path.basename(s["pcm"])) for s in segments]
+        content = VideoRvpTranscoder.segmented_marker_text(
+            parts=names,
+            width=width,
+            height=height,
+            fps=fps,
+            sample_rate=sample_rate,
+        )
+        VideoRvpTranscoder._write_text_if_changed(marker_path, content)
+
+    @staticmethod
+    def _write_text_if_changed(path: str, content: str):
+        try:
+            with open(path, "r", encoding="utf-8") as handle:
+                if handle.read() == content:
+                    return
+        except OSError:
+            pass
+        tmp_path = path + ".tmp"
+        with open(tmp_path, "w", encoding="utf-8", newline="\n") as handle:
+            handle.write(content)
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(tmp_path, path)
 
     @staticmethod
     def _remove_stale_segments(marker_path: str, keep_paths=None):
@@ -731,3 +742,48 @@ class VideoRvpTranscoder:
                         break
                     h.update(chunk)
         return h.hexdigest()
+
+    @classmethod
+    def _bundle_hash_cached(cls, marker_path: str, *paths: str) -> str:
+        """Reuse a bundle digest only while every component stat is unchanged."""
+        digest_path = marker_path + ".digest.json"
+        fingerprint = []
+        for path in paths:
+            stat = os.stat(path)
+            fingerprint.append(
+                {
+                    "path": os.path.abspath(path),
+                    "size": int(stat.st_size),
+                    "mtime_ns": int(stat.st_mtime_ns),
+                }
+            )
+        try:
+            with open(digest_path, "r", encoding="utf-8") as handle:
+                cached = json.load(handle)
+            if cached.get("version") == 1 and cached.get("files") == fingerprint:
+                digest = str(cached.get("sha256") or "")
+                if len(digest) == 64:
+                    return digest
+        except (OSError, ValueError, TypeError):
+            pass
+
+        digest = cls._bundle_hash(*paths)
+        payload = {
+            "version": 1,
+            "sha256": digest,
+            "files": fingerprint,
+        }
+        tmp_path = digest_path + ".tmp"
+        try:
+            with open(tmp_path, "w", encoding="utf-8", newline="\n") as handle:
+                json.dump(payload, handle, sort_keys=True, separators=(",", ":"))
+                handle.write("\n")
+                handle.flush()
+                os.fsync(handle.fileno())
+            os.replace(tmp_path, digest_path)
+        except OSError:
+            try:
+                os.remove(tmp_path)
+            except OSError:
+                pass
+        return digest

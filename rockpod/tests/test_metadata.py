@@ -341,6 +341,35 @@ class TestMetadataReaderDiagnostics:
         assert track.track_number == 1
         assert "basic metadata only" in info["warnings"]
 
+    def test_competition_show_download_is_not_classified_as_movie(self, tmp_dir):
+        path = os.path.join(
+            tmp_dir,
+            "YouTube",
+            "Who Can Stand Up The Longest_ - Kenny vs. Spenny (HD).mpg",
+        )
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, "wb") as f:
+            f.write(b"video")
+
+        class FakeInfo:
+            length = 1320.0
+            bitrate = 0
+            sample_rate = 0
+            channels = 2
+
+        class FakeAudio:
+            info = FakeInfo()
+            tags = {}
+
+        track, _info = read_metadata_details(
+            path, mutagen_file_func=lambda _path: FakeAudio()
+        )
+
+        assert track.video_kind == "show"
+        assert track.show_title == "Kenny vs Spenny"
+        assert track.season_number == 1
+        assert track.title == "Who Can Stand Up The Longest"
+
     def test_specials_folder_stays_attached_to_show(self, tmp_dir):
         path = os.path.join(tmp_dir, "TV Shows", "Death Note", "Specials", "02 - L Change the World.mkv")
         os.makedirs(os.path.dirname(path), exist_ok=True)

@@ -62,6 +62,8 @@ _QUERY_PUNCT_TRANSLATION = str.maketrans(
 class ArtworkManager(QObject):
     """Manages artwork extraction and a disk-backed thumbnail cache."""
 
+    _gc_lock = threading.Lock()
+
     album_artwork_updated = Signal(str, str)   # album_key, artwork_path
     artwork_lookup_failed = Signal(str, str)   # album_key, reason
     artwork_lookup_status = Signal(str)
@@ -105,6 +107,7 @@ class ArtworkManager(QObject):
         self._cooldown_until = 0.0
         self._last_request_finished_at = 0.0
         self._manual_threads = set()
+        self._maybe_cleanup_cache()
         self._worker = threading.Thread(target=self._queue_worker, name="rockpod-artwork-queue", daemon=True)
         self._worker.start()
         self._artwork_diagnostics = {
@@ -124,6 +127,143 @@ class ArtworkManager(QObject):
 
     def set_config(self, config):
         self._config = config
+
+    def _maybe_cleanup_cache(self):
+        max_mb = self._config_value("artwork_cache_max_mb", 1024)
+        interval_hours = self._config_value("artwork_cache_cleanup_interval_hours", 24)
+        try:
+            max_bytes = max(0, int(float(max_mb) * 1024 * 1024))
+            interval_seconds = max(0.0, float(interval_hours) * 3600.0)
+        except (TypeError, ValueError):
+            return
+        if max_bytes <= 0:
+            return
+
+        stamp_path = os.path.join(self._cache_dir, ".rockpod-artwork-gc.json")
+        try:
+            with open(stamp_path, "r", encoding="utf-8") as handle:
+                last_run = float((json.load(handle) or {}).get("last_run", 0.0) or 0.0)
+        except (OSError, ValueError, TypeError):
+            last_run = 0.0
+        if interval_seconds and time.time() - last_run < interval_seconds:
+            return
+
+        with self._gc_lock:
+            result = self.cleanup_cache(max_bytes=max_bytes)
+            try:
+                atomic_write_json(
+                    stamp_path,
+                    {
+                        "last_run": time.time(),
+                        "max_bytes": max_bytes,
+                        "bytes_after": result["bytes_after"],
+                        "removed_count": len(result["removed"]),
+                    },
+                )
+            except OSError as exc:
+                logger.debug("Could not update artwork cache cleanup stamp: %s", exc)
+
+    def cleanup_cache(self, max_bytes=None, dry_run=False):
+        """Evict only unreferenced, regenerable files from managed cache dirs."""
+        if max_bytes is None:
+            try:
+                max_bytes = int(float(self._config_value("artwork_cache_max_mb", 1024)) * 1024 * 1024)
+            except (TypeError, ValueError):
+                max_bytes = 0
+        max_bytes = max(0, int(max_bytes or 0))
+        referenced = self._artwork_cache_references()
+        managed_roots = {
+            self._thumb_dir,
+            self._display_dir,
+            self._original_dir,
+            self._device_dir,
+            self._albumlist_dir,
+            self._albumlist_slide_dir,
+            self._wps_dir,
+        }
+        all_files = {}
+        candidates = {}
+        for root, _dirs, files in os.walk(self._cache_dir):
+            for name in files:
+                path = os.path.abspath(os.path.join(root, name))
+                try:
+                    stat = os.stat(path)
+                except OSError:
+                    continue
+                all_files[path] = int(stat.st_size)
+                if not any(self._is_within(path, managed) for managed in managed_roots):
+                    continue
+                if path in referenced or name.startswith("placeholder_") or name == "index.tsv":
+                    continue
+                candidates[path] = (int(stat.st_mtime_ns), int(stat.st_size))
+
+        bytes_before = sum(all_files.values())
+        bytes_after = bytes_before
+        removed = []
+        errors = []
+        if max_bytes and bytes_after > max_bytes:
+            for path, (_mtime_ns, size) in sorted(candidates.items(), key=lambda item: item[1][0]):
+                if bytes_after <= max_bytes:
+                    break
+                if not dry_run:
+                    try:
+                        os.remove(path)
+                    except OSError as exc:
+                        errors.append({"path": path, "error": str(exc)})
+                        continue
+                removed.append(path)
+                bytes_after -= size
+        if removed:
+            logger.info(
+                "Artwork cache cleanup removed %d unreferenced files (%d -> %d bytes)",
+                len(removed),
+                bytes_before,
+                bytes_after,
+            )
+        return {
+            "max_bytes": max_bytes,
+            "bytes_before": bytes_before,
+            "bytes_after": bytes_after,
+            "removed": removed,
+            "errors": errors,
+            "dry_run": bool(dry_run),
+        }
+
+    def _artwork_cache_references(self):
+        referenced = set()
+
+        def visit(value):
+            if isinstance(value, dict):
+                for nested in value.values():
+                    visit(nested)
+            elif isinstance(value, (list, tuple)):
+                for nested in value:
+                    visit(nested)
+            elif isinstance(value, str) and value:
+                path = os.path.abspath(value)
+                if self._is_within(path, self._cache_dir):
+                    referenced.add(path)
+
+        try:
+            names = os.listdir(self._meta_dir)
+        except OSError:
+            names = []
+        for name in names:
+            if not name.endswith(".json"):
+                continue
+            try:
+                with open(os.path.join(self._meta_dir, name), "r", encoding="utf-8") as handle:
+                    visit(json.load(handle))
+            except (OSError, ValueError, TypeError):
+                continue
+        return referenced
+
+    @staticmethod
+    def _is_within(path, root):
+        try:
+            return os.path.commonpath((os.path.abspath(path), os.path.abspath(root))) == os.path.abspath(root)
+        except ValueError:
+            return False
 
     def get_artwork_path(self, track_row, size="thumb"):
         """Return path to desktop artwork for a track, preferring album-level hi-res art."""

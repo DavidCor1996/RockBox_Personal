@@ -34,6 +34,8 @@ def test_rom_discovery_and_extension_filtering(tmp_dir):
     _make_file(os.path.join(roms, "Sonic.gg"), b"gg")
     _make_file(os.path.join(roms, "Zelda.gbc"), b"gbc")
     _make_file(os.path.join(roms, "notes.txt"), b"ignore")
+    # A metadata touch represents a ROM newly added to the managed folder.
+    os.utime(os.path.join(roms, "Pokemon.gb"), None)
 
     _config, store = _make_store(tmp_dir, repo_root)
     profile = store.current_profile()
@@ -43,7 +45,112 @@ def test_rom_discovery_and_extension_filtering(tmp_dir):
     service = RockboxGameService()
     games = service.list_games(profile)
 
-    assert [game["filename"] for game in games] == ["Mario.nes", "Pokemon.gb", "Sonic.gg", "Zelda.gbc"]
+    assert games[0]["filename"] == "Pokemon.gb"
+    assert {game["filename"] for game in games} == {"Mario.nes", "Pokemon.gb", "Sonic.gg", "Zelda.gbc"}
+    assert all(game["added_time"] > 0 for game in games)
+    assert {game["platform"] for game in games} == {"Game Boy", "Game Boy Color", "NES", "Game Gear"}
+
+
+def test_snes_rom_metadata_and_sync_bundle(tmp_dir):
+    repo_root = os.path.join(tmp_dir, "repo")
+    roms = os.path.join(tmp_dir, "roms")
+    device = os.path.join(tmp_dir, "device")
+    rom = bytearray(0x10000)
+    header = 0xFFC0
+    rom[header:header + 21] = b"KILLER INSTINCT      "
+    rom[header + 0x15] = 0x31
+    rom[header + 0x19] = 0x01
+    rom[header + 0x1C:header + 0x1E] = (0xEDCB).to_bytes(2, "little")
+    rom[header + 0x1E:header + 0x20] = (0x1234).to_bytes(2, "little")
+    rom[header + 0x3D] = 0x80
+    _make_file(os.path.join(roms, "Killer Instinct.sfc"), bytes(rom))
+    _make_file(
+        os.path.join(repo_root, "build-hw-ipod6g", "apps", "plugins", "snes_lite", "snes_lite.rock"),
+        b"plugin",
+    )
+    os.makedirs(device, exist_ok=True)
+
+    _config, store = _make_store(tmp_dir, repo_root)
+    profile = store.current_profile()
+    profile["games_library_path"] = roms
+    profile["device_mount_path"] = device
+    profile = store.save_profile(profile)
+
+    service = RockboxGameService()
+    games = service.list_games(profile)
+    assert len(games) == 1
+    assert games[0]["platform"] == "Super Nintendo"
+    assert games[0]["internal_title"] == "KILLER INSTINCT"
+    assert games[0]["mapper"] == "HiROM"
+    assert games[0]["special_chip"] == ""
+    assert len(games[0]["rom_hash"]) == 64
+
+    bundle = service.build_sync_bundle(profile, games, "device")
+    destinations = {asset["destination_rel"] for asset in bundle["assets"]}
+    assert ".rockbox/roms/snes/Killer Instinct.sfc" in destinations
+    assert ".rockbox/rocks/games/snes_lite.rock" in destinations
+    assert ".rockbox/config/snes_lite.cfg" in destinations
+    assert ".rockbox/config/snes_lite/Killer Instinct.cfg" in destinations
+    assert ".rockbox/games/snes/games.tsv" in destinations
+    assert ".rockbox/games/library/systems.tsv" in destinations
+    assert ".rockbox/rocks/plugin.dat" in destinations
+    game_config = next(
+        asset for asset in bundle["assets"]
+        if asset["destination_rel"] == ".rockbox/config/snes_lite/Killer Instinct.cfg"
+    )
+    with open(game_config["source_abs"], "r", encoding="utf-8") as handle:
+        game_config_text = handle.read()
+    assert "# type=fighting" in game_config_text
+    assert "input_profile=3" in game_config_text
+    assert "audio=auto" in game_config_text
+
+
+def test_snes_control_recommendations_cover_ipod_profiles():
+    service = RockboxGameService()
+
+    expected = {
+        "Donkey Kong Country 3": ("platformer", 0),
+        "Secret of Mana": ("action", 2),
+        "Super Metroid": ("action", 2),
+        "Killer Instinct": ("fighting", 3),
+        "Super Mario Kart": ("racing", 4),
+        "NHL '94": ("sports", 5),
+    }
+    for title, (game_type, profile) in expected.items():
+        recommendation = service.recommend_snes_controls(title)
+        assert recommendation["game_type"] == game_type
+        assert recommendation["input_profile"] == profile
+
+
+def test_snes_special_chip_and_save_backup(tmp_dir):
+    repo_root = os.path.join(tmp_dir, "repo")
+    roms = os.path.join(tmp_dir, "roms")
+    device = os.path.join(tmp_dir, "device")
+    rom = bytearray(0x8000)
+    header = 0x7FC0
+    rom[header:header + 21] = b"SUPER MARIO RPG      "
+    rom[header + 0x15] = 0x23
+    rom[header + 0x16] = 0x34
+    rom[header + 0x1C:header + 0x1E] = (0xEDCB).to_bytes(2, "little")
+    rom[header + 0x1E:header + 0x20] = (0x1234).to_bytes(2, "little")
+    rom[header + 0x3D] = 0x80
+    _make_file(os.path.join(roms, "Super Mario RPG.sfc"), bytes(rom))
+    _make_file(os.path.join(device, ".rockbox", "saves", "snes", "Super Mario RPG.srm"), b"sram")
+
+    _config, store = _make_store(tmp_dir, repo_root)
+    profile = store.current_profile()
+    profile["games_library_path"] = roms
+    profile["device_mount_path"] = device
+    profile = store.save_profile(profile)
+
+    service = RockboxGameService()
+    games = service.list_games(profile)
+    assert games[0]["special_chip"] == "SA-1"
+    assert games[0]["compatibility"] == "Unsupported special chip"
+    assert games[0]["device_save_exists"] is True
+    backup = service.backup_saves(profile, games, "device")
+    assert backup["success"] is True
+    assert backup["copied"][0].endswith(os.path.join("snes", "Super Mario RPG.srm"))
 
 
 def test_profiles_default_games_library_to_documents_gameboy(tmp_dir):

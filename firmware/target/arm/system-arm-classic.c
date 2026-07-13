@@ -91,6 +91,13 @@ void __attribute__((weak,naked)) undef_instr_handler(void)
  */
 void NORETURN_ATTR UIE(unsigned int pc, unsigned int num)
 {
+#if defined(IPOD_NANO3G) && NANO3G_NATIVE_PRESTOR_ONLY
+    (void)pc;
+    (void)num;
+    disable_interrupt(IRQ_FIQ_STATUS);
+    while (1)
+        ;
+#else
     /* safe guard variable - we call backtrace() only on first
      * UIE call. This prevent endless loop if backtrace() touches
      * memory regions which cause abort
@@ -160,6 +167,7 @@ void NORETURN_ATTR UIE(unsigned int pc, unsigned int num)
     system_exception_wait(); /* If this returns, try to reboot */
     system_reboot();
     while (1);       /* halt */
+#endif
 }
 
 /* Needs to be here or gcc won't find it */

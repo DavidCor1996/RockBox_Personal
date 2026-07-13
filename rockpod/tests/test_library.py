@@ -112,6 +112,33 @@ class TestDatabase:
         assert row["last_synced_metadata_hash"] == "meta_hash_1"
         assert row["last_synced_file_hash"] == "file_hash_1"
 
+    def test_mark_synced_many_uses_one_batch(self, db, monkeypatch):
+        for index in range(3):
+            db.upsert_track({"file_path": f"/batch-{index}.mp3", "title": f"Batch {index}"})
+        db.commit()
+        tracks = db.get_all_tracks(order_by="id")
+        calls = []
+        original = db.executemany
+
+        def counted(sql, params):
+            rows = list(params)
+            calls.append((sql, rows))
+            return original(sql, rows)
+
+        monkeypatch.setattr(db, "executemany", counted)
+        updates = [
+            (row["id"], f"Music/{row['id']}.mp3", f"meta-{row['id']}", f"file-{row['id']}")
+            for row in tracks
+        ]
+        with db.transaction():
+            assert db.mark_synced_many(updates) == 3
+
+        assert len(calls) == 1
+        for row in db.get_all_tracks(order_by="id"):
+            assert row["synced_to_device"] == 1
+            assert row["last_synced_metadata_hash"] == f"meta-{row['id']}"
+            assert row["last_synced_file_hash"] == f"file-{row['id']}"
+
     def test_get_tracks_needing_resync(self, db):
         db.upsert_track({
             "file_path": "/a.mp3", "title": "A",
@@ -386,6 +413,66 @@ class TestDatabase:
         db.clear_device_tracks()
         db.commit()
         assert len(db.get_all_device_tracks()) == 0
+
+    def test_sync_status_is_scoped_to_selected_device(self, db):
+        db.upsert_track({
+            "file_path": "/music/shared.mp3",
+            "title": "Shared",
+            "media_type": "audio",
+            "metadata_hash": "new-meta",
+            "file_hash": "same-file",
+        })
+        db.commit()
+        track_id = db.get_track_by_path("/music/shared.mp3")["id"]
+        for device_id, baseline in (("ipod-a", "old-meta"), ("ipod-b", "new-meta")):
+            db.upsert_device_track({
+                "device_id": device_id,
+                "device_path": f"Music/{device_id}/shared.mp3",
+                "local_track_id": track_id,
+                "metadata_hash": baseline,
+                "file_hash": "same-file",
+                "last_synced_metadata_hash": baseline,
+                "last_synced_file_hash": "same-file",
+            })
+        db.commit()
+
+        assert db.get_sync_status_counts("ipod-a")["resync"] == 1
+        assert db.get_sync_status_counts("ipod-b")["resync"] == 0
+
+    def test_schema_10_migrates_device_sync_baselines(self, tmp_dir):
+        db_path = os.path.join(tmp_dir, "schema10.db")
+        conn = sqlite3.connect(db_path, timeout=5.0, isolation_level=None)
+        conn.row_factory = sqlite3.Row
+        try:
+            conn.executescript(
+                """
+                CREATE TABLE schema_version (version INTEGER PRIMARY KEY);
+                INSERT INTO schema_version (version) VALUES (10);
+                CREATE TABLE device_tracks (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    device_id TEXT DEFAULT '',
+                    device_path TEXT NOT NULL,
+                    local_track_id INTEGER,
+                    metadata_hash TEXT DEFAULT '',
+                    file_hash TEXT DEFAULT '',
+                    present_on_device INTEGER DEFAULT 1
+                );
+                INSERT INTO device_tracks (
+                    device_id, device_path, local_track_id, metadata_hash, file_hash
+                ) VALUES ('ipod-a', 'Music/a.mp3', 4, 'meta-a', 'file-a');
+                """
+            )
+            Database._init_schema_on_connection(conn)
+            row = conn.execute(
+                "SELECT last_synced_metadata_hash, last_synced_file_hash FROM device_tracks"
+            ).fetchone()
+            version = conn.execute("SELECT version FROM schema_version").fetchone()["version"]
+        finally:
+            conn.close()
+
+        assert version == SCHEMA_VERSION
+        assert row["last_synced_metadata_hash"] == "meta-a"
+        assert row["last_synced_file_hash"] == "file-a"
 
 
 # ===========================================================================

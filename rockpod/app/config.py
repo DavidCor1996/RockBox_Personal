@@ -112,6 +112,8 @@ class Config:
         "db_path": DEFAULT_DB_PATH,
         "cache_dir": DEFAULT_CACHE_DIR,
         "artwork_cache_dir": DEFAULT_ARTWORK_CACHE,
+        "artwork_cache_max_mb": 1024,
+        "artwork_cache_cleanup_interval_hours": 24,
         "device_mount_path": "",
         "device_music_template": DEVICE_MUSIC_PATH_TEMPLATE,
         "device_file_template": DEVICE_FILE_TEMPLATE,

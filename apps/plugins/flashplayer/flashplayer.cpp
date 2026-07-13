@@ -42,6 +42,26 @@ enum flash_input_profile {
     FLASH_INPUT_PROFILE_ANTCITY,
 };
 
+#define FLASH_BITMAP_TEXT_MAX_SPANS 192
+#define FLASH_BITMAP_TEXT_MAX_CHARS 95
+
+struct FlashBitmapTextSpan {
+    float stage_x;
+    float stage_baseline;
+    float stage_height;
+    unsigned char red;
+    unsigned char green;
+    unsigned char blue;
+    unsigned char alpha;
+    char text[FLASH_BITMAP_TEXT_MAX_CHARS + 1];
+    int length;
+};
+
+static FlashBitmapTextSpan g_bitmap_text_spans[FLASH_BITMAP_TEXT_MAX_SPANS];
+static int g_bitmap_text_span_count;
+static int g_bitmap_text_current = -1;
+static bool g_bitmap_text_enabled;
+
 image::rgb *flashplayer_decode_jpeg_rgb(unsigned char *data, unsigned long len)
 {
     struct dim size;
@@ -358,6 +378,8 @@ struct RockboxRenderHandler : public gameswf::render_handler {
         fill_enabled = false;
         active_fill_side = 0;
         line_enabled = false;
+        g_bitmap_text_span_count = 0;
+        g_bitmap_text_current = -1;
         begins++;
         sx = sw != 0.0f ? viewport_width / sw : 1.0f;
         sy = sh != 0.0f ? viewport_height / sh : 1.0f;
@@ -948,12 +970,12 @@ struct RockboxRenderHandler : public gameswf::render_handler {
             int area2 = (x1 - x0) * (y2 - y0) - (y1 - y0) * (x2 - x0);
             if (area2 < 0) area2 = -area2;
             if (area2 < FLASH_MIN_TRIANGLE_AREA2) {
-                float fx0, fy0, fx1, fy1, fx2, fy2;
+                /* The vertices collapse to a zero-area triangle at the
+                 * 320x240 output resolution. Stick RPG produces roughly ten
+                 * thousand of these per street frame, so the floating-point
+                 * fallback was spending most of the frame on invisible
+                 * subpixels. */
                 tiny_triangles++;
-                transform_point_screen(ax, ay, &fx0, &fy0);
-                transform_point_screen(bx, by, &fx1, &fy1);
-                transform_point_screen(cxp, cyp, &fx2, &fy2);
-                fill_screen_triangle_float(fx0, fy0, fx1, fy1, fx2, fy2, true);
                 return;
             }
         }
@@ -963,19 +985,6 @@ struct RockboxRenderHandler : public gameswf::render_handler {
             triangle_budget_hit = true;
             return;
         }
-#if defined(SIMULATOR)
-        if ((triangles & 0x0fff) == 0) {
-            rb->lcd_set_foreground(LCD_RGBPACK(0, 0, 0));
-            rb->lcd_fillrect(0, LCD_HEIGHT - 16, LCD_WIDTH, 16);
-            rb->lcd_set_foreground(LCD_RGBPACK(255, 255, 255));
-            rb->lcd_putsxyf(2, LCD_HEIGHT - 14, "display tri %d/%d tiny %d sf %d bf %d%s",
-                            triangles, FLASH_TRIANGLE_BUDGET, tiny_triangles,
-                            solid_fills, bitmap_fills,
-                            triangle_budget_hit ? " cap" : "");
-            rb->lcd_update();
-            rb->yield();
-        }
-#endif
         minx = MIN(x0, MIN(x1, x2));
         maxx = MAX(x0, MAX(x1, x2));
         miny = MIN(y0, MIN(y1, y2));
@@ -1318,6 +1327,9 @@ struct FlashState {
     bool fast_autorun;
     int fast_draw_interval;
     int stickrpg_shortcut_frame;
+    int stickrpg_person_frame_override;
+    int right_down_frame;
+    int right_up_frame;
 #endif
     int cursor_x;
     int cursor_y;
@@ -1336,7 +1348,10 @@ struct FlashState {
     bool stickrpg_gameplay_shortcut_done;
     bool stickrpg_gameplay_shortcut_enabled;
     bool stickrpg_fast_load;
+    bool stickrpg_realtime_clock_enabled;
+    bool stickrpg_spawn_stabilized;
     bool stickrpg_scene_initialized;
+    int stickrpg_previous_root_frame;
     bool gameswf_cache_checked;
     tu_file *shape_def_cache_in;
     tu_file *shape_def_cache_out;
@@ -1364,7 +1379,6 @@ struct FlashState {
     int button_trace_count;
     int action_trace_count;
     int action_verbose_left;
-    int stickrpg_scene_trace_left;
     int action_trace_button_id;
     int prime_root_start;
     int prime_root_load2;
@@ -1381,8 +1395,60 @@ static FlashState g;
 static RockboxRenderHandler *g_renderer;
 static gameswf::player *g_player;
 static gameswf::gc_ptr<gameswf::root> *g_root_ref;
-static gameswf::gc_ptr<gameswf::character> g_stickrpg_person_ref;
-static gameswf::gc_ptr<gameswf::character> g_stickrpg_map_ref;
+static gameswf::gc_ptr<gameswf::sprite_instance> g_stickrpg_clock_ref;
+
+extern "C" int flashplayer_bitmap_text_begin(float x, float y, float height,
+                                               int red, int green, int blue,
+                                               int alpha)
+{
+    FlashBitmapTextSpan *span;
+
+    if (!g_bitmap_text_enabled || alpha < 24 ||
+        g_bitmap_text_span_count >= FLASH_BITMAP_TEXT_MAX_SPANS)
+        return 0;
+
+    g_bitmap_text_current = g_bitmap_text_span_count++;
+    span = &g_bitmap_text_spans[g_bitmap_text_current];
+    span->stage_x = x;
+    span->stage_baseline = y;
+    span->stage_height = height;
+    span->red = (unsigned char)red;
+    span->green = (unsigned char)green;
+    span->blue = (unsigned char)blue;
+    span->alpha = (unsigned char)alpha;
+    span->length = 0;
+    span->text[0] = '\0';
+    return 1;
+}
+
+extern "C" void flashplayer_bitmap_text_character(int code)
+{
+    FlashBitmapTextSpan *span;
+
+    if (g_bitmap_text_current < 0 ||
+        g_bitmap_text_current >= g_bitmap_text_span_count)
+        return;
+
+    span = &g_bitmap_text_spans[g_bitmap_text_current];
+    if (span->length >= FLASH_BITMAP_TEXT_MAX_CHARS)
+        return;
+
+    /* Stick RPG is an AVM1-era English SWF. Rockbox's bitmap font is UTF-8,
+     * but keeping this bridge to printable Latin-1 avoids malformed strings
+     * when an old SWF contains an unmapped or control glyph. */
+    if (code < 32 || code > 126)
+        code = '?';
+    span->text[span->length++] = (char)code;
+    span->text[span->length] = '\0';
+}
+
+extern "C" void flashplayer_bitmap_text_end(void)
+{
+    if (g_bitmap_text_current >= 0 &&
+        g_bitmap_text_spans[g_bitmap_text_current].length == 0)
+        g_bitmap_text_span_count--;
+    g_bitmap_text_current = -1;
+}
 
 class SilentSoundHandler : public gameswf::sound_handler
 {
@@ -1764,8 +1830,14 @@ static void flash_log_callback(bool error, const char *message)
     size_t i;
 
     g.log_count++;
-    if (error)
+    if (error) {
         g.log_errors++;
+        /* Optional missing AVM1 display objects can repeat hundreds of times
+         * per gameplay frame. Preserve the first diagnostics without doing
+         * synchronous FAT writes forever in the render loop. */
+        if (g.log_errors > 32)
+            return;
+    }
 
     if (!error &&
         !rb->strstr(src, "export") &&
@@ -2084,7 +2156,8 @@ static void show_load_status_progress(const char *status, int progress)
     if (progress >= 0) {
         if (progress > 100)
             progress = 100;
-        g.load_progress = progress;
+        if (progress > g.load_progress)
+            g.load_progress = progress;
     }
     if (!flash_progress_checkpoint(g.status, g.load_progress))
         return;
@@ -2131,9 +2204,8 @@ extern "C" void flashplayer_trace_parse_progress(const char *scope,
         if (g.fws_len > 0 && g.load_stage_span > 0)
             progress += (int)(((long long)stream_pos *
                                g.load_stage_span) / g.fws_len);
-        rb->snprintf(g.status, sizeof(g.status), "load %s t%d pos %d",
-                     scope ? scope : "swf", tag_count, stream_pos);
-        show_load_status_progress(g.status, progress);
+        if (progress > g.load_progress)
+            show_load_status_progress("reading SWF data", progress);
     }
 
     if ((tag_count & 31) == 0 || tag_type == 0)
@@ -2149,30 +2221,8 @@ extern "C" void flashplayer_trace_parse_start(const char *scope,
     g.loader_start_tick = *rb->current_tick;
     g.loader_start_tag = tag_type;
 
-#ifndef SIMULATOR
-    if (!g.runtime_ready &&
-        (tag_count <= 16 || (tag_count & 63) == 0 ||
-         tag_type == 0 || tag_type == 2 || tag_type == 22 ||
-         tag_type == 39 || tag_type == 48 || tag_type == 14 ||
-         tag_type == 12 || tag_type == 46 || tag_type == 59)) {
-        rb->snprintf(g.status, sizeof(g.status), "parse %s t%d type %d",
-                     scope ? scope : "swf", tag_count, tag_type);
-        flash_progress_checkpoint(g.status, g.load_progress);
-    }
-
-    if (!g.runtime_ready &&
-        (tag_count <= 16 || (tag_count & 63) == 0 ||
-         tag_type == 2 || tag_type == 22 || tag_type == 39 ||
-         tag_type == 48 || tag_type == 14 || tag_type == 12 ||
-         tag_type == 59)) {
-        rb->snprintf(g.status, sizeof(g.status), "tag %s t%d type %d",
-                     scope ? scope : "swf", tag_count, tag_type);
-        show_load_status_progress(g.status, g.load_stage_base);
-    }
-#else
     (void)scope;
     (void)tag_count;
-#endif
 }
 
 extern "C" void flashplayer_trace_parse_end(const char *scope,
@@ -2232,18 +2282,9 @@ extern "C" int flashplayer_should_skip_movie_tag(int loading_frame,
 
 extern "C" void flashplayer_trace_shape(int phase, int character_id, int stream_pos)
 {
-#ifndef SIMULATOR
-    if (!g.runtime_ready && (phase == 1 || phase == 2 ||
-                             phase == 3 || phase == 4)) {
-        rb->snprintf(g.status, sizeof(g.status), "shape %d phase %d",
-                     character_id, phase);
-        show_load_status_progress(g.status, g.load_stage_base);
-    }
-#else
     (void)phase;
     (void)character_id;
     (void)stream_pos;
-#endif
 }
 
 extern "C" void flashplayer_trace_shape_record(int record_count, int flags,
@@ -2405,21 +2446,26 @@ extern "C" void flashplayer_trace_button_action(int button_id, int event_id,
                                                  int conditions, int mask,
                                                  int matched, int action_count)
 {
-#ifdef SIMULATOR
     if (matched && action_count > 0 && g.button_trace_count < 32) {
         g.button_trace_count++;
         flash_logf("button action id=%d event=%d cond=%d mask=%d actions=%d frame=%d",
                    button_id, event_id, conditions, mask, action_count,
                    g.rendered_frames);
     }
-#else
-    (void)button_id;
-    (void)event_id;
-    (void)conditions;
-    (void)mask;
-    (void)matched;
-    (void)action_count;
-#endif
+    if (matched && action_count > 0 &&
+        g.input_profile == FLASH_INPUT_PROFILE_STICKRPG) {
+        if (button_id == 101) {
+            /* START opens the duration panel; default to MEDIUM rather than
+             * leaving the cursor on UNLIMITED (whose 9999-day sentinel looks
+             * like corrupt HUD state). */
+            g.cursor_x = LCD_WIDTH / 2;
+            g.cursor_y = 112;
+        } else if (button_id == 194) {
+            g.cursor_y = 202; /* MEDIUM selected: move to DONE. */
+        } else if (button_id == 187) {
+            g.cursor_y = 206; /* Character panel: Create Character. */
+        }
+    }
 }
 
 extern "C" void flashplayer_trace_action(int phase, int opcode, int a, int b,
@@ -2876,11 +2922,19 @@ static bool load_swf(const char *path)
     g.runtime_loaded = false;
     g.runtime_frame = -1;
     g.input_profile = detect_input_profile(path);
+    g_bitmap_text_enabled = g.input_profile == FLASH_INPUT_PROFILE_STICKRPG;
+    g_bitmap_text_span_count = 0;
+    g_bitmap_text_current = -1;
     g.rendered_frames = 0;
     g.shape_mesh_budget = 0;
     g.shape_mesh_skipped = 0;
     g.cursor_x = LCD_WIDTH / 2;
-    g.cursor_y = LCD_HEIGHT / 2;
+    /* Stick RPG Complete's real START hit region is centred at LCD y=150
+     * after its 550x400 stage is fitted to the 6G screen.  Starting there
+     * makes the first centre-button press useful while retaining free cursor
+     * movement for the rest of the mouse-driven UI. */
+    g.cursor_y = g.input_profile == FLASH_INPUT_PROFILE_STICKRPG
+        ? 150 : LCD_HEIGHT / 2;
     g.mouse_down = false;
     g.key_left_down = false;
     g.key_right_down = false;
@@ -2895,6 +2949,7 @@ static bool load_swf(const char *path)
     g.stickrpg_post_create_forced = false;
     g.stickrpg_gameplay_shortcut_done = false;
     g.stickrpg_scene_initialized = false;
+    g.stickrpg_previous_root_frame = -1;
     g.gameswf_cache_checked = false;
     g.shape_def_cache_in = NULL;
     g.shape_def_cache_out = NULL;
@@ -2932,10 +2987,8 @@ static bool load_swf(const char *path)
     g.button_trace_count = 0;
     g.action_trace_count = 0;
     g.action_verbose_left = 0;
-    g.stickrpg_scene_trace_left = 0;
     g.action_trace_button_id = -1;
-    g_stickrpg_person_ref = NULL;
-    g_stickrpg_map_ref = NULL;
+    g_stickrpg_clock_ref = NULL;
     rb->strlcpy(g.path, path, sizeof(g.path));
     flash_logf("load path=%s plugin_buf=%luK audio_buf=%luK",
                g.path, (unsigned long)(g.buffer_size / 1024),
@@ -3354,6 +3407,7 @@ static void probe_gameswf_runtime(void)
     flash_logf("gameswf player allocated heap_free=%luK",
                (unsigned long)(plugin_cxx_available() / 1024));
     g_player->set_separate_thread(false);
+    g_player->set_force_realtime_framerate(false);
 
     delete g_sound_handler;
     g_sound_handler = new SilentSoundHandler;
@@ -3533,6 +3587,189 @@ static void draw_runtime_cursor(void)
     rb->lcd_update_rect(x - 6, y - 6, 13, 13);
 }
 
+static void draw_bitmap_text_overlay(void)
+{
+    if (!g_bitmap_text_enabled || !g_renderer)
+        return;
+
+    rb->lcd_set_viewport(NULL);
+    /* FONT_SYSFIXED is compiled into Rockbox and cannot disappear with a
+     * theme/font change.  Embedded SWF outlines remain disabled for Stick RPG
+     * because their tessellation is both unreadable and expensive on-device. */
+    rb->lcd_setfont(FONT_SYSFIXED);
+    rb->lcd_set_drawmode(DRMODE_FG);
+    for (int i = 0; i < g_bitmap_text_span_count; i++) {
+        FlashBitmapTextSpan *span = &g_bitmap_text_spans[i];
+        float screen_height = span->stage_height * g_renderer->sy;
+        int font_id;
+        int font_height;
+        int x;
+        int y;
+        int luminance;
+
+        if (span->length <= 0 || span->alpha < 24)
+            continue;
+        if (screen_height < 0.0f)
+            screen_height = -screen_height;
+
+        font_id = FONT_SYSFIXED;
+        rb->font_getstringsize(span->text, NULL, &font_height, font_id);
+
+        x = RockboxRenderHandler::round_pixel(
+            span->stage_x * g_renderer->sx + g_renderer->tx);
+        y = RockboxRenderHandler::round_pixel(
+            span->stage_baseline * g_renderer->sy + g_renderer->ty) -
+            font_height;
+
+        /* Gameplay HUD values are redrawn from the live AVM1 variables below
+         * so split SWF text records cannot overlap digits (17/17 becoming
+         * 17/7, padded cash strings, etc.). */
+        if (g.runtime_frame == 1 && y < 38)
+            continue;
+
+        if (x >= LCD_WIDTH || y >= LCD_HEIGHT || y + font_height < 0)
+            continue;
+
+        /* A one-pixel opposite-luminance shadow keeps text legible over both
+         * Stick RPG's blue menus and its light gameplay panels. */
+        luminance = span->red * 30 + span->green * 59 + span->blue * 11;
+        rb->lcd_set_foreground(luminance < 12800
+            ? LCD_RGBPACK(255, 255, 255) : LCD_RGBPACK(0, 0, 0));
+        rb->lcd_putsxy(x + 1, y + 1, span->text);
+        rb->lcd_set_foreground(LCD_RGBPACK(span->red, span->green, span->blue));
+        rb->lcd_putsxy(x, y, span->text);
+    }
+    rb->lcd_set_drawmode(DRMODE_SOLID);
+}
+
+static void draw_stickrpg_hud_text(void)
+{
+    gameswf::character *root_movie;
+    gameswf::as_value hp;
+    gameswf::as_value hpmax;
+    gameswf::as_value cash;
+    gameswf::as_value day;
+
+    if (g.input_profile != FLASH_INPUT_PROFILE_STICKRPG ||
+        g.runtime_frame != 1 || !flash_root())
+        return;
+
+    root_movie = flash_root()->get_root_movie();
+    if (!root_movie || !root_movie->get_member("hp", &hp) ||
+        !root_movie->get_member("hpmax", &hpmax) ||
+        !root_movie->get_member("cash", &cash) ||
+        !root_movie->get_member("day", &day))
+        return;
+
+    rb->lcd_set_viewport(NULL);
+    rb->lcd_setfont(FONT_SYSFIXED);
+    rb->lcd_set_drawmode(DRMODE_FG);
+    rb->lcd_set_foreground(LCD_RGBPACK(255, 255, 255));
+    rb->lcd_putsxyf(25, 8, "HP %d/%d", hp.to_int(), hpmax.to_int());
+    rb->lcd_set_foreground(LCD_RGBPACK(255, 225, 32));
+    rb->lcd_putsxyf(126, 8, "$%d", cash.to_int());
+    rb->lcd_set_foreground(LCD_RGBPACK(255, 255, 255));
+    rb->lcd_putsxyf(218, 8, "DAY %d", day.to_int());
+    rb->lcd_set_drawmode(DRMODE_SOLID);
+}
+
+static gameswf::character *stickrpg_person(void)
+{
+    gameswf::character *root_movie;
+    gameswf::as_value value;
+
+    if (g.input_profile != FLASH_INPUT_PROFILE_STICKRPG ||
+        g.runtime_frame != 1 || !flash_root())
+        return NULL;
+
+    root_movie = flash_root()->get_root_movie();
+    if (!root_movie || !root_movie->get_member("person", &value))
+        return NULL;
+    return gameswf::cast_to<gameswf::character>(value.to_object());
+}
+
+static void sync_stickrpg_clock(void)
+{
+    gameswf::character *root_movie;
+    gameswf::sprite_instance *root_sprite;
+    const char *time_text;
+    int frame;
+
+    if (g.input_profile != FLASH_INPUT_PROFILE_STICKRPG ||
+        g.runtime_frame != 1 || !flash_root())
+        return;
+
+    root_movie = flash_root()->get_root_movie();
+    root_sprite = gameswf::cast_to<gameswf::sprite_instance>(root_movie);
+    if (!root_movie || !root_sprite)
+        return;
+    time_text = root_sprite->get_variable("time");
+    if (!time_text || !time_text[0] ||
+        rb->strcmp(time_text, "undefined") == 0)
+        return;
+    if (g_stickrpg_clock_ref == NULL) {
+        gameswf::character *clock_character =
+            root_sprite->m_display_list.get_character_at_depth(252);
+        gameswf::sprite_instance *clock =
+            gameswf::cast_to<gameswf::sprite_instance>(clock_character);
+        if (!clock || clock->get_id() != 715 ||
+            clock->get_frame_count() != 65)
+            return;
+        g_stickrpg_clock_ref = clock;
+        flash_logf("stickrpg clock id=%d depth=%d frames=%d",
+                   clock->get_id(), clock->get_depth(),
+                   clock->get_frame_count());
+    }
+
+    /* This HUD movie has 65 quarter-hour frames spanning 08:00 through
+     * midnight. It is meant to be addressed from _root.time; when left in
+     * PLAY it drains the game's stamina clock in under two seconds. */
+    frame = (rb->atoi(time_text) - 8) * 4;
+    if (frame < 0)
+        frame = 0;
+    if (frame > 64)
+        frame = 64;
+    if (g_stickrpg_clock_ref->get_current_frame() != frame)
+        g_stickrpg_clock_ref->goto_frame(frame);
+    g_stickrpg_clock_ref->set_play_state(gameswf::character::STOP);
+}
+
+static void prepare_stickrpg_person(void)
+{
+    gameswf::character *person = stickrpg_person();
+    gameswf::character *root_movie;
+    gameswf::as_value xmove;
+    gameswf::as_value ymove;
+
+    if (!person)
+        return;
+#ifdef SIMULATOR
+    if (g.stickrpg_person_frame_override >= 0) {
+        person->goto_frame(g.stickrpg_person_frame_override);
+        person->set_play_state(gameswf::character::STOP);
+        return;
+    }
+#endif
+    if (g.input_profile != FLASH_INPUT_PROFILE_STICKRPG ||
+        g.runtime_frame != 1 || !flash_root())
+        return;
+
+    root_movie = flash_root()->get_root_movie();
+    if (root_movie && root_movie->get_member("xmove", &xmove) &&
+        root_movie->get_member("ymove", &ymove) &&
+        (xmove.to_int() != 0 || ymove.to_int() != 0)) {
+        int frame = person->get_current_frame();
+
+        /* The normal walking cycle is authored at Flash frames 275-302.
+         * GameSWF can miss the terminal gotoAndPlay(275) after a root-frame
+         * change and otherwise runs into the skateboard/car/death artwork. */
+        if (frame < 274 || frame > 301) {
+            person->goto_frame(274);
+            person->set_play_state(gameswf::character::PLAY);
+        }
+    }
+}
+
 static void runtime_mouse_stage(int *x, int *y)
 {
     int sw = g.info.stage_w > 0 ? g.info.stage_w : LCD_WIDTH;
@@ -3540,6 +3777,42 @@ static void runtime_mouse_stage(int *x, int *y)
 
     *x = g.cursor_x * sw / LCD_WIDTH;
     *y = g.cursor_y * sh / LCD_HEIGHT;
+}
+
+static void present_cached_runtime_frame(void)
+{
+    if (!g.runtime_loaded || !g_renderer || !g_renderer->framebuf)
+        return;
+
+    /* Reusing the completed software framebuffer makes click-wheel cursor
+     * feedback independent of the expensive SWF vector render. This matters
+     * on the 6G, where Stick RPG's menu can take several seconds to redraw. */
+    rb->lcd_set_viewport(NULL);
+    rb->lcd_bitmap(g_renderer->framebuf, 0, 0, LCD_WIDTH, LCD_HEIGHT);
+    draw_bitmap_text_overlay();
+    draw_stickrpg_hud_text();
+    draw_runtime_cursor();
+    rb->lcd_update();
+}
+
+static void dispatch_runtime_mouse_click(void)
+{
+    int x;
+    int y;
+
+    if (!g.runtime_loaded || !flash_root())
+        return;
+
+    runtime_mouse_stage(&x, &y);
+    g.mouse_down = true;
+    flash_root()->notify_mouse_state(x, y, 1);
+    flash_root()->advance(0.0f);
+    g.mouse_down = false;
+    flash_root()->notify_mouse_state(x, y, 0);
+    flash_root()->advance(0.0f);
+    g.click_frames = 0;
+    flash_logf("direct click lcd=%d,%d stage=%d,%d frame=%d",
+               g.cursor_x, g.cursor_y, x, y, g.rendered_frames);
 }
 
 #ifdef SIMULATOR
@@ -3750,7 +4023,11 @@ static void log_stickrpg_scene_vars(const char *where,
 {
     static const char * const names[] = {
         "Scene", "mapx", "mapy", "yPos", "mapstate", "dartPos",
-        "person", "map_outside_1", "Map_Outside_1"
+        "person", "map_outside_1", "Map_Outside_1",
+        "hp", "hpmax", "hpmax2", "cash", "bankcash", "day", "time",
+        "energy", "energymax", "strength", "intelligence", "charm",
+        "karma", "walkspeed", "xmove", "ymove", "kLeft", "kUp",
+        "kRight", "kDown", "nowmoving", "prevmoving", "prevwalkspeed"
     };
     size_t i;
 
@@ -3769,19 +4046,216 @@ static void log_stickrpg_scene_vars(const char *where,
                        val.is_undefined() ? 1 : 0);
             if (ch) {
                 const gameswf::matrix& m = ch->get_matrix();
-                flash_logf("stickrpg root %s clip %s vis=%d depth=%d id=%d x=%.1f y=%.1f sx=%.3f sy=%.3f",
+                flash_logf("stickrpg root %s clip %s vis=%d depth=%d id=%d frame=%d/%d x=%.1f y=%.1f sx=%.3f sy=%.3f",
                            where, names[i],
                            ch->get_visible() ? 1 : 0,
                            ch->get_depth(), ch->get_id(),
+                           ch->get_current_frame(), ch->get_frame_count(),
                            TWIPS_TO_PIXELS(m.m_[0][2]),
                            TWIPS_TO_PIXELS(m.m_[1][2]),
-                           m.m_[0][0], m.m_[1][1]);
+                           float(m.m_[0][0]), float(m.m_[1][1]));
             }
         } else {
             const char *value = root_sprite->get_variable(names[i]);
             flash_logf("stickrpg root %s var %s=%s",
                        where, names[i], value ? value : "(null)");
         }
+    }
+}
+
+static void stabilize_stickrpg_spawn(gameswf::character *root_movie)
+{
+    gameswf::as_value hpmax;
+    gameswf::sprite_instance *root_sprite;
+
+    if (!root_movie || g.stickrpg_spawn_stabilized)
+        return;
+
+    /* These are the original new-game values shown by Stick RPG Complete.
+     * GameSWF exposes the film's formatting sentinels (0000000/9999/999)
+     * when the 850-frame intro is fast-forwarded, which otherwise produces
+     * a nonsensical HUD and an immediately exhausted character. */
+    if (root_movie->get_member("hpmax", &hpmax) && hpmax.to_int() > 0)
+        root_movie->set_member("hp", gameswf::as_value(hpmax.to_int()));
+    else {
+        root_movie->set_member("hpmax", gameswf::as_value(17));
+        root_movie->set_member("hp", gameswf::as_value(17));
+    }
+    root_movie->set_member("cash", gameswf::as_value(100));
+    root_movie->set_member("day", gameswf::as_value(1));
+    root_movie->set_member("karma", gameswf::as_value(0));
+
+    /* GameSWF's root goto leaves the title background and cloud animation
+     * alive at depths 1 and 2. They are the solid blue lower strip and blue
+     * speckles seen over the street on hardware. The real gameplay frame no
+     * longer displays either layer. */
+    root_sprite = gameswf::cast_to<gameswf::sprite_instance>(root_movie);
+    if (root_sprite) {
+        gameswf::character *title_bg =
+            root_sprite->m_display_list.get_character_at_depth(1);
+        gameswf::character *clouds =
+            root_sprite->m_display_list.get_character_at_depth(2);
+        if (title_bg && title_bg->get_id() == 269)
+            title_bg->set_visible(false);
+        if (clouds && clouds->get_name() == "clouds")
+            clouds->set_visible(false);
+        gameswf::character *sleep_mark =
+            root_sprite->m_display_list.get_character_at_depth(98);
+        gameswf::character *sleep_text =
+            root_sprite->m_display_list.get_character_at_depth(99);
+        if (sleep_mark && sleep_mark->get_id() == 619)
+            sleep_mark->set_visible(false);
+        if (sleep_text && sleep_text->get_id() == 620)
+            sleep_text->set_visible(false);
+    }
+    if (flash_root())
+        flash_root()->set_background_color(gameswf::rgba(104, 104, 104, 255));
+
+    g.stickrpg_spawn_stabilized = true;
+    sync_stickrpg_clock();
+    flash_logf("stickrpg spawn stabilized hp=%d cash=100 day=1 karma=0",
+               hpmax.to_int() > 0 ? hpmax.to_int() : 17);
+}
+
+static void sync_stickrpg_world(gameswf::character *root_movie)
+{
+    static const char *const names[] = {
+        "Map_Outside_1", "Map_Outside_2", "Map_Outside_3",
+        "Map_Outside_4", "Map_Outside_5", "Map_Outside_6",
+        "Map_Outside_7"
+    };
+    static const float x_offsets[] = {
+        -300.0f, -64.7f, -20.0f, -61.0f, 229.8f, -8.0f, -16.3f
+    };
+    static const float y_offsets[] = {
+        -709.0f, -440.6f, -201.9f, 48.1f, 325.1f, 612.7f, 865.2f
+    };
+    gameswf::sprite_instance *root_sprite;
+    gameswf::as_value mapx_value;
+    gameswf::as_value mapy_value;
+    float mapx;
+    float mapy;
+    bool visible[7];
+
+    if (!root_movie || g.input_profile != FLASH_INPUT_PROFILE_STICKRPG ||
+        g.runtime_frame != 1 ||
+        !root_movie->get_member("mapx", &mapx_value) ||
+        !root_movie->get_member("mapy", &mapy_value))
+        return;
+
+    root_sprite = gameswf::cast_to<gameswf::sprite_instance>(root_movie);
+    if (!root_sprite)
+        return;
+
+    mapx = mapx_value.to_float();
+    mapy = mapy_value.to_float();
+    visible[0] = mapy > 537.0f;
+    visible[1] = mapy > 315.0f && mapy < 956.0f;
+    visible[2] = mapy > 69.0f && mapy < 734.0f;
+    visible[3] = mapy > -186.0f && mapy < 488.0f;
+    visible[4] = mapy > -486.0f && mapy < 236.0f;
+    visible[5] = mapy < -64.0f;
+    visible[6] = mapy < -337.0f;
+
+    /* Stick RPG updates these clips through _root.map_outside_N.  Some AVM1
+     * files keep that alias separate from the placed display object, so make
+     * the authoritative root coordinates visible on the actual scene clips. */
+    for (int i = 0; i < 7; i++) {
+        gameswf::character *map =
+            root_sprite->m_display_list.get_character_by_name_i(names[i]);
+        if (map) {
+            gameswf::matrix matrix = map->get_matrix();
+            matrix.m_[0][2] = PIXELS_TO_TWIPS(mapx + x_offsets[i]);
+            matrix.m_[1][2] = PIXELS_TO_TWIPS(mapy + y_offsets[i]);
+            map->set_matrix(matrix);
+            map->set_visible(visible[i]);
+        }
+    }
+
+    /* GameSWF loses the cars' authoring-axis transform and renders them
+     * sideways; rotating these complex vector clips also produces invalid
+     * bounds in the software renderer.  Keep traffic parked off-screen until
+     * that renderer path can preserve the authored transform safely. */
+    for (int i = 0; i < 2; i++) {
+        const char *car_name = i == 0 ? "car1" : "car2";
+        gameswf::character *car =
+            root_sprite->m_display_list.get_character_by_name_i(car_name);
+        root_movie->set_member(i == 0 ? "car1s" : "car2s",
+                               gameswf::as_value(2));
+        root_movie->set_member(i == 0 ? "car1y" : "car2y",
+                               gameswf::as_value(i == 0 ? -2000 : 2000));
+        if (car) {
+            gameswf::matrix matrix = car->get_matrix();
+            matrix.m_[1][2] = PIXELS_TO_TWIPS(i == 0 ? -2000 : 2000);
+            car->set_matrix(matrix);
+            car->set_visible(true);
+        }
+    }
+}
+
+static void cancel_stickrpg_unsafe_damage_transition(
+    gameswf::character *root_movie)
+{
+    gameswf::sprite_instance *root_sprite;
+    int frame = g.runtime_frame;
+
+    if (!root_movie || g.input_profile != FLASH_INPUT_PROFILE_STICKRPG ||
+        !g.stickrpg_gameplay_shortcut_done)
+        return;
+
+    root_sprite = gameswf::cast_to<gameswf::sprite_instance>(root_movie);
+    if (!root_sprite)
+        return;
+
+    /* Frames 3 and 4 are the traffic/boundary damage loop.  This GameSWF
+     * port cannot safely re-enter that loop after the shortened startup:
+     * removed character-creation objects remain referenced by its actions.
+     * Cancel the transition and move traffic back to its off-screen spawn
+     * points so holding a direction cannot immediately retrigger it. */
+    if (g.stickrpg_previous_root_frame == 1 &&
+        (frame == 2 || frame == 3)) {
+        gameswf::as_value hpmax;
+
+        root_movie->set_member("xmove", gameswf::as_value(0));
+        root_movie->set_member("ymove", gameswf::as_value(0));
+        root_movie->set_member("prevmoving", gameswf::as_value(0));
+        root_movie->set_member("car1s", gameswf::as_value(0));
+        root_movie->set_member("car1y", gameswf::as_value(-800));
+        root_movie->set_member("car2s", gameswf::as_value(1));
+        root_movie->set_member("car2y", gameswf::as_value(825));
+        if (root_movie->get_member("hpmax", &hpmax))
+            root_movie->set_member("hp", hpmax);
+        root_sprite->goto_frame(1);
+        root_sprite->m_action_list.clear();
+        root_sprite->m_goto_frame_action_list.clear();
+        root_sprite->set_play_state(gameswf::character::STOP);
+        flash_root()->stop_drag();
+        frame = 1;
+        g.runtime_frame = 1;
+    }
+
+    g.stickrpg_previous_root_frame = frame;
+}
+
+static void log_stickrpg_root_layers(gameswf::sprite_instance *root_sprite)
+{
+    if (!root_sprite)
+        return;
+
+    for (int i = 0; i < root_sprite->m_display_list.size(); i++) {
+        gameswf::character *ch = root_sprite->m_display_list.get_character(i);
+        if (!ch || (!ch->get_visible() && ch->get_depth() < 250))
+            continue;
+        gameswf::rect bound;
+        ch->get_bound(&bound);
+        flash_logf("stickrpg layer i=%d depth=%d id=%d name=%s vis=%d frame=%d/%d bound=%.1f,%.1f-%.1f,%.1f",
+                   i, ch->get_depth(), ch->get_id(), ch->get_name().c_str(),
+                   ch->get_visible() ? 1 : 0, ch->get_current_frame(),
+                   ch->get_frame_count(),
+                   TWIPS_TO_PIXELS(bound.m_x_min),
+                   TWIPS_TO_PIXELS(bound.m_y_min),
+                   TWIPS_TO_PIXELS(bound.m_x_max),
+                   TWIPS_TO_PIXELS(bound.m_y_max));
     }
 }
 
@@ -3858,48 +4332,6 @@ static void tick_transient_runtime_keys(void)
             flash_key_notify(gameswf::key::DOWN, false);
 }
 
-static void remember_stickrpg_scene_refs(gameswf::character *root_movie)
-{
-    gameswf::as_value val;
-    gameswf::character *ch;
-
-    if (!root_movie)
-        return;
-
-    if (g_stickrpg_person_ref == NULL &&
-        root_movie->get_member("person", &val)) {
-        ch = gameswf::cast_to<gameswf::character>(val.to_object());
-        if (ch)
-            g_stickrpg_person_ref = ch;
-    }
-
-    if (g_stickrpg_map_ref == NULL &&
-        root_movie->get_member("Map_Outside_1", &val)) {
-        ch = gameswf::cast_to<gameswf::character>(val.to_object());
-        if (ch)
-            g_stickrpg_map_ref = ch;
-    }
-}
-
-static void restore_stickrpg_scene_refs(gameswf::character *root_movie)
-{
-    gameswf::as_value val;
-
-    if (!root_movie)
-        return;
-
-    if (g_stickrpg_person_ref != NULL) {
-        val.set_as_object(g_stickrpg_person_ref.get_ptr());
-        root_movie->set_member("person", val);
-    }
-
-    if (g_stickrpg_map_ref != NULL) {
-        val.set_as_object(g_stickrpg_map_ref.get_ptr());
-        root_movie->set_member("Map_Outside_1", val);
-        root_movie->set_member("map_outside_1", val);
-    }
-}
-
 static void force_stickrpg_post_create_state(void)
 {
     gameswf::character *root_movie;
@@ -3925,6 +4357,10 @@ static void force_stickrpg_post_create_state(void)
     root_sprite->set_display_object_visible("filmscreen", false);
     root_sprite->set_display_object_visible("black", false);
     root_sprite->set_display_object_visible("pregameMC", false);
+    /* The skipped character-creation film normally issues stopDrag before
+     * removing its interactive clips.  Clear that state explicitly so the
+     * next gameplay advance cannot follow a clip that no longer exists. */
+    flash_root()->stop_drag();
     g.stickrpg_gameplay_shortcut_done = true;
     g.stickrpg_post_create_forced = true;
     flash_logf("stickrpg entered gameplay after character creation");
@@ -3943,6 +4379,20 @@ static void render_runtime_frame(float dt)
 
 #ifdef SIMULATOR
     run_autorun_click_script();
+    if (g.right_down_frame > 0 &&
+        g.rendered_frames == g.right_down_frame &&
+        !g.key_right_down) {
+        flash_key_notify(gameswf::key::RIGHT, true);
+        g.key_right_down = true;
+        flash_logf("autorun right down frame=%d", g.rendered_frames);
+    }
+    if (g.right_up_frame > 0 &&
+        g.rendered_frames == g.right_up_frame &&
+        g.key_right_down) {
+        flash_key_notify(gameswf::key::RIGHT, false);
+        g.key_right_down = false;
+        flash_logf("autorun right up frame=%d", g.rendered_frames);
+    }
     skip_draw = g.fast_autorun && g.autorun_click_count > 0 &&
         (g.autorun_click_next < g.autorun_click_count ||
          g.autorun_click_armed || g.click_frames > 0);
@@ -3952,10 +4402,20 @@ static void render_runtime_frame(float dt)
         (g.rendered_frames % g.fast_draw_interval) != 0)
         skip_draw = true;
 #endif
-    restore_stickrpg_scene_refs(flash_root()->get_root_movie());
     runtime_mouse_stage(&mx, &my);
     flash_root()->notify_mouse_state(mx, my, g.mouse_down ? 1 : 0);
     flash_root()->advance(dt);
+    /* GameSWF roots begin with a one-second bootstrap remainder.  Let the
+     * first advance perform its normal one-frame load initialization before
+     * enabling catch-up; otherwise realtime mode would execute ~35 startup
+     * frames in one hardware iteration. */
+    if (g.input_profile == FLASH_INPUT_PROFILE_STICKRPG &&
+        !g.stickrpg_realtime_clock_enabled && g_player) {
+        g_player->set_force_realtime_framerate(true);
+        g.stickrpg_realtime_clock_enabled = true;
+        flash_logf("native SWF clock enabled fps=%d.%02d",
+                   g.info.fps_x100 / 100, g.info.fps_x100 % 100);
+    }
     prime_stickrpg_post_advance();
     prefill_stickrpg_character_name();
     {
@@ -3965,12 +4425,33 @@ static void render_runtime_frame(float dt)
             flash_root()->advance(0.0f);
             prime_stickrpg_post_advance();
             prefill_stickrpg_character_name();
-            restore_stickrpg_scene_refs(flash_root()->get_root_movie());
+            gameswf::character *spawn_root = flash_root()->get_root_movie();
+            gameswf::sprite_instance *spawn_sprite =
+                gameswf::cast_to<gameswf::sprite_instance>(spawn_root);
+            if (spawn_root && spawn_sprite)
+                log_stickrpg_scene_vars("spawn", spawn_root, spawn_sprite);
+            log_stickrpg_root_layers(spawn_sprite);
+            stabilize_stickrpg_spawn(spawn_root);
         }
     }
     load_gameswf_cache_after_instance();
     tick_transient_runtime_keys();
     g.runtime_frame = flash_root()->get_current_frame();
+    sync_stickrpg_clock();
+    if (g.input_profile == FLASH_INPUT_PROFILE_STICKRPG &&
+        g.runtime_frame == 1 && !g.stickrpg_scene_initialized) {
+        gameswf::character *scene_root = flash_root()->get_root_movie();
+        gameswf::sprite_instance *scene_sprite =
+            gameswf::cast_to<gameswf::sprite_instance>(scene_root);
+        if (scene_root && scene_sprite) {
+            log_stickrpg_scene_vars("natural", scene_root, scene_sprite);
+            stabilize_stickrpg_spawn(scene_root);
+            g.stickrpg_scene_initialized = true;
+        }
+    }
+    cancel_stickrpg_unsafe_damage_transition(
+        flash_root()->get_root_movie());
+    sync_stickrpg_world(flash_root()->get_root_movie());
     g.rendered_frames++;
 #ifdef SIMULATOR
     if (skip_draw) {
@@ -4022,8 +4503,11 @@ static void render_runtime_frame(float dt)
                      g.rendered_frames + 1);
         show_load_status_progress(g.status, 88 + g.rendered_frames * 4);
     }
+    prepare_stickrpg_person();
     flash_root()->display();
     rb->yield();
+    draw_bitmap_text_overlay();
+    draw_stickrpg_hud_text();
     draw_runtime_cursor();
 #if defined(SIMULATOR)
     if (g.debug_overlay && g_renderer) {
@@ -4053,9 +4537,20 @@ static void render_runtime_frame(float dt)
     if (g_renderer &&
         ((g.rendered_frames % 35) == 1 || g.mouse_down ||
          g_renderer->triangle_budget_hit)) {
-        flash_logf("frame n=%d root=%d mouse_lcd=%d,%d mouse_stage=%d,%d down=%d tri=%d tiny=%d max=%dx%d sf=%d bf=%d skip=%d line=%d bmp=%d mask=%d/%d/%d/%d pix=%d/%d/%d heap_free=%luK",
+        gameswf::character *person = stickrpg_person();
+        const gameswf::matrix *person_matrix =
+            person ? &person->get_matrix() : NULL;
+        flash_logf("frame n=%d root=%d mouse_lcd=%d,%d mouse_stage=%d,%d down=%d keys=%d%d%d%d person=%d@%.1f,%.1f tri=%d tiny=%d max=%dx%d sf=%d bf=%d skip=%d line=%d bmp=%d mask=%d/%d/%d/%d pix=%d/%d/%d heap_free=%luK",
                    g.rendered_frames, g.runtime_frame, g.cursor_x, g.cursor_y,
-                   mx, my, g.mouse_down ? 1 : 0, g_renderer->triangles,
+                   mx, my, g.mouse_down ? 1 : 0,
+                   g.key_left_down ? 1 : 0, g.key_up_down ? 1 : 0,
+                   g.key_right_down ? 1 : 0, g.key_down_down ? 1 : 0,
+                   person ? person->get_current_frame() : -1,
+                   person_matrix ?
+                       TWIPS_TO_PIXELS(person_matrix->m_[0][2]) : 0.0f,
+                   person_matrix ?
+                       TWIPS_TO_PIXELS(person_matrix->m_[1][2]) : 0.0f,
+                   g_renderer->triangles,
                    g_renderer->tiny_triangles, g_renderer->max_tri_w,
                    g_renderer->max_tri_h, g_renderer->solid_fills,
                    g_renderer->bitmap_fills, g.shape_mesh_skipped,
@@ -4067,6 +4562,61 @@ static void render_runtime_frame(float dt)
                    g_renderer->alpha_skips,
                    (unsigned long)(plugin_cxx_available() / 1024));
     }
+#ifdef SIMULATOR
+    if (g.input_profile == FLASH_INPUT_PROFILE_STICKRPG &&
+        g.runtime_frame == 1 && (g.rendered_frames % 10) == 0) {
+        gameswf::character *root_movie = flash_root()->get_root_movie();
+        gameswf::sprite_instance *root_sprite =
+            gameswf::cast_to<gameswf::sprite_instance>(root_movie);
+        gameswf::character *person = stickrpg_person();
+        gameswf::as_value map_value;
+        gameswf::as_value mapx_value;
+        gameswf::as_value mapy_value;
+        gameswf::as_value xmove_value;
+        gameswf::as_value ymove_value;
+        gameswf::character *map = root_movie &&
+            root_movie->get_member("Map_Outside_1", &map_value) ?
+            gameswf::cast_to<gameswf::character>(map_value.to_object()) : NULL;
+        const gameswf::matrix *pm = person ? &person->get_matrix() : NULL;
+        const gameswf::matrix *mm = map ? &map->get_matrix() : NULL;
+        char mapx[24] = "?";
+        char mapy[24] = "?";
+        char xmove[24] = "?";
+        char ymove[24] = "?";
+        if (root_sprite) {
+            rb->strlcpy(mapx, root_sprite->get_variable("mapx"),
+                        sizeof(mapx));
+            rb->strlcpy(mapy, root_sprite->get_variable("mapy"),
+                        sizeof(mapy));
+            rb->strlcpy(xmove, root_sprite->get_variable("xmove"),
+                        sizeof(xmove));
+            rb->strlcpy(ymove, root_sprite->get_variable("ymove"),
+                        sizeof(ymove));
+        }
+        bool has_mapx = root_movie &&
+            root_movie->get_member("mapx", &mapx_value);
+        bool has_mapy = root_movie &&
+            root_movie->get_member("mapy", &mapy_value);
+        bool has_xmove = root_movie &&
+            root_movie->get_member("xmove", &xmove_value);
+        bool has_ymove = root_movie &&
+            root_movie->get_member("ymove", &ymove_value);
+        flash_logf("move n=%d keys=%d%d%d%d p=%.1f,%.1f pf=%d map=%.1f,%.1f vars=%s%d,%s%d move=%s%d,%s%d env=%s,%s/%s,%s",
+                   g.rendered_frames,
+                   g.key_left_down ? 1 : 0, g.key_up_down ? 1 : 0,
+                   g.key_right_down ? 1 : 0, g.key_down_down ? 1 : 0,
+                   pm ? TWIPS_TO_PIXELS(pm->m_[0][2]) : 0.0f,
+                   pm ? TWIPS_TO_PIXELS(pm->m_[1][2]) : 0.0f,
+                   person ? person->get_current_frame() : -1,
+                   mm ? TWIPS_TO_PIXELS(mm->m_[0][2]) : 0.0f,
+                   mm ? TWIPS_TO_PIXELS(mm->m_[1][2]) : 0.0f,
+                   has_mapx ? "m" : "e", has_mapx ? mapx_value.to_int() : 0,
+                   has_mapy ? "m" : "e", has_mapy ? mapy_value.to_int() : 0,
+                   has_xmove ? "m" : "e", has_xmove ? xmove_value.to_int() : 0,
+                   has_ymove ? "m" : "e", has_ymove ? ymove_value.to_int() : 0,
+                   mapx, mapy, xmove, ymove);
+    }
+#endif
     if (g.click_frames > 0 && --g.click_frames == 0) {
         g.mouse_down = false;
 #ifdef SIMULATOR
@@ -4332,6 +4882,7 @@ static void shutdown_runtime(void)
     gameswf::set_sound_handler(NULL);
     delete g_sound_handler;
     g_sound_handler = NULL;
+    gameswf::set_render_handler(NULL);
     delete g_renderer;
     g_renderer = NULL;
     close_shape_def_cache_files();
@@ -4392,10 +4943,29 @@ extern "C" enum plugin_status plugin_start(const void *parameter)
 #ifdef SIMULATOR
     {
         g.stickrpg_shortcut_frame = 1;
+        g.stickrpg_person_frame_override = -1;
+        g.right_down_frame = -1;
+        g.right_up_frame = -1;
         const char *autorun = getenv("FLASHPLAYER_AUTORUN_FRAMES");
         if (autorun && autorun[0]) {
             g.autorun_frames = rb->atoi(autorun);
             flash_logf("autorun frames=%d", g.autorun_frames);
+        }
+        {
+            const char *person_frame = getenv("FLASHPLAYER_PERSON_FRAME");
+            if (person_frame && person_frame[0]) {
+                g.stickrpg_person_frame_override = rb->atoi(person_frame);
+                flash_logf("person frame override=%d",
+                           g.stickrpg_person_frame_override);
+            }
+        }
+        {
+            const char *down_frame = getenv("FLASHPLAYER_RIGHT_DOWN_FRAME");
+            const char *up_frame = getenv("FLASHPLAYER_RIGHT_UP_FRAME");
+            if (down_frame && down_frame[0])
+                g.right_down_frame = rb->atoi(down_frame);
+            if (up_frame && up_frame[0])
+                g.right_up_frame = rb->atoi(up_frame);
         }
         {
             const char *budget = getenv("FLASHPLAYER_SHAPE_MESH_BUDGET");
@@ -4500,7 +5070,12 @@ extern "C" enum plugin_status plugin_start(const void *parameter)
         }
 #endif
 #ifdef HAVE_WHEEL_POSITION
-        poll_wheel_mouse_tap();
+        /* A 6G wheel touch reports an absolute capacitive position even when
+         * the user only intends to scroll.  Treating that contact as a click
+         * made Stick RPG's cursor jump and press arbitrary menu items.  Its
+         * cursor is driven by normal wheel/button events below instead. */
+        if (g.input_profile != FLASH_INPUT_PROFILE_STICKRPG)
+            poll_wheel_mouse_tap();
 #endif
         if (button == SYS_USB_CONNECTED)
         {
@@ -4544,7 +5119,7 @@ extern "C" enum plugin_status plugin_start(const void *parameter)
                 g.mouse_down = false;
             }
             if ((bare == BUTTON_SELECT || bare == BUTTON_PLAY) &&
-                g.runtime_loaded)
+                g.runtime_loaded && g.click_frames <= 0)
                 g.mouse_down = false;
             if ((bare & BUTTON_LEFT) && g.runtime_loaded &&
                 g.key_left_down) {
@@ -4584,6 +5159,8 @@ extern "C" enum plugin_status plugin_start(const void *parameter)
             }
             if (!g.runtime_loaded)
                 redraw();
+            else
+                present_cached_runtime_frame();
             continue;
         }
 
@@ -4654,8 +5231,12 @@ extern "C" enum plugin_status plugin_start(const void *parameter)
             }
         } else if (bare == BUTTON_SELECT) {
             if (g.runtime_loaded) {
-                g.mouse_down = true;
-                g.click_frames = 2;
+                if (g.input_profile == FLASH_INPUT_PROFILE_STICKRPG)
+                    dispatch_runtime_mouse_click();
+                else {
+                    g.mouse_down = true;
+                    g.click_frames = 2;
+                }
             } else if (start_runtime()) {
                 /* Runtime started. */
             } else if (load_swf(g.path)) {
@@ -4710,7 +5291,8 @@ extern "C" enum plugin_status plugin_start(const void *parameter)
         }
 
         if (g.runtime_loaded)
-            render_runtime_frame(ipod_engine_frame_advance(&g.frame_clock));
+            present_cached_runtime_frame();
+
 #ifdef SIMULATOR
         if (g.autorun_frames > 0 &&
             g.runtime_loaded && g.rendered_frames >= g.autorun_frames)

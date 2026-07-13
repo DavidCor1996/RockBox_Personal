@@ -598,10 +598,39 @@ def _show_name_from_stem(stem):
     return _canonicalize_series_name(match.group(1).strip())
 
 
+def _competition_show_from_stem(stem):
+    """Return show/episode names for ``Episode - Name vs. Name`` downloads."""
+    text = str(stem or "").replace("_", " ")
+    text = re.sub(r"\s+", " ", text).strip()
+    match = re.match(r"^(.+?)\s+[-–—:]\s+(.+)$", text)
+    if not match:
+        return "", ""
+
+    left = re.sub(r"\s*\([^)]*\)\s*$", "", match.group(1)).strip()
+    right = re.sub(r"\s*\([^)]*\)\s*$", "", match.group(2)).strip()
+
+    def is_show_name(candidate):
+        return bool(
+            re.search(r"\bvs\.?\b", candidate, flags=re.IGNORECASE)
+            and not re.search(r"\s[-–—:]\s", candidate)
+            and not re.search(r"\[[^]]+\]", candidate)
+            and len(candidate.split()) <= 6
+        )
+
+    if is_show_name(left):
+        show, episode = left, right
+    elif is_show_name(right):
+        show, episode = right, left
+    else:
+        return "", ""
+    return _canonicalize_series_name(show), _clean_video_title(episode)
+
+
 def _apply_video_path_fallback(track, filepath):
     path = Path(filepath)
     stem_title, season_num, inferred_track = _title_parts_from_stem(path.stem)
     stem_show_name = _show_name_from_stem(path.stem)
+    competition_show, competition_episode = _competition_show_from_stem(path.stem)
     parent = _clean_media_name(path.parent.name)
     grandparent = _clean_media_name(path.parent.parent.name if path.parent.parent != path.parent else "")
     great_grandparent = _clean_media_name(
@@ -660,6 +689,7 @@ def _apply_video_path_fallback(track, filepath):
 
     show_evidence = bool(
         tagged_show
+        or competition_show
         or track.season_number
         or track.episode_number
         or _looks_like_season(parent)
@@ -688,6 +718,8 @@ def _apply_video_path_fallback(track, filepath):
             track.show_title = tagged_show
         elif path_show_name:
             track.show_title = path_show_name
+        elif competition_show:
+            track.show_title = competition_show
         elif album_artist and not _looks_like_season(album_artist):
             track.show_title = album_artist
         elif album and not _looks_like_season(album):
@@ -710,6 +742,12 @@ def _apply_video_path_fallback(track, filepath):
             track.show_title = artist
 
     track.show_title = _canonicalize_series_name(track.show_title) or path_show_name or track.show_title
+    if competition_show and track.show_title == competition_show:
+        track.video_kind = "show"
+        if track.season_number is None:
+            track.season_number = 1
+        if competition_episode:
+            track.title = competition_episode
     if not track.show_title and path_show_name:
         track.show_title = path_show_name
     if track.album_artist:

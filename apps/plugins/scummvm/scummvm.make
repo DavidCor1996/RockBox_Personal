@@ -38,6 +38,8 @@ $(SCUMMVMBUILDDIR)/%.o: $(SCUMMVMSRCDIR)/%.c $(SCUMMVMSRCDIR)/scummvm.make
 	$(SILENT)mkdir -p $(dir $@)
 	$(call PRINTS,CC $(subst $(ROOTDIR)/,,$<))$(CC) $(SCUMMVMFLAGS) -c $< -o $@
 
-$(SCUMMVMBUILDDIR)/%.o: $(SCUMMVMSRCDIR)/%.cpp $(SCUMMVMSRCDIR)/scummvm.make
+$(SCUMMVMBUILDDIR)/%.o: $(SCUMMVMSRCDIR)/%.cpp \
+                       $(SCUMMVMSRCDIR)/scummvm.make \
+                       $(BUILDDIR)/lang_enum.h
 	$(SILENT)mkdir -p $(dir $@)
 	$(call PRINTS,CXX $(subst $(ROOTDIR)/,,$<))$(PLUGIN_CXX) $(SCUMMVM_CXXFLAGS) -c $< -o $@

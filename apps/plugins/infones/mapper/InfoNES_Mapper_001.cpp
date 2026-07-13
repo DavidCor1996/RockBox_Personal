@@ -29,6 +29,43 @@ DWORD Map1_bank4;
 DWORD Map1_HI1;
 DWORD Map1_HI2;
 
+void Map1_set_ROM_banks();
+
+static void Map1_set_CPU_banks()
+{
+  DWORD bank = Map1_Regs[ 3 ] & 0x0f;
+
+  switch ( ( Map1_Regs[ 0 ] >> 2 ) & 0x03 )
+  {
+    case 0:
+    case 1:
+      bank = ( bank & 0x0e ) << 1;
+      Map1_bank1 = bank;
+      Map1_bank2 = bank + 1;
+      Map1_bank3 = bank + 2;
+      Map1_bank4 = bank + 3;
+      break;
+
+    case 2:
+      bank <<= 1;
+      Map1_bank1 = 0;
+      Map1_bank2 = 1;
+      Map1_bank3 = bank;
+      Map1_bank4 = bank + 1;
+      break;
+
+    default:
+      bank <<= 1;
+      Map1_bank1 = bank;
+      Map1_bank2 = bank + 1;
+      Map1_bank3 = Map1_HI1;
+      Map1_bank4 = Map1_HI2;
+      break;
+  }
+
+  Map1_set_ROM_banks();
+}
+
 /*-------------------------------------------------------------------*/
 /*  Initialize Mapper 1                                              */
 /*-------------------------------------------------------------------*/
@@ -69,6 +106,7 @@ void Map1_Init()
   /* Initialize State Registers */
   Map1_Cnt = 0;
   Map1_Latch = 0x00;
+  Map1_Last_Write_Addr = 0;
 
   Map1_Regs[ 0 ] = 0x0c;
   Map1_Regs[ 1 ] = 0x00;
@@ -115,6 +153,14 @@ void Map1_Init()
   /* Set ROM Banks */
   Map1_set_ROM_banks();
 
+  /* Set initial PPU banks */
+  if ( NesHeader.byVRomSize > 0 )
+  {
+    for ( int nPage = 0; nPage < 8; ++nPage )
+      PPUBANK[ nPage ] = VROMPAGE( nPage );
+    InfoNES_SetupChr();
+  }
+
   /* Set up wiring of the interrupt pin */
   K6502_Set_Int_Wiring( 1, 1 );
 }
@@ -137,12 +183,6 @@ void Map1_Write( WORD wAddr, BYTE byData )
  */
   DWORD dwRegNum;
 
-  // if write is to a different reg, reset
-  if( ( wAddr & 0x6000 ) != ( Map1_Last_Write_Addr & 0x6000 ) )
-  {
-    Map1_Cnt = 0;
-    Map1_Latch = 0x00;
-  }
   Map1_Last_Write_Addr = wAddr;
 
   // if bit 7 set, reset and return
@@ -150,6 +190,8 @@ void Map1_Write( WORD wAddr, BYTE byData )
   {
     Map1_Cnt = 0;
     Map1_Latch = 0x00;
+    Map1_Regs[ 0 ] |= 0x0c;
+    Map1_set_CPU_banks();
     return;
   }
 
@@ -192,6 +234,7 @@ void Map1_Write( WORD wAddr, BYTE byData )
           }
         }
       }
+      Map1_set_CPU_banks();
       break;
 
     case 1:
@@ -245,6 +288,7 @@ void Map1_Write( WORD wAddr, BYTE byData )
           else
           {
             // swap 8K
+            byBankNum &= 0x1e;
             byBankNum <<= 2;
             PPUBANK[ 0 ] = VROMPAGE( (byBankNum+0) % (NesHeader.byVRomSize << 3) );
             PPUBANK[ 1 ] = VROMPAGE( (byBankNum+1) % (NesHeader.byVRomSize << 3) );
@@ -316,48 +360,7 @@ void Map1_Write( WORD wAddr, BYTE byData )
 
     case 3:
       {
-        BYTE byBankNum = Map1_Regs[3];
-
-        // set ROM bank
-        if ( Map1_Regs[0] & 0x08 )
-        {
-          // 16K of ROM
-          byBankNum <<= 1;
-
-          if ( Map1_Regs[0] & 0x04 )
-          {
-            // 16K of ROM at $8000
-            Map1_bank1 = byBankNum;
-            Map1_bank2 = byBankNum+1;
-            Map1_bank3 = Map1_HI1;
-            Map1_bank4 = Map1_HI2;
-          }
-          else
-          {
-            // 16K of ROM at $C000
-            if(Map1_Size == Map1_SMALL)
-            {
-              Map1_bank1 = 0;
-              Map1_bank2 = 1;
-              Map1_bank3 = byBankNum;
-              Map1_bank4 = byBankNum+1;
-            }
-          }
-        }
-        else
-        {
-          // 32K of ROM at $8000
-          byBankNum <<= 1;
-
-          Map1_bank1 = byBankNum;
-          Map1_bank2 = byBankNum+1;
-          if(Map1_Size == Map1_SMALL)
-          {
-            Map1_bank3 = byBankNum+2;
-            Map1_bank4 = byBankNum+3;
-          }
-        }
-        Map1_set_ROM_banks();
+        Map1_set_CPU_banks();
       }
       break;
   }

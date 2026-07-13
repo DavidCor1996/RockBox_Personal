@@ -17,12 +17,14 @@
 #include "lib/read_image.h"
 #include "pluginbitmaps/game_system_arduboy.h"
 #include "pluginbitmaps/game_system_doom.h"
+#include "pluginbitmaps/game_system_flash.h"
 #include "pluginbitmaps/game_system_gameboy.h"
 #include "pluginbitmaps/game_system_gwatch.h"
 #include "pluginbitmaps/game_system_native.h"
 #include "pluginbitmaps/game_system_nes.h"
 #include "pluginbitmaps/game_system_pokemini.h"
 #include "pluginbitmaps/game_system_smsgg.h"
+#include "pluginbitmaps/game_system_snes.h"
 #include "pluginbitmaps/game_system_tamagotchi.h"
 #include "rockboy/settings.h"
 #include <ctype.h>
@@ -42,6 +44,8 @@
 #define INFONES_PLUGIN_PATH   VIEWERS_DIR "/infones.rock"
 #define FLASHPLAYER_PLUGIN_PATH VIEWERS_DIR "/flashplayer.rock"
 #define SMSGG_PLUGIN_PATH     PLUGIN_GAMES_DIR "/smsgg.rock"
+#define SNES_LITE_PLUGIN_PATH PLUGIN_GAMES_DIR "/snes_lite.rock"
+#define OPENLARA_PLUGIN_PATH  PLUGIN_GAMES_DIR "/openlara.rock"
 #define ARDUBOY_PLUGIN_PATH   PLUGIN_GAMES_DIR "/arduboy.rock"
 #define POKEMINI_PLUGIN_PATH  VIEWERS_DIR "/pokemini.rock"
 #define TAMAGOTCHI_PLUGIN_PATH PLUGIN_APPS_DIR "/tamagotchi.rock"
@@ -64,6 +68,9 @@
 #define ROCKBOY_ROM_DIR       "/gameboy"
 #define NES_ROM_DIR           ROCKBOY_ROM_DIR
 #define SMSGG_ROM_DIR         ROCKBOX_DIR "/games/smsgg/roms"
+#define SNES_LITE_ROM_DIR     ROCKBOX_DIR "/roms/snes"
+#define SNES_LITE_SAVE_DIR    ROCKBOX_DIR "/saves/snes"
+#define PS1_ROM_DIR           ROCKBOX_DIR "/games/ps1"
 #define ARDUBOY_ROM_DIR       ROCKBOX_DIR "/games/arduboy/roms"
 #define POKEMINI_ROM_DIR      "/PokeMini"
 #define POKEMINI_ALT_ROM_DIR  ROCKBOX_DIR "/games/pokemini/roms"
@@ -396,6 +403,14 @@ static bool is_nes_rom(const char *path)
     return ext && !rb->strcasecmp(ext, ".nes");
 }
 
+static bool is_gameboy_rom(const char *path)
+{
+    const char *ext = rb->strrchr(path, '.');
+
+    return ext && (!rb->strcasecmp(ext, ".gb") ||
+                   !rb->strcasecmp(ext, ".gbc"));
+}
+
 static bool is_plugin_entry(const char *path)
 {
     const char *ext = rb->strrchr(path, '.');
@@ -580,6 +595,8 @@ static bool ensure_library_dirs(void)
     mkdir_if_needed(GAME_LIBRARY_COVERS_DIR);
     mkdir_if_needed(GAME_LIBRARY_COVERS_DIR "/systems");
     mkdir_if_needed(GAME_LIBRARY_COVERS_DIR "/smsgg");
+    mkdir_if_needed(GAME_LIBRARY_COVERS_DIR "/snes");
+    mkdir_if_needed(GAME_LIBRARY_COVERS_DIR "/ps1");
     mkdir_if_needed(GAME_LIBRARY_COVERS_DIR "/arduboy");
     mkdir_if_needed(GAME_LIBRARY_COVERS_DIR "/doom");
     mkdir_if_needed(GAME_LIBRARY_COVERS_DIR "/flash");
@@ -587,6 +604,11 @@ static bool ensure_library_dirs(void)
     mkdir_if_needed(GAME_LIBRARY_CACHE_DIR);
     mkdir_if_needed(ROCKBOX_DIR "/games/smsgg");
     mkdir_if_needed(SMSGG_ROM_DIR);
+    mkdir_if_needed(ROCKBOX_DIR "/roms");
+    mkdir_if_needed(SNES_LITE_ROM_DIR);
+    mkdir_if_needed(ROCKBOX_DIR "/saves");
+    mkdir_if_needed(SNES_LITE_SAVE_DIR);
+    mkdir_if_needed(PS1_ROM_DIR);
     mkdir_if_needed(ROCKBOX_DIR "/games/arduboy");
     mkdir_if_needed(ARDUBOY_ROM_DIR);
     mkdir_if_needed(ROCKBOX_DIR "/games/arduboy/saves");
@@ -628,6 +650,12 @@ static bool write_default_system_manifest(void)
     rb->fdprintf(fd, "smsgg\tSega\tMaster System / Game Gear\t%s\t%s\t%s\t1\t10\n",
                  SMSGG_PLUGIN_PATH, SMSGG_ROM_DIR,
                  GAME_LIBRARY_COVERS_DIR "/systems/smsgg.bmp");
+    rb->fdprintf(fd, "snes\tSuper Nintendo\tSNES Lite experimental\t%s\t%s\t%s\t1\t12\n",
+                 SNES_LITE_PLUGIN_PATH, SNES_LITE_ROM_DIR,
+                 GAME_LIBRARY_COVERS_DIR "/systems/snes.bmp");
+    rb->fdprintf(fd, "ps1\tPlayStation\tOpenLara\t%s\t%s\t%s\t1\t14\n",
+                 OPENLARA_PLUGIN_PATH, PS1_ROM_DIR,
+                 GAME_LIBRARY_COVERS_DIR "/systems/ps1.bmp");
     rb->fdprintf(fd, "arduboy\tArduboy\tTiny homebrew handheld\t%s\t%s\t%s\t1\t20\n",
                  ARDUBOY_PLUGIN_PATH, ARDUBOY_ROM_DIR,
                  GAME_LIBRARY_COVERS_DIR "/systems/arduboy.bmp");
@@ -656,7 +684,7 @@ static void set_system_extensions(struct system_entry *system)
 {
     if (!rb->strcmp(system->id, "gameboy"))
     {
-        rb->strlcpy(system->extensions, ".gb,.gbc,.rock",
+        rb->strlcpy(system->extensions, ".gb,.gbc",
                     sizeof(system->extensions));
         system->old_index = true;
     }
@@ -664,6 +692,10 @@ static void set_system_extensions(struct system_entry *system)
         rb->strlcpy(system->extensions, ".nes", sizeof(system->extensions));
     else if (!rb->strcmp(system->id, "smsgg"))
         rb->strlcpy(system->extensions, ".sms,.gg", sizeof(system->extensions));
+    else if (!rb->strcmp(system->id, "snes"))
+        rb->strlcpy(system->extensions, ".sfc,.smc", sizeof(system->extensions));
+    else if (!rb->strcmp(system->id, "ps1"))
+        rb->strlcpy(system->extensions, ".olr", sizeof(system->extensions));
     else if (!rb->strcmp(system->id, "arduboy"))
         rb->strlcpy(system->extensions, ".hex,.arduboy,.bin",
                     sizeof(system->extensions));
@@ -692,6 +724,14 @@ static void set_system_setup_message(struct system_entry *system)
     else if (!rb->strcmp(system->id, "smsgg"))
         rb->strlcpy(system->setup_message,
                     "No Sega ROMs found. Put .sms or .gg files in .rockbox/games/smsgg/roms/",
+                    sizeof(system->setup_message));
+    else if (!rb->strcmp(system->id, "snes"))
+        rb->strlcpy(system->setup_message,
+                    "SNES Lite plugin missing or no .sfc/.smc games in .rockbox/roms/snes/",
+                    sizeof(system->setup_message));
+    else if (!rb->strcmp(system->id, "ps1"))
+        rb->strlcpy(system->setup_message,
+                    "OpenLara needs Tomb Raider data in .rockbox/games/ps1/",
                     sizeof(system->setup_message));
     else if (!rb->strcmp(system->id, "tamagotchi"))
         rb->strlcpy(system->setup_message,
@@ -727,6 +767,18 @@ static void set_system_controls(struct system_entry *system)
     {
         rb->strlcpy(system->controls,
                     "Wheel or click buttons move, Select A, Play/Pause B, Menu emulator menu",
+                    sizeof(system->controls));
+    }
+    else if (!rb->strcmp(system->id, "snes"))
+    {
+        rb->strlcpy(system->controls,
+                    "Wheel moves, Select A, Play B, Left Y, Right X, long Menu options",
+                    sizeof(system->controls));
+    }
+    else if (!rb->strcmp(system->id, "ps1"))
+    {
+        rb->strlcpy(system->controls,
+                    "Wheel forward/back, Left/Right turn, Select action, Play jump, Menu inventory",
                     sizeof(system->controls));
     }
     else if (!rb->strcmp(system->id, "gwatch"))
@@ -787,6 +839,12 @@ static void load_default_systems(void)
     add_system_entry("smsgg", "Sega", "Master System / Game Gear",
                      SMSGG_PLUGIN_PATH, SMSGG_ROM_DIR,
                      GAME_LIBRARY_COVERS_DIR "/systems/smsgg.bmp", true, 10);
+    add_system_entry("snes", "Super Nintendo", "SNES Lite experimental",
+                     SNES_LITE_PLUGIN_PATH, SNES_LITE_ROM_DIR,
+                     GAME_LIBRARY_COVERS_DIR "/systems/snes.bmp", true, 12);
+    add_system_entry("ps1", "PlayStation", "OpenLara",
+                     OPENLARA_PLUGIN_PATH, PS1_ROM_DIR,
+                     GAME_LIBRARY_COVERS_DIR "/systems/ps1.bmp", true, 14);
     add_system_entry("arduboy", "Arduboy", "Tiny homebrew handheld",
                      ARDUBOY_PLUGIN_PATH, ARDUBOY_ROM_DIR,
                      GAME_LIBRARY_COVERS_DIR "/systems/arduboy.bmp", true, 20);
@@ -921,6 +979,16 @@ static void add_missing_builtin_systems(void)
                          SMSGG_PLUGIN_PATH, SMSGG_ROM_DIR,
                          GAME_LIBRARY_COVERS_DIR "/systems/smsgg.bmp",
                          true, 10);
+    if (!system_entry_exists("snes"))
+        add_system_entry("snes", "Super Nintendo", "SNES Lite experimental",
+                         SNES_LITE_PLUGIN_PATH, SNES_LITE_ROM_DIR,
+                         GAME_LIBRARY_COVERS_DIR "/systems/snes.bmp",
+                         true, 12);
+    if (!system_entry_exists("ps1"))
+        add_system_entry("ps1", "PlayStation", "OpenLara",
+                         OPENLARA_PLUGIN_PATH, PS1_ROM_DIR,
+                         GAME_LIBRARY_COVERS_DIR "/systems/ps1.bmp",
+                         true, 14);
     if (!system_entry_exists("arduboy"))
         add_system_entry("arduboy", "Arduboy", "Tiny homebrew handheld",
                          ARDUBOY_PLUGIN_PATH, ARDUBOY_ROM_DIR,
@@ -1585,6 +1653,21 @@ static bool game_has_local_save(struct game_entry *entry)
     if (is_plugin_entry(entry->rom_path))
         return entry->save_hint == SAVE_HINT_YES;
 
+    if (!rb->strcmp(entry->system_id, "snes"))
+    {
+        const char *name = rb->strrchr(entry->rom_path, '/');
+        char *extension;
+
+        name = name ? name + 1 : entry->rom_path;
+        rb->strlcpy(save_base, name, sizeof(save_base));
+        extension = rb->strrchr(save_base, '.');
+        if (extension)
+            *extension = '\0';
+        rb->snprintf(path, sizeof(path), "%s/%s.srm",
+                     SNES_LITE_SAVE_DIR, save_base);
+        return rb->file_exists(path) || entry->save_hint == SAVE_HINT_YES;
+    }
+
     if (entry->save_name[0] == '\0')
     {
         if (derive_rockboy_save_name(entry->rom_path, save_base, sizeof(save_base)))
@@ -1880,6 +1963,12 @@ static bool cover_for_system_id(const char *system_id,
     if (!rb->strcmp(system_id, "smsgg"))
         return copy_cover_if_exists(cover_path, cover_path_size,
                                     GAME_LIBRARY_COVERS_DIR "/systems/smsgg.bmp");
+    if (!rb->strcmp(system_id, "snes"))
+        return copy_cover_if_exists(cover_path, cover_path_size,
+                                    GAME_LIBRARY_COVERS_DIR "/systems/snes.bmp");
+    if (!rb->strcmp(system_id, "ps1"))
+        return copy_cover_if_exists(cover_path, cover_path_size,
+                                    GAME_LIBRARY_COVERS_DIR "/systems/ps1.bmp");
     if (!rb->strcmp(system_id, "arduboy"))
         return copy_cover_if_exists(cover_path, cover_path_size,
                                     GAME_LIBRARY_COVERS_DIR "/systems/arduboy.bmp");
@@ -1900,41 +1989,6 @@ static bool cover_for_system_id(const char *system_id,
                                     FLASH_SYSTEM_COVER_BMP);
 
     return false;
-}
-
-static void add_builtin_game_entries(void)
-{
-    if (launcher.show_builtin_doom &&
-        rb->file_exists(DOOM_PLAY_PLUGIN_PATH) &&
-        !game_entry_path_exists(DOOM_PLAY_PLUGIN_PATH))
-    {
-        add_game_entry("Doom", DOOM_PLAY_PLUGIN_PATH, DOOM_COVER_BMP,
-                       "doom", "",
-                       FLAG_FAVORITE, SAVE_HINT_NO,
-                       "1993", "Shooter", "Rockbox", "Rockdoom", NULL);
-    }
-
-    if (rb->file_exists(WWE_BACKSTAGE_PLUGIN_PATH) &&
-        rb->file_exists(WWE_BACKSTAGE_MANIFEST_PATH) &&
-        !game_entry_path_exists(WWE_BACKSTAGE_PLUGIN_PATH))
-    {
-        add_game_entry("WWE Backstage", WWE_BACKSTAGE_PLUGIN_PATH,
-                       WWE_BACKSTAGE_COVER_BMP, "native", "",
-                       FLAG_FAVORITE, SAVE_HINT_NO,
-                       "2015", "Interactive Video", "YouTube", "WWE",
-                       WWE_BACKSTAGE_MANIFEST_PATH);
-    }
-
-    if (launcher.show_builtin_runescape &&
-        rb->file_exists(RUNESCAPE_CLASSIC_PLUGIN_PATH) &&
-        !game_entry_path_exists(RUNESCAPE_CLASSIC_PLUGIN_PATH))
-    {
-        add_game_entry("RuneScape Classic", RUNESCAPE_CLASSIC_PLUGIN_PATH,
-                       RUNESCAPE_CLASSIC_COVER_BMP, "native", "",
-                       FLAG_FAVORITE,
-                       SAVE_HINT_NO, "2001", "RPG", "Jagex",
-                       "Offline Lumbridge", NULL);
-    }
 }
 
 static void detect_sidecar_cover(const char *rom_path, char *cover_path, size_t cover_path_size)
@@ -1985,7 +2039,7 @@ static void scan_rom_dir(const char *dir_path, int depth)
             continue;
         }
 
-        if (has_supported_rom_ext(entry->d_name))
+        if (is_gameboy_rom(entry->d_name))
         {
             char cover[MAX_PATH];
             detect_sidecar_cover(child, cover, sizeof(cover));
@@ -2319,7 +2373,7 @@ static bool load_games_from_index(void)
                            sizeof(resolved_plugin_param));
         if (!rb->file_exists(resolved_rom))
             continue;
-        if (is_nes_rom(resolved_rom))
+        if (!is_gameboy_rom(resolved_rom))
             continue;
         if (resolved_plugin_param[0] != '\0' &&
             !rb->file_exists(resolved_plugin_param))
@@ -2500,15 +2554,6 @@ static void count_system_games(void)
         {
             system->game_count = count_system_files_quick(system,
                                                           system->rom_path);
-            if (system->game_count == 0 &&
-                (rb->file_exists(ROCKBOY_INDEX_PATH) ||
-                 rb->file_exists(DOOM_PLAY_PLUGIN_PATH) ||
-                 rb->file_exists(FLASHPLAYER_PLUGIN_PATH) ||
-                 rb->file_exists(WWE_BACKSTAGE_PLUGIN_PATH) ||
-                 rb->file_exists(RUNESCAPE_CLASSIC_PLUGIN_PATH)))
-            {
-                system->game_count = -1;
-            }
         }
         else
         {
@@ -2961,7 +3006,6 @@ static bool load_system_games(int system_index)
         launcher.used_index = load_games_from_index();
         if (!launcher.used_index)
             scan_rom_dir(ROCKBOY_ROM_DIR, 0);
-        add_builtin_game_entries();
     }
     else
     {
@@ -3466,6 +3510,10 @@ static const struct bitmap *system_art_for_id(const char *system_id)
         return &bm_game_system_nes;
     if (!rb->strcmp(system_id, "smsgg"))
         return &bm_game_system_smsgg;
+    if (!rb->strcmp(system_id, "snes"))
+        return &bm_game_system_snes;
+    if (!rb->strcmp(system_id, "ps1"))
+        return &bm_game_system_native;
     if (!rb->strcmp(system_id, "arduboy"))
         return &bm_game_system_arduboy;
     if (!rb->strcmp(system_id, "tamagotchi"))
@@ -3476,6 +3524,8 @@ static const struct bitmap *system_art_for_id(const char *system_id)
         return &bm_game_system_gwatch;
     if (!rb->strcmp(system_id, "doom"))
         return &bm_game_system_doom;
+    if (!rb->strcmp(system_id, "flash"))
+        return &bm_game_system_flash;
     if (!rb->strcmp(system_id, "native"))
         return &bm_game_system_native;
     return NULL;

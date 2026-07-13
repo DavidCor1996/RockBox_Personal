@@ -35,8 +35,11 @@
 #define RAW_PCM_CHANNEL PCM_MIXER_CHAN_PLAYBACK
 #define RAW_OSD_SHOW_TICKS (HZ * 2)
 #define RAW_VOLUME_SHOW_TICKS ((HZ * 6) / 5)
-#define RAW_OSD_BAR_HEIGHT 4
-#define RAW_OSD_MARGIN 10
+#define RAW_OSD_HEADER_HEIGHT 24
+#define RAW_OSD_FOOTER_HEIGHT 36
+#define RAW_OSD_BAR_HEIGHT 5
+#define RAW_OSD_MARGIN 8
+#define RAW_OSD_TITLE_SIZE 96
 #define RAW_VOLUME_CARD_W 180
 #define RAW_VOLUME_CARD_H 45
 #define RAW_VOLUME_ICON_W 24
@@ -96,7 +99,6 @@ struct raw_volume_assets {
 static const unsigned char *pcm_cursor;
 static size_t pcm_remaining;
 static size_t raw_audio_bytes_per_frame;
-static unsigned char raw_mixbuf[RAW_AUDIO_CHUNK] __attribute__((aligned(4)));
 
 struct raw_segment {
     char yuv[MAX_PATH];
@@ -337,6 +339,184 @@ static void raw_osd_draw_text_shadow(int x, int y, const char *text)
     rb->lcd_putsxy(x, y, text);
 }
 
+static int raw_osd_mix_channel(int a, int b, int pos, int den)
+{
+    if (den <= 0)
+        return b;
+    return a + ((b - a) * pos) / den;
+}
+
+static unsigned raw_osd_rgb_blend(unsigned background, unsigned foreground,
+                                  int alpha)
+{
+    int br = RGB_UNPACK_RED(background);
+    int bg = RGB_UNPACK_GREEN(background);
+    int bb = RGB_UNPACK_BLUE(background);
+    int fr = RGB_UNPACK_RED(foreground);
+    int fg = RGB_UNPACK_GREEN(foreground);
+    int fb = RGB_UNPACK_BLUE(foreground);
+
+    alpha = MAX(0, MIN(alpha, 255));
+    return LCD_RGBPACK((br * (255 - alpha) + fr * alpha) / 255,
+                       (bg * (255 - alpha) + fg * alpha) / 255,
+                       (bb * (255 - alpha) + fb * alpha) / 255);
+}
+
+static void raw_osd_gradient(int x, int y, int width, int height,
+                             unsigned top, unsigned bottom)
+{
+    int den = height > 1 ? height - 1 : 1;
+    int tr = RGB_UNPACK_RED(top);
+    int tg = RGB_UNPACK_GREEN(top);
+    int tb = RGB_UNPACK_BLUE(top);
+    int br = RGB_UNPACK_RED(bottom);
+    int bg = RGB_UNPACK_GREEN(bottom);
+    int bb = RGB_UNPACK_BLUE(bottom);
+
+    if (width <= 0 || height <= 0)
+        return;
+
+    for (int row = 0; row < height; row++)
+    {
+        rb->lcd_set_foreground(LCD_RGBPACK(
+            raw_osd_mix_channel(tr, br, row, den),
+            raw_osd_mix_channel(tg, bg, row, den),
+            raw_osd_mix_channel(tb, bb, row, den)));
+        rb->lcd_hline(x, x + width - 1, y + row);
+    }
+}
+
+static unsigned raw_osd_ipodjs_accent(void)
+{
+    if (rb->global_settings == NULL)
+        return LCD_RGBPACK(0, 92, 192);
+
+    switch (rb->global_settings->ui_engine_accent)
+    {
+        case UI_ENGINE_ACCENT_GRAPHITE:
+            return LCD_RGBPACK(84, 90, 100);
+        case UI_ENGINE_ACCENT_U2:
+            return LCD_RGBPACK(182, 24, 35);
+        case UI_ENGINE_ACCENT_TEAL:
+            return LCD_RGBPACK(0, 128, 132);
+        case UI_ENGINE_ACCENT_GREEN:
+            return LCD_RGBPACK(55, 142, 64);
+        case UI_ENGINE_ACCENT_GOLD:
+            return LCD_RGBPACK(184, 135, 38);
+        case UI_ENGINE_ACCENT_ORANGE:
+            return LCD_RGBPACK(208, 104, 32);
+        case UI_ENGINE_ACCENT_PURPLE:
+            return LCD_RGBPACK(113, 82, 170);
+        case UI_ENGINE_ACCENT_PINK:
+            return LCD_RGBPACK(195, 72, 128);
+        case UI_ENGINE_ACCENT_BLUE:
+        default:
+            return LCD_RGBPACK(0, 92, 192);
+    }
+}
+
+static bool raw_osd_ipodjs_dark(void)
+{
+    return rb->global_settings != NULL &&
+           rb->global_settings->ui_engine == UI_ENGINE_IPODJS &&
+           rb->global_settings->ui_engine_dark_mode;
+}
+
+static void raw_osd_draw_chrome_text(int x, int y, const char *text)
+{
+    if (raw_osd_ipodjs_dark())
+    {
+        rb->lcd_set_foreground(LCD_BLACK);
+        rb->lcd_putsxy(x + 1, y + 1, text);
+        rb->lcd_set_foreground(LCD_WHITE);
+    }
+    else
+    {
+        rb->lcd_set_foreground(LCD_WHITE);
+        rb->lcd_putsxy(x + 1, y + 1, text);
+        rb->lcd_set_foreground(LCD_BLACK);
+    }
+    rb->lcd_putsxy(x, y, text);
+}
+
+static void raw_osd_draw_chrome(int y, int height)
+{
+    unsigned top;
+    unsigned bottom;
+
+    if (raw_osd_ipodjs_dark())
+    {
+        top = LCD_RGBPACK(56, 60, 68);
+        bottom = LCD_RGBPACK(18, 20, 24);
+    }
+    else
+    {
+        top = LCD_RGBPACK(242, 244, 246);
+        bottom = LCD_RGBPACK(128, 133, 140);
+    }
+
+    raw_osd_gradient(0, y, LCD_WIDTH, height, top, bottom);
+    rb->lcd_set_foreground(raw_osd_ipodjs_dark() ?
+                           LCD_RGBPACK(94, 99, 108) :
+                           LCD_RGBPACK(79, 84, 91));
+    rb->lcd_hline(0, LCD_WIDTH - 1,
+                  y == 0 ? y + height - 1 : y);
+}
+
+static void raw_osd_title(char *title, size_t size, int max_width)
+{
+    const char *base = raw_current_path;
+    char *dot;
+    int width;
+    int chars;
+
+    if (base == NULL)
+        base = "Video";
+    else if (rb->strrchr(base, '/') != NULL)
+        base = rb->strrchr(base, '/') + 1;
+
+    rb->strlcpy(title, base, size);
+    dot = rb->strrchr(title, '.');
+    if (dot != NULL)
+        *dot = '\0';
+    rb->lcd_getstringsize(title, &width, NULL);
+    if (width <= max_width)
+        return;
+
+    chars = rb->utf8length((const unsigned char *)title);
+    while (chars > 1)
+    {
+        int bytes = rb->utf8seek((const unsigned char *)title, --chars);
+        if (bytes < 0 || (size_t)bytes + 4 > size)
+            continue;
+        rb->memcpy(title + bytes, "...", 4);
+        rb->lcd_getstringsize(title, &width, NULL);
+        if (width <= max_width)
+            return;
+    }
+}
+
+static void raw_osd_draw_pause_icon(int x, int y)
+{
+    rb->lcd_set_foreground(raw_osd_ipodjs_dark() ? LCD_WHITE : LCD_BLACK);
+    rb->lcd_fillrect(x, y, 3, 10);
+    rb->lcd_fillrect(x + 6, y, 3, 10);
+}
+
+static void raw_osd_draw_battery(int x, int y)
+{
+    int level = rb->battery_level();
+    int fill;
+
+    level = MAX(0, MIN(level, 100));
+    fill = (level * 15) / 100;
+    rb->lcd_set_foreground(raw_osd_ipodjs_dark() ? LCD_WHITE : LCD_BLACK);
+    rb->lcd_drawrect(x, y, 19, 9);
+    rb->lcd_fillrect(x + 19, y + 3, 2, 3);
+    if (fill > 0)
+        rb->lcd_fillrect(x + 2, y + 2, fill, 5);
+}
+
 static void raw_osd_update_rect(int x, int y, int width, int height)
 {
     if (x < 0)
@@ -369,6 +549,11 @@ static void raw_osd_draw_progress(void)
     int bar_y;
     int bar_w;
     int fill_w;
+    int footer_y = LCD_HEIGHT - RAW_OSD_FOOTER_HEIGHT;
+    char title[RAW_OSD_TITLE_SIZE];
+    int title_w;
+    int title_h;
+    unsigned accent = raw_osd_ipodjs_accent();
     long current_frame = raw_osd.current_frame;
     long total_frames = raw_osd.total_frames;
 
@@ -384,35 +569,55 @@ static void raw_osd_draw_progress(void)
     rb->lcd_getstringsize(current, &cur_w, &cur_h);
     rb->lcd_getstringsize(duration, &dur_w, NULL);
 
-    text_y = LCD_HEIGHT - cur_h - 3;
+    raw_osd_draw_chrome(0, RAW_OSD_HEADER_HEIGHT);
+    raw_osd_draw_chrome(footer_y, RAW_OSD_FOOTER_HEIGHT);
+
+    raw_osd_title(title, sizeof(title), LCD_WIDTH - 82);
+    rb->lcd_getstringsize(title, &title_w, &title_h);
+    raw_osd_draw_chrome_text((LCD_WIDTH - title_w) / 2,
+                             (RAW_OSD_HEADER_HEIGHT - title_h) / 2, title);
+    raw_osd_draw_pause_icon(10, (RAW_OSD_HEADER_HEIGHT - 10) / 2);
+    raw_osd_draw_battery(LCD_WIDTH - 31,
+                         (RAW_OSD_HEADER_HEIGHT - 9) / 2);
+
+    text_y = footer_y + 5;
     bar_x = RAW_OSD_MARGIN + cur_w + 8;
     bar_w = LCD_WIDTH - bar_x - dur_w - RAW_OSD_MARGIN - 8;
     if (bar_w < 12)
         bar_w = 12;
     bar_y = text_y + (cur_h - RAW_OSD_BAR_HEIGHT) / 2;
-    fill_w = (int)((current_frame * bar_w) / total_frames);
+    fill_w = (int)(((long long)current_frame * bar_w) / total_frames);
     if (fill_w < 0)
         fill_w = 0;
     if (fill_w > bar_w)
         fill_w = bar_w;
 
-    raw_osd_draw_text_shadow(RAW_OSD_MARGIN, text_y, current);
-    raw_osd_draw_text_shadow(LCD_WIDTH - RAW_OSD_MARGIN - dur_w, text_y,
+    raw_osd_draw_chrome_text(RAW_OSD_MARGIN, text_y, current);
+    raw_osd_draw_chrome_text(LCD_WIDTH - RAW_OSD_MARGIN - dur_w, text_y,
                              duration);
 
-    rb->lcd_set_foreground(LCD_DARKGRAY);
+    rb->lcd_set_foreground(raw_osd_ipodjs_dark() ?
+                           LCD_RGBPACK(8, 9, 11) :
+                           LCD_RGBPACK(75, 79, 84));
     rb->lcd_fillrect(bar_x, bar_y, bar_w, RAW_OSD_BAR_HEIGHT);
-    rb->lcd_set_foreground(LCD_WHITE);
+    rb->lcd_set_foreground(accent);
     rb->lcd_fillrect(bar_x, bar_y, fill_w, RAW_OSD_BAR_HEIGHT);
-    raw_osd_update_rect(0, text_y - 2, LCD_WIDTH, cur_h + 5);
+    if (fill_w > 0)
+    {
+        rb->lcd_set_foreground(raw_osd_rgb_blend(accent, LCD_WHITE, 96));
+        rb->lcd_fillrect(bar_x + fill_w - 2, bar_y - 2, 4,
+                         RAW_OSD_BAR_HEIGHT + 4);
+    }
+    raw_osd_update_rect(0, 0, LCD_WIDTH, RAW_OSD_HEADER_HEIGHT);
+    raw_osd_update_rect(0, footer_y, LCD_WIDTH, RAW_OSD_FOOTER_HEIGHT);
 
     if (raw_osd.paused)
     {
         int w = 0;
         int h = 0;
-        rb->lcd_getstringsize("PAUSED", &w, &h);
+        rb->lcd_getstringsize("Paused", &w, &h);
         raw_osd_draw_text_shadow((LCD_WIDTH - w) / 2,
-                                 (LCD_HEIGHT - h) / 2, "PAUSED");
+                                 (LCD_HEIGHT - h) / 2, "Paused");
         raw_osd_update_rect((LCD_WIDTH - w) / 2 - 1,
                             (LCD_HEIGHT - h) / 2 - 1, w + 3, h + 3);
     }
@@ -612,6 +817,7 @@ static void raw_osd_draw_if_needed(bool force)
 {
     long now = *rb->current_tick;
     unsigned old_fg;
+    int old_drawmode;
 
     if (raw_osd.visible && !raw_osd.paused && TIME_AFTER(now, raw_osd.hide_tick))
     {
@@ -640,10 +846,13 @@ static void raw_osd_draw_if_needed(bool force)
         return;
 
     old_fg = rb->lcd_get_foreground();
+    old_drawmode = rb->lcd_get_drawmode();
+    rb->lcd_set_drawmode(DRMODE_FG);
     if (raw_osd.visible)
         raw_osd_draw_progress();
     if (raw_osd.volume_visible)
         raw_osd_draw_volume();
+    rb->lcd_set_drawmode(old_drawmode);
     rb->lcd_set_foreground(old_fg);
     raw_osd.needs_redraw = false;
 }
@@ -651,9 +860,6 @@ static void raw_osd_draw_if_needed(bool force)
 static void pcm_more(const void **start, size_t *size)
 {
     size_t chunk = MIN(pcm_remaining, (size_t)RAW_AUDIO_CHUNK);
-    const int16_t *src;
-    int16_t *dst;
-    size_t samples;
 
     chunk &= ~(size_t)3;
     if (chunk == 0)
@@ -663,15 +869,7 @@ static void pcm_more(const void **start, size_t *size)
         return;
     }
 
-    src = (const int16_t *)pcm_cursor;
-    dst = (int16_t *)raw_mixbuf;
-    samples = chunk / sizeof(int16_t);
-    for (size_t i = 0; i < samples; i++)
-    {
-        dst[i] = src[i];
-    }
-
-    *start = raw_mixbuf;
+    *start = pcm_cursor;
     *size = chunk;
     pcm_cursor += chunk;
     pcm_remaining -= chunk;
@@ -1364,7 +1562,11 @@ static enum raw_input_command wait_for_resume(void)
             command == RAW_INPUT_TOGGLE_PAUSE)
         {
             raw_osd_set_paused(false);
-            raw_osd_draw_if_needed(true);
+            if (command == RAW_INPUT_TOGGLE_PAUSE)
+            {
+                rb->lcd_clear_display();
+                rb->lcd_update();
+            }
             return command;
         }
         if (command == RAW_INPUT_SHOW_OSD)
@@ -1673,6 +1875,14 @@ static bool raw_prefetch_finish(struct raw_prefetch *pf)
 
     raw_prefetch_close(pf);
     return pf != NULL && pf->complete && !pf->failed;
+}
+
+static bool raw_size_add(size_t left, size_t right, size_t *result)
+{
+    if (result == NULL || right > SIZE_MAX - left)
+        return false;
+    *result = left + right;
+    return true;
 }
 
 static int play_raw_segment(const char *display_path, const char *yuv_path,
@@ -2016,6 +2226,10 @@ static int play_raw_rvp(const char *path)
     size_t frame_size;
     size_t scaled_frame_size;
     off_t max_pcm_size = 0;
+    size_t pcm_slot_size = 0;
+    size_t frame_storage_size = 0;
+    size_t single_slot_need = 0;
+    size_t double_slot_need = 0;
     unsigned char *audio_slots[2] = { NULL, NULL };
     unsigned char *frame_buf = NULL;
     unsigned char *scaled_frame_buf = NULL;
@@ -2121,16 +2335,38 @@ static int play_raw_rvp(const char *path)
     }
 
     if (max_pcm_size > 0 &&
-        raw_pool_size >= (size_t)(max_pcm_size * 2 +
-                                frame_size +
-                                (render_area.scale ? scaled_frame_size : 0) +
-                                256))
+        (off_t)(size_t)max_pcm_size == max_pcm_size)
+        pcm_slot_size = (size_t)max_pcm_size;
+    else
+    {
+        raw_audio_shutdown();
+        return PLUGIN_ERROR;
+    }
+
+    if (!raw_size_add(frame_size,
+                      render_area.scale ? scaled_frame_size : 0,
+                      &frame_storage_size) ||
+        !raw_size_add(frame_storage_size, 256, &frame_storage_size) ||
+        !raw_size_add(pcm_slot_size, frame_storage_size,
+                      &single_slot_need) ||
+        !raw_size_add(pcm_slot_size, pcm_slot_size, &double_slot_need) ||
+        !raw_size_add(double_slot_need, frame_storage_size,
+                      &double_slot_need))
+    {
+        raw_audio_shutdown();
+        return PLUGIN_ERROR;
+    }
+
+    if (raw_pool_size >= double_slot_need)
     {
         audio_slots[0] = raw_pool;
-        audio_slots[1] = (unsigned char *)(((uintptr_t)(audio_slots[0] + max_pcm_size + 3)) & ~(uintptr_t)3);
-        frame_buf = (unsigned char *)(((uintptr_t)(audio_slots[1] + max_pcm_size + 3)) & ~(uintptr_t)3);
+        audio_slots[1] = (unsigned char *)(((uintptr_t)
+            (audio_slots[0] + pcm_slot_size + 3)) & ~(uintptr_t)3);
+        frame_buf = (unsigned char *)(((uintptr_t)
+            (audio_slots[1] + pcm_slot_size + 3)) & ~(uintptr_t)3);
         if (render_area.scale)
-            scaled_frame_buf = (unsigned char *)(((uintptr_t)(frame_buf + frame_size + 3)) & ~(uintptr_t)3);
+            scaled_frame_buf = (unsigned char *)(((uintptr_t)
+                (frame_buf + frame_size + 3)) & ~(uintptr_t)3);
         double_buffer_audio = true;
         if (load_path(raw_segments[0].pcm, audio_slots[0],
                       (size_t)raw_segment_pcm_sizes[0]) < 0)
@@ -2140,23 +2376,23 @@ static int play_raw_rvp(const char *path)
         }
         audio_ready[0] = true;
     }
-    else if (max_pcm_size > 0 &&
-             raw_pool_size < (size_t)(max_pcm_size + frame_size +
-                                    (render_area.scale ? scaled_frame_size : 0) + 64))
+    else if (raw_pool_size < single_slot_need)
     {
         raw_audio_shutdown();
         return PLUGIN_ERROR;
     }
     if (max_pcm_size > 0 && !double_buffer_audio && frame_buf == NULL)
     {
-        frame_buf = (unsigned char *)(((uintptr_t)(raw_pool + max_pcm_size + 3)) & ~(uintptr_t)3);
+        frame_buf = (unsigned char *)(((uintptr_t)
+            (raw_pool + pcm_slot_size + 3)) & ~(uintptr_t)3);
         if (render_area.scale)
-            scaled_frame_buf = (unsigned char *)(((uintptr_t)(frame_buf + frame_size + 3)) & ~(uintptr_t)3);
+            scaled_frame_buf = (unsigned char *)(((uintptr_t)
+                (frame_buf + frame_size + 3)) & ~(uintptr_t)3);
     }
 
+    long segment_frame_offset = 0;
     for (int i = 0; i < segment_count; i++)
     {
-        long segment_frame_offset = 0;
         long frames = 0;
         long late = 0;
         long ticks = 0;
@@ -2164,9 +2400,6 @@ static int play_raw_rvp(const char *path)
         bool next_ready = false;
         int slot = i & 1;
         int next_slot = (i + 1) & 1;
-
-        for (int j = 0; j < i; j++)
-            segment_frame_offset += raw_segment_frame_counts[j];
 
         rc = play_raw_segment(
             path, raw_segments[i].yuv, raw_segments[i].pcm,
@@ -2193,6 +2426,7 @@ static int play_raw_rvp(const char *path)
         total_frames += frames;
         total_late += late;
         total_ticks += ticks;
+        segment_frame_offset += raw_segment_frame_counts[i];
         if (rc != PLUGIN_OK)
             break;
         if (user_exit)

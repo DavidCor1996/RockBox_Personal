@@ -24,7 +24,7 @@
 #define INFONES_AUDIO_START_BUFS 8
 #define INFONES_AUDIO_FRAMES_PER_BUF 2
 #define INFONES_DEFAULT_AUDIO_QUALITY 2
-#define INFONES_HARDWARE_FRAMESKIP 1
+#define INFONES_HARDWARE_FRAMESKIP 0
 #define INFONES_WAIT_YIELD_SCANLINES 256
 #else
 #define INFONES_AUDIO_BUFS 6
@@ -174,6 +174,9 @@ static short nes_pulse_table[INFONES_PULSE_TABLE_SIZE];
 static short nes_tnd_table[INFONES_TND_TABLE_SIZE];
 static BYTE palette_ppumask;
 static struct infones_profile profile;
+#ifdef SIMULATOR
+static unsigned long test_frame_limit;
+#endif
 
 static long pace_frame(void);
 static void profile_write_log(void);
@@ -248,22 +251,15 @@ static void apply_safe_launch_volume(void)
         rb->sound_set(SOUND_VOLUME, safe_volume);
 }
 
-static WORD palette_native(BYTE color, bool backdrop)
+static WORD palette_native(BYTE color)
 {
     int emph = (palette_ppumask & R1_BACKCOLOR) >> 5;
-    WORD native;
 
     color &= 0x3f;
     if (palette_ppumask & R1_MONOCHROME)
         color &= 0x30;
 
-    native = nes_palette_emph[emph][color] & ~INFONES_BACKDROP_MARKER;
-    return native | (backdrop ? INFONES_BACKDROP_MARKER : 0);
-}
-
-static inline fb_data display_pixel(fb_data pixel)
-{
-    return pixel & ~INFONES_BACKDROP_MARKER;
+    return nes_palette_emph[emph][color];
 }
 
 static void set_palette_slot(int slot, BYTE value)
@@ -282,7 +278,7 @@ static void rebuild_palette_table(void)
         bool transparent = (slot & 3) == 0;
         BYTE value = transparent ? backdrop : PPURAM[0x3f00 + slot] & 0x3f;
 
-        PalTable[slot] = palette_native(value, transparent);
+        PalTable[slot] = palette_native(value);
     }
 }
 
@@ -511,6 +507,10 @@ void InfoNES_ProfileFrameEnd(int rendered)
         profile.first_frame_tick = *rb->current_tick;
 
     profile.frames_emulated++;
+#ifdef SIMULATOR
+    if (test_frame_limit && profile.frames_emulated >= test_frame_limit)
+        quit_requested = true;
+#endif
     if (rendered)
     {
         profile.frames_rendered++;
@@ -1014,6 +1014,144 @@ static fb_data *get_lcd_framebuffer(void)
     return lcd_fb;
 }
 
+#ifdef SIMULATOR
+static void dump_visual_test_frame(fb_data *framebuffer)
+{
+    static bool initialized;
+    static bool dumped;
+    static unsigned long dump_frame;
+    unsigned char row[LCD_WIDTH * 3];
+    const char *path = getenv("INFONES_TEST_DUMP_PPM");
+    int fd;
+    int y;
+
+    if (!path || dumped)
+        return;
+    if (!initialized)
+    {
+        const char *frame = getenv("INFONES_TEST_DUMP_FRAME");
+
+        dump_frame = frame ? strtoul(frame, NULL, 10) : 60;
+        initialized = true;
+    }
+    if (profile.frames_emulated < dump_frame)
+        return;
+
+    fd = rb->open(path, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+    if (fd < 0)
+        return;
+    rb->fdprintf(fd, "P6\n%d %d\n255\n", LCD_WIDTH, LCD_HEIGHT);
+    for (y = 0; y < LCD_HEIGHT; y++)
+    {
+        int x;
+
+        for (x = 0; x < LCD_WIDTH; x++)
+        {
+            uint16_t pixel = framebuffer[y * LCD_WIDTH + x];
+            unsigned red = (pixel >> 11) & 0x1f;
+            unsigned green = (pixel >> 5) & 0x3f;
+            unsigned blue = pixel & 0x1f;
+
+            row[x * 3] = (red << 3) | (red >> 2);
+            row[x * 3 + 1] = (green << 2) | (green >> 4);
+            row[x * 3 + 2] = (blue << 3) | (blue >> 2);
+        }
+        rb->write(fd, row, sizeof(row));
+    }
+    rb->close(fd);
+    dumped = true;
+}
+#endif
+
+#if LCD_WIDTH == 320 && LCD_HEIGHT == 240 && NES_DISP_WIDTH == 256 && \
+    NES_DISP_HEIGHT == 240
+static void scale_line_reference(fb_data *destination,
+                                 const fb_data *source)
+{
+    int group;
+
+    for (group = 0; group < NES_DISP_WIDTH / 4; group++)
+    {
+        destination[0] = source[0];
+        destination[1] = source[0];
+        destination[2] = source[1];
+        destination[3] = source[2];
+        destination[4] = source[3];
+        source += 4;
+        destination += 5;
+    }
+}
+
+static void scale_line_256_to_320(fb_data *destination,
+                                  const fb_data *source)
+{
+#if defined(LSB_FIRST) && LCD_PIXELFORMAT == RGB565
+    if (((uintptr_t)destination & 3) == 0)
+    {
+        uint32_t *output = (uint32_t *)destination;
+        int group;
+
+        for (group = 0; group < NES_DISP_WIDTH / 8; group++)
+        {
+            uint16_t p0 = source[0];
+            uint16_t p1 = source[1];
+            uint16_t p2 = source[2];
+            uint16_t p3 = source[3];
+            uint16_t p4 = source[4];
+            uint16_t p5 = source[5];
+            uint16_t p6 = source[6];
+            uint16_t p7 = source[7];
+
+            output[0] = p0 | ((uint32_t)p0 << 16);
+            output[1] = p1 | ((uint32_t)p2 << 16);
+            output[2] = p3 | ((uint32_t)p4 << 16);
+            output[3] = p4 | ((uint32_t)p5 << 16);
+            output[4] = p6 | ((uint32_t)p7 << 16);
+            source += 8;
+            output += 5;
+        }
+        return;
+    }
+#endif
+    scale_line_reference(destination, source);
+}
+#endif
+
+static bool infones_video_selftest(void)
+{
+    BYTE saved_mask = palette_ppumask;
+
+    palette_ppumask = 0;
+    if (palette_native(1) != nes_palette_emph[0][1])
+        return false;
+    palette_ppumask = R1_MONOCHROME;
+    if (palette_native(1) != nes_palette_emph[0][0])
+        return false;
+    palette_ppumask = saved_mask;
+
+#if LCD_WIDTH == 320 && LCD_HEIGHT == 240 && NES_DISP_WIDTH == 256 && \
+    NES_DISP_HEIGHT == 240
+    {
+        static fb_data source[256];
+        static fb_data output[320];
+        static fb_data reference[320];
+        unsigned index;
+
+        for (index = 0; index < ARRAYLEN(source); index++)
+            source[index] = (fb_data)(index * 251u);
+        scale_line_256_to_320(output, source);
+        scale_line_reference(reference, source);
+        for (index = 0; index < ARRAYLEN(output); index++)
+        {
+            if (output[index] != source[(index * 4) / 5] ||
+                output[index] != reference[index])
+                return false;
+        }
+    }
+#endif
+    return true;
+}
+
 static void scale_frame_fill_screen(fb_data *dst)
 {
 #if LCD_WIDTH == 320 && LCD_HEIGHT == 240 && NES_DISP_WIDTH == 256 && \
@@ -1023,18 +1161,7 @@ static void scale_frame_fill_screen(fb_data *dst)
 
     for (y = 0; y < NES_DISP_HEIGHT; y++)
     {
-        int group;
-        for (group = 0; group < NES_DISP_WIDTH / 4; group++)
-        {
-            const fb_data *s = src + group * 4;
-            fb_data *d = dst + group * 5;
-
-            d[0] = s[0];
-            d[1] = s[0];
-            d[2] = s[1];
-            d[3] = s[2];
-            d[4] = s[3];
-        }
+        scale_line_256_to_320(dst, src);
         src += NES_DISP_WIDTH;
         dst += LCD_WIDTH;
     }
@@ -1050,7 +1177,7 @@ static void scale_frame_fill_screen(fb_data *dst)
         int x;
 
         for (x = 0; x < LCD_WIDTH; x++)
-            line[x] = display_pixel(src[(x * NES_DISP_WIDTH) / LCD_WIDTH]);
+            line[x] = src[(x * NES_DISP_WIDTH) / LCD_WIDTH];
     }
 #endif
 }
@@ -1149,12 +1276,26 @@ enum plugin_status plugin_start(const void *parameter)
     left_run_active = false;
     left_last_tap_tick = 0;
     palette_ppumask = 0;
+#ifdef SIMULATOR
+    {
+        const char *test_frames = getenv("INFONES_TEST_FRAMES");
+
+        test_frame_limit = test_frames ? strtoul(test_frames, NULL, 10) : 0;
+    }
+#endif
 #ifdef HAVE_WHEEL_POSITION
     wheel_pad_latch = 0;
     wheel_pad_latch_tick = 0;
 #endif
     APU_Mute = 1;
     init_palette_tables();
+    if (!infones_video_selftest())
+    {
+        rb->splash(HZ * 2, "InfoNES video self-test failed");
+        restore_playback_state();
+        rb->plugin_release_audio_buffer();
+        return PLUGIN_ERROR;
+    }
     init_audio_mixer_tables();
     apply_safe_launch_volume();
 
@@ -1300,6 +1441,9 @@ void InfoNES_LoadFrame(void)
     if (framebuffer)
     {
         scale_frame_fill_screen(framebuffer);
+#ifdef SIMULATOR
+        dump_visual_test_frame(framebuffer);
+#endif
         rb->lcd_update();
         scale_ticks = *rb->current_tick - scale_start;
         profile_record_frame(*rb->current_tick - frame_start, wait_ticks,
@@ -1311,6 +1455,9 @@ void InfoNES_LoadFrame(void)
 
     rb->lcd_bitmap((const fb_data *)WorkFrame, INFONES_DISP_X,
                    INFONES_DISP_Y, NES_DISP_WIDTH, NES_DISP_HEIGHT);
+#ifdef SIMULATOR
+    dump_visual_test_frame(get_lcd_framebuffer());
+#endif
     rb->lcd_update_rect(INFONES_DISP_X, INFONES_DISP_Y,
                         NES_DISP_WIDTH, NES_DISP_HEIGHT);
     scale_ticks = *rb->current_tick - scale_start;

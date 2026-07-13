@@ -689,41 +689,41 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .stab.indexstr
  *(.stab.indexstr)
 
-.comment        0x0000000000000000       0x36
+.comment        0x0000000000000000       0x1b
  *(.comment)
- .comment       0x0000000000000000       0x36 /usr/lib/gcc/x86_64-pc-linux-gnu/16/crtbeginS.o
+ .comment       0x0000000000000000       0x1b /usr/lib/gcc/x86_64-pc-linux-gnu/16/crtbeginS.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/invadrox.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/invadrox.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(helper.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(helper.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(highscore.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(highscore.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(invadrox_fire.8x8x1.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(invadrox_fire.8x8x1.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(invadrox_aliens.24x24x16.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(invadrox_aliens.24x24x16.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(invadrox_alien_explode.13x7x16.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(invadrox_alien_explode.13x7x16.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(invadrox_ships.16x24x16.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(invadrox_ships.16x24x16.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(invadrox_bombs.9x42x16.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(invadrox_bombs.9x42x16.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(invadrox_shield.22x16x16.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(invadrox_shield.22x16x16.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(invadrox_ufo.16x7x16.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(invadrox_ufo.16x7x16.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(invadrox_ufo_explode.21x8x16.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(invadrox_ufo_explode.21x8x16.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(invadrox_numbers.50x7x16.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(invadrox_numbers.50x7x16.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(invadrox_background.320x240x16.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(invadrox_background.320x240x16.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16/crtendS.o
+ .comment       0x000000000000001b        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16/crtendS.o
                                          0x1c (size before relaxing)
 
 .gnu.build.attributes

@@ -17,8 +17,7 @@ BYTE Map4_IRQ_Enable;
 BYTE Map4_IRQ_Cnt;
 BYTE Map4_IRQ_Latch;
 BYTE Map4_IRQ_Request;
-BYTE Map4_IRQ_Present;
-BYTE Map4_IRQ_Present_Vbl;
+BYTE Map4_IRQ_Reload;
 
 /*-------------------------------------------------------------------*/
 /*  Initialize Mapper 4                                              */
@@ -86,8 +85,7 @@ void Map4_Init()
   Map4_IRQ_Cnt = 0;
   Map4_IRQ_Latch = 0;
   Map4_IRQ_Request = 0;
-  Map4_IRQ_Present = 0;
-  Map4_IRQ_Present_Vbl = 0;
+  Map4_IRQ_Reload = 0;
 
   /* Set up wiring of the interrupt pin */
   K6502_Set_Int_Wiring( 1, 1 ); 
@@ -203,15 +201,8 @@ void Map4_Write( WORD wAddr, BYTE byData )
 
     case 0xc001:
       Map4_Regs[ 5 ] = byData;
-      if ( PPU_Scanline < 240 )
-      {
-          Map4_IRQ_Cnt |= 0x80;
-          Map4_IRQ_Present = 0xff;
-      } else {
-          Map4_IRQ_Cnt |= 0x80;
-          Map4_IRQ_Present_Vbl = 0xff;
-          Map4_IRQ_Present = 0;
-      }
+      Map4_IRQ_Cnt = 0;
+      Map4_IRQ_Reload = 1;
       break;
 
     case 0xe000:
@@ -223,7 +214,6 @@ void Map4_Write( WORD wAddr, BYTE byData )
     case 0xe001:
       Map4_Regs[ 7 ] = byData;
       Map4_IRQ_Enable = 1;
-			Map4_IRQ_Request = 0;
       break;
   }
 }
@@ -240,27 +230,22 @@ void Map4_HSync()
   if ( ( /* 0 <= PPU_Scanline && */ PPU_Scanline <= 239 ) && 
        ( PPU_R1 & R1_SHOW_SCR || PPU_R1 & R1_SHOW_SP ) )
   {
-		if( Map4_IRQ_Present_Vbl ) {
-			Map4_IRQ_Cnt = Map4_IRQ_Latch;
-			Map4_IRQ_Present_Vbl = 0;
-		}
-		if( Map4_IRQ_Present ) {
-			Map4_IRQ_Cnt = Map4_IRQ_Latch;
-			Map4_IRQ_Present = 0;
-		} else if( Map4_IRQ_Cnt > 0 ) {
-			Map4_IRQ_Cnt--;
-		}
+    if ( Map4_IRQ_Cnt == 0 || Map4_IRQ_Reload )
+    {
+      Map4_IRQ_Cnt = Map4_IRQ_Latch;
+      Map4_IRQ_Reload = 0;
+    }
+    else
+    {
+      Map4_IRQ_Cnt--;
+    }
 
-		if( Map4_IRQ_Cnt == 0 ) {
-			if( Map4_IRQ_Enable ) {
-				Map4_IRQ_Request = 0xFF;
-			}
-			Map4_IRQ_Present = 0xFF;
-		}
-	}
-	if( Map4_IRQ_Request  ) {
-		IRQ_REQ;
-	}
+    if ( Map4_IRQ_Cnt == 0 && Map4_IRQ_Enable )
+      Map4_IRQ_Request = 0xff;
+  }
+
+  if ( Map4_IRQ_Request )
+    IRQ_REQ;
 }
 
 /*-------------------------------------------------------------------*/

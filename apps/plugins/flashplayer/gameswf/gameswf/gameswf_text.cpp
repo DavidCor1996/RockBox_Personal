@@ -14,6 +14,10 @@
 #include "gameswf/gameswf_sprite.h"
 
 extern "C" void flashplayer_trace_text(int phase, int stream_pos, int a, int b);
+extern "C" int flashplayer_bitmap_text_begin(float x, float y, float height,
+	int red, int green, int blue, int alpha);
+extern "C" void flashplayer_bitmap_text_character(int code);
+extern "C" void flashplayer_bitmap_text_end(void);
 
 namespace gameswf
 {
@@ -160,10 +164,24 @@ namespace gameswf
 			dummy_style[1].set_color(rec.m_style.m_color);
 
 			rgba	transformed_color = cx.transform(rec.m_style.m_color);
+			point fallback_origin;
+			base_matrix.transform(&fallback_origin, point(x, y));
+			bool bitmap_text = flashplayer_bitmap_text_begin(
+				fallback_origin.m_x, fallback_origin.m_y,
+				base_matrix.get_y_scale() * rec.m_style.m_text_height,
+				transformed_color.m_r, transformed_color.m_g,
+				transformed_color.m_b, transformed_color.m_a) != 0;
 
 			for (int j = 0; j < rec.m_glyphs.size(); j++)
 			{
 				const glyph& g = rec.m_glyphs[j];
+				if (bitmap_text)
+				{
+					int char_code = fnt->get_code_by_index(g.m_glyph_index);
+					flashplayer_bitmap_text_character(char_code >= 0 ? char_code : '?');
+					x += rec.m_glyphs[j].m_glyph_advance;
+					continue;
+				}
 
 				mat = base_matrix;
 				mat.concatenate_translation(x, y);
@@ -252,6 +270,10 @@ namespace gameswf
 
 				x += rec.m_glyphs[j].m_glyph_advance;
 
+			}
+			if (bitmap_text)
+			{
+				flashplayer_bitmap_text_end();
 			}
 		}
 		flashplayer_trace_text(31, records.size(), shape_glyph_count,

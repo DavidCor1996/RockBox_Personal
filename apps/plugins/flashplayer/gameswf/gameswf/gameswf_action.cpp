@@ -2747,6 +2747,16 @@ namespace gameswf
 					character* target = env->get_target();
 					bool success = false;
 
+					/* A timeline action may outlive the sprite that queued it when
+					 * realtime catch-up advances several native SWF frames. Flash
+					 * treats GotoFrame2 with no current target as a no-op; do not
+					 * dereference the removed character. */
+					if (target == NULL)
+					{
+						env->drop(1);
+						break;
+					}
+
 					if (env->top(0).is_undefined())
 					{
 						// No-op.
@@ -2770,7 +2780,8 @@ namespace gameswf
 							double num;
 							if (string_to_number(&num, env->top(0).to_string()))
 							{
-								int frame_number = int(num);
+								/* ActionScript frame expressions are 1-based. */
+								int frame_number = int(num) - 1;
 								target->goto_frame(frame_number);
 								success = true;
 							}
@@ -2779,8 +2790,9 @@ namespace gameswf
 					}
 					else if (env->top(0).is_number())
 					{
-						// Frame numbers appear to be 0-based!  @@ Verify.
-						int frame_number = env->top(0).to_int();
+						/* gotoAndPlay()/gotoAndStop() use the 1-based frame
+						 * numbers exposed by ActionScript. */
+						int frame_number = env->top(0).to_int() - 1;
 						flashplayer_trace_action(3, action_id, play_flag, frame_number, NULL);
 						target->goto_frame(frame_number);
 						success = true;

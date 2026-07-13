@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import argparse
 from dataclasses import dataclass
+import hashlib
 from pathlib import Path
 import subprocess
 from tempfile import TemporaryDirectory
@@ -23,9 +24,18 @@ N3G_PAGES_PER_HYPERBLOCK = N3G_BANKS * N3G_PAGES_PER_BLOCK
 N3G_SYSTEM_HYPERBLOCKS = 425
 N3G_OOB_LEN = 64
 N3G_ENTRY_SPAN = N3G_PAGES_PER_HYPERBLOCK * 4
+N3G_PAGE_SIZE = 0x800
 TARGET_LBA = 0xA07E
 NEAR_LO = 0x00009C00
 NEAR_HI = 0x0000A200
+
+N3G_CURRENT_FILE_SIZE = 881396
+N3G_CURRENT_FILE_SHA256 = "bb51649118740cc8c70a55d1a91474d454c53a8306ff7bf206c6801202c6b333"
+N3G_CURRENT_FILE_FIRST8 = bytes.fromhex("05673eef6e6e3367")
+N3G_CURRENT_FILE_MODEL_NUMBER = 117
+N3G_CURRENT_FILE_RAW_BASE = 0x001D1800
+N3G_CURRENT_FILE_PAGE0 = 0x200
+N3G_CURRENT_FILE_BASE_PBLOCK = 0x0974
 
 
 @dataclass(frozen=True)
@@ -62,6 +72,18 @@ class MissingTarget:
     po: int
     slot: int
     l0: int
+
+
+@dataclass(frozen=True)
+class CurrentFilePage:
+    file_page: int
+    logical_page: int
+    lane: int
+    bank: int
+    pblock: int
+    row: int
+    physpage: int
+    raw: int
 
 
 MAP_TARGETS = (
@@ -128,9 +150,33 @@ def decode_physical_page(vblock: int, page: int) -> tuple[int, int, int, int]:
 
 
 def run_windex_read(
-    windex: str, bank: int, out: Path, physpage: int, timeout: float
+    windex: str,
+    bank: int,
+    out: Path,
+    physpage: int,
+    timeout: float,
+    count: int = 1,
 ) -> subprocess.CompletedProcess[str]:
-    cmd = [windex, "nand", "read", str(bank), str(out), str(physpage), "1"]
+    cmd = [windex, "nand", "read", str(bank), str(out), str(physpage), str(count)]
+    return subprocess.run(
+        cmd,
+        check=True,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        timeout=timeout,
+    )
+
+
+def run_windex_read_wide(
+    windex: str,
+    bank: int,
+    out: Path,
+    physpage: int,
+    timeout: float,
+    count: int = 1,
+) -> subprocess.CompletedProcess[str]:
+    cmd = [windex, "nand", "readwide", str(bank), str(out), str(physpage), str(count)]
     return subprocess.run(
         cmd,
         check=True,
@@ -223,6 +269,189 @@ def read_idx(oob: bytes) -> int:
 
 def read_usn(oob: bytes) -> int:
     return replay.le32(oob, 0) if len(oob) >= 4 else 0xFFFFFFFF
+
+
+def current_file_pages() -> list[CurrentFilePage]:
+    count = (N3G_CURRENT_FILE_SIZE + N3G_PAGE_SIZE - 1) // N3G_PAGE_SIZE
+    pages: list[CurrentFilePage] = []
+    for file_page in range(count):
+        logical_page = N3G_CURRENT_FILE_PAGE0 + file_page
+        lane = logical_page & 7
+        bank = lane & 1
+        pblock = N3G_CURRENT_FILE_BASE_PBLOCK + ((lane >> 1) & 1)
+        if lane & 4:
+            pblock += 0x1000
+        row = logical_page >> 3
+        pages.append(
+            CurrentFilePage(
+                file_page=file_page,
+                logical_page=logical_page,
+                lane=lane,
+                bank=bank,
+                pblock=pblock,
+                row=row,
+                physpage=pblock * N3G_PAGES_PER_BLOCK + row,
+                raw=N3G_CURRENT_FILE_RAW_BASE + logical_page,
+            )
+        )
+    return pages
+
+
+def dump_current_rockbox(args: argparse.Namespace) -> int:
+    """Reconstruct the checksum-proven current file through read-only NAND calls."""
+    args.out.mkdir(parents=True, exist_ok=True)
+    pages = current_file_pages()
+    bodies: list[bytes | None] = [None] * len(pages)
+    manifest = [
+        "N3GR_START kind=current-rockbox-exact mode=read-only",
+        f"N3GR_FILE size={N3G_CURRENT_FILE_SIZE} pages={len(pages)} "
+        f"page0={N3G_CURRENT_FILE_PAGE0:08X} raw_base={N3G_CURRENT_FILE_RAW_BASE:08X}",
+    ]
+
+    print(f"N3GR_START pages={len(pages)} lanes=8", flush=True)
+    for lane in range(8):
+        group = [page for page in pages if page.lane == lane]
+        if not group:
+            continue
+        if any(
+            page.row != group[0].row + index
+            or page.physpage != group[0].physpage + index
+            for index, page in enumerate(group)
+        ):
+            raise ValueError(f"lane {lane} is not physically contiguous")
+
+        bank = group[0].bank
+        pblock = group[0].pblock
+        stem = f"lane{lane}_bank{bank}_pb{pblock:04x}_rows{group[0].row:02x}-{group[-1].row:02x}"
+        body_path = args.out / f"{stem}.bin"
+        oob_path = args.out / f"{stem}.oob"
+        print(
+            f"N3GR_LANE_START lane={lane} bank={bank} pb={pblock:04X} "
+            f"row={group[0].row:02X} count={len(group)}",
+            flush=True,
+        )
+        try:
+            body_reader = (
+                run_windex_read_wide
+                if args.current_read_command == "readwide"
+                else run_windex_read
+            )
+            body_reader(
+                args.windex, bank, body_path, group[0].physpage,
+                args.current_read_timeout, len(group)
+            )
+            run_windex_read_extra(
+                args.windex,
+                bank,
+                oob_path,
+                [page.physpage for page in group],
+                args.extra_timeout,
+            )
+        except (subprocess.CalledProcessError, subprocess.TimeoutExpired) as exc:
+            manifest.append(
+                f"N3GR_FAIL lane={lane} reason={type(exc).__name__}"
+            )
+            write_manifest(args, manifest)
+            print(
+                f"N3GR_FAIL lane={lane} reason={type(exc).__name__}", flush=True
+            )
+            return 1
+
+        if not body_path.exists() or not oob_path.exists():
+            manifest.append(f"N3GR_FAIL lane={lane} reason=missing_capture")
+            write_manifest(args, manifest)
+            print(f"N3GR_FAIL lane={lane} reason=missing_capture", flush=True)
+            return 1
+
+        body_data = body_path.read_bytes()
+        oob_data = oob_path.read_bytes()
+        expected_body_len = len(group) * N3G_PAGE_SIZE
+        expected_oob_len = len(group) * N3G_OOB_LEN
+        if len(body_data) != expected_body_len or len(oob_data) != expected_oob_len:
+            manifest.append(
+                f"N3GR_FAIL lane={lane} reason=capture_size "
+                f"body={len(body_data)} expected_body={expected_body_len} "
+                f"oob={len(oob_data)} expected_oob={expected_oob_len}"
+            )
+            write_manifest(args, manifest)
+            print(f"N3GR_FAIL lane={lane} reason=capture_size", flush=True)
+            return 1
+
+        for index, page in enumerate(group):
+            oob = oob_data[index * N3G_OOB_LEN : (index + 1) * N3G_OOB_LEN]
+            actual_raw = read_l0(oob)
+            actual_type = oob_type(oob)
+            if actual_raw != page.raw or actual_type not in (0x40, 0x41):
+                manifest.append(
+                    f"N3GR_FAIL lane={lane} fp={page.file_page} "
+                    f"reason=oob raw={actual_raw:08X} expected={page.raw:08X} "
+                    f"type={actual_type:02X}"
+                )
+                write_manifest(args, manifest)
+                print(
+                    f"N3GR_FAIL lane={lane} fp={page.file_page} reason=oob "
+                    f"raw={actual_raw:08X} expected={page.raw:08X} "
+                    f"type={actual_type:02X}",
+                    flush=True,
+                )
+                return 1
+            bodies[page.file_page] = body_data[
+                index * N3G_PAGE_SIZE : (index + 1) * N3G_PAGE_SIZE
+            ]
+            manifest.append(
+                f"N3GR_PAGE fp={page.file_page} lp={page.logical_page:03X} "
+                f"lane={lane} bank={bank} pb={pblock:04X} row={page.row:02X} "
+                f"phy={page.physpage} raw={actual_raw:08X} "
+                f"usn={read_idx(oob):04X} type={actual_type:02X}"
+            )
+        manifest.append(
+            f"N3GR_LANE lane={lane} pages={len(group)} "
+            f"body_sha256={hashlib.sha256(body_data).hexdigest()} "
+            f"oob_sha256={hashlib.sha256(oob_data).hexdigest()}"
+        )
+        print(f"N3GR_LANE_DONE lane={lane} pages={len(group)}", flush=True)
+
+    if any(body is None for body in bodies):
+        manifest.append("N3GR_FAIL reason=incomplete_reassembly")
+        write_manifest(args, manifest)
+        print("N3GR_FAIL reason=incomplete_reassembly", flush=True)
+        return 1
+
+    image = b"".join(body for body in bodies if body is not None)[:N3G_CURRENT_FILE_SIZE]
+    candidate_path = args.out / "rockbox.ipod.unverified"
+    candidate_path.write_bytes(image)
+    header_checksum = int.from_bytes(image[:4], "big")
+    computed_checksum = (N3G_CURRENT_FILE_MODEL_NUMBER + sum(image[8:])) & 0xFFFFFFFF
+    digest = hashlib.sha256(image).hexdigest()
+    manifest.append(
+        f"N3GR_RESULT size={len(image)} first8={image[:8].hex()} "
+        f"header_checksum={header_checksum:08X} computed_checksum={computed_checksum:08X} "
+        f"sha256={digest}"
+    )
+    failures = []
+    if len(image) != N3G_CURRENT_FILE_SIZE:
+        failures.append("size")
+    if image[:8] != N3G_CURRENT_FILE_FIRST8:
+        failures.append("first8")
+    if header_checksum != computed_checksum:
+        failures.append("checksum")
+    if digest != N3G_CURRENT_FILE_SHA256:
+        failures.append("sha256")
+    if failures:
+        manifest.append(f"N3GR_FAIL reason={','.join(failures)}")
+        write_manifest(args, manifest)
+        print(f"N3GR_FAIL reason={','.join(failures)}", flush=True)
+        return 1
+
+    final_path = args.out / "rockbox.ipod"
+    final_path.write_bytes(image)
+    candidate_path.unlink()
+    manifest.append(f"N3GR_DONE file={final_path.name} sha256={digest}")
+    write_manifest(args, manifest)
+    print(
+        f"N3GR_DONE file={final_path} size={len(image)} sha256={digest}", flush=True
+    )
+    return 0
 
 
 def dump_map(args: argparse.Namespace, target: MapTarget, manifest: list[str]) -> int:
@@ -615,10 +844,12 @@ def scan_physical_oob(args: argparse.Namespace) -> int:
     files = 0
     hits = 0
     banks = args.scan_bank if args.scan_bank else list(range(N3G_BANKS))
+    scan_types = set(args.scan_type) if args.scan_type else {0x40, 0x41}
     print("N3GD_DUMP_START", flush=True)
     manifest.append(
         f"N3GD_SCAN_PHYS pb_min={args.scan_pblock_min} pb_max={args.scan_pblock_max} "
-        f"banks={','.join(str(bank) for bank in banks)}"
+        f"banks={','.join(str(bank) for bank in banks)} "
+        f"types={','.join(f'{value:02X}' for value in sorted(scan_types))}"
     )
     for bank in banks:
         if args.scan_page_offset is None:
@@ -666,20 +897,24 @@ def scan_physical_oob(args: argparse.Namespace) -> int:
                         continue
                     t = oob_type(oob)
                     logical = read_l0(oob)
-                    if t not in (0x40, 0x41) or not oob_scan_hit(args, logical):
+                    idx = read_idx(oob)
+                    if t not in scan_types:
+                        continue
+                    if not args.scan_type and not oob_scan_hit(args, logical):
                         continue
                     pb = physpage // N3G_PAGES_PER_BLOCK
                     pp = physpage % N3G_PAGES_PER_BLOCK
                     name = f"pscan_bank{bank}_pb{pb}_pp{pp}_l{logical:08X}"
                     print(
-                        f"N3GD_PSCAN_HIT bank={bank} pb={pb} pp={pp} t={t:02X} l={logical:08X}",
+                        f"N3GD_PSCAN_HIT bank={bank} pb={pb} pp={pp} "
+                        f"t={t:02X} l={logical:08X} ix={idx:04X}",
                         flush=True,
                     )
                     if args.scan_oob_only:
                         manifest.append(
                             "N3GD_PSCAN_OOB "
                             f"bank={bank} pb={pb} pp={pp} phy={physpage} "
-                            f"t={t:02X} l={logical:08X}"
+                            f"t={t:02X} l={logical:08X} ix={idx:04X}"
                         )
                         hits += 1
                         if args.scan_max_hits and hits >= args.scan_max_hits:
@@ -774,7 +1009,12 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--out", type=Path, default=Path("tmp/n3g-dump"))
     parser.add_argument("--read-timeout", type=float, default=8.0)
     parser.add_argument("--extra-timeout", type=float, default=30.0)
+    parser.add_argument("--current-read-timeout", type=float, default=600.0)
+    parser.add_argument(
+        "--current-read-command", choices=("read", "readwide"), default="read"
+    )
     parser.add_argument("--entry-oob-chunk", type=int, default=64)
+    parser.add_argument("--dump-current-rockbox", action="store_true")
     parser.add_argument("--add-missing", type=Path)
     parser.add_argument("--scan-vblock", action="append", default=[])
     parser.add_argument("--scan-v-min", type=lambda value: int(value, 0))
@@ -782,6 +1022,9 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--scan-pblock-min", type=lambda value: int(value, 0))
     parser.add_argument("--scan-pblock-max", type=lambda value: int(value, 0))
     parser.add_argument("--scan-bank", type=int, action="append", default=[])
+    parser.add_argument(
+        "--scan-type", type=lambda value: int(value, 0), action="append", default=[]
+    )
     parser.add_argument("--scan-l-min", type=lambda value: int(value, 0))
     parser.add_argument("--scan-l-max", type=lambda value: int(value, 0))
     parser.add_argument("--scan-max-hits", type=int, default=0)
@@ -797,6 +1040,8 @@ def main(argv: list[str] | None = None) -> int:
             parser.error("--scan-v-max must be >= --scan-v-min")
         args.scan_vblock.extend(f"{v:04X}" for v in range(args.scan_v_min, args.scan_v_max + 1))
     try:
+        if args.dump_current_rockbox:
+            return dump_current_rockbox(args)
         if args.add_missing is not None:
             return dump_missing(args)
         if args.scan_pblock_min is not None or args.scan_pblock_max is not None:

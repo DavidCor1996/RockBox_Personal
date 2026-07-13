@@ -10,7 +10,7 @@ from models.track import compute_metadata_hash
 
 logger = logging.getLogger(__name__)
 
-SCHEMA_VERSION = 10
+SCHEMA_VERSION = 11
 
 SCHEMA_SQL = """
 CREATE TABLE IF NOT EXISTS schema_version (
@@ -122,6 +122,8 @@ CREATE TABLE IF NOT EXISTS device_tracks (
     codec TEXT DEFAULT '',
     local_track_id INTEGER,
     metadata_hash TEXT DEFAULT '',
+    last_synced_metadata_hash TEXT DEFAULT '',
+    last_synced_file_hash TEXT DEFAULT '',
     artwork_hint TEXT DEFAULT '',
     present_on_device INTEGER DEFAULT 1,
     last_verified_at TEXT,
@@ -446,6 +448,24 @@ class Database:
                 if col not in track_cols:
                     conn.execute(f"ALTER TABLE tracks ADD COLUMN {col} {spec}")
 
+        if current_version < 11:
+            device_track_cols = {
+                row["name"] for row in conn.execute("PRAGMA table_info(device_tracks)")
+            }
+            additions = {
+                "last_synced_metadata_hash": "TEXT DEFAULT ''",
+                "last_synced_file_hash": "TEXT DEFAULT ''",
+            }
+            for col, spec in additions.items():
+                if col not in device_track_cols:
+                    conn.execute(f"ALTER TABLE device_tracks ADD COLUMN {col} {spec}")
+            conn.execute(
+                "UPDATE device_tracks SET "
+                "last_synced_metadata_hash = COALESCE(NULLIF(last_synced_metadata_hash, ''), metadata_hash, ''), "
+                "last_synced_file_hash = COALESCE(NULLIF(last_synced_file_hash, ''), file_hash, '') "
+                "WHERE local_track_id IS NOT NULL"
+            )
+
     @classmethod
     def _write_lock_for_path(cls, path):
         abs_path = os.path.abspath(path)
@@ -705,6 +725,22 @@ class Database:
             "last_synced_metadata_hash = ?, last_synced_file_hash = ? WHERE id = ?",
             (device_path, metadata_hash, file_hash, track_id),
         )
+
+    def mark_synced_many(self, updates):
+        """Update sync state for many tracks with one prepared statement."""
+        rows = [
+            (device_path, metadata_hash, file_hash, int(track_id))
+            for track_id, device_path, metadata_hash, file_hash in (updates or [])
+            if track_id
+        ]
+        if not rows:
+            return 0
+        self.executemany(
+            "UPDATE tracks SET synced_to_device = 1, device_path = ?, "
+            "last_synced_metadata_hash = ?, last_synced_file_hash = ? WHERE id = ?",
+            rows,
+        )
+        return len(rows)
 
     def clear_sync_status(self):
         self.execute(
@@ -1204,11 +1240,17 @@ class Database:
         resync = 0
         if include_resync:
             row = self.fetchone(
-                "SELECT COUNT(*) AS cnt FROM tracks "
-                "WHERE media_type = 'audio' AND synced_to_device = 1 "
-                "AND (metadata_hash != last_synced_metadata_hash "
-                "OR (last_synced_file_hash != '' AND file_hash != '' "
-                "AND file_hash != last_synced_file_hash))"
+                "SELECT COUNT(DISTINCT t.id) AS cnt FROM tracks t "
+                "JOIN device_tracks dt ON dt.local_track_id = t.id "
+                "AND dt.device_id = ? AND COALESCE(dt.present_on_device, 1) = 1 "
+                "WHERE t.media_type = 'audio' AND ("
+                "(COALESCE(t.metadata_hash, '') != '' "
+                "AND COALESCE(NULLIF(dt.last_synced_metadata_hash, ''), dt.metadata_hash, '') != '' "
+                "AND t.metadata_hash != COALESCE(NULLIF(dt.last_synced_metadata_hash, ''), dt.metadata_hash, '')) "
+                "OR (COALESCE(t.file_hash, '') != '' "
+                "AND COALESCE(NULLIF(dt.last_synced_file_hash, ''), dt.file_hash, '') != '' "
+                "AND t.file_hash != COALESCE(NULLIF(dt.last_synced_file_hash, ''), dt.file_hash, ''))) ",
+                (device_id,),
             )
             resync = row["cnt"] if row else 0
         return {"missing": missing, "resync": resync}

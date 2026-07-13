@@ -119,24 +119,6 @@ static bool list_ipodjs_enabled(struct screen *display,
            !list->force_fullscreen_albumlist;
 }
 
-static void list_ipodjs_strlcpy(char *dst, const char *src, size_t size)
-{
-    size_t i = 0;
-
-    if (!dst || size == 0)
-        return;
-
-    if (!src)
-        src = "";
-
-    while (i + 1 < size && src[i])
-    {
-        dst[i] = src[i];
-        i++;
-    }
-    dst[i] = '\0';
-}
-
 static int list_ipodjs_font(void)
 {
     return ipodjs_ui_font();
@@ -195,28 +177,11 @@ static void list_ipodjs_header(struct screen *display, const char *title)
 
     if (title && title[0])
     {
-        char buf[80];
-        int w;
-        int h;
-        int len;
-
-        list_ipodjs_strlcpy(buf, title, sizeof(buf));
-        len = strlen(buf);
         display->setfont(list_ipodjs_font());
-        display->getstringsize((const unsigned char *)buf, &w, &h);
-        while (len > 1 && w > display->lcdwidth - 36)
-        {
-            buf[--len] = '\0';
-            display->getstringsize((const unsigned char *)buf, &w, &h);
-        }
-
         display->set_foreground(IPODJS_LIST_TEXT);
         display->set_background(IPODJS_LIST_HEADER_MID);
-        display->set_drawmode(DRMODE_FG);
-        display->putsxy(MAX(4, (display->lcdwidth - w) / 2),
-                        MAX(0, (IPODJS_LIST_HEADER_H - h) / 2),
-                        (const unsigned char *)buf);
-        display->set_drawmode(DRMODE_SOLID);
+        ipodjs_ui_puts_fit(display, 18, 2, display->lcdwidth - 36,
+                           title, true);
     }
 }
 
@@ -244,6 +209,7 @@ static void list_ipodjs_draw(struct screen *display,
     unsigned row_bg = list_ipodjs_row_bg();
     unsigned text = list_ipodjs_text();
     unsigned muted = list_ipodjs_muted();
+    struct line_desc linedes = LINE_DESC_DEFINIT;
     int font_h;
 
     display->set_viewport(NULL);
@@ -257,6 +223,8 @@ static void list_ipodjs_draw(struct screen *display,
     list_ipodjs_header(display, list->title);
     display->set_foreground(row_bg);
     display->fillrect(0, list_y, display->lcdwidth, list_h);
+    linedes.height = row_h;
+    linedes.nlines = list->selected_size;
 
     for (int i = start; i < end; i++)
     {
@@ -303,8 +271,28 @@ static void list_ipodjs_draw(struct screen *display,
             }
         }
 
-        list_ipodjs_puts_fit(display, 8, text_y, display->lcdwidth - 28,
-                             (const char *)entry_name);
+        if (list->callback_draw_item)
+        {
+            enum themable_icons icon = list->callback_get_item_icon ?
+                list->callback_get_item_icon(i, list->data) : Icon_NOICON;
+            struct list_putlineinfo_t list_info = {
+                .x = 0, .y = y, .item_indent = 8, .item_offset = 0,
+                .line = i, .icon = icon, .icon_width = 0,
+                .display = display, .vp = NULL, .linedes = &linedes,
+                .list = list, .dsp_text = entry_name,
+                .is_selected = selected, .is_title = false,
+                .show_cursor = false,
+                .have_icons = list->callback_get_item_icon != NULL
+            };
+
+            list->callback_draw_item(&list_info);
+        }
+        else
+        {
+            list_ipodjs_puts_fit(display, 8, text_y,
+                                 display->lcdwidth - 28,
+                                 (const char *)entry_name);
+        }
         if (selected)
             list_ipodjs_draw_arrow(display, display->lcdwidth - 14,
                                    y + (row_h - 6) / 2);

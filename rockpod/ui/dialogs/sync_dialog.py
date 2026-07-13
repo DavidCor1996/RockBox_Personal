@@ -159,14 +159,22 @@ class SyncDialog(QDialog):
 
     sync_confirmed = Signal()
     sync_cancelled = Signal()
+    rockbox_build_sync_requested = Signal()
 
-    def __init__(self, sync_plan, parent=None):
+    def __init__(
+        self,
+        sync_plan,
+        parent=None,
+        allow_rockbox_build_sync=False,
+        rockbox_build_detail="",
+    ):
         super().__init__(parent)
         self.setObjectName("sync_dialog")
         self.setWindowTitle("Sync to iPod")
         self.setMinimumSize(470, 370)
         self.setModal(True)
         self._plan = sync_plan
+        self._rockbox_sync_result = None
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(14, 14, 14, 14)
@@ -222,6 +230,29 @@ class SyncDialog(QDialog):
             summary_layout.addWidget(value, row, 1)
             self._summary_values[key] = value
         layout.addWidget(summary_panel)
+
+        self._rockbox_panel = QFrame()
+        self._rockbox_panel.setObjectName("sync_rockbox_panel")
+        rockbox_layout = QVBoxLayout(self._rockbox_panel)
+        rockbox_layout.setContentsMargins(12, 8, 12, 8)
+        rockbox_layout.setSpacing(2)
+        self._rockbox_build_sync_btn = QPushButton(
+            "Build & Install Latest Rockbox + Plugins"
+        )
+        self._rockbox_build_sync_btn.setObjectName("sync_rockbox_build_button")
+        self._rockbox_build_sync_btn.setToolTip(
+            "Builds the detected iPod target, installs all enabled plugins, and "
+            "verifies both rockbox.ipod copies. Music and videos are not changed."
+        )
+        self._rockbox_build_sync_btn.clicked.connect(self._on_rockbox_build_sync)
+        rockbox_layout.addWidget(self._rockbox_build_sync_btn, 0, Qt.AlignLeft)
+        self._rockbox_build_detail = QLabel(rockbox_build_detail or "")
+        self._rockbox_build_detail.setObjectName("sync_rockbox_build_detail")
+        self._rockbox_build_detail.setWordWrap(True)
+        self._rockbox_build_detail.setVisible(bool(rockbox_build_detail))
+        rockbox_layout.addWidget(self._rockbox_build_detail)
+        self._rockbox_panel.setVisible(bool(allow_rockbox_build_sync))
+        layout.addWidget(self._rockbox_panel)
 
         self._warning_panel = QFrame()
         self._warning_panel.setObjectName("sync_warning_panel")
@@ -315,8 +346,13 @@ class SyncDialog(QDialog):
         self._summary_values["orphaned"].setText(_format_count(len(plan.to_delete)))
         self._summary_values["total_data"].setText(_format_bytes(plan.total_bytes))
 
-        if plan.errors:
-            self._warning_text.setText("\n".join(f"• {err}" for err in plan.errors))
+        warnings = list(getattr(plan, "warnings", []) or [])
+        errors = list(getattr(plan, "errors", []) or [])
+        notes = [f"Warning: {item}" for item in warnings if str(item).strip()]
+        notes.extend(item for item in errors if str(item).strip())
+
+        if notes:
+            self._warning_text.setText("\n".join(notes))
             self._warning_panel.setVisible(True)
 
     def _on_sync(self):
@@ -326,6 +362,23 @@ class SyncDialog(QDialog):
         self._progress.setMaximum(self._plan.total_operations or 1)
         self._animation.start()
         self.sync_confirmed.emit()
+
+    def _on_rockbox_build_sync(self):
+        self._title.setText("Updating Rockbox")
+        self._subtitle.setText("Building firmware and plugins from this repository")
+        self._rockbox_build_sync_btn.setVisible(False)
+        self._sync_btn.setVisible(False)
+        self._cancel_btn.setEnabled(False)
+        self._cancel_btn.setToolTip(
+            "The Rockbox build/install phase cannot be interrupted safely."
+        )
+        self._progress.setMaximum(4)
+        self._progress.setValue(0)
+        self._animation.start()
+        self.rockbox_build_sync_requested.emit()
+
+    def set_rockbox_sync_result(self, result):
+        self._rockbox_sync_result = dict(result or {})
 
     def _on_cancel(self):
         self.sync_cancelled.emit()
@@ -361,10 +414,28 @@ class SyncDialog(QDialog):
             parts.append(f"{_format_count(failed)} failed")
         if skipped > 0:
             parts.append(f"{_format_count(skipped)} skipped")
+        rockbox_result = self._rockbox_sync_result or {}
+        if rockbox_result.get("success"):
+            plugin_count = int(rockbox_result.get("plugin_count") or 0)
+            parts.append(
+                f"Rockbox firmware + {plugin_count:,} plugins updated"
+            )
         if not parts:
             parts.append("Nothing needed to change")
 
         self._results.setText(", ".join(parts))
+        self._results.setVisible(True)
+
+    def show_error(self, message):
+        self._title.setText("Sync Failed")
+        self._subtitle.setText("RockPod did not complete the requested update")
+        self._animation.finish(cancelled=True)
+        self._phase_label.setText("Status: Failed")
+        self._item_label.setVisible(False)
+        self._sync_btn.setVisible(False)
+        self._cancel_btn.setVisible(False)
+        self._close_btn.setVisible(True)
+        self._results.setText(str(message or "The sync operation failed."))
         self._results.setVisible(True)
 
     def show_cancelled(self):

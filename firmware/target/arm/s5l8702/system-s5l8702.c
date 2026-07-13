@@ -32,10 +32,13 @@
 
 #include "ipodnano3g/bringup-nano3g.h"
 
-#if defined(IPOD_NANO3G) && defined(BOOTLOADER)
+#if defined(IPOD_NANO3G) && \
+    (defined(BOOTLOADER) || NANO3G_NATIVE_SAFE_BOOT)
 #define N3G_PRESERVE_ROM_CLOCKS 1
 #define N3G_SKIP_PMU_PREINIT 1
+#if defined(BOOTLOADER)
 extern void nano3g_nand_stage_diag_run(uint32_t stage);
+#endif
 #else
 #define N3G_PRESERVE_ROM_CLOCKS 0
 #define N3G_SKIP_PMU_PREINIT 0
@@ -235,7 +238,8 @@ void system_init(void)
      * Bootloader seems to give a blank screen when IRAM1 is disabled
      * - FW 10/13/19
      */
-#ifndef BOOTLOADER
+#if !defined(BOOTLOADER) && \
+    !(defined(IPOD_NANO3G) && NANO3G_NATIVE_SAFE_BOOT)
     /* disable IRAM1 (not used because it is slower than DRAM) */
     clockgate_enable(CLOCKGATE_SM1, false);
 #endif
@@ -246,7 +250,9 @@ void system_init(void)
 #ifndef BOOTLOADER
     gpio_preinit();
     i2c_preinit(0);
+#if !N3G_SKIP_PMU_PREINIT
     pmu_preinit();
+#endif
 #endif
     gpio_init();
     eint_init();
@@ -298,10 +304,16 @@ int system_memory_guard(int newmode)
 }
 
 #ifdef HAVE_ADJUSTABLE_CPU_FREQ
+#if !defined(IPOD_NANO3G) || !NANO3G_NATIVE_SAFE_BOOT
 static bool ahb_boost_flag = false;
+#endif
 
 void set_ahb_boost(bool on)
 {
+#if defined(IPOD_NANO3G) && NANO3G_NATIVE_SAFE_BOOT
+    (void)on;
+    return;
+#else
     ahb_boost_flag = on;
     if (cpu_frequency != CPUFREQ_MAX)
     {
@@ -316,10 +328,15 @@ void set_ahb_boost(bool on)
             pmu_set_cpu_voltage(false);
         }
     }
+#endif
 }
 
 void set_cpu_frequency(long frequency)
 {
+#if defined(IPOD_NANO3G) && NANO3G_NATIVE_SAFE_BOOT
+    (void)frequency;
+    return;
+#else
     if (cpu_frequency == frequency)
         return;
 
@@ -336,6 +353,7 @@ void set_cpu_frequency(long frequency)
     }
 
     cpu_frequency = frequency;
+#endif
 }
 #endif
 
@@ -670,7 +688,11 @@ void system_preinit(void)
     /* TBC: store boot config into a PMU memory register */
     pmu_wr(0x7f, boot_config);
 #endif
+#if defined(IPOD_NANO3G) && defined(BOOTLOADER) && NANO3G_VISIBILITY_ONLY
+    hibernated = false;
+#else
     hibernated = pmu_is_hibernated();
+#endif
 #if defined(IPOD_NANO3G) && defined(BOOTLOADER)
     nano3g_nand_stage_diag_run(13);
 #endif

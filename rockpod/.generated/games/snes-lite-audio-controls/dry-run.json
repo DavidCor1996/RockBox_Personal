@@ -1,0 +1,105 @@
+{
+  "summary": {
+    "add": 6,
+    "overwrite": 2,
+    "unchanged": 3,
+    "missing_source": 0,
+    "remove": 0
+  },
+  "games": [
+    {
+      "filename": "Donkey Kong Country 3 - Dixie Kong's Double Trouble! (USA) (En,Fr).sfc",
+      "game_type": "platformer",
+      "input_profile": 0,
+      "input_profile_name": "Platformer"
+    },
+    {
+      "filename": "Final Fantasy III (USA) (Rev 1).sfc",
+      "game_type": "rpg",
+      "input_profile": 1,
+      "input_profile_name": "RPG"
+    },
+    {
+      "filename": "Killer Instinct (USA) (Rev 1).sfc",
+      "game_type": "fighting",
+      "input_profile": 3,
+      "input_profile_name": "Fighting"
+    },
+    {
+      "filename": "NHL '94 (USA).sfc",
+      "game_type": "sports",
+      "input_profile": 5,
+      "input_profile_name": "Sports"
+    },
+    {
+      "filename": "Secret of Mana (USA).sfc",
+      "game_type": "action",
+      "input_profile": 2,
+      "input_profile_name": "Action"
+    },
+    {
+      "filename": "Super Mario Kart (USA).sfc",
+      "game_type": "racing",
+      "input_profile": 4,
+      "input_profile_name": "Racing"
+    }
+  ],
+  "items": [
+    {
+      "kind": "emulator_plugin",
+      "status": "overwrite",
+      "destination_rel": ".rockbox/rocks/games/snes_lite.rock"
+    },
+    {
+      "kind": "games_launcher",
+      "status": "unchanged",
+      "destination_rel": ".rockbox/rocks/games/rockboy_launcher.rock"
+    },
+    {
+      "kind": "emulator_config",
+      "status": "overwrite",
+      "destination_rel": ".rockbox/config/snes_lite.cfg"
+    },
+    {
+      "kind": "game_config",
+      "status": "add",
+      "destination_rel": ".rockbox/config/snes_lite/Donkey Kong Country 3 - Dixie Kong's Double Trouble! (USA) (En,Fr).cfg"
+    },
+    {
+      "kind": "game_config",
+      "status": "add",
+      "destination_rel": ".rockbox/config/snes_lite/Final Fantasy III (USA) (Rev 1).cfg"
+    },
+    {
+      "kind": "game_config",
+      "status": "add",
+      "destination_rel": ".rockbox/config/snes_lite/Killer Instinct (USA) (Rev 1).cfg"
+    },
+    {
+      "kind": "game_config",
+      "status": "add",
+      "destination_rel": ".rockbox/config/snes_lite/NHL '94 (USA).cfg"
+    },
+    {
+      "kind": "game_config",
+      "status": "add",
+      "destination_rel": ".rockbox/config/snes_lite/Secret of Mana (USA).cfg"
+    },
+    {
+      "kind": "game_config",
+      "status": "add",
+      "destination_rel": ".rockbox/config/snes_lite/Super Mario Kart (USA).cfg"
+    },
+    {
+      "kind": "plugin_cache",
+      "status": "unchanged",
+      "destination_rel": ".rockbox/rocks/plugin.dat"
+    },
+    {
+      "kind": "plugin_cache",
+      "status": "unchanged",
+      "destination_rel": ".rockbox/rocks/rb_plugins.dat"
+    }
+  ],
+  "music_or_video_items": []
+}

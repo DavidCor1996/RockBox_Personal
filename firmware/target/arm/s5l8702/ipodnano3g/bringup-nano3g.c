@@ -137,6 +137,12 @@ static void nano3g_boottrace_draw_lcd(const char *reason)
 
 void nano3g_failsafe_halt(const char *reason)
 {
+#if NANO3G_NATIVE_PRESTOR_ONLY
+    (void)reason;
+    disable_interrupt(IRQ_FIQ_STATUS);
+    while (1)
+        ;
+#else
     int i;
 
     if (reason == NULL || reason[0] == '\0')
@@ -159,6 +165,7 @@ void nano3g_failsafe_halt(const char *reason)
 
     while (1)
         ;
+#endif
 }
 
 #endif /* IPOD_NANO3G */

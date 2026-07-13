@@ -807,6 +807,120 @@ int32_t nano3g_nand_diag_pmu_id_variant(uint32_t variant, uint32_t *pmu10,
     return rc;
 }
 
+int32_t nano3g_nand_diag_bank_read(uint32_t bank, uint32_t page,
+                                   uint32_t *data, uint32_t *extra)
+{
+    int32_t init_rc;
+    int32_t rc;
+
+    if (bank >= N3G_NAND_BANKS || data == NULL || extra == NULL)
+        return -1;
+
+    /*
+     * Earlier staged diagnostics proved that pmu_preinit() and the PMU
+     * variant writes turn real NAND data into zeros.  Do not touch the PMU
+     * here.  The BootROM page helper also does not return from the relocated
+     * application, so use only the local, timeout-bounded controller path.
+     * The direct pre-storage survey must still perform the same bounded local
+     * bank reset that storage initialization normally supplies; otherwise a
+     * freshly chained DFU image can consume stale FMC state and report four
+     * controller-residue words as page data.  Prime the stage-spare registers
+     * once and capture them after the second identical read.
+     */
+    memset(extra, 0xff, N3G_ROM_EXTRA_SIZE);
+    init_rc = n3g_rom_init_bank(bank);
+    if (init_rc != 0)
+        return init_rc;
+
+    rc = n3g_read_page_bootrom_xfer_bank(bank, page, data);
+    if (rc == 0)
+        rc = n3g_read_page_bootrom_xfer_bank(bank, page, data);
+    if (rc == 0)
+        n3g_copy_stage_spare(extra);
+
+    return rc;
+}
+
+int32_t nano3g_nand_diag_scan_map_entries(const uint16_t *entries,
+                                           uint32_t count,
+                                           uint32_t target_base,
+                                           uint32_t result[6])
+{
+    uint32_t spare[0x10];
+    uint32_t matches = 0;
+    uint32_t best_index = 0xffffffffu;
+    uint32_t best_v = 0xffffu;
+    uint32_t best_raw = 0xffffffffu;
+    uint32_t best_usn = 0;
+    int32_t init_rc;
+
+    if (entries == NULL || result == NULL || count > 0x400u)
+        return -1;
+
+    target_base &= ~0x3ffu;
+    init_rc = n3g_rom_init_bank(0);
+    if (init_rc != 0)
+        return init_rc;
+
+    /*
+     * A Nano 3G type-0x44 page is a pool-order list, not a directly indexed
+     * logical map.  Reverse it by reading only page-zero OOB for each valid
+     * vblock and matching the logical 0x400-page hyperblock base.  One bank
+     * setup is sufficient: every transfer below explicitly selects bank 0,
+     * and all operations are READ commands.  Two identical transfers are
+     * required because the first transfer can leave stale stage-spare words.
+     */
+    for (uint32_t i = 0; i < count; i++)
+    {
+        uint32_t v = entries[i];
+        uint32_t pblock;
+        uint32_t page;
+        uint32_t raw;
+        uint32_t usn;
+        uint32_t type;
+        int32_t rc;
+
+        if (v == 0 || v == 0xffffu || v > 0x0fffu)
+            continue;
+
+        pblock = v + 0x1a9u;
+        if (pblock >= 8192u)
+            continue;
+        page = pblock * 0x80u;
+
+        rc = n3g_read_page_bootrom_xfer_bank(0, page, nano3g_pagebuf);
+        if (rc == 0)
+            rc = n3g_read_page_bootrom_xfer_bank(0, page, nano3g_pagebuf);
+        if (rc != 0)
+            continue;
+
+        n3g_copy_stage_spare(spare);
+        raw = spare[0];
+        usn = spare[1];
+        type = ((uint8_t *)spare)[9];
+        if ((type != 0x40u && type != 0x41u)
+         || (raw & ~0x3ffu) != target_base)
+            continue;
+
+        matches++;
+        if (best_index == 0xffffffffu || usn > best_usn)
+        {
+            best_index = i;
+            best_v = v;
+            best_raw = raw;
+            best_usn = usn;
+        }
+    }
+
+    result[0] = 0;
+    result[1] = matches;
+    result[2] = best_index;
+    result[3] = best_v;
+    result[4] = best_raw;
+    result[5] = best_usn;
+    return 0;
+}
+
 int32_t nano3g_nand_diag_init_only(uint32_t bank)
 {
     int32_t rc;
@@ -1001,6 +1115,9 @@ static void n3g_entry_min_setup(void)
 
 void nano3g_nand_entry_diag_run(void)
 {
+#if defined(BOOTLOADER) && NANO3G_VISIBILITY_ONLY
+    return;
+#else
     uint32_t id0 = 0;
     uint32_t id1 = 0;
     uint32_t stat0 = 0;
@@ -1026,6 +1143,7 @@ void nano3g_nand_entry_diag_run(void)
     nano3g_nand_entry_diag[7] = stat1;
     nano3g_nand_entry_diag[8] = N3G_FMCTRL0;
     nano3g_nand_entry_diag[9] = N3G_FMCSTAT;
+#endif
 }
 
 void nano3g_nand_entry_diag_get(uint32_t *out, uint32_t words)
@@ -1038,6 +1156,10 @@ void nano3g_nand_entry_diag_get(uint32_t *out, uint32_t words)
 
 void nano3g_nand_stage_diag_run(uint32_t stage)
 {
+#if defined(BOOTLOADER) && NANO3G_VISIBILITY_ONLY
+    (void)stage;
+    return;
+#else
     uint32_t id = 0;
     uint32_t stat = 0;
     int rc;
@@ -1059,6 +1181,7 @@ void nano3g_nand_stage_diag_run(uint32_t stage)
     nano3g_nand_stage_diag[6] = stat;
     nano3g_nand_stage_diag[7 + stage] = id;
     nano3g_nand_stage_diag[17 + stage] = (uint32_t)rc;
+#endif
 }
 
 void nano3g_nand_stage_diag_get(uint32_t *out, uint32_t words)

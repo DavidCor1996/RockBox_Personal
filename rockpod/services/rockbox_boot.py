@@ -10,12 +10,13 @@ import subprocess
 import base64
 import tempfile
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import QObject, QRunnable, Qt, Signal, Slot
 from PySide6.QtGui import QImage, QImageReader
 from PIL import Image, ImageOps, UnidentifiedImageError
 
 from services.command_runner import CommandRunner
 from services.file_safety import atomic_write_json, atomic_write_text
+from services.path_safety import resolve_under_root, validate_device_root
 
 
 BOOT_SPECS = {
@@ -289,6 +290,141 @@ class RockboxBootService:
             "stdout": result.stdout,
             "stderr": result.stderr,
             "message": "" if success else "Firmware rebuild failed",
+        }
+
+    def build_and_sync_latest(self, profile, runner=None, progress_callback=None, jobs=4):
+        """Build firmware/plugins and install them without touching user media."""
+        build_dir = self.firmware_build_dir(profile)
+        if not build_dir:
+            return self._build_sync_failure("No Rockbox build directory found for this profile")
+
+        try:
+            mount_path = validate_device_root(profile.get("device_mount_path") or "")
+        except ValueError as exc:
+            return self._build_sync_failure(str(exc), build_dir=build_dir)
+
+        artifact_path = os.path.join(build_dir, "rockbox.ipod")
+        job_count = max(1, int(jobs or 1))
+        build_command = ["make", "-C", build_dir, f"-j{job_count}"]
+        install_command = ["make", "-C", build_dir, f"PREFIX={mount_path}", "fullinstall"]
+
+        build = self._run_progress_command(
+            build_command,
+            runner=runner,
+            progress_callback=progress_callback,
+            progress_current=1,
+            progress_total=4,
+            progress_label="Building latest Rockbox and plugins",
+        )
+        if build.returncode != 0 or not os.path.isfile(artifact_path):
+            return self._build_sync_failure(
+                "Rockbox firmware/plugin build failed",
+                build_dir=build_dir,
+                stdout=build.stdout,
+                stderr=build.stderr,
+            )
+
+        install = self._run_progress_command(
+            install_command,
+            runner=runner,
+            progress_callback=progress_callback,
+            progress_current=2,
+            progress_total=4,
+            progress_label="Installing Rockbox and plugins",
+        )
+        if install.returncode != 0:
+            return self._build_sync_failure(
+                "Rockbox full install failed",
+                build_dir=build_dir,
+                stdout="\n".join(part for part in (build.stdout, install.stdout) if part.strip()),
+                stderr="\n".join(part for part in (build.stderr, install.stderr) if part.strip()),
+            )
+
+        if progress_callback:
+            progress_callback(3, 4, "Verifying both Rockbox firmware copies")
+        try:
+            firmware_paths = self._install_and_verify_firmware_copies(
+                artifact_path,
+                mount_path,
+            )
+            invalidated = self._invalidate_plugin_caches(mount_path)
+            if hasattr(os, "sync"):
+                os.sync()
+        except (OSError, ValueError) as exc:
+            return self._build_sync_failure(
+                f"Rockbox install verification failed: {exc}",
+                build_dir=build_dir,
+                stdout="\n".join(part for part in (build.stdout, install.stdout) if part.strip()),
+                stderr="\n".join(part for part in (build.stderr, install.stderr) if part.strip()),
+            )
+
+        plugin_root = os.path.join(build_dir, "apps", "plugins")
+        plugin_count = sum(
+            1
+            for root, _dirs, files in os.walk(plugin_root)
+            for name in files
+            if name.endswith(".rock") and os.path.isfile(os.path.join(root, name))
+        ) if os.path.isdir(plugin_root) else 0
+        checksum = self._hash_file(artifact_path)
+        if progress_callback:
+            progress_callback(4, 4, "Rockbox and plugins verified")
+        return {
+            "success": True,
+            "artifact_path": artifact_path,
+            "build_dir": build_dir,
+            "mount_path": mount_path,
+            "firmware_paths": firmware_paths,
+            "firmware_sha256": checksum,
+            "plugin_count": plugin_count,
+            "invalidated_plugin_caches": invalidated,
+            "stdout": "\n".join(part for part in (build.stdout, install.stdout) if part.strip()),
+            "stderr": "\n".join(part for part in (build.stderr, install.stderr) if part.strip()),
+            "message": "",
+        }
+
+    def _install_and_verify_firmware_copies(self, artifact_path, mount_path):
+        source = os.path.abspath(artifact_path or "")
+        if not os.path.isfile(source):
+            raise ValueError("Built rockbox.ipod is missing")
+        checksum = self._hash_file(source)
+        destinations = [
+            resolve_under_root(mount_path, "rockbox.ipod"),
+            resolve_under_root(mount_path, ".rockbox/rockbox.ipod"),
+        ]
+        for destination in destinations:
+            os.makedirs(os.path.dirname(destination), exist_ok=True)
+            shutil.copy2(source, destination)
+        mismatched = [path for path in destinations if self._hash_file(path) != checksum]
+        if mismatched:
+            raise OSError("firmware checksum mismatch: " + ", ".join(mismatched))
+        return destinations
+
+    @staticmethod
+    def _invalidate_plugin_caches(mount_path):
+        invalidated = []
+        for rel_path in (".rockbox/rocks/plugin.dat", ".rockbox/rocks/rb_plugins.dat"):
+            path = resolve_under_root(mount_path, rel_path)
+            try:
+                os.remove(path)
+            except FileNotFoundError:
+                continue
+            invalidated.append(path)
+        return invalidated
+
+    @staticmethod
+    def _build_sync_failure(message, build_dir="", stdout="", stderr=""):
+        return {
+            "success": False,
+            "artifact_path": "",
+            "build_dir": build_dir,
+            "mount_path": "",
+            "firmware_paths": [],
+            "firmware_sha256": "",
+            "plugin_count": 0,
+            "invalidated_plugin_caches": [],
+            "stdout": stdout or "",
+            "stderr": stderr or "",
+            "message": message,
         }
 
     def full_install_firmware(self, profile, runner=None, progress_callback=None):
@@ -1063,3 +1199,31 @@ class RockboxBootService:
             "expected_height": spec["height"],
             "requires_resize": False,
         }
+
+
+class RockboxBuildSyncSignals(QObject):
+    progress = Signal(int, int, str)
+    finished = Signal(dict)
+
+
+class RockboxBuildSyncJob(QRunnable):
+    """Run the repository build/full-install workflow off the UI thread."""
+
+    def __init__(self, service, profile, jobs=4):
+        super().__init__()
+        self._service = service
+        self._profile = dict(profile or {})
+        self._jobs = jobs
+        self.signals = RockboxBuildSyncSignals()
+
+    @Slot()
+    def run(self):
+        try:
+            result = self._service.build_and_sync_latest(
+                self._profile,
+                progress_callback=self.signals.progress.emit,
+                jobs=self._jobs,
+            )
+        except Exception as exc:  # Keep a worker failure from stranding the sync UI.
+            result = RockboxBootService._build_sync_failure(str(exc))
+        self.signals.finished.emit(result)

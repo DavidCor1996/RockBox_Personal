@@ -1,28 +1,36 @@
 """Dialog for searching and matching video metadata online (IMDb/TMDb/iTunes)."""
 
-import os
-from PySide6.QtCore import Qt, QSize, Signal, Slot
-from PySide6.QtGui import QPixmap, QIcon
+from PySide6.QtCore import Qt, Signal, Slot, QThreadPool
+from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import (
     QDialog, QVBoxLayout, QHBoxLayout, QFormLayout, QLabel, QLineEdit,
     QPushButton, QTableWidget, QTableWidgetItem, QHeaderView, QTextEdit,
-    QDialogButtonBox, QWidget, QFrame, QSpinBox, QMessageBox
+    QDialogButtonBox, QWidget, QFrame, QMessageBox
 )
 
-from services.online_video_metadata import VideoMetadataService
-from services.artwork_manager import ArtworkManager
+from services.video_metadata_jobs import (
+    PosterDownloadJob,
+    VideoEpisodeLookupJob,
+    VideoMetadataSearchJob,
+)
 
 class VideoMetadataLookupDialog(QDialog):
     """Dialog for matching video metadata with OMDb/iTunes."""
 
     metadata_matched = Signal(dict, str)  # matched_metadata, artwork_url
 
-    def __init__(self, track_row, metadata_service, artwork_manager, parent=None):
+    def __init__(self, track_row, metadata_service, artwork_manager, parent=None,
+                 is_group_match=False):
         super().__init__(parent)
         self._track = dict(track_row)
         self._service = metadata_service
         self._artwork_manager = artwork_manager
         self._results = []
+        self._is_group_match = bool(is_group_match)
+        self._jobs = set()
+        self._selected_art_url = ""
+        self._selected_art_data = b""
+        self._pending_accept_item = None
 
         self.setWindowTitle("Match Video Metadata")
         self.setMinimumSize(780, 500)
@@ -43,18 +51,11 @@ class VideoMetadataLookupDialog(QDialog):
         self._query_edit.setText(initial_query)
         self._query_edit.setPlaceholderText("Search title...")
         
-        self._year_spin = QSpinBox()
-        self._year_spin.setRange(0, 9999)
-        self._year_spin.setValue(int(self._track.get("year") or 0))
-        self._year_spin.setSpecialValueText("Any Year")
-
         self._search_btn = QPushButton("Search")
         self._search_btn.clicked.connect(self._on_search)
 
         search_layout.addWidget(QLabel("Title:"))
         search_layout.addWidget(self._query_edit, 1)
-        search_layout.addWidget(QLabel("Year:"))
-        search_layout.addWidget(self._year_spin)
         search_layout.addWidget(self._search_btn)
         layout.addWidget(search_frame)
 
@@ -110,7 +111,6 @@ class VideoMetadataLookupDialog(QDialog):
         query = self._query_edit.text().strip()
         if not query:
             return
-        year = self._year_spin.value() or None
         self._search_btn.setEnabled(False)
         self._search_btn.setText("Searching...")
         self._table.setRowCount(0)
@@ -119,34 +119,48 @@ class VideoMetadataLookupDialog(QDialog):
         self._art_preview.setText("Searching...")
         self._button_box.button(QDialogButtonBox.Ok).setEnabled(False)
 
-        try:
-            kind = str(self._track.get("video_kind") or "movie")
-            self._results = self._service.search(query, media_type=kind, year=year)
-            
-            # If nothing returned, try a general search or fallback
-            if not self._results:
-                alt_kind = "tv_show" if kind == "movie" else "movie"
-                self._results = self._service.search(query, media_type=alt_kind, year=year)
+        kind = str(self._track.get("video_kind") or "movie")
+        # Manual matching searches by title across movies and TV. The result
+        # year remains visible for disambiguation, but is never required input.
+        job = VideoMetadataSearchJob(self._service, query, kind, year=None)
+        job.signals.result.connect(self._on_search_results, Qt.QueuedConnection)
+        job.signals.error.connect(self._on_search_error, Qt.QueuedConnection)
+        self._start_job(job)
 
-            self._table.setRowCount(len(self._results))
-            for row, item in enumerate(self._results):
-                title_item = QTableWidgetItem(item.get("title", ""))
-                year_item = QTableWidgetItem(str(item.get("year") or ""))
-                genre_item = QTableWidgetItem(item.get("genre", ""))
-                type_item = QTableWidgetItem(item.get("media_type", "movie").replace("_", " ").title())
-                
-                for col, it in enumerate([title_item, year_item, genre_item, type_item]):
-                    self._table.setItem(row, col, it)
+    @Slot(object)
+    def _on_search_results(self, results):
+        self._results = list(results or [])
+        self._table.setRowCount(len(self._results))
+        for row, item in enumerate(self._results):
+            values = [
+                QTableWidgetItem(item.get("title", "")),
+                QTableWidgetItem(str(item.get("year") or "")),
+                QTableWidgetItem(item.get("genre", "")),
+                QTableWidgetItem(item.get("media_type", "movie").replace("_", " ").title()),
+            ]
+            for col, table_item in enumerate(values):
+                self._table.setItem(row, col, table_item)
+        if self._results:
+            self._table.selectRow(0)
+        else:
+            self._art_preview.setText("No results found.")
 
-            if not self._results:
-                self._art_preview.setText("No results found.")
-            else:
-                self._table.selectRow(0)
+    @Slot(str)
+    def _on_search_error(self, message):
+        QMessageBox.critical(self, "Search Error", f"Metadata search failed: {message}")
+        self._art_preview.setText("Error searching.")
 
-        except Exception as e:
-            QMessageBox.critical(self, "Search Error", f"Metadata search failed: {str(e)}")
-            self._art_preview.setText("Error searching.")
-        finally:
+    def _start_job(self, job):
+        self._jobs.add(job)
+        job.signals.finished.connect(
+            lambda current=job: self._finish_job(current),
+            Qt.QueuedConnection,
+        )
+        QThreadPool.globalInstance().start(job)
+
+    def _finish_job(self, job):
+        self._jobs.discard(job)
+        if isinstance(job, VideoMetadataSearchJob):
             self._search_btn.setEnabled(True)
             self._search_btn.setText("Search")
 
@@ -164,33 +178,40 @@ class VideoMetadataLookupDialog(QDialog):
 
         # Try to load/display artwork
         art_url = item.get("artwork_url") or ""
+        self._selected_art_url = art_url
+        self._selected_art_data = b""
         self._art_preview.clear()
         if art_url:
             self._art_preview.setText("Loading Poster...")
-            # We can download it using artwork manager
-            threading.Thread(target=self._download_preview_art, args=(art_url,), daemon=True).start()
+            job = PosterDownloadJob(art_url, self._artwork_manager._lookup.download_image)
+            job.signals.result.connect(self._on_poster_downloaded, Qt.QueuedConnection)
+            job.signals.error.connect(
+                lambda message, url=art_url: self._on_poster_error(url, message),
+                Qt.QueuedConnection,
+            )
+            self._start_job(job)
         else:
             self._art_preview.setText("No Poster Available")
 
         self._button_box.button(QDialogButtonBox.Ok).setEnabled(True)
 
-    def _download_preview_art(self, url):
-        try:
-            data, mime = self._artwork_manager._lookup.download_image(url)
-            if data:
-                # Post display update back to main thread safely
-                self.meta_art_downloaded(data)
-        except Exception:
-            pass
-
-    @Slot(bytes)
-    def meta_art_downloaded(self, data):
+    @Slot(object)
+    def _on_poster_downloaded(self, result):
+        url, data = result
+        if url != self._selected_art_url or not data:
+            return
         px = QPixmap()
         px.loadFromData(data)
         if not px.isNull():
+            self._selected_art_data = bytes(data)
             self._art_preview.setPixmap(px.scaled(138, 208, Qt.KeepAspectRatio, Qt.SmoothTransformation))
         else:
             self._art_preview.setText("Failed to load poster")
+
+    @Slot(str, str)
+    def _on_poster_error(self, url, _message):
+        if url == self._selected_art_url:
+            self._art_preview.setText("Poster unavailable")
 
     def _on_accepted(self):
         selected = self._table.selectedItems()
@@ -199,24 +220,43 @@ class VideoMetadataLookupDialog(QDialog):
         row = selected[0].row()
         item = self._results[row]
         
-        # If it's a TV episode, we also want to fetch the exact episode details if season and episode are specified
+        # Exact episode lookup can involve another network request, so finish it
+        # in the pool before accepting the dialog.
         if item.get("media_type") == "tv_show" and self._track.get("season_number") and self._track.get("episode_number"):
-            try:
-                ep_data = self._service.lookup_episode(
-                    item["title"],
-                    self._track["season_number"],
-                    self._track["episode_number"]
-                )
-                if ep_data:
-                    item.update({
-                        "episode_title": ep_data.get("title") or "",
-                        "plot_short": ep_data.get("plot_short") or item.get("plot_short") or "",
-                        "plot_long": ep_data.get("plot_long") or item.get("plot_long") or "",
-                        "release_date": ep_data.get("release_date") or item.get("release_date") or "",
-                        "runtime_seconds": ep_data.get("runtime_seconds") or item.get("runtime_seconds") or 0,
-                    })
-            except Exception as e:
-                logger.warning(f"Could not retrieve precise episode match: {str(e)}")
+            self._pending_accept_item = dict(item)
+            self._button_box.setEnabled(False)
+            job = VideoEpisodeLookupJob(
+                self._service,
+                item["title"],
+                self._track["season_number"],
+                self._track["episode_number"],
+            )
+            job.signals.result.connect(self._on_episode_result, Qt.QueuedConnection)
+            job.signals.error.connect(self._on_episode_error, Qt.QueuedConnection)
+            self._start_job(job)
+            return
+        self._emit_match_and_accept(item)
 
-        self.metadata_matched.emit(item, item.get("artwork_url", ""))
+    @Slot(object)
+    def _on_episode_result(self, episode):
+        item = dict(self._pending_accept_item or {})
+        if episode:
+            item.update({
+                "episode_title": episode.get("title") or "",
+                "plot_short": episode.get("plot_short") or item.get("plot_short") or "",
+                "plot_long": episode.get("plot_long") or item.get("plot_long") or "",
+                "release_date": episode.get("release_date") or item.get("release_date") or "",
+                "runtime_seconds": episode.get("runtime_seconds") or item.get("runtime_seconds") or 0,
+            })
+        self._emit_match_and_accept(item)
+
+    @Slot(str)
+    def _on_episode_error(self, _message):
+        self._emit_match_and_accept(dict(self._pending_accept_item or {}))
+
+    def _emit_match_and_accept(self, item):
+        matched = dict(item)
+        if self._selected_art_data:
+            matched["_artwork_data"] = self._selected_art_data
+        self.metadata_matched.emit(matched, item.get("artwork_url", ""))
         self.accept()

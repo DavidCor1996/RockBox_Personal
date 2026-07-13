@@ -13,6 +13,7 @@ import logging
 import re
 import time
 import unicodedata
+from collections import defaultdict
 from difflib import SequenceMatcher
 
 logger = logging.getLogger(__name__)
@@ -115,13 +116,23 @@ class MatchResult:
         if local and device:
             local_mh = local.get("metadata_hash", "")
             device_mh = device.get("metadata_hash", "")
-            if local_mh and device_mh and local_mh != device_mh:
+            synced_mh = device.get("last_synced_metadata_hash", "") or device_mh
+            if local_mh and synced_mh and local_mh != synced_mh:
                 return True
 
             local_fh = local.get("file_hash", "")
             device_fh = device.get("file_hash", "")
-            if local_fh and device_fh and local_fh != device_fh:
+            synced_fh = device.get("last_synced_file_hash", "") or device_fh
+            if local_fh and synced_fh and local_fh != synced_fh:
                 return True
+
+            # Schema-11 device rows own the baseline for this particular iPod.
+            # Do not let legacy global track state from another device override it.
+            if (
+                "last_synced_metadata_hash" in device
+                or "last_synced_file_hash" in device
+            ):
+                return False
 
         if hasattr(lt, "needs_resync") and lt.needs_resync:
             return True
@@ -169,13 +180,21 @@ class TrackMatcher:
         dev_by_id = {}
         dev_by_mhash = {}
         dev_by_fhash = {}
+        dev_by_identity = defaultdict(list)
+        dev_by_title_artist = defaultdict(list)
         device_rows = []
+        device_normalized = {}
+        device_order = {}
         dev_matched = set()
+        self._identity_candidates_examined = 0
+        self._similarity_candidates_examined = 0
 
-        for dt in device_tracks:
+        for position, dt in enumerate(device_tracks):
             d = dict(dt) if hasattr(dt, "keys") else dt
             device_rows.append(d)
-            did = d.get("id")
+            normalized = _normalized_identity(d)
+            device_normalized[id(d)] = normalized
+            device_order[id(d)] = position
             lid = d.get("local_track_id")
 
             if lid:
@@ -189,6 +208,13 @@ class TrackMatcher:
             if fh:
                 dev_by_fhash.setdefault(fh, []).append(d)
 
+            title, artists, album = normalized
+            if title and artists:
+                for artist in artists:
+                    dev_by_title_artist[(title, artist)].append(d)
+                    if album:
+                        dev_by_identity[(title, artist, album)].append(d)
+
         matched = []
         unmatched = []
         resync = []
@@ -196,7 +222,9 @@ class TrackMatcher:
         for lt in local_tracks:
             row = dict(lt) if hasattr(lt, "keys") else lt
             result = self._match_one(row, dev_by_id, dev_by_mhash,
-                                     dev_by_fhash, device_rows, dev_matched)
+                                     dev_by_fhash, device_rows, dev_matched,
+                                     dev_by_identity, dev_by_title_artist,
+                                     device_normalized, device_order)
             if result.is_matched:
                 matched.append(result)
                 if result.needs_resync:
@@ -223,12 +251,16 @@ class TrackMatcher:
             "unmatched_count": len(unmatched),
             "orphaned_count": len(orphaned),
             "resync_count": len(resync),
+            "identity_candidates_examined": self._identity_candidates_examined,
+            "similarity_candidates_examined": self._similarity_candidates_examined,
             "match_seconds": time.perf_counter() - started_at,
         }
         return matched, unmatched, orphaned, resync
 
     def _match_one(self, row, dev_by_id, dev_by_mhash,
-                   dev_by_fhash, device_rows, dev_matched):
+                   dev_by_fhash, device_rows, dev_matched,
+                   dev_by_identity, dev_by_title_artist,
+                   device_normalized, device_order):
         """Try to match a single local track against device indices."""
         tid = row.get("id")
 
@@ -248,13 +280,28 @@ class TrackMatcher:
                 return MatchResult(row, dt, MatchResult.MATCH_METADATA_HASH, 0.98)
 
         # Priority 3: strong normalized identity.
-        dt = self._first_identity_match(row, device_rows, dev_matched, require_album=True)
+        normalized = _normalized_identity(row)
+        dt = self._first_identity_match(
+            row,
+            normalized,
+            dev_by_identity,
+            dev_matched,
+            device_order,
+            require_album=True,
+        )
         if dt is not None:
             _mark_matched(dt, dev_matched)
             return MatchResult(row, dt, MatchResult.MATCH_METADATA, 0.95)
 
         # Priority 4: fallback identity for incomplete device metadata.
-        dt = self._first_identity_match(row, device_rows, dev_matched, require_album=False)
+        dt = self._first_identity_match(
+            row,
+            normalized,
+            dev_by_title_artist,
+            dev_matched,
+            device_order,
+            require_album=False,
+        )
         if dt is not None:
             _mark_matched(dt, dev_matched)
             return MatchResult(row, dt, MatchResult.MATCH_METADATA, 0.88)
@@ -262,7 +309,13 @@ class TrackMatcher:
         # Priority 5: metadata similarity. This deliberately requires a strong
         # title match and compatible artist/album/duration to avoid matching
         # distinct tracks like "Song 1", "Song 2", and "Song 3".
-        dt, confidence = self._best_metadata_similarity(row, device_rows, dev_matched)
+        dt, confidence = self._best_metadata_similarity(
+            row,
+            normalized,
+            device_rows,
+            dev_matched,
+            device_normalized,
+        )
         if dt is not None:
             _mark_matched(dt, dev_matched)
             return MatchResult(row, dt, MatchResult.MATCH_METADATA_SIMILARITY, confidence)
@@ -278,26 +331,28 @@ class TrackMatcher:
 
         return MatchResult(row)
 
-    def _first_identity_match(self, row, device_rows, dev_matched, require_album=True):
-        local_title = _normalize(row.get("title", ""))
-        local_album = _normalize(row.get("album", ""))
-        if not local_title or not _artist_keys(row):
+    def _first_identity_match(self, row, normalized, device_index, dev_matched,
+                              device_order, require_album=True):
+        local_title, local_artists, local_album = normalized
+        if not local_title or not local_artists:
             return None
         if require_album and not local_album:
             return None
 
-        for dt in device_rows:
+        candidates = {}
+        for artist in local_artists:
+            key = (
+                (local_title, artist, local_album)
+                if require_album
+                else (local_title, artist)
+            )
+            for dt in device_index.get(key, ()):
+                candidates[id(dt)] = dt
+
+        for dt in sorted(candidates.values(), key=lambda item: device_order[id(item)]):
+            self._identity_candidates_examined += 1
             if _is_matched(dt, dev_matched):
                 continue
-            device_title = _normalize(dt.get("title", ""))
-            if not device_title or local_title != device_title:
-                continue
-            if not _artist_matches(row, dt):
-                continue
-            if require_album:
-                device_album = _normalize(dt.get("album", ""))
-                if not device_album or device_album != local_album:
-                    continue
             if not _duration_ok(
                 row.get("duration", 0),
                 dt.get("duration", 0),
@@ -307,10 +362,9 @@ class TrackMatcher:
             return dt
         return None
 
-    def _best_metadata_similarity(self, row, device_rows, dev_matched):
-        local_title = _normalize(row.get("title", ""))
-        local_artists = _artist_keys(row)
-        local_album = _normalize(row.get("album", ""))
+    def _best_metadata_similarity(self, row, normalized, device_rows,
+                                  dev_matched, device_normalized):
+        local_title, local_artists, local_album = normalized
 
         if not local_title or not local_artists:
             return None, 0.0
@@ -322,9 +376,8 @@ class TrackMatcher:
             if _is_matched(dt, dev_matched):
                 continue
 
-            device_title = _normalize(dt.get("title", ""))
-            device_artists = _artist_keys(dt)
-            device_album = _normalize(dt.get("album", ""))
+            self._similarity_candidates_examined += 1
+            device_title, device_artists, device_album = device_normalized[id(dt)]
 
             if not device_title or not device_artists:
                 continue
@@ -363,11 +416,34 @@ class TrackMatcher:
 
     def explain_unmatched(self, row, device_rows):
         """Return a concise reason why a local row did not match."""
-        row = dict(row) if hasattr(row, "keys") else dict(row or {})
-        device_rows = [
+        return self.explain_unmatched_many([row], device_rows)[0]
+
+    def explain_unmatched_many(self, rows, device_rows):
+        """Explain multiple unmatched rows with one device metadata pass."""
+        normalized_device_rows = [
             dict(dt) if hasattr(dt, "keys") else dict(dt or {})
             for dt in (device_rows or [])
         ]
+        by_title = defaultdict(list)
+        missing_device_title = False
+        for device_row in normalized_device_rows:
+            title = _normalize(device_row.get("title", ""))
+            if title:
+                by_title[title].append(device_row)
+            else:
+                missing_device_title = True
+        return [
+            self._explain_unmatched_with_index(
+                dict(row) if hasattr(row, "keys") else dict(row or {}),
+                normalized_device_rows,
+                by_title,
+                missing_device_title,
+            )
+            for row in (rows or [])
+        ]
+
+    def _explain_unmatched_with_index(self, row, device_rows, by_title,
+                                      missing_device_title):
         title = _normalize(row.get("title", ""))
         if not title:
             return "missing title"
@@ -376,10 +452,9 @@ class TrackMatcher:
         if not device_rows:
             return "device inventory empty"
 
-        same_title = [dt for dt in device_rows if _normalize(dt.get("title", "")) == title]
+        same_title = by_title.get(title, ())
         if not same_title:
-            missing_title_count = sum(1 for dt in device_rows if not _normalize(dt.get("title", "")))
-            if missing_title_count:
+            if missing_device_title:
                 return "metadata incomplete: device titles missing"
             return "title mismatch"
 
@@ -401,6 +476,14 @@ class TrackMatcher:
         ):
             return "duration mismatch"
         return "no available unmatched candidate"
+
+
+def _normalized_identity(row):
+    return (
+        _normalize(row.get("title", "")),
+        frozenset(_artist_keys(row)),
+        _normalize(row.get("album", "")),
+    )
 
 
 def _metadata_key(row):

@@ -53,7 +53,7 @@ const struct usb_dw_config usb_dw_config =
 void usb_dw_target_enable_clocks()
 {
 #if defined(IPOD_NANO3G)
-    if (nano3g_safe_mode_enabled())
+    if (nano3g_safe_mode_enabled() && !NANO3G_NATIVE_USB_RETURN)
         return;
 #endif
 
@@ -76,7 +76,7 @@ void usb_dw_target_enable_clocks()
 void usb_dw_target_disable_clocks()
 {
 #if defined(IPOD_NANO3G)
-    if (nano3g_safe_mode_enabled())
+    if (nano3g_safe_mode_enabled() && !NANO3G_NATIVE_USB_RETURN)
         return;
 #endif
 
@@ -98,7 +98,7 @@ void usb_dw_target_disable_clocks()
 void usb_dw_target_enable_irq()
 {
 #if defined(IPOD_NANO3G)
-    if (nano3g_safe_mode_enabled())
+    if (nano3g_safe_mode_enabled() && !NANO3G_NATIVE_USB_RETURN)
         return;
 #endif
 
@@ -161,7 +161,7 @@ void usb_remove_int(void)
 void usb_init_device(void)
 {
 #if defined(IPOD_NANO3G)
-    if (nano3g_safe_mode_enabled())
+    if (nano3g_safe_mode_enabled() && !NANO3G_NATIVE_USB_RETURN)
     {
         usb_status = USB_EXTRACTED;
         return;

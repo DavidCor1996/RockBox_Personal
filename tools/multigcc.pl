@@ -16,6 +16,25 @@ for my $a (@ARGV) {
     push @{$list}, $a;
 }
 
+# GNU make writes oversized source lists to a response file so the initial
+# shell invocation does not exceed ARG_MAX. Parameters remain ordinary argv;
+# only file arguments after "--" support this @file form.
+my @expanded_files;
+for my $file (@files) {
+    if ($file =~ /^\@(.+)/) {
+        my $path = $1;
+        open my $fh, '<', $path or die "cannot open response file $path: $!\n";
+        local $/;
+        my $contents = <$fh>;
+        close $fh;
+        push @expanded_files, grep { length $_ } split /\s+/, $contents;
+    }
+    else {
+        push @expanded_files, $file;
+    }
+}
+@files = @expanded_files;
+
 exit if (not @files);
 
 my $command = join " ", @params;

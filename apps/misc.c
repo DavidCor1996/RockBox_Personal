@@ -94,6 +94,12 @@
 #include "gui/statusbar-skinned.h"
 #include "playback.h"
 #include "voice_thread.h"
+#include "root_menu.h"
+
+#if defined(HAVE_LCD_COLOR) && \
+    (defined(IPOD_VIDEO) || defined(IPOD_6G) || defined(IPOD_NANO3G))
+#include "gui/ipodjs_ui.h"
+#endif
 
 #ifdef BOOTFILE
 #if !defined(USB_NONE) && !defined(USB_HANDLED_BY_OF) \
@@ -825,10 +831,49 @@ long default_event_handler_ex(long event, void (*callback)(void *), void *parame
 #if CONFIG_CHARGING
         case SYS_CHARGER_CONNECTED:
             car_adapter_mode_processing(true);
+#if defined(HAVE_LCD_COLOR) && \
+    (defined(IPOD_VIDEO) || defined(IPOD_6G) || defined(IPOD_NANO3G))
+            if (ipodjs_ui_enabled(SCREEN_MAIN))
+            {
+                enum current_activity activity = get_current_activity();
+                bool allowed = activity == ACTIVITY_MAINMENU ||
+                    activity == ACTIVITY_WPS ||
+                    activity == ACTIVITY_PLAYLISTVIEWER ||
+                    activity == ACTIVITY_SETTINGS ||
+                    activity == ACTIVITY_FILEBROWSER ||
+                    activity == ACTIVITY_DATABASEBROWSER ||
+                    activity == ACTIVITY_QUICKSCREEN ||
+                    activity == ACTIVITY_OPTIONSELECT ||
+                    activity == ACTIVITY_PLAYLISTBROWSER ||
+                    activity == ACTIVITY_CONTEXTMENU ||
+                    activity == ACTIVITY_SYSTEMSCREEN ||
+                    activity == ACTIVITY_TIMEDATESCREEN ||
+                    activity == ACTIVITY_BOOKMARKSLIST ||
+                    activity == ACTIVITY_SHORTCUTSMENU ||
+                    activity == ACTIVITY_ID3SCREEN;
+                unsigned int power = power_input_status();
+                bool usb_power = (power & POWER_INPUT_USB) != 0;
+                bool power_only = !usb_power;
+
+                allowed = allowed ||
+                    root_menu_ipodjs_native_screen_active();
+
+#ifdef HAVE_USB_POWER
+                if (usb_power)
+                    power_only = usb_powered_only();
+#endif
+                if (allowed && power_only)
+                    ipodjs_ui_charging_screen(usb_power);
+            }
+#endif
             return SYS_CHARGER_CONNECTED;
 
         case SYS_CHARGER_DISCONNECTED:
             car_adapter_mode_processing(false);
+#if defined(HAVE_LCD_COLOR) && \
+    (defined(IPOD_VIDEO) || defined(IPOD_6G) || defined(IPOD_NANO3G))
+            ipodjs_ui_charging_disconnected();
+#endif
             reset_runtime();
             return SYS_CHARGER_DISCONNECTED;
 
@@ -1204,27 +1249,34 @@ void system_sound_play(enum system_sound sound)
         unsigned short frequency;
         unsigned short duration;
         unsigned short amplitude;
+        unsigned char haptic_duration;
+        unsigned char haptic_strength;
     } beep_params[] =
     {
         [SOUND_KEYCLICK] =
         { &global_settings.keyclick,
-          4000, KEYCLICK_DURATION, 2500 },
+          4000, KEYCLICK_DURATION, 2500, 24, 48 },
         [SOUND_TRACK_SKIP] =
         { &global_settings.beep,
-          2000, 100, 2500 },
+          2000, 100, 2500, 36, 60 },
         [SOUND_TRACK_NO_MORE] =
         { &global_settings.beep,
-          1000, 100, 1500 },
+          1000, 100, 1500, 70, 70 },
         [SOUND_LIST_EDGE_BEEP_NOWRAP] =
         { &global_settings.keyclick,
-          1000, 40, 1500 },
+          1000, 40, 1500, 30, 55 },
         [SOUND_LIST_EDGE_BEEP_WRAP] =
         { &global_settings.keyclick,
-          2000, 20, 1500 },
+          2000, 20, 1500, 24, 48 },
 
     };
 
     const struct beep_params *params = &beep_params[sound];
+
+#ifdef HAVE_HARDWARE_CLICK
+    if (global_settings.haptics_enabled)
+        haptic_feedback(params->haptic_duration, params->haptic_strength);
+#endif
 
     if (*params->setting)
     {
@@ -1254,7 +1306,8 @@ void keyclick_click(bool rawbutton, int action)
     /* Settings filters */
     if (
 #ifdef HAVE_HARDWARE_CLICK
-        (global_settings.keyclick || global_settings.keyclick_hardware)
+        (global_settings.keyclick || global_settings.keyclick_hardware ||
+         global_settings.haptics_enabled)
 #else
         global_settings.keyclick
 #endif
@@ -1302,6 +1355,16 @@ void keyclick_click(bool rawbutton, int action)
             piezo_button_beep(false, false);
 #endif
         }
+        if (global_settings.haptics_enabled
+#if defined(SIMULATOR)
+            && !global_settings.keyclick
+#else
+            && !global_settings.keyclick_hardware
+#endif
+           )
+        {
+            haptic_feedback(24, 48);
+        }
 #else
         system_sound_play(SOUND_KEYCLICK);
 #endif
@@ -1341,7 +1404,13 @@ void haptic_feedback(int duration_ms, int strength)
 
     last_tick = current_tick;
 
-#if !defined(SIMULATOR)
+#if defined(SIMULATOR)
+    unsigned int click_duration = MIN(12, MAX(KEYCLICK_DURATION,
+                                              duration_ms / 8));
+    unsigned int amplitude = MIN(5000, 1200 + strength * 32);
+
+    beep_play(strength >= 65 ? 3200 : 4000, click_duration, amplitude);
+#else
     piezo_button_beep(duration_ms >= 70 || strength >= 65, false);
 #endif
 #else

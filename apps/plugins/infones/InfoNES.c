@@ -829,6 +829,8 @@ void InfoNES_DrawLine()
   int nSprData;
   BYTE bySprCol;
   BYTE pSprBuf[ NES_DISP_WIDTH + 7 ];
+  BYTE bgOpaque[ NES_DISP_WIDTH ];
+  BYTE *pOpaque = bgOpaque;
 
   /*-------------------------------------------------------------------*/
   /*  Render Background                                                */
@@ -843,7 +845,9 @@ void InfoNES_DrawLine()
   // Clear a scanline if screen is off
   if ( !( PPU_R1 & R1_SHOW_SCR ) )
   {
-    InfoNES_MemorySet( pPoint, 0, NES_DISP_WIDTH << 1 );
+    for ( nX = 0; nX < NES_DISP_WIDTH; ++nX )
+      pPoint[ nX ] = PalTable[ 0 ];
+    InfoNES_MemorySet( bgOpaque, 0, sizeof bgOpaque );
   }
   else
   {
@@ -883,6 +887,7 @@ void InfoNES_DrawLine()
     for ( nIdx = PPU_Scr_H_Bit; nIdx < 8; ++nIdx )
     {
       *( pPoint++ ) = pPalTbl[ pbyChrData[ nIdx ] ];
+      *( pOpaque++ ) = pbyChrData[ nIdx ] != 0;
     }
 
     // Callback at PPU read/write
@@ -908,7 +913,16 @@ void InfoNES_DrawLine()
       pPoint[ 5 ] = pPalTbl[ pbyChrData[ 5 ] ];
       pPoint[ 6 ] = pPalTbl[ pbyChrData[ 6 ] ];
       pPoint[ 7 ] = pPalTbl[ pbyChrData[ 7 ] ];
+      pOpaque[ 0 ] = pbyChrData[ 0 ] != 0;
+      pOpaque[ 1 ] = pbyChrData[ 1 ] != 0;
+      pOpaque[ 2 ] = pbyChrData[ 2 ] != 0;
+      pOpaque[ 3 ] = pbyChrData[ 3 ] != 0;
+      pOpaque[ 4 ] = pbyChrData[ 4 ] != 0;
+      pOpaque[ 5 ] = pbyChrData[ 5 ] != 0;
+      pOpaque[ 6 ] = pbyChrData[ 6 ] != 0;
+      pOpaque[ 7 ] = pbyChrData[ 7 ] != 0;
       pPoint += 8;
+      pOpaque += 8;
 
       // Callback at PPU read/write
       MapperPPU( PATTBL( pbyChrData ) );
@@ -939,7 +953,16 @@ void InfoNES_DrawLine()
       pPoint[ 5 ] = pPalTbl[ pbyChrData[ 5 ] ];
       pPoint[ 6 ] = pPalTbl[ pbyChrData[ 6 ] ];
       pPoint[ 7 ] = pPalTbl[ pbyChrData[ 7 ] ];
+      pOpaque[ 0 ] = pbyChrData[ 0 ] != 0;
+      pOpaque[ 1 ] = pbyChrData[ 1 ] != 0;
+      pOpaque[ 2 ] = pbyChrData[ 2 ] != 0;
+      pOpaque[ 3 ] = pbyChrData[ 3 ] != 0;
+      pOpaque[ 4 ] = pbyChrData[ 4 ] != 0;
+      pOpaque[ 5 ] = pbyChrData[ 5 ] != 0;
+      pOpaque[ 6 ] = pbyChrData[ 6 ] != 0;
+      pOpaque[ 7 ] = pbyChrData[ 7 ] != 0;
       pPoint += 8;
+      pOpaque += 8;
 
       // Callback at PPU read/write
       MapperPPU( PATTBL( pbyChrData ) );
@@ -956,6 +979,7 @@ void InfoNES_DrawLine()
     for ( nIdx = 0; nIdx < PPU_Scr_H_Bit; ++nIdx )
     {
       pPoint[ nIdx ] = pPalTbl[ pbyChrData[ nIdx ] ];
+      pOpaque[ nIdx ] = pbyChrData[ nIdx ] != 0;
     }
 
     // Callback at PPU read/write
@@ -969,7 +993,9 @@ void InfoNES_DrawLine()
       WORD *pPointTop;
 
       pPointTop = &WorkFrame[ PPU_Scanline * NES_DISP_WIDTH ];
-      InfoNES_MemorySet( pPointTop, 0, 8 << 1 );
+      for ( nX = 0; nX < 8; ++nX )
+        pPointTop[ nX ] = PalTable[ 0 ];
+      InfoNES_MemorySet( bgOpaque, 0, 8 );
     }
 
     /*-------------------------------------------------------------------*/
@@ -982,6 +1008,7 @@ void InfoNES_DrawLine()
 
       pPointTop = &WorkFrame[ PPU_Scanline * NES_DISP_WIDTH ];
       InfoNES_MemorySet( pPointTop, 0, NES_DISP_WIDTH << 1 );
+      InfoNES_MemorySet( bgOpaque, 0, sizeof bgOpaque );
     }  
   }
 
@@ -1088,33 +1115,16 @@ void InfoNES_DrawLine()
     for ( nX = 0; nX < NES_DISP_WIDTH; ++nX )
     {
       nSprData = pSprBuf[ nX ];
-      if ( nSprData  && ( nSprData & 0x80 ||
-                          pPoint[ nX ] & INFONES_BACKDROP_MARKER ) )
+      if ( nX < 8 && !( PPU_R1 & R1_CLIP_SP ) )
+        continue;
+      if ( nSprData && ( nSprData & 0x80 || !bgOpaque[ nX ] ) )
       {
         pPoint[ nX ] = PalTable[ ( nSprData & 0xf ) + 0x10 ];
       }
-      pPoint[ nX ] &= ~INFONES_BACKDROP_MARKER;
-    }
-
-    /*-------------------------------------------------------------------*/
-    /*  Sprite Clipping                                                  */
-    /*-------------------------------------------------------------------*/
-    if ( !( PPU_R1 & R1_CLIP_SP ) )
-    {
-      WORD *pPointTop;
-
-      pPointTop = &WorkFrame[ PPU_Scanline * NES_DISP_WIDTH ];
-      InfoNES_MemorySet( pPointTop, 0, 8 << 1 );
     }
 
     if ( nSprCnt >= 8 )
       PPU_R2 |= R2_MAX_SP;  // Set a flag of maximum sprites on scanline
-  }
-  else
-  {
-    pPoint = &WorkFrame[ PPU_Scanline * NES_DISP_WIDTH ];
-    for ( nX = 0; nX < NES_DISP_WIDTH; ++nX )
-      pPoint[ nX ] &= ~INFONES_BACKDROP_MARKER;
   }
 }
 
@@ -1130,56 +1140,87 @@ void InfoNES_GetSprHitY()
  *
  */
 
-  int nYBit;
-  DWORD *pdwChrData;
-  int nOff;
+  int sprite_y = SPRRAM[ SPR_Y ] + 1;
+  int sprite_x = SPRRAM[ SPR_X ];
 
-  if ( SPRRAM[ SPR_ATTR ] & SPR_ATTR_V_FLIP )
-  {
-    // Vertical flip
-    nYBit = ( PPU_SP_Height - 1 ) << 3;
-    nOff = -2;
-  }
-  else
-  {
-    // Non flip
-    nYBit = 0;
-    nOff = 2;
-  }
+  SpriteJustHit = SCAN_UNKNOWN_START + 1;
 
-  if ( PPU_R0 & R0_SP_SIZE )
+  if ( sprite_y >= NES_DISP_HEIGHT || sprite_x >= NES_DISP_WIDTH - 1 )
+    return;
+
+  for ( int line = 0; line < PPU_SP_Height; ++line )
   {
-    // Sprite size 8x16
-    if ( SPRRAM[ SPR_CHR ] & 1 )
+    BYTE *sprite;
+    int screen_y = sprite_y + line;
+    int sprite_line = ( SPRRAM[ SPR_ATTR ] & SPR_ATTR_V_FLIP ) ?
+                      PPU_SP_Height - line - 1 : line;
+
+    if ( screen_y >= NES_DISP_HEIGHT )
+      break;
+
+    if ( PPU_R0 & R0_SP_SIZE )
     {
-      pdwChrData = (DWORD *)( ChrBuf + 256 * 64 + ( ( SPRRAM[ SPR_CHR ] & 0xfe ) << 6 ) + nYBit );
+      BYTE *base = ( SPRRAM[ SPR_CHR ] & 1 ) ?
+                   ChrBuf + 256 * 64 : ChrBuf;
+      sprite = base + ( ( SPRRAM[ SPR_CHR ] & 0xfe ) << 6 ) +
+               ( sprite_line << 3 );
     }
     else
     {
-      pdwChrData = (DWORD * )( ChrBuf + ( ( SPRRAM[ SPR_CHR ] & 0xfe ) << 6 ) + nYBit );
-    } 
-  }
-  else
-  {
-    // Sprite size 8x8
-    pdwChrData = (DWORD *)( PPU_SP_Base + ( SPRRAM[ SPR_CHR ] << 6 ) + nYBit );
-  }
+      sprite = PPU_SP_Base + ( SPRRAM[ SPR_CHR ] << 6 ) +
+               ( sprite_line << 3 );
+    }
 
-  if ( ( SPRRAM[ SPR_Y ] + 1 <= SCAN_UNKNOWN_START ) && ( SPRRAM[SPR_Y] > 0 ) )
-	{
-		for ( int nLine = 0; nLine < PPU_SP_Height; nLine++ )
-		{
-			if ( pdwChrData[ 0 ] | pdwChrData[ 1 ] )
-			{
-        // Scanline hits sprite #0
-				SpriteJustHit = SPRRAM[SPR_Y] + 1 + nLine;
-				nLine = SCAN_VBLANK_END;
-			}
-			pdwChrData += nOff;
-		}
-  } else {
-    // Scanline didn't hit sprite #0
-		SpriteJustHit = SCAN_UNKNOWN_START + 1;
+    for ( int pixel = 0; pixel < 8; ++pixel )
+    {
+      int screen_x = sprite_x + pixel;
+      int sprite_pixel = ( SPRRAM[ SPR_ATTR ] & SPR_ATTR_H_FLIP ) ?
+                         7 - pixel : pixel;
+      int fine_x;
+      int fine_y;
+      int tile_x;
+      int tile_y;
+      int name_table;
+      BYTE tile;
+
+      if ( screen_x >= NES_DISP_WIDTH - 1 )
+        break;
+      if ( screen_x < 8 &&
+           ( !( PPU_R1 & R1_CLIP_BG ) || !( PPU_R1 & R1_CLIP_SP ) ) )
+        continue;
+      if ( !sprite[ sprite_pixel ] )
+        continue;
+
+      fine_x = PPU_Scr_H_Bit + screen_x;
+      tile_x = PPU_Scr_H_Byte + ( fine_x >> 3 );
+      fine_x &= 7;
+      fine_y = PPU_Scr_V_Bit + ( screen_y & 7 );
+      tile_y = PPU_Scr_V_Byte + ( screen_y >> 3 );
+      if ( fine_y > 7 )
+      {
+        tile_y++;
+        fine_y &= 7;
+      }
+
+      name_table = PPU_NameTableBank;
+      if ( tile_x > 31 )
+      {
+        tile_x &= 31;
+        name_table ^= NAME_TABLE_H_MASK;
+      }
+      if ( tile_y > 29 )
+      {
+        tile_y -= 30;
+        name_table ^= NAME_TABLE_V_MASK;
+      }
+
+      tile = PPUBANK[ name_table ][ tile_y * 32 + tile_x ];
+      if ( PPU_BG_Base[ ( tile << 6 ) + ( fine_y << 3 ) + fine_x ] )
+      {
+        SpriteJustHit = screen_y;
+        return;
+      }
+    }
   }
 }
 

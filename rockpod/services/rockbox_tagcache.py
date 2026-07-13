@@ -92,7 +92,17 @@ class TagcacheError(RuntimeError):
     """Raised when Rockbox tagcache files are invalid or unreadable."""
 
 
-def write_rockbox_tagcache_tracks(mount_path: str, tracks: list[dict]) -> dict:
+def _mount_identity(path: Path) -> tuple[int, int, int]:
+    stat = path.stat()
+    vfs = os.statvfs(path)
+    return stat.st_dev, stat.st_ino, vfs.f_blocks * vfs.f_frsize
+
+
+def write_rockbox_tagcache_tracks(
+    mount_path: str,
+    tracks: list[dict],
+    require_tracks: bool = False,
+) -> dict:
     """Generate Rockbox tagcache files under ``mount_path/.rockbox``.
 
     The writer builds into a temporary root first and validates the generated
@@ -102,10 +112,13 @@ def write_rockbox_tagcache_tracks(mount_path: str, tracks: list[dict]) -> dict:
     mount = Path(mount_path)
     if not mount.is_dir():
         raise TagcacheError("Device mount path is unavailable")
+    mount_identity = _mount_identity(mount)
 
     entries = [_normalize_writer_entry(track, str(mount)) for track in tracks]
     entries = [entry for entry in entries if entry]
     entries.sort(key=lambda item: item["filename"].casefold())
+    if require_tracks and not entries:
+        raise TagcacheError("No supported audio tracks are available for database repair")
 
     temp_root = Path(tempfile.mkdtemp(prefix=".rockpod_tagcache_", dir=str(mount)))
     try:
@@ -117,6 +130,8 @@ def write_rockbox_tagcache_tracks(mount_path: str, tracks: list[dict]) -> dict:
             raise TagcacheError(
                 f"Generated tagcache validation failed: expected {len(entries)} tracks, read {len(parsed)}"
             )
+        if _mount_identity(mount) != mount_identity:
+            raise TagcacheError("Device changed while the Rockbox database was being generated")
 
         rockbox_dir = mount / ".rockbox"
         rockbox_dir.mkdir(parents=True, exist_ok=True)
@@ -133,7 +148,12 @@ def write_rockbox_tagcache_tracks(mount_path: str, tracks: list[dict]) -> dict:
         rmtree(temp_root, ignore_errors=True)
 
 
-def write_rockbox_tagcache_from_device_inventory(db, device, device_key: str = "") -> dict:
+def write_rockbox_tagcache_from_device_inventory(
+    db,
+    device,
+    device_key: str = "",
+    require_tracks: bool = False,
+) -> dict:
     """Generate Rockbox tagcache from RockPod's cached device inventory."""
     mount_path = getattr(device, "mount_path", "") if device else ""
     if not mount_path:
@@ -159,7 +179,11 @@ def write_rockbox_tagcache_from_device_inventory(db, device, device_key: str = "
             track for track in tracks
             if track.get("id") not in missing_id_set
         ]
-    return write_rockbox_tagcache_tracks(mount_path, tracks)
+    return write_rockbox_tagcache_tracks(
+        mount_path,
+        tracks,
+        require_tracks=require_tracks,
+    )
 
 
 def _rel_device_path(raw_path: str) -> str:

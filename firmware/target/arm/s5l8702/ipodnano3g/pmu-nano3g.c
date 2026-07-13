@@ -37,7 +37,9 @@ int pmu_read_multiple(int address, int count, unsigned char* buffer)
 
 int pmu_write_multiple(int address, int count, unsigned char* buffer)
 {
-    if (nano3g_safe_mode_enabled())
+    if (nano3g_safe_mode_enabled()
+        && !(NANO3G_DISPLAY_BRINGUP
+             && address == D1671_REG_LEDCTL && count == 1))
         return 0;
 
     return i2c_write(0, 0xe6, address, count, buffer);
@@ -210,7 +212,8 @@ int pmu_firewire_present(void)
 }
 #endif
 
-#if defined(BOOTLOADER)   // XXX: from usb-s5l8702.c
+#if defined(BOOTLOADER) && !defined(HAVE_BOOTLOADER_USB_MODE)
+/* usb-s5l8702.c supplies these when bootloader USB mode is built. */
 #include "usb.h"
 static int usb_status = USB_EXTRACTED;
 
@@ -228,7 +231,7 @@ void usb_remove_int(void)
 {
     usb_status = USB_EXTRACTED;
 }
-#endif
+#endif /* BOOTLOADER && !HAVE_BOOTLOADER_USB_MODE */
 
 static void pmu_read_inputs(void)
 {

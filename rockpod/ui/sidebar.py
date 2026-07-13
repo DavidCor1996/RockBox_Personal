@@ -116,6 +116,7 @@ class Sidebar(QWidget):
     ROCKBOX_PHOTOS = "rockbox_photos"
     ROCKBOX_LINUX = "rockbox_linux"
     ROCKBOX_BROWSER = "rockbox_browser"
+    ROCKBOX_WEBSITE_SYNC = "rockbox_website_sync"
     ROCKBOX_SIMULATOR = "rockbox_simulator"
 
     def __init__(self, parent=None):
@@ -248,6 +249,10 @@ class Sidebar(QWidget):
         self._browser_item = self._add_item(
             self._rockbox_header, "Store", self.ROCKBOX_BROWSER,
             _make_icon("#7391a7", "store")
+        )
+        self._website_sync_item = self._add_item(
+            self._rockbox_header, "Website Sync", self.ROCKBOX_WEBSITE_SYNC,
+            _make_icon("#4b94c6", "store")
         )
         self._simulator_item = self._add_item(
             self._rockbox_header, "Simulator", self.ROCKBOX_SIMULATOR,

@@ -675,6 +675,7 @@ bool albumlist_draw_slideshow(struct screen *display, int x, int y,
 
     return drew;
 }
+
 #else
 void albumlist_slideshow_set_paused(bool paused)
 {
@@ -691,6 +692,7 @@ bool albumlist_draw_slideshow(struct screen *display, int x, int y,
     (void)height;
     return false;
 }
+
 #endif
 
 static bool albumlist_get_album_row(struct tree_context *tc, int id,

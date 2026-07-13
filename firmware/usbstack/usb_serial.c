@@ -204,7 +204,7 @@ static int buffer_start;
 static int buffer_length;
 /* The number of bytes to transfer that have been given to the USB stack */
 static int buffer_transitlength;
-static bool active = false;
+static volatile bool active = false;
 
 struct usb_class_driver_ep_allocation usb_serial_ep_allocs[3] = {
     {.type = USB_ENDPOINT_XFER_BULK, .dir = DIR_IN, .optional = false},
@@ -409,6 +409,16 @@ void usb_serial_send(const unsigned char *data,int length)
     if (buffer_transitlength==0)
         sendout();
     /* else do nothing. The transfer completion handler will pick it up */
+}
+
+bool usb_serial_active(void)
+{
+    return active;
+}
+
+int usb_serial_bytes_pending(void)
+{
+    return buffer_length + buffer_transitlength;
 }
 
 /* called by usb_core_transfer_complete() */

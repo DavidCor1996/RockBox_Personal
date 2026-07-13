@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import subprocess
 import sys
@@ -15,7 +16,12 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from services.android_media import build_ffmpeg_command  # noqa: E402
-from services.youtube_movies import is_supported_youtube_url, sanitize_movie_title  # noqa: E402
+from services.youtube_movies import (  # noqa: E402
+    _downloaded_video,
+    is_supported_youtube_url,
+    persist_movie_import_poster,
+    sanitize_movie_title,
+)
 
 
 VIDEO_EXTENSIONS = {".mp4", ".mkv", ".webm", ".mov", ".m4v"}
@@ -25,49 +31,11 @@ def _sanitize_component(value, max_len=96):
     return sanitize_movie_title(value, max_len=max_len)
 
 
-def _downloaded_video(download_dir, safe_title, baseline=None):
-    changed_candidates = []
-    matched_candidates = []
-    prefix = f"{safe_title}."
-    for path in Path(download_dir).glob(f"{safe_title}*"):
-        if not path.is_file() or path.suffix.lower() not in VIDEO_EXTENSIONS:
-            continue
-        try:
-            stat = path.stat()
-        except OSError:
-            continue
-        previous = (baseline or {}).get(str(path))
-        matched_candidates.append((stat.st_mtime, path))
-        if previous and previous == (stat.st_size, stat.st_mtime):
-            continue
-        if not path.name.startswith(prefix):
-            continue
-        changed_candidates.append((stat.st_mtime, path))
-    if changed_candidates:
-        return sorted(changed_candidates)[-1][1]
-    if matched_candidates:
-        return sorted(matched_candidates)[-1][1]
-    fallback_candidates = []
-    for path in Path(download_dir).glob("*"):
-        if not path.is_file() or path.suffix.lower() not in VIDEO_EXTENSIONS:
-            continue
-        try:
-            stat = path.stat()
-        except OSError:
-            continue
-        fallback_candidates.append((stat.st_mtime, path))
-    if not fallback_candidates:
-        for path in Path(download_dir).glob("*"):
-            if not path.is_file() or path.suffix.lower() not in VIDEO_EXTENSIONS:
-                continue
-            try:
-                stat = path.stat()
-            except OSError:
-                continue
-            fallback_candidates.append((stat.st_mtime, path))
-    if not fallback_candidates:
-        return None
-    return sorted(fallback_candidates)[-1][1]
+def _safe_int(value, default=0):
+    try:
+        return int(float(value))
+    except (TypeError, ValueError):
+        return default
 
 
 def _run_streamed(command):
@@ -91,17 +59,49 @@ def _run_streamed(command):
     return "".join(output)
 
 
-def _title_from_ytdlp(yt_dlp, url):
-    command = [yt_dlp, "--no-playlist", "--print", "%(title)s", "--skip-download", url]
+def _metadata_from_ytdlp(yt_dlp, url):
+    command = [yt_dlp, "--no-playlist", "--dump-single-json", "--skip-download", url]
     try:
         result = subprocess.run(command, text=True, capture_output=True, check=True)
-    except (OSError, subprocess.CalledProcessError):
-        return "YouTube Movie"
-    for line in result.stdout.splitlines():
-        title = line.strip()
-        if title:
-            return title
-    return "YouTube Movie"
+        raw = json.loads(result.stdout)
+    except (OSError, subprocess.CalledProcessError, json.JSONDecodeError):
+        return {}
+    upload_date = str(raw.get("upload_date") or raw.get("release_date") or "")
+    year = raw.get("release_year")
+    if not year and len(upload_date) >= 4 and upload_date[:4].isdigit():
+        year = int(upload_date[:4])
+    return {
+        "id": str(raw.get("id") or ""),
+        "url": str(raw.get("webpage_url") or url),
+        "title": str(raw.get("title") or raw.get("fulltitle") or "YouTube Movie"),
+        "description": str(raw.get("description") or ""),
+        "uploader": str(raw.get("uploader") or raw.get("channel") or ""),
+        "channel_url": str(raw.get("channel_url") or raw.get("uploader_url") or ""),
+        "thumbnail": str(raw.get("thumbnail") or ""),
+        "duration": _safe_int(raw.get("duration")),
+        "year": _safe_int(year, None),
+        "show_title": str(raw.get("series") or raw.get("series_title") or ""),
+        "season_number": raw.get("season_number"),
+        "episode_number": raw.get("episode_number"),
+        "episode_title": str(raw.get("episode") or ""),
+        "categories": (
+            list(raw.get("categories") or [])
+            if isinstance(raw.get("categories"), (list, tuple))
+            else [str(raw.get("categories"))] if raw.get("categories") else []
+        ),
+    }
+
+
+def _downloaded_poster(download_dir, safe_title):
+    candidates = []
+    for path in Path(download_dir).glob(f"{safe_title}*"):
+        if not path.is_file() or path.suffix.lower() not in {".jpg", ".jpeg", ".png", ".webp"}:
+            continue
+        try:
+            candidates.append((path.stat().st_mtime, path))
+        except OSError:
+            continue
+    return sorted(candidates)[-1][1] if candidates else None
 
 
 def import_movie(url, download_dir, output_dir, yt_dlp, ffmpeg):
@@ -109,7 +109,8 @@ def import_movie(url, download_dir, output_dir, yt_dlp, ffmpeg):
         raise ValueError("Only YouTube URLs are supported.")
     os.makedirs(download_dir, exist_ok=True)
     os.makedirs(output_dir, exist_ok=True)
-    title = _title_from_ytdlp(yt_dlp, url)
+    metadata = _metadata_from_ytdlp(yt_dlp, url)
+    title = metadata.get("title") or "YouTube Movie"
     safe_title = _sanitize_component(title)
     baseline = {}
     for path in Path(download_dir).glob(f"{safe_title}*"):
@@ -126,6 +127,9 @@ def import_movie(url, download_dir, output_dir, yt_dlp, ffmpeg):
         "--no-playlist",
         "--merge-output-format",
         "mp4",
+        "--write-thumbnail",
+        "--convert-thumbnails",
+        "jpg",
         "-f",
         "bv*[height<=480]+ba/b[height<=480]/best",
         "-o",
@@ -143,6 +147,10 @@ def import_movie(url, download_dir, output_dir, yt_dlp, ffmpeg):
         target_path = Path(output_dir) / f"{safe_title}-{suffix}.mpg"
     ffmpeg_command = build_ffmpeg_command(str(source_path), str(target_path), "video", ffmpeg_path=ffmpeg)
     _run_streamed(ffmpeg_command)
+    poster_source = _downloaded_poster(download_dir, safe_title)
+    if poster_source:
+        metadata["poster_path"] = persist_movie_import_poster(target_path, poster_source)
+    print(f"ROCKPOD_MOVIE_METADATA={json.dumps(metadata, separators=(',', ':'))}", flush=True)
     print(f"ROCKPOD_MOVIE_OUTPUT={target_path}", flush=True)
     return str(target_path)
 

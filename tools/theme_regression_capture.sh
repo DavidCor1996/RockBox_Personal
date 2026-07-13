@@ -55,6 +55,21 @@ copy_font_dir()
     fi
 }
 
+copy_asset_tree()
+{
+    local src="$1"
+    local dst="$2"
+
+    if [ ! -d "${src}" ]; then
+        return
+    fi
+
+    rm -rf "${dst}"
+    mkdir -p "${dst}"
+    (cd "${src}" && tar --exclude='./.rockbox' --exclude='*/.rockbox' \
+        -cf - .) | (cd "${dst}" && tar -xf -)
+}
+
 configured_skin_rel()
 {
     local key="$1"
@@ -104,7 +119,8 @@ install_current_theme_sources()
     copy_font_dir "${repo_root}/build-sim-video-5g/simdisk/.rockbox/fonts"
     copy_font_dir "${repo_root}/rockpod/.theme_designer/simulator/ipod-320x240/build-sim-video-5g/simdisk/.rockbox/fonts"
     copy_font_dir "${repo_root}/fonts"
-    copy_if_exists "${repo_root}/assets/ipodjs/rockbox" "${rb_cfg_dir}/ipodjs"
+    copy_asset_tree "${repo_root}/assets/ipodjs/rockbox" \
+                    "${rb_cfg_dir}/ipodjs"
 }
 
 prepare_runtime_root()
@@ -159,6 +175,16 @@ capture_window()
     import -window "${sim_wid}" "${out_dir}/${filename}"
 }
 
+capture_wps_transition_burst()
+{
+    local frame
+
+    for frame in $(seq -w 0 39); do
+        capture_window "transition-${frame}.png"
+        sleep 0.01
+    done
+}
+
 tap_key()
 {
     local key="$1"
@@ -209,7 +235,15 @@ ensure_active_playback()
                 ;;
         esac
 
-        tap_key KP_Add
+        if [ "${THEME_CAPTURE_WPS_TRANSITION_BURST:-0}" = "1" ] &&
+           [ "${attempt}" = "1" ]; then
+            capture_wps_transition_burst &
+            local burst_pid=$!
+            tap_key KP_Add
+            wait "${burst_pid}"
+        else
+            tap_key KP_Add
+        fi
     done
 
     capture_window "00-active-playback-validation-failed.png"
@@ -243,20 +277,31 @@ EOF
 
 launch_and_prepare_window()
 {
-    pushd "${build_dir}" >/dev/null
-    ./rockboxui --zoom "${THEME_CAPTURE_ZOOM:-2}" --nobackground --root "${sim_root}" &
-    sim_pid=$!
-    popd >/dev/null
-    sleep 2
+    local attempt
     local win_ids
-    win_ids="$(xdotool search --pid "${sim_pid}" || true)"
-    sim_wid="${win_ids%%$'\n'*}"
-    if [ -z "${sim_wid}" ]; then
-        printf "unable to find simulator window for pid %s\n" "${sim_pid}" >&2
-        exit 1
-    fi
-    xdotool windowactivate "${sim_wid}"
-    sleep 1
+
+    for attempt in 1 2 3 4 5; do
+        pushd "${build_dir}" >/dev/null
+        ./rockboxui --zoom "${THEME_CAPTURE_ZOOM:-2}" --nobackground \
+            --root "${sim_root}" &
+        sim_pid=$!
+        popd >/dev/null
+        sleep 2
+        win_ids="$(xdotool search --pid "${sim_pid}" 2>/dev/null || true)"
+        sim_wid="${win_ids%%$'\n'*}"
+        if [ -n "${sim_wid}" ]; then
+            xdotool windowactivate "${sim_wid}"
+            sleep 1
+            return
+        fi
+
+        wait "${sim_pid}" 2>/dev/null || true
+        sim_pid=""
+        sleep 1
+    done
+
+    printf "unable to launch simulator after 5 attempts\n" >&2
+    exit 1
 }
 
 cleanup_sim()
@@ -376,7 +421,19 @@ main()
     rm -f "${out_dir}"/*.png
     enter_wps_if_requested
     ensure_active_playback
+    sleep "${THEME_CAPTURE_WPS_SETTLE:-1.2}"
     capture_window "01-normal-playback.png"
+    if [ "${THEME_CAPTURE_CAPTURE_VOLUME:-0}" = "1" ]; then
+        tap_key Up
+        tap_key Up
+        capture_window "04-volume-overlay-active.png"
+        printf "saved playback and volume screenshots to %s\n" "${out_dir}"
+        return
+    fi
+    if [ "${THEME_CAPTURE_STOP_AFTER_NORMAL:-0}" = "1" ]; then
+        printf "saved normal playback screenshot to %s\n" "${out_dir}"
+        return
+    fi
 
     tap_key "${THEME_CAPTURE_BROWSE_KEY:-KP_5}"
     capture_window "11-menu-mini-player.png"

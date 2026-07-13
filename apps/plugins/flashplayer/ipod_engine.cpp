@@ -140,21 +140,14 @@ float ipod_engine_frame_advance(struct ipod_engine_frame_clock *clock)
 {
     long now;
     long ticks;
-    long frame_ticks;
 
     if (!clock || clock->fps_x100 <= 0)
         return 1.0f / 35.0f;
 
     now = *rb->current_tick;
     ticks = now - clock->last_tick;
-    frame_ticks = (HZ * 100) / clock->fps_x100;
-    if (frame_ticks <= 0)
-        frame_ticks = 1;
-
     if (ticks <= 0)
-        ticks = frame_ticks;
-    if (ticks > frame_ticks)
-        ticks = frame_ticks;
+        return 0.0f;
     if (ticks > IPOD_ENGINE_MAX_DT_TICKS)
         ticks = IPOD_ENGINE_MAX_DT_TICKS;
 

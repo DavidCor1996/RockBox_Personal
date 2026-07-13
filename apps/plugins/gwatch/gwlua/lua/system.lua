@@ -522,6 +522,7 @@ return function( M )
     
     system.setbackground( options.background.picture )
     options.background.picture = nil
+    menu:setzoom( true )
 
     return function()
       system.inputstate( newstate )

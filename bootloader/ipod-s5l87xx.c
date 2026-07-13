@@ -47,6 +47,10 @@
 #include "version.h"
 #include "powermgmt.h"
 #include "usb.h"
+#if defined(IPOD_NANO3G) && NANO3G_NATIVE_USB_RETURN
+#include "usb_core.h"
+#include "../firmware/usbstack/usb_serial.h"
+#endif
 #ifdef HAVE_SERIAL
 #include "serial.h"
 #endif
@@ -247,6 +251,7 @@ static void n3g_storage_direct_lba_diag(void)
 
 extern void bss_init(void);
 extern uint32_t _movestart;
+extern uint32_t _moveend;
 extern uint32_t start_loc;
 
 extern int line;
@@ -940,6 +945,450 @@ static void devel_menu(void)
 }
 #endif /* S5L87XX_DEVELOPMENT_BOOTLOADER */
 
+#if defined(IPOD_NANO3G) && NANO3G_NATIVE_CHAIN
+static void n3g_chain_embedded_native(void) __attribute__((noreturn));
+static void n3g_chain_embedded_native(void)
+{
+    const uintptr_t boot_body_size =
+        (uintptr_t)&_moveend - (uintptr_t)&_movestart;
+    /*
+     * Haxed DFU stages the flat body at IRAM0.  crt0 relocates only the
+     * linked bootloader into IRAM1, leaving the appended application at the
+     * end of the original IRAM0 staging copy.
+     */
+    const uint8_t *src = (const uint8_t *)(IRAM0_ORIG + boot_body_size);
+    uint8_t *dst = (uint8_t *)DRAM_ORIG;
+    uint32_t checksum = MODEL_NUMBER;
+
+    lcd_clear_display();
+    lcd_puts(0, 0, "N3G CHAIN COPY");
+    lcd_putsf(0, 1, "%lu + %lu bytes", (unsigned long)boot_body_size,
+             (unsigned long)NANO3G_NATIVE_CHAIN_SIZE);
+    lcd_update();
+
+    for (uint32_t i = 0; i < NANO3G_NATIVE_CHAIN_SIZE; i++)
+    {
+        uint8_t value = src[i];
+        dst[i] = value;
+        checksum += value;
+    }
+
+    lcd_clear_display();
+    if (checksum != NANO3G_NATIVE_CHAIN_CHECKSUM)
+    {
+        lcd_puts(0, 0, "N3G CHAIN BAD SUM");
+        lcd_putsf(0, 1, "%08lx != %08lx", (unsigned long)checksum,
+                 (unsigned long)NANO3G_NATIVE_CHAIN_CHECKSUM);
+        lcd_update();
+        while (1)
+            ;
+    }
+
+    lcd_puts(0, 0, "N3G CHAIN COPY OK");
+    lcd_puts(0, 1, "APP JUMP IN 2 SEC");
+    lcd_update();
+    sleep(2 * HZ);
+
+    disable_irq();
+    commit_discard_idcache();
+    ((void (*)(void))dst)();
+
+    while (1)
+        ;
+}
+#endif
+
+#if defined(IPOD_NANO3G) && NANO3G_NATIVE_DISK_HANDOFF
+#if NANO3G_NATIVE_USB_RETURN
+#define N3G_USB_FRAME_DATA 256u
+
+static uint32_t n3g_usb_fnv1a(const uint8_t *data, uint32_t length)
+{
+    uint32_t hash = 2166136261u;
+
+    for (uint32_t i = 0; i < length; i++)
+    {
+        hash ^= data[i];
+        hash *= 16777619u;
+    }
+
+    return hash;
+}
+
+static bool n3g_usb_send_frame(uint32_t offset, const uint8_t *data,
+                               uint16_t length, uint16_t pass)
+{
+    uint8_t frame[16 + N3G_USB_FRAME_DATA];
+    uint32_t hash = n3g_usb_fnv1a(data, length);
+
+    frame[0] = 'N';
+    frame[1] = '3';
+    frame[2] = 'G';
+    frame[3] = 'R';
+    frame[4] = offset;
+    frame[5] = offset >> 8;
+    frame[6] = offset >> 16;
+    frame[7] = offset >> 24;
+    frame[8] = length;
+    frame[9] = length >> 8;
+    frame[10] = pass;
+    frame[11] = pass >> 8;
+    frame[12] = hash;
+    frame[13] = hash >> 8;
+    frame[14] = hash >> 16;
+    frame[15] = hash >> 24;
+    memcpy(frame + 16, data, length);
+
+    while (usb_serial_active() && usb_serial_bytes_pending() != 0)
+        sleep(1);
+    if (!usb_serial_active())
+        return false;
+
+    usb_serial_send(frame, 16 + length);
+    while (usb_serial_active() && usb_serial_bytes_pending() != 0)
+        sleep(1);
+
+    return usb_serial_active();
+}
+
+static void n3g_return_disk_native_usb(const unsigned char *image, int length)
+    __attribute__((noreturn));
+static void n3g_return_disk_native_usb(const unsigned char *image, int length)
+{
+    static const uint8_t header[8] =
+        { 0x05, 0x42, 0x07, 0x64, 'n', 'n', '3', 'g' };
+    uint16_t pass = 0;
+
+    lcd_clear_display();
+    lcd_puts(0, 0, "N3G DISK VERIFIED");
+    lcd_putsf(0, 1, "%d BODY BYTES", length);
+    lcd_puts(0, 2, "USB READBACK START");
+    lcd_update();
+
+    usb_init();
+    usb_core_enable_driver(USB_DRIVER_SERIAL, true);
+    usb_enable(true);
+
+    while (1)
+    {
+        while (!usb_serial_active())
+            sleep(1);
+
+        lcd_puts(0, 2, "USB HOST READY    ");
+        lcd_putsf(0, 3, "PASS %u", pass);
+        lcd_update();
+
+        if (!n3g_usb_send_frame(0, header, sizeof(header), pass))
+            continue;
+
+        for (uint32_t offset = 0; offset < (uint32_t)length;
+             offset += N3G_USB_FRAME_DATA)
+        {
+            uint32_t remaining = (uint32_t)length - offset;
+            uint16_t count = remaining < N3G_USB_FRAME_DATA
+                           ? remaining : N3G_USB_FRAME_DATA;
+
+            if (!n3g_usb_send_frame(offset + sizeof(header), image + offset,
+                                    count, pass))
+                break;
+        }
+
+        pass++;
+        sleep(HZ / 2);
+    }
+}
+#endif
+
+static void n3g_handoff_disk_native(unsigned char *image, int length)
+    __attribute__((noreturn));
+static void n3g_handoff_disk_native(unsigned char *image, int length)
+{
+#if NANO3G_NATIVE_USB_RETURN
+    n3g_return_disk_native_usb(image, length);
+#elif NANO3G_INSTALLED_PRESTOR_PATCH
+    /*
+     * The exact file recovered from Disk Mode is the same Nano 3G image whose
+     * link map was preserved in cc86cc4c15.  Its crt0 already omits
+     * memory_init(), but its application build still has the old safe-display
+     * gate and the generic S5L8702 clock/PMU startup.  Reproduce the proven
+     * transient pre-storage contract in the checksum-verified DRAM copy:
+     * preserve the ROM clocks and IRAM1, skip PMU preinit and later frequency
+     * changes, keep the global safe-mode policy, and permit the display.
+     * power_init() is also skipped while the following IRQ/FIQ enable is
+     * retained: safe mode suppresses the PMU event-ack writes, so registering
+     * that interrupt path can leave an asserted source.  Its later
+     * powermgmt_init() is skipped as the matching half of that bounded power
+     * exclusion; without power_init() it immediately requests power_off().
+     * The exact image runs every other original pre-storage initializer.  The
+     * terminal diagnostic block is then repurposed in RAM to call the image's
+     * own storage_init() once and report whether it returned.  All exact-image
+     * NAND program/erase/sector-write stubs are verified before entry, so no
+     * persistent byte can be modified.
+     */
+    static const struct
+    {
+        uint32_t offset;
+        uint32_t expected;
+        uint32_t replacement;
+    } patches[] =
+    {
+        /* main: skip set_cpu_frequency()/cpu_boost(), retain i2c_init(). */
+        { 0x00005d94u, 0xe59f00ccu, 0xea000002u },
+        /* main: skip PMU IRQ setup, but retain the following IRQ/FIQ enable. */
+        { 0x00005da8u, 0xeb01e671u, 0xe1a00000u },
+        /* main: paired with skipped power_init(), omit powermgmt_init(). */
+        { 0x00005e08u, 0xeb01847du, 0xe1a00000u },
+        /* Replace only terminal code; preserve its earlier-used literal pool. */
+        { 0x00005e38u, 0xe59f2040u, 0xeb022f6eu }, /* lcd_update */
+        { 0x00005e3cu, 0xe3a01001u, 0xe3a00064u }, /* sleep(HZ) */
+        { 0x00005e40u, 0xe3a00000u, 0xeb01f760u },
+        { 0x00005e44u, 0xeb01b7d5u, 0xeb01bd69u }, /* storage_init */
+        { 0x00005e48u, 0xe59f2034u, 0xe3500000u },
+        { 0x00005e4cu, 0xe3a01002u, 0x059f002cu }, /* storage ok */
+        { 0x00005e50u, 0xe3a00000u, 0x159f002cu }, /* storage fail */
+        { 0x00005e54u, 0xeb01b7d1u, 0xeb01e41bu }, /* failsafe halt */
+        { 0x00005e58u, 0xeb022f66u, 0xeafffffeu },
+        { 0x00005e5cu, 0xe3a00064u, 0xe1a00000u },
+        { 0x00005e60u, 0xeb01f758u, 0xe1a00000u },
+        { 0x00005e64u, 0xeafffffcu, 0xe1a00000u },
+        /* system_init: preserve IRAM1, ROM clocks, and PMU state. */
+        { 0x00077c40u, 0xeb00024eu, 0xe1a00000u },
+        { 0x00077c4cu, 0xeb00020cu, 0xe1a00000u },
+        { 0x00077c60u, 0xeb001e7cu, 0xe1a00000u },
+        /* lcd_init_device: bypass only its safe-mode early return. */
+        { 0x000797f0u, 0x0a000005u, 0xea000005u },
+    };
+    unsigned int mismatch = ARRAYLEN(patches);
+    uint32_t found = 0xffffffffu;
+
+    static const char prestor_text[] = "N3G_NATIVE_PRESTOR";
+    static const char handoff_text[] = "handoff ok";
+    static const char skipped_text[] = "storage skipped";
+    static const char storage_entry_text[] = "N3G STORAGE ENTER";
+    static const char storage_ok_text[] = "storage ok";
+    static const char storage_fail_text[] = "storage fail";
+
+    if (length == 854804
+        && *(uint32_t *)(image + 0x00000000u) == 0xea00000du
+        && *(uint32_t *)(image + 0x00005d78u) == 0xe92d4010u
+        && *(uint32_t *)(image + 0x000753f0u) == 0xe92d4073u
+        && *(uint32_t *)(image + 0x0007eec0u) == 0xe3a00001u
+        && *(uint32_t *)(image + 0x0007eec8u) == 0xe92d4070u
+        && *(uint32_t *)(image + 0x00081828u) == 0xe3a00001u
+        && *(uint32_t *)(image + 0x0008182cu) == 0xe12fff1eu
+        && *(uint32_t *)(image + 0x00081830u) == 0xe3a00001u
+        && *(uint32_t *)(image + 0x00081834u) == 0xe12fff1eu
+        && *(uint32_t *)(image + 0x00081838u) == 0xe3a00001u
+        && *(uint32_t *)(image + 0x0008183cu) == 0xe12fff1eu
+        && *(uint32_t *)(image + 0x00081840u) == 0xe3a00001u
+        && *(uint32_t *)(image + 0x00081844u) == 0xe12fff1eu
+        && *(uint32_t *)(image + 0x0008185cu) == 0xe3e00000u
+        && *(uint32_t *)(image + 0x00081860u) == 0xe12fff1eu)
+    {
+        mismatch = ARRAYLEN(patches);
+        for (unsigned int i = 0; i < ARRAYLEN(patches); i++)
+        {
+            found = *(uint32_t *)(image + patches[i].offset);
+            if (found != patches[i].expected)
+            {
+                mismatch = i;
+                break;
+            }
+        }
+
+        if (mismatch == ARRAYLEN(patches)
+            && memcmp(image + 0x00092afeu, prestor_text,
+                      sizeof(prestor_text)) != 0)
+            mismatch = ARRAYLEN(patches) + 1u;
+        if (mismatch == ARRAYLEN(patches)
+            && memcmp(image + 0x00092b11u, handoff_text,
+                      sizeof(handoff_text)) != 0)
+            mismatch = ARRAYLEN(patches) + 2u;
+        if (mismatch == ARRAYLEN(patches)
+            && memcmp(image + 0x00092b1cu, skipped_text,
+                      sizeof(skipped_text)) != 0)
+            mismatch = ARRAYLEN(patches) + 3u;
+    }
+    else
+    {
+        mismatch = 0xffffffffu;
+    }
+
+    if (mismatch != ARRAYLEN(patches))
+    {
+        lcd_clear_display();
+        lcd_puts(0, 0, "N3G PATCH GUARD STOP");
+        lcd_putsf(0, 1, "INDEX %08lx", (unsigned long)mismatch);
+        lcd_putsf(0, 2, "FOUND %08lx", (unsigned long)found);
+        lcd_putsf(0, 3, "BODY %d", length);
+        lcd_puts(0, 4, "NO IMAGE ENTRY");
+        lcd_update();
+        while (1)
+            sleep(HZ);
+    }
+
+    for (unsigned int i = 0; i < ARRAYLEN(patches); i++)
+        *(uint32_t *)(image + patches[i].offset) = patches[i].replacement;
+
+    memset(image + 0x00092afeu, 0, sizeof(prestor_text));
+    memcpy(image + 0x00092afeu, storage_entry_text,
+           sizeof(storage_entry_text));
+    memcpy(image + 0x00092b11u, storage_ok_text, sizeof(storage_ok_text));
+    memset(image + 0x00092b1cu, 0, sizeof(skipped_text));
+    memcpy(image + 0x00092b1cu, storage_fail_text,
+           sizeof(storage_fail_text));
+
+    lcd_clear_display();
+    lcd_puts(0, 0, "N3G EXACT IMAGE OK");
+    lcd_putsf(0, 1, "%lu RAM PATCHES OK",
+             (unsigned long)ARRAYLEN(patches));
+    lcd_puts(0, 2, "WRITE STUBS VERIFIED");
+    lcd_puts(0, 3, "READ ONLY / NO NOR");
+    lcd_puts(0, 4, "STORAGE ENTRY 2S");
+    lcd_update();
+    sleep(2 * HZ);
+
+    disable_irq();
+    commit_discard_idcache();
+    ((void (*)(void))image)();
+
+    while (1)
+        ;
+#else
+    const uint32_t expected_length = 881388u;
+    const uint32_t expected_sum = 0x05673eefu;
+    const uint32_t expected_fnv1a = 0x9ecd7f8fu;
+#if NANO3G_FULL_IMAGE_PRESTOR_CHECKPOINT
+    static const char checkpoint_expected[] = "N3G FULL STORAGE OK";
+    static const char checkpoint_text[] = "PRESTORAGE RETURNED";
+#endif
+    uint32_t checksum = MODEL_NUMBER;
+    uint32_t fnv1a = 2166136261u;
+
+    for (int i = 0; i < length; i++)
+    {
+        checksum += image[i];
+        fnv1a ^= image[i];
+        fnv1a *= 16777619u;
+    }
+
+    if ((uint32_t)length != expected_length
+        || checksum != expected_sum
+        || fnv1a != expected_fnv1a
+        || *(uint32_t *)(image + 0x00000000u) != 0xea00000du
+        || *(uint32_t *)(image + 0x0000003cu) != 0xe51ff004u
+        || *(uint32_t *)(image + 0x00005e98u) != 0xe52de004u
+        || *(uint32_t *)(image + 0x00087630u) != 0xe3a00001u
+#if NANO3G_FULL_IMAGE_PRESTOR_CHECKPOINT
+        || *(uint32_t *)(image + 0x00005f30u) != 0xeb01debcu
+        || *(uint32_t *)(image + 0x00005f34u) != 0xe2504000u
+        || *(uint32_t *)(image + 0x00006294u) != 0x08097bf6u
+        || *(uint32_t *)(image + 0x00087638u) != 0xe92d4070u
+        || memcmp(image + 0x00097bf6u, checkpoint_expected,
+                  sizeof(checkpoint_expected)) != 0
+#endif
+#if NANO3G_FULL_IMAGE_PRESERVE_EXCEPTION
+        || *(uint32_t *)(image + 0x000803b4u) != 0xeb001c9du
+        || *(uint32_t *)(image + 0x000803c8u) != 0xeafffffeu
+#endif
+#if NANO3G_FULL_IMAGE_READONLY_CONTINUE
+        || *(uint32_t *)(image + 0x0001daf4u) != 0xeb015253u
+        || *(uint32_t *)(image + 0x000060f0u) != 0xeb0149ceu
+        || *(uint32_t *)(image + 0x000060fcu) != 0xe5d43308u
+        || *(uint32_t *)(image + 0x0000614cu) != 0xeb014dfcu
+        || *(uint32_t *)(image + 0x00006220u) != 0xeb01252bu
+        || *(uint32_t *)(image + 0x00006224u) != 0xe59f00a4u
+#endif
+        )
+    {
+        lcd_clear_display();
+        lcd_puts(0, 0, "N3G IMAGE GUARD STOP");
+        lcd_putsf(0, 1, "BODY %d", length);
+        lcd_putsf(0, 2, "SUM %08lx", (unsigned long)checksum);
+        lcd_putsf(0, 3, "FNV %08lx", (unsigned long)fnv1a);
+        lcd_puts(0, 4, "NO IMAGE ENTRY");
+        lcd_update();
+        while (1)
+            sleep(HZ);
+    }
+
+#if NANO3G_FULL_IMAGE_PRESTOR_CHECKPOINT
+    /*
+     * Stop after viewportmanager_init() returns and immediately before the
+     * first storage_init() instruction.  The exact-image guard above makes
+     * this a transient two-word patch to the DRAM copy only.  Reuse main's
+     * existing literal at 0x6294 and replace its same-sized status string so
+     * the application's own failsafe renderer identifies the boundary.
+     */
+    *(uint32_t *)(image + 0x00005f30u) = 0xe59f035cu;
+    *(uint32_t *)(image + 0x00005f34u) = 0xeb0205bfu;
+    memcpy(image + 0x00097bf6u, checkpoint_text, sizeof(checkpoint_text));
+
+    lcd_clear_display();
+    lcd_puts(0, 0, "N3G PRESTORAGE TEST");
+    lcd_putsf(0, 1, "%d BODY BYTES", length);
+    lcd_puts(0, 2, "2 RAM WORDS PATCHED");
+    lcd_puts(0, 3, "READ ONLY / NO NOR");
+    lcd_puts(0, 4, "CHECKPOINT IN 2S");
+#elif NANO3G_FULL_IMAGE_PRESERVE_EXCEPTION
+    /*
+     * UIE renders the exception type, faulting PC, FSR/FAR, and backtrace,
+     * then calls system_exception_wait().  Safe mode normally replaces that
+     * valuable screen with the generic failsafe renderer.  Branch directly
+     * to the function's terminal loop after its boottrace call so the UIE
+     * diagnostic remains visible.  This changes one guarded word in DRAM.
+     */
+    *(uint32_t *)(image + 0x000803b4u) = 0xea000003u;
+
+#if NANO3G_FULL_IMAGE_READONLY_CONTINUE
+    /*
+     * Continue the full bring-up without allowing boot-time filesystem
+     * maintenance.  The preceding run proved DSP initialization and stopped
+     * only when settings_load() promoted .resume.cfg.new: FAT cache commit
+     * dirtied synthetic FSInfo sector 41094 and the NAND write stub correctly
+     * returned -1.  Keep normal config reads, but skip temp-file promotion,
+     * dircache persistence, tagcache state/scanning, playback logging, and
+     * playername.txt creation.  NAND writes remain hard-failed globally.
+     */
+    *(uint32_t *)(image + 0x0001daf4u) = 0xea000019u;
+    *(uint32_t *)(image + 0x000060f0u) = 0xe1a00000u;
+    *(uint32_t *)(image + 0x000060fcu) = 0xea000012u;
+    *(uint32_t *)(image + 0x0000614cu) = 0xea000003u;
+    *(uint32_t *)(image + 0x00006220u) = 0xe1a00000u;
+    *(uint32_t *)(image + 0x00006224u) = 0xea00000cu;
+#endif
+
+    lcd_clear_display();
+    lcd_puts(0, 0, "N3G READONLY CONTINUE");
+    lcd_putsf(0, 1, "%d BODY BYTES", length);
+#if NANO3G_FULL_IMAGE_READONLY_CONTINUE
+    lcd_puts(0, 2, "7 RAM WORDS PATCHED");
+#else
+    lcd_puts(0, 2, "1 RAM WORD PATCHED");
+#endif
+    lcd_puts(0, 3, "READ ONLY / NO NOR");
+    lcd_puts(0, 4, "FULL ENTRY IN 2S");
+#else
+    lcd_clear_display();
+    lcd_puts(0, 0, "N3G FULL IMAGE OK");
+    lcd_putsf(0, 1, "%d BODY BYTES", length);
+    lcd_putsf(0, 2, "SUM %08lx", (unsigned long)checksum);
+    lcd_puts(0, 3, "READ ONLY / NO NOR");
+    lcd_puts(0, 4, "CLEAN ENTRY IN 2S");
+#endif
+    lcd_update();
+    sleep(2 * HZ);
+
+    disable_irq();
+    commit_discard_idcache();
+    ((void (*)(void))image)();
+
+    while (1)
+        ;
+#endif
+}
+#endif
+
 void main(void)
 {
     int rc = 0;
@@ -963,9 +1412,11 @@ void main(void)
     nano3g_nand_stage_diag_run(0);
 #endif
 
+#if !defined(IPOD_NANO3G) || !NANO3G_VISIBILITY_ONLY
     if (pmu_is_hibernated()) {
         rc = launch_onb(1); /* 27/2 = 13.5 MHz. */
     }
+#endif
 #ifdef IPOD_NANO3G
     nano3g_nand_stage_diag_run(1);
 #endif
@@ -998,7 +1449,9 @@ void main(void)
 #ifdef IPOD_NANO3G
     nano3g_nand_stage_diag_run(7);
 #endif
+#if !defined(IPOD_NANO3G) || !NANO3G_VISIBILITY_ONLY
     power_init();
+#endif
 #ifdef IPOD_NANO3G
     nano3g_nand_stage_diag_run(8);
 
@@ -1082,8 +1535,21 @@ void main(void)
     printf("Rockbox boot loader");
     printf("Version: %s", rbversion);
 #ifdef IPOD_NANO3G
-    printf("N3G_PRESTOR_CONTINUE_20260525");
+#if NANO3G_NATIVE_DISK_HANDOFF
+    printf("N3G READ-ONLY DISK LOAD");
+    printf("NAND READ ONLY / NO NOR");
+#else
+    printf("N3G VISIBILITY-ONLY");
+    printf("NO NAND / NO NOR");
+#endif
     lcd_update();
+#if NANO3G_NATIVE_CHAIN
+    n3g_chain_embedded_native();
+#endif
+#if NANO3G_VISIBILITY_ONLY && !NANO3G_NATIVE_DISK_HANDOFF
+    while (1)
+        ;
+#endif
 #endif
 
 #ifdef IPOD_NANO3G
@@ -1373,6 +1839,9 @@ of_loaded:
     }
 
     printf("Rockbox loaded.");
+#if defined(IPOD_NANO3G) && NANO3G_NATIVE_DISK_HANDOFF
+    n3g_handoff_disk_native(loadbuffer, rc);
+#endif
 #if defined(IPOD_NANO3G) && 0
     lcd_clear_display();
     lcd_puts(0, 0, "N3G_LOADSTOP_20260525");

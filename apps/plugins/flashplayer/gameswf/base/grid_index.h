@@ -532,13 +532,11 @@ struct grid_index_box
 
 	~grid_index_box()
 	{
-		// Need to delete all entries (be careful to only
-		// delete each entry once, even though entries may be
-		// repeated many times).
-		array<grid_entry_t*>&	cell_array = m_grid[0];
-		for (int i = 0, n = cell_array.size(); i < n; i++)
+		// Entries can occupy several cells, so keep ownership separate from
+		// the spatial cell lists and delete each allocation exactly once.
+		for (int i = 0, n = m_entries.size(); i < n; i++)
 		{
-			grid_entry_t*	e = cell_array[i];
+			grid_entry_t*	e = m_entries[i];
 			if (e)
 			{
 				delete e;
@@ -740,12 +738,16 @@ struct grid_index_box
 		grid_entry_t*	new_entry = new grid_entry_t;
 		new_entry->bound = bound;
 		new_entry->value = p;
+		m_entries.push_back(new_entry);
 
 		// Add it to all cells it overlaps with.
-		for (int i = 0, n = m_x_cells * m_y_cells; i < n; i++)
+		for (int iy = ib.min.y; iy <= ib.max.y; iy++)
 		{
-			array<grid_entry_t*>&	cell_array = m_grid[i];
-			cell_array.push_back(new_entry);
+			for (int ix = ib.min.x; ix <= ib.max.x; ix++)
+			{
+				array<grid_entry_t*>*	cell_array = get_cell(ix, iy);
+				cell_array->push_back(new_entry);
+			}
 		}
 	}
 
@@ -776,6 +778,15 @@ struct grid_index_box
 				}
 
 				assert(i < n);	// Didn't find entry in this cell!  Something is wrong.
+			}
+		}
+
+		for (int i = 0, n = m_entries.size(); i < n; i++)
+		{
+			if (m_entries[i] == entry)
+			{
+				m_entries.remove(i);
+				break;
 			}
 		}
 
@@ -861,6 +872,7 @@ private:
 	int	m_y_cells;
 	int	m_query_id;
 	array<grid_entry_t*>*	m_grid;
+	array<grid_entry_t*>	m_entries;
 };
 
 
@@ -873,4 +885,3 @@ private:
 // tab-width: 8
 // indent-tabs-mode: t
 // End:
-

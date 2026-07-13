@@ -791,25 +791,25 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .stab.indexstr
  *(.stab.indexstr)
 
-.comment        0x0000000000000000       0x36
+.comment        0x0000000000000000       0x1b
  *(.comment)
- .comment       0x0000000000000000       0x36 /usr/lib/gcc/x86_64-pc-linux-gnu/16/crtbeginS.o
+ .comment       0x0000000000000000       0x1b /usr/lib/gcc/x86_64-pc-linux-gnu/16/crtbeginS.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/chessbox/chessbox.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/chessbox/chessbox.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/chessbox/gnuchess.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/chessbox/gnuchess.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/chessbox/opening.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/chessbox/opening.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/chessbox/chessbox_pgn.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/chessbox/chessbox_pgn.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(chessbox_pieces.240x240x16.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(chessbox_pieces.240x240x16.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16/crtendS.o
+ .comment       0x000000000000001b        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16/crtendS.o
                                          0x1c (size before relaxing)
 
 .gnu.build.attributes
@@ -880,21 +880,21 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0xc039
+.debug_str      0x0000000000000000     0xbf79
  *(.debug_str)
- .debug_str     0x0000000000000000     0xc039 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/chessbox/chessbox.o
+ .debug_str     0x0000000000000000     0xbf79 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/chessbox/chessbox.o
                                        0xa405 (size before relaxing)
- .debug_str     0x000000000000c039        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/chessbox/gnuchess.o
+ .debug_str     0x000000000000bf79        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/chessbox/gnuchess.o
                                        0x586b (size before relaxing)
- .debug_str     0x000000000000c039        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/chessbox/opening.o
+ .debug_str     0x000000000000bf79        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/chessbox/opening.o
                                          0xeb (size before relaxing)
- .debug_str     0x000000000000c039        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/chessbox/chessbox_pgn.o
+ .debug_str     0x000000000000bf79        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/chessbox/chessbox_pgn.o
                                        0xb657 (size before relaxing)
- .debug_str     0x000000000000c039        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+ .debug_str     0x000000000000bf79        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
                                        0x5237 (size before relaxing)
- .debug_str     0x000000000000c039        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
+ .debug_str     0x000000000000bf79        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
                                        0xa2a5 (size before relaxing)
- .debug_str     0x000000000000c039        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(chessbox_pieces.240x240x16.o)
+ .debug_str     0x000000000000bf79        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(chessbox_pieces.240x240x16.o)
                                         0x172 (size before relaxing)
 
 .debug_loc
@@ -950,18 +950,18 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
                                         0x22e (size before relaxing)
 
 .debug_loclists
-                0x0000000000000000     0x762a
+                0x0000000000000000     0x7635
  *(.debug_loclists)
  .debug_loclists
                 0x0000000000000000      0xb6a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/chessbox/chessbox.o
  .debug_loclists
-                0x0000000000000b6a     0x4da8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/chessbox/gnuchess.o
+                0x0000000000000b6a     0x4db3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/chessbox/gnuchess.o
  .debug_loclists
-                0x0000000000005912     0x1bec /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/chessbox/chessbox_pgn.o
+                0x000000000000591d     0x1bec /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/chessbox/chessbox_pgn.o
  .debug_loclists
-                0x00000000000074fe       0x9e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+                0x0000000000007509       0x9e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
  .debug_loclists
-                0x000000000000759c       0x8e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
+                0x00000000000075a7       0x8e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
 
 .debug_macro
  *(.debug_macro)

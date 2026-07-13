@@ -25,6 +25,7 @@ $(GWATCH_OBJDIR)/gwatch.rock: $(GWATCH_OBJ) $(TLSFLIB)
 
 $(GWATCH_OBJDIR)/%.o: $(GWATCH_SRCDIR)/%.c $(GWATCH_SRCDIR)/gwatch.make \
 		$(GWATCH_SRCDIR)/gwatch_compat.h $(GWATCH_SRCDIR)/locale.h \
-		$(GWATCH_SRCDIR)/math.h $(GWATCH_SRCDIR)/stdio.h
+		$(GWATCH_SRCDIR)/math.h $(GWATCH_SRCDIR)/stdio.h \
+		$(BUILDDIR)/sysfont.h $(BUILDDIR)/lang_enum.h
 	$(SILENT)mkdir -p $(dir $@)
 	$(call PRINTS,CC $(subst $(ROOTDIR)/,,$<))$(CC) -I$(dir $<) $(GWATCHFLAGS) -c $< -o $@

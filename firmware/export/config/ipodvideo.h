@@ -91,8 +91,9 @@
 /* The number of bytes reserved for loadable codecs */
 #define CODEC_SIZE 0x100000
 
-/* The number of bytes reserved for loadable plugins */
-#define PLUGIN_BUFFER_SIZE 0x100000
+/* The number of bytes reserved for loadable plugins.  The personal tree's
+ * ScummVM and Game & Watch ports are larger than the historical 1 MiB limit. */
+#define PLUGIN_BUFFER_SIZE 0x300000
 
 /* Define this if you have the WM8758 audio codec */
 #define HAVE_WM8758

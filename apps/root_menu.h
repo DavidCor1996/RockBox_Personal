@@ -26,6 +26,7 @@
 
 void root_menu(void) NORETURN_ATTR;
 bool root_menu_videos_browser_active(void);
+bool root_menu_ipodjs_native_screen_active(void);
 struct menu_table {
     char *string;
     const struct menu_item_ex *item;

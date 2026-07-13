@@ -111,7 +111,7 @@ static void* seq_awake_by_type[] =
 };
 #endif /* HAVE_LCD_SLEEP */
 
-#if defined(BOOTLOADER)
+#if defined(BOOTLOADER) || NANO3G_NATIVE_SAFE_BOOT
 /* init sequences */
 
 // TODO: put something else at the end of the init sequence???, the bootloader without a sleep is very tight ()
@@ -361,7 +361,7 @@ static void* seq_init_by_type[] =
     [LCD_TYPE_38E6] = (void*) lcd_init_seq_3,
     [LCD_TYPE_58XX] = (void*) lcd_init_seq_4,
 };
-#endif /* BOOTLOADER */
+#endif /* BOOTLOADER || NANO3G_NATIVE_SAFE_BOOT */
 
 static struct lcd_info_rec lcd_info = {
     .mpuiface = LCD_MPUIFACE_PAR9,
@@ -410,7 +410,7 @@ struct lcd_info_rec* lcd_target_get_info(void)
 #ifdef HAVE_LCD_SLEEP
         lcd_info.seq_awake = seq_awake_by_type[type];
 #endif
-#ifdef BOOTLOADER
+#if defined(BOOTLOADER) || NANO3G_NATIVE_SAFE_BOOT
         lcd_info.seq_init = seq_init_by_type[type];
 #endif
         return &lcd_info;

@@ -34,16 +34,16 @@ export ENABLEDPLUGINS=yes
 export EXTRA_DEFINES=
 export HOSTCC=/usr/bin/gcc
 export HOSTAR=/usr/bin/ar
-export CC=/usr/bin/arm-none-eabi-gcc
-export CPP=/usr/bin/arm-none-eabi-cpp
-export LD=/usr/bin/arm-none-eabi-ld
-export AR=/usr/bin/arm-none-eabi-gcc-ar
-export AS=/usr/bin/arm-none-eabi-as
-export OC=/usr/bin/arm-none-eabi-objcopy
-export WINDRES=arm-none-eabi-windres
-export DLLTOOL=arm-none-eabi-dlltool
-export DLLWRAP=arm-none-eabi-dllwrap
-export RANLIB=/usr/bin/arm-none-eabi-gcc-ranlib
+export CC=/usr/local/bin/arm-elf-eabi-gcc
+export CPP=/usr/local/bin/arm-elf-eabi-cpp
+export LD=/usr/local/bin/arm-elf-eabi-ld
+export AR=/usr/local/bin/arm-elf-eabi-gcc-ar
+export AS=/usr/local/bin/arm-elf-eabi-as
+export OC=/usr/local/bin/arm-elf-eabi-objcopy
+export WINDRES=arm-elf-eabi-windres
+export DLLTOOL=arm-elf-eabi-dlltool
+export DLLWRAP=arm-elf-eabi-dllwrap
+export RANLIB=/usr/local/bin/arm-elf-eabi-gcc-ranlib
 export PREFIX=
 export PROFILE_OPTS=
 export APP_TYPE=
@@ -55,10 +55,10 @@ export LOADADDRESS=
 export SHARED_LDFLAGS=
 export SHARED_CFLAGS=
 export LDOPTS=
-export GLOBAL_LDOPTS= -Wl,--no-warn-rwx-segments
+export GLOBAL_LDOPTS=
 export LDMAP_OPT=-Map
-export GCCVER=14.2.0
-export GCCNUM=1402
+export GCCVER=9.5.0
+export GCCNUM=905
 export UNAME=Linux
 export MANUALDEV=ipodvideo
 export TTS_OPTS=
@@ -83,6 +83,6 @@ export PIPER_MODEL_DIR=
 
 
 
-CONFIGURE_OPTIONS=  --compiler-prefix=arm-none-eabi- --target=$(MODELNAME) --ram=$(MEMORYSIZE) --rbdir=$(RBDIR) --type=N
+CONFIGURE_OPTIONS=  --compiler-prefix=arm-elf-eabi- --target=$(MODELNAME) --ram=$(MEMORYSIZE) --rbdir=$(RBDIR) --type=N
 
 include $(TOOLSDIR)/root.make

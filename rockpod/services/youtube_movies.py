@@ -68,6 +68,41 @@ def normalize_movie_match_text(value):
     return WHITESPACE_RE.sub(" ", str(value or "").strip().lower())
 
 
+def _downloaded_video(download_dir, safe_title, baseline=None):
+    """Return the newest matching downloaded video without trusting timestamps alone."""
+    changed_candidates = []
+    matched_candidates = []
+    prefix = f"{safe_title}."
+    video_extensions = {".mp4", ".mkv", ".webm", ".mov", ".m4v"}
+    for path in Path(download_dir).glob(f"{safe_title}*"):
+        if not path.is_file() or path.suffix.lower() not in video_extensions:
+            continue
+        try:
+            stat = path.stat()
+        except OSError:
+            continue
+        previous = (baseline or {}).get(str(path))
+        matched_candidates.append((stat.st_mtime, path))
+        if previous and previous == (stat.st_size, stat.st_mtime):
+            continue
+        if path.name.startswith(prefix):
+            changed_candidates.append((stat.st_mtime, path))
+    if changed_candidates:
+        return str(sorted(changed_candidates)[-1][1])
+    if matched_candidates:
+        return str(sorted(matched_candidates)[-1][1])
+
+    fallback = []
+    for path in Path(download_dir).glob("*"):
+        if not path.is_file() or path.suffix.lower() not in video_extensions:
+            continue
+        try:
+            fallback.append((path.stat().st_mtime, path))
+        except OSError:
+            continue
+    return str(sorted(fallback)[-1][1]) if fallback else None
+
+
 def existing_movie_duplicate(rows, movie_result=None, output_dir=""):
     result = dict(movie_result or {})
     title = normalize_movie_match_text(result.get("title"))

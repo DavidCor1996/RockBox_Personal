@@ -31,6 +31,7 @@ extern const char rbversion[];
 #include "gcc_extensions.h"
 #include "storage.h"
 #include "disk.h"
+#include "file.h"
 #include "file_internal.h"
 #include "lcd.h"
 #include "rtc.h"
@@ -54,6 +55,12 @@ extern const char rbversion[];
 #include "audio.h"
 #include "settings.h"
 #include "backlight.h"
+#ifdef IPOD_NANO3G
+#include "bringup-nano3g.h"
+#endif
+#if defined(IPOD_NANO3G) && NANO3G_NATIVE_PRESTOR_ONLY
+#include "backlight-target.h"
+#endif
 #include "status.h"
 #include "debug_menu.h"
 #include "font.h"
@@ -179,6 +186,11 @@ int main(void)
     CHART(">init");
     init();
     CHART("<init");
+#if defined(IPOD_NANO3G) && NANO3G_NATIVE_PRESTOR_ONLY
+    /* init() deliberately stops at the visible pre-storage checkpoint. */
+    while (1)
+        ;
+#endif
     FOR_NB_SCREENS(i)
     {
         screens[i].clear_display();
@@ -455,9 +467,503 @@ static void init(void)
 
 #include "errno.h"
 
+#if defined(IPOD_NANO3G) && NANO3G_NATIVE_STORAGE_PROBE
+extern void nano3g_native_storage_trace_reset(void);
+extern void nano3g_native_storage_trace_get(unsigned int *details);
+#if NANO3G_NATIVE_LANE_PROBE
+extern int32_t nano3g_nand_diag_bank_read(uint32_t bank, uint32_t page,
+                                          uint32_t *data, uint32_t *extra);
+extern int32_t nano3g_nand_diag_scan_map_entries(
+                                      const unsigned short *entries,
+                                      uint32_t count, uint32_t target_base,
+                                      uint32_t result[6]);
+static uint32_t nano3g_native_lane_data[0x200] STORAGE_ALIGN_ATTR;
+static uint32_t nano3g_native_lane_extra[0x10] STORAGE_ALIGN_ATTR;
+#endif
+
+static const unsigned char nano3g_hex_glyph[16][5] =
+{
+    { 7, 5, 5, 5, 7 }, { 2, 6, 2, 2, 7 },
+    { 7, 1, 7, 4, 7 }, { 7, 1, 7, 1, 7 },
+    { 5, 5, 7, 1, 1 }, { 7, 4, 7, 1, 7 },
+    { 7, 4, 7, 5, 7 }, { 7, 1, 1, 1, 1 },
+    { 7, 5, 7, 5, 7 }, { 7, 5, 7, 1, 7 },
+    { 7, 5, 7, 5, 5 }, { 4, 4, 7, 5, 7 },
+    { 7, 4, 4, 4, 7 }, { 1, 1, 7, 5, 7 },
+    { 7, 4, 7, 4, 7 }, { 7, 4, 7, 4, 4 },
+};
+
+static void nano3g_native_draw_hex(unsigned int value, unsigned int digits,
+                                    int x, int y)
+{
+    const int scale = 4;
+
+    for (unsigned int digit = 0; digit < digits; digit++)
+    {
+        unsigned int shift = (digits - digit - 1) * 4;
+        unsigned int glyph = (value >> shift) & 0xf;
+
+        for (unsigned int row = 0; row < 5; row++)
+            for (unsigned int col = 0; col < 3; col++)
+                if (nano3g_hex_glyph[glyph][row] & (4u >> col))
+                    lcd_fillrect(x + digit * 16 + col * scale,
+                                 y + row * scale, scale, scale);
+    }
+}
+
+static unsigned int nano3g_native_pack_hex4(const unsigned char *p)
+{
+    return ((unsigned int)p[0] << 24) | ((unsigned int)p[1] << 16)
+         | ((unsigned int)p[2] << 8) | p[3];
+}
+
+#if NANO3G_NATIVE_LANE_PROBE
+static void nano3g_native_lane_sample(unsigned int sample,
+                                      unsigned int bank, unsigned int page,
+                                      unsigned int result[7])
+{
+    unsigned int count = 0;
+    unsigned int first;
+    int32_t rc;
+
+    memset(nano3g_native_lane_data, 0xff,
+           sizeof(nano3g_native_lane_data));
+    memset(nano3g_native_lane_extra, 0xff,
+           sizeof(nano3g_native_lane_extra));
+    rc = nano3g_nand_diag_bank_read(bank, page, nano3g_native_lane_data,
+                                    nano3g_native_lane_extra);
+
+    first = nano3g_native_lane_data[0];
+    for (unsigned int i = 0; i < ARRAYLEN(nano3g_native_lane_data); i++)
+    {
+        unsigned int word = nano3g_native_lane_data[i];
+
+        if (word != 0 && word != 0xffffffffu)
+        {
+            if (count == 0)
+                first = word;
+            count++;
+        }
+    }
+
+    result[0] = sample;
+    result[1] = bank;
+    result[2] = (unsigned int)rc & 0xf;
+    result[3] = page & 0x7f;
+    result[4] = ((unsigned char *)nano3g_native_lane_extra)[9];
+    result[5] = count;
+    result[6] = first;
+}
+
+static void nano3g_native_lane_probe(void)
+{
+    unsigned int result[3][7];
+    unsigned int oob[3];
+    uint32_t scan[6];
+    unsigned int map_rc;
+    unsigned int map_v;
+    unsigned int pblock;
+    int32_t scan_rc;
+    long last_phase = -1;
+
+    /* Keep the known-live control.  The current context's two consecutive
+     * type-0x44 map pointers occupy the bank-0/1 lanes of physical block
+     * 0x14c3, page 0x10.  Host BootROM reads return zeros for bank 1, so read
+     * that map half through the proven native path.  Its hardware result
+     * proved that the map body is pool ordered rather than logically indexed,
+     * so reverse-scan its valid vblocks by exact page-zero OOB hyperblock
+     * `0x1d1400`.  The already verified FAT boot sector fixes the Disk Mode
+     * translation at raw = 0x1407e + 2 * absolute_4K_LBA, making the current
+     * file header raw `0x1d1518`.  Sample 1 encodes match count, the high/low
+     * pieces of the winning pool index, and its vblock on the first row, then
+     * raw LPN and USN.  Sample 2 follows the newest match to lane 0/row 0x23. */
+    nano3g_native_lane_sample(0, 0, 0x08cbu * 0x80u, result[0]);
+    oob[0] = nano3g_native_lane_extra[0];
+    nano3g_native_lane_sample(1, 1, 0x14c3u * 0x80u + 0x10u,
+                              result[1]);
+    map_rc = result[1][2];
+    memset(scan, 0xff, sizeof(scan));
+    scan_rc = nano3g_nand_diag_scan_map_entries(
+                              (const unsigned short *)nano3g_native_lane_data,
+                              0x400u, 0x001d1400u, scan);
+    map_v = scan[3];
+    result[1][0] = 1;
+    result[1][1] = scan[1] & 0xfu;
+    result[1][2] = map_rc != 0 ? map_rc : (unsigned int)scan_rc & 0xfu;
+    result[1][3] = (scan[2] >> 8) & 0xffu;
+    result[1][4] = scan[2] & 0xffu;
+    result[1][5] = map_v & 0xfffu;
+    oob[1] = scan[4];
+    result[1][6] = scan[5];
+
+    if (scan[1] == 0 || map_v == 0 || map_v == 0xffffu)
+        pblock = 0x0788u;
+    else
+        pblock = ((map_v & 0xfffu) + 0x1a9u) & ~1u;
+    nano3g_native_lane_sample(2, 0, pblock * 0x80u + 0x23u,
+                              result[2]);
+    oob[2] = nano3g_native_lane_extra[0];
+
+    while (1)
+    {
+        long phase = (current_tick / (HZ / 2)) & 1;
+
+        if (phase != last_phase)
+        {
+            lcd_set_background(LCD_BLACK);
+            lcd_set_foreground(LCD_BLACK);
+            lcd_fillrect(0, 0, LCD_WIDTH, LCD_HEIGHT);
+            lcd_set_foreground(LCD_WHITE);
+
+            for (unsigned int i = 0; i < ARRAYLEN(result); i++)
+            {
+                int y = i * 65;
+
+                /* sample, bank, rc, page offset, OOB type, nontrivial words */
+                nano3g_native_draw_hex(result[i][0], 1, 0, y);
+                nano3g_native_draw_hex(result[i][1], 1, 18, y);
+                nano3g_native_draw_hex(result[i][2], 1, 36, y);
+                nano3g_native_draw_hex(result[i][3], 2, 54, y);
+                nano3g_native_draw_hex(result[i][4], 2, 88, y);
+                nano3g_native_draw_hex(result[i][5], 3, 122, y);
+                nano3g_native_draw_hex(oob[i], 8, 2, y + 21);
+                nano3g_native_draw_hex(result[i][6], 8, 2, y + 42);
+            }
+
+            if (phase)
+                lcd_fillrect(0, LCD_HEIGHT - 20, LCD_WIDTH, 20);
+            lcd_update();
+            last_phase = phase;
+        }
+        sleep(1);
+    }
+}
+#endif
+
+void nano3g_native_storage_probe_stage(unsigned int stage)
+{
+    unsigned color;
+
+    /*
+     * NAND initialization currently leaves the Nano 3G LCD DMA completion
+     * path unable to survive a series of diagnostic refreshes.  Render only
+     * the selected one-shot checkpoint so earlier probes cannot stop FTL
+     * execution merely by reporting progress.
+     */
+    if (stage != NANO3G_NATIVE_STORAGE_SCREEN_STAGE)
+        return;
+
+    switch (stage)
+    {
+        case 1: color = LCD_RGBPACK(255, 255, 255); break;
+        case 2: color = LCD_RGBPACK(0, 255, 255); break;
+        case 3: color = LCD_RGBPACK(0, 0, 255); break;
+        case 4: color = LCD_RGBPACK(255, 0, 255); break;
+        case 5: color = LCD_RGBPACK(255, 128, 0); break;
+        case 6: color = LCD_RGBPACK(0, 128, 128); break;
+        case 7: color = LCD_RGBPACK(128, 128, 128); break;
+        case 8: color = LCD_RGBPACK(128, 255, 0); break;
+        case 9: color = LCD_RGBPACK(255, 128, 192); break;
+        case 10: color = LCD_RGBPACK(128, 64, 0); break;
+        case 11: color = LCD_RGBPACK(128, 128, 0); break;
+        case 12: color = LCD_RGBPACK(0, 0, 128); break;
+        case 13: color = LCD_RGBPACK(128, 0, 128); break;
+        case 14: color = LCD_RGBPACK(0, 128, 255); break;
+        case 15: color = LCD_RGBPACK(128, 255, 128); break;
+        case 16: color = LCD_RGBPACK(192, 192, 192); break;
+        default: color = LCD_RGBPACK(255, 0, 0); break;
+    }
+
+    lcd_set_foreground(color);
+    lcd_fillrect(0, 0, LCD_WIDTH, LCD_HEIGHT);
+    lcd_update();
+}
+#endif
+
 static void init(void) INIT_ATTR;
 static void init(void)
 {
+#if defined(IPOD_NANO3G) && NANO3G_NATIVE_PRESTOR_ONLY
+    /*
+     * Keep this transient DFU image small enough for the S5L8720 haxed-DFU
+     * staging window.  This is still the normal Rockbox application crt0 and
+     * main(), but deliberately retains only the proven pre-storage path.
+     */
+    system_init();
+    kernel_init();
+    i2c_init();
+
+    lcd_set_viewport(NULL);
+    lcd_init_device();
+    lcd_set_background(LCD_BLACK);
+    lcd_clear_display();
+    (void)backlight_hw_init();
+
+    /* Three solid bands are the native-application handoff checkpoint. */
+    lcd_set_foreground(LCD_RGBPACK(255, 0, 0));
+    lcd_fillrect(0, 0, LCD_WIDTH, LCD_HEIGHT / 3);
+    lcd_set_foreground(LCD_RGBPACK(0, 255, 0));
+    lcd_fillrect(0, LCD_HEIGHT / 3, LCD_WIDTH, LCD_HEIGHT / 3);
+    lcd_set_foreground(LCD_RGBPACK(0, 0, 255));
+    lcd_fillrect(0, 2 * (LCD_HEIGHT / 3), LCD_WIDTH,
+                 LCD_HEIGHT - 2 * (LCD_HEIGHT / 3));
+    lcd_update();
+
+#if NANO3G_NATIVE_INPUT_PROBE
+    /*
+     * Advance the native handoff checkpoint through the kernel tick and the
+     * S5L8702 click-wheel interrupt path without touching storage.  Yellow
+     * proves the tick IRQ completed; cyan plus a blinking bottom marker proves
+     * click-wheel initialization returned and the tick remains live.
+     */
+    enable_irq();
+    enable_fiq();
+    sleep(HZ);
+
+    lcd_set_foreground(LCD_RGBPACK(255, 255, 0));
+    lcd_fillrect(0, 0, LCD_WIDTH, LCD_HEIGHT);
+    lcd_update();
+
+    button_init_device();
+
+    extern int new_wheel_value;
+    extern bool wheel_is_touched;
+    int last_mode = -1;
+    int last_wheel = -1;
+    int wheel_direction = 0;
+    long wheel_color_until = 0;
+    long last_phase = -1;
+    while (1)
+    {
+        int button = button_read_device();
+        int wheel = new_wheel_value;
+        int mode = button;
+        long phase = (current_tick / (HZ / 2)) & 1;
+
+        if (wheel_is_touched)
+        {
+            if (last_wheel >= 0 && wheel != last_wheel)
+            {
+                int delta = wheel - last_wheel;
+
+                if (delta < -48)
+                    delta += 96;
+                else if (delta > 48)
+                    delta -= 96;
+
+                wheel_direction = delta > 0 ? 1 : -1;
+                wheel_color_until = current_tick + HZ / 2;
+            }
+            last_wheel = wheel;
+        }
+        else
+        {
+            last_wheel = -1;
+        }
+
+        if (wheel_direction != 0
+            && TIME_BEFORE(current_tick, wheel_color_until))
+            mode = wheel_direction > 0 ? -2 : -3;
+
+        if (mode != last_mode || phase != last_phase)
+        {
+            unsigned color = LCD_RGBPACK(0, 255, 255);
+
+            if (mode == -2)
+                color = LCD_RGBPACK(255, 255, 0);
+            else if (mode == -3)
+                color = LCD_RGBPACK(255, 128, 0);
+            else if (button & BUTTON_SELECT)
+                color = LCD_RGBPACK(255, 255, 255);
+            else if (button & BUTTON_MENU)
+                color = LCD_RGBPACK(255, 0, 0);
+            else if (button & BUTTON_LEFT)
+                color = LCD_RGBPACK(0, 0, 255);
+            else if (button & BUTTON_RIGHT)
+                color = LCD_RGBPACK(0, 255, 0);
+            else if (button & BUTTON_PLAY)
+                color = LCD_RGBPACK(255, 0, 255);
+            lcd_set_foreground(color);
+            lcd_fillrect(0, 0, LCD_WIDTH, LCD_HEIGHT);
+            lcd_set_foreground(phase ? LCD_WHITE : LCD_BLACK);
+            lcd_fillrect(0, LCD_HEIGHT - 20, LCD_WIDTH, 20);
+            lcd_update();
+
+            last_mode = mode;
+            last_phase = phase;
+        }
+
+        sleep(1);
+    }
+#endif
+
+#if NANO3G_NATIVE_STORAGE_PROBE
+    /*
+     * Native read-only storage checkpoint. Nano 3G NAND program/erase and
+     * sector-write entry points remain hard stubs that return failure.
+     * Yellow means storage_init() was entered, green means success, and red
+     * means it returned an error. A blinking bottom bar proves it returned.
+     */
+    enable_irq();
+    enable_fiq();
+    sleep(HZ);
+
+    lcd_set_foreground(LCD_RGBPACK(255, 255, 0));
+    lcd_fillrect(0, 0, LCD_WIDTH, LCD_HEIGHT);
+    lcd_update();
+
+#if NANO3G_NATIVE_LANE_PROBE
+    /* Bypass the FTL mount for this bounded, read-only lane survey. */
+    nano3g_native_lane_probe();
+#endif
+
+    int storage_rc = storage_init();
+    int mount_rc = -1;
+    unsigned root_file_result = 0;
+    unsigned dot_file_result = 0;
+    unsigned char root_header[8] = { 0xff, 0xff, 0xff, 0xff,
+                                     0xff, 0xff, 0xff, 0xff };
+    unsigned char dot_header[8] = { 0xff, 0xff, 0xff, 0xff,
+                                    0xff, 0xff, 0xff, 0xff };
+    unsigned char root_chunk[0x200];
+    uint32_t root_bytes = 0;
+    uint32_t root_expected_checksum = 0xffffffffu;
+    uint32_t root_computed_checksum = 117u;
+    unsigned root_trace[9] = { 0, 0xffffffff, 0xffffffff, 0xffff,
+                               0xffffffff, 0xffffffff, 0xffffffff,
+                               0xffffffff, 0xffffffff };
+    unsigned dot_trace[9] = { 0, 0xffffffff, 0xffffffff, 0xffff,
+                              0xffffffff, 0xffffffff, 0xffffffff,
+                              0xffffffff, 0xffffffff };
+
+    if (storage_rc == 0)
+    {
+        filesystem_init();
+        mount_rc = disk_mount_all();
+
+        if (mount_rc > 0)
+        {
+            int fd;
+
+            nano3g_native_storage_trace_reset();
+            fd = open("/rockbox.ipod", O_RDONLY);
+            if (fd < 0)
+                root_file_result = 1;
+            else
+            {
+                ssize_t got;
+
+                while ((got = read(fd, root_chunk, sizeof(root_chunk))) > 0)
+                {
+                    for (ssize_t i = 0; i < got; i++)
+                    {
+                        uint32_t offset = root_bytes + (uint32_t)i;
+
+                        if (offset < sizeof(root_header))
+                            root_header[offset] = root_chunk[i];
+                        else
+                            root_computed_checksum += root_chunk[i];
+                    }
+                    root_bytes += (uint32_t)got;
+                }
+
+                if (root_bytes >= sizeof(root_header))
+                    root_expected_checksum =
+                          ((uint32_t)root_header[0] << 24)
+                        | ((uint32_t)root_header[1] << 16)
+                        | ((uint32_t)root_header[2] << 8)
+                        | (uint32_t)root_header[3];
+
+                if (got < 0)
+                    root_file_result = 2;
+                else if (root_bytes == 854812u
+                      && root_header[4] == 'n' && root_header[5] == 'n'
+                      && root_header[6] == '3' && root_header[7] == 'g'
+                      && root_computed_checksum == root_expected_checksum)
+                    root_file_result = 3;
+                else
+                    root_file_result = 6;
+                close(fd);
+            }
+            nano3g_native_storage_trace_get(root_trace);
+
+            nano3g_native_storage_trace_reset();
+            fd = open("/.rockbox/rockbox.ipod", O_RDONLY);
+            if (fd < 0)
+                dot_file_result = 1;
+            else
+            {
+                dot_file_result = read(fd, dot_header, sizeof(dot_header))
+                                == (ssize_t)sizeof(dot_header) ? 3 : 2;
+                close(fd);
+            }
+            nano3g_native_storage_trace_get(dot_trace);
+        }
+    }
+
+    if (storage_rc != 0)
+    {
+        root_file_result = 4;
+        dot_file_result = 4;
+    }
+    else if (mount_rc <= 0)
+    {
+        root_file_result = 5;
+        dot_file_result = 5;
+    }
+
+    long storage_phase = -1;
+
+    while (1)
+    {
+        long phase = (current_tick / (HZ / 2)) & 1;
+
+        if (phase != storage_phase)
+        {
+            lcd_set_foreground(LCD_BLACK);
+            lcd_fillrect(0, 0, LCD_WIDTH, LCD_HEIGHT);
+            lcd_set_foreground(LCD_WHITE);
+            nano3g_native_draw_hex(root_file_result, 1, 10, 2);
+            nano3g_native_draw_hex(dot_file_result, 1, 42, 2);
+            nano3g_native_draw_hex(root_bytes, 8, 10, 27);
+            nano3g_native_draw_hex(root_expected_checksum, 8, 10, 52);
+            nano3g_native_draw_hex(root_computed_checksum, 8, 10, 77);
+            lcd_fillrect(0, 105, LCD_WIDTH, 2);
+            nano3g_native_draw_hex(nano3g_native_pack_hex4(root_header),
+                                   8, 10, 112);
+            nano3g_native_draw_hex(nano3g_native_pack_hex4(root_header + 4),
+                                   8, 10, 137);
+            nano3g_native_draw_hex(root_trace[0], 1, 10, 162);
+            nano3g_native_draw_hex(dot_trace[0], 1, 42, 162);
+
+            if (phase)
+                lcd_fillrect(0, LCD_HEIGHT - 20, LCD_WIDTH, 20);
+            lcd_update();
+            storage_phase = phase;
+        }
+
+        sleep(1);
+    }
+#endif
+
+#if NANO3G_NATIVE_DRAM_PERSIST_PROBE
+    /*
+     * Unlike the bare IRAM probe, this runs after the proven native crt0 and
+     * system initialization path.  Clean the marker from D-cache before the
+     * watchdog reset so a subsequent DFU session can test DRAM retention.
+     */
+    volatile uint32_t *marker = (volatile uint32_t *)0x08100000;
+    marker[0] = 0x33475244; /* "DRG3" */
+    marker[1] = 0x53524550; /* "PERS" */
+    marker[2] = 0x53545349; /* "ISTS" */
+    marker[3] = 0x214b4f3f; /* "?OK!" */
+    commit_dcache_range((const void *)marker, 16);
+    system_reboot();
+#endif
+
+    while (1)
+        ;
+#else
     int rc;
     bool mounted = false;
 
@@ -477,16 +983,20 @@ static void init(void)
     filesystem_init();
 
 #ifdef HAVE_ADJUSTABLE_CPU_FREQ
+#if !defined(IPOD_NANO3G) || !NANO3G_NATIVE_SAFE_BOOT
     set_cpu_frequency(CPUFREQ_NORMAL);
 #ifdef CPU_COLDFIRE
     coldfire_set_pllcr_audio_bits(DEFAULT_PLLCR_AUDIO_BITS);
 #endif
     cpu_boost(true);
 #endif
+#endif
 
     i2c_init();
 
+#if !defined(IPOD_NANO3G) || !NANO3G_NATIVE_SAFE_BOOT
     power_init();
+#endif
 
     enable_irq();
 #if defined(CPU_ARM_CLASSIC)
@@ -541,7 +1051,9 @@ static void init(void)
      * measure battery voltage, and it's not needed for charging. */
 #if !defined(NEED_ATA_POWER_BATT_MEASURE) || \
     (CONFIG_CHARGING > CHARGING_MONITOR)
+#if !defined(IPOD_NANO3G) || !NANO3G_NATIVE_SAFE_BOOT
     powermgmt_init();
+#endif
 #endif
 
 #if CONFIG_TUNER
@@ -567,16 +1079,6 @@ static void init(void)
     viewportmanager_init();
     CHART("<viewportmanager_init");
 
-#ifdef IPOD_NANO3G
-    lcd_clear_display();
-    lcd_puts(0, 0, "N3G_NATIVE_PRESTOR");
-    lcd_puts(0, 1, "handoff ok");
-    lcd_puts(0, 2, "storage skipped");
-    lcd_update();
-    while (1)
-        sleep(HZ);
-#endif
-
     CHART(">storage_init");
     rc = storage_init();
     CHART("<storage_init");
@@ -591,11 +1093,22 @@ static void init(void)
         panicf("ata: %d", rc);
     }
 
+#if defined(IPOD_NANO3G) && NANO3G_NATIVE_SAFE_BOOT
+    nano3g_boottrace_log("storage_init ok");
+    lcd_clear_display();
+    lcd_puts(0, 0, "N3G FULL STORAGE OK");
+    lcd_puts(0, 1, "continuing init");
+    lcd_update();
+    sleep(HZ);
+#endif
+
 #if defined(NEED_ATA_POWER_BATT_MEASURE) && \
     (CONFIG_CHARGING <= CHARGING_MONITOR)
     /* After storage_init(), ATA power must be on, so battery voltage
      * can be measured. Initialize power management if it was delayed. */
+#if !defined(IPOD_NANO3G) || !NANO3G_NATIVE_SAFE_BOOT
     powermgmt_init();
+#endif
 #endif
 #ifdef HAVE_EEPROM_SETTINGS
     CHART(">eeprom_settings_init");
@@ -771,7 +1284,9 @@ static void init(void)
 #endif
 
     /* runtime database has to be initialized after audio_init() */
+#if !defined(IPOD_NANO3G) || !NANO3G_NATIVE_SAFE_BOOT
     cpu_boost(false);
+#endif
 
 #if CONFIG_CHARGING
     car_adapter_mode_init();
@@ -793,6 +1308,15 @@ static void init(void)
     CHART("<settings_apply_skins");
     settings_apply_skins();
     CHART(">settings_apply_skins");
+#if defined(IPOD_NANO3G) && NANO3G_NATIVE_SAFE_BOOT
+    nano3g_boottrace_log("full init ok");
+    lcd_clear_display();
+    lcd_puts(0, 0, "N3G FULL INIT OK");
+    lcd_puts(0, 1, "entering Rockbox");
+    lcd_update();
+    sleep(HZ);
+#endif
+#endif /* IPOD_NANO3G && NANO3G_NATIVE_PRESTOR_ONLY */
 }
 
 #ifdef CPU_PP

@@ -56,7 +56,9 @@ else
 endif
 
 # calculate dependencies for a list of source files $(2) and output them to $(1)
-mkdepfile = $(SILENT)perl $(TOOLSDIR)/multigcc.pl $(CC) $(PPCFLAGS) $(OTHER_INC) -MG -MM -include config.h -- $(2) | \
+# Keep very large all-plugin builds below the host shell's ARG_MAX by handing
+# the source list to multigcc through a response file.
+mkdepfile = $(file >$(1).$(3).sources,$(2))$(SILENT)perl $(TOOLSDIR)/multigcc.pl $(CC) $(PPCFLAGS) $(OTHER_INC) -MG -MM -include $(FIRMDIR)/export/config.h -- @$(1).$(3).sources | \
 	sed -e "s: lang.h: lang/lang.h:" \
 	-e 's:_asmdefs.o:_asmdefs.h:' \
 	-e "s: max_language_size.h: lang/max_language_size.h:" | \

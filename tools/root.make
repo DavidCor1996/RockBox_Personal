@@ -206,9 +206,9 @@ $(RBINFO): $(BUILDDIR)/$(BINARY)
 
 $(DEPFILE) dep:
 	$(call PRINTS,Generating dependencies)
-	$(call mkdepfile,$(DEPFILE)_,$(SRC))
-	$(call mkdepfile,$(DEPFILE)_,$(OTHER_SRC:%.lua=))
-	$(call mkdepfile,$(DEPFILE)_,$(ASMDEFS_SRC))
+	$(call mkdepfile,$(DEPFILE)_,$(SRC),core)
+	$(call mkdepfile,$(DEPFILE)_,$(OTHER_SRC:%.lua=),other)
+	$(call mkdepfile,$(DEPFILE)_,$(ASMDEFS_SRC),asmdefs)
 	$(call bmpdepfile,$(DEPFILE)_,$(BMP) $(PBMP))
 	@mv $(DEPFILE)_ $(DEPFILE)
 

@@ -1,4 +1,6 @@
+import json
 import os
+from types import SimpleNamespace
 
 import pytest
 from PIL import Image
@@ -13,6 +15,7 @@ from services.youtube_movies import (
     persist_movie_import_poster,
     sanitize_movie_title,
 )
+from scripts.youtube_movie_import import _metadata_from_ytdlp
 
 
 def test_supported_youtube_urls():
@@ -121,3 +124,35 @@ def test_downloaded_video_detection_ignores_file_mtime(tmp_dir):
     found = _downloaded_video(download_dir, "YouTube Movie")
 
     assert found == video_path
+
+
+def test_ytdlp_metadata_probe_keeps_episode_identity(monkeypatch):
+    payload = {
+        "id": "episode-id",
+        "webpage_url": "https://www.youtube.com/watch?v=episode-id",
+        "title": "Show Name S02E03 - The Episode",
+        "description": "Official description",
+        "channel": "Official Channel",
+        "channel_url": "https://www.youtube.com/@official",
+        "thumbnail": "https://i.ytimg.com/vi/episode-id/hqdefault.jpg",
+        "duration": 1234.5,
+        "upload_date": "20240506",
+        "series": "Show Name",
+        "season_number": 2,
+        "episode_number": 3,
+        "episode": "The Episode",
+        "categories": ["Entertainment"],
+    }
+    monkeypatch.setattr(
+        "scripts.youtube_movie_import.subprocess.run",
+        lambda *args, **kwargs: SimpleNamespace(stdout=json.dumps(payload)),
+    )
+
+    result = _metadata_from_ytdlp("yt-dlp", payload["webpage_url"])
+
+    assert result["show_title"] == "Show Name"
+    assert result["season_number"] == 2
+    assert result["episode_number"] == 3
+    assert result["episode_title"] == "The Episode"
+    assert result["year"] == 2024
+    assert result["duration"] == 1234

@@ -133,7 +133,8 @@ def _classify_media_type(path):
     return ""
 
 
-def collect_library_files(music_dir, video_dir=None, video_dirs=None):
+def collect_library_files(music_dir, video_dir=None, video_dirs=None,
+                          cancel_callback=None):
     """Walk configured library roots and classify files for diagnostics."""
     report = _empty_scan_report(music_dir)
     normalized_video_dirs = _normalize_video_dirs(video_dirs=video_dirs, video_dir=video_dir)
@@ -148,6 +149,8 @@ def collect_library_files(music_dir, video_dir=None, video_dirs=None):
     roots.extend(("video", path, "video directory missing") for path in normalized_video_dirs)
 
     for root_type, base_dir, missing_reason in roots:
+        if cancel_callback and cancel_callback():
+            break
         if not base_dir:
             continue
         normalized = os.path.abspath(base_dir)
@@ -164,8 +167,14 @@ def collect_library_files(music_dir, video_dir=None, video_dirs=None):
             continue
 
         for root, dirs, filenames in os.walk(base_dir, followlinks=True):
+            if cancel_callback and cancel_callback():
+                dirs[:] = []
+                break
             dirs[:] = [d for d in dirs if not d.startswith(".")]
             for fn in sorted(filenames):
+                if cancel_callback and cancel_callback():
+                    dirs[:] = []
+                    break
                 if fn.startswith("."):
                     continue
                 full = os.path.join(root, fn)
@@ -332,8 +341,15 @@ class LibraryScanWorker(QObject):
         report["video_dir"] = self._video_dirs[0] if self._video_dirs else ""
         try:
             db = Database(self._db_path, initialize=False)
-            files, report = collect_library_files(self._music_dir, video_dirs=self._video_dirs)
+            files, report = collect_library_files(
+                self._music_dir,
+                video_dirs=self._video_dirs,
+                cancel_callback=lambda: self._cancelled,
+            )
             report["status"] = "running"
+            if self._cancelled:
+                self._emit_cancelled(report, t0)
+                return
             cached = db.get_track_file_states()
             file_set = set(files)
             removed = sorted(set(cached) - file_set)
@@ -355,6 +371,9 @@ class LibraryScanWorker(QObject):
                     folder_stats.setdefault(_folder_for(filepath), _init_folder_stats())["imported"] += 1
 
             if report["total_media_files_found"] == 0:
+                if self._cancelled:
+                    self._emit_cancelled(report, t0)
+                    return
                 if removed:
                     with db.transaction():
                         db.delete_tracks_by_paths(removed)
@@ -399,6 +418,10 @@ class LibraryScanWorker(QObject):
                     stats["skipped"] += 1
                     logger.warning("Skipping %s: %s", filepath, e)
                     _record_issue(report["skipped_files"], filepath, f"unexpected exception: {e}")
+
+            if self._cancelled:
+                self._emit_cancelled(report, t0)
+                return
 
             with db.transaction():
                 if removed:
@@ -452,6 +475,16 @@ class LibraryScanWorker(QObject):
         finally:
             if db:
                 db.close()
+
+    def _emit_cancelled(self, report, started_at):
+        report["status"] = "cancelled"
+        report["changed_count"] = 0
+        report["total_files_inserted"] = 0
+        report["total_files_updated"] = 0
+        report["total_files_removed"] = 0
+        report["elapsed_seconds"] = time.time() - started_at
+        logger.info("Library scan cancelled without committing partial results")
+        self.finished.emit(report)
 
     def _files_requiring_metadata(self, files, cached):
         """Return files that are new, changed, or part of a forced full scan."""
@@ -635,10 +668,9 @@ class LibraryScanner(QObject):
             self._worker.cancel()
         if self._thread and self._thread.isRunning():
             self._thread.quit()
-            if not self._thread.wait(5000):
-                logger.warning("Library scanner thread did not stop cleanly; terminating")
-                self._thread.terminate()
-                self._thread.wait(2000)
+            if not self._thread.wait(15000):
+                logger.warning("Waiting for library scanner to reach a safe cancellation point")
+                self._thread.wait()
         self._thread = None
         self._worker = None
 

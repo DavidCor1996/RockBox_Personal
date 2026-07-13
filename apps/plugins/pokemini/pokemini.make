@@ -27,6 +27,17 @@ POKEMINIFLAGS = $(filter-out -O%,$(PLUGINFLAGS)) -O2 \
 
 $(POKEMINIBUILDDIR)/pokemini.rock: $(POKEMINI_OBJ)
 
-$(POKEMINIBUILDDIR)/%.o: $(POKEMINISRCDIR)/%.c $(POKEMINISRCDIR)/pokemini.make
+# The global dependency scanner does not see POKEMINIFLAGS and therefore
+# records this local include at the build root. Provide the same header there
+# so clean all-plugin builds retain the dependency instead of dropping it.
+$(BUILDDIR)/freebios.h: $(POKEMINISRCDIR)/freebios/freebios.h
+	$(call PRINTS,CP $(@F))cp $< $@
+
+$(BUILDDIR)/PokeMini_ColorPal.h: $(POKEMINISRCDIR)/resource/PokeMini_ColorPal.h
+	$(call PRINTS,CP $(@F))cp $< $@
+
+$(POKEMINIBUILDDIR)/%.o: $(POKEMINISRCDIR)/%.c \
+		$(POKEMINISRCDIR)/pokemini.make $(BUILDDIR)/sysfont.h \
+		$(BUILDDIR)/lang_enum.h
 	$(SILENT)mkdir -p $(dir $@)
 	$(call PRINTS,CC $(subst $(ROOTDIR)/,,$<))$(CC) -I$(dir $<) $(POKEMINIFLAGS) -c $< -o $@

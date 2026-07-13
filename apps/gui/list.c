@@ -276,6 +276,13 @@ static void gui_synclist_init_display_settings(struct gui_synclist * list)
     list->keyclick = gs->keyclick;
     list->talk_menu = gs->talk_menu;
     list->wraparound = gs->list_wraparound;
+#if defined(HAVE_LCD_COLOR) && (defined(IPOD_VIDEO) || defined(IPOD_6G))
+    if (global_settings.ui_engine == UI_ENGINE_IPODJS)
+    {
+        list->scroll_paginated = false;
+        list->wraparound = false;
+    }
+#endif
     list->cursor_style = gs->cursor_style;
     list->force_fullscreen_albumlist = false;
     list->fullscreen_albumlist_theme_hidden = false;

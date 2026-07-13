@@ -222,7 +222,9 @@ return function( background, keymap, keydown, keyup, timers, zoom, options, M )
   background.picture = nil
 
   local state, newstate = {}, {}
-  local zoomed = false
+  local zoomed = zoom ~= nil
+
+  system.setzoom( zoom )
 
   if options then
     local del = {}

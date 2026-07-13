@@ -142,7 +142,7 @@ namespace gameswf
 		struct drag_state
 		{
 		private:
-			character*	m_character;
+			weak_ptr<character>	m_character;
 			bool		m_lock_center;
 			bool		m_bound;
 			rect		m_bound_rect;
@@ -206,7 +206,7 @@ namespace gameswf
 
 			character* GetCharacter() const
 			{
-				return m_character;
+				return m_character.get_ptr();
 			}
 
 			void SetCharacter(character* ch)

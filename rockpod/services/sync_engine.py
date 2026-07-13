@@ -47,11 +47,15 @@ VIDEO_LIST_PREVIEW_DEVICE_DIR = os.path.join(VIDEO_LIST_DEVICE_DIR, "previews")
 SYNC_TEMP_SUFFIX = ".rockpod_tmp"
 MAX_AUTO_DUPLICATE_DELETE_COUNT = 50
 AUDIO_TRANSCODE_CACHE_EXTENSIONS = {".mp3", ".m4a"}
-VIDEO_SYNC_CACHE_EXTENSIONS = {".rvp", ".yuv", ".pcm", ".tmp"}
+VIDEO_SYNC_CACHE_EXTENSIONS = {".rvp", ".yuv", ".pcm", ".json", ".tmp"}
 MANIFEST_ARTWORK_RELPATHS = {
     os.path.join(ALBUM_LIST_DEVICE_DIR, "index.tsv"),
     os.path.join(VIDEO_LIST_DEVICE_DIR, "index.tsv"),
 }
+
+
+class _SyncCancelled(Exception):
+    """Internal control flow for cooperative sync cancellation."""
 
 
 def _sanitize_filename(name, max_len=200):
@@ -101,7 +105,12 @@ def _sync_update_reasons(row, device_row=None, old_dev_path="", new_rel_path="")
 
     local_mh = str(local.get("metadata_hash") or "").strip()
     device_mh = str(device.get("metadata_hash") or "").strip()
-    last_synced_mh = str(local.get("last_synced_metadata_hash") or "").strip()
+    last_synced_mh = str(
+        device.get("last_synced_metadata_hash")
+        or device_mh
+        or local.get("last_synced_metadata_hash")
+        or ""
+    ).strip()
     if (local_mh and device_mh and local_mh != device_mh) or (
         local_mh and last_synced_mh and local_mh != last_synced_mh
     ):
@@ -109,7 +118,12 @@ def _sync_update_reasons(row, device_row=None, old_dev_path="", new_rel_path="")
 
     local_fh = str(local.get("file_hash") or "").strip()
     device_fh = str(device.get("file_hash") or "").strip()
-    last_synced_fh = str(local.get("last_synced_file_hash") or "").strip()
+    last_synced_fh = str(
+        device.get("last_synced_file_hash")
+        or device_fh
+        or local.get("last_synced_file_hash")
+        or ""
+    ).strip()
     if (local_fh and device_fh and local_fh != device_fh) or (
         local_fh and last_synced_fh and local_fh != last_synced_fh
     ):
@@ -227,6 +241,33 @@ def _infer_video_episode_metadata(row):
                     "show_title": show_title,
                     "season_number": 1,
                     "episode_number": int(match.group(1)),
+                }
+
+        match = re.match(
+            r"^(.+?)\s*[-–—:]\s*(.+)$",
+            text,
+            flags=re.IGNORECASE,
+        )
+        if match:
+            left = _clean_inferred_show_title(match.group(1)).strip()
+            right = _clean_inferred_show_title(match.group(2)).strip()
+            left = re.sub(r"\s*\([^)]*\)\s*$", "", left).strip()
+            right = re.sub(r"\s*\([^)]*\)\s*$", "", right).strip()
+            if re.search(r"\bvs\.?\b", left, flags=re.IGNORECASE):
+                show_title = left
+                title = right
+            elif re.search(r"\bvs\.?\b", right, flags=re.IGNORECASE):
+                show_title = right
+                title = left
+            else:
+                continue
+            title = title or item.get("title") or text
+            title = _clean_inferred_show_title(title)
+            if show_title and re.search(r"\bvs\.?\b", show_title, flags=re.IGNORECASE):
+                return {
+                    "show_title": show_title,
+                    "title": title,
+                    "video_kind": "show",
                 }
 
     return {}
@@ -496,6 +537,10 @@ def _normalize_video_show_fields(row):
             normalized["episode_number"] = inferred["episode_number"]
         if inferred.get("title") and _is_generic_downloaded_video_title(normalized.get("title")):
             normalized["title"] = inferred["title"]
+        inferred_kind = _normalize_video_kind_value(inferred.get("video_kind"))
+        if inferred_kind == "show" and kind != "home_video":
+            kind = inferred_kind
+            normalized["video_kind"] = kind
 
     if (not normalized.get("track_number")) and normalized.get("episode_number") is not None:
         normalized["track_number"] = normalized.get("episode_number")
@@ -510,10 +555,17 @@ def _normalize_video_show_fields(row):
 
     inferred_season = _to_video_int(normalized.get("season_number"))
     inferred_episode = _to_video_int(normalized.get("episode_number"))
+    final_kind = _normalize_video_kind_value(normalized.get("video_kind"))
     if normalized.get("show_title") and (
-        kind == "show" or inferred_season is not None or inferred_episode is not None
+        final_kind == "show" or inferred_season is not None or inferred_episode is not None
     ):
         normalized["video_kind"] = "show"
+        if inferred_season is None and (
+            normalized.get("season_number") is None or normalized.get("season_number") == ""
+        ):
+            source_parts = [part.casefold() for part in Path(str(normalized.get("file_path") or "")).parts]
+            if not any(part in {"special", "specials"} for part in source_parts):
+                normalized["season_number"] = 1
 
     return normalized
 
@@ -597,6 +649,36 @@ _VIDEO_EPISODE_OVERRIDES = {
         "season_number": 1,
         "episode_number": 22,
     },
+    "triumph of the will - the french reconnect": {
+        "show_title": "Triumph of the Will",
+        "title": "The French ReConnection",
+        "season_number": 1,
+        "episode_number": 5,
+    },
+    "triumph of the will the french reconnect": {
+        "show_title": "Triumph of the Will",
+        "title": "The French ReConnection",
+        "season_number": 1,
+        "episode_number": 5,
+    },
+    "triumph of the will - the french reconnection": {
+        "show_title": "Triumph of the Will",
+        "title": "The French ReConnection",
+        "season_number": 1,
+        "episode_number": 5,
+    },
+    "triumph of the will the french reconnection": {
+        "show_title": "Triumph of the Will",
+        "title": "The French ReConnection",
+        "season_number": 1,
+        "episode_number": 5,
+    },
+    "the french reconnect": {
+        "show_title": "Triumph of the Will",
+        "title": "The French ReConnection",
+        "season_number": 1,
+        "episode_number": 5,
+    },
 }
 
 
@@ -611,6 +693,12 @@ def _video_override_key(value):
 def _apply_video_episode_overrides(row):
     item = dict(row) if hasattr(row, "keys") else dict(row or {})
     if str(item.get("media_type") or "audio").lower() != "video":
+        return item
+    if item.get("metadata_locked") and (
+        item.get("show_title")
+        and item.get("season_number") is not None
+        and item.get("episode_number") is not None
+    ):
         return item
     candidates = [
         item.get("title"),
@@ -950,6 +1038,7 @@ class SyncPlan:
         self.execution_profile = {}
         self.copy_reason_counts = {}
         self.update_reason_counts = {}
+        self.warnings = []
 
     @property
     def total_operations(self):
@@ -1204,6 +1293,8 @@ class SyncWorker(QObject):
                     self.file_error.emit(dest, str(exc))
                     logger.error("Failed to delete duplicate device file %s: %s", dest, exc)
 
+            if self._cancelled:
+                raise _SyncCancelled()
             cleanup_index = total + 1 if total else 1
             self.progress.emit(cleanup_index, total + 2, "Clearing device trash")
             removed_trash = _clear_device_trash(self._device_mount)
@@ -1215,8 +1306,7 @@ class SyncWorker(QObject):
             finalize_started = time.perf_counter()
             if synced_updates:
                 with db.transaction():
-                    for tid, rel_path, mh, fh in synced_updates:
-                        db.mark_synced(tid, rel_path, mh, fh)
+                    db.mark_synced_many(synced_updates)
             stage_times["db_finalize_seconds"] += time.perf_counter() - finalize_started
             self._plan.execution_profile = {
                 **stage_times,
@@ -1243,6 +1333,9 @@ class SyncWorker(QObject):
             )
             self.finished.emit(copied, failed, skipped)
 
+        except _SyncCancelled:
+            logger.info("Sync cancelled during file copy")
+            self.cancelled.emit()
         except Exception as e:
             logger.exception("Sync execution failed")
             self.finished.emit(copied, failed, skipped)
@@ -1287,6 +1380,8 @@ class SyncWorker(QObject):
                     stats["open_seconds"] += time.perf_counter() - t_open
                     chunk_size = 1024 * 1024 if LEGACY_COPY_MODE else COPY_CHUNK_SIZE
                     while True:
+                        if self._cancelled:
+                            raise _SyncCancelled()
                         t_read = time.perf_counter()
                         chunk = src_handle.read(chunk_size)
                         stats["read_seconds"] += time.perf_counter() - t_read
@@ -1300,6 +1395,8 @@ class SyncWorker(QObject):
                     sync_fn = os.fsync if LEGACY_COPY_MODE or not hasattr(os, "fdatasync") else os.fdatasync
                     sync_fn(tmp_handle.fileno())
                     stats["flush_sync_seconds"] += time.perf_counter() - t_flush
+                    if self._cancelled:
+                        raise _SyncCancelled()
                 if LEGACY_COPY_MODE:
                     try:
                         shutil.copystat(src, tmp, follow_symlinks=True)
@@ -1324,6 +1421,8 @@ class SyncWorker(QObject):
                         pass
                 raise
 
+        except _SyncCancelled:
+            raise
         except Exception as e:
             self.file_error.emit(src, str(e))
             logger.error("Failed to copy %s -> %s: %s", src, dest, e)
@@ -1664,6 +1763,19 @@ class SyncEngine(QObject):
         mount_path = str(getattr(device, "mount_path", "") or "").strip()
         return not mount_path or not os.path.isdir(mount_path)
 
+    def _device_mount_read_only(self):
+        device = self._device_detector.current_device
+        if not device:
+            return False
+        mount_path = str(getattr(device, "mount_path", "") or "").strip()
+        if not mount_path or not os.path.isdir(mount_path):
+            return False
+        try:
+            readonly_flag = getattr(os, "ST_RDONLY", 1)
+            return bool(os.statvfs(mount_path).f_flag & readonly_flag)
+        except OSError:
+            return not os.access(mount_path, os.W_OK)
+
     @staticmethod
     def _device_has_indexable_media_on_disk(device):
         roots = device_music_roots(device)
@@ -1702,6 +1814,14 @@ class SyncEngine(QObject):
         if self._device_mount_unavailable():
             plan = SyncPlan()
             plan.errors.append("Device mount path is unavailable")
+            plan.plan_profile = {"build_seconds": time.perf_counter() - t0}
+            return plan
+        if self._device_mount_read_only():
+            plan = SyncPlan()
+            plan.errors.append(
+                "Device filesystem is mounted read-only; repair and remount "
+                "the iPod before syncing"
+            )
             plan.plan_profile = {"build_seconds": time.perf_counter() - t0}
             return plan
 
@@ -1816,9 +1936,13 @@ class SyncEngine(QObject):
                 for result in matched
                 if getattr(result, "device_track", None) is not None
             }
+            unmatched_reasons = matcher.explain_unmatched_many(
+                [result.local_track for result in unmatched],
+                device_tracks,
+            )
 
             # New tracks to copy
-            for result in unmatched:
+            for result, unmatched_reason in zip(unmatched, unmatched_reasons):
                 row = dict(result.local_track) if hasattr(result.local_track, "keys") else result.local_track
                 row = self._normalize_video_row_for_sync(row)
                 desired_rel_path = build_device_path(row, dir_template, file_template)
@@ -1859,7 +1983,7 @@ class SyncEngine(QObject):
                     plan.to_copy.append((row, rel_path))
                     _bump_reason(
                         copy_reason_counts,
-                        matcher.explain_unmatched(row, device_tracks),
+                        unmatched_reason,
                     )
                     if row.get("sync_transcoded"):
                         _bump_reason(copy_reason_counts, "conversion required")
@@ -2016,6 +2140,14 @@ class SyncEngine(QObject):
             plan.errors.append("Device mount path is unavailable")
             plan.plan_profile = {"build_seconds": time.perf_counter() - t0}
             return plan
+        if self._device_mount_read_only():
+            plan = SyncPlan()
+            plan.errors.append(
+                "Device filesystem is mounted read-only; repair and remount "
+                "the iPod before syncing"
+            )
+            plan.plan_profile = {"build_seconds": time.perf_counter() - t0}
+            return plan
 
         emit_status("Checking weather data...")
         plan = SyncPlan()
@@ -2078,13 +2210,17 @@ class SyncEngine(QObject):
             if not _looks_like_auto_duplicate_path(rel_path)
         ]
         if unsafe:
-            plan.to_delete = []
-            plan.errors.append(
+            plan.to_delete = [
+                rel_path for rel_path in deletes
+                if _looks_like_auto_duplicate_path(rel_path)
+            ]
+            plan.warnings.append(
                 "Skipped automatic duplicate cleanup because delete candidates did not look like RockPod "
                 f"duplicate files: {', '.join(unsafe[:5])}"
             )
-            logger.warning("Blocked unsafe duplicate cleanup candidates: %s", unsafe)
-            return
+            logger.warning("Skipped unsafe duplicate cleanup candidates: %s", unsafe)
+            if not plan.to_delete:
+                return
 
         max_deletes = int(self._config_value("max_auto_duplicate_deletes_per_sync", MAX_AUTO_DUPLICATE_DELETE_COUNT) or 0)
         if max_deletes < 0:
@@ -2093,17 +2229,17 @@ class SyncEngine(QObject):
             plan.to_delete = []
             logger.info("Skipped automatic duplicate cleanup because the safety limit is 0")
             return
-        if len(deletes) > max_deletes:
+        if len(plan.to_delete) > max_deletes:
             plan.to_delete = []
             plan.errors.append(
-                f"Skipped automatic duplicate cleanup because it wanted to remove {len(deletes)} iPod files. "
+                f"Skipped automatic duplicate cleanup because it wanted to remove {len(plan.to_delete)} iPod files. "
                 f"The safety limit is {max_deletes}. Use duplicate cleanup manually after reviewing the device."
             )
             logger.warning(
                 "Blocked duplicate cleanup count %d above safety limit %d: %s",
-                len(deletes),
+                len(plan.to_delete),
                 max_deletes,
-                deletes,
+                plan.to_delete,
             )
 
     def device_inventory_has_local_links(self):
@@ -2229,14 +2365,10 @@ class SyncEngine(QObject):
         missing = len(self.get_not_on_device_tracks())
         resync = 0
         if self._config_value("resync_metadata_changes", True):
-            row = self._db.fetchone(
-                "SELECT COUNT(*) AS cnt FROM tracks "
-                "WHERE synced_to_device = 1 "
-                "AND (metadata_hash != last_synced_metadata_hash "
-                "OR (last_synced_file_hash != '' AND file_hash != '' "
-                "AND file_hash != last_synced_file_hash))"
-            )
-            resync = row["cnt"] if row else 0
+            resync = self._db.get_sync_status_counts(
+                self._current_device_key,
+                include_resync=True,
+            )["resync"]
         return {"missing": missing, "resync": resync}
 
     def _audio_conversion_enabled(self):
@@ -2275,6 +2407,15 @@ class SyncEngine(QObject):
         target_bitrate = self._audio_transcoder._normalize_bitrate(settings.get("target_bitrate_kbps", 160))
 
         device_tracks = self._db.get_all_device_tracks(device_key)
+        local_ids = {
+            int(dict(row).get("local_track_id"))
+            for row in device_tracks
+            if dict(row).get("local_track_id")
+        }
+        local_by_id = {
+            int(row["id"]): dict(row)
+            for row in self._db.get_tracks_by_ids(local_ids, media_type=None)
+        }
         keep_audio = set()
         keep_video = set()
 
@@ -2282,7 +2423,7 @@ class SyncEngine(QObject):
             local_id = dict(dt_row).get("local_track_id")
             if not local_id:
                 continue
-            local_track = self._db.get_track_by_id(local_id)
+            local_track = local_by_id.get(int(local_id))
             if not local_track:
                 continue
             local_track = dict(local_track) if hasattr(local_track, "keys") else dict(local_track or {})
@@ -2376,6 +2517,9 @@ class SyncEngine(QObject):
         if not os.path.isdir(cache_root) and not os.path.isdir(cache_dir):
             return set()
         base_keep.add(marker_path)
+        digest_path = marker_path + ".digest.json"
+        if os.path.isfile(digest_path):
+            base_keep.add(digest_path)
         marker_meta = {}
         if os.path.isfile(marker_path):
             marker_meta = self._video_transcoder._read_marker_meta(marker_path)
@@ -2754,6 +2898,42 @@ class SyncEngine(QObject):
             key = str(item.get("file_path") or rel_path)
             video_targets[key] = {"row": item, "device_path": rel_path}
 
+        # A selective video sync must retain every currently synced video in
+        # the device manifest.  Building this list only from the selected
+        # plan/matches collapses index.tsv to the last synced selection.
+        local_videos = list(self._db.get_all_tracks(media_type="video"))
+        local_videos_by_id = {
+            int(row["id"]): row
+            for row in local_videos
+            if row["id"] is not None
+        }
+        for row in local_videos:
+            item = dict(row) if hasattr(row, "keys") else dict(row)
+            rel_path = str(item.get("device_path") or "").strip()
+            if rel_path and os.path.isfile(os.path.join(device_mount, rel_path)):
+                add_video(item, rel_path)
+
+        # Inventory reconciliation can temporarily clear the legacy local
+        # device_path while the current per-device row still links the same
+        # local video.  Keep that physically present video in the manifest.
+        for device_row in self.get_device_tracks():
+            device_item = (
+                dict(device_row)
+                if hasattr(device_row, "keys") else dict(device_row)
+            )
+            try:
+                local_id = int(device_item.get("local_track_id") or 0)
+            except (TypeError, ValueError):
+                continue
+            local_row = local_videos_by_id.get(local_id)
+            rel_path = str(device_item.get("device_path") or "").strip()
+            if (
+                local_row is not None
+                and rel_path
+                and os.path.isfile(os.path.join(device_mount, rel_path))
+            ):
+                add_video(local_row, rel_path)
+
         for row, rel_path in plan.to_copy:
             add_video(row, rel_path)
         for row, _old_path, rel_path in plan.to_resync:
@@ -2858,17 +3038,19 @@ class SyncEngine(QObject):
             return
         synced_at = datetime.now().isoformat(timespec="seconds")
         with self._db.transaction():
+            synced_updates = []
             for row, rel_path in links:
                 item = dict(row) if hasattr(row, "keys") else dict(row or {})
                 self._upsert_synced_device_row(device_key, item, rel_path, synced_at)
                 local_id = item.get("id")
                 if local_id:
-                    self._db.mark_synced(
+                    synced_updates.append((
                         local_id,
                         rel_path,
                         item.get("metadata_hash", ""),
                         item.get("file_hash", ""),
-                    )
+                    ))
+            self._db.mark_synced_many(synced_updates)
             self._db.mark_device_synced(device_key)
         self.load_cached_device_inventory(device_key)
 
@@ -2880,46 +3062,49 @@ class SyncEngine(QObject):
         if synced_at is None:
             synced_at = time.strftime("%Y-%m-%dT%H:%M:%S")
 
-        for row, rel_path in getattr(plan, "preflight_linked", []):
-            item = dict(row) if hasattr(row, "keys") else dict(row or {})
-            self._upsert_synced_device_row(device_key, item, rel_path, synced_at)
-            local_id = item.get("id")
-            if local_id:
-                self._db.mark_synced(
-                    local_id,
-                    rel_path,
-                    item.get("metadata_hash", ""),
-                    item.get("file_hash", ""),
-                )
-        for row, rel_path in plan.to_copy:
-            self._upsert_synced_device_row(device_key, row, rel_path, synced_at)
-        for row, old_rel_path, rel_path in plan.to_resync:
-            if old_rel_path and old_rel_path != rel_path:
+        with self._db.transaction():
+            preflight_updates = []
+            for row, rel_path in getattr(plan, "preflight_linked", []):
+                item = dict(row) if hasattr(row, "keys") else dict(row or {})
+                self._upsert_synced_device_row(device_key, item, rel_path, synced_at)
+                local_id = item.get("id")
+                if local_id:
+                    preflight_updates.append((
+                        local_id,
+                        rel_path,
+                        item.get("metadata_hash", ""),
+                        item.get("file_hash", ""),
+                    ))
+            self._db.mark_synced_many(preflight_updates)
+            for row, rel_path in plan.to_copy:
+                self._upsert_synced_device_row(device_key, row, rel_path, synced_at)
+            for row, old_rel_path, rel_path in plan.to_resync:
+                if old_rel_path and old_rel_path != rel_path:
+                    self._db.execute(
+                        "UPDATE device_tracks SET present_on_device = 0 "
+                        "WHERE device_id = ? AND device_path = ?",
+                        (device_key, old_rel_path),
+                    )
+                self._upsert_synced_device_row(device_key, row, rel_path, synced_at)
+            for rel_path in plan.to_delete:
                 self._db.execute(
-                    "UPDATE device_tracks SET present_on_device = 0 "
-                    "WHERE device_id = ? AND device_path = ?",
-                    (device_key, old_rel_path),
+                    "DELETE FROM device_tracks WHERE device_id = ? AND device_path = ?",
+                    (device_key, rel_path),
                 )
-            self._upsert_synced_device_row(device_key, row, rel_path, synced_at)
-        for rel_path in plan.to_delete:
-            self._db.execute(
-                "DELETE FROM device_tracks WHERE device_id = ? AND device_path = ?",
-                (device_key, rel_path),
-            )
-        self._db.mark_device_synced(device_key)
+            self._db.mark_device_synced(device_key)
         if plan.to_delete:
             self._link_device_to_local()
-        self._db.commit()
         self.load_cached_device_inventory(device_key)
 
-    def _link_device_to_local(self):
+    def _link_device_to_local(self, media_type=None):
         """Try to set local_track_id on device tracks by matching."""
         device_tracks = self._db.get_all_device_tracks(self._current_device_key)
-        local_tracks = self._db.get_all_tracks()
+        local_tracks = self._db.get_all_tracks(media_type=media_type)
 
         matcher = self._matcher()
         matched, unmatched, _, _ = matcher.match_all(local_tracks, device_tracks)
 
+        synced_updates = []
         for result in matched:
             lt = dict(result.local_track) if hasattr(result.local_track, "keys") else result.local_track
             dt = dict(result.device_track) if hasattr(result.device_track, "keys") else result.device_track
@@ -2934,7 +3119,9 @@ class SyncEngine(QObject):
                 # Also mark local track as synced
                 mh = dt.get("metadata_hash", "")
                 fh = dt.get("file_hash", "")
-                self._db.mark_synced(local_id, dev_path, mh, fh)
+                synced_updates.append((local_id, dev_path, mh, fh))
+
+        self._db.mark_synced_many(synced_updates)
 
         for result in unmatched:
             lt = dict(result.local_track) if hasattr(result.local_track, "keys") else result.local_track
@@ -2969,6 +3156,8 @@ class SyncEngine(QObject):
                 "file_size": row.get("file_size", 0),
                 "metadata_hash": row.get("metadata_hash", ""),
                 "file_hash": row.get("file_hash", ""),
+                "last_synced_metadata_hash": row.get("metadata_hash", ""),
+                "last_synced_file_hash": row.get("file_hash", ""),
                 "present_on_device": 1,
                 "last_synced_at": synced_at,
             }
@@ -3022,10 +3211,11 @@ class SyncEngine(QObject):
             self._worker.cancel()
         if self._thread and self._thread.isRunning():
             self._thread.quit()
-            if not self._thread.wait(5000):
-                logger.warning("Sync thread did not stop cleanly; terminating")
-                self._thread.terminate()
-                self._thread.wait(2000)
+            if not self._thread.wait(15000):
+                logger.warning(
+                    "Waiting for sync thread to reach a safe cancellation point"
+                )
+                self._thread.wait()
         self._thread = None
         self._worker = None
 
@@ -3250,16 +3440,15 @@ class SyncPlanWorker(QObject):
             artwork = ArtworkManager(self._artwork_cache_dir, self._config)
             detector = _PlanningDeviceDetector(self._device)
             engine = SyncEngine(db, self._config, detector, artwork)
-            with db.write_lock():
-                if self._weather_only:
-                    plan = engine.build_weather_sync_plan(status_callback=self.status.emit)
-                else:
-                    plan = engine.build_sync_plan(
-                        track_ids=self._track_ids,
-                        force_full=self._force_full,
-                        media_type=self._media_type,
-                        status_callback=self.status.emit,
-                    )
+            if self._weather_only:
+                plan = engine.build_weather_sync_plan(status_callback=self.status.emit)
+            else:
+                plan = engine.build_sync_plan(
+                    track_ids=self._track_ids,
+                    force_full=self._force_full,
+                    media_type=self._media_type,
+                    status_callback=self.status.emit,
+                )
             self.finished.emit(plan)
         except Exception as exc:
             logger.exception("Sync planning failed")

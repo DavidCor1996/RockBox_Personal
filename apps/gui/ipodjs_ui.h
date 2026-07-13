@@ -49,6 +49,12 @@ void ipodjs_ui_puts_fit(struct screen *display, int x, int y, int width,
                         const char *text, bool center);
 void ipodjs_ui_draw_arrow(struct screen *display, int x, int y,
                           unsigned color);
+void ipodjs_ui_prepare_native_frame(void);
+void ipodjs_ui_usb_prepare(void);
+void ipodjs_ui_draw_usb_connected(struct screen *display);
+void ipodjs_ui_charging_screen(bool classify_usb);
+void ipodjs_ui_charging_disconnected(void);
+bool ipodjs_ui_handle_system_event(int action, bool *redraw);
 void ipodjs_ui_label_cache_reset(void);
 
 #endif

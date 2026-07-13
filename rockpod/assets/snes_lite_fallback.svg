@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="280" height="248" viewBox="0 0 280 248">
+  <defs>
+    <linearGradient id="bg" x2="0" y2="1">
+      <stop stop-color="#26223b"/>
+      <stop offset="1" stop-color="#11101d"/>
+    </linearGradient>
+    <linearGradient id="case" x2="0" y2="1">
+      <stop stop-color="#eeeae5"/>
+      <stop offset="1" stop-color="#aaa5b2"/>
+    </linearGradient>
+  </defs>
+  <rect width="280" height="248" rx="20" fill="url(#bg)"/>
+  <rect x="42" y="62" width="196" height="126" rx="12" fill="url(#case)" stroke="#777184" stroke-width="5"/>
+  <path d="M66 62l18-30h112l18 30z" fill="#beb9c8" stroke="#777184" stroke-width="5"/>
+  <rect x="97" y="38" width="86" height="52" rx="4" fill="#49435e"/>
+  <path d="M70 116h64" stroke="#676073" stroke-width="10" stroke-linecap="round"/>
+  <circle cx="180" cy="129" r="16" fill="#9160b7"/>
+  <circle cx="218" cy="129" r="16" fill="#635ab1"/>
+  <rect x="68" y="157" width="74" height="9" rx="4" fill="#7d7789"/>
+  <text x="140" y="218" fill="#fff" font-family="sans-serif" font-weight="bold" font-size="27" text-anchor="middle">SNES LITE</text>
+  <text x="140" y="238" fill="#bbb5cc" font-family="sans-serif" font-size="12" text-anchor="middle">EXPERIMENTAL</text>
+</svg>

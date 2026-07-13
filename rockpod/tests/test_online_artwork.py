@@ -20,6 +20,39 @@ def _temp_names(path):
     return [name for name in os.listdir(path) if name.startswith("tmp")]
 
 
+def test_artwork_cache_cleanup_preserves_references_and_evicts_old_stale_files(config, tmp_dir):
+    cache_dir = os.path.join(tmp_dir, "bounded-artwork-cache")
+    manager = ArtworkManager(cache_dir, config, lookup_client=FakeLookupClient())
+    try:
+        referenced = os.path.join(manager._display_dir, "current.jpg")
+        stale_old = os.path.join(manager._thumb_dir, "stale-old.jpg")
+        stale_new = os.path.join(manager._thumb_dir, "stale-new.jpg")
+        for path, data in (
+            (referenced, b"r" * 100),
+            (stale_old, b"o" * 100),
+            (stale_new, b"n" * 100),
+        ):
+            with open(path, "wb") as handle:
+                handle.write(data)
+        os.utime(stale_old, (1, 1))
+        os.utime(stale_new, (2, 2))
+        manager._save_album_meta("current-album", {"desktop_display_path": referenced})
+
+        measured = manager.cleanup_cache(max_bytes=10**9)
+        budget = measured["bytes_before"] - 100
+        preview = manager.cleanup_cache(max_bytes=budget, dry_run=True)
+        assert preview["removed"] == [stale_old]
+        assert os.path.exists(stale_old)
+
+        result = manager.cleanup_cache(max_bytes=budget)
+        assert result["removed"] == [stale_old]
+        assert os.path.exists(referenced)
+        assert not os.path.exists(stale_old)
+        assert os.path.exists(stale_new)
+    finally:
+        manager.shutdown()
+
+
 class FakeLookupClient:
     def __init__(self, succeed=True):
         self.succeed = succeed

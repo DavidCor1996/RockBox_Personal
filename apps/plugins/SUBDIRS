@@ -76,6 +76,10 @@ smsgg
 arduboy
 tamagotchi
 gwatch
+#if (defined(CPU_ARM) || defined(SIMULATOR)) && (MEMORYSIZE >= 32)
+snes_lite
+openlara
+#endif
 #endif
 
 #if defined(HAVE_LCD_COLOR) && (LCD_WIDTH >= 220) && (LCD_HEIGHT >= 176) \

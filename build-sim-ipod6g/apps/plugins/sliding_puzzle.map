@@ -462,19 +462,19 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .stab.indexstr
  *(.stab.indexstr)
 
-.comment        0x0000000000000000       0x36
+.comment        0x0000000000000000       0x1b
  *(.comment)
- .comment       0x0000000000000000       0x36 /usr/lib/gcc/x86_64-pc-linux-gnu/16/crtbeginS.o
+ .comment       0x0000000000000000       0x1b /usr/lib/gcc/x86_64-pc-linux-gnu/16/crtbeginS.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/sliding_puzzle.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/sliding_puzzle.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(read_image.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(read_image.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(sliding_puzzle.240x240x16.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(sliding_puzzle.240x240x16.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16/crtendS.o
+ .comment       0x000000000000001b        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16/crtendS.o
                                          0x1c (size before relaxing)
 
 .gnu.build.attributes

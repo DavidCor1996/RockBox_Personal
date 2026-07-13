@@ -18,7 +18,7 @@ from PySide6.QtWidgets import (
     QApplication, QMessageBox, QInputDialog, QLineEdit, QMenu, QStackedWidget, QFileDialog,
     QProgressDialog, QTabWidget,
 )
-from PySide6.QtCore import QEventLoop, QItemSelectionModel, Qt, QTimer, Slot, QProcess
+from PySide6.QtCore import QEventLoop, QItemSelectionModel, Qt, QTimer, Slot, QProcess, QThreadPool
 from PySide6.QtGui import QAction, QIcon
 
 from app.config import Config
@@ -38,7 +38,7 @@ from services.reconciliation import (
 )
 from services.artwork_manager import ArtworkManager
 from services.device_storage import DeviceStorageAnalyzer
-from services.device_detector import DeviceDetector, create_mock_device
+from services.device_detector import DeviceDetector, DeviceInfo, create_mock_device
 from services.device_inventory import DeviceInventoryVerifier, device_record_from_info
 from services.android_media import AndroidMediaImporter, discover_android_sources
 from services.streamrip_import import (
@@ -57,7 +57,12 @@ from services.youtube_movies import (
     parse_movie_import_progress,
     persist_movie_import_poster,
 )
-from services.offlineweb_sync import OfflineWebSyncImporter, OfflineWebSyncError
+from services.offlineweb_sync import (
+    OfflineWebSyncImporter,
+    OfflineWebSyncError,
+    load_synced_websites,
+    remove_synced_website,
+)
 from services.playback import PlaybackService, STATE_STOPPED
 from services.sync_engine import SyncEngine, SyncPlanBuilder
 from services.theme_assets import ThemeAssetManager
@@ -79,7 +84,7 @@ from services.rockbox_device import (
     set_rockbox_ui_surface,
 )
 from services.rockbox_deploy import RockboxDeployService
-from services.rockbox_boot import RockboxBootService
+from services.rockbox_boot import RockboxBootService, RockboxBuildSyncJob
 from services.rockbox_games import RockboxGameService
 from services.rockbox_photos import RockboxPhotoService
 from services.ipone_wallpapers import IPoneWallpaperService
@@ -87,12 +92,22 @@ from services.rockbox_profiles import RockboxProfileStore
 from services.rockbox_plugins import RockboxPluginService
 from services.rockbox_runtime import import_runtime_data_for_device
 from services.rockbox_playlists import export_device_playlists, export_local_music_playlists
-from services.rockbox_tagcache import TagcacheError, write_rockbox_tagcache_from_device_inventory
+from services.rockbox_tagcache import (
+    TagcacheError,
+    read_rockbox_tagcache_tracks,
+    write_rockbox_tagcache_from_device_inventory,
+)
 from services.rockbox_simulator import RockboxSimulatorService
 from services.rockbox_themes import RockboxThemeService, THEME_DEFINITIONS
 from services.linux_payload import DEBIAN_LIVE_XFCE_ISO, LinuxPayloadService
 from services.theme_designer import ThemeDesignerService
 from services.online_album_metadata import AlbumMetadataFetcher
+from services.youtube_import_metadata import (
+    build_youtube_import_metadata_payload,
+    choose_video_metadata_match as _choose_video_metadata_match_default,
+    youtube_metadata_lookup_query as _youtube_metadata_lookup_query_default,
+)
+from services.video_metadata_jobs import YoutubeImportMetadataJob
 from ui.sidebar import Sidebar
 from ui.toolbar import Toolbar
 from ui.track_table import TrackTable, TrackTableModel, TRACK_DATA_ROLE
@@ -119,6 +134,7 @@ from ui.ipodjs_engine_designer import IPodJSEngineDesignerWidget
 from ui.video_library import VideoGridView, build_video_browser_groups, classify_video_track
 from ui.video_player import VideoPlayerWindow
 from ui.video_sync import VideoSyncPanel
+from ui.website_sync import WebsiteSyncPanel
 from ui.android_workflows import summarize_android_import
 from ui.boot_workflows import BootProgressController
 from ui.store_workflows import (
@@ -195,8 +211,10 @@ class MainWindow(QMainWindow):
         self._current_filter_album = ""
         self._sync_dialog = None  # active sync dialog, if any
         self._active_sync_plan = None
+        self._rockbox_build_sync_job = None
         self._last_sync_time = None
         self._device_verification_running = False
+        self._database_repair_pending = None
         self._current_playing_track_id = None
         self._device_state = "Disconnected"
         self._rockbox_db_stale = False
@@ -262,6 +280,10 @@ class MainWindow(QMainWindow):
         self._movie_import_output = []
         self._movie_import_log_path = ""
         self._movie_import_result = {}
+        self._pending_youtube_movie_metadata = []
+        self._youtube_metadata_jobs = set()
+        self._youtube_metadata_batches = {}
+        self._youtube_metadata_batch_id = 0
         self._linux_cache_dir_override = None
         self._movie_browse_process = None
         self._movie_browse_output_path = ""
@@ -385,8 +407,8 @@ class MainWindow(QMainWindow):
             title="iPod Games",
             web_title="iPod Games Browser",
             show_downloads=True,
-            enable_website_sync=True,
         )
+        self._website_sync_panel = WebsiteSyncPanel()
         self._store_page = QTabWidget()
         self._store_page.setObjectName("store_tabs")
         self._store_page.addTab(self._browser_panel, "Music")
@@ -422,6 +444,7 @@ class MainWindow(QMainWindow):
         self._content_stack.addWidget(self._photo_manager)
         self._content_stack.addWidget(self._linux_manager)
         self._content_stack.addWidget(self._simulator_panel)
+        self._content_stack.addWidget(self._website_sync_panel)
         content_layout.addWidget(self._content_stack)
 
         self._splitter.addWidget(content_widget)
@@ -482,6 +505,7 @@ class MainWindow(QMainWindow):
         device_menu.addAction("Import Android Photos/Videos...", self._import_android_media)
         device_menu.addAction("Refresh Device", self._scan_device)
         device_menu.addAction("Force Device Rescan", self._force_device_rescan)
+        device_menu.addAction("Repair Database", self._repair_rockbox_database)
         device_menu.addAction("Clear Rockbox Database Cache", self._clear_rockbox_database_cache)
         device_menu.addAction("Remove Duplicate Device Tracks", self._remove_duplicate_device_tracks)
         device_menu.addAction("Regenerate iPod Artwork", self._regenerate_ipod_artwork)
@@ -621,7 +645,10 @@ class MainWindow(QMainWindow):
         self._movie_store_panel.movie_import_requested.connect(self._start_movie_import)
         self._movie_store_panel.movie_browse_requested.connect(self._start_movie_browse)
         self._game_browser_panel.open_external_requested.connect(self._open_browser_external)
-        self._game_browser_panel.website_sync_requested.connect(self._start_website_sync)
+        self._website_sync_panel.add_requested.connect(self._start_website_sync)
+        self._website_sync_panel.resync_requested.connect(self._start_website_sync)
+        self._website_sync_panel.remove_requested.connect(self._remove_website_sync_entry)
+        self._website_sync_panel.open_requested.connect(self._open_browser_external)
         self._simulator_panel.profile_selected.connect(self._on_simulator_profile_selected)
         self._simulator_panel.simulator_selected.connect(self._on_simulator_target_selected)
         self._simulator_panel.bind_requested.connect(self._bind_simulator_to_profile)
@@ -781,6 +808,7 @@ class MainWindow(QMainWindow):
                 parts.append(f"Ignored {ignored} unsupported files")
             self._status_bar.set_left_text(" · ".join(parts))
         self._finalize_pending_store_playlist_import()
+        self._auto_apply_pending_youtube_import_metadata()
         self._export_shared_music_playlists(silent=True)
 
     def _on_scan_error(self, msg):
@@ -790,6 +818,7 @@ class MainWindow(QMainWindow):
         self._scan_ui_refresh_pending = False
         self._last_scan_report = self._scanner.last_report
         self._pending_store_playlist_import = None
+        self._pending_youtube_movie_metadata = []
         self._status_bar.set_left_text(f"Scan failed; cached library preserved ({msg})")
         logger.error("Scan error: %s", msg)
 
@@ -1143,6 +1172,7 @@ class MainWindow(QMainWindow):
             "rockbox_photos": "Photos",
             "rockbox_linux": "Linux",
             "rockbox_browser": "Store",
+            "rockbox_website_sync": "Website Sync",
             "rockbox_simulator": "Simulator",
             "device_root": "Device",
             "device_music": "On This iPod",
@@ -1419,6 +1449,9 @@ class MainWindow(QMainWindow):
             self._content_stack.setCurrentWidget(self._store_page)
             self._store_page.setCurrentWidget(self._browser_panel)
             self._refresh_browser_panel()
+        elif self._current_view == "rockbox_website_sync":
+            self._content_stack.setCurrentWidget(self._website_sync_panel)
+            self._refresh_website_sync_panel()
         elif self._current_view == "rockbox_simulator":
             self._content_stack.setCurrentWidget(self._simulator_panel)
             self._refresh_simulator_panel()
@@ -1722,6 +1755,17 @@ class MainWindow(QMainWindow):
             existing = dict(row)
             file_updates = {k: v for k, v in updates.items() if k in FILE_TAG_METADATA_FIELDS}
             library_updates = {k: v for k, v in updates.items() if k not in FILE_TAG_METADATA_FIELDS}
+            if str(existing.get("media_type") or "") == "video":
+                taggable_video_exts = {".mp4", ".m4v", ".mov"}
+                source_ext = os.path.splitext(str(existing.get("file_path") or ""))[1].lower()
+                if source_ext not in taggable_video_exts:
+                    library_updates.update(file_updates)
+                    file_updates = {}
+                library_updates.update({
+                    "metadata_source": "manual",
+                    "metadata_confidence": 1.0,
+                    "metadata_locked": 1,
+                })
 
             try:
                 if file_updates:
@@ -1996,6 +2040,10 @@ class MainWindow(QMainWindow):
                 label,
                 lambda target=video_target: self._fetch_artwork_for_album(target, force=True),
             )
+            menu.addAction(
+                "Choose Poster...",
+                lambda target=video_target: self._choose_video_poster(target),
+            )
 
             tracks = video_target.get("tracks") or []
             is_locked = bool(tracks[0].get("metadata_locked")) if tracks else False
@@ -2038,6 +2086,10 @@ class MainWindow(QMainWindow):
                 menu.addAction(
                     label,
                     lambda target=video_target: self._fetch_artwork_for_album(target, force=True),
+                )
+                menu.addAction(
+                    "Choose Poster...",
+                    lambda target=video_target: self._choose_video_poster(target),
                 )
                 
                 # Check locked state
@@ -2165,6 +2217,36 @@ class MainWindow(QMainWindow):
             return "Fetch Poster for This Movie"
         return "Fetch Poster for This Video"
 
+    def _choose_video_poster(self, video_target):
+        target = dict(video_target or {})
+        group_key = str(target.get("group_key") or "").strip()
+        if not group_key:
+            return
+        path, _selected_filter = QFileDialog.getOpenFileName(
+            self,
+            "Choose Video Poster",
+            "",
+            "Images (*.jpg *.jpeg *.png *.webp *.bmp)",
+        )
+        if not path:
+            return
+        try:
+            with open(path, "rb") as handle:
+                stored = self._artwork.set_manual_video_poster(group_key, handle.read())
+        except OSError as exc:
+            QMessageBox.warning(self, "Choose Video Poster", str(exc))
+            return
+        if not stored:
+            QMessageBox.warning(self, "Choose Video Poster", "The selected image could not be used.")
+            return
+        self._refresh_view()
+        self._refresh_browser()
+        if self._current_view == "library_video_sync":
+            self._refresh_video_sync_panel()
+        self._status_bar.set_left_text(
+            "Updated video poster; the next sync will refresh iPod artwork"
+        )
+
     def _match_video_metadata_for(self, target):
         video_target = self._video_artwork_target(target)
         if not video_target:
@@ -2203,6 +2285,22 @@ class MainWindow(QMainWindow):
                         "year": metadata.get("year") or t.get("year") or None,
                     }
 
+                    matched_type = str(metadata.get("media_type") or "").strip()
+                    if matched_type in {"tv_show", "tv_episode"}:
+                        show_title = str(
+                            metadata.get("show_title")
+                            or (metadata.get("title") if matched_type == "tv_show" else "")
+                            or t.get("show_title")
+                            or ""
+                        ).strip()
+                        updates["video_kind"] = "show"
+                        if show_title:
+                            updates["show_title"] = show_title
+                            updates["artist"] = show_title
+                            updates["album_artist"] = show_title
+                    elif matched_type == "movie":
+                        updates["video_kind"] = "movie"
+
                     if is_group_match:
                         # Bulk show-level match: share identity/genre/year across
                         # every episode, but never clobber each episode's own
@@ -2220,10 +2318,20 @@ class MainWindow(QMainWindow):
 
                     self._db.update_track_metadata(track_id, updates)
 
-            if artwork_url:
+            artwork_data = metadata.get("_artwork_data")
+            if artwork_data:
                 group_key = video_target.get("group_key") or track.get("video_group_key") or track.get("file_path")
+                if str(metadata.get("media_type") or "") in {"tv_show", "tv_episode"}:
+                    matched_show = str(
+                        metadata.get("show_title")
+                        or (metadata.get("title") if metadata.get("media_type") == "tv_show" else "")
+                        or track.get("show_title")
+                        or ""
+                    ).strip()
+                    if matched_show:
+                        group_key = f"show:{matched_show.casefold()}"
                 if group_key:
-                    self._artwork.set_manual_video_poster(group_key, artwork_url)
+                    self._artwork.set_manual_video_poster(group_key, artwork_data)
 
             self._refresh_view()
             if self._current_view == "library_video_sync":
@@ -2666,7 +2774,7 @@ class MainWindow(QMainWindow):
             self._status_bar.set_left_text("iPod artwork is up to date")
             return
         self._status_bar.set_left_text(plan.summary())
-        dialog = SyncDialog(plan, self)
+        dialog = self._create_sync_dialog(plan)
         dialog.sync_confirmed.connect(lambda: self._execute_sync(plan, dialog))
         dialog.sync_cancelled.connect(lambda: self._sync_engine.cancel_sync())
         dialog.exec()
@@ -2998,7 +3106,7 @@ class MainWindow(QMainWindow):
                 return
             if plan.total_operations:
                 self._status_bar.set_left_text(plan.summary())
-                dialog = SyncDialog(plan, self)
+                dialog = self._create_sync_dialog(plan)
                 dialog.sync_confirmed.connect(lambda: self._execute_sync(plan, dialog))
                 dialog.sync_cancelled.connect(lambda: self._sync_engine.cancel_sync())
                 dialog.exec()
@@ -3058,6 +3166,8 @@ class MainWindow(QMainWindow):
         self._toolbar.set_eject_visible(False)
         self._refresh_browser_panel()
         self._device_verification_running = False
+        if self._database_repair_pending:
+            self._database_repair_pending["disconnected"] = True
         if self._sync_engine.current_device_key:
             cached = len(self._sync_engine.get_device_tracks())
             self._status_bar.set_left_text(f"Using cached device inventory ({cached} tracks)")
@@ -3194,6 +3304,7 @@ class MainWindow(QMainWindow):
         self._update_sync_status()
 
     def _on_device_inventory_finished(self, summary):
+        repair_pending = self._database_repair_pending
         self._device_verification_running = False
         if self._device_state not in ("Syncing", "Sync Complete (DB stale)", "Updating Database"):
             self._device_state = "Ready" if self._device_detector.is_connected else "Disconnected"
@@ -3214,10 +3325,24 @@ class MainWindow(QMainWindow):
             self._refresh_view()
         if self._current_view == "device_root":
             self._update_device_summary()
+        if repair_pending:
+            self._finish_rockbox_database_repair(summary, repair_pending)
 
     def _on_device_inventory_error(self, message):
         self._device_verification_running = False
-        self._status_bar.set_left_text(f"Device refresh failed: {message}")
+        if self._database_repair_pending:
+            self._database_repair_pending = None
+            self._device_state = (
+                "Connected" if self._device_detector.is_connected else "Disconnected"
+            )
+            self._status_bar.set_left_text(f"Database repair failed: {message}")
+            QMessageBox.warning(
+                self,
+                "Repair Database",
+                f"Rockbox database repair failed during the device scan.\n\n{message}",
+            )
+        else:
+            self._status_bar.set_left_text(f"Device refresh failed: {message}")
         self._update_sync_status()
 
     def _show_device_diff(self):
@@ -3340,6 +3465,144 @@ class MainWindow(QMainWindow):
             )
             self._status_bar.set_left_text("Rockbox database cache clear completed with errors")
 
+    def _repair_rockbox_database(self):
+        device = self._device_detector.current_device
+        if not device:
+            QMessageBox.warning(self, "No Device", "No Rockbox device is connected.")
+            return
+        if not getattr(device, "is_rockbox", False):
+            QMessageBox.warning(
+                self,
+                "Not Rockbox",
+                "The connected device does not appear to be a Rockbox device.",
+            )
+            return
+        if self._device_inventory.is_running:
+            QMessageBox.information(
+                self,
+                "Repair Database",
+                "A device scan is already running. Try Repair Database again when it finishes.",
+            )
+            return
+
+        reply = QMessageBox.question(
+            self,
+            "Repair Database",
+            f"Rescan {device.name} and rebuild its Rockbox database?\n\n"
+            "Music files will not be changed. The generated database is "
+            "validated before it replaces the broken cache.",
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.Yes,
+        )
+        if reply != QMessageBox.Yes:
+            return
+
+        fresh = DeviceInfo(device.mount_path)
+        if not fresh.is_rockbox or fresh.stable_device_key != device.stable_device_key:
+            QMessageBox.warning(
+                self,
+                "Repair Database",
+                "The mounted device changed before repair could start. Reconnect the intended iPod and try again.",
+            )
+            return
+
+        self._database_repair_pending = {
+            "mount_path": os.path.realpath(fresh.mount_path),
+            "device_key": fresh.stable_device_key,
+            "rockbox_target": fresh.rockbox_target,
+            "disconnected": False,
+        }
+        self._rockbox_db_stale = True
+        self._device_state = "Updating Database"
+        self._device_verification_running = True
+        self._status_bar.set_left_text("Repairing Rockbox database: scanning device...")
+        self._update_sync_status()
+        self._device_inventory.start(fresh, force_full=True)
+
+    def _finish_rockbox_database_repair(self, summary, request):
+        self._database_repair_pending = None
+        current = self._device_detector.current_device
+        try:
+            if request.get("disconnected") or not current:
+                raise TagcacheError("The device disconnected during database repair")
+
+            fresh = DeviceInfo(current.mount_path)
+            if (
+                os.path.realpath(fresh.mount_path) != request.get("mount_path")
+                or fresh.stable_device_key != request.get("device_key")
+                or fresh.rockbox_target != request.get("rockbox_target")
+                or summary.get("device_key") != request.get("device_key")
+            ):
+                raise TagcacheError("The mounted device changed during database repair")
+
+            self._status_bar.set_left_text("Repairing Rockbox database: validating indexes...")
+            result = write_rockbox_tagcache_from_device_inventory(
+                self._db,
+                fresh,
+                request["device_key"],
+                require_tracks=True,
+            )
+            enable_rockbox_tagcache_autoupdate(fresh)
+
+            rows = read_rockbox_tagcache_tracks(fresh.mount_path)
+            missing = [
+                row.get("device_path", "")
+                for row in rows
+                if not os.path.isfile(
+                    os.path.join(
+                        fresh.mount_path,
+                        str(row.get("device_path", "")).lstrip("/"),
+                    )
+                )
+            ]
+            if len(rows) != result.get("track_count"):
+                raise TagcacheError(
+                    "Installed database track count does not match the validated build"
+                )
+            if missing:
+                raise TagcacheError(
+                    f"Installed database contains {len(missing)} missing device paths"
+                )
+
+            state = detect_rockbox_database_state(fresh)
+            if not state.get("database_present") or not state.get("tagcache_autoupdate"):
+                raise TagcacheError("Installed database or auto-update setting failed verification")
+
+            self._rockbox_db_stale = False
+            self._runtime_refresh_pending = False
+            self._device_state = "Ready"
+            self._rockbox_db_update_started_at = None
+            self._rockbox_db_feedback_tick = 0
+            track_count = result.get("track_count", 0)
+            track_label = "track" if track_count == 1 else "tracks"
+            self._status_bar.set_left_text(
+                f"Rockbox database repaired: {track_count} {track_label}"
+            )
+            QMessageBox.information(
+                self,
+                "Database Repaired",
+                f"Rockbox database repaired and validated with "
+                f"{track_count} {track_label}.\n\n"
+                "Automatic database updates are enabled. Safely eject and reboot the iPod before opening Music.",
+            )
+        except (OSError, TagcacheError) as exc:
+            logger.warning("Rockbox database repair failed: %s", exc)
+            self._rockbox_db_stale = True
+            self._device_state = (
+                "Sync Complete (DB stale)"
+                if self._device_detector.is_connected
+                else "Disconnected"
+            )
+            self._status_bar.set_left_text(f"Rockbox database repair failed: {exc}")
+            QMessageBox.warning(
+                self,
+                "Repair Database",
+                f"Rockbox database repair failed.\n\n{exc}",
+            )
+        finally:
+            self._update_sync_status()
+            self._update_device_summary()
+
     def _show_missing_tag_report(self):
         report = build_missing_tag_report(
             self._db,
@@ -3361,6 +3624,39 @@ class MainWindow(QMainWindow):
         box.setDetailedText(format_missing_tag_report(report))
         box.exec()
 
+    def _rockbox_build_sync_context(self):
+        device = self._device_detector.current_device
+        if not device or not getattr(device, "is_rockbox", False):
+            return None, ""
+        profile = self._rockbox_profiles.sync_with_device(device)
+        if not profile:
+            return None, ""
+        build_dir = self._rockbox_boot.firmware_build_dir(profile)
+        if not build_dir or not os.path.isfile(os.path.join(build_dir, "Makefile")):
+            return None, ""
+        target = str(getattr(device, "rockbox_target", "") or "").strip()
+        detail = f"Target: {target or profile.get('target_device_model', 'Rockbox')}"
+        detail += f"  •  Build: {os.path.relpath(build_dir, profile['source_repo_path'])}"
+        detail += "  •  User music and videos are not changed"
+        return profile, detail
+
+    def _rockbox_build_sync_available(self):
+        profile, _detail = self._rockbox_build_sync_context()
+        return profile is not None
+
+    def _create_sync_dialog(self, plan):
+        profile, detail = self._rockbox_build_sync_context()
+        dialog = SyncDialog(
+            plan,
+            self,
+            allow_rockbox_build_sync=profile is not None,
+            rockbox_build_detail=detail,
+        )
+        dialog.rockbox_build_sync_requested.connect(
+            lambda: self._execute_rockbox_build_sync(dialog)
+        )
+        return dialog
+
     def _start_sync(self):
         if self._sync_engine.is_syncing:
             return
@@ -3373,12 +3669,16 @@ class MainWindow(QMainWindow):
             return
         if self._sync_plan_has_blocking_errors(plan):
             return
-        if plan.total_operations == 0 and not plan.errors:
+        if (
+            plan.total_operations == 0
+            and not plan.errors
+            and not self._rockbox_build_sync_available()
+        ):
             self._status_bar.set_left_text("Up to date")
             return
         self._status_bar.set_left_text(plan.summary())
 
-        dialog = SyncDialog(plan, self)
+        dialog = self._create_sync_dialog(plan)
         dialog.sync_confirmed.connect(lambda: self._execute_sync(plan, dialog))
         dialog.sync_cancelled.connect(lambda: self._sync_engine.cancel_sync())
         dialog.exec()
@@ -3399,7 +3699,7 @@ class MainWindow(QMainWindow):
             self._status_bar.set_left_text("Weather forecast is up to date")
             return
         self._status_bar.set_left_text(plan.summary())
-        dialog = SyncDialog(plan, self)
+        dialog = self._create_sync_dialog(plan)
         dialog.sync_confirmed.connect(lambda: self._execute_sync(plan, dialog))
         dialog.sync_cancelled.connect(lambda: self._sync_engine.cancel_sync())
         dialog.exec()
@@ -3427,7 +3727,7 @@ class MainWindow(QMainWindow):
             return
         self._status_bar.set_left_text(plan.summary())
 
-        dialog = SyncDialog(plan, self)
+        dialog = self._create_sync_dialog(plan)
         dialog.sync_confirmed.connect(lambda: self._execute_sync(plan, dialog))
         dialog.sync_cancelled.connect(lambda: self._sync_engine.cancel_sync())
         dialog.exec()
@@ -3653,7 +3953,7 @@ class MainWindow(QMainWindow):
 
         self._video_sync_panel.set_status(plan.summary())
         self._status_bar.set_left_text(plan.summary())
-        dialog = SyncDialog(plan, self)
+        dialog = self._create_sync_dialog(plan)
         dialog.sync_confirmed.connect(lambda: self._execute_sync(plan, dialog))
         dialog.sync_cancelled.connect(lambda: self._sync_engine.cancel_sync())
         dialog.exec()
@@ -3738,6 +4038,69 @@ class MainWindow(QMainWindow):
         self._update_sync_status()
         self._update_device_summary()
         self._sync_engine.execute_sync(plan)
+
+    def _execute_rockbox_build_sync(self, dialog):
+        self._sync_dialog = dialog
+        self._active_sync_plan = None
+        self._device_state = "Updating Rockbox"
+        self._toolbar.set_syncing(True)
+        self._update_sync_status()
+        self._update_device_summary()
+        profile, _detail = self._rockbox_build_sync_context()
+        if profile is None:
+            self._on_rockbox_build_sync_finished(
+                dialog,
+                {"success": False, "message": "No matching Rockbox build is available"},
+            )
+            return
+        jobs = max(1, min(os.cpu_count() or 4, 12))
+        job = RockboxBuildSyncJob(self._rockbox_boot, profile, jobs=jobs)
+        self._rockbox_build_sync_job = job
+        job.signals.progress.connect(self._on_rockbox_build_sync_progress)
+        job.signals.finished.connect(
+            lambda result: self._on_rockbox_build_sync_finished(dialog, result)
+        )
+        QThreadPool.globalInstance().start(job)
+
+    def _on_rockbox_build_sync_progress(self, current, total, description):
+        if self._sync_dialog:
+            self._sync_dialog.update_progress(current, total, description)
+        self._status_bar.set_sync_progress(current, total, description)
+
+    def _on_rockbox_build_sync_finished(self, dialog, result):
+        self._rockbox_build_sync_job = None
+        if not result.get("success"):
+            message = str(result.get("message") or "Rockbox build/install failed")
+            details = str(result.get("stderr") or result.get("stdout") or "").strip()
+            if details:
+                message += "\n\n" + details[-3000:]
+            dialog.show_error(message)
+            self._sync_dialog = None
+            self._active_sync_plan = None
+            self._toolbar.set_syncing(False)
+            self._device_state = (
+                "Connected" if self._device_detector.is_connected else "Disconnected"
+            )
+            self._status_bar.set_left_text("Rockbox build/install failed")
+            self._update_sync_status()
+            self._update_device_summary()
+            return
+
+        dialog.set_rockbox_sync_result(result)
+        self._refresh_plugin_manager()
+        self._refresh_game_manager()
+        dialog.show_results(0, 0, 0)
+        self._sync_dialog = None
+        self._active_sync_plan = None
+        self._toolbar.set_syncing(False)
+        self._device_state = "Ready"
+        self._last_sync_time = datetime.now()
+        self._status_bar.set_left_text(
+            f"Rockbox and {int(result.get('plugin_count') or 0):,} plugins updated"
+        )
+        self._update_status_bar()
+        self._update_sync_status()
+        self._update_device_summary()
 
     def _on_sync_progress(self, current, total, desc):
         if self._sync_dialog:
@@ -4180,16 +4543,16 @@ class MainWindow(QMainWindow):
         return ""
 
     def _start_website_sync(self, urls):
-        panel = self._game_browser_panel
+        panel = self._website_sync_panel
         if self._website_sync_process is not None:
-            panel.set_website_sync_status("Website sync is already running.", running=True)
+            panel.set_status("Website sync is already running.", running=True)
             return
 
         target_root = self._website_sync_target_root()
         try:
             request = self._offlineweb_sync.prepare_sync(urls, target_root)
         except OfflineWebSyncError as exc:
-            panel.set_website_sync_status(str(exc), running=False)
+            panel.set_status(str(exc), running=False)
             self._status_bar.set_left_text("Website sync not started")
             return
 
@@ -4204,7 +4567,7 @@ class MainWindow(QMainWindow):
         self._website_sync_output_path = request.output_path
         self._website_sync_log_path = request.log_path
         self._website_sync_output = []
-        panel.set_website_sync_status(
+        panel.set_status(
             f"Syncing websites to Offline Internet... Log: {request.log_path}",
             running=True,
         )
@@ -4218,7 +4581,7 @@ class MainWindow(QMainWindow):
         text = compact_process_text(read_process_text(process))
         if text:
             self._website_sync_output.append(text)
-            self._game_browser_panel.set_website_sync_status(
+            self._website_sync_panel.set_status(
                 f"{text[-500:]}\nLog: {self._website_sync_log_path}",
                 running=True,
             )
@@ -4239,7 +4602,7 @@ class MainWindow(QMainWindow):
         if exit_code != 0:
             detail = " ".join(self._website_sync_output).strip()
             self._website_sync_output = []
-            self._game_browser_panel.set_website_sync_status(
+            self._website_sync_panel.set_status(
                 f"Website sync failed (exit {exit_code}): {detail[-500:]}\nLog: {log_path}",
                 running=False,
             )
@@ -4251,7 +4614,7 @@ class MainWindow(QMainWindow):
                 result = json.load(handle)
         except (OSError, json.JSONDecodeError) as exc:
             self._website_sync_output = []
-            self._game_browser_panel.set_website_sync_status(
+            self._website_sync_panel.set_status(
                 f"Website sync result could not be read: {exc}\nLog: {log_path}",
                 running=False,
             )
@@ -4269,7 +4632,8 @@ class MainWindow(QMainWindow):
             f"({html_saved} pages, {assets_saved} assets). Offline root: {offline_root}\n"
             f"Log: {log_path}"
         )
-        self._game_browser_panel.set_website_sync_status(status, running=False)
+        self._website_sync_panel.set_status(status, running=False)
+        self._refresh_website_sync_panel()
         self._status_bar.set_left_text(f"Website sync complete ({completed}/{requested})")
 
     def _on_website_sync_error(self, error):
@@ -4278,11 +4642,36 @@ class MainWindow(QMainWindow):
         self._website_sync_output_path = ""
         self._website_sync_log_path = ""
         self._website_sync_output = []
-        self._game_browser_panel.set_website_sync_status(
+        self._website_sync_panel.set_status(
             f"Website sync could not start: {error}\nLog: {log_path}",
             running=False,
         )
         self._status_bar.set_left_text("Website sync failed")
+
+    def _refresh_website_sync_panel(self):
+        target_root = self._website_sync_target_root()
+        entries = load_synced_websites(target_root) if target_root else []
+        self._website_sync_panel.set_websites(entries, target_root)
+
+    def _remove_website_sync_entry(self, entry):
+        target_root = self._website_sync_target_root()
+        url = str((entry or {}).get("url") or "")
+        if not target_root or not url:
+            self._website_sync_panel.set_status(
+                "Connect or configure the target iPod before removing a website.",
+                running=False,
+            )
+            return
+        if remove_synced_website(target_root, url):
+            self._website_sync_panel.set_status(
+                f"Removed {url} from Offline Internet.", running=False
+            )
+            self._status_bar.set_left_text("Website removed")
+        else:
+            self._website_sync_panel.set_status(
+                f"Website was not found on the target: {url}", running=False
+            )
+        self._refresh_website_sync_panel()
 
     def _refresh_movie_store_panel(self):
         if self._movie_browse_loaded:
@@ -4478,9 +4867,15 @@ class MainWindow(QMainWindow):
         self._append_movie_import_log(f"\nProcess finished with exit code {exit_code}.\n")
 
         output_path = ""
+        downloaded_metadata = {}
         for line in self._movie_import_output:
             if line.startswith("ROCKPOD_MOVIE_OUTPUT="):
                 output_path = line.split("=", 1)[1].strip()
+            elif line.startswith("ROCKPOD_MOVIE_METADATA="):
+                try:
+                    downloaded_metadata = json.loads(line.split("=", 1)[1].strip())
+                except json.JSONDecodeError:
+                    logger.warning("Could not parse downloaded YouTube metadata")
         self._movie_import_output = []
         if exit_code != 0 or not output_path:
             message = f"YouTube movie import failed with exit code {exit_code}.\nLog: {log_path}"
@@ -4491,21 +4886,21 @@ class MainWindow(QMainWindow):
             self._movie_import_result = {}
             return
 
-        poster_source = str(
-            self._movie_import_result.get("thumbnail_path")
-            or self._movie_import_result.get("thumbnail")
-            or ""
-        )
-        poster_path = persist_movie_import_poster(output_path, poster_source)
-        if poster_path:
-            self._append_movie_import_log(f"Poster sidecar: {poster_path}\n")
-        self._movie_import_result = {}
+        import_hint = dict(self._movie_import_result)
+        import_hint.update({key: value for key, value in downloaded_metadata.items() if value not in (None, "", [])})
+        poster_source = str(import_hint.get("poster_path") or import_hint.get("thumbnail_path") or "").strip()
+        if poster_source and os.path.isfile(poster_source):
+            import_hint["poster_path"] = persist_movie_import_poster(output_path, poster_source)
         self._movie_import_log_path = ""
-        poster_note = " Poster saved." if poster_path else ""
-        label = f"Imported movie: {os.path.basename(output_path)}.{poster_note} Refreshing library.\nLog: {log_path}"
+        label = f"Imported movie: {os.path.basename(output_path)}. Refreshing library.\nLog: {log_path}"
         self._movie_store_panel.finish_movie_import(output_path, success=True)
         self._movie_store_panel.set_movie_import_status(label, running=False)
         self._status_bar.set_left_text(label)
+        self._enqueue_youtube_movie_metadata_lookup(
+            output_path,
+            import_result=import_hint,
+        )
+        self._movie_import_result = {}
         self._start_scan(force_full=False)
 
     def _on_movie_import_error(self, error):
@@ -4521,6 +4916,164 @@ class MainWindow(QMainWindow):
             running=False,
         )
         self._status_bar.set_left_text("Movie import failed")
+
+    def _enqueue_youtube_movie_metadata_lookup(self, output_path, import_result=None):
+        file_path = str(output_path or "").strip()
+        if not file_path:
+            return
+        if not os.path.isabs(file_path):
+            file_path = os.path.abspath(file_path)
+
+        query_hint = str((import_result or {}).get("title") or "").strip()
+        import_item = {
+            "file_path": file_path,
+            "query_hint": query_hint,
+            "uploader": str((import_result or {}).get("uploader") or "").strip(),
+            "uploader_url": str((import_result or {}).get("channel_url") or "").strip(),
+            "source_url": str((import_result or {}).get("url") or "").strip(),
+            "description": str((import_result or {}).get("description") or "").strip(),
+            "thumbnail": str((import_result or {}).get("thumbnail") or "").strip(),
+            "poster_path": str((import_result or {}).get("poster_path") or "").strip(),
+            "year": (import_result or {}).get("year"),
+            "show_title": str((import_result or {}).get("show_title") or "").strip(),
+            "season_number": (import_result or {}).get("season_number"),
+            "episode_number": (import_result or {}).get("episode_number"),
+            "episode_title": str((import_result or {}).get("episode_title") or "").strip(),
+            "categories": list((import_result or {}).get("categories") or []),
+        }
+
+        for index, existing in enumerate(self._pending_youtube_movie_metadata):
+            if existing.get("file_path") == file_path:
+                self._pending_youtube_movie_metadata[index] = import_item
+                return
+        self._pending_youtube_movie_metadata.append(import_item)
+
+    def _auto_apply_pending_youtube_import_metadata(self):
+        if not self._pending_youtube_movie_metadata:
+            return
+
+        pending_items = list(self._pending_youtube_movie_metadata)
+        self._pending_youtube_movie_metadata = []
+        work = []
+        for item in pending_items:
+            file_path = str(item.get("file_path") or "").strip()
+            track = self._db.get_track_by_path(file_path) if file_path else None
+            if track is not None:
+                work.append((dict(track), item))
+        if not work:
+            return
+
+        self._youtube_metadata_batch_id += 1
+        batch_id = self._youtube_metadata_batch_id
+        self._youtube_metadata_batches[batch_id] = {
+            "total": len(work),
+            "done": 0,
+            "matched": 0,
+        }
+        self._status_bar.set_left_text(
+            f"Looking up metadata for {len(work)} imported video{'s' if len(work) != 1 else ''}..."
+        )
+        for track_data, item in work:
+            job = YoutubeImportMetadataJob(track_data, item, self._config)
+            self._youtube_metadata_jobs.add(job)
+            job.signals.result.connect(
+                lambda result, current_batch=batch_id: self._on_youtube_metadata_result(
+                    current_batch, result
+                ),
+                Qt.QueuedConnection,
+            )
+            job.signals.finished.connect(
+                lambda current=job, current_batch=batch_id: self._on_youtube_metadata_job_finished(
+                    current_batch, current
+                ),
+                Qt.QueuedConnection,
+            )
+            QThreadPool.globalInstance().start(job)
+
+    @Slot(int, object)
+    def _on_youtube_metadata_result(self, batch_id, result):
+        batch = self._youtube_metadata_batches.get(batch_id)
+        if not batch:
+            return
+        payload = result.get("payload") or {}
+        if payload and self._apply_youtube_import_metadata_payload(
+            result.get("track") or {},
+            result.get("pending") or {},
+            payload,
+        ):
+            batch["matched"] += 1
+
+    def _on_youtube_metadata_job_finished(self, batch_id, job):
+        self._youtube_metadata_jobs.discard(job)
+        batch = self._youtube_metadata_batches.get(batch_id)
+        if not batch:
+            return
+        batch["done"] += 1
+        if batch["done"] < batch["total"]:
+            return
+
+        matched = batch["matched"]
+        attempted = batch["total"]
+        self._youtube_metadata_batches.pop(batch_id, None)
+        if matched:
+            self._refresh_view()
+            self._refresh_browser()
+            self._update_status_bar()
+            if self._current_view == "library_video_sync":
+                self._refresh_video_sync_panel()
+            self._status_bar.set_left_text(
+                f"Auto-matched metadata for {matched}/{attempted} imported YouTube video{'s' if attempted != 1 else ''}."
+            )
+        else:
+            self._status_bar.set_left_text(
+                "Could not find online metadata. Use Get Info to enter it manually and Choose Poster for artwork."
+            )
+
+    def _apply_youtube_import_metadata(self, pending_item):
+        file_path = str(pending_item.get("file_path") or "").strip()
+        if not file_path:
+            return False
+
+        track = self._db.get_track_by_path(file_path)
+        if track is None:
+            return False
+        track_data = dict(track)
+
+        from services.online_video_metadata import VideoMetadataService
+
+        service = VideoMetadataService(config=self._config)
+        payload = build_youtube_import_metadata_payload(track_data, pending_item, service)
+        if not payload:
+            return False
+
+        return self._apply_youtube_import_metadata_payload(track_data, pending_item, payload)
+
+    def _apply_youtube_import_metadata_payload(self, track_data, pending_item, payload):
+        if not payload:
+            return False
+
+        self._db.update_track_metadata(track_data.get("id"), payload["updates"])
+        artwork_source = payload["artwork_url"] or pending_item.get("thumbnail")
+        if artwork_source:
+            target_group_key = str(track_data.get("video_group_key") or "").strip()
+            if str(payload["updates"].get("video_kind") or "").strip().lower() == "show":
+                show_title = (
+                    str(payload["updates"].get("show_title") or track_data.get("show_title") or "").strip()
+                )
+                if show_title:
+                    target_group_key = f"show:{show_title.casefold()}"
+            if not target_group_key:
+                target_group_key = str(track_data.get("file_path") or track_data.get("id") or "")
+            if target_group_key:
+                self._artwork.set_manual_video_poster(target_group_key, artwork_source)
+        return True
+
+    def _youtube_metadata_lookup_query(self, track_data, pending_item):
+        return _youtube_metadata_lookup_query_default(track_data, pending_item)
+
+    @staticmethod
+    def _choose_video_metadata_match(query, results):
+        return _choose_video_metadata_match_default(query, results)
 
     def _start_store_search(self, query, source):
         if self._store_search_process is not None:
@@ -6813,7 +7366,7 @@ class MainWindow(QMainWindow):
         self._game_manager.set_library_state(
             profile.get("games_library_path", ""),
             target_root,
-            f"{len(games)} ROMs indexed",
+            f"{len(games)} games indexed · newest added first",
             self._rockbox_games.settings_guidance(profile),
             latest_backup_text,
         )

@@ -25,6 +25,7 @@ from services.sync_engine import (
     _looks_like_auto_duplicate_path,
     build_device_path,
     _sanitize_filename,
+    _SyncCancelled,
 )
 from services.video_rvp import VideoRvpTranscoder
 
@@ -86,8 +87,10 @@ def _insert_device_track(db, title, artist, album, device_path, **kw):
         "bitrate": kw.get("bitrate", 320),
         "codec": kw.get("codec", "mp3"),
         "metadata_hash": kw.get("metadata_hash", "abc123"),
+        "last_synced_metadata_hash": kw.get("last_synced_metadata_hash", ""),
         "local_track_id": kw.get("local_track_id", None),
         "file_hash": kw.get("file_hash", ""),
+        "last_synced_file_hash": kw.get("last_synced_file_hash", ""),
     }
     db.upsert_device_track(data)
     db.commit()
@@ -391,9 +394,84 @@ class TestBuildDevicePath:
         normalized = SyncEngine._normalize_video_row_for_sync(row)
         assert normalized["video_kind"] == "show"
         assert normalized["show_title"] == "Kenny vs. Spenny"
-        assert normalized["album"] == "Season 2"
+        assert normalized["album"] == "Season 02"
         assert normalized["artist"] == "Kenny vs. Spenny"
         assert normalized["album_artist"] == "Kenny vs. Spenny"
+
+    def test_normalize_video_row_for_sync_infers_show_from_dash_show_title(self):
+        row = {
+            "title": "Who Can Stay Homeless The Longest - Kenny vs Spenny",
+            "file_path": "/videos/kenny_vs_spenny/Who Can Stay Homeless The Longest - Kenny vs Spenny.mp4",
+            "media_type": "video",
+            "video_kind": "movie",
+        }
+        normalized = SyncEngine._normalize_video_row_for_sync(row)
+        assert normalized["video_kind"] == "show"
+        assert normalized["show_title"] == "Kenny vs Spenny"
+        assert normalized["season_number"] == 1
+        assert normalized["album"] == "Season 01"
+
+    def test_normalize_video_row_for_sync_infers_show_from_reverse_dash_format(self):
+        row = {
+            "title": "Kenny vs Spenny - Who Can Stay Homeless The Longest",
+            "file_path": "/videos/kenny_vs_spenny/Kenny vs Spenny - Who Can Stay Homeless The Longest.mp4",
+            "media_type": "video",
+            "video_kind": "movie",
+        }
+        normalized = SyncEngine._normalize_video_row_for_sync(row)
+        assert normalized["video_kind"] == "show"
+        assert normalized["show_title"] == "Kenny vs Spenny"
+        assert normalized["season_number"] == 1
+
+    def test_normalize_video_row_for_sync_for_triumph_of_the_will_override(self):
+        row = {
+            "title": "Triumph of the Will - The French ReConnection",
+            "file_path": "/videos/Triumph of the Will - The French ReConnection.mp4",
+            "media_type": "video",
+            "video_kind": "movie",
+            "metadata_source": "online",
+        }
+        normalized = SyncEngine._normalize_video_row_for_sync(row)
+        assert normalized["video_kind"] == "show"
+        assert normalized["show_title"] == "Triumph of the Will"
+        assert normalized["season_number"] == 1
+        assert normalized["episode_number"] == 5
+        assert normalized["title"] == "The French ReConnection"
+
+    def test_normalize_video_row_preserves_locked_canonical_episode_metadata(self):
+        row = {
+            "media_type": "video",
+            "file_path": "/videos/Disney's Recess - Dodgeball City.mpg",
+            "title": "Dodgeball City",
+            "video_kind": "show",
+            "show_title": "Recess",
+            "season_number": 3,
+            "episode_number": 3,
+            "track_number": 3,
+            "metadata_source": "tvmaze",
+            "metadata_locked": 1,
+        }
+
+        normalized = SyncEngine._normalize_video_row_for_sync(row)
+
+        assert normalized["season_number"] == 3
+        assert normalized["episode_number"] == 3
+        assert normalized["track_number"] == 3
+
+    def test_show_rows_inferred_from_dash_use_season_01(self):
+        row = {
+            "title": "Kenny vs Spenny - Who Can Stay Homeless The Longest",
+            "file_path": "/videos/kenny_vs_spenny/Kenny vs Spenny - Who Can Stay Homeless The Longest.mp4",
+            "media_type": "video",
+            "video_kind": "movie",
+            "sync_output_ext": ".mp4",
+        }
+        result = build_device_path(
+            row,
+            "Music/{album_artist}/{album}",
+            "{track_number:02d} - {title}{ext}",
+        )
+        assert result.startswith(os.path.join("Videos", "TV Shows", "Kenny vs Spenny", "Season 01"))
 
 
 # ===========================================================================
@@ -488,6 +566,22 @@ class TestSyncWorkerCopy:
 
         tmp_file = dest + ".rockpod_tmp"
         assert not os.path.exists(tmp_file)
+
+    def test_cancelled_copy_preserves_destination_and_removes_temp(self, env):
+        src = _make_source_file(env, "Art", "Alb", "Cancel", size=8192)
+        dest = os.path.join(env["device_path"], "Music", "Art", "Alb", "Cancel.mp3")
+        os.makedirs(os.path.dirname(dest), exist_ok=True)
+        with open(dest, "wb") as handle:
+            handle.write(b"previous-valid-copy")
+
+        worker = SyncWorker(SyncPlan(), env["device_path"], env["config"].db_path)
+        worker.cancel()
+        with pytest.raises(_SyncCancelled):
+            worker._copy_file(src, dest)
+
+        with open(dest, "rb") as handle:
+            assert handle.read() == b"previous-valid-copy"
+        assert not os.path.exists(dest + ".rockpod_tmp")
 
 
 # ===========================================================================
@@ -928,6 +1022,18 @@ class TestSyncEnginePlan:
 
         assert engine.rockbox_playlist_track_ids() == [wanted["id"]]
 
+    def test_sync_plan_rejects_read_only_device_mount(self, env, monkeypatch):
+        engine = self._make_engine(env)
+        monkeypatch.setattr(engine, "_device_mount_read_only", lambda: True)
+
+        plan = engine.build_sync_plan()
+
+        assert plan.total_operations == 0
+        assert plan.errors == [
+            "Device filesystem is mounted read-only; repair and remount "
+            "the iPod before syncing"
+        ]
+
     def test_playlist_track_ids_plan_copies_missing_playlist_media(self, env):
         src = _make_source_file(env, "Run River North", "Wake Up", "Wake Up")
         track = _insert_track(env["db"], "Wake Up", "Run River North", "Wake Up", file_path=src)
@@ -1061,7 +1167,7 @@ class TestSyncEnginePlan:
 
     def test_plan_uses_transcoded_extension_when_audio_conversion_enabled(self, env, monkeypatch):
         src = _make_source_file(env, "Art", "Alb", "Lossless", ext=".flac")
-        _insert_track(
+        existing = _insert_track(
             env["db"],
             "Lossless",
             "Art",
@@ -1881,6 +1987,32 @@ class TestSyncEnginePlan:
             codec="mpeg",
             video_kind="movie",
         )
+        existing_src = os.path.join(video_dir, "Existing Movie.mpg")
+        with open(existing_src, "wb") as handle:
+            handle.write(os.urandom(1024))
+        Image.new("RGB", (600, 900), color=(90, 40, 100)).save(
+            os.path.join(video_dir, "Existing Movie.jpg"),
+            "JPEG",
+        )
+        existing_rel = os.path.join("Videos", "Downloaded", "Existing Movie.rvp")
+        existing = _insert_track(
+            env["db"],
+            "Existing Movie",
+            "",
+            "Existing Movie",
+            file_path=existing_src,
+            metadata_hash="existing_video_meta",
+            file_hash="existing_video_file",
+            media_type="video",
+            codec="mpeg",
+            video_kind="movie",
+        )
+        existing_device_path = os.path.join(
+            env["device_path"], existing_rel
+        )
+        os.makedirs(os.path.dirname(existing_device_path), exist_ok=True)
+        with open(existing_device_path, "w", encoding="utf-8") as handle:
+            handle.write("ROCKPOD_RAW_VIDEO_V1\n")
 
         config = env["config"]
         detector = DeviceDetector(config)
@@ -1901,6 +2033,19 @@ class TestSyncEnginePlan:
         try:
             engine = SyncEngine(env["db"], config, detector, manager)
             engine.set_current_device(device)
+
+            _insert_device_track(
+                env["db"],
+                "Existing Movie",
+                "",
+                "Existing Movie",
+                existing_rel,
+                device_id=engine.current_device_key,
+                metadata_hash="existing_video_meta",
+                file_hash="existing_video_file",
+                codec="RVP",
+                local_track_id=existing["id"],
+            )
 
             def fake_prepare_video(track_row, device_key):
                 prepared = dict(track_row)
@@ -1965,6 +2110,14 @@ class TestSyncEnginePlan:
             rel.startswith(VIDEO_LIST_THUMB_DEVICE_DIR) and rel.endswith(".bmp")
             for rel in artwork_paths
         )
+        manifest_src = next(
+            src for src, rel, _key in plan.artwork_to_copy
+            if rel == os.path.join(VIDEO_LIST_DEVICE_DIR, "index.tsv")
+        )
+        with open(manifest_src, "r", encoding="utf-8") as handle:
+            manifest = handle.read()
+        assert "\tReal Movie\t" in manifest
+        assert "\tExisting Movie\t" in manifest
 
     def test_build_sync_plan_defaults_to_audio_tracks(self, env):
         audio_src = _make_source_file(env, "Art", "Alb", "Sync Audio")
@@ -2125,7 +2278,7 @@ class TestSyncCacheCleanup:
         engine.set_current_device(device)
         return engine
 
-    def test_cleanup_local_sync_cache_keeps_current_device_cache(self, env):
+    def test_cleanup_local_sync_cache_keeps_current_device_cache(self, env, monkeypatch):
         config = env["config"]
         config.set("convert_audio_for_device", True)
         config.set("audio_conversion_codec", "mp3")
@@ -2221,6 +2374,11 @@ class TestSyncCacheCleanup:
         with open(stale_other_device, "wb") as handle:
             handle.write(b"other-device-audio")
 
+        monkeypatch.setattr(
+            env["db"],
+            "get_track_by_id",
+            lambda _track_id: pytest.fail("cache cleanup must use the batched track lookup"),
+        )
         result = engine.cleanup_local_sync_cache(device_key=engine.current_device_key)
 
         assert os.path.isfile(audio_cache_path)

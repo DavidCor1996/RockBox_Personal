@@ -154,3 +154,39 @@ def test_video_rvp_segments_long_video_before_sync(tmp_dir):
     for segment in row["sync_video_segments"]:
         assert os.path.isfile(segment["yuv"])
         assert os.path.isfile(segment["pcm"])
+
+
+def test_video_rvp_reuses_digest_until_a_component_changes(tmp_dir, monkeypatch):
+    source = os.path.join(tmp_dir, "Cached Movie.mp4")
+    with open(source, "wb") as handle:
+        handle.write(b"source-video")
+    transcoder = VideoRvpTranscoder(
+        os.path.join(tmp_dir, "cache"),
+        ffmpeg_path="/bin/true",
+        command_runner=_Runner(),
+    )
+    track = {
+        "file_path": source,
+        "title": "Cached Movie",
+        "album": "Movies",
+        "media_type": "video",
+        "file_hash": "source-hash",
+    }
+    first, _info = transcoder.prepare_track_for_sync(track, "mock-ipod")
+    original_hash = VideoRvpTranscoder._bundle_hash
+    calls = []
+
+    def counted_hash(*paths):
+        calls.append(paths)
+        return original_hash(*paths)
+
+    monkeypatch.setattr(VideoRvpTranscoder, "_bundle_hash", staticmethod(counted_hash))
+    second, _info = transcoder.prepare_track_for_sync(track, "mock-ipod")
+    assert second["file_hash"] == first["file_hash"]
+    assert calls == []
+
+    yuv_path = second["sync_video_bundle_paths"]["yuv"]
+    stat = os.stat(yuv_path)
+    os.utime(yuv_path, ns=(stat.st_atime_ns, stat.st_mtime_ns + 1_000_000))
+    transcoder.prepare_track_for_sync(track, "mock-ipod")
+    assert len(calls) == 1

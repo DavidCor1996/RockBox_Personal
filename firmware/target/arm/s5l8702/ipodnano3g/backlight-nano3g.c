@@ -35,7 +35,7 @@
 // TODO: test
 void backlight_hw_brightness(int brightness)
 {
-    if (nano3g_safe_mode_enabled())
+    if (nano3g_safe_mode_enabled() && !NANO3G_DISPLAY_BRINGUP)
         return;
 
     pmu_write(D1671_REG_LEDCTL,
@@ -44,7 +44,7 @@ void backlight_hw_brightness(int brightness)
 
 void backlight_hw_on(void)
 {
-    if (nano3g_safe_mode_enabled())
+    if (nano3g_safe_mode_enabled() && !NANO3G_DISPLAY_BRINGUP)
         return;
 
 #ifdef HAVE_LCD_SLEEP
@@ -57,7 +57,7 @@ void backlight_hw_on(void)
 
 void backlight_hw_off(void)
 {
-    if (nano3g_safe_mode_enabled())
+    if (nano3g_safe_mode_enabled() && !NANO3G_DISPLAY_BRINGUP)
         return;
 
     pmu_write(D1671_REG_LEDCTL,

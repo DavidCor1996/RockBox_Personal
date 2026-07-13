@@ -872,7 +872,6 @@ static void ow_render_html(const char *path)
         return;
     }
 
-    ow_add_blank();
     while (rb->read_line(fd, line, sizeof(line)) > 0 &&
            render.line_count < OW_MAX_LINES - 2)
     {
@@ -1063,8 +1062,24 @@ static int ow_line_item_height(const struct ow_render_line *line)
 
 static void ow_clamp_browser_scroll(void)
 {
-    int rows = ow_visible_rows();
-    int max_scroll = MAX(0, render.line_count - rows);
+    int viewport_h = LCD_HEIGHT - OW_TOP_H - OW_BOTTOM_H - 2;
+    int content_h = 0;
+    int first = render.line_count;
+    int max_scroll;
+    int i;
+
+    for (i = render.line_count - 1; i >= 0; i--)
+    {
+        int item_h = ow_line_item_height(&render.lines[i]);
+
+        if (render.lines[i].style & OW_STYLE_IMAGE)
+            item_h += 3;
+        if (content_h > 0 && content_h + item_h > viewport_h)
+            break;
+        content_h += item_h;
+        first = i;
+    }
+    max_scroll = MAX(0, first);
 
     if (browser_scroll < 0)
         browser_scroll = 0;

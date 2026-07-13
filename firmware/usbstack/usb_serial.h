@@ -34,6 +34,7 @@ void usb_serial_transfer_complete(int ep,int dir, int status, int length);
 bool usb_serial_control_request(struct usb_ctrlrequest* req, void* reqdata, unsigned char *dest);
 
 void usb_serial_send(const unsigned char *data, int length);
+bool usb_serial_active(void);
+int usb_serial_bytes_pending(void);
 
 #endif
-

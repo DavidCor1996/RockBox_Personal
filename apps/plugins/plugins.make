@@ -87,6 +87,11 @@ else
 PLUGINSUBDIRS := $(call preprocess, $(APPSDIR)/plugins/SUBDIRS)
 endif
 
+ifneq ($(strip $(EXCLUDED_PLUGINS)),)
+PLUGIN_EXCLUDES := $(addprefix $(APPSDIR)/plugins/, $(EXCLUDED_PLUGINS))
+PLUGINSUBDIRS := $(filter-out $(PLUGIN_EXCLUDES), $(PLUGINSUBDIRS))
+endif
+
 PLUGIN_LIBS := $(PLUGINLIB) $(PLUGINBITMAPLIB) $(SETJMPLIB) $(FIXEDPOINTLIB)
 
 # include <dir>.make from each subdir (yay!)
@@ -172,7 +177,8 @@ $(BUILD_PLUGINSLIB_DIR)/%.o: $(ROOT_PLUGINSLIB_DIR)/%.c
 	$(SILENT)mkdir -p $(dir $@)
 	$(call PRINTS,CC $(subst $(ROOTDIR)/,,$<))$(CC) -I$(dir $<) $(PLUGINLIBFLAGS) -c $< -o $@
 
-$(BUILD_PLUGINSLIB_DIR)/%.o: $(ROOT_PLUGINSLIB_DIR)/%.cpp
+$(BUILD_PLUGINSLIB_DIR)/%.o: $(ROOT_PLUGINSLIB_DIR)/%.cpp \
+                                     $(BUILDDIR)/lang_enum.h
 	$(SILENT)mkdir -p $(dir $@)
 	$(call PRINTS,CXX $(subst $(ROOTDIR)/,,$<))$(PLUGIN_CXX) -I$(dir $<) $(PLUGIN_CXXFLAGS) -ffunction-sections -fdata-sections -c $< -o $@
 
@@ -181,7 +187,8 @@ $(BUILDDIR)/apps/plugins/%.o: $(ROOTDIR)/apps/plugins/%.c
 	$(SILENT)mkdir -p $(dir $@)
 	$(call PRINTS,CC $(subst $(ROOTDIR)/,,$<))$(CC) -I$(dir $<) $(PLUGINFLAGS) -c $< -o $@
 
-$(BUILDDIR)/apps/plugins/%.o: $(ROOTDIR)/apps/plugins/%.cpp
+$(BUILDDIR)/apps/plugins/%.o: $(ROOTDIR)/apps/plugins/%.cpp \
+                                      $(BUILDDIR)/lang_enum.h
 	$(SILENT)mkdir -p $(dir $@)
 	$(call PRINTS,CXX $(subst $(ROOTDIR)/,,$<))$(PLUGIN_CXX) -I$(dir $<) $(PLUGIN_CXXFLAGS) -c $< -o $@
 

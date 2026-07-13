@@ -1,5 +1,6 @@
 """Replaceable video metadata providers (iTunes Search API & OMDb API fallback)."""
 
+import html
 import json
 import re
 import threading
@@ -10,6 +11,10 @@ from urllib.request import Request, urlopen
 
 import logging
 logger = logging.getLogger(__name__)
+
+
+def _large_itunes_artwork_url(value):
+    return re.sub(r"/\d+x\d+bb", "/600x600bb", str(value or ""))
 
 class VideoMetadataError(Exception):
     """Raised when metadata lookup fails."""
@@ -102,7 +107,7 @@ class ITunesVideoMetadataProvider(VideoMetadataProvider):
                 "genre": item.get("primaryGenreName") or "",
                 "plot_short": item.get("longDescription") or item.get("shortDescription") or "",
                 "plot_long": item.get("longDescription") or "",
-                "artwork_url": item.get("artworkUrl100") or "",
+                "artwork_url": _large_itunes_artwork_url(item.get("artworkUrl100")),
                 "runtime_seconds": int((item.get("trackTimeMillis") or 0) / 1000),
                 "content_rating": item.get("contentAdvisoryRating") or ""
             })
@@ -144,7 +149,7 @@ class ITunesVideoMetadataProvider(VideoMetadataProvider):
                 "genre": item.get("primaryGenreName") or "",
                 "plot_short": item.get("longDescription") or item.get("shortDescription") or "",
                 "plot_long": item.get("longDescription") or "",
-                "artwork_url": item.get("artworkUrl100") or "",
+                "artwork_url": _large_itunes_artwork_url(item.get("artworkUrl100")),
                 "runtime_seconds": 0,
                 "content_rating": item.get("contentAdvisoryRating") or ""
             })
@@ -186,7 +191,7 @@ class ITunesVideoMetadataProvider(VideoMetadataProvider):
                 "genre": item.get("primaryGenreName") or "",
                 "plot_short": item.get("longDescription") or item.get("shortDescription") or "",
                 "plot_long": item.get("longDescription") or "",
-                "artwork_url": item.get("artworkUrl100") or "",
+                "artwork_url": _large_itunes_artwork_url(item.get("artworkUrl100")),
                 "runtime_seconds": int((item.get("trackTimeMillis") or 0) / 1000),
                 "content_rating": item.get("contentAdvisoryRating") or ""
             }
@@ -305,6 +310,105 @@ class OMDbVideoMetadataProvider(VideoMetadataProvider):
         return int(match.group(1)) * 60 if match else 0
 
 
+class TVmazeVideoMetadataProvider(VideoMetadataProvider):
+    """No-key TV show and episode fallback using the TVmaze API."""
+
+    def __init__(self, timeout=10.0):
+        self.timeout = float(timeout or 10.0)
+
+    def _fetch_json(self, path, params=None):
+        query = urllib.parse.urlencode(params or {})
+        url = f"https://api.tvmaze.com{path}"
+        if query:
+            url = f"{url}?{query}"
+        request = Request(url, headers={"User-Agent": "RockPod/1.0"})
+        try:
+            with urlopen(request, timeout=self.timeout) as response:
+                return json.loads(response.read().decode("utf-8"))
+        except HTTPError as exc:
+            if exc.code == 404:
+                return {}
+            raise VideoMetadataNetworkError(f"TVmaze HTTP error {exc.code}") from exc
+        except URLError as exc:
+            raise VideoMetadataNetworkError("TVmaze connection failed") from exc
+        except (OSError, ValueError) as exc:
+            raise VideoMetadataError("TVmaze response could not be read") from exc
+
+    @staticmethod
+    def _plain_text(value):
+        text = html.unescape(str(value or ""))
+        return re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", text)).strip()
+
+    @staticmethod
+    def _year(value):
+        text = str(value or "")
+        return int(text[:4]) if len(text) >= 4 and text[:4].isdigit() else None
+
+    def _show_result(self, item):
+        image = dict(item.get("image") or {})
+        externals = dict(item.get("externals") or {})
+        summary = self._plain_text(item.get("summary"))
+        return {
+            "provider": "tvmaze",
+            "provider_id": str(item.get("id") or ""),
+            "imdb_id": str(externals.get("imdb") or ""),
+            "tmdb_id": "",
+            "title": str(item.get("name") or ""),
+            "media_type": "tv_show",
+            "year": self._year(item.get("premiered")),
+            "release_date": str(item.get("premiered") or ""),
+            "genre": ", ".join(item.get("genres") or []),
+            "plot_short": summary,
+            "plot_long": summary,
+            "artwork_url": str(image.get("original") or image.get("medium") or ""),
+            "runtime_seconds": int(item.get("averageRuntime") or item.get("runtime") or 0) * 60,
+            "content_rating": "",
+        }
+
+    def search_movie(self, query, year=None):
+        return []
+
+    def search_show(self, query, year=None):
+        item = self._fetch_json("/singlesearch/shows", {"q": query})
+        if not item:
+            return []
+        result = self._show_result(item)
+        if year and result.get("year") and int(year) != int(result["year"]):
+            return []
+        return [result]
+
+    def search_episode(self, show_title, season, episode, episode_title=None):
+        shows = self.search_show(show_title)
+        if not shows:
+            return None
+        show = shows[0]
+        episodes = self._fetch_json(f"/shows/{show['provider_id']}/episodes")
+        for item in episodes or []:
+            if int(item.get("season") or -1) != int(season):
+                continue
+            if int(item.get("number") or -1) != int(episode):
+                continue
+            image = dict(item.get("image") or {})
+            summary = self._plain_text(item.get("summary")) or show.get("plot_short", "")
+            return {
+                **show,
+                "provider_id": str(item.get("id") or show.get("provider_id") or ""),
+                "title": str(item.get("name") or episode_title or ""),
+                "media_type": "tv_episode",
+                "year": self._year(item.get("airdate")) or show.get("year"),
+                "release_date": str(item.get("airdate") or ""),
+                "plot_short": summary,
+                "plot_long": summary,
+                "artwork_url": str(image.get("original") or image.get("medium") or show.get("artwork_url") or ""),
+                "runtime_seconds": int(item.get("runtime") or 0) * 60,
+            }
+        return None
+
+    def get_title_by_id(self, provider_id):
+        item = self._fetch_json(f"/shows/{provider_id}")
+        return self._show_result(item) if item else None
+
+
 class VideoMetadataService:
     """Manages replaceable video metadata providers and acts as local cache lookup layer."""
     
@@ -312,6 +416,7 @@ class VideoMetadataService:
         self._config = config
         self._db = db
         self._provider = ITunesVideoMetadataProvider()
+        self._show_fallback = TVmazeVideoMetadataProvider()
         self._configure_provider()
 
     def _configure_provider(self):
@@ -325,9 +430,11 @@ class VideoMetadataService:
     def search(self, query, media_type="movie", year=None):
         """Perform provider lookup for Movie or TV Show."""
         if media_type == "tv_show" or media_type == "show":
-            return self._provider.search_show(query, year)
+            results = self._provider.search_show(query, year)
+            return results or self._show_fallback.search_show(query, year)
         return self._provider.search_movie(query, year)
 
     def lookup_episode(self, show_title, season, episode, title=None):
         """Lookup TV episode metadata."""
-        return self._provider.search_episode(show_title, season, episode, title)
+        result = self._provider.search_episode(show_title, season, episode, title)
+        return result or self._show_fallback.search_episode(show_title, season, episode, title)

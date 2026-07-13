@@ -185,6 +185,76 @@ def test_no_sprite_lines_skip_sprite_scan_call():
     assert "if (NS)\n        spr_scan();" in lcd
 
 
+def test_games_launcher_keeps_gameboy_library_platform_pure():
+    launcher = _read("apps/plugins/rockboy_launcher.c")
+
+    assert 'rb->strlcpy(system->extensions, ".gb,.gbc"' in launcher
+    assert "if (is_gameboy_rom(entry->d_name))" in launcher
+    assert "if (!is_gameboy_rom(resolved_rom))\n            continue;" in launcher
+    assert "add_builtin_game_entries();" not in launcher
+
+
+def test_games_launcher_has_source_derived_snes_and_flash_icons():
+    launcher = _read("apps/plugins/rockboy_launcher.c")
+
+    assert '#include "pluginbitmaps/game_system_snes.h"' in launcher
+    assert '#include "pluginbitmaps/game_system_flash.h"' in launcher
+    assert "return &bm_game_system_snes;" in launcher
+    assert "return &bm_game_system_flash;" in launcher
+    assert (REPO_ROOT / "apps/plugins/bitmaps/sources/game_system_snes_source.png").is_file()
+    assert (REPO_ROOT / "apps/plugins/bitmaps/sources/game_system_flash_source.svg").is_file()
+
+
+def test_snes_lite_performance_and_menu_paths_are_explicit():
+    main = _read("apps/plugins/snes_lite/snes_lite.c")
+    video = _read("apps/plugins/snes_lite/snes_lite_video.c")
+    audio = _read("apps/plugins/snes_lite/snes_lite_audio.c")
+    menu = _read("apps/plugins/snes_lite/snes_lite_input.c")
+
+    assert "rb->cpu_boost(enabled);" in main
+    assert "pace_frame();" in main
+    assert "snes_lite.effective_frameskip++" in main
+    assert "scale_line_256_to_320" in video
+    assert "SNES_VIDEO_FULLSCREEN" in video
+    assert "PCM_MIXER_CHAN_PLAYBACK" in audio
+    assert "snes_lite_audio_close();" in main
+    assert "BUTTON_SCROLL_BACK" in menu
+    assert "rb->button_hold()" in menu
+    assert 'snes_lite_log("exit requested by hold switch")' in menu
+    assert "rb->button_get_w_tmo(HZ / 10)" in menu
+    assert '"Save Game"' in menu
+    assert "SNES_AUDIO_BLOCKS 16" in audio
+    assert "snes_lite_audio_buffer_status" in audio
+    assert "snes_lite_audio_rate" in audio
+    assert "LCD_RGBPACK(38, 146, 226)" in menu
+    assert '"Platformer", "RPG", "Action", "Fighting"' in _read(
+        "apps/plugins/snes_lite/snes_lite_config.c"
+    )
+    assert '"Sound"' in menu
+    assert "for (group = 0; group < 64; group++)" in video
+    assert "destination[4] = snes_pixel_to_fb(source[3]);" in video
+    assert "return (fb_data)pixel;" in video
+    assert "source_y == previous_source_y" in video
+    assert "snes_lite_video_selftest" in video
+    assert "scale_line_reference" in video
+    assert "uint32_t *output = (uint32_t *)destination;" in video
+    assert "output[index] != reference[index]" in video
+    assert "target_fps * 9 / 10" in main
+    assert '"profile work core_ticks=%lu scale_ticks=%lu lcd_ticks=%lu"' in main
+    makefile = _read("apps/plugins/snes_lite/snes_lite.make")
+    assert "-flto" in makefile
+    assert "-DFAST_ALIGNED_LSB_WORD_ACCESS" in makefile
+    assert '"fixed_interval" : "disabled"' in _read(
+        "apps/plugins/snes_lite/snes_lite_frontend.c"
+    )
+    assert '"auto_threshold"' not in _read(
+        "apps/plugins/snes_lite/snes_lite_frontend.c"
+    )
+    assert 'variable->value = "enabled";' in _read(
+        "apps/plugins/snes_lite/snes_lite_frontend.c"
+    )
+
+
 def test_dmg_background_only_fast_path_is_guarded():
     lcd = _read("apps/plugins/rockboy/lcd.c")
 

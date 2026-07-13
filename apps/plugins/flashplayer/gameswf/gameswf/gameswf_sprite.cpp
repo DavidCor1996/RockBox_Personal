@@ -269,8 +269,12 @@ namespace gameswf
 		// execute actions from gotoAndPlay(n) or gotoAndStop(n) frame
 		if (m_goto_frame_action_list.size() > 0)
 		{
-			execute_actions(&m_as_environment, m_goto_frame_action_list);
+			/* A frame action can issue another goto.  Execute a snapshot and
+			 * clear the pending list first so the nested goto's newly queued
+			 * actions survive for the next advance. */
+			array<action_buffer*> actions = m_goto_frame_action_list;
 			m_goto_frame_action_list.clear();
+			execute_actions(&m_as_environment, actions);
 		}
 
 		// Update current and next frames.
@@ -937,6 +941,21 @@ namespace gameswf
 			}
 		}
 
+		/* AVM1 exposes variables declared on the root timeline as members of
+		 * _root.  GameSWF stores those variables in the root sprite's action
+		 * environment, so update an existing timeline variable there instead
+		 * of creating a second, disconnected object member. */
+		if (m_parent == NULL)
+		{
+			int local = m_as_environment.find_local(
+				tu_string(name.c_str()), true);
+			if (local >= 0)
+			{
+				m_as_environment.m_local_frames[local].m_value = val;
+				return true;
+			}
+		}
+
 		return character::set_member(name, val);
 	}
 
@@ -1034,6 +1053,18 @@ namespace gameswf
 
 		// finally try standart character properties & movieclip variables
 		bool found = character::get_member(name, val);
+		if (!found && m_parent == NULL)
+		{
+			/* See set_member(): root timeline variables must also be visible
+			 * through explicit _root.variable member access. */
+			int local = m_as_environment.find_local(
+				tu_string(name.c_str()), true);
+			if (local >= 0)
+			{
+				*val = m_as_environment.m_local_frames[local].m_value;
+				found = true;
+			}
+		}
 		flashplayer_trace_member_lookup(get_name().c_str(), name.c_str(),
 			found, found && val->is_object());
 		return found;

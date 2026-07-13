@@ -47,6 +47,8 @@
 
 /* path to the Unicode lyrics font (full CJK/Japanese coverage) */
 #define LRC_FONT_PATH "/.rockbox/fonts/18-Cantarell-Regular.fnt"
+#define LRC_STOCK_FONT_PATH ROCKBOX_DIR "/ipodjs/14-Adobe-Helvetica-Bold.fnt"
+#define LRC_STOCK_HEADER_HEIGHT 20
 
 #define MAX_LINE_LEN    512  /* Musixmatch Enhanced LRC lines can exceed 256 bytes */
 #define LRC_BUFFER_SIZE 0x3000 /* 12 kiB */
@@ -146,9 +148,20 @@ static struct lrc_info {
 static char temp_buf[MAX(MAX_LINE_LEN,MAX_PATH)];
 static int uifont = -1;
 static int cjk_font = -1;    /* loaded lyrics font (18-Cantarell-Regular), or -1 */
+static int stock_header_font = -1;
 static int font_ui_height = 1;
 static struct viewport vp_info[NB_SCREENS];
 static struct viewport vp_lyrics[NB_SCREENS];
+static bool stock_ipod_ui;
+static int stock_last_battery = -1;
+static bool stock_last_charging;
+static unsigned lrc_bg = IPONE_BG;
+static unsigned lrc_fg = IPONE_FG;
+static unsigned lrc_active = IPONE_ACTIVE;
+static unsigned lrc_inactive = IPONE_INACTIVE;
+static unsigned lrc_active_bg = IPONE_ACTIVE_BG;
+static unsigned lrc_separator = IPONE_SEPARATOR;
+static unsigned lrc_progress = IPONE_PROGRESS;
 
 #define AUDIO_PAUSE (current.audio_status & AUDIO_STATUS_PAUSE)
 #define AUDIO_PLAY  (current.audio_status & AUDIO_STATUS_PLAY)
@@ -1583,6 +1596,133 @@ static bool read_id3(void)
 /*******************************
  * Display information
  *******************************/
+static bool stock_ipod_screen(int screen)
+{
+    return stock_ipod_ui && screen == SCREEN_MAIN;
+}
+
+static int lrc_text_align(void)
+{
+    return stock_ipod_ui ? 0 : prefs.align;
+}
+
+#ifdef HAVE_LCD_COLOR
+static unsigned stock_header_gradient_color(int y)
+{
+    int half = LRC_STOCK_HEADER_HEIGHT / 2;
+    int span;
+    int pos;
+    int r1;
+    int g1;
+    int b1;
+    int r2;
+    int g2;
+    int b2;
+
+    if (y < half)
+    {
+        span = MAX(1, half - 1);
+        pos = y;
+        r1 = 252;
+        g1 = 253;
+        b1 = 253;
+        r2 = 216;
+        g2 = 219;
+        b2 = 223;
+    }
+    else
+    {
+        span = MAX(1, LRC_STOCK_HEADER_HEIGHT - half - 1);
+        pos = y - half;
+        r1 = 216;
+        g1 = 219;
+        b1 = 223;
+        r2 = 174;
+        g2 = 178;
+        b2 = 183;
+    }
+
+    return LCD_RGBPACK(r1 + (r2 - r1) * pos / span,
+                       g1 + (g2 - g1) * pos / span,
+                       b1 + (b2 - b1) * pos / span);
+}
+
+static void draw_stock_ipod_header(struct screen *display, bool force)
+{
+    static const char title[] = "Lyrics";
+    int battery = MAX(0, MIN(100, rb->battery_level()));
+    bool charging = rb->charger_inserted();
+    int battery_x = display->lcdwidth - 31;
+    int title_w;
+    int title_h;
+    int font = stock_header_font >= 0 ? stock_header_font : uifont;
+    int status = rb->audio_status();
+
+    if (!force && battery == stock_last_battery &&
+        charging == stock_last_charging)
+        return;
+
+    display->set_viewport(NULL);
+    display->set_drawmode(DRMODE_SOLID);
+    for (int y = 0; y < LRC_STOCK_HEADER_HEIGHT; y++)
+    {
+        display->set_foreground(stock_header_gradient_color(y));
+        display->hline(0, display->lcdwidth - 1, y);
+    }
+    display->set_foreground(LCD_RGBPACK(126, 134, 143));
+    display->hline(0, display->lcdwidth - 1,
+                   LRC_STOCK_HEADER_HEIGHT - 1);
+
+    display->setfont(font);
+    display->set_foreground(LCD_BLACK);
+    display->getstringsize(title, &title_w, &title_h);
+    display->set_drawmode(DRMODE_FG);
+    display->putsxy((display->lcdwidth - title_w) / 2,
+                    (LRC_STOCK_HEADER_HEIGHT - title_h) / 2, title);
+    display->set_drawmode(DRMODE_SOLID);
+
+    if (status & AUDIO_STATUS_PLAY)
+    {
+        if (status & AUDIO_STATUS_PAUSE)
+        {
+            display->fillrect(7, 6, 3, 8);
+            display->fillrect(13, 6, 3, 8);
+        }
+        else
+        {
+            for (int x = 0; x < 5; x++)
+                display->vline(7 + x, 5 + x, 13 - x);
+        }
+    }
+
+    display->set_foreground(LCD_RGBPACK(84, 88, 91));
+    display->fillrect(battery_x + 1, 6, 22, 8);
+    if (battery > 0)
+    {
+        int fill_w = MAX(1, 20 * battery / 100);
+        unsigned fill = (battery > 20 || charging) ?
+            LCD_RGBPACK(118, 188, 84) : LCD_RGBPACK(196, 74, 58);
+
+        display->set_foreground(fill);
+        display->fillrect(battery_x + 2, 7, fill_w, 6);
+    }
+    display->set_foreground(LCD_RGBPACK(79, 83, 88));
+    display->drawrect(battery_x, 5, 24, 10);
+    display->fillrect(battery_x + 24, 8, 3, 4);
+
+    stock_last_battery = battery;
+    stock_last_charging = charging;
+    display->update_viewport_rect(0, 0, display->lcdwidth,
+                                  LRC_STOCK_HEADER_HEIGHT);
+}
+#else
+static void draw_stock_ipod_header(struct screen *display, bool force)
+{
+    (void)display;
+    (void)force;
+}
+#endif
+
 static void display_state(void)
 {
     const char *str = NULL;
@@ -1622,31 +1762,39 @@ static void display_state(void)
     FOR_NB_SCREENS(i)
     {
         display = rb->screens[i];
+        if (stock_ipod_screen(i))
+            draw_stock_ipod_header(display, true);
         display->set_viewport(&vp_info[i]);
         display->clear_viewport();
 #if (LCD_DEPTH > 1)
-        display->set_foreground(IPONE_FG);
-        display->set_background(IPONE_BG);
+        display->set_foreground(lrc_fg);
+        display->set_background(lrc_bg);
 #endif
         display->setfont(uifont);
         if (info_title)
             display->puts_scroll(0, 0, info_title);
         if (info_artist)
+        {
+#if (LCD_DEPTH > 1)
+            if (stock_ipod_screen(i))
+                display->set_foreground(lrc_inactive);
+#endif
             display->puts_scroll(0, 1, info_artist);
+        }
         if (str)
         {
             display->set_viewport(&vp_lyrics[i]);
             display->clear_viewport();
 #if (LCD_DEPTH > 1)
-            display->set_foreground(IPONE_FG);
-            display->set_background(IPONE_BG);
+            display->set_foreground(lrc_fg);
+            display->set_background(lrc_bg);
 #endif
             display->getstringsize(str, &w, &h);
             if (vp_lyrics[i].width - w < 0)
                 display->puts_scroll(0, vp_lyrics[i].height/font_ui_height/2,
                                      str);
             else
-                display->putsxy((vp_lyrics[i].width - w)*prefs.align/2,
+                display->putsxy((vp_lyrics[i].width - w)*lrc_text_align()/2,
                                 (vp_lyrics[i].height-font_ui_height)/2, str);
             display->set_viewport(&vp_info[i]);
         }
@@ -1665,30 +1813,62 @@ static void display_time(void)
     FOR_NB_SCREENS(i)
     {
         struct screen* display = rb->screens[i];
+        int update_h = font_ui_height +
+                       (stock_ipod_screen(i) ? 10 : 6);
+
+        if (stock_ipod_screen(i))
+            draw_stock_ipod_header(display, false);
         display->set_viewport(&vp_info[i]);
 #if (LCD_DEPTH > 1)
-        display->set_foreground(IPONE_FG);
-        display->set_background(IPONE_BG);
+        display->set_foreground(stock_ipod_screen(i) ? lrc_inactive :
+                                                       lrc_fg);
+        display->set_background(lrc_bg);
 #endif
         display->setfont(uifont);
         display->putsxy(0, y, temp_buf);
         /* progress bar: draw track bg trough then filled portion with accent */
 #if (LCD_DEPTH > 1)
-        display->set_foreground(IPONE_SEPARATOR);
-        display->fillrect(0, y + font_ui_height + 2,
-                          vp_info[i].width, 4);
-        display->set_foreground(IPONE_PROGRESS);
-        int bar_w = (int)((long)vp_info[i].width * current.elapsed / current.length);
-        if (bar_w > 0)
+#ifdef HAVE_LCD_COLOR
+        if (stock_ipod_screen(i))
+        {
+            int bar_y = y + font_ui_height + 1;
+            int inner_w = MAX(0, vp_info[i].width - 2);
+            int bar_w = (int)((int64_t)inner_w * current.elapsed /
+                              current.length);
+
+            display->set_foreground(LCD_RGBPACK(132, 137, 145));
+            display->drawrect(0, bar_y, vp_info[i].width, 8);
+            display->set_foreground(LCD_RGBPACK(235, 237, 240));
+            display->fillrect(1, bar_y + 1, inner_w, 6);
+            if (bar_w > 0)
+            {
+                display->set_foreground(lrc_progress);
+                display->fillrect(1, bar_y + 1, bar_w, 6);
+                display->set_foreground(LCD_RGBPACK(154, 218, 255));
+                display->hline(1, bar_w, bar_y + 1);
+            }
+        }
+        else
+#endif
+        {
+            int bar_w = (int)((int64_t)vp_info[i].width *
+                              current.elapsed / current.length);
+
+            display->set_foreground(lrc_separator);
             display->fillrect(0, y + font_ui_height + 2,
-                              bar_w, 4);
-        display->set_foreground(IPONE_FG);
+                              vp_info[i].width, 4);
+            display->set_foreground(lrc_progress);
+            if (bar_w > 0)
+                display->fillrect(0, y + font_ui_height + 2,
+                                  bar_w, 4);
+        }
+        display->set_foreground(lrc_fg);
 #else
         rb->gui_scrollbar_draw(display, 0, y+font_ui_height+1,
                                vp_info[i].width, 4,
                                current.length, 0, current.elapsed, HORIZONTAL);
 #endif
-        display->update_viewport_rect(0, y, vp_info[i].width, font_ui_height + 6);
+        display->update_viewport_rect(0, y, vp_info[i].width, update_h);
         display->set_viewport(NULL);
     }
 }
@@ -1702,7 +1882,7 @@ static inline void set_to_default(struct screen *display)
 #ifdef HAVE_REMOTE_LCD
     if (display->screen_type != SCREEN_REMOTE)
 #endif
-        display->set_foreground(IPONE_FG);
+        display->set_foreground(lrc_fg);
 #endif
     display->set_drawmode(DRMODE_SOLID);
 }
@@ -1715,7 +1895,8 @@ static inline void set_to_active(struct screen *display)
     else
 #endif
     {
-        display->set_foreground(prefs.active_color);
+        display->set_foreground(stock_ipod_ui ? lrc_active :
+                                                prefs.active_color);
         display->set_drawmode(DRMODE_SOLID);
     }
 #else /* LCD_DEPTH == 1 */
@@ -1728,7 +1909,8 @@ static inline void set_to_inactive(struct screen *display)
 #ifdef HAVE_REMOTE_LCD
     if (display->screen_type != SCREEN_REMOTE)
 #endif
-        display->set_foreground(prefs.inactive_color);
+        display->set_foreground(stock_ipod_ui ? lrc_inactive :
+                                                prefs.inactive_color);
 #endif
     display->set_drawmode(DRMODE_SOLID);
 }
@@ -1773,11 +1955,12 @@ static int display_lrc_line(struct lrc_line *lrc_line, int ypos, int i)
     lrc_brpos = calc_brpos(lrc_line, i);
 
     /* draw subtle background highlight behind the active lyric line */
-    active_line = active_line || !prefs.active_one_line;
+    active_line = active_line ||
+                  (!prefs.active_one_line && !stock_ipod_ui);
 #if (LCD_DEPTH > 1)
     if (active_line && lrc_line->width && prefs.active_one_line)
     {
-        display->set_foreground(IPONE_ACTIVE_BG);
+        display->set_foreground(lrc_active_bg);
         display->set_drawmode(DRMODE_SOLID);
         display->fillrect(0, ypos,
                           vp_lyrics[i].width,
@@ -1786,7 +1969,7 @@ static int display_lrc_line(struct lrc_line *lrc_line, int ypos, int i)
 #endif
 
     /* initialize line */
-    xpos = (vp_lyrics[i].width - lrc_brpos->width)*prefs.align/2;
+    xpos = (vp_lyrics[i].width - lrc_brpos->width)*lrc_text_align()/2;
     count = 0;
     width = 0;
 
@@ -1871,7 +2054,8 @@ static int display_lrc_line(struct lrc_line *lrc_line, int ypos, int i)
                 /* prepare for next line */
                 lrc_brpos++;
                 str = lrc_skip_space(str);
-                xpos = (vp_lyrics[i].width - lrc_brpos->width)*prefs.align/2;
+                xpos = (vp_lyrics[i].width - lrc_brpos->width)*
+                       lrc_text_align()/2;
                 ypos += font_ui_height;
                 count = 0;
                 width = 0;
@@ -1908,7 +2092,7 @@ static void display_lrcs(void)
     /* -------------------------------------------------------
      * Focused layout: iOS Music-style prev / active / next
      * ------------------------------------------------------- */
-    if (prefs.focused_layout)
+    if (prefs.focused_layout && !stock_ipod_ui)
     {
         /* find lrc_prev by walking forward from ll_head */
         struct lrc_line *lrc_prev = NULL;
@@ -1927,17 +2111,17 @@ static void display_lrcs(void)
             display = rb->screens[i];
             display->set_viewport(&vp_lyrics[i]);
 #if (LCD_DEPTH > 1)
-            display->set_background(IPONE_BG);
-            display->set_foreground(IPONE_FG);
+            display->set_background(lrc_bg);
+            display->set_foreground(lrc_fg);
 #endif
             display->setfont(uifont);
             display->clear_viewport();
 
             /* separator line at very top of lyrics viewport */
 #if (LCD_DEPTH > 1)
-            display->set_foreground(IPONE_SEPARATOR);
+            display->set_foreground(lrc_separator);
             display->drawline(0, 0, vp_lyrics[i].width - 1, 0);
-            display->set_foreground(IPONE_FG);
+            display->set_foreground(lrc_fg);
 #endif
 
             int active_h = lrc_center->nline[i] * font_ui_height;
@@ -1968,7 +2152,7 @@ static void display_lrcs(void)
             {
                 /* end-of-lyrics marker */
 #if (LCD_DEPTH > 1)
-                display->set_foreground(IPONE_INACTIVE);
+                display->set_foreground(lrc_inactive);
 #endif
                 int w, h;
                 display->getstringsize("- - -", &w, &h);
@@ -1976,7 +2160,7 @@ static void display_lrcs(void)
                     display->putsxy((vp_lyrics[i].width - w) / 2, next_y,
                                     "- - -");
 #if (LCD_DEPTH > 1)
-                display->set_foreground(IPONE_FG);
+                display->set_foreground(lrc_fg);
 #endif
             }
 
@@ -1994,17 +2178,17 @@ static void display_lrcs(void)
         /* display current line at the center of the viewport */
         display->set_viewport(&vp_lyrics[i]);
 #if (LCD_DEPTH > 1)
-        display->set_background(IPONE_BG);
-        display->set_foreground(IPONE_FG);
+        display->set_background(lrc_bg);
+        display->set_foreground(lrc_fg);
 #endif
         display->setfont(uifont);
         display->clear_viewport();
 
         /* draw a 1-px separator at the very top of the lyrics viewport */
 #if (LCD_DEPTH > 1)
-        display->set_foreground(IPONE_SEPARATOR);
+        display->set_foreground(lrc_separator);
         display->drawline(0, 0, vp_lyrics[i].width - 1, 0);
-        display->set_foreground(IPONE_FG);
+        display->set_foreground(lrc_fg);
 #endif
 
         struct lrc_line *lrc_line;
@@ -2055,13 +2239,13 @@ static void display_lrcs(void)
         {
             /* end-of-lyrics marker */
 #if (LCD_DEPTH > 1)
-            display->set_foreground(IPONE_INACTIVE);
+            display->set_foreground(lrc_inactive);
 #endif
             int w, h;
             display->getstringsize("- - -", &w, &h);
             display->putsxy((vp_lyrics[i].width - w)/2, ypos, "- - -");
 #if (LCD_DEPTH > 1)
-            display->set_foreground(IPONE_FG);
+            display->set_foreground(lrc_fg);
 #endif
         }
 
@@ -2873,23 +3057,27 @@ static int lrc_main(void)
     long id3_timeout = 0;
     bool update_display_state = true;
 
-    /* y offset of vp_lyrics: title row + artist row + (time text + bar + gap) */
-    int h = (prefs.display_title?2*font_ui_height:0)+
-            (prefs.display_time?font_ui_height+6:0);
-
-
     FOR_NB_SCREENS(i)
     {
-        rb->viewportmanager_theme_enable(i, prefs.statusbar_on, &vp_info[i]);
-        /* apply iPone palette to both viewports */
+        int h = (prefs.display_title ? 2 * font_ui_height : 0) +
+                (prefs.display_time ? font_ui_height +
+                 (stock_ipod_screen(i) ? 10 : 6) : 0);
+
+        rb->viewportmanager_theme_enable(i,
+            stock_ipod_screen(i) ? false : prefs.statusbar_on, &vp_info[i]);
+        if (stock_ipod_screen(i))
+        {
+            vp_info[i].y += LRC_STOCK_HEADER_HEIGHT;
+            vp_info[i].height -= LRC_STOCK_HEADER_HEIGHT;
+        }
 #if (LCD_DEPTH > 1)
-        vp_info[i].fg_pattern   = IPONE_FG;
-        vp_info[i].bg_pattern   = IPONE_BG;
+        vp_info[i].fg_pattern = lrc_fg;
+        vp_info[i].bg_pattern = lrc_bg;
 #endif
         vp_lyrics[i] = vp_info[i];
         vp_lyrics[i].flags &= ~VP_FLAG_ALIGNMENT_MASK;
         vp_lyrics[i].y += h;
-        vp_lyrics[i].height -= h;
+        vp_lyrics[i].height = MAX(0, vp_lyrics[i].height - h);
     }
 
 #ifdef HAVE_BACKLIGHT
@@ -2987,7 +3175,8 @@ static int lrc_main(void)
         }
         if (update_display_state)
         {
-            if (current.type == TXT || current.type == ID3_USLT)
+            if (stock_ipod_ui || current.type == TXT ||
+                current.type == ID3_USLT)
                 current.wipe = false;
             else
                 current.wipe = prefs.wipe;
@@ -3023,6 +3212,25 @@ enum plugin_status plugin_start(const void* parameter)
 
     rb->button_clear_queue();
 
+#if defined(HAVE_LCD_COLOR) && \
+    (defined(IPOD_VIDEO) || defined(IPOD_6G))
+    stock_ipod_ui = rb->global_settings->ui_engine == UI_ENGINE_IPODJS;
+    if (stock_ipod_ui)
+    {
+        lrc_bg = LCD_RGBPACK(250, 250, 250);
+        lrc_fg = LCD_BLACK;
+        lrc_active = LCD_RGBPACK(0, 82, 178);
+        lrc_inactive = LCD_RGBPACK(96, 101, 108);
+        lrc_active_bg = LCD_RGBPACK(220, 235, 250);
+        lrc_separator = LCD_RGBPACK(190, 195, 202);
+        lrc_progress = LCD_RGBPACK(20, 132, 220);
+        stock_last_battery = -1;
+        stock_last_charging = false;
+    }
+#else
+    stock_ipod_ui = false;
+#endif
+
     /* initialize settings. */
     load_or_save_settings(false);
 
@@ -3040,6 +3248,8 @@ enum plugin_status plugin_start(const void* parameter)
         uifont = rb->screens[0]->getuifont();
         font_ui_height = rb->font_get(uifont)->height;
     }
+    if (stock_ipod_ui)
+        stock_header_font = rb->font_load(LRC_STOCK_FONT_PATH);
 
     lrc_buffer = rb->plugin_get_buffer(&lrc_buffer_size);
     lrc_buffer = ALIGN_UP(lrc_buffer, 4); /* 4 bytes aligned */
@@ -3077,6 +3287,12 @@ enum plugin_status plugin_start(const void* parameter)
         current.found_lrc = true;
     }
 
+#ifdef BUTTON_SELECT
+    while (rb->button_status() & BUTTON_SELECT)
+        rb->sleep(HZ / 50);
+    rb->button_clear_queue();
+#endif
+
     while (ret >= PLUGIN_OTHER)
     {
         switch (ret)
@@ -3101,6 +3317,8 @@ enum plugin_status plugin_start(const void* parameter)
     /* release the dedicated lyrics font if we loaded one */
     if (cjk_font >= 0)
         rb->font_unload(cjk_font);
+    if (stock_header_font >= 0)
+        rb->font_unload(stock_header_font);
 
     return ret;
 }

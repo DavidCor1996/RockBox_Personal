@@ -368,7 +368,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
                 0x00000000000026d0                e_bullet_init
                 0x0000000000002730                e_bullet_action
  *fill*         0x00000000000027a1        0xf 
- .text          0x00000000000027b0      0xba7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_rick.o
+ .text          0x00000000000027b0      0xba4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_rick.o
                 0x00000000000027b0                e_rick_state_set
                 0x00000000000027c0                e_rick_state_clear
                 0x00000000000027d0                e_rick_state_test
@@ -378,7 +378,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
                 0x0000000000003080                e_rick_action
                 0x00000000000032b0                e_rick_save
                 0x0000000000003300                e_rick_restore
- *fill*         0x0000000000003357        0x9 
+ *fill*         0x0000000000003354        0xc 
  .text          0x0000000000003360      0x146 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_sbonus.o
                 0x0000000000003360                e_sbonus_start
                 0x00000000000033e0                e_sbonus_stop
@@ -1221,93 +1221,93 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .stab.indexstr
  *(.stab.indexstr)
 
-.comment        0x0000000000000000       0x36
+.comment        0x0000000000000000       0x1b
  *(.comment)
- .comment       0x0000000000000000       0x36 /usr/lib/gcc/x86_64-pc-linux-gnu/16/crtbeginS.o
+ .comment       0x0000000000000000       0x1b /usr/lib/gcc/x86_64-pc-linux-gnu/16/crtbeginS.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/control.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/control.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/devtools.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/devtools.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/draw.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/draw.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_bomb.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_bomb.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_bonus.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_bonus.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_box.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_box.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_bullet.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_bullet.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_rick.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_rick.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_sbonus.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_sbonus.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_them.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_them.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/ents.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/ents.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/game.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/game.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/maps.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/maps.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/rects.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/rects.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/res_magic.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/res_magic.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/resources.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/resources.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_gameover.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_gameover.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_getname.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_getname.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_imain.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_imain.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_imap.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_imap.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_pause.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_pause.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_xrick.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_xrick.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scroller.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scroller.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/util.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/util.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/data/img.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/data/img.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/data/pics.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/data/pics.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/data/sounds.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/data/sounds.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/data/sprites.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/data/sprites.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/data/tiles.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/data/tiles.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/main_rockbox.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/main_rockbox.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysarg_rockbox.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysarg_rockbox.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysevt_rockbox.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysevt_rockbox.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysfile_rockbox.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysfile_rockbox.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysmem_rockbox.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysmem_rockbox.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysmenu_rockbox.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysmenu_rockbox.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/syssnd_rockbox.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/syssnd_rockbox.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/system_rockbox.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/system_rockbox.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysvid_rockbox.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysvid_rockbox.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(helper.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(helper.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16/crtendS.o
+ .comment       0x000000000000001b        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16/crtendS.o
                                          0x1c (size before relaxing)
 
 .gnu.build.attributes
@@ -1411,7 +1411,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x6418b
+.debug_info     0x0000000000000000    0x6414b
  *(.debug_info .gnu.linkonce.wi.*)
  .debug_info    0x0000000000000000      0x179 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/control.o
  .debug_info    0x0000000000000179     0x107d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/draw.o
@@ -1419,42 +1419,42 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
  .debug_info    0x00000000000016cc      0x402 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_bonus.o
  .debug_info    0x0000000000001ace      0x63b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_box.o
  .debug_info    0x0000000000002109      0x460 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_bullet.o
- .debug_info    0x0000000000002569     0x13f2 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_rick.o
- .debug_info    0x000000000000395b      0x4ee /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_sbonus.o
- .debug_info    0x0000000000003e49      0xf9a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_them.o
- .debug_info    0x0000000000004de3      0xcd0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/ents.o
- .debug_info    0x0000000000005ab3     0x1195 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/game.o
- .debug_info    0x0000000000006c48      0x9c4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/maps.o
- .debug_info    0x000000000000760c      0x236 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/rects.o
- .debug_info    0x0000000000007842       0xce /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/res_magic.o
- .debug_info    0x0000000000007910     0x73e7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/resources.o
- .debug_info    0x000000000000ecf7      0x440 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_gameover.o
- .debug_info    0x000000000000f137      0xb1b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_getname.o
- .debug_info    0x000000000000fc52      0x68d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_imain.o
- .debug_info    0x00000000000102df      0xa91 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_imap.o
- .debug_info    0x0000000000010d70      0x20e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_pause.o
- .debug_info    0x0000000000010f7e      0x638 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_xrick.o
- .debug_info    0x00000000000115b6      0x4ee /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scroller.o
- .debug_info    0x0000000000011aa4      0x62f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/util.o
- .debug_info    0x00000000000120d3      0x173 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/data/img.o
- .debug_info    0x0000000000012246      0x14c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/data/pics.o
- .debug_info    0x0000000000012392      0x344 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/data/sounds.o
- .debug_info    0x00000000000126d6      0x109 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/data/sprites.o
- .debug_info    0x00000000000127df       0xfd /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/data/tiles.o
- .debug_info    0x00000000000128dc      0x1c7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/main_rockbox.o
- .debug_info    0x0000000000012aa3      0x173 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysarg_rockbox.o
- .debug_info    0x0000000000012c16     0x7976 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysevt_rockbox.o
- .debug_info    0x000000000001a58c     0x7ca1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysfile_rockbox.o
- .debug_info    0x000000000002222d     0x7b15 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysmem_rockbox.o
- .debug_info    0x0000000000029d42     0x9a5c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysmenu_rockbox.o
- .debug_info    0x000000000003379e     0x829d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/syssnd_rockbox.o
- .debug_info    0x000000000003ba3b     0x9917 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/system_rockbox.o
- .debug_info    0x0000000000045352     0x7e33 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysvid_rockbox.o
- .debug_info    0x000000000004d185     0x7d4a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
- .debug_info    0x0000000000054ecf     0x777a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
- .debug_info    0x000000000005c649     0x7b42 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(helper.o)
+ .debug_info    0x0000000000002569     0x13b2 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_rick.o
+ .debug_info    0x000000000000391b      0x4ee /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_sbonus.o
+ .debug_info    0x0000000000003e09      0xf9a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_them.o
+ .debug_info    0x0000000000004da3      0xcd0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/ents.o
+ .debug_info    0x0000000000005a73     0x1195 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/game.o
+ .debug_info    0x0000000000006c08      0x9c4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/maps.o
+ .debug_info    0x00000000000075cc      0x236 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/rects.o
+ .debug_info    0x0000000000007802       0xce /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/res_magic.o
+ .debug_info    0x00000000000078d0     0x73e7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/resources.o
+ .debug_info    0x000000000000ecb7      0x440 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_gameover.o
+ .debug_info    0x000000000000f0f7      0xb1b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_getname.o
+ .debug_info    0x000000000000fc12      0x68d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_imain.o
+ .debug_info    0x000000000001029f      0xa91 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_imap.o
+ .debug_info    0x0000000000010d30      0x20e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_pause.o
+ .debug_info    0x0000000000010f3e      0x638 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_xrick.o
+ .debug_info    0x0000000000011576      0x4ee /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scroller.o
+ .debug_info    0x0000000000011a64      0x62f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/util.o
+ .debug_info    0x0000000000012093      0x173 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/data/img.o
+ .debug_info    0x0000000000012206      0x14c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/data/pics.o
+ .debug_info    0x0000000000012352      0x344 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/data/sounds.o
+ .debug_info    0x0000000000012696      0x109 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/data/sprites.o
+ .debug_info    0x000000000001279f       0xfd /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/data/tiles.o
+ .debug_info    0x000000000001289c      0x1c7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/main_rockbox.o
+ .debug_info    0x0000000000012a63      0x173 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysarg_rockbox.o
+ .debug_info    0x0000000000012bd6     0x7976 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysevt_rockbox.o
+ .debug_info    0x000000000001a54c     0x7ca1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysfile_rockbox.o
+ .debug_info    0x00000000000221ed     0x7b15 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysmem_rockbox.o
+ .debug_info    0x0000000000029d02     0x9a5c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysmenu_rockbox.o
+ .debug_info    0x000000000003375e     0x829d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/syssnd_rockbox.o
+ .debug_info    0x000000000003b9fb     0x9917 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/system_rockbox.o
+ .debug_info    0x0000000000045312     0x7e33 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysvid_rockbox.o
+ .debug_info    0x000000000004d145     0x7d4a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+ .debug_info    0x0000000000054e8f     0x777a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
+ .debug_info    0x000000000005c609     0x7b42 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(helper.o)
 
-.debug_abbrev   0x0000000000000000     0x61cb
+.debug_abbrev   0x0000000000000000     0x61c9
  *(.debug_abbrev)
  .debug_abbrev  0x0000000000000000       0xd7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/control.o
  .debug_abbrev  0x00000000000000d7      0x336 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/draw.o
@@ -1462,42 +1462,42 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
  .debug_abbrev  0x0000000000000581      0x127 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_bonus.o
  .debug_abbrev  0x00000000000006a8      0x1d7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_box.o
  .debug_abbrev  0x000000000000087f      0x165 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_bullet.o
- .debug_abbrev  0x00000000000009e4      0x3d3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_rick.o
- .debug_abbrev  0x0000000000000db7      0x17e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_sbonus.o
- .debug_abbrev  0x0000000000000f35      0x356 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_them.o
- .debug_abbrev  0x000000000000128b      0x30d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/ents.o
- .debug_abbrev  0x0000000000001598      0x2c7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/game.o
- .debug_abbrev  0x000000000000185f      0x241 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/maps.o
- .debug_abbrev  0x0000000000001aa0      0x16f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/rects.o
- .debug_abbrev  0x0000000000001c0f       0x9b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/res_magic.o
- .debug_abbrev  0x0000000000001caa      0x656 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/resources.o
- .debug_abbrev  0x0000000000002300      0x1cd /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_gameover.o
- .debug_abbrev  0x00000000000024cd      0x27e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_getname.o
- .debug_abbrev  0x000000000000274b      0x213 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_imain.o
- .debug_abbrev  0x000000000000295e      0x2f4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_imap.o
- .debug_abbrev  0x0000000000002c52      0x11d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_pause.o
- .debug_abbrev  0x0000000000002d6f      0x1c2 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_xrick.o
- .debug_abbrev  0x0000000000002f31      0x19c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scroller.o
- .debug_abbrev  0x00000000000030cd      0x1e4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/util.o
- .debug_abbrev  0x00000000000032b1       0xa7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/data/img.o
- .debug_abbrev  0x0000000000003358       0x97 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/data/pics.o
- .debug_abbrev  0x00000000000033ef       0xd7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/data/sounds.o
- .debug_abbrev  0x00000000000034c6       0x9f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/data/sprites.o
- .debug_abbrev  0x0000000000003565       0x9f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/data/tiles.o
- .debug_abbrev  0x0000000000003604      0x11b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/main_rockbox.o
- .debug_abbrev  0x000000000000371f       0xab /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysarg_rockbox.o
- .debug_abbrev  0x00000000000037ca      0x413 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysevt_rockbox.o
- .debug_abbrev  0x0000000000003bdd      0x423 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysfile_rockbox.o
- .debug_abbrev  0x0000000000004000      0x385 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysmem_rockbox.o
- .debug_abbrev  0x0000000000004385      0x4a6 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysmenu_rockbox.o
- .debug_abbrev  0x000000000000482b      0x5a1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/syssnd_rockbox.o
- .debug_abbrev  0x0000000000004dcc      0x43a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/system_rockbox.o
- .debug_abbrev  0x0000000000005206      0x49a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysvid_rockbox.o
- .debug_abbrev  0x00000000000056a0      0x442 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
- .debug_abbrev  0x0000000000005ae2      0x327 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
- .debug_abbrev  0x0000000000005e09      0x3c2 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(helper.o)
+ .debug_abbrev  0x00000000000009e4      0x3d1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_rick.o
+ .debug_abbrev  0x0000000000000db5      0x17e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_sbonus.o
+ .debug_abbrev  0x0000000000000f33      0x356 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_them.o
+ .debug_abbrev  0x0000000000001289      0x30d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/ents.o
+ .debug_abbrev  0x0000000000001596      0x2c7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/game.o
+ .debug_abbrev  0x000000000000185d      0x241 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/maps.o
+ .debug_abbrev  0x0000000000001a9e      0x16f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/rects.o
+ .debug_abbrev  0x0000000000001c0d       0x9b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/res_magic.o
+ .debug_abbrev  0x0000000000001ca8      0x656 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/resources.o
+ .debug_abbrev  0x00000000000022fe      0x1cd /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_gameover.o
+ .debug_abbrev  0x00000000000024cb      0x27e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_getname.o
+ .debug_abbrev  0x0000000000002749      0x213 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_imain.o
+ .debug_abbrev  0x000000000000295c      0x2f4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_imap.o
+ .debug_abbrev  0x0000000000002c50      0x11d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_pause.o
+ .debug_abbrev  0x0000000000002d6d      0x1c2 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_xrick.o
+ .debug_abbrev  0x0000000000002f2f      0x19c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scroller.o
+ .debug_abbrev  0x00000000000030cb      0x1e4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/util.o
+ .debug_abbrev  0x00000000000032af       0xa7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/data/img.o
+ .debug_abbrev  0x0000000000003356       0x97 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/data/pics.o
+ .debug_abbrev  0x00000000000033ed       0xd7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/data/sounds.o
+ .debug_abbrev  0x00000000000034c4       0x9f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/data/sprites.o
+ .debug_abbrev  0x0000000000003563       0x9f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/data/tiles.o
+ .debug_abbrev  0x0000000000003602      0x11b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/main_rockbox.o
+ .debug_abbrev  0x000000000000371d       0xab /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysarg_rockbox.o
+ .debug_abbrev  0x00000000000037c8      0x413 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysevt_rockbox.o
+ .debug_abbrev  0x0000000000003bdb      0x423 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysfile_rockbox.o
+ .debug_abbrev  0x0000000000003ffe      0x385 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysmem_rockbox.o
+ .debug_abbrev  0x0000000000004383      0x4a6 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysmenu_rockbox.o
+ .debug_abbrev  0x0000000000004829      0x5a1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/syssnd_rockbox.o
+ .debug_abbrev  0x0000000000004dca      0x43a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/system_rockbox.o
+ .debug_abbrev  0x0000000000005204      0x49a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysvid_rockbox.o
+ .debug_abbrev  0x000000000000569e      0x442 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+ .debug_abbrev  0x0000000000005ae0      0x327 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
+ .debug_abbrev  0x0000000000005e07      0x3c2 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(helper.o)
 
-.debug_line     0x0000000000000000    0x10ccb
+.debug_line     0x0000000000000000    0x10cb7
  *(.debug_line .debug_line.* .debug_line_end)
  .debug_line    0x0000000000000000       0x7d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/control.o
  .debug_line    0x000000000000007d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/devtools.o
@@ -1506,127 +1506,127 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
  .debug_line    0x000000000000121d      0x11e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_bonus.o
  .debug_line    0x000000000000133b      0x220 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_box.o
  .debug_line    0x000000000000155b      0x12a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_bullet.o
- .debug_line    0x0000000000001685      0xf3b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_rick.o
- .debug_line    0x00000000000025c0      0x199 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_sbonus.o
- .debug_line    0x0000000000002759      0xc3c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_them.o
- .debug_line    0x0000000000003395      0x7c5 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/ents.o
- .debug_line    0x0000000000003b5a      0x8d7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/game.o
- .debug_line    0x0000000000004431      0x402 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/maps.o
- .debug_line    0x0000000000004833       0xf5 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/rects.o
- .debug_line    0x0000000000004928       0x5b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/res_magic.o
- .debug_line    0x0000000000004983     0x7df7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/resources.o
- .debug_line    0x000000000000c77a      0x22a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_gameover.o
- .debug_line    0x000000000000c9a4      0x9a3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_getname.o
- .debug_line    0x000000000000d347      0x398 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_imain.o
- .debug_line    0x000000000000d6df      0x563 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_imap.o
- .debug_line    0x000000000000dc42       0xb8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_pause.o
- .debug_line    0x000000000000dcfa      0x191 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_xrick.o
- .debug_line    0x000000000000de8b      0x396 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scroller.o
- .debug_line    0x000000000000e221      0x3f2 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/util.o
- .debug_line    0x000000000000e613       0x56 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/data/img.o
- .debug_line    0x000000000000e669       0x56 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/data/pics.o
- .debug_line    0x000000000000e6bf       0x56 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/data/sounds.o
- .debug_line    0x000000000000e715       0x5f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/data/sprites.o
- .debug_line    0x000000000000e774       0x5f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/data/tiles.o
- .debug_line    0x000000000000e7d3       0xa9 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/main_rockbox.o
- .debug_line    0x000000000000e87c       0x70 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysarg_rockbox.o
- .debug_line    0x000000000000e8ec      0x323 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysevt_rockbox.o
- .debug_line    0x000000000000ec0f      0x2c3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysfile_rockbox.o
- .debug_line    0x000000000000eed2      0x2e9 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysmem_rockbox.o
- .debug_line    0x000000000000f1bb      0x369 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysmenu_rockbox.o
- .debug_line    0x000000000000f524      0x77a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/syssnd_rockbox.o
- .debug_line    0x000000000000fc9e      0x368 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/system_rockbox.o
- .debug_line    0x0000000000010006      0x494 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysvid_rockbox.o
- .debug_line    0x000000000001049a      0x2bd /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
- .debug_line    0x0000000000010757      0x2c0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
- .debug_line    0x0000000000010a17      0x2b4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(helper.o)
+ .debug_line    0x0000000000001685      0xf2c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_rick.o
+ .debug_line    0x00000000000025b1      0x199 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_sbonus.o
+ .debug_line    0x000000000000274a      0xc3c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_them.o
+ .debug_line    0x0000000000003386      0x7c5 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/ents.o
+ .debug_line    0x0000000000003b4b      0x8d7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/game.o
+ .debug_line    0x0000000000004422      0x402 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/maps.o
+ .debug_line    0x0000000000004824       0xf5 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/rects.o
+ .debug_line    0x0000000000004919       0x5b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/res_magic.o
+ .debug_line    0x0000000000004974     0x7df7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/resources.o
+ .debug_line    0x000000000000c76b      0x22a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_gameover.o
+ .debug_line    0x000000000000c995      0x9a3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_getname.o
+ .debug_line    0x000000000000d338      0x393 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_imain.o
+ .debug_line    0x000000000000d6cb      0x563 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_imap.o
+ .debug_line    0x000000000000dc2e       0xb8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_pause.o
+ .debug_line    0x000000000000dce6      0x191 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_xrick.o
+ .debug_line    0x000000000000de77      0x396 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scroller.o
+ .debug_line    0x000000000000e20d      0x3f2 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/util.o
+ .debug_line    0x000000000000e5ff       0x56 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/data/img.o
+ .debug_line    0x000000000000e655       0x56 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/data/pics.o
+ .debug_line    0x000000000000e6ab       0x56 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/data/sounds.o
+ .debug_line    0x000000000000e701       0x5f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/data/sprites.o
+ .debug_line    0x000000000000e760       0x5f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/data/tiles.o
+ .debug_line    0x000000000000e7bf       0xa9 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/main_rockbox.o
+ .debug_line    0x000000000000e868       0x70 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysarg_rockbox.o
+ .debug_line    0x000000000000e8d8      0x323 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysevt_rockbox.o
+ .debug_line    0x000000000000ebfb      0x2c3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysfile_rockbox.o
+ .debug_line    0x000000000000eebe      0x2e9 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysmem_rockbox.o
+ .debug_line    0x000000000000f1a7      0x369 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysmenu_rockbox.o
+ .debug_line    0x000000000000f510      0x77a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/syssnd_rockbox.o
+ .debug_line    0x000000000000fc8a      0x368 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/system_rockbox.o
+ .debug_line    0x000000000000fff2      0x494 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysvid_rockbox.o
+ .debug_line    0x0000000000010486      0x2bd /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+ .debug_line    0x0000000000010743      0x2c0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
+ .debug_line    0x0000000000010a03      0x2b4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(helper.o)
 
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0xce74
+.debug_str      0x0000000000000000     0xcdb0
  *(.debug_str)
- .debug_str     0x0000000000000000     0xce74 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/control.o
+ .debug_str     0x0000000000000000     0xcdb0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/control.o
                                         0x1e4 (size before relaxing)
- .debug_str     0x000000000000ce74        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/devtools.o
+ .debug_str     0x000000000000cdb0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/devtools.o
                                          0xc4 (size before relaxing)
- .debug_str     0x000000000000ce74        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/draw.o
+ .debug_str     0x000000000000cdb0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/draw.o
                                         0x4c6 (size before relaxing)
- .debug_str     0x000000000000ce74        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_bomb.o
+ .debug_str     0x000000000000cdb0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_bomb.o
                                         0x302 (size before relaxing)
- .debug_str     0x000000000000ce74        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_bonus.o
+ .debug_str     0x000000000000cdb0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_bonus.o
                                         0x2a7 (size before relaxing)
- .debug_str     0x000000000000ce74        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_box.o
+ .debug_str     0x000000000000cdb0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_box.o
                                         0x3b2 (size before relaxing)
- .debug_str     0x000000000000ce74        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_bullet.o
+ .debug_str     0x000000000000cdb0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_bullet.o
                                         0x2ed (size before relaxing)
- .debug_str     0x000000000000ce74        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_rick.o
+ .debug_str     0x000000000000cdb0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_rick.o
                                         0x571 (size before relaxing)
- .debug_str     0x000000000000ce74        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_sbonus.o
+ .debug_str     0x000000000000cdb0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_sbonus.o
                                         0x311 (size before relaxing)
- .debug_str     0x000000000000ce74        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_them.o
+ .debug_str     0x000000000000cdb0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_them.o
                                         0x544 (size before relaxing)
- .debug_str     0x000000000000ce74        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/ents.o
+ .debug_str     0x000000000000cdb0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/ents.o
                                         0x614 (size before relaxing)
- .debug_str     0x000000000000ce74        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/game.o
+ .debug_str     0x000000000000cdb0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/game.o
                                         0x927 (size before relaxing)
- .debug_str     0x000000000000ce74        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/maps.o
+ .debug_str     0x000000000000cdb0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/maps.o
                                         0x4cf (size before relaxing)
- .debug_str     0x000000000000ce74        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/rects.o
+ .debug_str     0x000000000000cdb0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/rects.o
                                         0x1ba (size before relaxing)
- .debug_str     0x000000000000ce74        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/res_magic.o
+ .debug_str     0x000000000000cdb0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/res_magic.o
                                         0x15b (size before relaxing)
- .debug_str     0x000000000000ce74        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/resources.o
+ .debug_str     0x000000000000cdb0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/resources.o
                                        0x2cb8 (size before relaxing)
- .debug_str     0x000000000000ce74        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_gameover.o
+ .debug_str     0x000000000000cdb0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_gameover.o
                                         0x329 (size before relaxing)
- .debug_str     0x000000000000ce74        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_getname.o
+ .debug_str     0x000000000000cdb0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_getname.o
                                         0x387 (size before relaxing)
- .debug_str     0x000000000000ce74        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_imain.o
+ .debug_str     0x000000000000cdb0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_imain.o
                                         0x39d (size before relaxing)
- .debug_str     0x000000000000ce74        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_imap.o
+ .debug_str     0x000000000000cdb0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_imap.o
                                         0x425 (size before relaxing)
- .debug_str     0x000000000000ce74        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_pause.o
+ .debug_str     0x000000000000cdb0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_pause.o
                                         0x209 (size before relaxing)
- .debug_str     0x000000000000ce74        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_xrick.o
+ .debug_str     0x000000000000cdb0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_xrick.o
                                         0x44b (size before relaxing)
- .debug_str     0x000000000000ce74        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scroller.o
+ .debug_str     0x000000000000cdb0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scroller.o
                                         0x2ea (size before relaxing)
- .debug_str     0x000000000000ce74        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/util.o
+ .debug_str     0x000000000000cdb0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/util.o
                                         0x2f9 (size before relaxing)
- .debug_str     0x000000000000ce74        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/data/img.o
+ .debug_str     0x000000000000cdb0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/data/img.o
                                         0x1a0 (size before relaxing)
- .debug_str     0x000000000000ce74        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/data/pics.o
+ .debug_str     0x000000000000cdb0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/data/pics.o
                                         0x194 (size before relaxing)
- .debug_str     0x000000000000ce74        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/data/sounds.o
+ .debug_str     0x000000000000cdb0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/data/sounds.o
                                         0x26a (size before relaxing)
- .debug_str     0x000000000000ce74        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/data/sprites.o
+ .debug_str     0x000000000000cdb0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/data/sprites.o
                                         0x1a0 (size before relaxing)
- .debug_str     0x000000000000ce74        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/data/tiles.o
+ .debug_str     0x000000000000cdb0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/data/tiles.o
                                         0x175 (size before relaxing)
- .debug_str     0x000000000000ce74        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/main_rockbox.o
+ .debug_str     0x000000000000cdb0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/main_rockbox.o
                                         0x24b (size before relaxing)
- .debug_str     0x000000000000ce74        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysarg_rockbox.o
+ .debug_str     0x000000000000cdb0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysarg_rockbox.o
                                         0x1d8 (size before relaxing)
- .debug_str     0x000000000000ce74        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysevt_rockbox.o
+ .debug_str     0x000000000000cdb0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysevt_rockbox.o
                                        0x49e5 (size before relaxing)
- .debug_str     0x000000000000ce74        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysfile_rockbox.o
+ .debug_str     0x000000000000cdb0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysfile_rockbox.o
                                        0x5151 (size before relaxing)
- .debug_str     0x000000000000ce74        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysmem_rockbox.o
+ .debug_str     0x000000000000cdb0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysmem_rockbox.o
                                        0x5146 (size before relaxing)
- .debug_str     0x000000000000ce74        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysmenu_rockbox.o
+ .debug_str     0x000000000000cdb0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysmenu_rockbox.o
                                        0xa20e (size before relaxing)
- .debug_str     0x000000000000ce74        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/syssnd_rockbox.o
+ .debug_str     0x000000000000cdb0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/syssnd_rockbox.o
                                        0x5380 (size before relaxing)
- .debug_str     0x000000000000ce74        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/system_rockbox.o
+ .debug_str     0x000000000000cdb0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/system_rockbox.o
                                        0x9968 (size before relaxing)
- .debug_str     0x000000000000ce74        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysvid_rockbox.o
+ .debug_str     0x000000000000cdb0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysvid_rockbox.o
                                        0x5255 (size before relaxing)
- .debug_str     0x000000000000ce74        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+ .debug_str     0x000000000000cdb0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
                                        0x5237 (size before relaxing)
- .debug_str     0x000000000000ce74        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
+ .debug_str     0x000000000000cdb0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
                                        0x48de (size before relaxing)
- .debug_str     0x000000000000ce74        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(helper.o)
+ .debug_str     0x000000000000cdb0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(helper.o)
                                        0x522e (size before relaxing)
 
 .debug_loc
@@ -1657,134 +1657,134 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
  *(.debug_addr)
 
 .debug_line_str
-                0x0000000000000000     0x1509
+                0x0000000000000000     0x14d9
  *(.debug_line_str)
  .debug_line_str
-                0x0000000000000000     0x1509 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/control.o
+                0x0000000000000000     0x14d9 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/control.o
                                         0x128 (size before relaxing)
  .debug_line_str
-                0x0000000000001509        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/devtools.o
+                0x00000000000014d9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/devtools.o
                                          0x8b (size before relaxing)
  .debug_line_str
-                0x0000000000001509        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/draw.o
-                                        0x26f (size before relaxing)
- .debug_line_str
-                0x0000000000001509        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_bomb.o
-                                        0x219 (size before relaxing)
- .debug_line_str
-                0x0000000000001509        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_bonus.o
-                                        0x221 (size before relaxing)
- .debug_line_str
-                0x0000000000001509        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_box.o
-                                        0x236 (size before relaxing)
- .debug_line_str
-                0x0000000000001509        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_bullet.o
-                                        0x226 (size before relaxing)
- .debug_line_str
-                0x0000000000001509        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_rick.o
-                                        0x23c (size before relaxing)
- .debug_line_str
-                0x0000000000001509        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_sbonus.o
-                                        0x22d (size before relaxing)
- .debug_line_str
-                0x0000000000001509        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_them.o
-                                        0x242 (size before relaxing)
- .debug_line_str
-                0x0000000000001509        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/ents.o
-                                        0x2b1 (size before relaxing)
- .debug_line_str
-                0x0000000000001509        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/game.o
-                                        0x294 (size before relaxing)
- .debug_line_str
-                0x0000000000001509        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/maps.o
-                                        0x267 (size before relaxing)
- .debug_line_str
-                0x0000000000001509        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/rects.o
-                                        0x1e1 (size before relaxing)
- .debug_line_str
-                0x0000000000001509        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/res_magic.o
-                                        0x1b9 (size before relaxing)
- .debug_line_str
-                0x0000000000001509        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/resources.o
-                                        0x464 (size before relaxing)
- .debug_line_str
-                0x0000000000001509        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_gameover.o
-                                        0x23c (size before relaxing)
- .debug_line_str
-                0x0000000000001509        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_getname.o
+                0x00000000000014d9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/draw.o
                                         0x26b (size before relaxing)
  .debug_line_str
-                0x0000000000001509        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_imain.o
-                                        0x273 (size before relaxing)
+                0x00000000000014d9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_bomb.o
+                                        0x219 (size before relaxing)
  .debug_line_str
-                0x0000000000001509        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_imap.o
-                                        0x237 (size before relaxing)
- .debug_line_str
-                0x0000000000001509        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_pause.o
-                                        0x1ca (size before relaxing)
- .debug_line_str
-                0x0000000000001509        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_xrick.o
-                                        0x272 (size before relaxing)
- .debug_line_str
-                0x0000000000001509        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scroller.o
+                0x00000000000014d9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_bonus.o
                                         0x221 (size before relaxing)
  .debug_line_str
-                0x0000000000001509        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/util.o
-                                        0x218 (size before relaxing)
+                0x00000000000014d9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_box.o
+                                        0x236 (size before relaxing)
  .debug_line_str
-                0x0000000000001509        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/data/img.o
+                0x00000000000014d9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_bullet.o
+                                        0x226 (size before relaxing)
+ .debug_line_str
+                0x00000000000014d9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_rick.o
+                                        0x23c (size before relaxing)
+ .debug_line_str
+                0x00000000000014d9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_sbonus.o
+                                        0x22d (size before relaxing)
+ .debug_line_str
+                0x00000000000014d9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_them.o
+                                        0x242 (size before relaxing)
+ .debug_line_str
+                0x00000000000014d9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/ents.o
+                                        0x2ad (size before relaxing)
+ .debug_line_str
+                0x00000000000014d9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/game.o
+                                        0x290 (size before relaxing)
+ .debug_line_str
+                0x00000000000014d9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/maps.o
+                                        0x263 (size before relaxing)
+ .debug_line_str
+                0x00000000000014d9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/rects.o
+                                        0x1dd (size before relaxing)
+ .debug_line_str
+                0x00000000000014d9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/res_magic.o
+                                        0x1b9 (size before relaxing)
+ .debug_line_str
+                0x00000000000014d9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/resources.o
+                                        0x464 (size before relaxing)
+ .debug_line_str
+                0x00000000000014d9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_gameover.o
+                                        0x23c (size before relaxing)
+ .debug_line_str
+                0x00000000000014d9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_getname.o
+                                        0x267 (size before relaxing)
+ .debug_line_str
+                0x00000000000014d9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_imain.o
+                                        0x26f (size before relaxing)
+ .debug_line_str
+                0x00000000000014d9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_imap.o
+                                        0x237 (size before relaxing)
+ .debug_line_str
+                0x00000000000014d9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_pause.o
+                                        0x1ca (size before relaxing)
+ .debug_line_str
+                0x00000000000014d9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_xrick.o
+                                        0x26e (size before relaxing)
+ .debug_line_str
+                0x00000000000014d9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scroller.o
+                                        0x221 (size before relaxing)
+ .debug_line_str
+                0x00000000000014d9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/util.o
+                                        0x214 (size before relaxing)
+ .debug_line_str
+                0x00000000000014d9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/data/img.o
                                         0x1a1 (size before relaxing)
  .debug_line_str
-                0x0000000000001509        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/data/pics.o
+                0x00000000000014d9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/data/pics.o
                                         0x1a5 (size before relaxing)
  .debug_line_str
-                0x0000000000001509        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/data/sounds.o
+                0x00000000000014d9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/data/sounds.o
                                         0x1ad (size before relaxing)
  .debug_line_str
-                0x0000000000001509        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/data/sprites.o
-                                        0x1ea (size before relaxing)
+                0x00000000000014d9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/data/sprites.o
+                                        0x1e6 (size before relaxing)
  .debug_line_str
-                0x0000000000001509        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/data/tiles.o
-                                        0x1e2 (size before relaxing)
+                0x00000000000014d9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/data/tiles.o
+                                        0x1de (size before relaxing)
  .debug_line_str
-                0x0000000000001509        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/main_rockbox.o
+                0x00000000000014d9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/main_rockbox.o
                                         0x1c8 (size before relaxing)
  .debug_line_str
-                0x0000000000001509        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysarg_rockbox.o
+                0x00000000000014d9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysarg_rockbox.o
                                         0x199 (size before relaxing)
  .debug_line_str
-                0x0000000000001509        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysevt_rockbox.o
+                0x00000000000014d9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysevt_rockbox.o
                                         0x6a4 (size before relaxing)
  .debug_line_str
-                0x0000000000001509        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysfile_rockbox.o
+                0x00000000000014d9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysfile_rockbox.o
                                         0x6fd (size before relaxing)
  .debug_line_str
-                0x0000000000001509        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysmem_rockbox.o
+                0x00000000000014d9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysmem_rockbox.o
                                         0x6c0 (size before relaxing)
  .debug_line_str
-                0x0000000000001509        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysmenu_rockbox.o
+                0x00000000000014d9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysmenu_rockbox.o
                                         0x730 (size before relaxing)
  .debug_line_str
-                0x0000000000001509        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/syssnd_rockbox.o
+                0x00000000000014d9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/syssnd_rockbox.o
                                         0x6d9 (size before relaxing)
  .debug_line_str
-                0x0000000000001509        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/system_rockbox.o
+                0x00000000000014d9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/system_rockbox.o
                                         0x6cc (size before relaxing)
  .debug_line_str
-                0x0000000000001509        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysvid_rockbox.o
+                0x00000000000014d9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysvid_rockbox.o
                                         0x75e (size before relaxing)
  .debug_line_str
-                0x0000000000001509        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+                0x00000000000014d9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
                                         0x68b (size before relaxing)
  .debug_line_str
-                0x0000000000001509        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
+                0x00000000000014d9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
                                         0x62e (size before relaxing)
  .debug_line_str
-                0x0000000000001509        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(helper.o)
+                0x00000000000014d9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(helper.o)
                                         0x630 (size before relaxing)
 
 .debug_loclists
-                0x0000000000000000     0xcb11
+                0x0000000000000000     0xcb05
  *(.debug_loclists)
  .debug_loclists
                 0x0000000000000000       0x1e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/control.o
@@ -1799,59 +1799,59 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
  .debug_loclists
                 0x0000000000000e6a       0x39 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_bullet.o
  .debug_loclists
-                0x0000000000000ea3      0x436 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_rick.o
+                0x0000000000000ea3      0x42a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_rick.o
  .debug_loclists
-                0x00000000000012d9       0x49 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_sbonus.o
+                0x00000000000012cd       0x49 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_sbonus.o
  .debug_loclists
-                0x0000000000001322      0x5c1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_them.o
+                0x0000000000001316      0x5c1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_them.o
  .debug_loclists
-                0x00000000000018e3      0x2c0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/ents.o
+                0x00000000000018d7      0x2c0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/ents.o
  .debug_loclists
-                0x0000000000001ba3      0x1cb /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/game.o
+                0x0000000000001b97      0x1cb /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/game.o
  .debug_loclists
-                0x0000000000001d6e      0x23e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/maps.o
+                0x0000000000001d62      0x23e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/maps.o
  .debug_loclists
-                0x0000000000001fac       0xbd /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/rects.o
+                0x0000000000001fa0       0xbd /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/rects.o
  .debug_loclists
-                0x0000000000002069     0x93e1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/resources.o
+                0x000000000000205d     0x93e1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/resources.o
  .debug_loclists
-                0x000000000000b44a       0x46 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_gameover.o
+                0x000000000000b43e       0x46 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_gameover.o
  .debug_loclists
-                0x000000000000b490      0x20d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_getname.o
+                0x000000000000b484      0x20d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_getname.o
  .debug_loclists
-                0x000000000000b69d       0x86 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_imain.o
+                0x000000000000b691       0x86 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_imain.o
  .debug_loclists
-                0x000000000000b723      0x16c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_imap.o
+                0x000000000000b717      0x16c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_imap.o
  .debug_loclists
-                0x000000000000b88f       0x2f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_pause.o
+                0x000000000000b883       0x2f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_pause.o
  .debug_loclists
-                0x000000000000b8be       0x2a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_xrick.o
+                0x000000000000b8b2       0x2a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_xrick.o
  .debug_loclists
-                0x000000000000b8e8       0x43 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scroller.o
+                0x000000000000b8dc       0x43 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scroller.o
  .debug_loclists
-                0x000000000000b92b      0x2e1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/util.o
+                0x000000000000b91f      0x2e1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/util.o
  .debug_loclists
-                0x000000000000bc0c       0x35 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/main_rockbox.o
+                0x000000000000bc00       0x35 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/main_rockbox.o
  .debug_loclists
-                0x000000000000bc41       0xfd /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysevt_rockbox.o
+                0x000000000000bc35       0xfd /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysevt_rockbox.o
  .debug_loclists
-                0x000000000000bd3e      0x18b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysfile_rockbox.o
+                0x000000000000bd32      0x18b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysfile_rockbox.o
  .debug_loclists
-                0x000000000000bec9       0x9f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysmem_rockbox.o
+                0x000000000000bebd       0x9f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysmem_rockbox.o
  .debug_loclists
-                0x000000000000bf68      0x159 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysmenu_rockbox.o
+                0x000000000000bf5c      0x159 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysmenu_rockbox.o
  .debug_loclists
-                0x000000000000c0c1      0x3c6 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/syssnd_rockbox.o
+                0x000000000000c0b5      0x3c6 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/syssnd_rockbox.o
  .debug_loclists
-                0x000000000000c487       0xcd /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/system_rockbox.o
+                0x000000000000c47b       0xcd /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/system_rockbox.o
  .debug_loclists
-                0x000000000000c554      0x313 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysvid_rockbox.o
+                0x000000000000c548      0x313 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysvid_rockbox.o
  .debug_loclists
-                0x000000000000c867       0x9e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+                0x000000000000c85b       0x9e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
  .debug_loclists
-                0x000000000000c905      0x1ad /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
+                0x000000000000c8f9      0x1ad /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
  .debug_loclists
-                0x000000000000cab2       0x5f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(helper.o)
+                0x000000000000caa6       0x5f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(helper.o)
 
 .debug_macro
  *(.debug_macro)
@@ -1860,42 +1860,42 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
  *(.debug_names)
 
 .debug_rnglists
-                0x0000000000000000     0x1329
+                0x0000000000000000     0x132f
  *(.debug_rnglists)
  .debug_rnglists
                 0x0000000000000000       0xc6 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/draw.o
  .debug_rnglists
                 0x00000000000000c6       0x31 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_box.o
  .debug_rnglists
-                0x00000000000000f7      0x147 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_rick.o
+                0x00000000000000f7      0x14d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_rick.o
  .debug_rnglists
-                0x000000000000023e       0x23 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_them.o
+                0x0000000000000244       0x23 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/e_them.o
  .debug_rnglists
-                0x0000000000000261       0x2d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/ents.o
+                0x0000000000000267       0x2d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/ents.o
  .debug_rnglists
-                0x000000000000028e       0x91 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/game.o
+                0x0000000000000294       0x91 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/game.o
  .debug_rnglists
-                0x000000000000031f       0x1c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/maps.o
+                0x0000000000000325       0x1c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/maps.o
  .debug_rnglists
-                0x000000000000033b      0xd8e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/resources.o
+                0x0000000000000341      0xd8e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/resources.o
  .debug_rnglists
-                0x00000000000010c9       0x36 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_gameover.o
+                0x00000000000010cf       0x36 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_gameover.o
  .debug_rnglists
-                0x00000000000010ff       0xb1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_getname.o
+                0x0000000000001105       0xb1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_getname.o
  .debug_rnglists
-                0x00000000000011b0       0x50 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_imain.o
+                0x00000000000011b6       0x50 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_imain.o
  .debug_rnglists
-                0x0000000000001200       0x5c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_imap.o
+                0x0000000000001206       0x5c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_imap.o
  .debug_rnglists
-                0x000000000000125c       0x18 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_xrick.o
+                0x0000000000001262       0x18 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/scr_xrick.o
  .debug_rnglists
-                0x0000000000001274       0x2c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysevt_rockbox.o
+                0x000000000000127a       0x2c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysevt_rockbox.o
  .debug_rnglists
-                0x00000000000012a0       0x27 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysmenu_rockbox.o
+                0x00000000000012a6       0x27 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysmenu_rockbox.o
  .debug_rnglists
-                0x00000000000012c7       0x4b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/syssnd_rockbox.o
+                0x00000000000012cd       0x4b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/syssnd_rockbox.o
  .debug_rnglists
-                0x0000000000001312       0x17 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysvid_rockbox.o
+                0x0000000000001318       0x17 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/xrick/system/sysvid_rockbox.o
 
 .debug_str_offsets
  *(.debug_str_offsets)

@@ -634,40 +634,17 @@ static inline void nano3g_force_clcd_linecnt_test(const char *stage)
 
 /*** LCD controller - low level functions ***/
 
-#if defined(IPOD_NANO3G) && defined(BOOTLOADER)
-static void nano3g_lcd_wait_fail(unsigned code)
+#if defined(IPOD_NANO3G)
+static inline void nano3g_lcd_wait_status_set(uint32_t mask, unsigned code)
 {
-    while (1)
-    {
-        for (unsigned i = 0; i < code; i++)
-        {
-            piezo_tone(2800, 70);
-            udelay(70000);
-        }
-        udelay(500000);
-    }
+    (void)mask;
+    (void)code;
 }
 
-static void nano3g_lcd_wait_status_set(uint32_t mask, unsigned code)
+static inline void nano3g_lcd_wait_status_clear(uint32_t mask, unsigned code)
 {
-    unsigned timeout = 1000000;
-
-    while (!(LCD_STATUS & mask))
-    {
-        if (--timeout == 0)
-            nano3g_lcd_wait_fail(code);
-    }
-}
-
-static void nano3g_lcd_wait_status_clear(uint32_t mask, unsigned code)
-{
-    unsigned timeout = 1000000;
-
-    while (LCD_STATUS & mask)
-    {
-        if (--timeout == 0)
-            nano3g_lcd_wait_fail(code);
-    }
+    (void)mask;
+    (void)code;
 }
 #else
 static inline void nano3g_lcd_wait_status_set(uint32_t mask, unsigned code)
@@ -1097,7 +1074,7 @@ void lcd_init_device(void)
     nano3g_boottrace_log("lcd_init_device");
     nano3g_first_frame_logged = false;
 
-    if (nano3g_safe_mode_enabled())
+    if (nano3g_safe_mode_enabled() && !NANO3G_DISPLAY_BRINGUP)
     {
         lcd_ispowered = false;
         nano3g_boottrace_enable_lcd(false);
@@ -1154,7 +1131,8 @@ void lcd_init_device(void)
     /* Configure DMA channel */                             // TODO: this right after mutex_init()
     dmac_ch_init(&lcd_dma_ch, &lcd_dma_ch_cfg);
 
-#ifdef BOOTLOADER
+#if defined(BOOTLOADER) || \
+    (defined(IPOD_NANO3G) && NANO3G_NATIVE_SAFE_BOOT)
     lcd_run_seq(lcd_info->seq_init);
     nano3g_dump_display_state("panel-init-done");
 #if !defined(IPOD_NANO3G)

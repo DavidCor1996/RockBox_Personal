@@ -3,10 +3,13 @@
 import os
 import struct
 
+import pytest
+
 from models.track import Track
 from services.device_inventory import device_record_from_info, verify_device_inventory
 from services.device_detector import DeviceInfo, create_mock_device
 from services.rockbox_tagcache import (
+    TagcacheError,
     read_rockbox_tagcache_tracks,
     write_rockbox_tagcache_from_device_inventory,
     write_rockbox_tagcache_tracks,
@@ -178,6 +181,25 @@ def test_write_rockbox_tagcache_tracks_roundtrips_generated_database(tmp_dir):
     assert tracks[0]["artist"] == "Artist"
     assert tracks[0]["album"] == "Album"
     assert tracks[0]["duration"] == 123.4
+
+
+def test_repair_refuses_empty_inventory_without_replacing_database(tmp_dir):
+    mount_path = os.path.join(tmp_dir, "ipod")
+    rockbox_dir = os.path.join(mount_path, ".rockbox")
+    os.makedirs(rockbox_dir, exist_ok=True)
+    existing_path = os.path.join(rockbox_dir, "database_idx.tcd")
+    with open(existing_path, "wb") as handle:
+        handle.write(b"existing database")
+
+    with pytest.raises(TagcacheError, match="No supported audio tracks"):
+        write_rockbox_tagcache_tracks(
+            mount_path,
+            [],
+            require_tracks=True,
+        )
+
+    with open(existing_path, "rb") as handle:
+        assert handle.read() == b"existing database"
 
 
 def test_write_rockbox_tagcache_removes_stale_database_files_without_touching_music(tmp_dir):

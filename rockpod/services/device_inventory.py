@@ -11,7 +11,7 @@ from pathlib import Path
 
 from PySide6.QtCore import QObject, QThread, Signal, Slot, Qt
 
-from app.config import SUPPORTED_FORMATS
+from app.config import SUPPORTED_FORMATS, SUPPORTED_VIDEO_FORMATS
 from app.database import Database
 from services.metadata_reader import compute_file_hash, read_metadata
 from services.rockbox_device import detect_rockbox_database_state
@@ -21,6 +21,11 @@ from services.rockbox_tagcache import TagcacheError, read_rockbox_tagcache_track
 from services.track_matcher import TrackMatcher
 
 logger = logging.getLogger(__name__)
+DEVICE_TRACK_FORMATS = frozenset(SUPPORTED_FORMATS) | frozenset(SUPPORTED_VIDEO_FORMATS) | {".rvp"}
+
+
+class DeviceInventoryCancelled(Exception):
+    """Raised when inventory verification reaches a safe cancellation point."""
 
 
 def device_music_roots(device):
@@ -33,6 +38,9 @@ def device_music_roots(device):
         os.path.join(mount_path, "music"),
         os.path.join(mount_path, "iPod_Control", "Music"),
         os.path.join(mount_path, "iTunes_Control", "Music"),
+        os.path.join(mount_path, "Videos"),
+        os.path.join(mount_path, "VIDEOS"),
+        os.path.join(mount_path, "videos"),
     ]
     roots = []
     seen = set()
@@ -107,25 +115,31 @@ def _cached_track_row(cached):
 
 
 def _count_device_audio_files(scan_roots):
-    """Count supported audio files under the known device music roots."""
+    """Count supported media files under the known device roots."""
     total = 0
     for scan_root in scan_roots:
         for root, dirs, files in os.walk(scan_root):
             dirs[:] = [d for d in dirs if not d.startswith(".")]
             for fn in files:
-                if Path(fn).suffix.lower() in SUPPORTED_FORMATS:
+                if Path(fn).suffix.lower() in DEVICE_TRACK_FORMATS:
                     total += 1
     return total
 
 
-def _scan_device_audio_paths(scan_roots, mount_path):
-    """Return relative audio paths under the known device music roots."""
+def _scan_device_audio_paths(scan_roots, mount_path, cancel_callback=None):
+    """Return relative media paths under the known device roots."""
     paths = set()
     for scan_root in scan_roots:
+        if cancel_callback and cancel_callback():
+            raise DeviceInventoryCancelled()
         for root, dirs, files in os.walk(scan_root):
+            if cancel_callback and cancel_callback():
+                raise DeviceInventoryCancelled()
             dirs[:] = [d for d in dirs if not d.startswith(".")]
             for fn in files:
-                if Path(fn).suffix.lower() not in SUPPORTED_FORMATS:
+                if cancel_callback and cancel_callback():
+                    raise DeviceInventoryCancelled()
+                if Path(fn).suffix.lower() not in DEVICE_TRACK_FORMATS:
                     continue
                 full = os.path.join(root, fn)
                 paths.add(os.path.relpath(full, mount_path))
@@ -175,12 +189,18 @@ def verify_device_inventory(
     file_hash_func=None,
     duration_tolerance=2.0,
     status_callback=None,
+    cancel_callback=None,
 ):
     """Reconcile cached inventory for one connected device.
 
     Returns a summary dict with scanned/new/changed/missing counts. The caller
     owns the supplied DB connection.
     """
+    def check_cancelled():
+        if cancel_callback and cancel_callback():
+            raise DeviceInventoryCancelled()
+
+    check_cancelled()
     device_row = db.upsert_device(device_record_from_info(device))
     device_key = device_row["stable_device_key"]
     mount_path = getattr(device, "mount_path", "")
@@ -200,6 +220,10 @@ def verify_device_inventory(
         }
 
     cached = db.get_device_track_states(device_key)
+    # Presence must come from the canonical paths returned by os.walk, not
+    # cached spellings. FAT is case-insensitive, so an obsolete cached path can
+    # still pass os.path.exists() after a case-only rename and remain as a
+    # duplicate inventory row indefinitely.
     present_paths = set()
     scanned = new = changed = 0
     needs_relink = bool(force_full)
@@ -222,8 +246,25 @@ def verify_device_inventory(
             if imported_tracks:
                 imported_from_tagcache = True
                 tagcache_track_count = len(imported_tracks)
+                if status_callback:
+                    status_callback("Counting music files on device...")
+                filesystem_paths = _scan_device_audio_paths(
+                    roots,
+                    mount_path,
+                    cancel_callback=cancel_callback,
+                )
+                canonical_paths = {
+                    _normalize_device_path(path): path
+                    for path in filesystem_paths
+                }
                 for dev_data in imported_tracks:
-                    rel = dev_data["device_path"]
+                    check_cancelled()
+                    rel = canonical_paths.get(
+                        _normalize_device_path(dev_data["device_path"])
+                    )
+                    if not rel:
+                        continue
+                    dev_data = {**dev_data, "device_path": rel}
                     cached_row = cached.get(rel)
                     if cached_row and not force_full:
                         if not cached_row.get("local_track_id"):
@@ -239,15 +280,14 @@ def verify_device_inventory(
                     db.upsert_device_track({"device_id": device_key, **dev_data})
                     present_paths.add(rel)
                     scanned += 1
-                if status_callback:
-                    status_callback("Counting music files on device...")
-                filesystem_paths = _scan_device_audio_paths(roots, mount_path)
                 filesystem_track_count = len(filesystem_paths)
                 extra_paths = _filesystem_only_paths(filesystem_paths, present_paths)
                 if extra_paths:
                     if status_callback:
                         status_callback("Reconciling files missing from Rockbox database...")
                     for rel in extra_paths:
+                        check_cancelled()
+                        present_paths.add(rel)
                         try:
                             dev_data, is_new, is_changed, relink_needed = _import_device_file(
                                 db,
@@ -261,7 +301,6 @@ def verify_device_inventory(
                                 file_hash_func,
                             )
                             db.upsert_device_track(dev_data)
-                            present_paths.add(rel)
                             scanned += 1
                             if is_new:
                                 new += 1
@@ -287,12 +326,15 @@ def verify_device_inventory(
         if status_callback:
             status_callback("Verifying device files...")
         for scan_root in roots:
+            check_cancelled()
             logger.info("Scanning device music root: %s", scan_root)
             for root, dirs, files in os.walk(scan_root):
+                check_cancelled()
                 dirs[:] = [d for d in dirs if not d.startswith(".")]
                 for fn in files:
+                    check_cancelled()
                     full = os.path.join(root, fn)
-                    if Path(fn).suffix.lower() not in SUPPORTED_FORMATS:
+                    if Path(fn).suffix.lower() not in DEVICE_TRACK_FORMATS:
                         _record_skip(skipped, full, "unsupported format")
                         logger.debug("Skipped device file %s: unsupported format", full)
                         continue
@@ -300,6 +342,7 @@ def verify_device_inventory(
                     if rel in present_paths:
                         _record_skip(skipped, full, "duplicate scan path")
                         continue
+                    present_paths.add(rel)
                     try:
                         dev_data, is_new, is_changed, relink_needed = _import_device_file(
                             db,
@@ -319,7 +362,6 @@ def verify_device_inventory(
                         elif is_changed:
                             changed += 1
                         db.upsert_device_track(dev_data)
-                        present_paths.add(rel)
                         scanned += 1
                     except Exception as exc:
                         _record_skip(skipped, full, f"parse failure: {exc}")
@@ -339,14 +381,23 @@ def verify_device_inventory(
             tagcache_track_count,
             filesystem_track_count,
         )
+    check_cancelled()
     missing = db.mark_missing_device_tracks(device_key, present_paths)
     if missing:
         needs_relink = True
     if needs_relink:
-        _link_device_to_local(db, device_key, duplicate_strictness, duration_tolerance)
+        _link_device_to_local(
+            db,
+            device_key,
+            duplicate_strictness,
+            duration_tolerance,
+            cancel_callback=cancel_callback,
+        )
+    check_cancelled()
     if status_callback:
         status_callback("Importing Rockbox play stats...")
     runtime_imported = import_runtime_data_for_device(db, device)
+    check_cancelled()
     if status_callback:
         status_callback("Importing Rockbox playlists...")
     playlists_imported = import_device_playlists(db, device)
@@ -399,13 +450,21 @@ def _device_row_changed(cached_row, new_row):
     return False
 
 
-def _link_device_to_local(db, device_key, duplicate_strictness, duration_tolerance=2.0):
+def _link_device_to_local(db, device_key, duplicate_strictness, duration_tolerance=2.0,
+                          cancel_callback=None):
+    if cancel_callback and cancel_callback():
+        raise DeviceInventoryCancelled()
     device_tracks = db.get_all_device_tracks(device_key)
-    local_tracks = db.get_all_tracks()
+    # Link all local media types so videos on device are correctly reflected
+    # in sync status and "not on iPod" indicators.
+    local_tracks = db.get_all_tracks(media_type=None)
     matcher = TrackMatcher(duplicate_strictness, duration_tolerance)
     matched, unmatched, _, _ = matcher.match_all(local_tracks, device_tracks)
 
+    synced_updates = []
     for result in matched:
+        if cancel_callback and cancel_callback():
+            raise DeviceInventoryCancelled()
         lt = dict(result.local_track)
         dt = dict(result.device_track)
         local_id = lt.get("id")
@@ -415,14 +474,18 @@ def _link_device_to_local(db, device_key, duplicate_strictness, duration_toleran
                 "UPDATE device_tracks SET local_track_id = ? WHERE id = ?",
                 (local_id, dev_id),
             )
-            db.mark_synced(
+            synced_updates.append((
                 local_id,
                 dt.get("device_path", ""),
                 dt.get("metadata_hash", ""),
                 dt.get("file_hash", ""),
-            )
+            ))
+
+    db.mark_synced_many(synced_updates)
 
     for result in unmatched:
+        if cancel_callback and cancel_callback():
+            raise DeviceInventoryCancelled()
         lt = dict(result.local_track)
         local_id = lt.get("id")
         if local_id:
@@ -438,6 +501,7 @@ class DeviceInventoryWorker(QObject):
     finished = Signal(dict)
     error = Signal(str)
     status = Signal(str)
+    cancelled = Signal()
 
     def __init__(self, db_path, device, duplicate_strictness, force_full=False,
                  duration_tolerance=2.0):
@@ -447,6 +511,10 @@ class DeviceInventoryWorker(QObject):
         self._duplicate_strictness = duplicate_strictness
         self._force_full = force_full
         self._duration_tolerance = duration_tolerance
+        self._cancelled = False
+
+    def cancel(self):
+        self._cancelled = True
 
     @Slot()
     def run(self):
@@ -461,8 +529,12 @@ class DeviceInventoryWorker(QObject):
                     self._force_full,
                     duration_tolerance=self._duration_tolerance,
                     status_callback=self.status.emit,
+                    cancel_callback=lambda: self._cancelled,
                 )
             self.finished.emit(summary)
+        except DeviceInventoryCancelled:
+            logger.info("Device inventory verification cancelled")
+            self.cancelled.emit()
         except Exception as exc:
             logger.exception("Device inventory verification failed")
             self.error.emit(str(exc))
@@ -475,6 +547,7 @@ class DeviceInventoryVerifier(QObject):
     finished = Signal(dict)
     error = Signal(str)
     status = Signal(str)
+    cancelled = Signal()
 
     def __init__(self, config, parent=None):
         super().__init__(parent)
@@ -502,6 +575,7 @@ class DeviceInventoryVerifier(QObject):
         self._worker.finished.connect(self._on_finished, Qt.QueuedConnection)
         self._worker.error.connect(self._on_error, Qt.QueuedConnection)
         self._worker.status.connect(self.status, Qt.QueuedConnection)
+        self._worker.cancelled.connect(self._on_cancelled, Qt.QueuedConnection)
         self._thread.start()
         return True
 
@@ -515,6 +589,11 @@ class DeviceInventoryVerifier(QObject):
         self._cleanup()
         self.error.emit(message)
 
+    @Slot()
+    def _on_cancelled(self):
+        self._cleanup()
+        self.cancelled.emit()
+
     def _cleanup(self):
         if self._thread:
             self._thread.quit()
@@ -523,11 +602,12 @@ class DeviceInventoryVerifier(QObject):
         self._worker = None
 
     def shutdown(self):
+        if self._worker:
+            self._worker.cancel()
         if self._thread and self._thread.isRunning():
             self._thread.quit()
-            if not self._thread.wait(5000):
-                logger.warning("Device inventory thread did not stop cleanly; terminating")
-                self._thread.terminate()
-                self._thread.wait(2000)
+            if not self._thread.wait(15000):
+                logger.warning("Waiting for device inventory to reach a safe cancellation point")
+                self._thread.wait()
         self._thread = None
         self._worker = None

@@ -74,7 +74,8 @@ struct lcd_info_rec {
 #ifdef HAVE_LCD_SLEEP
     void *seq_awake;
 #endif
-#ifdef BOOTLOADER
+#if defined(BOOTLOADER) || \
+    (defined(IPOD_NANO3G) && NANO3G_NATIVE_SAFE_BOOT)
     void *seq_init;
 #endif
 };

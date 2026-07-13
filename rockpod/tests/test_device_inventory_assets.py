@@ -9,7 +9,12 @@ from PySide6.QtWidgets import QApplication
 import services.theme_assets as theme_assets_module
 from models.track import Track
 from services.device_detector import DeviceInfo, create_mock_device
-from services.device_inventory import device_music_roots, device_record_from_info, verify_device_inventory
+from services.device_inventory import (
+    DeviceInventoryWorker,
+    device_music_roots,
+    device_record_from_info,
+    verify_device_inventory,
+)
 from services.library_scanner import LibraryScanner
 from services.rockbox_playlists import import_device_playlists
 from services.reconciliation import build_reconciliation_report
@@ -36,6 +41,40 @@ def _insert_local_track(db, title="Song", artist="Artist", album="Album", metada
     )
     db.commit()
     return db.get_track_by_path(f"/music/{artist}/{album}/{title}.mp3")
+
+
+def _insert_local_video_track(
+    db,
+    title="Movie",
+    artist="Director",
+    album="Movies",
+    metadata_hash="vh1",
+):
+    file_path = f"/video/{artist}/{album}/{title}.mp4"
+    db.upsert_track(
+        {
+            "file_path": file_path,
+            "file_hash": "",
+            "file_size": 1234,
+            "title": title,
+            "artist": artist,
+            "album": album,
+            "album_artist": artist,
+            "genre": "Documentary",
+            "year": 2020,
+            "track_number": 1,
+            "disc_number": 1,
+            "duration": 360.0,
+            "bitrate": 0,
+            "codec": "mp4",
+            "metadata_hash": metadata_hash,
+            "synced_to_device": 0,
+            "media_type": "video",
+            "video_kind": "movie",
+        }
+    )
+    db.commit()
+    return db.get_track_by_path(file_path)
 
 
 def _device(path):
@@ -245,6 +284,58 @@ def test_incremental_verification_updates_new_and_missing(config, db, monkeypatc
     assert len(db.get_all_device_tracks(summary["device_key"], present_only=False)) == 1
 
 
+def test_cancelled_inventory_worker_emits_cancelled_without_mutation(config, db):
+    device = _device(config.mock_device_path)
+    before = len(db.get_all_devices())
+    worker = DeviceInventoryWorker(
+        config.db_path,
+        device,
+        "metadata_only",
+    )
+    cancelled = []
+    worker.cancelled.connect(lambda: cancelled.append(True))
+    worker.cancel()
+    worker.run()
+
+    assert cancelled == [True]
+    assert len(db.get_all_devices()) == before
+
+
+def test_video_tracks_are_linked_when_verifying_inventory(config, db):
+    local = _insert_local_video_track(db)
+    device = _device(config.mock_device_path)
+    rel_path = "Videos/Movies/My Movie.mkv"
+    full = os.path.join(config.mock_device_path, rel_path)
+    os.makedirs(os.path.dirname(full), exist_ok=True)
+    with open(full, "wb") as f:
+        f.write(b"video")
+
+    def fake_read_metadata(path):
+        stat = os.stat(path)
+        return Track(
+            file_path=path,
+            title=local["title"],
+            artist=local["artist"],
+            album=local["album"],
+            album_artist=local["album_artist"],
+            duration=360.0,
+            file_size=stat.st_size,
+            metadata_hash=local["metadata_hash"],
+        )
+
+    summary = verify_device_inventory(
+        db,
+        device,
+        "metadata_only",
+        metadata_reader_func=fake_read_metadata,
+    )
+
+    updated = db.get_track_by_path(local["file_path"])
+    assert summary["new"] == 1
+    assert updated["synced_to_device"] == 1
+    assert updated["device_path"] == rel_path
+
+
 def test_noop_verification_skips_full_relink_when_cached_links_are_valid(config, db, monkeypatch):
     local = _insert_local_track(db, title="Song", artist="Artist", album="Album", metadata_hash="mh")
     device = _device(config.mock_device_path)
@@ -289,6 +380,113 @@ def test_noop_verification_skips_full_relink_when_cached_links_are_valid(config,
     assert summary["new"] == 0
     assert summary["changed"] == 0
     assert summary["missing"] == 0
+
+
+def test_force_full_verification_rereads_cached_track(config, db):
+    device = _device(config.mock_device_path)
+    rel_path = "Music/Artist/Album/01 - Song.mp3"
+    full = os.path.join(config.mock_device_path, rel_path)
+    os.makedirs(os.path.dirname(full), exist_ok=True)
+    with open(full, "wb") as f:
+        f.write(b"audio")
+
+    key = db.upsert_device(device_record_from_info(device))["stable_device_key"]
+    db.upsert_device_track(
+        {
+            "device_id": key,
+            "device_path": rel_path,
+            "title": "Old title",
+            "artist": "Artist",
+            "album": "Album",
+            "album_artist": "Artist",
+            "file_size": os.path.getsize(full),
+            "metadata_hash": "old-metadata",
+        }
+    )
+    db.commit()
+    reads = []
+
+    def fake_read_metadata(path):
+        reads.append(path)
+        return Track(
+            file_path=path,
+            title="New title",
+            artist="Artist",
+            album="Album",
+            album_artist="Artist",
+            file_size=os.path.getsize(path),
+            metadata_hash="new-metadata",
+        )
+
+    summary = verify_device_inventory(
+        db,
+        device,
+        "metadata_only",
+        force_full=True,
+        metadata_reader_func=fake_read_metadata,
+    )
+
+    rows = db.get_all_device_tracks(key)
+    assert reads == [full]
+    assert summary["changed"] == 1
+    assert len(rows) == 1
+    assert rows[0]["title"] == "New title"
+    assert rows[0]["metadata_hash"] == "new-metadata"
+
+
+def test_verification_retires_cached_case_alias(config, db, monkeypatch):
+    device = _device(config.mock_device_path)
+    canonical = "Music/Artist/Album/01 - Song.mp3"
+    alias = "Music/artist/Album/01 - Song.mp3"
+    full = os.path.join(config.mock_device_path, canonical)
+    os.makedirs(os.path.dirname(full), exist_ok=True)
+    with open(full, "wb") as f:
+        f.write(b"audio")
+
+    key = db.upsert_device(device_record_from_info(device))["stable_device_key"]
+    db.upsert_device_track(
+        {
+            "device_id": key,
+            "device_path": alias,
+            "title": "Song",
+            "artist": "Artist",
+            "album": "Album",
+            "album_artist": "Artist",
+            "file_size": os.path.getsize(full),
+            "metadata_hash": "old-metadata",
+        }
+    )
+    db.commit()
+    real_exists = os.path.exists
+    alias_full = os.path.join(config.mock_device_path, alias)
+    monkeypatch.setattr(
+        "services.device_inventory.os.path.exists",
+        lambda path: path == alias_full or real_exists(path),
+    )
+
+    def fake_read_metadata(path):
+        return Track(
+            file_path=path,
+            title="Song",
+            artist="Artist",
+            album="Album",
+            album_artist="Artist",
+            file_size=os.path.getsize(path),
+            metadata_hash="new-metadata",
+        )
+
+    summary = verify_device_inventory(
+        db,
+        device,
+        "metadata_only",
+        metadata_reader_func=fake_read_metadata,
+    )
+
+    present = db.get_all_device_tracks(key)
+    all_rows = db.get_all_device_tracks(key, present_only=False)
+    assert summary["missing"] == 1
+    assert [row["device_path"] for row in present] == [canonical]
+    assert {row["device_path"] for row in all_rows} == {canonical, alias}
 
 
 def test_cached_not_on_device_tracks_still_work_after_disconnect(config, db):
@@ -665,6 +863,70 @@ def test_device_verification_reports_unsupported_and_parse_failures(config, db):
     reasons = {item["reason"].split(":", 1)[0] for item in summary["skipped"]}
     assert "unsupported format" in reasons
     assert "parse failure" in reasons
+
+
+def test_verify_device_inventory_keeps_cached_videos_present_with_tagcache(config, db, monkeypatch):
+    device = _device(config.mock_device_path)
+    key = db.upsert_device(device_record_from_info(device))["stable_device_key"]
+    video_root = os.path.join(config.mock_device_path, "Videos", "Downloaded")
+    os.makedirs(video_root, exist_ok=True)
+    cached_video_path = os.path.join(video_root, "Episode.rvp")
+    with open(cached_video_path, "w", encoding="utf-8") as handle:
+        handle.write("cached rvp marker")
+
+    db.upsert_device_track(
+        {
+            "device_id": key,
+            "device_path": "Videos/Downloaded/Episode.rvp",
+            "title": "Episode",
+            "artist": "Artist",
+            "album": "TV",
+            "album_artist": "Artist",
+            "duration": 3600.0,
+            "file_size": os.path.getsize(cached_video_path),
+            "track_number": 1,
+            "disc_number": 1,
+            "year": 2024,
+            "metadata_hash": "cached-video-meta",
+        }
+    )
+    db.commit()
+
+    monkeypatch.setattr(
+        "services.device_inventory.detect_rockbox_database_state",
+        lambda _device, _row: {"database_present": True},
+    )
+    monkeypatch.setattr(
+        "services.device_inventory.read_rockbox_tagcache_tracks",
+        lambda _mount_path: [
+            {
+                "device_path": "Music/Artist/Album/01 - Song.mp3",
+                "file_size": 123,
+                "title": "Song",
+                "artist": "Artist",
+                "album": "Album",
+                "album_artist": "Artist",
+                "year": 2026,
+                "track_number": 1,
+                "disc_number": 1,
+                "duration": 12.0,
+                "bitrate": 320,
+                "codec": "MP3",
+                "metadata_hash": "song-mh",
+                "file_hash": "",
+                "present_on_device": 1,
+            }
+        ],
+    )
+
+    summary = verify_device_inventory(db, device, "metadata_only")
+    rows = db.get_all_device_tracks(key, present_only=False)
+    video_rows = [row for row in rows if row["device_path"] == "Videos/Downloaded/Episode.rvp"]
+
+    assert summary["inventory_source"] == "rockbox_tagcache"
+    assert summary["missing"] == 0
+    assert len(video_rows) == 1
+    assert video_rows[0]["present_on_device"] == 1
 
 
 def test_reconciliation_report_counts_and_reasons(config, db):

@@ -69,8 +69,17 @@ ASSET_EXTS = {
     ".woff",
     ".woff2",
     ".ttf",
+    ".json",
+    ".xml",
+    ".webmanifest",
+    ".mp3",
+    ".m4a",
+    ".mp4",
+    ".webm",
+    ".avif",
+    ".bin",
 }
-IMAGE_EXTS = {".gif", ".jpg", ".jpeg", ".png", ".bmp", ".ico", ".svg", ".webp"}
+IMAGE_EXTS = {".gif", ".jpg", ".jpeg", ".png", ".bmp", ".ico", ".svg", ".webp", ".avif"}
 DIRECT_DRAW_IMAGE_EXTS = {".jpg", ".jpeg", ".bmp"}
 FIREFOX_CACHE_IMAGE_HOSTS = {
     "cdn2.onlyfans.com",
@@ -93,6 +102,12 @@ OFFLINEWEB_CURSOR_SOURCE = (
     / "scummmodern"
     / "cursor_small.bmp"
 )
+_ACTIVE_CACHE_FILES = None
+
+
+def _track_cache_file(path):
+    if _ACTIVE_CACHE_FILES is not None and path:
+        _ACTIVE_CACHE_FILES.add(str(Path(path).resolve()))
 
 
 def _normalize_url(value):
@@ -262,6 +277,16 @@ def _extension_for_content(content_type):
         "font/woff2": ".woff2",
         "application/font-woff": ".woff",
         "application/font-woff2": ".woff2",
+        "application/json": ".json",
+        "application/manifest+json": ".webmanifest",
+        "application/xml": ".xml",
+        "text/xml": ".xml",
+        "audio/mpeg": ".mp3",
+        "audio/mp4": ".m4a",
+        "video/mp4": ".mp4",
+        "video/webm": ".webm",
+        "image/avif": ".avif",
+        "application/octet-stream": ".bin",
     }.get(content_type, "")
 
 
@@ -276,17 +301,31 @@ def _write_url_record(root, record_url, body, content_type=""):
         if not relative:
             continue
         relative = relative.split("?", 1)[0]
+        if parts.query:
+            query_token = hashlib.sha1(parts.query.encode("utf-8")).hexdigest()[:10]
+            relative_path = Path(relative)
+            if relative_path.suffix:
+                relative = str(
+                    relative_path.with_name(
+                        f"{relative_path.stem}__q_{query_token}{relative_path.suffix}"
+                    )
+                )
+            else:
+                relative = f"{relative}__q_{query_token}"
         ext = Path(relative).suffix.lower()
+        inferred = _extension_for_content(content_type)
         if not ext:
-            inferred = _extension_for_content(content_type)
-            if inferred:
-                relative = relative.rstrip("/") + inferred
-                ext = inferred
-        if ext and ext not in HTML_EXTS and ext not in ASSET_EXTS:
-            continue
+            inferred = inferred or ".bin"
+            relative = relative.rstrip("/") + inferred
+            ext = inferred
+        elif ext not in HTML_EXTS and ext not in ASSET_EXTS:
+            inferred = inferred or ".bin"
+            relative = str(Path(relative).with_suffix(inferred))
+            ext = inferred
         destination = root / host / relative
         destination.parent.mkdir(parents=True, exist_ok=True)
         destination.write_bytes(body)
+        _track_cache_file(destination)
         return str(destination)
     return ""
 
@@ -314,7 +353,10 @@ def _convert_image_sidecar(path):
         )
     except Exception:
         return False
-    return result.returncode == 0 and sidecar.is_file()
+    converted = result.returncode == 0 and sidecar.is_file()
+    if converted:
+        _track_cache_file(sidecar)
+    return converted
 
 
 def _firefox_cache_entries_root(profile_path):
@@ -640,6 +682,17 @@ def _purge_url_records(archive_root, url):
     removed = 0
     for candidate in _candidate_web_paths(parsed, force_html=True):
         relative = unquote(candidate.lstrip("/")).split("?", 1)[0]
+        if parsed.query:
+            query_token = hashlib.sha1(parsed.query.encode("utf-8")).hexdigest()[:10]
+            relative_path = Path(relative)
+            if relative_path.suffix:
+                relative = str(
+                    relative_path.with_name(
+                        f"{relative_path.stem}__q_{query_token}{relative_path.suffix}"
+                    )
+                )
+            else:
+                relative = f"{relative}__q_{query_token}"
         if not relative:
             continue
         path = Path(archive_root) / host / relative
@@ -1035,14 +1088,15 @@ def _copy_firefox_profile(profile_path, destination):
 
 
 def _browser_snapshot(url, work_root, profile_path):
-    if not profile_path:
-        return {}
     firefox = shutil.which("firefox")
     if not firefox:
         return {}
 
     profile_copy = Path(work_root) / "firefox-profile"
-    _copy_firefox_profile(Path(profile_path), profile_copy)
+    if profile_path:
+        _copy_firefox_profile(Path(profile_path), profile_copy)
+    else:
+        profile_copy.mkdir(parents=True, exist_ok=True)
     port = _free_tcp_port()
     process = subprocess.Popen(
         [
@@ -1067,20 +1121,66 @@ def _browser_snapshot(url, work_root, profile_path):
         if not contexts:
             return {}
         context = contexts[0].get("context")
+        try:
+            client.command(
+                "browsingContext.setViewport",
+                {
+                    "context": context,
+                    "viewport": {"width": 314, "height": 202},
+                    "devicePixelRatio": 1,
+                },
+            )
+        except Exception:
+            pass
         expression = """
 JSON.stringify({
   url: location.href,
   title: document.title,
   text: document.body ? document.body.innerText : "",
   html: document.documentElement ? document.documentElement.outerHTML : "",
+  scrollHeight: Math.max(
+    document.body ? document.body.scrollHeight : 0,
+    document.documentElement ? document.documentElement.scrollHeight : 0
+  ),
   images: Array.from(document.images || [])
     .map((item) => item.currentSrc || item.src)
     .filter(Boolean),
   resources: performance.getEntriesByType("resource")
     .map((item) => item.name)
-    .filter(Boolean)
+    .filter(Boolean),
+  links: Array.from(document.links || []).slice(0, 80).map((item) => ({
+    url: item.href,
+    text: (item.innerText || item.textContent || item.href || "").trim()
+  })).filter((item) => item.url)
 })
 """
+        def with_preview(data):
+            previews = []
+            try:
+                scroll_height = max(202, int(data.get("scrollHeight") or 202))
+                for offset in range(0, min(scroll_height, 202 * 8), 202):
+                    client.command(
+                        "script.evaluate",
+                        {
+                            "expression": f"window.scrollTo(0, {offset}); true",
+                            "target": {"context": context},
+                            "awaitPromise": False,
+                        },
+                    )
+                    time.sleep(0.12)
+                    capture = client.command(
+                        "browsingContext.captureScreenshot",
+                        {"context": context, "origin": "viewport"},
+                    )
+                    value = str((capture.get("result") or {}).get("data") or "")
+                    if value:
+                        previews.append(value)
+            except Exception:
+                pass
+            data["preview_pngs"] = previews
+            data["preview_png"] = previews[0] if previews else ""
+            return data
+
         best = {}
         deadline = time.time() + BROWSER_EXPORT_TIMEOUT
         while time.time() < deadline:
@@ -1101,8 +1201,8 @@ JSON.stringify({
                 best = data
             if html_text and body_text and not _is_bad_html_capture(body_text, url):
                 if len(body_text.strip()) > 80:
-                    return data
-        return best
+                    return with_preview(data)
+        return with_preview(best) if best else best
     finally:
         if client:
             try:
@@ -1129,8 +1229,38 @@ def _sync_browser_export(url, work_root, archive_root, profile_path,
         }
 
     final_url = str(snapshot.get("url") or url)
+    if not snapshot or not (
+        snapshot.get("html") or snapshot.get("text") or snapshot.get("preview_png")
+    ):
+        return {"success": False, "reason": "browser-export-empty"}
     cached_image_urls = []
     cache_assets_saved = 0
+    preview_urls = []
+    preview_paths = []
+    preview_data_items = list(snapshot.get("preview_pngs") or [])
+    if not preview_data_items and snapshot.get("preview_png"):
+        preview_data_items = [snapshot.get("preview_png")]
+    preview_token = hashlib.sha1(url.encode("utf-8")).hexdigest()[:10]
+    for index, preview_data in enumerate(preview_data_items[:8]):
+        preview_url = urlsplit(url)._replace(
+            path=(urlsplit(url).path.rstrip("/") or "/index")
+            + f".rockpod-preview-{preview_token}-{index + 1:02d}.png",
+            query="",
+            fragment="",
+        ).geturl()
+        try:
+            preview_written = _write_url_record(
+                archive_root,
+                preview_url,
+                base64.b64decode(preview_data),
+                content_type="image/png",
+            )
+        except (ValueError, TypeError):
+            preview_written = ""
+        if preview_written:
+            _convert_image_sidecar(preview_written)
+            preview_urls.append(preview_url)
+            preview_paths.append(preview_written)
     if profile_path:
         for record in _firefox_cache_image_records(
             profile_path,
@@ -1155,6 +1285,7 @@ def _sync_browser_export(url, work_root, archive_root, profile_path,
         url,
         extra_images=cached_image_urls,
         logo_url=logo_url,
+        preview_images=preview_urls,
     )
     body_text = str(snapshot.get("text") or "")
     if not html_text:
@@ -1177,23 +1308,28 @@ def _sync_browser_export(url, work_root, archive_root, profile_path,
         urlsplit(item)._replace(query="", fragment="").geturl()
         for item in cached_image_urls
     }
-    _pages, html_assets = _extract_html_links(html_text, final_url)
-    for asset_url in html_assets:
-        ext = Path(urlsplit(asset_url).path).suffix.lower()
-        path_key = urlsplit(asset_url)._replace(query="", fragment="").geturl()
-        if ext in IMAGE_EXTS and path_key not in cached_paths:
-            _append_unique(queued_assets, seen_assets, asset_url)
+    if not preview_urls:
+        _pages, html_assets = _extract_html_links(html_text, final_url)
+        for asset_url in html_assets:
+            ext = Path(urlsplit(asset_url).path).suffix.lower()
+            path_key = urlsplit(asset_url)._replace(query="", fragment="").geturl()
+            if ext in IMAGE_EXTS and path_key not in cached_paths:
+                _append_unique(queued_assets, seen_assets, asset_url)
+    preview_keys = {
+        urlsplit(item)._replace(query="", fragment="").geturl()
+        for item in preview_urls
+    }
     for asset_url in (snapshot.get("images") or []) + (snapshot.get("resources") or []):
         parsed = urlsplit(str(asset_url))
         ext = Path(parsed.path).suffix.lower()
         path_key = parsed._replace(query="", fragment="").geturl()
-        if ext in IMAGE_EXTS and path_key not in cached_paths:
+        if path_key in preview_keys or path_key in cached_paths:
+            continue
+        if parsed.scheme in {"http", "https"} and parsed.netloc:
             _append_unique(queued_assets, seen_assets, str(asset_url))
 
     assets_saved = 0
     for asset_url in queued_assets:
-        if assets_saved >= MAX_LIVE_ASSETS:
-            break
         cookie_header = _cookie_for_url(asset_url, profile_path, use_firefox_cookies)
         try:
             asset = _fetch_live_resource(asset_url, cookie_header, final_url)
@@ -1218,7 +1354,9 @@ def _sync_browser_export(url, work_root, archive_root, profile_path,
         "html_saved": 1,
         "assets_saved": assets_saved + cache_assets_saved,
         "cache_images_saved": cache_assets_saved,
-        "title": str(snapshot.get("title") or ""),
+        "title": _browser_page_title(snapshot, url),
+        "entry_path": written,
+        "preview_path": preview_paths[0] if preview_paths else "",
     }
 
 
@@ -1233,8 +1371,48 @@ def _browser_logo_url(snapshot, fallback_url):
     return ONLYFANS_LOGO_FALLBACK
 
 
-def _browser_static_html(snapshot, fallback_url, extra_images=None, logo_url=""):
-    title = str(snapshot.get("title") or fallback_url or "Offline Page").strip()
+def _browser_page_title(snapshot, fallback_url):
+    title = str(snapshot.get("title") or "").strip()
+    parsed = urlsplit(str(fallback_url or ""))
+    host = parsed.netloc.lower().removeprefix("www.")
+    host_label = host.split(".", 1)[0]
+    if title.lower() not in {"", "home", host, host_label}:
+        return title
+    slug = Path(parsed.path.rstrip("/")).stem
+    if slug and slug.lower() not in {"index", "home"}:
+        label = re.sub(r"[-_]+", " ", slug).strip()
+        if label:
+            return label.title()
+    return title or parsed.netloc or "Offline Page"
+
+
+def _browser_static_html(
+    snapshot,
+    fallback_url,
+    extra_images=None,
+    logo_url="",
+    preview_images=None,
+):
+    title = _browser_page_title(snapshot, fallback_url)
+    preview_images = [str(value or "") for value in (preview_images or []) if value]
+    if preview_images:
+        images = "\n".join(
+            '<img src="{src}" alt="{alt}" width="314" height="202">'.format(
+                src=html.escape(_offline_reference_url(src), quote=True),
+                alt=html.escape(title, quote=True),
+            )
+            for src in preview_images
+        )
+        return (
+            "<!DOCTYPE html>\n"
+            "<html><head>"
+            f"<title>{html.escape(title)}</title>"
+            '<meta name="rockpod-render-mode" content="visual-capture">'
+            "</head><body>"
+            f"{images}"
+            "</body></html>\n"
+        )
+
     body_text = str(snapshot.get("text") or "")
     image_urls = []
     seen = set()
@@ -1270,7 +1448,7 @@ def _browser_static_html(snapshot, fallback_url, extra_images=None, logo_url="")
             break
 
     image_html = "\n".join(
-        '<p><img src="{src}" alt="{alt}" width="314" height="202"></p>'.format(
+        '<img src="{src}" alt="{alt}" width="314" height="202">'.format(
             src=html.escape(_offline_reference_url(src), quote=True),
             alt=html.escape(title, quote=True),
         )
@@ -1284,6 +1462,16 @@ def _browser_static_html(snapshot, fallback_url, extra_images=None, logo_url="")
             '<a href="https://onlyfans.com/my/bookmarks/">Bookmarks</a> '
             '<a href="https://onlyfans.com/my/profile/">Profile</a></p>'
         )
+    link_html = "\n".join(
+        '<li><a href="{url}">{text}</a></li>'.format(
+            url=html.escape(str(item.get("url") or ""), quote=True),
+            text=html.escape(str(item.get("text") or item.get("url") or "")),
+        )
+        for item in (snapshot.get("links") or [])[:40]
+        if str(item.get("url") or "").strip()
+    )
+    if link_html:
+        link_html = f"<h2>Links</h2><ul>{link_html}</ul>"
     text_html = "\n".join(
         f"<p>{html.escape(line)}</p>"
         for line in lines
@@ -1294,10 +1482,11 @@ def _browser_static_html(snapshot, fallback_url, extra_images=None, logo_url="")
         f"<title>{html.escape(title)}</title>"
         f"<meta name=\"keywords\" content=\"OnlyFans {html.escape(title)}\">"
         "</head><body>"
+        f"{image_html}"
         f"<h1>{html.escape(title)}</h1>"
         f"{nav_html}"
-        f"{image_html}"
         f"{text_html}"
+        f"{link_html}"
         "</body></html>\n"
     )
 
@@ -1313,6 +1502,8 @@ def _sync_live_url(url, archive_root, profile_path=Path(), use_firefox_cookies=T
     seen_assets = set()
     html_saved = 0
     assets_saved = 0
+    entry_path = ""
+    entry_title = ""
 
     while queued_pages and html_saved < MAX_LIVE_PAGES:
         page_url, depth = queued_pages.pop(0)
@@ -1364,6 +1555,16 @@ def _sync_live_url(url, archive_root, profile_path=Path(), use_firefox_cookies=T
         ext = Path(written).suffix.lower()
         if ext in HTML_EXTS:
             html_saved += 1
+            if page_url == url:
+                entry_path = written
+                title_match = re.search(
+                    r"(?is)<title\b[^>]*>(.*?)</title>",
+                    body_text,
+                )
+                if title_match:
+                    entry_title = re.sub(
+                        r"\s+", " ", html.unescape(title_match.group(1))
+                    ).strip()
         else:
             assets_saved += 1
             _convert_image_sidecar(written)
@@ -1439,6 +1640,8 @@ def _sync_live_url(url, archive_root, profile_path=Path(), use_firefox_cookies=T
         "html_saved": html_saved,
         "assets_saved": assets_saved,
         "cookie_count": cookie_count,
+        "entry_path": entry_path,
+        "title": entry_title,
     }
 
 
@@ -1490,6 +1693,32 @@ def _sync_single_url(url, work_root, archive_root, log_handle, firefox_profile=P
     html_saved = 0
     assets_saved = 0
 
+    if shutil.which("firefox"):
+        browser_result = _sync_browser_export(
+            normalized,
+            work_root,
+            archive_root,
+            firefox_profile,
+            use_firefox_cookies=use_firefox_cookies,
+        )
+        if browser_result.get("success"):
+            return {
+                "url": normalized,
+                "success": True,
+                "source": browser_result.get("source") or "firefox-browser-export",
+                "firefox_profile": str(firefox_profile),
+                "html_saved": int(browser_result.get("html_saved") or 0),
+                "assets_saved": int(browser_result.get("assets_saved") or 0),
+                "cache_images_saved": int(browser_result.get("cache_images_saved") or 0),
+                "title": browser_result.get("title") or "",
+                "entry_path": browser_result.get("entry_path") or "",
+                "preview_path": browser_result.get("preview_path") or "",
+            }
+        log_handle.write(
+            "browser export skipped for "
+            f"{normalized}: {browser_result.get('reason', 'unknown')}\n"
+        )
+
     live_result = _sync_live_url(
         normalized,
         archive_root,
@@ -1506,6 +1735,8 @@ def _sync_single_url(url, work_root, archive_root, log_handle, firefox_profile=P
             "cookie_count": int(live_result.get("cookie_count") or 0),
             "html_saved": int(live_result.get("html_saved") or 0),
             "assets_saved": int(live_result.get("assets_saved") or 0),
+            "entry_path": live_result.get("entry_path") or "",
+            "title": live_result.get("title") or "",
         }
     log_handle.write(
         f"live fetch skipped for {normalized}: {live_result.get('reason', 'unknown')}\n"
@@ -1527,33 +1758,11 @@ def _sync_single_url(url, work_root, archive_root, log_handle, firefox_profile=P
                 "cookie_count": 0,
                 "html_saved": int(live_result.get("html_saved") or 0),
                 "assets_saved": int(live_result.get("assets_saved") or 0),
+                "entry_path": live_result.get("entry_path") or "",
+                "title": live_result.get("title") or "",
             }
         log_handle.write(
             f"public live fetch skipped for {normalized}: {live_result.get('reason', 'unknown')}\n"
-        )
-
-    if use_firefox_cookies and firefox_profile:
-        browser_result = _sync_browser_export(
-            normalized,
-            work_root,
-            archive_root,
-            firefox_profile,
-            use_firefox_cookies=use_firefox_cookies,
-        )
-        if browser_result.get("success"):
-            return {
-                "url": normalized,
-                "success": True,
-                "source": browser_result.get("source") or "firefox-browser-export",
-                "firefox_profile": str(firefox_profile),
-                "html_saved": int(browser_result.get("html_saved") or 0),
-                "assets_saved": int(browser_result.get("assets_saved") or 0),
-                "cache_images_saved": int(browser_result.get("cache_images_saved") or 0),
-                "title": browser_result.get("title") or "",
-            }
-        log_handle.write(
-            "browser export skipped for "
-            f"{normalized}: {browser_result.get('reason', 'unknown')}\n"
         )
 
     try:
@@ -1654,6 +1863,8 @@ def _sync_single_url(url, work_root, archive_root, log_handle, firefox_profile=P
 
 
 def sync_websites(urls, device_root, output_path, log_path, use_firefox_cookies=True, firefox_profile_path=""):
+    global _ACTIVE_CACHE_FILES
+
     device_root = os.path.abspath(os.path.expanduser(str(device_root or "").strip()))
     if not os.path.isdir(os.path.join(device_root, ".rockbox")):
         raise RuntimeError("Device root is missing .rockbox")
@@ -1668,6 +1879,8 @@ def sync_websites(urls, device_root, output_path, log_path, use_firefox_cookies=
         source_root = temp_root / "source"
         archive_root = source_root / "archive"
         archive_root.mkdir(parents=True, exist_ok=True)
+        _seed_existing_archive(device_root, archive_root)
+        _seed_builtin_archive(archive_root)
         removed_bad = _remove_bad_html_captures(archive_root)
         firefox_profile = _discover_firefox_profile(firefox_profile_path) if use_firefox_cookies else Path()
 
@@ -1680,14 +1893,28 @@ def sync_websites(urls, device_root, output_path, log_path, use_firefox_cookies=
             if removed_bad:
                 log_handle.write(f"removed_bad_html_captures={removed_bad}\n")
             for raw in urls:
-                result = _sync_single_url(
-                    raw,
-                    temp_root,
-                    archive_root,
-                    log_handle,
-                    firefox_profile=firefox_profile,
-                    use_firefox_cookies=use_firefox_cookies,
-                )
+                _ACTIVE_CACHE_FILES = set()
+                try:
+                    result = _sync_single_url(
+                        raw,
+                        temp_root,
+                        archive_root,
+                        log_handle,
+                        firefox_profile=firefox_profile,
+                        use_firefox_cookies=use_firefox_cookies,
+                    )
+                    cached_files = []
+                    for cached_path in sorted(_ACTIVE_CACHE_FILES):
+                        try:
+                            relative = Path(cached_path).relative_to(archive_root)
+                        except ValueError:
+                            continue
+                        cached_files.append(
+                            "/.rockbox/offlineweb/archive/" + relative.as_posix()
+                        )
+                    result["files"] = cached_files
+                finally:
+                    _ACTIVE_CACHE_FILES = None
                 results.append(result)
                 log_handle.write(json.dumps(result, ensure_ascii=False) + "\n")
 
@@ -1700,6 +1927,101 @@ def sync_websites(urls, device_root, output_path, log_path, use_firefox_cookies=
         sidecars_saved = _convert_archive_images(archive_root)
 
         import_archive(archive_root, Path(device_root))
+        cache_root = Path(device_root) / ".rockbox" / "offlineweb" / "cache"
+        registry_path = cache_root / "websites.json"
+        try:
+            registry = json.loads(registry_path.read_text(encoding="utf-8"))
+        except (OSError, ValueError, TypeError):
+            registry = []
+        by_url = {
+            str(item.get("url") or ""): item
+            for item in registry
+            if isinstance(item, dict) and item.get("url")
+        }
+        for item in results:
+            if not item.get("success"):
+                continue
+            previous = by_url.get(item["url"], {})
+            new_files = {
+                str(path)
+                for path in (item.get("files") or [])
+                if str(path).startswith("/.rockbox/offlineweb/archive/")
+            }
+            other_files = {
+                str(path)
+                for other_url, other in by_url.items()
+                if other_url != item["url"]
+                for path in (other.get("files") or [])
+            }
+            stale_files = set(previous.get("files") or []) - new_files - other_files
+            for stale_path in stale_files:
+                relative = str(stale_path).lstrip("/")
+                device_path = os.path.abspath(os.path.join(device_root, relative))
+                if os.path.commonpath([device_root, device_path]) != device_root:
+                    continue
+                try:
+                    os.remove(device_path)
+                except OSError:
+                    pass
+            entry_path = str(item.get("entry_path") or "")
+            preview_path = str(item.get("preview_path") or "")
+            try:
+                entry_path = "/" + Path(entry_path).relative_to(source_root).as_posix()
+            except (ValueError, TypeError):
+                entry_path = ""
+            try:
+                preview_path = "/" + Path(preview_path).relative_to(source_root).as_posix()
+            except (ValueError, TypeError):
+                preview_path = ""
+            captured_title = str(item.get("title") or "").strip()
+            item_url = urlsplit(item["url"])
+            host = item_url.netloc.lower().removeprefix("www.")
+            slug_title = re.sub(
+                r"[-_]+", " ", Path(item_url.path.rstrip("/")).stem
+            ).strip().title()
+            if (
+                previous.get("title")
+                and captured_title.lower() in {
+                    "",
+                    host,
+                    host.split(".", 1)[0],
+                    slug_title.lower(),
+                }
+            ):
+                captured_title = str(previous.get("title") or "")
+            by_url[item["url"]] = {
+                "url": item["url"],
+                "title": captured_title or urlsplit(item["url"]).netloc,
+                "path": f"/.rockbox/offlineweb{entry_path}" if entry_path else "",
+                "preview_path": (
+                    f"/.rockbox/offlineweb{preview_path}" if preview_path else ""
+                ),
+                "source": item.get("source") or "",
+                "synced_at": time.strftime("%Y-%m-%d %H:%M:%S"),
+                "files": sorted(new_files),
+            }
+        cache_root.mkdir(parents=True, exist_ok=True)
+        registry_path.write_text(
+            json.dumps(list(by_url.values()), indent=2),
+            encoding="utf-8",
+        )
+        with (cache_root / "pages.tsv").open("w", encoding="utf-8", newline="\n") as out:
+            out.write(
+                "# title\turl\tpath\tsource\tneighborhood\tauthor\tarchived\tkeywords\n"
+            )
+            for item in by_url.values():
+                fields = (
+                    item.get("title") or urlsplit(item.get("url") or "").netloc,
+                    item.get("url") or "",
+                    item.get("path") or "",
+                    "Website Sync",
+                    "",
+                    "",
+                    str(item.get("synced_at") or "")[:10],
+                    "",
+                )
+                out.write("\t".join(clean.replace("\t", " ").replace("\n", " ")
+                                    for clean in map(str, fields)) + "\n")
         runtime_assets_saved = _install_runtime_assets(device_root)
         removed_device_bad = _remove_bad_html_captures(
             Path(device_root) / ".rockbox" / "offlineweb" / "archive"

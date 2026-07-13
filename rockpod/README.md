@@ -71,6 +71,21 @@ source .venv/bin/activate
 python -m pytest tests/ -v
 ```
 
+## SNES Lite game sync
+
+The Games manager recognizes user-provided `.sfc` and `.smc` files as
+`Super Nintendo`. It reads the internal title and mapper header, hashes the
+ROM, flags known unsupported enhancement chips, prepares device-sized covers,
+and includes the SNES Lite plugin, launcher metadata, configuration, selected
+ROMs, and save handling in its normal reviewed sync plan. RockPod does not
+download or bundle ROMs. SRAM is stored in `/.rockbox/saves/snes/` and is not
+deleted automatically when a ROM is removed.
+
+The iPod destination is `/.rockbox/roms/snes/`; console/game metadata and
+covers use the existing `/.rockbox/games/library/` conventions consumed by the
+iPod JS Games launcher. See `../docs/snes-lite-port-spec.md` for limits and the
+hardware validation checklist.
+
 ## Android phone import
 
 RockPod can import photos and videos from a mounted Android phone directly to a

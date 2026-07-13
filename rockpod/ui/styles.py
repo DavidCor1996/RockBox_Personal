@@ -1037,7 +1037,8 @@ QLabel#sync_dialog_subtitle {{
 
 QFrame#sync_summary_panel,
 QFrame#sync_progress_panel,
-QFrame#sync_warning_panel {{
+QFrame#sync_warning_panel,
+QFrame#sync_rockbox_panel {{
     background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
         stop:0 #ffffff, stop:0.11 #f8f8f8, stop:0.52 #e9e9e9, stop:1 #dcdcdc);
     border: 1px solid #8f8f8f;
@@ -1062,6 +1063,20 @@ QLabel#sync_summary_value {{
     color: #1f1f1f;
     font-size: 12px;
     font-weight: bold;
+}}
+
+QPushButton#sync_rockbox_build_button {{
+    color: #252525;
+    font-size: 11px;
+    font-weight: bold;
+    min-height: 21px;
+    padding: 1px 10px;
+}}
+
+QLabel#sync_rockbox_build_detail {{
+    color: #666666;
+    font-size: 10px;
+    padding-left: 20px;
 }}
 
 QLabel#sync_warning_title {{

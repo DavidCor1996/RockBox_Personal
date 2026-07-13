@@ -120,3 +120,29 @@ def test_multiple_worker_scans_do_not_trigger_db_lock(config):
         assert db.get_track_count() == 10
     finally:
         db.close()
+
+
+def test_cancelled_library_worker_does_not_commit_partial_scan(config):
+    db = Database(config.db_path)
+    db.upsert_track({"file_path": "/keep-existing.mp3", "title": "Keep Existing"})
+    db.commit()
+    db.close()
+
+    worker = LibraryScanWorker(
+        config.music_dir,
+        config.video_dir,
+        config.db_path,
+        compute_hashes=False,
+        force_full=True,
+    )
+    reports = []
+    worker.finished.connect(reports.append)
+    worker.cancel()
+    worker.run()
+
+    check = Database(config.db_path, initialize=False)
+    try:
+        assert reports and reports[0]["status"] == "cancelled"
+        assert check.get_track_by_path("/keep-existing.mp3") is not None
+    finally:
+        check.close()

@@ -37,7 +37,9 @@ FLASHPLAYER_CXXFLAGS = $(PLUGIN_CXXFLAGS) -I$(FLASHPLAYERSRCDIR) \
 
 $(FLASHPLAYERBUILDDIR)/flashplayer.rock: $(FLASHPLAYER_OBJ)
 
-$(FLASHPLAYERBUILDDIR)/%.o: $(FLASHPLAYERSRCDIR)/%.cpp $(FLASHPLAYERSRCDIR)/flashplayer.make
+$(FLASHPLAYERBUILDDIR)/%.o: $(FLASHPLAYERSRCDIR)/%.cpp \
+                           $(FLASHPLAYERSRCDIR)/flashplayer.make \
+                           $(BUILDDIR)/lang_enum.h
 	$(SILENT)mkdir -p $(dir $@)
 	$(call PRINTS,CXX $(subst $(ROOTDIR)/,,$<))$(PLUGIN_CXX) -I$(dir $<) $(FLASHPLAYER_CXXFLAGS) -c $< -o $@
 

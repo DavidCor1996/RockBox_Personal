@@ -40,6 +40,15 @@ ASSET_EXTS = {
     ".woff",
     ".woff2",
     ".ttf",
+    ".json",
+    ".xml",
+    ".webmanifest",
+    ".mp3",
+    ".m4a",
+    ".mp4",
+    ".webm",
+    ".avif",
+    ".bin",
 }
 SOURCE_NAMES = ("geocities", "angelfire", "tripod", "yahoo", "myspace", "archive")
 GEOCITIES_NEIGHBORHOODS = (

@@ -395,6 +395,61 @@ def test_boot_full_install_builds_and_runs_rockbox_fullinstall(tmp_dir):
     assert progress[-1] == (2, 2, "Full installing Rockbox to iPod")
 
 
+def test_build_and_sync_latest_installs_plugins_and_verifies_both_firmware_copies(tmp_dir, monkeypatch):
+    repo_root = os.path.join(tmp_dir, "repo")
+    build_dir = os.path.join(repo_root, "build-hw-ipodvideo")
+    mount_root = os.path.join(tmp_dir, "device")
+    os.makedirs(os.path.join(build_dir, "apps", "plugins", "snes_lite"), exist_ok=True)
+    os.makedirs(os.path.join(mount_root, ".rockbox", "rocks"), exist_ok=True)
+    _write_bytes(os.path.join(build_dir, "rockbox.ipod"), b"latest-firmware")
+    _write_bytes(
+        os.path.join(build_dir, "apps", "plugins", "snes_lite", "snes_lite.rock"),
+        b"plugin",
+    )
+    _write_bytes(os.path.join(mount_root, ".rockbox", "rocks", "plugin.dat"), b"cache")
+    music_path = os.path.join(mount_root, "Music", "Artist", "Song.mp3")
+    _write_bytes(music_path, b"user-music")
+    _config, store = _make_store(tmp_dir, repo_root)
+
+    profile = store.current_profile()
+    profile["source_repo_path"] = repo_root
+    profile["device_mount_path"] = mount_root
+    profile["target_device_model"] = "iPod Video 5G"
+    profile["screen_resolution"] = "320x240"
+    profile = store.save_profile(profile)
+
+    runner = _FakeCommandRunner(
+        lambda command, cwd: _FakeCommandResult(command, stdout="ok")
+    )
+    monkeypatch.setattr(os, "sync", lambda: None)
+    progress = []
+    result = RockboxBootService().build_and_sync_latest(
+        profile,
+        runner=runner,
+        progress_callback=lambda current, total, label: progress.append(
+            (current, total, label)
+        ),
+        jobs=6,
+    )
+
+    assert result["success"] is True
+    assert result["plugin_count"] == 1
+    assert runner.commands == [
+        ["make", "-C", build_dir, "-j6"],
+        ["make", "-C", build_dir, f"PREFIX={mount_root}", "fullinstall"],
+    ]
+    for destination in (
+        os.path.join(mount_root, "rockbox.ipod"),
+        os.path.join(mount_root, ".rockbox", "rockbox.ipod"),
+    ):
+        with open(destination, "rb") as handle:
+            assert handle.read() == b"latest-firmware"
+    assert not os.path.exists(os.path.join(mount_root, ".rockbox", "rocks", "plugin.dat"))
+    with open(music_path, "rb") as handle:
+        assert handle.read() == b"user-music"
+    assert progress[-1] == (4, 4, "Rockbox and plugins verified")
+
+
 def test_invalidate_firmware_boot_assets_removes_stale_generated_outputs(tmp_dir):
     repo_root = os.path.join(tmp_dir, "repo")
     build_dir = os.path.join(repo_root, "build-hw-ipodvideo-5g")

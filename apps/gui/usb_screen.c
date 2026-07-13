@@ -42,6 +42,7 @@
 #include "playlist.h"
 #include "misc.h"
 #include "icons.h"
+#include "ipodjs_ui.h"
 
 #ifndef IPOD_NANO3G
 #include "bitmaps/usblogo.h"
@@ -124,6 +125,7 @@ struct usb_screen_vps_t
 {
     struct viewport parent;
     struct viewport logo;
+    bool overlay_active;
 #ifdef USB_ENABLE_HID
     struct viewport title;
 #endif
@@ -137,6 +139,23 @@ static void usb_screen_fix_viewports(struct screen *screen,
     struct viewport *logo = &usb_screen_vps->logo;
     int group_height;
     int group_top;
+
+    if (screen->screen_type == SCREEN_MAIN &&
+        ipodjs_ui_enabled(SCREEN_MAIN))
+    {
+        /* iPodJS owns the complete LCD while USB is connected.  Starting the
+         * themed Rockbox overlay here exposes its previous status bar/clock
+         * for one frame before the stock Connected screen is painted. */
+        usb_screen_vps->overlay_active = false;
+        *parent = (struct viewport){ 0 };
+        viewport_set_fullscreen(parent, screen->screen_type);
+        *logo = *parent;
+        logo->width = 0;
+        logo->height = 0;
+        return;
+    }
+
+    usb_screen_vps->overlay_active = true;
 
 #ifdef HAVE_REMOTE_LCD
     if (screen->screen_type == SCREEN_REMOTE)
@@ -226,6 +245,12 @@ static void usb_screens_draw(struct usb_screen_vps_t *usb_screen_vps_ar)
         struct viewport *logo = &usb_screen_vps->logo;
 
         last_vp = screen->set_viewport(parent);
+        if (i == SCREEN_MAIN && ipodjs_ui_enabled(SCREEN_MAIN))
+        {
+            ipodjs_ui_draw_usb_connected(screen);
+            screen->set_viewport(last_vp);
+            continue;
+        }
         screen->clear_viewport();
         screen->backlight_on();
 
@@ -275,6 +300,14 @@ void gui_usb_screen_run(bool early_usb, intptr_t seqnum)
 
     push_current_activity(ACTIVITY_USBSCREEN);
 
+    if (ipodjs_ui_enabled(SCREEN_MAIN))
+    {
+        ipodjs_ui_usb_prepare();
+        /* Replace the menu frame before font handles are closed and before
+         * the USB handshake can make storage initialization visible. */
+        ipodjs_ui_draw_usb_connected(&screens[SCREEN_MAIN]);
+    }
+
 #ifdef USB_ENABLE_HID
     usb_hid = global_settings.usb_hid;
     usb_keypad_mode = global_settings.usb_keypad_mode;
@@ -304,7 +337,17 @@ void gui_usb_screen_run(bool early_usb, intptr_t seqnum)
     {
         usb_screens_draw(usb_screen_vps_ar);
 #ifdef SIMULATOR
-        if (button_get_w_tmo(HZ/2))
+        int button = button_get_w_tmo(HZ/2);
+        if (ipodjs_ui_enabled(SCREEN_MAIN))
+        {
+            /* The connect key can still be queued after USB enumeration.
+             * Do not let that stale event immediately dismiss the iPodJS
+             * Connected screen; wait for the simulated disconnect event. */
+            if (button == SYS_USB_DISCONNECTED ||
+                button == SYS_CHARGER_DISCONNECTED)
+                break;
+        }
+        else if (button)
             break;
         send_event(GUI_EVENT_ACTIONUPDATE, NULL);
 #else
@@ -347,7 +390,8 @@ void gui_usb_screen_run(bool early_usb, intptr_t seqnum)
     FOR_NB_SCREENS(i)
     {
         screens[i].backlight_on();
-        viewportmanager_overlay_end(i, false);
+        if (usb_screen_vps_ar[i].overlay_active)
+            viewportmanager_overlay_end(i, false);
     }
 
     pop_current_activity();
