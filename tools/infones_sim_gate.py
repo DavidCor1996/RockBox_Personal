@@ -44,7 +44,9 @@ def start_screen_lang_id(build_dir: Path) -> int:
     return LANG_START_SCREEN
 
 
-def prepare(build_dir: Path, rom: Path, sound: bool) -> tuple[Path, Path]:
+def prepare(
+    build_dir: Path, rom: Path, sound: bool, native_video: bool
+) -> tuple[Path, Path]:
     simdisk = build_dir / "simdisk"
     plugin_source = build_dir / "apps" / "plugins" / "infones" / "infones.rock"
     plugin_target = simdisk / PLUGIN_PATH.lstrip("/")
@@ -91,7 +93,11 @@ def prepare(build_dir: Path, rom: Path, sound: bool) -> tuple[Path, Path]:
     options = simdisk / ".rockbox" / "infones" / "options.cfg"
     options.parent.mkdir(parents=True, exist_ok=True)
     options.write_text(
-        f"sound={1 if sound else 0}\nautosave=0\naudio_quality=2\n",
+        f"sound={1 if sound else 0}\n"
+        "autosave=0\n"
+        "profile=1\n"
+        f"native_video={1 if native_video else 0}\n"
+        "audio_quality=2\n",
         encoding="utf-8",
     )
     return simdisk, simdisk / ".rockbox" / "infones" / "profile.log"
@@ -103,12 +109,16 @@ def main() -> int:
     parser.add_argument("--rom", type=Path, required=True)
     parser.add_argument("--frames", type=int, default=600)
     parser.add_argument("--sound", action="store_true")
+    parser.add_argument("--native-video", action="store_true")
     parser.add_argument("--run", action="store_true")
     args = parser.parse_args()
 
     build_dir = args.build_dir.resolve()
     simdisk, profile_path = prepare(
-        build_dir, args.rom.expanduser().resolve(), args.sound
+        build_dir,
+        args.rom.expanduser().resolve(),
+        args.sound,
+        args.native_video,
     )
     print(f"Prepared InfoNES simulator disk: {simdisk}")
     if not args.run:
@@ -121,7 +131,15 @@ def main() -> int:
         [str(build_dir / "rockboxui")], cwd=build_dir, env=environment
     )
     deadline = time.monotonic() + 90
+    expected = f"frames_emulated={max(1, args.frames)}"
     while process.poll() is None and time.monotonic() < deadline:
+        if profile_path.is_file():
+            current = profile_path.read_text(
+                encoding="utf-8", errors="replace"
+            ).splitlines()
+            if current and expected in current[-1]:
+                process.terminate()
+                break
         time.sleep(0.1)
     if process.poll() is None:
         process.terminate()
@@ -139,7 +157,6 @@ def main() -> int:
     if not lines:
         return 1
     print(lines[-1])
-    expected = f"frames_emulated={max(1, args.frames)}"
     return 0 if expected in lines[-1] and "frames_skipped=0" in lines[-1] else 1
 
 

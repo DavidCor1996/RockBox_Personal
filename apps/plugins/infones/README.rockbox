@@ -13,5 +13,13 @@ licensing or redistribution packaging.
 Initial Rockbox limitations:
 
 - Raw .nes files only; zipped ROMs must be extracted first.
-- Audio is intentionally muted until the PCM path is wired and profiled.
 - Controls are tuned for iPod clickwheel targets first.
+
+Runtime options are read from `.rockbox/infones/options.cfg`:
+
+- `sound=0` disables audio (enabled by default).
+- `autosave=0` disables automatic SRAM saves (enabled by default).
+- `audio_quality=0`, `1`, or `2` selects 11.025, 22.05, or 44.1 kHz.
+- `profile=1` enables runtime counters and `.rockbox/infones/profile.log`.
+- `native_video=1` selects centered 256x240 video instead of the default
+  fullscreen horizontal scale.

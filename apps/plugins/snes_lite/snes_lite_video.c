@@ -13,13 +13,27 @@ static fb_data *main_framebuffer(void)
     return viewport->buffer->fb_ptr;
 }
 
-static void update_lcd(void)
+static bool lcd_updates_suppressed(void)
 {
 #ifdef SIMULATOR
     if (getenv("SNES_LITE_TEST_UNTHROTTLED"))
-        return;
+        return true;
 #endif
+    return false;
+}
+
+static void update_lcd(void)
+{
+    if (lcd_updates_suppressed())
+        return;
     rb->lcd_update();
+}
+
+static void update_lcd_rect(int x, int y, int width, int height)
+{
+    if (lcd_updates_suppressed())
+        return;
+    rb->lcd_update_rect(x, y, width, height);
 }
 
 #ifdef SIMULATOR
@@ -185,27 +199,57 @@ static void draw_fullscreen_256x224(const uint16_t *source,
 }
 #endif
 
-static void draw_native(const uint16_t *source, unsigned width,
-                        unsigned height, unsigned stride)
+static bool native_border_valid;
+static int native_x;
+static int native_y;
+static unsigned native_width;
+static unsigned native_height;
+static bool native_fps_was_visible;
+
+static bool draw_native(const uint16_t *source, unsigned width,
+                        unsigned height, unsigned stride, int *draw_x,
+                        int *draw_y, unsigned *width_out,
+                        unsigned *height_out)
 {
     unsigned draw_width = MIN(256u, width);
     unsigned draw_height = MIN(224u, height);
     int x = (LCD_WIDTH - draw_width) / 2;
     int y = (LCD_HEIGHT - draw_height) / 2;
     fb_data *framebuffer = main_framebuffer();
+    bool cleared_border = !native_border_valid || x != native_x ||
+                          y != native_y || draw_width != native_width ||
+                          draw_height != native_height;
     unsigned row;
 
-    rb->lcd_set_background(LCD_BLACK);
-    rb->lcd_clear_display();
+    if (cleared_border)
+    {
+        rb->lcd_set_background(LCD_BLACK);
+        rb->lcd_clear_display();
+        native_border_valid = true;
+        native_x = x;
+        native_y = y;
+        native_width = draw_width;
+        native_height = draw_height;
+    }
     for (row = 0; row < draw_height; row++)
     {
         fb_data *destination = framebuffer + (y + row) * LCD_WIDTH + x;
         const uint16_t *input = source + row * stride;
+#if LCD_PIXELFORMAT == RGB565
+        rb->memcpy(destination, input, draw_width * sizeof(*destination));
+#else
         unsigned column;
 
         for (column = 0; column < draw_width; column++)
             destination[column] = snes_pixel_to_fb(input[column]);
+#endif
     }
+
+    *draw_x = x;
+    *draw_y = y;
+    *width_out = draw_width;
+    *height_out = draw_height;
+    return cleared_border;
 }
 
 bool snes_lite_video_selftest(void)
@@ -250,6 +294,15 @@ static void draw_fps_overlay(void)
     rb->lcd_putsxy(2, 2, text);
 }
 
+static int fps_overlay_height(void)
+{
+    static int height;
+
+    if (height == 0)
+        rb->lcd_getstringsize("A", NULL, &height);
+    return height;
+}
+
 void snes_lite_video_refresh(const void *data, unsigned width,
                              unsigned height, size_t pitch)
 {
@@ -274,6 +327,8 @@ void snes_lite_video_refresh(const void *data, unsigned width,
     if (snes_lite.config.video_mode == SNES_VIDEO_FULLSCREEN &&
         width == 256 && height >= 224)
     {
+        native_border_valid = false;
+        native_fps_was_visible = false;
         draw_fullscreen_256x224(data, stride);
         draw_fps_overlay();
 #ifdef SIMULATOR
@@ -286,16 +341,43 @@ void snes_lite_video_refresh(const void *data, unsigned width,
         return;
     }
 #endif
-    draw_native(data, width, height, stride);
-    if (snes_lite.config.show_fps)
-        draw_fps_overlay();
+    {
+        int draw_x;
+        int draw_y;
+        unsigned draw_width;
+        unsigned draw_height;
+        int overlay_height = fps_overlay_height() + 2;
+        bool overlay_dirty = snes_lite.config.show_fps ||
+                             native_fps_was_visible;
+        bool full_update;
+
+        if (overlay_dirty)
+        {
+            rb->lcd_set_foreground(LCD_BLACK);
+            rb->lcd_fillrect(0, 0, LCD_WIDTH, overlay_height);
+        }
+        full_update = draw_native(data, width, height, stride, &draw_x,
+                                  &draw_y, &draw_width, &draw_height);
+        native_fps_was_visible = snes_lite.config.show_fps;
+        if (snes_lite.config.show_fps)
+            draw_fps_overlay();
 #ifdef SIMULATOR
-    dump_test_frame();
+        dump_test_frame();
 #endif
-    lcd_tick = *rb->current_tick;
-    snes_lite.video_scale_ticks += lcd_tick - start_tick;
-    update_lcd();
-    snes_lite.video_lcd_ticks += *rb->current_tick - lcd_tick;
+        lcd_tick = *rb->current_tick;
+        snes_lite.video_scale_ticks += lcd_tick - start_tick;
+        if (full_update)
+        {
+            update_lcd();
+        }
+        else
+        {
+            update_lcd_rect(draw_x, draw_y, draw_width, draw_height);
+            if (overlay_dirty)
+                update_lcd_rect(0, 0, LCD_WIDTH, overlay_height);
+        }
+        snes_lite.video_lcd_ticks += *rb->current_tick - lcd_tick;
+    }
 }
 
 void snes_lite_video_redraw(void)
