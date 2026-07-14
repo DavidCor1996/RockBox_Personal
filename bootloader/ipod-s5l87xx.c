@@ -256,6 +256,59 @@ extern uint32_t start_loc;
 
 extern int line;
 
+#if defined(IPOD_NANO3G) && NANO3G_LCD_COLOR_PROBE
+static void nano3g_lcd_color_probe(void)
+{
+    static const uint16_t colors[4][6] =
+    {
+        /* RGB565, byte swap, red/blue swap, then both transforms. */
+        { 0xf800, 0x07e0, 0x001f, 0x07ff, 0xf81f, 0xffe0 },
+        { 0x00f8, 0xe007, 0x1f00, 0xff07, 0x1ff8, 0xe0ff },
+        { 0x001f, 0x07e0, 0xf800, 0xffe0, 0xf81f, 0x07ff },
+        { 0x1f00, 0xe007, 0x00f8, 0xe0ff, 0x1ff8, 0xff07 },
+    };
+    static const unsigned char row_names[] = "ABCD";
+    static const unsigned char col_names[] = "RGBCMY";
+    unsigned char label[2] = { '\0', '\0' };
+    extern unsigned char lcd_id[4];
+    extern int lcd_type;
+
+    lcd_set_background(LCD_BLACK);
+    lcd_set_foreground(LCD_WHITE);
+    lcd_clear_display();
+    lcd_setfont(FONT_SYSFIXED);
+    lcd_puts(0, 0, "N3G LCD COLOR PROBE");
+    lcd_putsf(0, 1, "ID %02X %02X %02X %02X TYPE %d",
+              lcd_id[0], lcd_id[1], lcd_id[2], lcd_id[3], lcd_type);
+    lcd_puts(0, 2, "A normal B byte C red/blue D both");
+
+    for (unsigned int row = 0; row < ARRAYLEN(colors); row++)
+    {
+        int y = 30 + row * 45;
+
+        label[0] = row_names[row];
+        lcd_set_foreground(LCD_WHITE);
+        lcd_putsxy(2, y + 14, label);
+        for (unsigned int col = 0; col < ARRAYLEN(colors[row]); col++)
+        {
+            lcd_set_foreground(colors[row][col]);
+            lcd_fillrect(18 + col * 50, y, 44, 38);
+        }
+    }
+
+    lcd_set_foreground(LCD_WHITE);
+    for (unsigned int col = 0; col < 6; col++)
+    {
+        label[0] = col_names[col];
+        lcd_putsxy(37 + col * 50, 216, label);
+    }
+    lcd_update();
+
+    while (1)
+        ;
+}
+#endif
+
 #ifndef S5L87XX_DEVELOPMENT_BOOTLOADER
 #ifdef HAVE_BOOTLOADER_USB_MODE
 static void usb_mode(void)
@@ -1255,9 +1308,9 @@ static void n3g_handoff_disk_native(unsigned char *image, int length)
     while (1)
         ;
 #else
-    const uint32_t expected_length = 881388u;
-    const uint32_t expected_sum = 0x05673eefu;
-    const uint32_t expected_fnv1a = 0x9ecd7f8fu;
+    const uint32_t expected_length = 842532u;
+    const uint32_t expected_sum = 0x0550c12au;
+    const uint32_t expected_fnv1a = 0xef4c6f36u;
 #if NANO3G_FULL_IMAGE_PRESTOR_CHECKPOINT
     static const char checkpoint_expected[] = "N3G FULL STORAGE OK";
     static const char checkpoint_text[] = "PRESTORAGE RETURNED";
@@ -1277,8 +1330,8 @@ static void n3g_handoff_disk_native(unsigned char *image, int length)
         || fnv1a != expected_fnv1a
         || *(uint32_t *)(image + 0x00000000u) != 0xea00000du
         || *(uint32_t *)(image + 0x0000003cu) != 0xe51ff004u
-        || *(uint32_t *)(image + 0x00005e98u) != 0xe52de004u
-        || *(uint32_t *)(image + 0x00087630u) != 0xe3a00001u
+        || *(uint32_t *)(image + 0x00005e18u) != 0xe52de004u
+        || *(uint32_t *)(image + 0x00093b2cu) != 0xe3a00001u
 #if NANO3G_FULL_IMAGE_PRESTOR_CHECKPOINT
         || *(uint32_t *)(image + 0x00005f30u) != 0xeb01debcu
         || *(uint32_t *)(image + 0x00005f34u) != 0xe2504000u
@@ -1288,16 +1341,25 @@ static void n3g_handoff_disk_native(unsigned char *image, int length)
                   sizeof(checkpoint_expected)) != 0
 #endif
 #if NANO3G_FULL_IMAGE_PRESERVE_EXCEPTION
-        || *(uint32_t *)(image + 0x000803b4u) != 0xeb001c9du
-        || *(uint32_t *)(image + 0x000803c8u) != 0xeafffffeu
+        || *(uint32_t *)(image + 0x00089e70u) != 0xeb001c36u
+        || *(uint32_t *)(image + 0x00089e84u) != 0xeafffffeu
 #endif
 #if NANO3G_FULL_IMAGE_READONLY_CONTINUE
-        || *(uint32_t *)(image + 0x0001daf4u) != 0xeb015253u
-        || *(uint32_t *)(image + 0x000060f0u) != 0xeb0149ceu
-        || *(uint32_t *)(image + 0x000060fcu) != 0xe5d43308u
-        || *(uint32_t *)(image + 0x0000614cu) != 0xeb014dfcu
-        || *(uint32_t *)(image + 0x00006220u) != 0xeb01252bu
-        || *(uint32_t *)(image + 0x00006224u) != 0xe59f00a4u
+        || *(uint32_t *)(image + 0x00027db4u) != 0xeb014f4eu
+        || *(uint32_t *)(image + 0x00006070u) != 0xeb016eccu
+        || *(uint32_t *)(image + 0x0000607cu) != 0xe5d43308u
+        || *(uint32_t *)(image + 0x000060ccu) != 0xeb0172ceu
+        || *(uint32_t *)(image + 0x000061a0u) != 0xeb014bf9u
+        || *(uint32_t *)(image + 0x000061a4u) != 0xe59f00a4u
+#endif
+#if NANO3G_FULL_IMAGE_IPODJS_CONTINUE
+        /* settings[] record for global_settings.ui_engine. */
+        || *(uint32_t *)(image + 0x000a0e1cu) != 0x00000101u
+        || *(uint32_t *)(image + 0x000a0e20u) != 0x08100c30u
+        || *(uint32_t *)(image + 0x000a0e24u) != 0xffffffffu
+        || *(uint32_t *)(image + 0x000a0e28u) != 0x00000000u
+        || *(uint32_t *)(image + 0x000a0e2cu) != 0x0809f214u
+        || *(uint32_t *)(image + 0x000a0e30u) != 0x080d76c8u
 #endif
         )
     {
@@ -1338,7 +1400,7 @@ static void n3g_handoff_disk_native(unsigned char *image, int length)
      * to the function's terminal loop after its boottrace call so the UIE
      * diagnostic remains visible.  This changes one guarded word in DRAM.
      */
-    *(uint32_t *)(image + 0x000803b4u) = 0xea000003u;
+    *(uint32_t *)(image + 0x00089e70u) = 0xea000003u;
 
 #if NANO3G_FULL_IMAGE_READONLY_CONTINUE
     /*
@@ -1350,19 +1412,34 @@ static void n3g_handoff_disk_native(unsigned char *image, int length)
      * dircache persistence, tagcache state/scanning, playback logging, and
      * playername.txt creation.  NAND writes remain hard-failed globally.
      */
-    *(uint32_t *)(image + 0x0001daf4u) = 0xea000019u;
-    *(uint32_t *)(image + 0x000060f0u) = 0xe1a00000u;
-    *(uint32_t *)(image + 0x000060fcu) = 0xea000012u;
-    *(uint32_t *)(image + 0x0000614cu) = 0xea000003u;
-    *(uint32_t *)(image + 0x00006220u) = 0xe1a00000u;
-    *(uint32_t *)(image + 0x00006224u) = 0xea00000cu;
+    *(uint32_t *)(image + 0x00027db4u) = 0xea000019u;
+    *(uint32_t *)(image + 0x00006070u) = 0xe1a00000u;
+    *(uint32_t *)(image + 0x0000607cu) = 0xea000012u;
+    *(uint32_t *)(image + 0x000060ccu) = 0xea000003u;
+    *(uint32_t *)(image + 0x000061a0u) = 0xe1a00000u;
+    *(uint32_t *)(image + 0x000061a4u) = 0xea00000cu;
+#endif
+
+#if NANO3G_FULL_IMAGE_IPODJS_CONTINUE
+    /*
+     * The bounded synthetic /.rockbox directory deliberately omits the live
+     * config.cfg, so settings_reset() otherwise leaves the UI engine at its
+     * Rockbox default.  Change only this exact settings[] default in the
+     * checksum-verified DRAM copy; settings_load() and the iPodJS renderer
+     * then exercise their normal paths without a persistent config write.
+     */
+    *(uint32_t *)(image + 0x000a0e28u) = 0x00000001u;
 #endif
 
     lcd_clear_display();
     lcd_puts(0, 0, "N3G READONLY CONTINUE");
     lcd_putsf(0, 1, "%d BODY BYTES", length);
 #if NANO3G_FULL_IMAGE_READONLY_CONTINUE
+#if NANO3G_FULL_IMAGE_IPODJS_CONTINUE
+    lcd_puts(0, 2, "8 RAM WORDS PATCHED");
+#else
     lcd_puts(0, 2, "7 RAM WORDS PATCHED");
+#endif
 #else
     lcd_puts(0, 2, "1 RAM WORD PATCHED");
 #endif
@@ -1473,6 +1550,9 @@ void main(void)
     printf("N3G_VIS_OK_CONTINUE");
     lcd_update();
     n3g_lcd_ready = true;
+#if NANO3G_LCD_COLOR_PROBE
+    nano3g_lcd_color_probe();
+#endif
 #endif
 
     enable_irq();

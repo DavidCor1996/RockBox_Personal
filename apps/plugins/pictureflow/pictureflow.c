@@ -340,9 +340,18 @@ static inline pix_t pf_color_mix(int brightness)
 
 #define MAX_SLIDES_COUNT 10
 
+#if PF_PLAYBACK_CAPABLE
+/* Keep track metadata outside buflib.  The old implementation borrowed the
+ * front of the live pool with buflib_buffer_out(), which moves allocations
+ * without callbacks and behaves differently in the simulator. */
+#define TRACK_BUFFER_MIN (16u * 1024u)
+#define TRACK_BUFFER_MAX (256u * 1024u)
+#endif
+
 #define THREAD_STACK_SIZE DEFAULT_STACK_SIZE + 0x200
 #define CACHE_PREFIX PLUGIN_DEMOS_DATA_DIR "/pictureflow"
 #define ALBUM_INDEX CACHE_PREFIX "/pictureflow_album.idx"
+#define ALBUM_INDEX_TMP ALBUM_INDEX ".tmp"
 
 #define EV_EXIT 9999
 #define EV_WAKEUP 1337
@@ -372,7 +381,7 @@ static const unsigned char pf_dither_table[16] =
 #define ERROR_USER_ABORT    -4
 
 /* current version for cover cache */
-#define CACHE_VERSION 5
+#define CACHE_VERSION 6
 #define CONFIG_VERSION 1
 #define CONFIG_FILE "pictureflow.cfg"
 #define INDEX_HDR "PFID"
@@ -441,7 +450,7 @@ struct pf_track_t {
     int    list_visible;
     int    list_y;
     int    list_h;
-    size_t borrowed;
+    size_t buf_sz;
     size_t used;
     struct track_data *index;
     char  *names;
@@ -540,9 +549,13 @@ struct pf_scroll_line {
 };
 
 struct pfraw_header {
+    uint32_t magic;
     int32_t width;          /* bmap width in pixels */
     int32_t height;         /* bmap height in pixels */
+    uint32_t data_size;
 };
+
+#define PFRAW_MAGIC 0x57524650 /* "PFRW" on little-endian targets */
 
 enum show_album_name_values {
     ALBUM_NAME_HIDE = 0,
@@ -677,17 +690,14 @@ static struct pf_track_t pf_tracks;
 static struct mp3entry id3;
 
 void reset_track_list(void);
+static inline void free_borrowed_tracks(void);
 
 static bool thread_is_running;
 static bool wants_to_quit;
 
-/*
-    Prevent picture loading thread from allocating
-    buflib memory while the main thread may be
-    performing buffer-shifting operations.
-*/
+/* Serialize the shared tagcache search object and slide buflib between the
+ * main thread and the background cover loader. */
 static struct mutex buf_ctx_mutex;
-static bool buf_ctx_locked;
 
 static int cover_animation_keyframe;
 static int extra_fade;
@@ -739,13 +749,11 @@ static void free_all_slide_prio(int prio);
 static inline void buf_ctx_lock(void)
 {
     rb->mutex_lock(&buf_ctx_mutex);
-    buf_ctx_locked = true;
 }
 
 static inline void buf_ctx_unlock(void)
 {
     rb->mutex_unlock(&buf_ctx_mutex);
-    buf_ctx_locked = false;
 }
 
 static inline bool storage_mode_is_ssd(void)
@@ -1681,25 +1689,43 @@ retry_artist_lookup:
  next time PictureFlow is launched*/
 
 static int save_album_index(void){
-    int fd = rb->creat(ALBUM_INDEX,0666);
+    int fd = rb->open(ALBUM_INDEX_TMP, O_WRONLY|O_CREAT|O_TRUNC, 0666);
 
     struct pf_index_t data;
     memcpy(&data, &pf_idx, sizeof(struct pf_index_t));
 
     if(fd >= 0)
     {
+        bool ok = true;
         rb->memcpy(&data.header, INDEX_HDR, sizeof(pf_idx.header));
 
-        rb->write(fd, &data, sizeof(struct pf_index_t));
+        ok = rb->write(fd, &data, sizeof(struct pf_index_t)) ==
+             (ssize_t)sizeof(struct pf_index_t);
+        if (ok)
+            ok = rb->write(fd, data.artist_names, data.artist_len) ==
+                 (ssize_t)data.artist_len;
+        if (ok)
+            ok = rb->write(fd, data.album_names, data.album_len) ==
+                 (ssize_t)data.album_len;
+        size_t album_idx_sz = data.album_ct * sizeof(struct album_data);
+        if (ok)
+            ok = rb->write(fd, data.album_index, album_idx_sz) ==
+                 (ssize_t)album_idx_sz;
+        if (rb->close(fd) < 0)
+            ok = false;
 
-        rb->write(fd, data.artist_names, data.artist_len);
-        rb->write(fd, data.album_names, data.album_len);
-
-        rb->write(fd, data.album_index, data.album_ct * sizeof(struct album_data));
-
-        rb->close(fd);
-        return 0;
+        if (ok)
+        {
+            /* FAT rename cannot replace an existing file. Removing the old
+             * file only after the complete replacement is closed means a
+             * reset can leave a missing index, but never a partial one. */
+            rb->remove(ALBUM_INDEX);
+            if (rb->rename(ALBUM_INDEX_TMP, ALBUM_INDEX) == 0)
+                return 0;
+        }
     }
+
+    rb->remove(ALBUM_INDEX_TMP);
     return -1;
 }
 
@@ -1720,25 +1746,37 @@ static int load_album_index(void){
     struct pf_index_t data;
 
     void *bufstart = pf_idx.buf;
-    unsigned int bufstart_sz = pf_idx.buf_sz;
+    size_t bufstart_sz = pf_idx.buf_sz;
 
     void* buf = pf_idx.buf;
     size_t buf_size = pf_idx.buf_sz;
 
-    unsigned int name_sz, album_idx_sz;
+    size_t album_idx_sz;
     int album_idx, artist_idx;
 
     if (fr >= 0){
-        const unsigned long filesize = rb->filesize(fr);
-        if (filesize > sizeof(data))
+        const off_t stored_size = rb->filesize(fr);
+        if (stored_size > (off_t)sizeof(data))
         {
             if (rb->read(fr, &data, sizeof(data)) == sizeof(data) &&
                 rb->memcmp(&(data.header), INDEX_HDR, sizeof(data.header)) == 0)
             {
-                name_sz = data.artist_len + data.album_len;
-                album_idx_sz = data.album_ct * sizeof(struct album_data);
+                if (data.album_ct == 0 || data.artist_len == 0 ||
+                    data.album_len == 0 ||
+                    data.artist_len > bufstart_sz ||
+                    data.album_len > bufstart_sz - data.artist_len)
+                    goto failure;
 
-                if (name_sz + album_idx_sz > bufstart_sz)
+                album_idx_sz = data.album_ct * sizeof(struct album_data);
+                size_t expected_size = sizeof(data) + data.artist_len;
+                if (data.album_len > SIZE_MAX - expected_size)
+                    goto failure;
+                expected_size += data.album_len;
+                if (album_idx_sz > SIZE_MAX - expected_size)
+                    goto failure;
+                expected_size += album_idx_sz;
+
+                if (stored_size != (off_t)expected_size)
                     goto failure;
 
                 //rb->lseek(fr, sizeof(data) + 1, SEEK_SET);
@@ -1760,6 +1798,8 @@ static int load_album_index(void){
 
                 /* index of album names */
                 ALIGN_BUFFER(buf, buf_size, alignof(struct album_data));
+                if (album_idx_sz > buf_size)
+                    goto failure;
                 if (read2buf(fr, buf, album_idx_sz) == 0)
                     goto failure;
 
@@ -1768,14 +1808,19 @@ static int load_album_index(void){
                 buf_size -= album_idx_sz;
 
                 rb->close(fr);
+                fr = -1;
 
                 /* sanity check loaded data */
                 for (i = 0; i < data.album_ct; i++)
                 {
                     album_idx = data.album_index[i].name_idx;
                     artist_idx = data.album_index[i].artist_idx;
-                    if (album_idx >= (int) data.album_len ||
-                        artist_idx >= (int) data.artist_len)
+                    if (album_idx < 0 || album_idx >= (int)data.album_len ||
+                        artist_idx < 0 || artist_idx >= (int)data.artist_len ||
+                        rb->memchr(data.album_names + album_idx, '\0',
+                            data.album_len - album_idx) == NULL ||
+                        rb->memchr(data.artist_names + artist_idx, '\0',
+                            data.artist_len - artist_idx) == NULL)
                     {
                         goto failure;
                     }
@@ -2009,39 +2054,8 @@ static int compare_tracks (const void *a_v, const void *b_v)
 
 static bool track_buffer_avail(size_t needed)
 {
-    size_t total_out = 0;
-    size_t out = 0;
-    if (pf_tracks.borrowed == 0 && pf_tracks.used == 0)
-    {
-        pf_tracks.names = rb->buflib_buffer_out(&buf_ctx, &out);
-        pf_tracks.borrowed = out;
-    }
-
-    if (needed <= pf_tracks.borrowed - pf_tracks.used)
-        return true;
-
-    while (needed > (pf_tracks.borrowed + total_out) - pf_tracks.used)
-    {
-        if (!free_slide_prio(0))
-            break;
-        out = 0;
-        rb->buflib_buffer_out(&buf_ctx, &out);
-        total_out += out;
-    }
-    pf_tracks.borrowed += total_out;
-
-    // have to move already stored track_data structs
-    if (pf_tracks.count)
-    {
-        struct track_data *new_tracks = (struct track_data *)(total_out + (uintptr_t)pf_tracks.index);
-        unsigned int bytes = pf_tracks.count * sizeof(struct track_data);
-        rb->memmove(new_tracks, pf_tracks.index, bytes);
-    }
-
-    if (needed > pf_tracks.borrowed - pf_tracks.used)
-        return false;
-
-    return true;
+    return pf_tracks.used <= pf_tracks.buf_sz &&
+           needed <= pf_tracks.buf_sz - pf_tracks.used;
 }
 
 
@@ -2079,10 +2093,13 @@ static int pf_tcs_retrieve_file_name(int fn_idx)
     if (!track_buffer_avail(MAX_PATH))
         return 0;
 
-    rb->tagcache_retrieve(&tcs, tcs.idx_id, tag_filename,
-            pf_tracks.names + fn_idx, MAX_PATH);
+    char *filename = pf_tracks.names + fn_idx;
+    filename[0] = '\0';
+    if (!rb->tagcache_retrieve(&tcs, tcs.idx_id, tag_filename,
+                               filename, MAX_PATH))
+        return 0;
 
-    return rb->strlen(pf_tracks.names + fn_idx);
+    return rb->strlen(filename);
 }
 #endif
 
@@ -2093,12 +2110,17 @@ static void create_track_index(const int slide_index)
 {
     char tcs_buf[TAGCACHE_BUFSZ];
     const long tcs_bufsz = sizeof(tcs_buf);
-    buf_ctx_lock();
+    bool search_started = false;
     if ( slide_index == pf_tracks.cur_idx )
         return;
 
+    free_borrowed_tracks();
+
+    buf_ctx_lock();
+
     if (!rb->tagcache_search(&tcs, tag_title))
         goto fail;
+    search_started = true;
 
     rb->tagcache_search_add_filter(&tcs, tag_album,
                                    pf_idx.album_index[slide_index].seek);
@@ -2132,8 +2154,8 @@ static void create_track_index(const int slide_index)
 
         pf_tracks.used += sizeof(struct track_data);
         unsigned int arr_sz = (pf_tracks.count + 1) * sizeof(struct track_data);
-        // Arrray descends from upper end of buflib-borrowed buffer.
-        pf_tracks.index = (struct track_data*)(pf_tracks.names + pf_tracks.borrowed
+        /* Array descends from the upper end of the fixed track arena. */
+        pf_tracks.index = (struct track_data*)(pf_tracks.names + pf_tracks.buf_sz
                                                                - arr_sz );
         pf_tracks.index->sort = (disc_num << 24) + (track_num << 14);
         pf_tracks.index->sort += pf_tracks.count;
@@ -2149,6 +2171,12 @@ static void create_track_index(const int slide_index)
     }
 
     rb->tagcache_search_finish(&tcs);
+    search_started = false;
+
+    if (pf_tracks.count == 0)
+        goto fail;
+
+    buf_ctx_unlock();
 
     /* now fix the track list order */
     rb->qsort(pf_tracks.index, pf_tracks.count,
@@ -2157,22 +2185,21 @@ static void create_track_index(const int slide_index)
     pf_tracks.cur_idx = slide_index;
     return;
 fail:
-    rb->tagcache_search_finish(&tcs);
-    pf_tracks.count = 0;
+    if (search_started)
+        rb->tagcache_search_finish(&tcs);
+    free_borrowed_tracks();
+    buf_ctx_unlock();
     return;
 }
 
 /**
-  Re-grow the buflib buffer by returning space borrowed
-  for track list
+  Clear the fixed track arena for the next album.
 */
 static inline void free_borrowed_tracks(void)
 {
-    rb->buflib_buffer_in(&buf_ctx, pf_tracks.borrowed);
-    pf_tracks.borrowed = 0;
+    pf_tracks.count = 0;
     pf_tracks.used = 0;
     pf_tracks.cur_idx = -1;
-    buf_ctx_unlock();
 }
 
 /* Fills mp3entry with metadata retrieved from  RAM, if possible, or by reading from
@@ -2435,15 +2462,46 @@ static unsigned int mfnv(char *str)
  */
 static bool save_pfraw(char* filename, struct bitmap *bm)
 {
+    char tmpname[MAX_PATH];
     struct pfraw_header bmph;
+    size_t data_size;
+
+    if (bm->width <= 0 || bm->height <= 0 ||
+        (size_t)bm->width > SIZE_MAX / (size_t)bm->height ||
+        (size_t)bm->width * (size_t)bm->height >
+            UINT32_MAX / sizeof(pix_t))
+        return false;
+
+    data_size = sizeof(pix_t) * (size_t)bm->width * (size_t)bm->height;
+    bmph.magic = PFRAW_MAGIC;
     bmph.width = bm->width;
     bmph.height = bm->height;
-    int fh = rb->open(filename, O_WRONLY|O_CREAT|O_TRUNC, 0666);
-    if( fh < 0 ) return false;
-    rb->write( fh, &bmph, sizeof( struct pfraw_header ) );
-    rb->write( fh, bm->data , sizeof( pix_t ) * bm->width *  bm->height );
-    rb->close( fh );
-    return true;
+    bmph.data_size = data_size;
+
+    if (rb->snprintf(tmpname, sizeof(tmpname), "%s.tmp", filename) >=
+        (int)sizeof(tmpname))
+        return false;
+
+    int fh = rb->open(tmpname, O_WRONLY|O_CREAT|O_TRUNC, 0666);
+    if (fh < 0)
+        return false;
+
+    bool ok = rb->write(fh, &bmph, sizeof(bmph)) == (ssize_t)sizeof(bmph) &&
+              rb->write(fh, bm->data, data_size) == (ssize_t)data_size;
+    if (rb->close(fh) < 0)
+        ok = false;
+
+    if (ok)
+    {
+        /* Publish only a complete, closed cache entry. A reset between the
+         * remove and rename leaves a harmless cache miss. */
+        rb->remove(filename);
+        if (rb->rename(tmpname, filename) == 0)
+            return true;
+    }
+
+    rb->remove(tmpname);
+    return false;
 }
 
 static bool incremental_albumart_cache(bool verbose)
@@ -2479,7 +2537,8 @@ static bool incremental_albumart_cache(bool verbose)
     rb->snprintf(aa_cache.pfraw_file, sizeof(aa_cache.pfraw_file),
                  CACHE_PREFIX "/%x%x.pfraw", hash_album, hash_artist);
 
-    if(pf_cfg.update_albumart && rb->file_exists(aa_cache.pfraw_file)) {
+    if (pf_cfg.cache_version == CACHE_VERSION && pf_cfg.update_albumart &&
+        rb->file_exists(aa_cache.pfraw_file)) {
         aa_cache.slides++;
         goto aa_success;
     }
@@ -2501,8 +2560,6 @@ static bool incremental_albumart_cache(bool verbose)
 
         goto aa_failure;
     }
-    rb->remove(aa_cache.pfraw_file);
-
     if (!save_pfraw(aa_cache.pfraw_file, &aa_cache.input_bmp))
     {
         if (verbose) { rb->splash(HZ, "Could not write bmp"); }
@@ -2652,6 +2709,7 @@ static bool create_pf_thread(void)
                                IF_COP(, CPU)
                                       )
         ) == 0) {
+        rb->queue_delete(&thread_q);
         return false;
     }
     thread_is_running = true;
@@ -2873,15 +2931,28 @@ static int read_pfraw(char* filename, int prio)
 {
     struct pfraw_header bmph;
     int fh = rb->open(filename, O_RDONLY);
-    if( fh < 0 ) {
+    if (fh < 0) {
         /* pf_cfg.cache_version = CACHE_UPDATE; -- don't invalidate on missing pfraw */
-        return empty_slide_hid;
+        return rb->strcmp(filename, EMPTY_SLIDE) == 0 ? -1 : empty_slide_hid;
     }
-    else
-        rb->read(fh, &bmph, sizeof(struct pfraw_header));
 
-    int size =  sizeof(struct dim) +
-                sizeof( pix_t ) * bmph.width * bmph.height;
+    off_t file_size = rb->filesize(fh);
+    if (rb->read(fh, &bmph, sizeof(bmph)) != (ssize_t)sizeof(bmph) ||
+        bmph.magic != PFRAW_MAGIC || bmph.width <= 0 || bmph.height <= 0 ||
+        (size_t)bmph.width > SIZE_MAX / (size_t)bmph.height)
+        goto corrupt;
+
+    size_t pixel_count = (size_t)bmph.width * (size_t)bmph.height;
+    if (pixel_count > UINT32_MAX / sizeof(pix_t))
+        goto corrupt;
+
+    size_t data_size = sizeof(pix_t) * pixel_count;
+    if (bmph.data_size != data_size || data_size > aa_cache.buf_sz ||
+        file_size != (off_t)(sizeof(bmph) + data_size) ||
+        data_size > SIZE_MAX - sizeof(struct dim))
+        goto corrupt;
+
+    size_t size = sizeof(struct dim) + data_size;
 
     int hid;
     do {
@@ -2899,9 +2970,19 @@ static int read_pfraw(char* filename, int prio)
     bm->height = bmph.height;
     pix_t *data = (pix_t*)(sizeof(struct dim) + (char *)bm);
 
-    rb->read( fh, data , sizeof( pix_t ) * bm->width * bm->height );
-    rb->close( fh );
+    if (rb->read(fh, data, data_size) != (ssize_t)data_size)
+    {
+        rb->buflib_free(&buf_ctx, hid);
+        goto corrupt;
+    }
+
+    rb->close(fh);
     return hid;
+
+corrupt:
+    rb->close(fh);
+    rb->remove(filename);
+    return rb->strcmp(filename, EMPTY_SLIDE) == 0 ? -1 : empty_slide_hid;
 }
 
 
@@ -3845,8 +3926,7 @@ static void update_scroll_animation(void)
 static void cleanup(void)
 {
     wants_to_quit = true;
-    if (buf_ctx_locked)
-        buf_ctx_unlock();
+    free_borrowed_tracks();
 
 #ifdef HAVE_ADJUSTABLE_CPU_FREQ
     rb->cpu_boost(false);
@@ -5020,6 +5100,29 @@ static bool init(void)
     pf_idx.buf += aa_bufsz;
     pf_idx.buf_sz -= aa_bufsz;
 
+#if PF_PLAYBACK_CAPABLE
+    /* Reserve a stable arena before initializing buflib. This removes the
+     * hardware-only pool relocation that used to occur for every album. */
+    ALIGN_BUFFER(pf_idx.buf, pf_idx.buf_sz, alignof(struct track_data));
+    size_t track_bufsz = MAX((size_t)TRACK_BUFFER_MIN, pf_idx.buf_sz / 8);
+    track_bufsz = MIN((size_t)TRACK_BUFFER_MAX, track_bufsz);
+    track_bufsz = MIN(track_bufsz, pf_idx.buf_sz / 2);
+    track_bufsz = ALIGN_DOWN(track_bufsz, alignof(struct track_data));
+    if (track_bufsz < TRACK_BUFFER_MIN)
+    {
+        error_wait("Not enough memory for track list");
+        return false;
+    }
+
+    pf_tracks.names = (char *)pf_idx.buf;
+    pf_tracks.buf_sz = track_bufsz;
+    pf_idx.buf = pf_tracks.names + track_bufsz;
+    pf_idx.buf_sz -= track_bufsz;
+#else
+    pf_tracks.names = NULL;
+    pf_tracks.buf_sz = 0;
+#endif
+
     rb->buflib_init(&buf_ctx, (void *)pf_idx.buf, pf_idx.buf_sz);
     initialize_slide_cache();
 
@@ -5041,8 +5144,15 @@ static bool init(void)
 
     if ((empty_slide_hid = read_pfraw(EMPTY_SLIDE, 0)) < 0)
     {
-        error_wait("Unable to load empty slide image");
-        return false;
+        /* read_pfraw removes malformed entries. Recreate the built-in
+         * fallback immediately so one bad cache file cannot make the whole
+         * plugin unavailable until a second launch. */
+        if (!create_empty_slide(true) ||
+            (empty_slide_hid = read_pfraw(EMPTY_SLIDE, 0)) < 0)
+        {
+            error_wait("Unable to load empty slide image");
+            return false;
+        }
     }
 
     if (!create_pf_thread())
@@ -5057,8 +5167,8 @@ static bool init(void)
     pf_state = pf_idle;
 
     pf_tracks.cur_idx = -1;
-    pf_tracks.borrowed = 0;
     pf_tracks.used = 0;
+    pf_tracks.count = 0;
 
     extra_fade = 0;
     slide_frame = 0;

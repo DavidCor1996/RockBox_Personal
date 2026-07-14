@@ -25,6 +25,20 @@
 
 void *lc_open(const char *filename, unsigned char *buf, size_t buf_size);
 
+enum lc_open_error
+{
+    LC_OPEN_OK = 0,
+    LC_OPEN_FILE,
+    LC_OPEN_HEADER_READ,
+    LC_OPEN_HEADER_INVALID,
+    LC_OPEN_TOO_LARGE,
+    LC_OPEN_SEEK,
+    LC_OPEN_IMAGE_READ,
+};
+
+enum lc_open_error lc_open_last_error(void);
+const char *lc_open_error_string(enum lc_open_error error);
+
 #if defined(HAVE_LC_OPEN_FROM_MEM)
 /* header is always at the beginning of the blob, and handle actually points
  * to the start of the blob (the header is there) */

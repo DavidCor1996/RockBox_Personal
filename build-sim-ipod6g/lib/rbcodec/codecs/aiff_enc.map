@@ -472,11 +472,11 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000      0xfb6
+.debug_str      0x0000000000000000     0x1088
  *(.debug_str)
- .debug_str     0x0000000000000000      0xfb6 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/aiff_enc.o
+ .debug_str     0x0000000000000000     0x1088 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/aiff_enc.o
                                        0x10b8 (size before relaxing)
- .debug_str     0x0000000000000fb6        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/codec_crt0.o
+ .debug_str     0x0000000000001088        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/codec_crt0.o
                                         0xcbf (size before relaxing)
 
 .debug_loc
@@ -507,13 +507,13 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
  *(.debug_addr)
 
 .debug_line_str
-                0x0000000000000000      0x31f
+                0x0000000000000000      0x34b
  *(.debug_line_str)
  .debug_line_str
-                0x0000000000000000      0x31f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/aiff_enc.o
-                                        0x30c (size before relaxing)
+                0x0000000000000000      0x34b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/aiff_enc.o
+                                        0x308 (size before relaxing)
  .debug_line_str
-                0x000000000000031f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/codec_crt0.o
+                0x000000000000034b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/codec_crt0.o
                                         0x264 (size before relaxing)
 
 .debug_loclists

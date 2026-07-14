@@ -8,6 +8,10 @@ firmware="${build_dir}/rockbox.ipod"
 package="${build_dir}/rockbox.zip"
 backup_dir=""
 had_database=0
+mount_source=""
+parent_disk=""
+disk_size=0
+disk_serial=""
 
 usage()
 {
@@ -53,10 +57,6 @@ verify_database()
 {
     local python="${repo_root}/rockpod/.venv/bin/python"
 
-    if [ "${had_database}" -eq 0 ]; then
-        return
-    fi
-
     if [ ! -s "${mount_path}/.rockbox/database_idx.tcd" ]; then
         echo "database guard: database_idx.tcd is missing or empty" >&2
         exit 1
@@ -87,6 +87,26 @@ print("database guard: validated %d tracks" % len(rows))
     fi
 }
 
+verify_database_unchanged()
+{
+    local original
+    local name
+
+    for original in "${backup_dir}"/*.tcd; do
+        name="$(basename "${original}")"
+        if [ ! -f "${mount_path}/.rockbox/${name}" ]; then
+            echo "database guard: ${name} disappeared during deploy" >&2
+            exit 1
+        fi
+        if ! cmp -s "${original}" "${mount_path}/.rockbox/${name}"; then
+            echo "database guard: ${name} changed during deploy" >&2
+            exit 1
+        fi
+    done
+
+    echo "database guard: all ${#database_files[@]} tagcache files are byte-identical"
+}
+
 if [ -z "${mount_path}" ]; then
     usage
 fi
@@ -94,6 +114,21 @@ if [ ! -d "${mount_path}/.rockbox" ]; then
     echo "not a mounted Rockbox volume: ${mount_path}" >&2
     exit 1
 fi
+
+mount_source="$(findmnt -rn -o SOURCE --target "${mount_path}")"
+parent_disk="$(lsblk -no PKNAME "${mount_source}")"
+if [ -z "${mount_source}" ] || [ -z "${parent_disk}" ]; then
+    echo "hardware guard: cannot identify the mounted block device" >&2
+    exit 1
+fi
+disk_size="$(lsblk -bdno SIZE "/dev/${parent_disk}")"
+disk_serial="$(lsblk -dno SERIAL "/dev/${parent_disk}")"
+if [ "${disk_size}" -lt $((32 * 1024 * 1024 * 1024)) ]; then
+    echo "hardware guard: refusing small device ${mount_source} (${disk_size} bytes, serial ${disk_serial})" >&2
+    exit 1
+fi
+echo "hardware guard: target ${mount_source} on /dev/${parent_disk}, ${disk_size} bytes, serial ${disk_serial}"
+
 if [ ! -s "${firmware}" ] || [ ! -s "${package}" ]; then
     echo "missing iPod 6G hardware build outputs in ${build_dir}" >&2
     exit 1
@@ -108,13 +143,20 @@ database_files=(
     "${mount_path}"/.rockbox/database*.tcd
     "${mount_path}"/.rockbox/tagcache*.tcd
 )
-if [ -s "${mount_path}/.rockbox/database_idx.tcd" ]; then
-    had_database=1
-    for path in "${database_files[@]}"; do
-        cp -a "${path}" "${backup_dir}/"
-    done
-    echo "database guard: backed up ${#database_files[@]} tagcache files"
+if [ ! -s "${mount_path}/.rockbox/database_idx.tcd" ]; then
+    echo "database guard: refusing deploy without a readable database_idx.tcd" >&2
+    exit 1
 fi
+if [ "${#database_files[@]}" -eq 0 ]; then
+    echo "database guard: refusing deploy without tagcache files" >&2
+    exit 1
+fi
+had_database=1
+verify_database
+for path in "${database_files[@]}"; do
+    cp -a "${path}" "${backup_dir}/"
+done
+echo "database guard: backed up ${#database_files[@]} tagcache files"
 
 unzip -oq "${package}" -d "${mount_path}"
 
@@ -125,6 +167,7 @@ if [ "${had_database}" -eq 1 ]; then
 fi
 
 enable_tagcache_autoupdate
+verify_database_unchanged
 cp "${firmware}" "${mount_path}/rockbox.ipod"
 cp "${firmware}" "${mount_path}/.rockbox/rockbox.ipod"
 

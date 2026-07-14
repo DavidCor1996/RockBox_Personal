@@ -25,6 +25,36 @@
 #include "file.h"
 #include "debug.h"
 #include "load_code.h"
+#include "string.h"
+
+static enum lc_open_error last_error;
+
+enum lc_open_error lc_open_last_error(void)
+{
+    return last_error;
+}
+
+const char *lc_open_error_string(enum lc_open_error error)
+{
+    switch (error)
+    {
+        case LC_OPEN_FILE:
+            return "file open";
+        case LC_OPEN_HEADER_READ:
+            return "header read";
+        case LC_OPEN_HEADER_INVALID:
+            return "invalid header";
+        case LC_OPEN_TOO_LARGE:
+            return "image too large";
+        case LC_OPEN_SEEK:
+            return "file seek";
+        case LC_OPEN_IMAGE_READ:
+            return "image read";
+        case LC_OPEN_OK:
+        default:
+            return "unknown";
+    }
+}
 
 /* load binary blob from disk to memory, returning a handle */
 void * lc_open(const char *filename, unsigned char *buf, size_t buf_size)
@@ -34,10 +64,13 @@ void * lc_open(const char *filename, unsigned char *buf, size_t buf_size)
     struct lc_header hdr;
     unsigned char *buf_end = buf+buf_size;
     off_t copy_size;
+    off_t file_size;
 
+    last_error = LC_OPEN_OK;
     if (fd < 0)
     {
-        DEBUGF("Could not open file");
+        last_error = LC_OPEN_FILE;
+        DEBUGF("Could not open file: %s\n", filename);
         goto error;
     }
 
@@ -52,37 +85,54 @@ void * lc_open(const char *filename, unsigned char *buf, size_t buf_size)
     /* read the header to obtain the load address */
     read_size = read(fd, &hdr, sizeof(hdr));
 
-    if (read_size < 0)
+    if (read_size != (ssize_t)sizeof(hdr))
     {
-        DEBUGF("Could not read from file");
+        last_error = LC_OPEN_HEADER_READ;
+        DEBUGF("Could not read complete header: %s\n", filename);
         goto error_fd;
     }
 
     /* hdr.end_addr points to the end of the bss section,
      * but there might be idata/icode behind that so the bytes to copy
      * can be larger */
-    copy_size = MAX(filesize(fd), hdr.end_addr - hdr.load_addr);
-
-    if (hdr.load_addr < buf || (hdr.load_addr+copy_size) > buf_end)
+    file_size = filesize(fd);
+    if (file_size < (off_t)sizeof(hdr) || hdr.load_addr < buf ||
+        hdr.load_addr > buf_end || hdr.end_addr < hdr.load_addr)
     {
-        DEBUGF("Binary doesn't fit into memory");
+        last_error = LC_OPEN_HEADER_INVALID;
+        DEBUGF("Invalid binary header: %s\n", filename);
         goto error_fd;
     }
 
-    /* go back to beginning to load the whole thing (incl. header) */
+    copy_size = MAX(file_size, (off_t)(hdr.end_addr - hdr.load_addr));
+
+    if (copy_size < 0 || (size_t)copy_size > (size_t)(buf_end - hdr.load_addr))
+    {
+        last_error = LC_OPEN_TOO_LARGE;
+        DEBUGF("Binary doesn't fit into memory: %s\n", filename);
+        goto error_fd;
+    }
+
+    /* Go back to the beginning to load the on-disk image (including the
+     * header). copy_size may be larger than file_size because it also spans
+     * the plugin's BSS, which is deliberately absent from the .rock file. */
     if (lseek(fd, 0, SEEK_SET) < 0)
     {
-        DEBUGF("lseek failed");
+        last_error = LC_OPEN_SEEK;
+        DEBUGF("lseek failed: %s\n", filename);
         goto error_fd;
     }
 
-    /* the header has the addresses where the code is linked at */
-    read_size = read(fd, hdr.load_addr, copy_size);
+    /* Zero the complete memory image first, then require an exact read of
+     * only the bytes that actually exist in the file. */
+    memset(hdr.load_addr, 0, copy_size);
+    read_size = read(fd, hdr.load_addr, file_size);
     close(fd);
 
-    if (read_size < 0)
+    if (read_size != file_size)
     {
-        DEBUGF("Could not read from file");
+        last_error = LC_OPEN_IMAGE_READ;
+        DEBUGF("Could not read complete binary: %s\n", filename);
         goto error;
     }
 

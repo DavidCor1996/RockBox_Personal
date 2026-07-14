@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
+import errno
 import glob
 import os
 import struct
-import tempfile
 from pathlib import Path
-from shutil import rmtree
+from shutil import copy2, rmtree
 
 from app.config import SUPPORTED_FORMATS
 from models.track import compute_metadata_hash
@@ -69,6 +69,9 @@ HOST_TAGCACHE_FILES = [
     "database_8.tcd",
     "database_12.tcd",
 ]
+FIRMWARE_COMMIT_MARKER = "database_commit.tcd"
+HOST_COMMIT_MARKER = "database_hostcommit.tcd"
+HOST_TRANSACTION_DIR = ".rockpod_tagcache_transaction"
 HOST_TAGCACHE_REMOVE_GLOBS = [
     "database*.tcd",
     "tagcache*.tcd",
@@ -98,6 +101,84 @@ def _mount_identity(path: Path) -> tuple[int, int, int]:
     return stat.st_dev, stat.st_ino, vfs.f_blocks * vfs.f_frsize
 
 
+def _fsync_file(path: Path) -> None:
+    try:
+        with path.open("rb") as handle:
+            os.fsync(handle.fileno())
+    except OSError as exc:
+        raise TagcacheError(f"Could not make {path.name} durable: {exc}") from exc
+
+
+def _fsync_directory(path: Path) -> None:
+    try:
+        fd = os.open(path, os.O_RDONLY)
+        try:
+            os.fsync(fd)
+        finally:
+            os.close(fd)
+    except OSError as exc:
+        if exc.errno not in {errno.EBADF, errno.EINVAL, errno.ENOTSUP}:
+            raise TagcacheError(f"Could not sync database directory: {exc}") from exc
+
+
+def _matching_host_tagcache_files(rockbox_dir: Path) -> list[Path]:
+    matches = set()
+    for pattern in HOST_TAGCACHE_REMOVE_GLOBS:
+        for raw_path in glob.glob(str(rockbox_dir / pattern)):
+            path = Path(raw_path)
+            if path.is_file() and path.name != HOST_COMMIT_MARKER:
+                matches.add(path)
+    return sorted(matches)
+
+
+def _remove_existing_host_tagcache_files(
+    rockbox_dir: Path,
+    preserve_names: set[str] | None = None,
+) -> None:
+    preserve = preserve_names or set()
+    for path in _matching_host_tagcache_files(rockbox_dir):
+        if path.parent == rockbox_dir and path.name in preserve:
+            continue
+        path.unlink()
+
+
+def _copy_database_set(source: Path, destination: Path) -> None:
+    for source_path in _matching_host_tagcache_files(source):
+        relative_path = source_path.relative_to(source)
+        destination_path = destination / relative_path
+        destination_path.parent.mkdir(parents=True, exist_ok=True)
+        copy2(source_path, destination_path)
+        _fsync_file(destination_path)
+    _fsync_directory(destination)
+
+
+def _rollback_host_transaction(rockbox_dir: Path, transaction_dir: Path) -> None:
+    marker = rockbox_dir / HOST_COMMIT_MARKER
+    backup_dir = transaction_dir / "backup"
+
+    _remove_existing_host_tagcache_files(rockbox_dir)
+    if backup_dir.is_dir():
+        _copy_database_set(backup_dir, rockbox_dir)
+    _fsync_directory(rockbox_dir)
+
+    if marker.exists():
+        marker.unlink()
+        _fsync_directory(rockbox_dir)
+    rmtree(transaction_dir, ignore_errors=True)
+    _fsync_directory(transaction_dir.parent)
+
+
+def _recover_host_transaction(mount: Path, rockbox_dir: Path) -> None:
+    transaction_dir = mount / HOST_TRANSACTION_DIR
+    marker = rockbox_dir / HOST_COMMIT_MARKER
+
+    if marker.exists():
+        _rollback_host_transaction(rockbox_dir, transaction_dir)
+    elif transaction_dir.exists():
+        rmtree(transaction_dir, ignore_errors=True)
+        _fsync_directory(mount)
+
+
 def write_rockbox_tagcache_tracks(
     mount_path: str,
     tracks: list[dict],
@@ -105,9 +186,9 @@ def write_rockbox_tagcache_tracks(
 ) -> dict:
     """Generate Rockbox tagcache files under ``mount_path/.rockbox``.
 
-    The writer builds into a temporary root first and validates the generated
-    files with ``read_rockbox_tagcache_tracks`` before swapping them into place.
-    Only Rockbox database/tagcache files are removed or replaced.
+    The writer builds and validates a new set before publishing it. The old set
+    is kept in a durable transaction directory until every replacement has
+    reached storage, allowing rollback after an exception or process crash.
     """
     mount = Path(mount_path)
     if not mount.is_dir():
@@ -120,11 +201,23 @@ def write_rockbox_tagcache_tracks(
     if require_tracks and not entries:
         raise TagcacheError("No supported audio tracks are available for database repair")
 
-    temp_root = Path(tempfile.mkdtemp(prefix=".rockpod_tagcache_", dir=str(mount)))
+    rockbox_dir = mount / ".rockbox"
+    rockbox_dir.mkdir(parents=True, exist_ok=True)
+    _recover_host_transaction(mount, rockbox_dir)
+
+    transaction_dir = mount / HOST_TRANSACTION_DIR
+    temp_root = transaction_dir / "new"
+    temp_rockbox = temp_root / ".rockbox"
+    backup_dir = transaction_dir / "backup"
+    temp_rockbox.mkdir(parents=True, exist_ok=False)
+    backup_dir.mkdir(parents=True, exist_ok=False)
+    marker = rockbox_dir / HOST_COMMIT_MARKER
     try:
-        temp_rockbox = temp_root / ".rockbox"
-        temp_rockbox.mkdir(parents=True, exist_ok=True)
         _write_tagcache_files(temp_rockbox, entries)
+        for filename in HOST_TAGCACHE_FILES:
+            _fsync_file(temp_rockbox / filename)
+        _fsync_directory(temp_rockbox)
+
         parsed = read_rockbox_tagcache_tracks(str(temp_root))
         if len(parsed) != len(entries):
             raise TagcacheError(
@@ -133,19 +226,44 @@ def write_rockbox_tagcache_tracks(
         if _mount_identity(mount) != mount_identity:
             raise TagcacheError("Device changed while the Rockbox database was being generated")
 
-        rockbox_dir = mount / ".rockbox"
-        rockbox_dir.mkdir(parents=True, exist_ok=True)
-        _remove_existing_host_tagcache_files(rockbox_dir)
+        _copy_database_set(rockbox_dir, backup_dir)
+        marker.write_bytes(struct.pack("<I", TAGCACHE_MAGIC))
+        _fsync_file(marker)
+        _fsync_directory(rockbox_dir)
+
         for filename in HOST_TAGCACHE_FILES:
             os.replace(temp_rockbox / filename, rockbox_dir / filename)
+            _fsync_file(rockbox_dir / filename)
+
+        _remove_existing_host_tagcache_files(
+            rockbox_dir,
+            preserve_names=set(HOST_TAGCACHE_FILES) | {HOST_COMMIT_MARKER},
+        )
+        _fsync_directory(rockbox_dir)
+
+        parsed = read_rockbox_tagcache_tracks(str(mount), allow_transaction=True)
+        if len(parsed) != len(entries):
+            raise TagcacheError(
+                f"Published tagcache validation failed: expected {len(entries)} tracks, read {len(parsed)}"
+            )
+
+        marker.unlink()
+        _fsync_directory(rockbox_dir)
+        rmtree(transaction_dir)
+        _fsync_directory(mount)
 
         return {
             "success": True,
             "track_count": len(entries),
             "files": [str(rockbox_dir / filename) for filename in HOST_TAGCACHE_FILES],
         }
+    except Exception:
+        if marker.exists():
+            _rollback_host_transaction(rockbox_dir, transaction_dir)
+        raise
     finally:
-        rmtree(temp_root, ignore_errors=True)
+        if not marker.exists():
+            rmtree(transaction_dir, ignore_errors=True)
 
 
 def write_rockbox_tagcache_from_device_inventory(
@@ -323,26 +441,16 @@ def _write_tagcache_files(rockbox_dir: Path, entries: list[dict]) -> None:
     (rockbox_dir / "database_idx.tcd").write_bytes(master_header + master_body)
 
 
-def _remove_existing_host_tagcache_files(rockbox_dir: Path) -> None:
-    seen = set()
-    for pattern in HOST_TAGCACHE_REMOVE_GLOBS:
-        for raw_path in glob.glob(str(rockbox_dir / pattern)):
-            path = Path(raw_path)
-            if path.name in {".", ".."} or path in seen:
-                continue
-            seen.add(path)
-            if path.is_file():
-                path.unlink()
-
-
 def _decode_tag_entry(blob: bytes, offset: int, endian: str) -> str:
     if offset < 0 or offset + 8 > len(blob):
-        return ""
+        raise TagcacheError("String tag offset is outside its database file")
     tag_length, _idx_id = struct.unpack_from(f"{endian}ii", blob, offset)
     if tag_length <= 0:
-        return ""
+        raise TagcacheError("String tag has an invalid length")
     data_start = offset + 8
-    data_end = min(data_start + tag_length, len(blob))
+    data_end = data_start + tag_length
+    if data_end > len(blob):
+        raise TagcacheError("String tag extends past the end of its database file")
     raw = blob[data_start:data_end]
     value = raw.split(b"\0", 1)[0].decode("utf-8", errors="replace").strip()
     return "" if value == UNTAGGED else value
@@ -415,9 +523,18 @@ def _parse_row(row, mount_path: str) -> dict | None:
     }
 
 
-def read_rockbox_tagcache_tracks(mount_path: str) -> list[dict]:
+def read_rockbox_tagcache_tracks(
+    mount_path: str,
+    allow_transaction: bool = False,
+) -> list[dict]:
     """Return audio device-track rows from Rockbox tagcache files."""
     base = Path(mount_path) / ".rockbox"
+    if not allow_transaction and (
+        (base / HOST_COMMIT_MARKER).exists() or
+        (base / FIRMWARE_COMMIT_MARKER).exists()
+    ):
+        raise TagcacheError("Rockbox database transaction is incomplete")
+
     master_path = base / "database_idx.tcd"
     if not master_path.is_file():
         raise TagcacheError("database_idx.tcd is missing")
@@ -435,9 +552,13 @@ def read_rockbox_tagcache_tracks(mount_path: str) -> list[dict]:
     else:
         raise TagcacheError("database_idx.tcd has an unknown header")
 
-    _magic, _datasize, entry_count, _serial, _commitid, _dirty = struct.unpack_from(
+    _magic, datasize, entry_count, _serial, _commitid, dirty = struct.unpack_from(
         f"{endian}6i", master_blob, 0
     )
+    if dirty:
+        raise TagcacheError("database_idx.tcd is marked dirty")
+    if datasize < 0 or entry_count < 0:
+        raise TagcacheError("database_idx.tcd has invalid size fields")
     row_size = (TAG_COUNT + 1) * 4
     expected_size = 24 + (entry_count * row_size)
     if len(master_blob) < expected_size:
@@ -448,7 +569,15 @@ def read_rockbox_tagcache_tracks(mount_path: str) -> list[dict]:
         path = base / filename
         if not path.is_file():
             raise TagcacheError(f"{filename} is missing")
-        tag_blobs[tag] = path.read_bytes()
+        blob = path.read_bytes()
+        if len(blob) < 12:
+            raise TagcacheError(f"{filename} is truncated")
+        magic, tag_datasize, tag_entries = struct.unpack_from(f"{endian}iii", blob, 0)
+        if magic != TAGCACHE_MAGIC or tag_datasize < 0 or tag_entries < 0:
+            raise TagcacheError(f"{filename} has an invalid header")
+        if len(blob) < 12 + tag_datasize:
+            raise TagcacheError(f"{filename} is shorter than expected")
+        tag_blobs[tag] = blob
 
     tracks = []
     for idx in range(entry_count):

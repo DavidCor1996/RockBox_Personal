@@ -85,7 +85,6 @@
 #ifdef HAVE_ALBUMART
 #include "albumart.h"
 #ifdef HAVE_JPEG
-#include "jpeg_load.h"
 #endif
 #endif
 #include "language.h"
@@ -95,12 +94,13 @@
 #include "disk.h"
 #include "mv.h"
 #include "dir.h"
-#if defined(IPOD_NANO2G) || defined(IPOD_VIDEO) || defined(IPOD_6G)
+#if defined(IPOD_NANO2G) || defined(IPOD_VIDEO) || defined(IPOD_6G) || \
+    defined(IPOD_NANO3G)
 #include "lcd.h"
 #include "font.h"
 #include "timefuncs.h"
 #endif
-#if defined(IPOD_VIDEO) || defined(IPOD_6G)
+#if defined(IPOD_VIDEO) || defined(IPOD_6G) || defined(IPOD_NANO3G)
 #include "gui/albumlist_art.h"
 static bool root_menu_video_enabled(void);
 static int ipodjs_video_wps(void);
@@ -1727,7 +1727,7 @@ static struct video_browser_state *current_video_browser_state;
 static bool videos_browser_screen_active;
 static void root_menu_video_preview_invalidate_source_cache(
     enum root_menu_video_preview_source source);
-#if !defined(IPOD_VIDEO) && !defined(IPOD_6G)
+#if !defined(IPOD_VIDEO) && !defined(IPOD_6G) && !defined(IPOD_NANO3G)
 static void root_menu_video_preview_invalidate_source_cache(
     enum root_menu_video_preview_source source)
 {
@@ -2167,7 +2167,7 @@ static int wpsscrn(void* param)
     if (audstatus)
     {
         talk_shutup();
-#if defined(IPOD_VIDEO) || defined(IPOD_6G)
+#if defined(IPOD_VIDEO) || defined(IPOD_6G) || defined(IPOD_NANO3G)
         if (root_menu_video_enabled())
             ret_val = ipodjs_video_wps();
         else
@@ -2186,7 +2186,7 @@ static int wpsscrn(void* param)
                 global_status.resume_crc32,
                 global_status.resume_elapsed,
                 global_status.resume_offset);
-#if defined(IPOD_VIDEO) || defined(IPOD_6G)
+#if defined(IPOD_VIDEO) || defined(IPOD_6G) || defined(IPOD_NANO3G)
             if (root_menu_video_enabled())
                 ret_val = ipodjs_video_wps();
             else
@@ -2196,7 +2196,7 @@ static int wpsscrn(void* param)
     }
     else if (!file_exists(PLAYLIST_CONTROL_FILE))
     {
-#if defined(IPOD_VIDEO) || defined(IPOD_6G)
+#if defined(IPOD_VIDEO) || defined(IPOD_6G) || defined(IPOD_NANO3G)
         if (root_menu_video_enabled())
         {
             ipodjs_video_wps_empty("No Music", "Nothing to resume", false);
@@ -2207,7 +2207,7 @@ static int wpsscrn(void* param)
         splash(HZ*2, ID2P(LANG_NOTHING_TO_RESUME));
     }
     else if (
-#if defined(IPOD_VIDEO) || defined(IPOD_6G)
+#if defined(IPOD_VIDEO) || defined(IPOD_6G) || defined(IPOD_NANO3G)
              (root_menu_video_enabled() ?
               ipodjs_video_wps_empty("Playlist Finished",
                                      "Select to replay", true) :
@@ -2218,7 +2218,7 @@ static int wpsscrn(void* param)
              playlist_resume() != -1)
     {
         playlist_start(0, 0, 0);
-#if defined(IPOD_VIDEO) || defined(IPOD_6G)
+#if defined(IPOD_VIDEO) || defined(IPOD_6G) || defined(IPOD_NANO3G)
         if (root_menu_video_enabled())
             ret_val = ipodjs_video_wps();
         else
@@ -3833,7 +3833,7 @@ static int root_menu_nano2g_dashboard(int *selectedp)
 }
 #endif /* IPOD_NANO2G */
 
-#if defined(IPOD_VIDEO) || defined(IPOD_6G)
+#if defined(IPOD_VIDEO) || defined(IPOD_6G) || defined(IPOD_NANO3G)
 #define IPODJS_HEADER_TOP       LCD_RGBPACK(252, 253, 253)
 #define IPODJS_HEADER_MID       LCD_RGBPACK(216, 219, 223)
 #define IPODJS_HEADER_BOTTOM    LCD_RGBPACK(174, 178, 183)
@@ -4493,16 +4493,6 @@ static int root_menu_video_games_menu(void);
 static int root_menu_video_clock_screen(void);
 
 #ifdef HAVE_ALBUMART
-static struct bitmap root_menu_video_wps_art_bm;
-static unsigned char root_menu_video_wps_art_data[
-    BM_SCALED_SIZE(IPODJS_WPS_ART_MAX, IPODJS_WPS_ART_MAX,
-                   FORMAT_NATIVE, false)];
-static char root_menu_video_wps_art_path[MAX_PATH];
-static char root_menu_video_wps_art_track_path[MAX_PATH];
-static char root_menu_video_wps_art_miss_path[MAX_PATH];
-static int root_menu_video_wps_art_size;
-static int root_menu_video_wps_art_miss_size;
-static bool root_menu_video_wps_art_valid;
 static int root_menu_video_aa_slot = -1;
 
 static struct bitmap root_menu_video_default_art_bm;
@@ -5045,106 +5035,6 @@ static bool root_menu_video_find_local_cover(const struct mp3entry *id3,
     return false;
 }
 
-static struct bitmap *root_menu_video_load_wps_art(struct mp3entry *id3,
-                                                   int size)
-{
-    char path[MAX_PATH];
-    char normalized_path[MAX_PATH];
-    struct mp3entry normalized_id3;
-    const struct mp3entry *lookup_id3 = id3;
-    struct dim dim = { size, size };
-    int rc;
-
-    if (!id3 || id3->path[0] == '\0' ||
-        size <= 0 || size > IPODJS_WPS_ART_MAX)
-    {
-        root_menu_video_wps_art_valid = false;
-        return NULL;
-    }
-
-    if (id3->path[0] != '/')
-    {
-        normalized_id3 = *id3;
-        snprintf(normalized_path, sizeof(normalized_path), "/%s", id3->path);
-        strmemccpy(normalized_id3.path, normalized_path,
-                   sizeof(normalized_id3.path));
-        lookup_id3 = &normalized_id3;
-    }
-
-    if (root_menu_video_wps_art_miss_size == size &&
-        !strcmp(root_menu_video_wps_art_miss_path, lookup_id3->path))
-        return NULL;
-
-    if (root_menu_video_wps_art_valid &&
-        root_menu_video_wps_art_size == size &&
-        !strcmp(root_menu_video_wps_art_track_path, lookup_id3->path))
-        return &root_menu_video_wps_art_bm;
-
-    if (!root_menu_video_find_local_cover(lookup_id3, size, path,
-                                          sizeof(path)) &&
-        !find_albumart(lookup_id3, path, sizeof(path), &dim))
-    {
-        root_menu_video_wps_art_valid = false;
-        root_menu_video_wps_art_path[0] = '\0';
-        root_menu_video_wps_art_track_path[0] = '\0';
-        root_menu_video_wps_art_miss_size = size;
-        strmemccpy(root_menu_video_wps_art_miss_path, lookup_id3->path,
-                   sizeof(root_menu_video_wps_art_miss_path));
-        return NULL;
-    }
-
-    if (root_menu_video_wps_art_valid &&
-        root_menu_video_wps_art_size == size &&
-        !strcmp(root_menu_video_wps_art_path, path))
-        return &root_menu_video_wps_art_bm;
-
-    memset(&root_menu_video_wps_art_bm, 0, sizeof(root_menu_video_wps_art_bm));
-    root_menu_video_wps_art_bm.width = size;
-    root_menu_video_wps_art_bm.height = size;
-    root_menu_video_wps_art_bm.format = FORMAT_NATIVE;
-    root_menu_video_wps_art_bm.data = root_menu_video_wps_art_data;
-
-#ifdef HAVE_JPEG
-    if (!root_menu_video_path_is_bmp(path))
-        rc = read_jpeg_file(path, &root_menu_video_wps_art_bm,
-                            sizeof(root_menu_video_wps_art_data),
-                            FORMAT_NATIVE | FORMAT_RESIZE |
-                            FORMAT_KEEP_ASPECT | FORMAT_DITHER, NULL);
-    else
-#endif
-    {
-        rc = read_bmp_file(path, &root_menu_video_wps_art_bm,
-                           sizeof(root_menu_video_wps_art_data),
-                           FORMAT_NATIVE | FORMAT_DITHER, NULL);
-        if (rc < 0)
-            rc = read_bmp_file(path, &root_menu_video_wps_art_bm,
-                               sizeof(root_menu_video_wps_art_data),
-                               FORMAT_NATIVE | FORMAT_RESIZE |
-                               FORMAT_KEEP_ASPECT | FORMAT_DITHER, NULL);
-    }
-
-    if (rc < 0)
-    {
-        root_menu_video_wps_art_valid = false;
-        root_menu_video_wps_art_path[0] = '\0';
-        root_menu_video_wps_art_track_path[0] = '\0';
-        root_menu_video_wps_art_miss_size = size;
-        strmemccpy(root_menu_video_wps_art_miss_path, lookup_id3->path,
-                   sizeof(root_menu_video_wps_art_miss_path));
-        return NULL;
-    }
-
-    root_menu_video_wps_art_valid = true;
-    root_menu_video_wps_art_size = size;
-    root_menu_video_wps_art_miss_path[0] = '\0';
-    root_menu_video_wps_art_miss_size = 0;
-    strmemccpy(root_menu_video_wps_art_path, path,
-               sizeof(root_menu_video_wps_art_path));
-    strmemccpy(root_menu_video_wps_art_track_path, lookup_id3->path,
-               sizeof(root_menu_video_wps_art_track_path));
-    return &root_menu_video_wps_art_bm;
-}
-
 #ifdef HAVE_TAGCACHE
 struct root_menu_video_db_art_slot {
     bool valid;
@@ -5380,13 +5270,6 @@ static bool root_menu_video_draw_slanted_cached_art(int x, int y, int size,
                                                     unsigned accent)
 {
 #ifdef HAVE_ALBUMART
-    if (root_menu_video_wps_art_valid)
-    {
-        root_menu_video_draw_slanted_bitmap(&root_menu_video_wps_art_bm,
-                                            x, y, size);
-        return true;
-    }
-
     struct bitmap *bm = root_menu_video_buffered_art();
     if (!bm)
         bm = root_menu_video_default_art();
@@ -5407,58 +5290,16 @@ static bool root_menu_video_draw_slanted_cached_art(int x, int y, int size,
 static struct bitmap *root_menu_video_stock_wps_art(struct mp3entry *id3)
 {
 #ifdef HAVE_ALBUMART
-    struct bitmap *bm;
-
-    bm = root_menu_video_load_wps_art(id3, IPODJS_STOCK_ART_SIZE);
+    struct bitmap *bm = root_menu_video_buffered_art();
 
     if (!bm)
-        bm = root_menu_video_buffered_art();
+        bm = root_menu_video_default_art();
 
+    (void)id3;
     return bm;
 #else
     (void)id3;
     return NULL;
-#endif
-}
-
-static void root_menu_video_preload_wps_art(void)
-{
-#ifdef HAVE_ALBUMART
-    long metadata_deadline = current_tick + HZ / 2;
-    long buffered_deadline;
-    struct mp3entry *id3;
-
-    root_menu_video_ensure_aa_slot();
-    do
-    {
-        id3 = audio_current_track();
-        if (id3 && id3->path[0])
-            break;
-        sleep(1);
-    }
-    while (TIME_BEFORE(current_tick, metadata_deadline));
-
-    id3 = audio_current_track();
-    if (!id3 || !id3->path[0] ||
-        root_menu_video_load_wps_art(id3, IPODJS_STOCK_ART_SIZE))
-        return;
-
-    /* Embedded artwork arrives through playback buffering.  Give that path
-     * a brief head start so the first visible WPS frame is complete. */
-    buffered_deadline = current_tick +
-        (id3->has_embedded_albumart ? HZ : HZ / 3);
-    while ((audio_status() & AUDIO_STATUS_PLAY) &&
-           TIME_BEFORE(current_tick, buffered_deadline))
-    {
-        int handle = playback_current_aa_hid(root_menu_video_aa_slot);
-
-        if (root_menu_video_buffered_art())
-            break;
-        if (handle == ERR_UNSUPPORTED_TYPE ||
-            handle == ERR_BITMAP_TOO_LARGE)
-            break;
-        sleep(1);
-    }
 #endif
 }
 
@@ -8256,7 +8097,6 @@ static void ipodjs_video_pause_for_exit(void)
 
 static int ipodjs_video_wps_finish(int ret)
 {
-    wps_state_deinit();
     return root_menu_video_finish_native_screen(ret);
 }
 
@@ -8274,8 +8114,7 @@ static int ipodjs_video_wps(void)
     char last_track_path[MAX_PATH] = "";
 
     root_menu_video_enter_native_screen();
-    wps_state_init();
-    root_menu_video_preload_wps_art();
+    root_menu_video_ensure_aa_slot();
     root_menu_video_volume_left_stock_asset();
     root_menu_video_volume_right_stock_asset();
     root_menu_wait_for_button_release();
@@ -8423,12 +8262,10 @@ static int ipodjs_video_wps(void)
                 int ret;
 
                 root_menu_video_finish_native_screen(0);
-                wps_state_deinit();
                 root_menu_wait_for_button_release();
                 button_clear_queue();
                 ret = launch_lrcplayer_plugin(NULL);
                 root_menu_video_enter_native_screen();
-                wps_state_init();
                 if (ret == GO_TO_ROOT)
                     return ipodjs_video_wps_finish(ret);
                 redraw = true;
@@ -11826,9 +11663,9 @@ static int root_menu_video_dashboard(int *selectedp)
         }
     }
 }
-#endif /* IPOD_VIDEO || IPOD_6G */
+#endif /* IPOD_VIDEO || IPOD_6G || IPOD_NANO3G */
 
-#if !defined(IPOD_VIDEO) && !defined(IPOD_6G)
+#if !defined(IPOD_VIDEO) && !defined(IPOD_6G) && !defined(IPOD_NANO3G)
 bool root_menu_ipodjs_native_screen_active(void)
 {
     return false;
@@ -12205,7 +12042,7 @@ void root_menu(void)
 
 #if defined(IPOD_NANO2G)
                 next_screen = root_menu_nano2g_dashboard(&selected);
-#elif defined(IPOD_VIDEO) || defined(IPOD_6G)
+#elif defined(IPOD_VIDEO) || defined(IPOD_6G) || defined(IPOD_NANO3G)
                 if (root_menu_video_enabled())
                     next_screen = root_menu_video_dashboard(&ipodjs_selected);
                 else

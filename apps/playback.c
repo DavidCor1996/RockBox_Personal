@@ -1087,15 +1087,6 @@ static void audio_update_filebuf_watermark(int seconds)
     size_t bytes = 0;
 
 #ifdef HAVE_DISK_STORAGE
-    if (storage_get_ssd_mode())
-    {
-        /* SSD mode: no spinup delay, minimal watermark */
-        if (seconds != 0)
-            buffer_margin = seconds;
-        seconds = 1;
-    }
-    else
-    {
     int spinup = storage_spinup_time();
 
     if (seconds == 0)
@@ -1123,7 +1114,6 @@ static void audio_update_filebuf_watermark(int seconds)
         seconds += 5;
 
     seconds += buffer_margin;
-    } /* !ssd_mode */
 #else
     /* flash storage */
     seconds = 1;

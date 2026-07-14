@@ -22,6 +22,7 @@
 #include "pluginbitmaps/game_system_gwatch.h"
 #include "pluginbitmaps/game_system_native.h"
 #include "pluginbitmaps/game_system_nes.h"
+#include "pluginbitmaps/game_system_n64.h"
 #include "pluginbitmaps/game_system_pokemini.h"
 #include "pluginbitmaps/game_system_smsgg.h"
 #include "pluginbitmaps/game_system_snes.h"
@@ -46,6 +47,7 @@
 #define SMSGG_PLUGIN_PATH     PLUGIN_GAMES_DIR "/smsgg.rock"
 #define SNES_LITE_PLUGIN_PATH PLUGIN_GAMES_DIR "/snes_lite.rock"
 #define OPENLARA_PLUGIN_PATH  PLUGIN_GAMES_DIR "/openlara.rock"
+#define SM64_PLUGIN_PATH      PLUGIN_GAMES_DIR "/sm64.rock"
 #define ARDUBOY_PLUGIN_PATH   PLUGIN_GAMES_DIR "/arduboy.rock"
 #define POKEMINI_PLUGIN_PATH  VIEWERS_DIR "/pokemini.rock"
 #define TAMAGOTCHI_PLUGIN_PATH PLUGIN_APPS_DIR "/tamagotchi.rock"
@@ -71,6 +73,7 @@
 #define SNES_LITE_ROM_DIR     ROCKBOX_DIR "/roms/snes"
 #define SNES_LITE_SAVE_DIR    ROCKBOX_DIR "/saves/snes"
 #define PS1_ROM_DIR           ROCKBOX_DIR "/games/ps1"
+#define N64_ROM_DIR           ROCKBOX_DIR "/games/n64"
 #define ARDUBOY_ROM_DIR       ROCKBOX_DIR "/games/arduboy/roms"
 #define POKEMINI_ROM_DIR      "/PokeMini"
 #define POKEMINI_ALT_ROM_DIR  ROCKBOX_DIR "/games/pokemini/roms"
@@ -596,6 +599,7 @@ static bool ensure_library_dirs(void)
     mkdir_if_needed(GAME_LIBRARY_COVERS_DIR "/systems");
     mkdir_if_needed(GAME_LIBRARY_COVERS_DIR "/smsgg");
     mkdir_if_needed(GAME_LIBRARY_COVERS_DIR "/snes");
+    mkdir_if_needed(GAME_LIBRARY_COVERS_DIR "/n64");
     mkdir_if_needed(GAME_LIBRARY_COVERS_DIR "/ps1");
     mkdir_if_needed(GAME_LIBRARY_COVERS_DIR "/arduboy");
     mkdir_if_needed(GAME_LIBRARY_COVERS_DIR "/doom");
@@ -609,6 +613,8 @@ static bool ensure_library_dirs(void)
     mkdir_if_needed(ROCKBOX_DIR "/saves");
     mkdir_if_needed(SNES_LITE_SAVE_DIR);
     mkdir_if_needed(PS1_ROM_DIR);
+    mkdir_if_needed(N64_ROM_DIR);
+    mkdir_if_needed(ROCKBOX_DIR "/games/n64/saves");
     mkdir_if_needed(ROCKBOX_DIR "/games/arduboy");
     mkdir_if_needed(ARDUBOY_ROM_DIR);
     mkdir_if_needed(ROCKBOX_DIR "/games/arduboy/saves");
@@ -653,6 +659,9 @@ static bool write_default_system_manifest(void)
     rb->fdprintf(fd, "snes\tSuper Nintendo\tSNES Lite experimental\t%s\t%s\t%s\t1\t12\n",
                  SNES_LITE_PLUGIN_PATH, SNES_LITE_ROM_DIR,
                  GAME_LIBRARY_COVERS_DIR "/systems/snes.bmp");
+    rb->fdprintf(fd, "n64\tNintendo 64\tSuper Mario 64 native port\t%s\t%s\t%s\t1\t13\n",
+                 SM64_PLUGIN_PATH, N64_ROM_DIR,
+                 GAME_LIBRARY_COVERS_DIR "/systems/n64.bmp");
     rb->fdprintf(fd, "ps1\tPlayStation\tOpenLara\t%s\t%s\t%s\t1\t14\n",
                  OPENLARA_PLUGIN_PATH, PS1_ROM_DIR,
                  GAME_LIBRARY_COVERS_DIR "/systems/ps1.bmp");
@@ -694,6 +703,9 @@ static void set_system_extensions(struct system_entry *system)
         rb->strlcpy(system->extensions, ".sms,.gg", sizeof(system->extensions));
     else if (!rb->strcmp(system->id, "snes"))
         rb->strlcpy(system->extensions, ".sfc,.smc", sizeof(system->extensions));
+    else if (!rb->strcmp(system->id, "n64"))
+        rb->strlcpy(system->extensions, ".z64,.n64,.v64",
+                    sizeof(system->extensions));
     else if (!rb->strcmp(system->id, "ps1"))
         rb->strlcpy(system->extensions, ".olr", sizeof(system->extensions));
     else if (!rb->strcmp(system->id, "arduboy"))
@@ -728,6 +740,10 @@ static void set_system_setup_message(struct system_entry *system)
     else if (!rb->strcmp(system->id, "snes"))
         rb->strlcpy(system->setup_message,
                     "SNES Lite plugin missing or no .sfc/.smc games in .rockbox/roms/snes/",
+                    sizeof(system->setup_message));
+    else if (!rb->strcmp(system->id, "n64"))
+        rb->strlcpy(system->setup_message,
+                    "Super Mario 64 needs your legally owned US v1.0 ROM in .rockbox/games/n64/",
                     sizeof(system->setup_message));
     else if (!rb->strcmp(system->id, "ps1"))
         rb->strlcpy(system->setup_message,
@@ -773,6 +789,12 @@ static void set_system_controls(struct system_entry *system)
     {
         rb->strlcpy(system->controls,
                     "Wheel moves, Select A, Play B, Left Y, Right X, long Menu options",
+                    sizeof(system->controls));
+    }
+    else if (!rb->strcmp(system->id, "n64"))
+    {
+        rb->strlcpy(system->controls,
+                    "Wheel analog move, Select jump, Play action, Left crouch, Right camera, scroll camera, Menu pause",
                     sizeof(system->controls));
     }
     else if (!rb->strcmp(system->id, "ps1"))
@@ -842,6 +864,9 @@ static void load_default_systems(void)
     add_system_entry("snes", "Super Nintendo", "SNES Lite experimental",
                      SNES_LITE_PLUGIN_PATH, SNES_LITE_ROM_DIR,
                      GAME_LIBRARY_COVERS_DIR "/systems/snes.bmp", true, 12);
+    add_system_entry("n64", "Nintendo 64", "Super Mario 64 native port",
+                     SM64_PLUGIN_PATH, N64_ROM_DIR,
+                     GAME_LIBRARY_COVERS_DIR "/systems/n64.bmp", true, 13);
     add_system_entry("ps1", "PlayStation", "OpenLara",
                      OPENLARA_PLUGIN_PATH, PS1_ROM_DIR,
                      GAME_LIBRARY_COVERS_DIR "/systems/ps1.bmp", true, 14);
@@ -953,6 +978,21 @@ static void apply_builtin_system_defaults(struct system_entry *system)
         system->enabled = true;
         system->sort = 55;
     }
+    else if (!rb->strcmp(system->id, "n64"))
+    {
+        rb->strlcpy(system->title, "Nintendo 64", sizeof(system->title));
+        rb->strlcpy(system->subtitle, "Super Mario 64 native port",
+                    sizeof(system->subtitle));
+        rb->strlcpy(system->plugin_path, SM64_PLUGIN_PATH,
+                    sizeof(system->plugin_path));
+        rb->strlcpy(system->rom_path, N64_ROM_DIR,
+                    sizeof(system->rom_path));
+        rb->strlcpy(system->cover_path,
+                    GAME_LIBRARY_COVERS_DIR "/systems/n64.bmp",
+                    sizeof(system->cover_path));
+        system->enabled = true;
+        system->sort = 13;
+    }
 
     set_system_extensions(system);
     set_system_setup_message(system);
@@ -963,6 +1003,7 @@ static void add_missing_builtin_systems(void)
 {
     apply_builtin_system_defaults(find_system_entry("gwatch"));
     apply_builtin_system_defaults(find_system_entry("flash"));
+    apply_builtin_system_defaults(find_system_entry("n64"));
 
     if (!system_entry_exists("gameboy"))
         add_system_entry("gameboy", "Game Boy", "Rockboy library",
@@ -984,6 +1025,11 @@ static void add_missing_builtin_systems(void)
                          SNES_LITE_PLUGIN_PATH, SNES_LITE_ROM_DIR,
                          GAME_LIBRARY_COVERS_DIR "/systems/snes.bmp",
                          true, 12);
+    if (!system_entry_exists("n64"))
+        add_system_entry("n64", "Nintendo 64", "Super Mario 64 native port",
+                         SM64_PLUGIN_PATH, N64_ROM_DIR,
+                         GAME_LIBRARY_COVERS_DIR "/systems/n64.bmp",
+                         true, 13);
     if (!system_entry_exists("ps1"))
         add_system_entry("ps1", "PlayStation", "OpenLara",
                          OPENLARA_PLUGIN_PATH, PS1_ROM_DIR,
@@ -1966,6 +2012,9 @@ static bool cover_for_system_id(const char *system_id,
     if (!rb->strcmp(system_id, "snes"))
         return copy_cover_if_exists(cover_path, cover_path_size,
                                     GAME_LIBRARY_COVERS_DIR "/systems/snes.bmp");
+    if (!rb->strcmp(system_id, "n64"))
+        return copy_cover_if_exists(cover_path, cover_path_size,
+                                    GAME_LIBRARY_COVERS_DIR "/systems/n64.bmp");
     if (!rb->strcmp(system_id, "ps1"))
         return copy_cover_if_exists(cover_path, cover_path_size,
                                     GAME_LIBRARY_COVERS_DIR "/systems/ps1.bmp");
@@ -2006,6 +2055,28 @@ static void detect_sidecar_cover(const char *rom_path, char *cover_path, size_t 
     for (i = 0; i < ARRAYLEN(cover_exts); i++)
     {
         rb->snprintf(cover_path, cover_path_size, "%s%s", base, cover_exts[i]);
+        if (rb->file_exists(cover_path))
+            return;
+    }
+
+    cover_path[0] = '\0';
+}
+
+static void detect_library_cover(const char *system_id, const char *rom_path,
+                                 char *cover_path, size_t cover_path_size)
+{
+    static const char *cover_exts[] = { ".bmp", ".png", ".jpg", ".jpeg" };
+    char stem[MAX_ENTRY_TITLE];
+    size_t i;
+
+    if (!system_id || system_id[0] == '\0')
+        return;
+
+    derive_stem_from_path(rom_path, stem, sizeof(stem));
+    for (i = 0; i < ARRAYLEN(cover_exts); i++)
+    {
+        rb->snprintf(cover_path, cover_path_size, "%s/%s/%s%s",
+                     GAME_LIBRARY_COVERS_DIR, system_id, stem, cover_exts[i]);
         if (rb->file_exists(cover_path))
             return;
     }
@@ -2083,6 +2154,8 @@ static void scan_system_rom_dir(struct system_entry *system,
         {
             char cover[MAX_PATH];
             detect_sidecar_cover(child, cover, sizeof(cover));
+            if (cover[0] == '\0')
+                detect_library_cover(system->id, child, cover, sizeof(cover));
             add_game_entry(NULL, child, cover, system->id, system->plugin_path,
                            0, SAVE_HINT_UNKNOWN, "", "", "", "", NULL);
         }
@@ -3512,6 +3585,8 @@ static const struct bitmap *system_art_for_id(const char *system_id)
         return &bm_game_system_smsgg;
     if (!rb->strcmp(system_id, "snes"))
         return &bm_game_system_snes;
+    if (!rb->strcmp(system_id, "n64"))
+        return &bm_game_system_n64;
     if (!rb->strcmp(system_id, "ps1"))
         return &bm_game_system_native;
     if (!rb->strcmp(system_id, "arduboy"))

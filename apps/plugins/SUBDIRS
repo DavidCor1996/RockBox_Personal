@@ -79,6 +79,9 @@ gwatch
 #if (defined(CPU_ARM) || defined(SIMULATOR)) && (MEMORYSIZE >= 32)
 snes_lite
 openlara
+#if defined(IPOD_6G) || defined(SIMULATOR)
+sm64
+#endif
 #endif
 #endif
 

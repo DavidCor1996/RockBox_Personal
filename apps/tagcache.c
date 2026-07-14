@@ -91,6 +91,7 @@
 #ifndef __PCTOOL__
 #include "lang.h"
 #include "eeprom_settings.h"
+#include "storage.h"
 #endif
 #define USR_CANCEL false
 #else/*!defined(PLUGIN)*/
@@ -145,6 +146,12 @@
 
 /* Temporary database containing new tags to be committed to the main db. */
 #define TAGCACHE_FILE_TEMP       "database_tmp.tcd"
+
+/* Durable transaction markers. The firmware marker distinguishes a completed
+ * commit with a stale temp file from a commit interrupted while live files were
+ * being rewritten. The host marker protects RockPod's multi-file publish. */
+#define TAGCACHE_FILE_COMMIT     "database_commit.tcd"
+#define TAGCACHE_FILE_HOSTCOMMIT "database_hostcommit.tcd"
 
 /* The main database master index and numeric data. */
 #define TAGCACHE_FILE_MASTER     "database_idx.tcd"
@@ -669,57 +676,129 @@ static int NO_INLINE remove_db_file(const char* filename)
     return remove(buf);
 }
 
+static bool sync_db_fd(int fd)
+{
+#if !defined(PLUGIN) && !defined(__PCTOOL__)
+    if (fsync(fd) < 0)
+    {
+        logf("tagcache fsync failed: %d", errno);
+        return false;
+    }
+#else
+    (void)fd;
+#endif
+    return true;
+}
+
+static void flush_db_storage(void)
+{
+#if !defined(PLUGIN) && !defined(__PCTOOL__) && defined(HAVE_STORAGE_FLUSH)
+    storage_flush();
+#endif
+}
+
+static void tagcache_retry_io(void)
+{
+#if !defined(PLUGIN) && !defined(__PCTOOL__)
+    storage_spin();
+    sleep(1);
+#endif
+}
+
+/* A database that passed its complete startup validation must not become
+ * permanently disabled because one later open/read hit a transient storage
+ * timeout. The failed operation still returns an error and may be retried. */
+static void tagcache_mark_unavailable(void)
+{
+    if (!tc_stat.readyvalid)
+        tc_stat.ready = false;
+}
+
+#if !defined(PLUGIN) && !defined(__PCTOOL__)
+static bool create_commit_marker(void)
+{
+    uint32_t marker = TAGCACHE_MAGIC;
+    int fd = open_db_fd(TAGCACHE_FILE_COMMIT,
+                        O_WRONLY | O_CREAT | O_TRUNC);
+
+    if (fd < 0)
+        return false;
+
+    bool ok = write(fd, &marker, sizeof(marker)) == sizeof(marker)
+           && sync_db_fd(fd);
+    close(fd);
+
+    if (!ok)
+        remove_db_file(TAGCACHE_FILE_COMMIT);
+
+    flush_db_storage();
+    return ok;
+}
+#endif
+
 static int open_tag_fd(struct tagcache_header *hdr, int tag, bool write)
 {
-    int fd;
+    int fd = -1;
     char fname[MAX_PATH];
 
     if (TAGCACHE_IS_NUMERIC(tag) || tag < 0 || tag >= TAG_COUNT)
         return -1;
 
-    fd = open_pathfmt(fname, sizeof(fname),
-                      write ? O_RDWR : O_RDONLY, "%s/" TAGCACHE_FILE_INDEX,
-                      tc_stat.db_path, tag);
-    if (fd < 0)
+    for (int tries = 0; tries < 3; tries++)
     {
-        logf("%s failed: tag=%d write=%d file= " TAGCACHE_FILE_INDEX,
-             __func__, tag, write, tag);
-        tc_stat.ready = false;
-        return fd;
+        fd = open_pathfmt(fname, sizeof(fname),
+                          write ? O_RDWR : O_RDONLY,
+                          "%s/" TAGCACHE_FILE_INDEX,
+                          tc_stat.db_path, tag);
+        if (fd >= 0)
+        {
+            /* Check the header. */
+            if (read_tagcache_header(fd, hdr) ==
+                    sizeof(struct tagcache_header) &&
+                hdr->magic == TAGCACHE_MAGIC)
+                return fd;
+
+            close(fd);
+            fd = -2;
+        }
+
+        if (tries < 2)
+            tagcache_retry_io();
     }
 
-    /* Check the header. */
-    if (read_tagcache_header(fd, hdr) != sizeof(struct tagcache_header) ||
-        hdr->magic != TAGCACHE_MAGIC)
-    {
-        logf("header error");
-        tc_stat.ready = false;
-        close(fd);
-        return -2;
-    }
-
+    logf("%s failed: tag=%d write=%d rc=%d file= " TAGCACHE_FILE_INDEX,
+         __func__, tag, write, fd, tag);
+    tagcache_mark_unavailable();
     return fd;
 }
 
 static int open_master_fd(struct master_header *hdr, bool write)
 {
-    int fd;
-    int rc;
+    int fd = -1;
+    int rc = -1;
 
-    fd = open_db_fd(TAGCACHE_FILE_MASTER, write ? O_RDWR : O_RDONLY);
-    if (fd < 0)
+    for (int tries = 0; tries < 3; tries++)
     {
-        logf("master file open failed for R/W");
-        tc_stat.ready = false;
-        return fd;
+        fd = open_db_fd(TAGCACHE_FILE_MASTER, write ? O_RDWR : O_RDONLY);
+        if (fd >= 0)
+        {
+            rc = read(fd, hdr, sizeof(struct master_header));
+            if (rc == sizeof(struct master_header))
+                break;
+
+            close(fd);
+            fd = -1;
+        }
+
+        if (tries < 2)
+            tagcache_retry_io();
     }
 
-    rc = read(fd, hdr, sizeof(struct master_header));
-    if (rc != sizeof(struct master_header))
+    if (fd < 0)
     {
-        logf("master file read failed");
-        close(fd);
-        return -1;
+        logf("master file open/read failed: write=%d rc=%d", write, rc);
+        tagcache_mark_unavailable();
+        return fd;
     }
 
     /* Tagcache files can have either endianness. A device will always
@@ -755,6 +834,8 @@ static void remove_files(void)
     tc_stat.ramcache = false;
     tc_stat.econ = false;
     remove_db_file(TAGCACHE_FILE_MASTER);
+    remove_db_file(TAGCACHE_FILE_COMMIT);
+    remove_db_file(TAGCACHE_FILE_HOSTCOMMIT);
     for (i = 0; i < TAG_COUNT; i++)
     {
         if (TAGCACHE_IS_NUMERIC(i))
@@ -816,10 +897,11 @@ static bool update_master_header(void)
 
     /* Write it back */
     lseek(fd, 0, SEEK_SET);
-    write_master_header(fd, &myhdr);
+    bool ok = write_master_header(fd, &myhdr) == sizeof(struct master_header)
+           && sync_db_fd(fd);
     close(fd);
 
-    return true;
+    return ok;
 }
 
 #if !defined(PLUGIN)
@@ -2938,6 +3020,12 @@ static bool build_numeric_indices(struct tagcache_header *h, int tmpfd)
         logf("%d/%" PRId32 " entries processed", entries_processed, h->entry_count);
     }
 
+    if (!sync_db_fd(masterfd))
+    {
+        close(masterfd);
+        return false;
+    }
+
     close(masterfd);
 
     return true;
@@ -3433,6 +3521,9 @@ static int build_index(int index_type, struct tagcache_header *h, int tmpfd)
     logf("s:%d/%" PRId32 "/%" PRId32, index_type, tch.datasize, h->datasize);
     error_exit:
 
+    if (!error && (!sync_db_fd(fd) || !sync_db_fd(masterfd)))
+        error = true;
+
     close(fd);
     close(masterfd);
 
@@ -3449,6 +3540,9 @@ static bool commit(void)
     int i, len, rc;
     int tmpfd;
     int masterfd;
+#if !defined(PLUGIN) && !defined(__PCTOOL__)
+    bool transaction_started = false;
+#endif
 #ifdef HAVE_DIRCACHE
     bool dircache_buffer_stolen = false;
 #endif
@@ -3498,6 +3592,7 @@ static bool commit(void)
 
     /* Fully initialize existing headers (if any) before going further. */
     tc_stat.ready = check_all_headers();
+    bool had_database = tc_stat.ready;
 
 #ifdef HAVE_EEPROM_SETTINGS
     remove_db_file(TAGCACHE_STATEFILE);
@@ -3511,6 +3606,7 @@ static bool commit(void)
     /* Beyond here, jump to commit_error to undo locks and restore dircache */
     rc = false;
     read_lock++;
+    tc_stat.scan_status = TAGCACHE_SCAN_COMMITTING;
 
     /* Try to steal every buffer we can :) */
 #ifdef HAVE_DIRCACHE
@@ -3553,11 +3649,37 @@ static bool commit(void)
     }
 
     logf("commit %" PRId32 " entries...", tch.entry_count);
-    tc_stat.scan_status = TAGCACHE_SCAN_COMMITTING;
 
     /* Mark DB dirty so it will stay disabled if commit fails. */
     current_tcmh.dirty = true;
-    update_master_header();
+    if (had_database && !update_master_header())
+    {
+        current_tcmh.dirty = false;
+        close(tmpfd);
+        goto commit_error;
+    }
+
+#if !defined(PLUGIN) && !defined(__PCTOOL__)
+    /* Runtime statistics only need a filesystem sync, but a transaction's
+     * dirty header must pass the adapter cache before its marker is created. */
+    if (had_database)
+        flush_db_storage();
+
+    /* The dirty master is durable before this marker appears. Therefore a
+     * clean master plus marker at boot means the commit itself completed. */
+    if (!create_commit_marker())
+    {
+        current_tcmh.dirty = false;
+        if (had_database)
+        {
+            update_master_header();
+            flush_db_storage();
+        }
+        close(tmpfd);
+        goto commit_error;
+    }
+    transaction_started = true;
+#endif
 
     /* Now create the index files. */
     tc_stat.commit_step = 0;
@@ -3611,8 +3733,6 @@ static bool commit(void)
         if ( (masterfd = open_master_fd(&tcmh, true)) < 0)
             goto commit_error;
 
-        remove_db_file(TAGCACHE_FILE_TEMP);
-
         tcmh.tch.entry_count += tch.entry_count;
         tcmh.tch.datasize = sizeof(struct master_header)
             + sizeof(struct index_entry) * tcmh.tch.entry_count
@@ -3621,8 +3741,22 @@ static bool commit(void)
         tcmh.commitid++;
 
         lseek(masterfd, 0, SEEK_SET);
-        write_master_header(masterfd, &tcmh);
+        if (write_master_header(masterfd, &tcmh) != sizeof(struct master_header)
+            || !sync_db_fd(masterfd))
+        {
+            close(masterfd);
+            goto commit_error;
+        }
         close(masterfd);
+
+        /* Make the clean master and all previously fsynced live index writes
+         * durable before deleting recovery state. */
+        flush_db_storage();
+        remove_db_file(TAGCACHE_FILE_TEMP);
+#if !defined(PLUGIN) && !defined(__PCTOOL__)
+        remove_db_file(TAGCACHE_FILE_COMMIT);
+#endif
+        flush_db_storage();
 
         logf("tagcache committed");
         tagcache_commit_finalize();
@@ -3648,6 +3782,10 @@ static bool commit(void)
     } /*!USR_CANCEL*/
 
 commit_error:
+#if !defined(PLUGIN) && !defined(__PCTOOL__)
+    if (!rc && transaction_started)
+        tc_stat.ready = false;
+#endif
 #ifdef HAVE_TC_RAMCACHE
     if (ramcache_buffer_stolen)
     {
@@ -3737,7 +3875,10 @@ static void command_queue_sync_callback(void)
     mutex_lock(&command_queue_mutex);
 
     if ( (masterfd = open_master_fd(&myhdr, true)) < 0)
+    {
+        mutex_unlock(&command_queue_mutex);
         return;
+    }
 
     while (command_queue_ridx != command_queue_widx)
     {
@@ -3752,7 +3893,10 @@ static void command_queue_sync_callback(void)
 
                 /* Re-open the masterfd. */
                 if ( (masterfd = open_master_fd(&myhdr, true)) < 0)
+                {
+                    mutex_unlock(&command_queue_mutex);
                     return;
+                }
 
                 break;
             }
@@ -3767,6 +3911,7 @@ static void command_queue_sync_callback(void)
             command_queue_ridx = 0;
     }
 
+    sync_db_fd(masterfd);
     close(masterfd);
 
     tc_stat.queue_length = 0;
@@ -5269,7 +5414,9 @@ void do_tagcache_build(const char *path[])
     header.datasize = data_size;
     header.entry_count = total_entry_count;
     lseek(cachefd, 0, SEEK_SET);
-    write(cachefd, &header, sizeof(struct tagcache_header));
+    if (write(cachefd, &header, sizeof(struct tagcache_header)) !=
+            sizeof(struct tagcache_header) || !sync_db_fd(cachefd))
+        ret = false;
     close(cachefd);
 
     if (filenametag_fd >= 0)
@@ -5392,14 +5539,73 @@ static bool NO_INLINE db_file_exists(const char* filename)
     return file_exists(buf);
 }
 
+/* Return -1 for a missing/invalid master, 0 for dirty, and 1 for clean. */
+static int db_master_state(void)
+{
+    struct master_header tcmh;
+    int fd = open_master_fd(&tcmh, false);
+
+    if (fd < 0)
+        return -1;
+
+    close(fd);
+    return tcmh.dirty ? 0 : 1;
+}
+
 static void tagcache_thread(void)
 {
     struct queue_event ev;
     bool check_done = false;
+    bool temp_exists;
+    bool force_rebuild = false;
     cpu_boost(true);
+
+    temp_exists = db_file_exists(TAGCACHE_FILE_TEMP);
+
+    /* Recover transactions before ever opening a possibly mixed live set.
+     * A clean master plus the firmware marker means all index writes and the
+     * final header reached storage; only marker cleanup was interrupted. */
+    if (db_file_exists(TAGCACHE_FILE_HOSTCOMMIT))
+    {
+        logf("tagcache: interrupted host publish");
+        force_rebuild = true;
+    }
+    else if (db_file_exists(TAGCACHE_FILE_COMMIT))
+    {
+        if (db_master_state() == 1)
+        {
+            logf("tagcache: finish commit cleanup");
+            remove_db_file(TAGCACHE_FILE_TEMP);
+            remove_db_file(TAGCACHE_FILE_COMMIT);
+            flush_db_storage();
+            temp_exists = false;
+        }
+        else
+        {
+            logf("tagcache: interrupted firmware commit");
+            force_rebuild = true;
+        }
+    }
+    else if (temp_exists && db_file_exists(TAGCACHE_FILE_MASTER))
+    {
+        /* Without a marker, a temp file beside a live master is ambiguous: it
+         * may be a scan awaiting commit, or stale cleanup from a completed
+         * commit. Replaying it could duplicate entries, so rebuild safely. */
+        logf("tagcache: ambiguous interrupted commit");
+        force_rebuild = true;
+    }
+
+    if (force_rebuild)
+    {
+        remove_files();
+        remove_db_file(TAGCACHE_FILE_TEMP);
+        flush_db_storage();
+        temp_exists = false;
+    }
+
     /* If the previous cache build/update was interrupted, commit
      * the changes first in foreground. */
-    if (db_file_exists(TAGCACHE_FILE_TEMP))
+    if (temp_exists)
     {
 #if !(defined(__APPLE__) && (CONFIG_PLATFORM & PLATFORM_SDL))
         static const char *lines[] = {ID2P(LANG_TAGCACHE_BUSY),
@@ -5555,6 +5761,8 @@ void tagcache_shutdown(void)
     if (tc_stat.ramcache)
         tagcache_dumpsave();
 #endif
+
+    flush_db_storage();
 }
 
 void tagcache_remove_statefile(void)
@@ -5689,6 +5897,10 @@ bool tagcache_is_in_ram(void)
 int tagcache_get_commit_step(void)
 {
     return tc_stat.commit_step;
+}
+bool tagcache_commit_active(void)
+{
+    return tc_stat.scan_status == TAGCACHE_SCAN_COMMITTING;
 }
 int tagcache_get_max_commit_step(void)
 {

@@ -33,11 +33,23 @@ static size_t arena_left;
 static uint8 *arena_next;
 static bool level_load_failed;
 static bool usb_connected;
+static bool quit_requested;
 static char data_dir[OPENLARA_PATH_BYTES];
 static char settings_path[OPENLARA_PATH_BYTES];
 static char save_path[OPENLARA_PATH_BYTES];
 static int log_fd = -1;
 static unsigned long rendered_frames;
+static int input_last_buttons;
+static int input_wheel_zone = -1;
+static int input_scroll_frames;
+static uint32 input_scroll_key;
+#if defined(HAS_BUTTON_HOLD) || defined(SIMULATOR)
+static bool hold_exit_initialized;
+static bool hold_exit_armed;
+#endif
+#ifdef SIMULATOR
+static unsigned long hold_test_polls;
+#endif
 
 extern int8 soundBuffer[];
 
@@ -446,11 +458,124 @@ static void dump_test_frame()
 }
 #endif
 
-static uint32 input_update(int wheel_ticks)
+static uint32 wheel_zone_keys(int zone)
+{
+    static const uint32 zone_keys[8] = {
+        IK_UP,
+        IK_UP | IK_RIGHT,
+        IK_RIGHT,
+        IK_RIGHT | IK_DOWN,
+        IK_DOWN,
+        IK_DOWN | IK_LEFT,
+        IK_LEFT,
+        IK_LEFT | IK_UP
+    };
+
+    return zone_keys[zone & 7];
+}
+
+static uint32 wheel_touch_keys()
+{
+    int position = -1;
+    int zone;
+
+#ifdef HAVE_WHEEL_POSITION
+    position = rb->wheel_status();
+#endif
+#ifdef SIMULATOR
+    static bool test_position_checked;
+    static int test_position = -1;
+
+    if (!test_position_checked)
+    {
+        const char *value = getenv("OPENLARA_TEST_WHEEL");
+
+        test_position_checked = true;
+        if (value && value[0])
+            test_position = strtol(value, NULL, 10);
+    }
+    if (test_position >= 0)
+        position = test_position;
+#endif
+
+#if defined(HAVE_WHEEL_POSITION) || defined(SIMULATOR)
+    if (position < 0)
+    {
+        input_wheel_zone = -1;
+        return 0;
+    }
+
+    position %= 96;
+    zone = ((position + 6) / 12) & 7;
+    if (input_wheel_zone >= 0 && zone != input_wheel_zone)
+    {
+        int center = input_wheel_zone * 12;
+        int distance = position - center;
+
+        if (distance > 48)
+            distance -= 96;
+        else if (distance < -48)
+            distance += 96;
+
+        /* Keep the old zone for two wheel units beyond its edge. */
+        if (distance >= -8 && distance <= 8)
+            zone = input_wheel_zone;
+    }
+    input_wheel_zone = zone;
+    return wheel_zone_keys(zone);
+#else
+    return 0;
+#endif
+}
+
+static bool hold_switch_exit_requested()
+{
+#if defined(HAS_BUTTON_HOLD) || defined(SIMULATOR)
+    bool hold_now = false;
+
+#ifdef HAS_BUTTON_HOLD
+    hold_now = rb->button_hold();
+#endif
+#ifdef SIMULATOR
+    const char *test_after = getenv("OPENLARA_TEST_HOLD_AFTER");
+
+    if (test_after && test_after[0] &&
+        hold_test_polls >= strtoul(test_after, NULL, 10))
+        hold_now = true;
+    hold_test_polls++;
+#endif
+
+    /* A plugin launched while locked must first see the switch released. */
+    if (!hold_exit_initialized)
+    {
+        hold_exit_initialized = true;
+        hold_exit_armed = hold_now;
+        return false;
+    }
+    if (hold_now && !hold_exit_armed)
+    {
+        hold_exit_armed = true;
+        return true;
+    }
+    hold_exit_armed = hold_now;
+#endif
+    return false;
+}
+
+static uint32 input_update()
 {
     int event;
     int held;
+    int pressed;
+    bool left_pressed = false;
+    bool menu_released = false;
     uint32 result = 0;
+
+    if (hold_switch_exit_requested())
+    {
+        quit_requested = true;
+        return 0;
+    }
 
     while ((event = rb->button_get(false)) != BUTTON_NONE)
     {
@@ -462,31 +587,72 @@ static uint32 input_update(int wheel_ticks)
         int clean = event & ~(BUTTON_REPEAT | BUTTON_REL);
 #ifdef BUTTON_SCROLL_FWD
         if (clean == BUTTON_SCROLL_FWD)
-            wheel_ticks = 2;
+        {
+            input_scroll_key = IK_DOWN;
+            input_scroll_frames = 4;
+        }
 #endif
 #ifdef BUTTON_SCROLL_BACK
         if (clean == BUTTON_SCROLL_BACK)
-            wheel_ticks = -2;
+        {
+            input_scroll_key = IK_UP;
+            input_scroll_frames = 4;
+        }
+#endif
+#ifdef BUTTON_LEFT
+        if ((clean & BUTTON_LEFT) &&
+            !(event & (BUTTON_REL | BUTTON_REPEAT)))
+            left_pressed = true;
+#endif
+#ifdef BUTTON_MENU
+        if ((clean & BUTTON_MENU) && (event & BUTTON_REL))
+            menu_released = true;
 #endif
     }
     held = rb->button_status();
-#ifdef BUTTON_LEFT
-    if (held & BUTTON_LEFT) result |= IK_LEFT;
-#endif
-#ifdef BUTTON_RIGHT
-    if (held & BUTTON_RIGHT) result |= IK_RIGHT;
-#endif
+    pressed = held & ~input_last_buttons;
+
+    result |= wheel_touch_keys();
+    if (!result && input_scroll_frames > 0)
+    {
+        result |= input_scroll_key;
+        input_scroll_frames--;
+    }
 #ifdef BUTTON_SELECT
     if (held & BUTTON_SELECT) result |= IK_A;
 #endif
 #ifdef BUTTON_PLAY
     if (held & BUTTON_PLAY) result |= IK_B;
 #endif
-#ifdef BUTTON_MENU
-    if (held & BUTTON_MENU) result |= IK_SELECT;
+#ifdef BUTTON_LEFT
+    if (held & BUTTON_LEFT)
+    {
+        bool chord = false;
+
+#ifdef BUTTON_SELECT
+        chord = chord || (held & BUTTON_SELECT);
 #endif
-    if (wheel_ticks > 0) result |= IK_UP;
-    if (wheel_ticks < 0) result |= IK_DOWN;
+#ifdef BUTTON_PLAY
+        chord = chord || (held & BUTTON_PLAY);
+#endif
+#ifdef BUTTON_RIGHT
+        chord = chord || (held & BUTTON_RIGHT);
+#endif
+        if (chord)
+            result |= IK_L;
+        else if (left_pressed || (pressed & BUTTON_LEFT))
+            result |= IK_L | IK_A;
+    }
+#endif
+#ifdef BUTTON_RIGHT
+    if (held & BUTTON_RIGHT) result |= IK_R;
+#endif
+#ifdef BUTTON_MENU
+    if (menu_released ||
+        ((input_last_buttons & BUTTON_MENU) && !(held & BUTTON_MENU)))
+        result |= IK_SELECT;
+#endif
+    input_last_buttons = held;
     return result;
 }
 
@@ -537,19 +703,32 @@ extern "C" enum plugin_status plugin_start(const void *parameter)
 {
     enum plugin_status status = PLUGIN_OK;
     size_t buffer_size = 0;
-    int wheel_ticks = 0;
     long next_tick;
     int tick_fraction = 0;
 #ifdef SIMULATOR
     unsigned long test_frames = 0;
     unsigned long test_limit = 0;
+    uint32 test_keys_seen = 0;
+    vec3i test_start_position = vec3i::create(0, 0, 0);
+    bool test_start_position_valid = false;
     const char *test_value = getenv("OPENLARA_TEST_FRAMES");
     const char *test_level = getenv("OPENLARA_TEST_LEVEL");
     if (test_value)
         test_limit = strtoul(test_value, NULL, 10);
 #endif
 
-    usb_connected = level_load_failed = false;
+    usb_connected = level_load_failed = quit_requested = false;
+    input_last_buttons = 0;
+    input_wheel_zone = -1;
+    input_scroll_frames = 0;
+    input_scroll_key = 0;
+#if defined(HAS_BUTTON_HOLD) || defined(SIMULATOR)
+    hold_exit_initialized = false;
+    hold_exit_armed = false;
+#endif
+#ifdef SIMULATOR
+    hold_test_polls = 0;
+#endif
     rendered_frames = 0;
     dirname_from_parameter((const char *)parameter);
     ensure_directory(ROCKBOX_DIR "/games");
@@ -607,13 +786,23 @@ extern "C" enum plugin_status plugin_start(const void *parameter)
         status = PLUGIN_ERROR;
         goto cleanup_game;
     }
+#ifdef SIMULATOR
+    if (players[0])
+    {
+        test_start_position = players[0]->pos;
+        test_start_position_valid = true;
+    }
+#endif
 
     next_tick = *rb->current_tick;
-    while (!usb_connected && !level_load_failed)
+    while (!usb_connected && !level_load_failed && !quit_requested)
     {
-        keys = input_update(wheel_ticks);
-        if (wheel_ticks > 0) wheel_ticks--;
-        if (wheel_ticks < 0) wheel_ticks++;
+        keys = input_update();
+        if (quit_requested)
+            break;
+#ifdef SIMULATOR
+        test_keys_seen |= keys;
+#endif
 
         gameUpdate(1);
         audio_submit();
@@ -638,6 +827,22 @@ extern "C" enum plugin_status plugin_start(const void *parameter)
 
 cleanup_game:
 #ifdef SIMULATOR
+    if (log_fd >= 0)
+    {
+        if (test_start_position_valid && players[0])
+            rb->fdprintf(log_fd,
+                         "input keys=0x%lx start=%ld,%ld,%ld end=%ld,%ld,%ld\n",
+                         (unsigned long)test_keys_seen,
+                         (long)test_start_position.x,
+                         (long)test_start_position.y,
+                         (long)test_start_position.z,
+                         (long)players[0]->pos.x,
+                         (long)players[0]->pos.y,
+                         (long)players[0]->pos.z);
+        else
+            rb->fdprintf(log_fd, "input keys=0x%lx player=unavailable\n",
+                         (unsigned long)test_keys_seen);
+    }
     dump_test_frame();
 #endif
     gameFree();
@@ -651,9 +856,9 @@ cleanup_buffer:
     if (log_fd >= 0)
     {
         rb->fdprintf(log_fd,
-                     "exit status=%d frames=%lu load_failed=%d usb=%d\n",
+                     "exit status=%d frames=%lu load_failed=%d usb=%d hold=%d\n",
                      status, rendered_frames, level_load_failed ? 1 : 0,
-                     usb_connected ? 1 : 0);
+                     usb_connected ? 1 : 0, quit_requested ? 1 : 0);
         rb->close(log_fd);
         log_fd = -1;
     }

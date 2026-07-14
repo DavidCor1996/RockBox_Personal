@@ -12,10 +12,16 @@
 /* define this if you use an ATA controller */
 #define CONFIG_STORAGE STORAGE_ATA
 
+/* The target provides ata_flush(); use it for database transactions and the
+ * normal shutdown path so adapter write caches are explicitly committed. */
+#define HAVE_STORAGE_FLUSH
+
 #define STORAGE_NEEDS_BOUNCE_BUFFER
 
 #define HAVE_ATA_DMA
-#define ATA_MAX_UDMA 4
+/* UDMA3/4 leave very little timing margin through iFlash/SATA adapters and
+ * the iPod flex cable. UDMA2 is still far faster than audio playback needs. */
+#define ATA_MAX_UDMA 2
 #define ATA_MAX_MWDMA 2
 
 /* define this if the ATA controller and method of USB access support LBA48 */

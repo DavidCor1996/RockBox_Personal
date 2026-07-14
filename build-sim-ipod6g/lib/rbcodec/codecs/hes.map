@@ -769,29 +769,29 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x23ef
+.debug_str      0x0000000000000000     0x24c1
  *(.debug_str)
- .debug_str     0x0000000000000000     0x23ef /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/hes.o
+ .debug_str     0x0000000000000000     0x24c1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/hes.o
                                        0x124c (size before relaxing)
- .debug_str     0x00000000000023ef        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/codec_crt0.o
+ .debug_str     0x00000000000024c1        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/codec_crt0.o
                                         0xcbf (size before relaxing)
- .debug_str     0x00000000000023ef        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libhes.a(hes_emu.o)
+ .debug_str     0x00000000000024c1        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libhes.a(hes_emu.o)
                                         0xebd (size before relaxing)
- .debug_str     0x00000000000023ef        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libhes.a(blip_buffer.o)
+ .debug_str     0x00000000000024c1        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libhes.a(blip_buffer.o)
                                         0x519 (size before relaxing)
- .debug_str     0x00000000000023ef        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libhes.a(multi_buffer.o)
+ .debug_str     0x00000000000024c1        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libhes.a(multi_buffer.o)
                                         0x6db (size before relaxing)
- .debug_str     0x00000000000023ef        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libhes.a(rom_data.o)
+ .debug_str     0x00000000000024c1        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libhes.a(rom_data.o)
                                         0x288 (size before relaxing)
- .debug_str     0x00000000000023ef        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libhes.a(track_filter.o)
+ .debug_str     0x00000000000024c1        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libhes.a(track_filter.o)
                                         0x8a5 (size before relaxing)
- .debug_str     0x00000000000023ef        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libhes.a(hes_apu.o)
+ .debug_str     0x00000000000024c1        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libhes.a(hes_apu.o)
                                         0xada (size before relaxing)
- .debug_str     0x00000000000023ef        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libhes.a(hes_apu_adpcm.o)
+ .debug_str     0x00000000000024c1        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libhes.a(hes_apu_adpcm.o)
                                         0xb00 (size before relaxing)
- .debug_str     0x00000000000023ef        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libhes.a(hes_cpu.o)
+ .debug_str     0x00000000000024c1        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libhes.a(hes_cpu.o)
                                        0x1217 (size before relaxing)
- .debug_str     0x00000000000023ef        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .debug_str     0x00000000000024c1        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
                                         0xedb (size before relaxing)
 
 .debug_loc
@@ -822,41 +822,41 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
  *(.debug_addr)
 
 .debug_line_str
-                0x0000000000000000      0x71d
+                0x0000000000000000      0x749
  *(.debug_line_str)
  .debug_line_str
-                0x0000000000000000      0x71d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/hes.o
-                                        0x3d2 (size before relaxing)
+                0x0000000000000000      0x749 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/hes.o
+                                        0x3ce (size before relaxing)
  .debug_line_str
-                0x000000000000071d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/codec_crt0.o
+                0x0000000000000749        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/codec_crt0.o
                                         0x264 (size before relaxing)
  .debug_line_str
-                0x000000000000071d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libhes.a(hes_emu.o)
+                0x0000000000000749        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libhes.a(hes_emu.o)
                                         0x20f (size before relaxing)
  .debug_line_str
-                0x000000000000071d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libhes.a(blip_buffer.o)
+                0x0000000000000749        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libhes.a(blip_buffer.o)
                                         0x16c (size before relaxing)
  .debug_line_str
-                0x000000000000071d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libhes.a(multi_buffer.o)
+                0x0000000000000749        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libhes.a(multi_buffer.o)
                                         0x168 (size before relaxing)
  .debug_line_str
-                0x000000000000071d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libhes.a(rom_data.o)
+                0x0000000000000749        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libhes.a(rom_data.o)
                                         0x170 (size before relaxing)
  .debug_line_str
-                0x000000000000071d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libhes.a(track_filter.o)
+                0x0000000000000749        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libhes.a(track_filter.o)
                                         0x208 (size before relaxing)
  .debug_line_str
-                0x000000000000071d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libhes.a(hes_apu.o)
-                                        0x31f (size before relaxing)
+                0x0000000000000749        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libhes.a(hes_apu.o)
+                                        0x31b (size before relaxing)
  .debug_line_str
-                0x000000000000071d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libhes.a(hes_apu_adpcm.o)
-                                        0x337 (size before relaxing)
+                0x0000000000000749        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libhes.a(hes_apu_adpcm.o)
+                                        0x333 (size before relaxing)
  .debug_line_str
-                0x000000000000071d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libhes.a(hes_cpu.o)
-                                        0x39e (size before relaxing)
+                0x0000000000000749        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libhes.a(hes_cpu.o)
+                                        0x39a (size before relaxing)
  .debug_line_str
-                0x000000000000071d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
-                                        0x32c (size before relaxing)
+                0x0000000000000749        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+                                        0x328 (size before relaxing)
 
 .debug_loclists
                 0x0000000000000000     0x81b1

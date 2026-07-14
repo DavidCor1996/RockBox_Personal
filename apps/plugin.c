@@ -979,7 +979,14 @@ int plugin_load(const char* plugin, const void* parameter)
             talk_force_enqueue_next();
         }
         /* (voiced above) */
+#if CONFIG_BINFMT == BINFMT_ROCK
+        char message[MAX_PATH + 32];
+        snprintf(message, sizeof(message), str(LANG_PLUGIN_CANT_OPEN), plugin);
+        splashf(HZ*2, "%s\n[%s]", message,
+                lc_open_error_string(lc_open_last_error()));
+#else
         splashf(HZ*2, str(LANG_PLUGIN_CANT_OPEN), plugin);
+#endif
         return -1;
     }
 
@@ -1194,6 +1201,17 @@ static void* plugin_get_audio_buffer(size_t *buffer_size)
     {
         long deadline;
 
+#ifdef HAVE_TAGCACHE
+        /* A tagcache commit rewrites the live database while holding most of
+         * the allocatable core buffer. Waiting here prevents memory-hungry
+         * plugins from receiving only the small audio reserve and crashing in
+         * the middle of that transaction. */
+        if (tagcache_commit_active())
+            splash(0, ID2P(LANG_TAGCACHE_BUSY));
+        while (tagcache_commit_active())
+            sleep(1);
+#endif
+
         if (audio_status())
         {
             audio_stop();
@@ -1218,6 +1236,14 @@ static void* plugin_get_audio_buffer(size_t *buffer_size)
 #endif
         plugin_buffer_handle = core_alloc_maximum(&plugin_buffer_size,
                                                   &buflib_ops_locked);
+        if (plugin_buffer_handle <= 0)
+        {
+            plugin_buffer_handle = 0;
+            plugin_buffer_size = 0;
+            if (buffer_size)
+                *buffer_size = 0;
+            return NULL;
+        }
     }
 
     if (buffer_size)

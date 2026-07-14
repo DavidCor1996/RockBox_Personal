@@ -1,0 +1,14 @@
+SM64 upstream
+=============
+
+The engine source is based on the `dos` branch of
+`fgsfdsfgs/sm64-port`, pinned at commit
+`da5b744d6b120cbdedea5686f4076508bc8902bb`.
+
+No ROM or extracted game asset is committed or included in `rockbox.zip`.
+Run `tools/sm64_prepare_assets.py` with an owned US v1.0 ROM to regenerate
+the ignored build inputs. The accepted SHA-1 is
+`9bef1128717f958171a4afac3ed78ee2bb4e86ce`.
+
+Rockbox-specific changes are limited to the platform frontend, software
+renderer integration, save I/O, compatibility fixes, and build wiring.

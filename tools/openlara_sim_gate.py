@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import os
+import re
 import shutil
 import struct
 import subprocess
@@ -113,6 +114,8 @@ def main() -> int:
     parser.add_argument("--data", type=Path, required=True)
     parser.add_argument("--frames", type=int, default=120)
     parser.add_argument("--level", choices=("TITLE", "GYM", "LEVEL1", "LEVEL2"), default="TITLE")
+    parser.add_argument("--wheel-position", type=int)
+    parser.add_argument("--hold-exit-frame", type=int)
     parser.add_argument("--run", action="store_true")
     args = parser.parse_args()
 
@@ -128,6 +131,12 @@ def main() -> int:
     environment["OPENLARA_TEST_UNTHROTTLED"] = "1"
     environment["OPENLARA_TEST_LEVEL"] = args.level
     environment["OPENLARA_TEST_DUMP"] = "1"
+    if args.wheel_position is not None:
+        environment["OPENLARA_TEST_WHEEL"] = str(args.wheel_position % 96)
+    if args.hold_exit_frame is not None:
+        environment["OPENLARA_TEST_HOLD_AFTER"] = str(
+            max(1, args.hold_exit_frame)
+        )
     process = subprocess.Popen([str(build_dir / "rockboxui")], cwd=build_dir, env=environment)
     deadline = time.monotonic() + 90
     while process.poll() is None and time.monotonic() < deadline:
@@ -149,7 +158,32 @@ def main() -> int:
     print(log, end="")
     expected = f"frames={max(1, args.frames)}"
     loaded = f"level name={args.level} "
-    return 0 if "exit status=0" in log and expected in log and loaded in log and "load_failed=0" in log else 1
+    passed = (
+        "exit status=0" in log
+        and loaded in log
+        and "load_failed=0" in log
+    )
+    if args.hold_exit_frame is None:
+        passed = passed and expected in log
+    else:
+        frame_match = re.search(r"exit status=0 frames=(\d+).+hold=1", log)
+        passed = (
+            passed
+            and frame_match is not None
+            and int(frame_match.group(1)) < max(1, args.frames)
+        )
+    if args.wheel_position is not None:
+        movement = re.search(
+            r"input keys=0x([0-9a-f]+) start=(-?\d+),(-?\d+),(-?\d+) "
+            r"end=(-?\d+),(-?\d+),(-?\d+)",
+            log,
+        )
+        passed = passed and movement is not None
+        if movement and args.level != "TITLE":
+            start = movement.group(2, 3, 4)
+            end = movement.group(5, 6, 7)
+            passed = passed and start != end
+    return 0 if passed else 1
 
 
 if __name__ == "__main__":

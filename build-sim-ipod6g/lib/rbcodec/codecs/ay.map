@@ -737,27 +737,27 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x2223
+.debug_str      0x0000000000000000     0x22f5
  *(.debug_str)
- .debug_str     0x0000000000000000     0x2223 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/ay.o
+ .debug_str     0x0000000000000000     0x22f5 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/ay.o
                                        0x1194 (size before relaxing)
- .debug_str     0x0000000000002223        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/codec_crt0.o
+ .debug_str     0x00000000000022f5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/codec_crt0.o
                                         0xcbf (size before relaxing)
- .debug_str     0x0000000000002223        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libay.a(ay_emu.o)
+ .debug_str     0x00000000000022f5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libay.a(ay_emu.o)
                                         0xd1a (size before relaxing)
- .debug_str     0x0000000000002223        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libay.a(blip_buffer.o)
+ .debug_str     0x00000000000022f5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libay.a(blip_buffer.o)
                                         0x519 (size before relaxing)
- .debug_str     0x0000000000002223        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libay.a(multi_buffer.o)
+ .debug_str     0x00000000000022f5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libay.a(multi_buffer.o)
                                         0x6db (size before relaxing)
- .debug_str     0x0000000000002223        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libay.a(track_filter.o)
+ .debug_str     0x00000000000022f5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libay.a(track_filter.o)
                                         0x8a5 (size before relaxing)
- .debug_str     0x0000000000002223        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libay.a(z80_cpu.o)
+ .debug_str     0x00000000000022f5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libay.a(z80_cpu.o)
                                         0x759 (size before relaxing)
- .debug_str     0x0000000000002223        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libay.a(ay_apu.o)
+ .debug_str     0x00000000000022f5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libay.a(ay_apu.o)
                                         0x604 (size before relaxing)
- .debug_str     0x0000000000002223        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libay.a(ay_cpu.o)
+ .debug_str     0x00000000000022f5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libay.a(ay_cpu.o)
                                        0x101f (size before relaxing)
- .debug_str     0x0000000000002223        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .debug_str     0x00000000000022f5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
                                         0xedb (size before relaxing)
 
 .debug_loc
@@ -788,38 +788,38 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
  *(.debug_addr)
 
 .debug_line_str
-                0x0000000000000000      0x6a3
+                0x0000000000000000      0x6cf
  *(.debug_line_str)
  .debug_line_str
-                0x0000000000000000      0x6a3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/ay.o
-                                        0x3b2 (size before relaxing)
+                0x0000000000000000      0x6cf /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/ay.o
+                                        0x3ae (size before relaxing)
  .debug_line_str
-                0x00000000000006a3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/codec_crt0.o
+                0x00000000000006cf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/codec_crt0.o
                                         0x264 (size before relaxing)
  .debug_line_str
-                0x00000000000006a3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libay.a(ay_emu.o)
+                0x00000000000006cf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libay.a(ay_emu.o)
                                         0x1fd (size before relaxing)
  .debug_line_str
-                0x00000000000006a3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libay.a(blip_buffer.o)
+                0x00000000000006cf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libay.a(blip_buffer.o)
                                         0x16c (size before relaxing)
  .debug_line_str
-                0x00000000000006a3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libay.a(multi_buffer.o)
+                0x00000000000006cf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libay.a(multi_buffer.o)
                                         0x168 (size before relaxing)
  .debug_line_str
-                0x00000000000006a3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libay.a(track_filter.o)
+                0x00000000000006cf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libay.a(track_filter.o)
                                         0x208 (size before relaxing)
  .debug_line_str
-                0x00000000000006a3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libay.a(z80_cpu.o)
+                0x00000000000006cf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libay.a(z80_cpu.o)
                                         0x21d (size before relaxing)
  .debug_line_str
-                0x00000000000006a3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libay.a(ay_apu.o)
+                0x00000000000006cf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libay.a(ay_apu.o)
                                         0x150 (size before relaxing)
  .debug_line_str
-                0x00000000000006a3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libay.a(ay_cpu.o)
-                                        0x37e (size before relaxing)
+                0x00000000000006cf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libay.a(ay_cpu.o)
+                                        0x37a (size before relaxing)
  .debug_line_str
-                0x00000000000006a3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
-                                        0x32c (size before relaxing)
+                0x00000000000006cf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+                                        0x328 (size before relaxing)
 
 .debug_loclists
                 0x0000000000000000     0x77a0

@@ -2924,7 +2924,17 @@ static void ftl_n3g_synth_fat32_bpb(uint8_t *out)
 
 static void ftl_n3g_synth_root_rockbox(uint8_t *out, uint32_t host_lpn)
 {
-    /* Disk-mode/DFU ground truth: cluster 0xDE526, size 881396 bytes. */
+    /* Delete-and-recreate Disk Mode ground truth: cluster 0xDEA28. */
+    static const uint8_t dot_rockbox[64] = {
+        0x41, 0x2e, 0x00, 0x72, 0x00, 0x6f, 0x00, 0x63,
+        0x00, 0x6b, 0x00, 0x0f, 0x00, 0xbd, 0x62, 0x00,
+        0x6f, 0x00, 0x78, 0x00, 0x00, 0x00, 0xff, 0xff,
+        0xff, 0xff, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff,
+        0x52, 0x4f, 0x43, 0x4b, 0x42, 0x4f, 0x7e, 0x31,
+        0x20, 0x20, 0x20, 0x10, 0x00, 0x03, 0x51, 0x04,
+        0xb6, 0x5c, 0xa5, 0x5c, 0x0d, 0x00, 0x9a, 0x04,
+        0xba, 0x5c, 0xfc, 0x9e, 0x00, 0x00, 0x00, 0x00
+    };
     static const uint8_t rockbox_lfn[32] = {
         0x41, 0x72, 0x00, 0x6f, 0x00, 0x63, 0x00, 0x6b,
         0x00, 0x62, 0x00, 0x0f, 0x00, 0x4e, 0x6f, 0x00,
@@ -2935,14 +2945,15 @@ static void ftl_n3g_synth_root_rockbox(uint8_t *out, uint32_t host_lpn)
         0x52, 0x4f, 0x43, 0x4b, 0x42, 0x4f, 0x7e, 0x31,
         0x49, 0x50, 0x4f, 0x20, 0x00, 0x35, 0xcf, 0x89,
         0xb7, 0x5c, 0xed, 0x5c, 0x0d, 0x00, 0x61, 0x97,
-        0xed, 0x5c, 0x26, 0xe5, 0xf4, 0x72, 0x0d, 0x00
+        0xed, 0x5c, 0x28, 0xea, 0x2c, 0xdb, 0x0c, 0x00
     };
 
     memset(out, 0, 0x200);
     if (host_lpn == 0x0000db6eu)
     {
-        memcpy(out, rockbox_lfn, sizeof(rockbox_lfn));
-        memcpy(out + 0x20, rockbox_short, sizeof(rockbox_short));
+        memcpy(out, dot_rockbox, sizeof(dot_rockbox));
+        memcpy(out + 0x40, rockbox_lfn, sizeof(rockbox_lfn));
+        memcpy(out + 0x60, rockbox_short, sizeof(rockbox_short));
     }
 }
 
@@ -2956,10 +2967,34 @@ static void ftl_n3g_synth_rockbox_fat(uint8_t *out, uint32_t host_lpn)
         uint32_t cluster = first_cluster + i;
         uint32_t value = 0;
 
-        if (cluster >= 0x000de526u && cluster < 0x000de5fdu)
-            value = cluster + 1;
-        else if (cluster == 0x000de5fdu)
+        if (cluster == 0u)
+            value = 0x0ffffff8u;
+        else if (cluster == 1u
+         || cluster == 2u
+         || cluster == 0x000d9efcu
+         || cluster == 0x000dad13u
+         || cluster == 0x000db06du
+         || cluster == 0x000db0a6u
+         || cluster == 0x000db0a8u
+         || cluster == 0x000db0b0u
+         || cluster == 0x000db0b6u
+         || cluster == 0x000db0b7u
+         || cluster == 0x000db0b9u
+         || cluster == 0x000db0bcu
+         || cluster == 0x000db0bfu
+         || cluster == 0x000db0c0u
+         || cluster == 0x000deaf5u)
             value = 0x0fffffffu;
+        else if ((cluster >= 0x000db06eu && cluster < 0x000db0a6u)
+              || (cluster >= 0x000db0a7u && cluster < 0x000db0a8u)
+              || (cluster >= 0x000db0a9u && cluster < 0x000db0b0u)
+              || (cluster >= 0x000db0b1u && cluster < 0x000db0b6u)
+              || (cluster >= 0x000db0b8u && cluster < 0x000db0b9u)
+              || (cluster >= 0x000db0bau && cluster < 0x000db0bcu)
+              || (cluster >= 0x000db0bdu && cluster < 0x000db0bfu))
+            value = cluster + 1;
+        else if (cluster >= 0x000dea28u && cluster < 0x000deaf5u)
+            value = cluster + 1;
 
         ftl_n3g_put32(out, i * 4, value);
     }
@@ -2967,9 +3002,35 @@ static void ftl_n3g_synth_rockbox_fat(uint8_t *out, uint32_t host_lpn)
 
 static uint32_t ftl_n3g_synth_rockbox_ram(uint8_t *out, uint32_t host_lpn)
 {
-    (void)out;
-    (void)host_lpn;
-    return 0;
+    static const uint8_t dot_rockbox_wps[128] = {
+        0x2e, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20,
+        0x20, 0x20, 0x20, 0x10, 0x00, 0x03, 0x51, 0x04,
+        0xb6, 0x5c, 0xb6, 0x5c, 0x0d, 0x00, 0x51, 0x04,
+        0xb6, 0x5c, 0xfc, 0x9e, 0x00, 0x00, 0x00, 0x00,
+        0x2e, 0x2e, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20,
+        0x20, 0x20, 0x20, 0x10, 0x00, 0x03, 0x51, 0x04,
+        0xb6, 0x5c, 0xb6, 0x5c, 0x00, 0x00, 0x51, 0x04,
+        0xb6, 0x5c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x41, 0x77, 0x00, 0x70, 0x00, 0x73, 0x00, 0x00,
+        0x00, 0xff, 0xff, 0x0f, 0x00, 0x50, 0xff, 0xff,
+        0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+        0xff, 0xff, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff,
+        0x57, 0x50, 0x53, 0x20, 0x20, 0x20, 0x20, 0x20,
+        0x20, 0x20, 0x20, 0x10, 0x00, 0x43, 0x63, 0x04,
+        0xb6, 0x5c, 0xa5, 0x5c, 0x0d, 0x00, 0x13, 0x49,
+        0xa5, 0x5c, 0x13, 0xad, 0x00, 0x00, 0x00, 0x00
+    };
+    const uint32_t dot_rockbox_start = 0x006dd33eu;
+
+    if (host_lpn < dot_rockbox_start
+     || host_lpn >= dot_rockbox_start + 8u)
+        return 0;
+
+    memset(out, 0, 0x200);
+    if (host_lpn == dot_rockbox_start)
+        memcpy(out, dot_rockbox_wps, sizeof(dot_rockbox_wps));
+
+    return 1;
 }
 
 static const uint8_t n3g_rockbox_first_sector[0x200] =
@@ -4431,29 +4492,62 @@ int ftl_n3g_read_rockbox_file_sector(uint32_t file_sector, uint32_t host_lpn,
 
 #if defined(IPOD_NANO3G) && defined(NANO3G_NATIVE_CURRENT_FILE_READ) \
     && NANO3G_NATIVE_CURRENT_FILE_READ
+/*
+ * The delete-and-recreate deployment placed the current file in one
+ * scattered FTL log generation (user USN 0xfe23).  A complete primed bank-0
+ * OOB index resolved every even raw key from 0x001d2404 through 0x001d259e.
+ * Each entry below is the physical page shared by one adjacent bank-0/bank-1
+ * raw-page pair.  Native bank reads select the member with raw & 1 and still
+ * require the exact raw key, user USN, and data-page type before returning it.
+ */
+static const uint32_t n3g_current_file_pair_physpages[] =
+{
+    0x0003c400u, 0x0003c480u, 0x000bc400u, 0x000bc480u, 0x0003c401u, 0x0003c481u, 0x000bc401u, 0x000bc481u,
+    0x0003c402u, 0x0003c482u, 0x000bc402u, 0x000bc482u, 0x0003c403u, 0x0003c483u, 0x000bc403u, 0x000bc483u,
+    0x0003c404u, 0x0003c484u, 0x000bc404u, 0x000bc484u, 0x0003c405u, 0x0003c485u, 0x000bc405u, 0x000bc485u,
+    0x0003c406u, 0x0003c486u, 0x000bc406u, 0x000bc486u, 0x0003c407u, 0x0003c487u, 0x000bc407u, 0x000bc487u,
+    0x0003c408u, 0x0003c488u, 0x000bc408u, 0x000bc488u, 0x0003c409u, 0x0003c489u, 0x000bc409u, 0x000bc489u,
+    0x0003c40au, 0x0003c48au, 0x000bc40au, 0x000bc48au, 0x0003c40bu, 0x0003c48bu, 0x000bc40bu, 0x000bc48bu,
+    0x0003c40cu, 0x0003c48cu, 0x000bc40cu, 0x000bc48cu, 0x0003c40du, 0x0003c48du, 0x000bc40du, 0x000bc48du,
+    0x0003c40eu, 0x0003c48eu, 0x000bc40eu, 0x000bc48eu, 0x000bc416u, 0x000bc496u, 0x0003c417u, 0x0003c497u,
+    0x000bc417u, 0x000bc497u, 0x0003c418u, 0x0003c498u, 0x000bc418u, 0x000bc498u, 0x0003c419u, 0x0003c499u,
+    0x000bc419u, 0x000bc499u, 0x0003c41au, 0x0003c49au, 0x000bc41au, 0x000bc49au, 0x0003c41bu, 0x0003c49bu,
+    0x000bc41bu, 0x000bc49bu, 0x0003c41cu, 0x0003c49cu, 0x000bc41cu, 0x000bc49cu, 0x0003c41du, 0x0003c49du,
+    0x000bc41du, 0x000bc49du, 0x000bc425u, 0x000bc4a5u, 0x0003c426u, 0x0003c4a6u, 0x000bc426u, 0x000bc4a6u,
+    0x0003c427u, 0x0003c4a7u, 0x000bc427u, 0x000bc4a7u, 0x0003c428u, 0x0003c4a8u, 0x000bc428u, 0x000bc4a8u,
+    0x0003c429u, 0x0003c4a9u, 0x000bc429u, 0x000bc4a9u, 0x0003c42au, 0x0003c4aau, 0x000bc42au, 0x000bc4aau,
+    0x0003c42bu, 0x0003c4abu, 0x000bc42bu, 0x000bc4abu, 0x0003c42cu, 0x0003c4acu, 0x000bc42cu, 0x000bc4acu,
+    0x000bc434u, 0x000bc4b4u, 0x0003c435u, 0x0003c4b5u, 0x000bc435u, 0x000bc4b5u, 0x0003c436u, 0x0003c4b6u,
+    0x000bc436u, 0x000bc4b6u, 0x0003c437u, 0x0003c4b7u, 0x000bc437u, 0x000bc4b7u, 0x0003c438u, 0x0003c4b8u,
+    0x000bc438u, 0x000bc4b8u, 0x0003c439u, 0x0003c4b9u, 0x000bc439u, 0x000bc4b9u, 0x0003c43au, 0x0003c4bau,
+    0x000bc43au, 0x000bc4bau, 0x0003c43bu, 0x0003c4bbu, 0x000bc43bu, 0x000bc4bbu, 0x000bc443u, 0x000bc4c3u,
+    0x0003c444u, 0x0003c4c4u, 0x000bc444u, 0x000bc4c4u, 0x0003c445u, 0x0003c4c5u, 0x000bc445u, 0x000bc4c5u,
+    0x0003c446u, 0x0003c4c6u, 0x000bc446u, 0x000bc4c6u, 0x0003c447u, 0x0003c4c7u, 0x000bc447u, 0x000bc4c7u,
+    0x0003c448u, 0x0003c4c8u, 0x000bc448u, 0x000bc4c8u, 0x0003c449u, 0x0003c4c9u, 0x000bc449u, 0x000bc4c9u,
+    0x0003c44au, 0x0003c4cau, 0x000bc44au, 0x000bc4cau, 0x000bc452u, 0x000bc4d2u, 0x0003c453u, 0x0003c4d3u,
+    0x000bc453u, 0x000bc4d3u, 0x0003c454u, 0x0003c4d4u, 0x000bc454u, 0x000bc4d4u, 0x0003c455u, 0x0003c4d5u,
+    0x000bc455u, 0x000bc4d5u, 0x0003c456u, 0x0003c4d6u, 0x000bc456u, 0x000bc4d6u, 0x0003c457u, 0x0003c4d7u,
+    0x000bc457u, 0x000bc4d7u, 0x0003c458u, 0x0003c4d8u, 0x000bc458u, 0x000bc4d8u,
+};
+
 static int32_t ftl_n3g_native_current_file_read(uint32_t host_lpn,
                                                 uint8_t *out)
 {
     /*
-     * The deployed 2026-07-13 full-safe image begins at synthetic host LBA
-     * 0x0070048e.  A fresh root-page capture gives cluster 0xde526 and the
-     * FAT page proves a contiguous 216-cluster chain through 0xde5fd.  DFU
-     * OOB scanning found its exact header at raw page 0x001d1a00, bank 0,
-     * physical block 0x0974, row 0x40.  The 431-page file remains within one
-     * sequential eight-lane logical hyperblock.
+     * The deployed 2026-07-13 iPodJS exact-mount image was recreated at
+     * cluster 0xdea28, giving synthetic host LBA 0x00702c9e and first raw
+     * key 0x001d2404.  The complete 412-page file is covered by the exact
+     * scattered-log pair map above.
      */
-    const uint32_t file_start = 0x0070048eu;
-    const uint32_t file_size = 881396u;
-    const uint32_t raw_base = 0x001d1800u;
-    const uint32_t file_page0 = 0x200u;
-    const uint32_t base_pblock = 0x0974u;
+    const uint32_t file_start = 0x00702c9eu;
+    const uint32_t file_size = 842540u;
+    const uint32_t first_raw = 0x001d2404u;
+    const uint32_t expected_usn = 0x0000fe23u;
     uint32_t file_sector;
     uint32_t file_page;
+    uint32_t pair_index;
     uint32_t raw;
-    uint32_t lane;
     uint32_t bank;
-    uint32_t pblock;
-    uint32_t row;
     uint32_t physpage;
     uint32_t slot;
     uint32_t spare[0x10];
@@ -4466,16 +4560,78 @@ static int32_t ftl_n3g_native_current_file_read(uint32_t host_lpn,
     if (file_sector >= (file_size + 0x1ffu) / 0x200u)
         return 0;
 
-    file_page = file_page0 + (file_sector >> 2);
-    raw = raw_base + file_page;
-    lane = file_page & 7u;
+    file_page = file_sector >> 2;
+    pair_index = file_page >> 1;
+    if (pair_index >= ARRAYLEN(n3g_current_file_pair_physpages))
+        return -1;
+
+    raw = first_raw + file_page;
+    bank = raw & 1u;
+    physpage = n3g_current_file_pair_physpages[pair_index];
+    slot = file_sector & 3u;
+
+    if (n3g_current_file_cached_raw != raw)
+    {
+        memset(n3g_current_file_pagebuf, 0xff,
+               sizeof(n3g_current_file_pagebuf));
+        memset(spare, 0xff, sizeof(spare));
+        rc = nano3g_nand_diag_bank_read(bank, physpage,
+                         (uint32_t *)n3g_current_file_pagebuf, spare);
+        if (rc != 0 || spare[0] != raw
+         || spare[1] != expected_usn
+         || (((uint8_t *)spare)[9] != 0x40u
+          && ((uint8_t *)spare)[9] != 0x41u))
+        {
+            n3g_current_file_cached_raw = 0xffffffffu;
+            memset(out, 0, 0x200);
+            return -1;
+        }
+        n3g_current_file_cached_raw = raw;
+    }
+
+    memcpy(out, n3g_current_file_pagebuf + slot * 0x200u, 0x200);
+    return 1;
+}
+
+static int32_t ftl_n3g_native_hyperblock_read(uint32_t host_lpn,
+                                               uint32_t raw_hyperblock,
+                                               uint32_t base_pblock,
+                                               uint8_t *out)
+{
+    const uint32_t partition_start = 0x0000a07eu;
+    const uint32_t disk_partition_4k = 0x0000003fu;
+    const uint32_t disk_raw_base = 0x0001407eu;
+    uint32_t relative;
+    uint32_t raw;
+    uint32_t logical_page;
+    uint32_t lane;
+    uint32_t bank;
+    uint32_t pblock;
+    uint32_t row;
+    uint32_t physpage;
+    uint32_t slot;
+    uint32_t spare[0x10];
+    int32_t rc;
+
+    if (host_lpn < partition_start)
+        return 0;
+
+    relative = host_lpn - partition_start;
+    raw = disk_raw_base
+        + ((disk_partition_4k + (relative >> 3)) << 1)
+        + ((relative >> 2) & 1u);
+    if ((raw & ~0x3ffu) != raw_hyperblock)
+        return 0;
+
+    logical_page = raw & 0x3ffu;
+    lane = logical_page & 7u;
     bank = lane & 1u;
     pblock = base_pblock + ((lane >> 1) & 1u);
     if (lane & 4u)
         pblock += 0x1000u;
-    row = file_page >> 3;
+    row = logical_page >> 3;
     physpage = pblock * 0x80u + row;
-    slot = file_sector & 3u;
+    slot = relative & 3u;
 
     if (n3g_current_file_cached_raw != raw)
     {
@@ -4498,6 +4654,44 @@ static int32_t ftl_n3g_native_current_file_read(uint32_t host_lpn,
     memcpy(out, n3g_current_file_pagebuf + slot * 0x200u, 0x200);
     return 1;
 }
+
+static int32_t ftl_n3g_native_theme_read(uint32_t host_lpn, uint8_t *out)
+{
+    const uint32_t wps_dir_start = 0x006e43f6u;
+    const uint32_t cabbiev2_dir_start = 0x006e5ec6u;
+    const uint32_t cabbiev2_data_start = 0x006e5eceu;
+    const uint32_t cabbiev2_data_end = 0x006e6166u;
+
+    if (host_lpn >= wps_dir_start && host_lpn < wps_dir_start + 8u)
+    {
+        if (host_lpn >= wps_dir_start + 4u)
+        {
+            memset(out, 0, 0x200);
+            return 1;
+        }
+        return ftl_n3g_native_hyperblock_read(host_lpn, 0x001ca800u,
+                                               0x0e38u, out);
+    }
+
+    if (host_lpn >= cabbiev2_dir_start
+     && host_lpn < cabbiev2_dir_start + 8u)
+    {
+        if (host_lpn >= cabbiev2_dir_start + 4u)
+        {
+            memset(out, 0, 0x200);
+            return 1;
+        }
+        return ftl_n3g_native_hyperblock_read(host_lpn, 0x001cb000u,
+                                               0x06a0u, out);
+    }
+
+    if (host_lpn >= cabbiev2_data_start
+     && host_lpn < cabbiev2_data_end)
+        return ftl_n3g_native_hyperblock_read(host_lpn, 0x001cb000u,
+                                               0x06a0u, out);
+
+    return 0;
+}
 #endif
 
 static uint32_t ftl_n3g_synth_rockbox_phys(uint8_t *out, uint32_t host_lpn)
@@ -4506,6 +4700,11 @@ static uint32_t ftl_n3g_synth_rockbox_phys(uint8_t *out, uint32_t host_lpn)
     && NANO3G_NATIVE_CURRENT_FILE_READ
     int32_t current_rc = ftl_n3g_native_current_file_read(host_lpn, out);
 
+    if (current_rc > 0)
+        return 1;
+    if (current_rc < 0)
+        return (uint32_t)-1;
+    current_rc = ftl_n3g_native_theme_read(host_lpn, out);
     if (current_rc > 0)
         return 1;
     if (current_rc < 0)
@@ -4566,7 +4765,7 @@ static uint32_t ftl_n3g_physrb_mount(void)
     n3g_direct_mbr[0x1ff] = 0xaa;
 
     ftl_n3g_find_rockbox_phys_near();
-    FTL_PROGRESS("N3G_OLDMAP_FASTMOUNT p0=0000A07E sz=000E7F81 rb=exact fc=0000D44B lba=006E8136 b=248 p=15");
+    FTL_PROGRESS("N3G_OLDMAP_FASTMOUNT p0=0000A07E sz=000E7F81 rb=current fc=000DEA28 lba=00702C9E usn=0000FE23");
     return 0;
 }
 
@@ -5048,7 +5247,7 @@ static uint32_t ftl_n3g_direct_read(uint32_t sector, uint32_t count,
             continue;
         }
 
-        if (host_lpn >= 0x0000bd48u && host_lpn <= 0x0000bd49u)
+        if (host_lpn >= 0x0000a17eu && host_lpn < 0x0000be76u)
         {
             ftl_n3g_synth_rockbox_fat(out, host_lpn);
             if (ftl_n3g_direct_trace_lba(host_lpn))
@@ -14416,11 +14615,25 @@ uint32_t ftl_init(void)
 #endif
 #if defined(IPOD_NANO3G) && !defined(BOOTLOADER)
     N3G_NATIVE_STORAGE_STAGE(8);
+#if defined(NANO3G_NATIVE_CURRENT_FILE_READ) \
+    && NANO3G_NATIVE_CURRENT_FILE_READ
+    /*
+     * The read-only current-file build already has exact physical mappings
+     * for its synthetic MBR/FAT/root, firmware, and bounded theme payloads.
+     * Use the same constant-time mount as its bootloader.  The Nano 2G opens
+     * indexed VFL/FTL metadata here; it does not rediscover a map by sweeping
+     * thousands of raw candidate pages on every boot.  Keeping that old Nano
+     * 3G discovery path made a successful application boot take minutes even
+     * though none of its results were needed by this exact synthetic view.
+     */
+    return ftl_n3g_physrb_mount();
+#else
     if (ftl_n3g_winpod_mount() == 0)
     {
         DEBUGF("FTL: N3G WMOUNT direct map mounted\n");
         return 0;
     }
+#endif
 #endif
     ftl_n3g_dump_reconstruction_pages();
 

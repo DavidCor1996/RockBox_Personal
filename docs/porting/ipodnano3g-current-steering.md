@@ -2076,3 +2076,566 @@ playlist, tree, filetype, shortcuts, audio-core, accessory, skin, list, and
 tree initialization and entered `root_menu()`.  Full current-source Rockbox UI
 startup on the owned Nano 3G is therefore confirmed; theme selection and LCD
 color ordering remain separate follow-up issues.
+
+### LCD color discriminator
+
+The fallback theme is an expected consequence of the current synthetic FAT
+view, not evidence of a second skin-engine failure.  Its synthetic root sector
+contains only `/rockbox.ipod`; it does not expose `/.rockbox/config.cfg`, the
+`/.rockbox` directory, `cabbiev2.wps`, fonts, backdrops, or other theme assets.
+Rockbox therefore keeps the default `cabbiev2` setting, cannot open its WPS,
+and falls back to the compiled skin.
+
+The remaining LCD fault is now isolated with a single transient screen instead
+of another full storage boot.  The visibility-only bootloader displays the
+four-byte panel ID and panel type, then six columns labelled `R G B C M Y` in
+four rows:
+
+- `A`: normal RGB565;
+- `B`: byte-swapped RGB565;
+- `C`: red/blue-swapped RGB565; and
+- `D`: red/blue plus byte swap.
+
+Prepared read-only LCD color probe:
+
+- bootloader body: `30816` bytes
+- remaining 128-KiB haxed-DFU staging margin: `102256` bytes
+- bootloader SHA-256:
+  `9a0ed3b7e05d66efdd417721968eafe2ac0e5e2d82eeb4a64426e5388f92387b`
+- DFU image: `32864` bytes
+- DFU SHA-256:
+  `84185fe75ecf8fe4d9ebea369095f91517551db8e689751c72ee2332bdb401cc`
+- artifacts: `tmp/n3g-lcd-color-probe-20260713/`
+
+The format-2 wrapper has three exact `30816`-byte length fields, zero padding
+from its 24-byte header through offset 2048, the byte-identical body at offset
+2048, and no tail.  Link and disassembly inspection show the probe loops on the
+rendered screen before IRQ enable or storage entry; storage mount and NAND/NOR
+write or erase routines are not linked.  The next stopping point is a physical
+reset from the running Rockbox menu into genuine `05ac:1223` BootROM DFU,
+followed by this transient upload and one screen inspection.
+
+The owned Nano re-entered genuine BootROM DFU with serial `87020000000001`.
+The verified probe was uploaded at 2026-07-13 17:54 local time;
+`wInd3x-extra` reported haxed DFU running, parsed the image as Nano 3G,
+received `dfuMANIFEST`, and reported `Image sent`.  The stopping point is the
+panel-ID line and the visible color sequence in rows `A` through `D`.
+
+Hardware reported panel ID `00 58 91 71`, detected as `TYPE 4` (`58xx`), and
+row `A` displayed the intended red, green, blue, cyan, magenta, and yellow in
+the labelled order.  This rules out both an RGB565 byte swap and a red/blue
+channel swap on this unit.  The current P8b/high-byte-then-low-byte frame path
+is correct for saturated colors; the earlier boot-splash appearance must be
+treated separately from color ordering.
+
+The exact full-safe ELF embeds
+`apps/bitmaps/native/rockboxlogo.320x98x16.bmp` as a 320x240 dark-blue/gray
+Apple-logo-and-`iPod` splash.  It is not the usual Rockbox wordmark despite
+the source filename.  The generated RGB565 bytes in the deployed image match
+that bitmap, so the unusual splash palette is now an asset/content issue, not
+an LCD channel-order defect.  The one-shot color-probe configuration is
+disabled again for subsequent bootloader builds; its implementation and
+verified artifact remain available for regression use.
+
+The next storage target can be derived without another broad map guess.  The
+captured live root directory places `/.rockbox` at FAT cluster `0x000d9efc`.
+With the verified 4096-byte FAT geometry, Disk Mode partition start `0x3f`,
+and raw anchor `raw = 0x0001407e + 2 * absolute_4K_LBA`, its first directory
+half is exact raw page `0x001c8dac`: logical hyperblock `0x0723`, offset
+`0x1ac`, lane 4, bank 0, row `0x35`.  The older current context also names
+logical hyperblock `0x0723` as an active log entry, which explains why the
+dense-map-only reader cannot expose this directory.
+
+A bounded host OOB scan was staged for bank 0, row `0x35`, exact raw key
+`0x001c8dac`.  The apparent `05ac:1223` enumeration left by the visibility
+probe did not service the first NAND control request: three 64-block groups
+timed out before the scan was interrupted, and no body or OOB file was
+produced.  This is the expected stale BootROM USB descriptor while the probe
+loops before USB initialization, not a NAND result.  A physical reset into a
+fresh responsive BootROM DFU instance is required before retrying the exact
+read-only scan.
+
+### Read-only Cabbiev2 storage view
+
+After a physical reset, the owned Nano returned as responsive BootROM DFU
+device `05ac:1223`, serial `87020000000001`.  Exact OOB-key searches then
+resolved the small directory and skin working set without a general FTL
+guess:
+
+- `/.rockbox`, cluster `0xd9efc`, begins at raw page `0x001c8dac`;
+  bank 0 physical block `0x1ac6`, row `0x35`, was its only exact type-`0x40`
+  hit.  The captured page SHA-256 is
+  `b1163e8cce603e6ebec679f7ff63858cc0640483d0b9fd5acaba526154bf5a43`.
+- `/.rockbox/wps`, cluster `0xdad13`, begins at raw page `0x001ca9da`;
+  bank 0 physical block `0x0e39`, row `0x3b`, was its only exact hit.  The
+  captured page SHA-256 is
+  `cc0a210a7cf4c7879aefeca23a9148ecbab37759fee181bc778c5443993e0760`.
+- `/.rockbox/wps/cabbiev2`, cluster `0xdb06d`, begins at raw page
+  `0x001cb08e`; the derived hyperblock mapping read it at bank 0 physical
+  block `0x16a1`, row `0x11`.  The page SHA-256 is
+  `27254f6d306d5385619eb3cb59586a49d59f30e258b036d569ef712c8d6ea527`.
+- `cabbiev2.wps`, cluster `0xdb0c0`, begins at raw page `0x001cb134`;
+  bank 0 physical block `0x16a0`, row `0x26`, was its exact hit.  Its first
+  1685 bytes match the repository's installed Cabbiev2 WPS byte for byte,
+  SHA-256
+  `3169b66f8d4e9291de760ce01ef7b3ca941cf23c1ab15fde39e3b2425a2e5789`.
+
+The Disk Mode relation is now verified at all four anchors:
+
+`raw = 0x0001407e + 2 * absolute_4096_byte_LBA`
+
+The Cabbiev2 directory proves that its nine files occupy a contiguous logical
+region from cluster `0xdb06e` through `0xdb0c0`, all inside raw hyperblock
+`0x001cb000`.  The individual FAT chains nevertheless terminate at each
+file's true final cluster: backdrop `0xdb0a6`, lock `0xdb0a8`, battery
+`0xdb0b0`, volume `0xdb0b6`, shuffle `0xdb0b7`, repeat `0xdb0b9`, playmode
+`0xdb0bc`, progress bar `0xdb0bf`, and WPS `0xdb0c0`.
+
+The safe application's controlled FAT view now exposes only the required
+tree.  FAT entries 0 and 1 contain the required FAT32 reserved values; root,
+directory, firmware, and each theme-file chain have explicit end markers.
+The mutable `/.rockbox` directory is synthesized with only `.`, `..`, and
+`wps`, so the mandatory later replacement of `/.rockbox/rockbox.ipod` cannot
+invalidate this view by relocating its NAND page.  The WPS and Cabbiev2
+directories plus all Cabbiev2 payload pages remain exact, checksum-guarded,
+read-only native reads.
+
+A sparse host FAT32 replay of this exact overlay was accepted by mtools.
+`mdir` resolved `/.rockbox/wps/cabbiev2.wps` and every referenced bitmap, and
+an `mcopy` readback of the WPS produced the exact SHA-256 above.  `fsck.fat`
+also recognized the 4096-byte-sector geometry and all intended Cabbiev2
+chains.  It reports the other entries retained in the captured WPS directory
+as unallocated, as expected: those unrelated skins are deliberately outside
+this bounded view.
+
+The final safe theme build is in
+`tmp/n3g-full-safe-theme-20260713/`:
+
+- `rockbox.ipod`: 895256 bytes, SHA-256
+  `42b96284924e6ce625c728de85efda643d1af87c033401bb25b819f89317b2f3`;
+- `rockbox.bin`: 895248 bytes, SHA-256
+  `c0200012286fe62012dae819d65c99ace2eb7f0726c3ad39b6e1f5a30d0fc8d7`;
+- ELF SHA-256
+  `6dc1fce987223b81a59d4ca76b11fb045cb751eb5676d032a6b360340f83a4ff`;
+- map SHA-256
+  `cf4cb10ef16c52fe52d4d811bc4cdb8cb390469b9e3f4131cf85f71f2239d8c8`.
+
+The `nn3g` wrapper's stored big-endian checksum `0x05827bfc` equals model
+seed 117 plus every body byte, and its body is byte-identical to
+`rockbox.bin`.  Link and disassembly inspection again show all NAND page
+program and block erase entry points returning failure, sector writes
+returning `-1`, and no linked NOR write or erase routine.  The image is too
+large for the 128-KiB haxed-DFU staging area.  Its next stopping point is
+therefore a physical transition from responsive BootROM DFU into Apple Disk
+Mode.  Deployment must replace and checksum-verify both `/rockbox.ipod` and
+`/.rockbox/rockbox.ipod`, then rediscover the new firmware extent before a
+checksum-guarded transient loader can be built.
+
+Apple Disk Mode enumerated as `05ac:1262`, serial
+`000A27001AF57313`, with its FAT32 volume mounted at
+`/run/media/david/DAVID_S IPO`.  Before writing, both installed firmware
+copies were preserved under
+`tmp/n3g-pre-theme-deploy-20260713-1844/`; each retained the prior SHA-256
+`bb51649118740cc8c70a55d1a91474d454c53a8306ff7bf206c6801202c6b333`.
+
+The audited 895256-byte image was then copied to both required paths.  The
+local artifact, `/rockbox.ipod`, and `/.rockbox/rockbox.ipod` all produced
+SHA-256
+`42b96284924e6ce625c728de85efda643d1af87c033401bb25b819f89317b2f3`
+before `sync`.  After unmounting and remounting the volume read-only, both
+device copies produced the same checksum again.
+
+The FAT allocator gave both copies single, adjacent extents:
+
+- `/rockbox.ipod`: clusters `0xde6d6..0xde7b0`, Disk Mode 512-byte LBAs
+  `0x006f7388..0x006f7a5f`;
+- `/.rockbox/rockbox.ipod`: clusters `0xde7b1..0xde88b`, Disk Mode LBAs
+  `0x006f7a60..0x006f8137`.
+
+`mshowfat` and root-authorized `hdparm --fibmap` independently reported the
+same 219-cluster/1752-sector contiguous extents.  A final read-only
+`fsck.fat` found no lost chains, cross-links, directory faults, or FAT-copy
+disagreement; it reported only the volume's pre-existing dirty bit and left
+the filesystem unchanged.  The root file's first exact raw key is therefore
+`0x001d1d60`, raw-hyperblock offset `0x160`, bank 0, row `0x2c`; all 438
+2-KiB firmware pages remain within raw hyperblock `0x001d1c00`.
+
+The next stopping point is genuine BootROM DFU.  A bounded bank-0 OOB search
+at row `0x2c` can resolve the new hyperblock's physical base, after which the
+new body checksum/guard offsets and transient read-only loader can be built
+without another persistent device write.
+
+### Theme-image physical map and transient continuation
+
+Fresh responsive BootROM DFU resolved the root firmware header at the sole
+bank-0, row-`0x2c` type-`0x40` match for raw key `0x001d1d60`: physical block
+`0x02f4`.  The captured first 2048 bytes exactly match the deployed
+`rockbox.ipod`, including its `05 82 7b fc 6e 6e 33 67` header.  Bounded reads
+at the three other bank-0 lanes then verified the complete physical-plane
+formula:
+
+- lane 0: bank 0, block `0x02f4`, raw `0x001d1d60`;
+- lane 2: bank 0, block `0x02f5`, raw `0x001d1d62`;
+- lane 4: bank 0, block `0x12f4`, raw `0x001d1d64`;
+- lane 6: bank 0, block `0x12f5`, raw `0x001d1d66`.
+
+All four exact pages have row `0x2c`, type `0x40`, and index `0xfe14`.
+Together with the already proven adjacent-bank layout, the odd lanes are bank
+1 at the corresponding blocks.  A full host BootROM bank-1 OOB search over
+physical blocks `0x0000..0x1fff` returned no valid matching OOB page, exactly
+reproducing the previously documented host bank-1 read limitation; it is not
+a native-controller mapping result.  The transient loader uses
+`nano3g_nand_diag_bank_read()`, whose native bank-1 path was already proven on
+this device.
+
+The current-file reader now targets synthetic host LBA `0x0070120e`, file
+page `0x160`, raw hyperblock `0x001d1c00`, and base physical block `0x02f4`.
+Compiled disassembly independently confirms the lane/bank/block arithmetic,
+raw-key/type checks, and fail-closed zeroing path.  The exact application
+guard requires body length `895248`, model checksum `0x05827bfc`, and FNV-1a
+`0x83d7769e`; every guarded instruction and all seven transient read-only
+patch targets match the preserved ELF and binary.
+
+Prepared full-safe theme read-only-continuation loader:
+
+- bootloader body: `74816` bytes;
+- remaining 128-KiB haxed-DFU staging margin: `56256` bytes;
+- bootloader SHA-256:
+  `98c98d5bfb6ac2c6d5aac295b77f56b159d3db4a376ea61c77271a1c180b303c`;
+- DFU image: `76864` bytes;
+- DFU SHA-256:
+  `6c2dbaf7bb6a12eddd19a5b21bd6f3ef12b55dbc21d499678b77173b6d52b5fe`;
+- artifacts:
+  `tmp/n3g-full-safe-theme-readonly-continuation-loader-20260713/`.
+
+The Nano-3G format-2 wrapper has three exact `74816`-byte length fields,
+2024 zero bytes between its header and body, the byte-identical loader body at
+offset 2048, and no tail.  The loader links only the `nand_write_sectors()`
+`return -1` stub; page program, program-start/collect, block erase, and NOR
+write/erase routines are absent.  The application retains its independently
+verified `return -1` sector-write stub and `return 1` page-program/block-erase
+stubs, with no linked NOR write/erase path.
+
+The owned Nano was still in genuine BootROM DFU (`05ac:1223`, serial
+`87020000000001`).  The verified artifact was uploaded at 2026-07-13 19:11
+ADT.  Haxed DFU entry, Nano-3G wrapper parsing, `dfuMANIFEST`, and `Image sent`
+all completed successfully; the intervening libusb interrupted-event message
+was non-fatal.  The stopping point is the eventual physical screen after the
+deliberately slow exact-file read and read-only application entry.
+
+### Forced iPodJS and one-transfer read test
+
+The continuation reached the normal fallback Rockbox root menu after a long
+delay.  Its boot splash retained the unusual colors, and iPodJS was not
+active.  This result does not show that the Cabbiev2 payload failed: the
+default `wps_file` is `cabbiev2`, but the default status-bar skin is `-`, and
+the WPS is only exercised by the Now Playing screen.  The root menu therefore
+was expected to retain its normal Rockbox appearance.
+
+The bounded synthetic `/.rockbox` directory also intentionally exposes only
+`.`, `..`, and `wps`.  It hides the live `config.cfg` and the `ipodjs` asset
+directory.  Consequently `settings_reset()` retained the compiled
+`UI_ENGINE_ROCKBOX` default and no saved iPodJS selection could be loaded.
+This explains the reported fallback menu without implicating the iPodJS
+renderer itself.
+
+The next transient loader makes one additional, exact, checksum-guarded DRAM
+patch.  It verifies the complete six-word `settings[]` record for
+`global_settings.ui_engine` at body offsets `0x000a0e1c..0x000a0e30`, then
+changes only its default word at `0x000a0e28` from Rockbox (`0`) to iPodJS
+(`1`).  The installed firmware and configuration remain unchanged.  This
+allows the compiled native renderer and its code-generated gradients to be
+tested even while the real config and optional image assets remain outside
+the synthetic filesystem view.
+
+The exact-file reader formerly repeated all 438 NAND-page transfers solely
+to prime and then capture the stage-spare registers.  The new reader repeats
+only the first completed page on each bank, records that bank as primed, and
+uses one transfer for every subsequent page.  Returned raw key/type metadata
+is still validated on every page, and the complete 895248-byte application
+still must pass its model checksum, FNV-1a, length, and instruction guards
+before any patch or entry.  A bank reset clears the corresponding primed bit.
+
+Prepared forced-iPodJS, faster read-only loader:
+
+- bootloader body: `75040` bytes, SHA-256
+  `e6d9106bc44d238130b0aa0cbd006c61acd88a30aef9c4dfe3d395c957bf867f`;
+- remaining 128-KiB haxed-DFU staging margin: `56032` bytes;
+- DFU image: `77088` bytes, SHA-256
+  `8d8a2951f616e2e4190d1d331aa59d4518a78cb83a4c1703aa7e308e34d85f44`;
+- artifacts:
+  `tmp/n3g-full-safe-ipodjs-fast-readonly-loader-20260713/`.
+
+The format-2 wrapper contains three exact `75040`-byte length fields, 2024
+zero padding bytes, the byte-identical body at offset 2048, and no tail.
+Disassembly confirms the eight guarded DRAM patches, the per-bank spare-prime
+branch, the full application checksum gate, and the loader's only linked
+write entry as the two-instruction `nand_write_sectors()` failure stub.
+Page program, block erase, and NOR write/erase routines are absent.  The next
+stopping point is a physical reset from the running menu into responsive
+BootROM DFU, followed by the transient upload and observation of boot time,
+the iPodJS root surface, and its procedurally generated colors.
+
+The owned Nano entered responsive genuine BootROM DFU as `05ac:1223`, serial
+`87020000000001`.  The verified forced-iPodJS artifact was uploaded at
+2026-07-13 19:34 ADT.  Haxed DFU entry, Nano-3G wrapper parsing,
+`dfuMANIFEST`, and `Image sent` completed successfully; the two libusb
+interrupted-event messages were non-fatal.  The stopping point is the first
+application screen and a comparison of its boot delay with the previous
+two-transfer-per-page load.
+
+### Similar-device boot-path correction
+
+The hardware result was unchanged: the boot remained extremely long, the
+splash palette still looked wrong, and the application eventually entered
+the generic fallback Rockbox menu instead of iPodJS.  That result exposed two
+separate application paths which the transient settings patch and loader-only
+NAND optimization could not affect.
+
+The native 320x240 iPodJS dashboard in `apps/root_menu.c` was compiled only
+for `IPOD_VIDEO` and `IPOD_6G`.  Nano 3G therefore always reached the generic
+`do_menu()` branch even when `global_settings.ui_engine` was forced to
+`UI_ENGINE_IPODJS`.  The deployed ELF contained only the non-native
+`root_menu_ipodjs_native_screen_active()` stub and no dashboard/WPS renderer.
+Nano 3G has the same 320x240, 16-bit color UI geometry and scroll-wheel input
+class as Video/Classic, so every native dashboard/WPS compile and dispatch
+guard now includes `IPOD_NANO3G`.  The new ELF contains the real native-screen
+entry at `0x0802432c` and `ipodjs_video_wps()` at `0x08021628`.  Nano 3G also
+uses `UI_ENGINE_IPODJS` as its compiled default; other targets retain their
+existing Rockbox default.
+
+The dominant boot delay was in application `ftl_init()`.  The Nano 3G WMOUNT
+path searched 3584 physical blocks at four candidate pages each, performing
+14336 raw OOB reads before mounting.  None of that discovery output is used by
+the current read-only synthetic view, which already carries exact mappings for
+the MBR/FAT/root, firmware extent, and bounded theme payload.  In comparison,
+Nano 2G opens indexed VFL/FTL metadata instead of rediscovering a map by raw
+sweep, and the Nano 3G transient bootloader already uses the constant-time
+`ftl_n3g_physrb_mount()` path.  The exact-read application now uses that same
+mount directly.  Its own NAND reader also contains the proven per-bank spare
+priming optimization, so only the first completed page on each bank is
+repeated; subsequent pages use one transfer.
+
+The color result was still confounded by two Nano-3G-only differences.  The
+application replayed the complete detected-panel power/gamma initialization
+after the bootloader had already initialized it.  Both the original Nano 3G
+port and the working iPod 6G restrict that sequence to the bootloader, so the
+application now preserves the handoff and configures only its interface/DMA
+state.  Also, the repository's shared file named
+`rockboxlogo.320x98x16.bmp` is actually custom 320x240 Apple/iPod artwork.
+Nano 3G now selects the canonical upstream 320x98 Rockbox splash, SHA-256
+`5dd329e99beb8178e21013ea9c9ca65c4a4f563d2e0485de8fdecb8086200857`,
+while Video/Classic keep the custom shared asset.  This makes the next color
+observation comparable to the original port.  The previous saturated-color
+probe already proved row A, ruling out RGB565 byte and red/blue channel swaps.
+
+The prepared application is in
+`tmp/n3g-full-safe-ipodjs-exactmount-20260713/`:
+
+- `rockbox.ipod`: 842540 bytes, SHA-256
+  `0091804ea11a52b855c570edf82b661e25f787cd068680c26337674cf4ff1a59`;
+- `rockbox.bin`: 842532 bytes, SHA-256
+  `fcde49f6bc1db6b8c21a70cc3b7a28e14ee7b83e3f09c332034f5ba0f9e98680`;
+- ELF SHA-256
+  `dc9ec39b1a23ad8516964b765c5983fdea3c94dd848ddb81a84db5a5f9a8dce2`;
+- map SHA-256
+  `238e0e33d6f649b07dd1f4eff555e191c845f9166df48ebdafd7374815ab7825`.
+
+The `nn3g` stored checksum `0x0550c12a` equals model seed 117 plus every
+body byte, the wrapper body is byte-identical to `rockbox.bin`, and body
+FNV-1a is `0xef4c6f36`.  Disassembly confirms that sector writes return `-1`,
+all page-program/program-collect/block-erase entry points return failure, and
+no NOR write/erase routine is linked.  The two Nano 3G replay suites pass all
+18 tests.  A later clean-build attempt encountered an unrelated `tagcache.c`
+edit made after this artifact; the successful `make bin` artifact and every
+Nano-3G object above predate that unrelated compile failure.
+
+This image changes size and cannot be loaded through the 128-KiB DFU staging
+area.  The next stopping point is Apple Disk Mode.  Deploy the audited image
+to both `/rockbox.ipod` and `/.rockbox/rockbox.ipod`, verify both hashes
+against the local artifact before sync/eject and again after read-only
+remount, then rediscover the new root-file extent before preparing a new
+checksum-guarded transient loader.
+
+### Exact-mount image deployment
+
+Two connected iPods used the same `DAVID'S IPO` volume label during this
+handoff.  The first auto-mounted device was the 477-GiB iPod 6G, serial
+`000A27002101824D`; it was identified by size and serial before any write
+succeeded and remained unchanged.  The Nano 3G subsequently enumerated as
+Disk Mode `05ac:1262`, 3.6 GiB, serial `000A27001AF57313`.  Device identity,
+not the shared volume label, is now the deployment discriminator.
+
+Both existing Nano firmware copies were preserved in
+`tmp/n3g-pre-exactmount-deploy-20260713-2002/`; each is 895256 bytes with
+SHA-256
+`42b96284924e6ce625c728de85efda643d1af87c033401bb25b819f89317b2f3`.
+The audited 842540-byte image then replaced both `/rockbox.ipod` and
+`/.rockbox/rockbox.ipod`.  The local artifact and both device paths matched
+SHA-256
+`0091804ea11a52b855c570edf82b661e25f787cd068680c26337674cf4ff1a59`
+before `sync`.  After unmount and explicit read-only remount, both device
+copies matched the same hash again.
+
+The files were truncated in place.  The previously verified root extent
+therefore retains first cluster `0xde6d6` and host LBA `0x0070120e`; the new
+length consumes 206 contiguous 4096-byte clusters through `0xde7a3`, or 412
+NAND pages.  Its expected first raw key remains `0x001d1d60` at row `0x2c`.
+This is deliberately marked provisional until an exact DFU OOB hit returns a
+body whose first bytes are `05 50 c1 2a 6e 6e 33 67` and whose payload matches
+the new artifact.  The next stopping point is a physical reset into genuine
+BootROM DFU for that bounded read-only scan.
+
+### Exact-mount overwrite journal audit
+
+Fresh BootROM DFU proved that the sole bank-0 row-`0x2c` page with raw key
+`0x001d1d60` is still physical block `0x02f4`, but its body begins with the
+previous theme image header `05 82 7b fc 6e 6e 33 67`.  An all-block scan found
+no second match.  The in-place Disk Mode overwrite therefore did not replace
+the previously documented constant physical extent.
+
+The post-overwrite control journal contains three newer type-`0x43` contexts,
+in decreasing-USN order:
+
+- block `0x04c2`, page 3, USN `0xfffc8dba`;
+- block `0x04c3`, page 6, USN `0xfffc8da0`; and
+- block `0x14c2`, page 9, USN `0xfffc8d86` (newest).
+
+The middle context names logical hyperblock `0x0747`.  Its current type-`0x45`
+page is block `0x14c2`, page 4, index 4, SHA-256
+`62cf1bca28c61aa04d5a3e070cb340c55e74f29e6b7513f634e0b344b116443f`.
+It has 672 non-erased entries: logical offsets `0x160..0x3ff` contain values
+`0x000..0x29f`.  This exactly records a sequential rewrite beginning at the
+root file's provisional first page, but neither possible direction of that
+table resolves a live header: complete bank-0 scans at physical offsets zero
+and `0x2c0` found no `0x001d1d60` page.
+
+The newest context has advanced to logical hyperblocks `0x0748` and `0x0749`.
+Its bank-0 type-`0x44` half is block `0x04c2`, page 7.  Page-zero OOB capture
+for all 1023 valid entries finds only the prior odd-lane generation for the
+root hyperblock (`v=0x014c`, physical block `0x02f5`, raw `0x001d1c02`, user
+USN `0x0000fe14`).  A complete primed bank-0 row-zero index likewise finds
+only the old four-lane base at blocks `0x02f4/0x02f5/0x12f4/0x12f5`.
+Scanning every row of those blocks and the neighbouring current-USN
+hyperblocks finds no additional `0x001d1d60` page.
+
+The DFU dump helper now repeats the first requested OOB page after controller
+setup and discards the priming result, matching the native Nano 3G spare-path
+rule.  This closes the possibility that a chunk-boundary page was omitted;
+the 18 offline replay tests still pass.
+
+Do not build a continuation loader against `0x02f4`: it would load the old
+theme application again.  The next authoritative checkpoint is a fresh Apple
+Disk Mode read after this power cycle.  If Disk Mode still returns the new
+SHA-256, delete and recreate both required firmware paths rather than
+truncating them in place, sync and unmount, then rediscover their new extents.
+
+### Exact-mount delete-and-recreate deployment
+
+Fresh Apple Disk Mode again returned the exact-mount image from both required
+paths.  Two iPods were mounted under the same volume label, so every write was
+guarded by device identity: the selected 3.6-GiB Nano 3G was serial
+`000A27001AF57313` at `/dev/sda1`; the 477.3-GiB iPod 6G, serial
+`000A27002101824D` at `/dev/sdb1`, was excluded and left unchanged.
+
+Both Nano copies were backed up under
+`tmp/n3g-pre-recreate-deploy-20260713-211305/`; the root and `/.rockbox`
+backups are each 842540 bytes with SHA-256
+`0091804ea11a52b855c570edf82b661e25f787cd068680c26337674cf4ff1a59`.
+The installed files were first renamed in place so their old clusters remained
+allocated while two genuinely new paths were created.  The local artifact,
+`/rockbox.ipod`, and `/.rockbox/rockbox.ipod` matched that same SHA-256 before
+sync, after an explicit read-only unmount/remount, and again before the final
+sync.  Only then were the two temporary on-device names removed.  The Nano
+volume is synced and unmounted; the repository backups remain.
+
+A root-directory entry and FAT1 captured directly from the unmounted Nano
+prove that `/rockbox.ipod` now starts at cluster `0x000dea28`, not the stale
+`0x000de6d6`.  Its 206-cluster chain is contiguous through `0x000deaf5`.
+With this volume's 4096-byte sectors, one sector per cluster, first data sector
+1886, and 63-sector partition start, the new extent is:
+
+- partition-relative 4096-byte LBAs `0x000df184..0x000df251`;
+- Disk Mode 512-byte LBAs `0x006f8e18..0x006f9487` (including final cluster
+  padding);
+- synthetic host LBAs `0x00702c9e..0x0070330d`;
+- first raw key `0x001d2404`, raw hyperblock `0x001d2400`, file-page offset
+  `0x004`, bank 0, row 0;
+- 412 2-KiB data pages ending at raw key `0x001d259f`.
+
+The read-only capture is in
+`tmp/n3g-post-recreate-diskmode-20260713-211305/`.  FAT1 SHA-256 is
+`3c20c59be3dee3aac07c550b85bf414b33f46bb43833f7ba4ab05a8e9d9996b1`;
+the captured root directory cluster SHA-256 is
+`19355fe423e643ab8f9639488db21cc803e751d3681c80a832cb93434db30d76`.
+
+The previous full row-zero index saw raw-hyperblock lanes `0x001d2400` and
+`0x001d2402` at physical blocks `0x03b8/0x03b9`, with the corresponding
+lane-4/6 blocks at `0x13b8/0x13b9`.  That makes block `0x13b8`, row 0 a useful
+first probe for raw key `0x001d2404`, but it is not yet authoritative after
+the new write.  Do not update or upload the exact reader until fresh BootROM
+DFU returns the expected header `05 50 c1 2a 6e 6e 33 67` and the reconstructed
+842540-byte image matches the audited SHA-256.
+
+### Delete-and-recreate journal resolution
+
+Fresh BootROM DFU rejected the provisional block `0x13b8`: its row-zero OOB
+still names raw key `0x001d2404`, but user USN `0xfe1f` and its unrelated body
+identify a stale generation.  A complete primed bank-0 row-zero index found
+the current header instead at block `0x0788`, row zero, user USN `0xfe23`.
+Its first 2048 bytes are byte-identical to the audited exact-mount image,
+including header `05 50 c1 2a 6e 6e 33 67`.
+
+The recreated extent is a scattered FTL log rather than a contiguous
+hyperblock.  Full row scans of blocks `0x0788`, `0x0789`, `0x1788`, and
+`0x1789` resolve every one of the 206 even raw keys from `0x001d2404` through
+`0x001d259e`, with no missing or duplicate keys.  Every accepted entry has
+user USN `0xfe23` and type `0x40`.  The adjacent odd raw key uses bank 1 at
+the same physical block and row, matching the already-proven Nano-3G lane
+pairing; BootROM's host bank-1 body path remains unsuitable, so the transient
+loader uses the native bank reader.  Twenty-nine captured bank-0 body pages,
+including the header, compare exactly with their corresponding local image
+pages; the complete application checksum, FNV-1a, length, model tag, and
+instruction guard must still pass before image entry.
+
+The exact pair table contains 206 physical-page values and covers all 412
+2-KiB application pages.  During the pre-upload audit, the synthetic root
+directory was also found to retain the prior cluster `0xde6d6`.  It now names
+the recreated cluster `0xdea28`, its FAT chain runs through `0xdeaf5`, and the
+derived first host LBA `0x00702c9e` is identical to the scattered reader's
+start.  The stale-root build was never uploaded.
+
+Prepared scattered-log, read-only continuation loader:
+
+- bootloader body: `75712` bytes, SHA-256
+  `6934a88d7e15802184e60ae41e28525da37b8aa38e9c44976cf70d4d7438dda6`;
+- remaining 128-KiB haxed-DFU staging margin: `55360` bytes;
+- DFU image: `77760` bytes, SHA-256
+  `89af6036dbf34d55eeaa5fec5f76a092ce18578df5ccfb0347a8811edc8f40bb`;
+- artifacts:
+  `tmp/n3g-full-safe-ipodjs-scattered-readonly-loader-20260713/`.
+
+The `87021.0` format-2 wrapper has three exact `75712`-byte length fields,
+2024 zero header-padding bytes, the byte-identical bootloader body at offset
+2048, and no tail.  A static gate matched the compiled 206-entry table to the
+four OOB manifests, decoded the compiled root entry and FAT boundary, checked
+all application guard words and checksums, and confirmed that the loader's
+only linked NAND write entry is the two-instruction `return -1` stub.  Page
+program, block erase, and NOR write/erase entry points are absent.  Both
+Nano-3G replay suites still pass all 18 tests.
+
+The owned Nano enumerated as responsive genuine BootROM DFU `05ac:1223`,
+serial `87020000000001`.  The verified artifact was uploaded at 22:07 ADT on
+2026-07-13.  Haxed DFU entry, Nano-3G image parsing, `dfuMANIFEST`, and
+`Image sent` all completed successfully; the intervening libusb interrupted
+event messages were non-fatal.  The stopping point is the required physical
+screen observation of the checksum-guard screen, boot timing, splash colors,
+and first application UI.  No persistent write path was enabled or invoked.
+
+Hardware reported that this build is "a lot better and faster."  That closes
+the scattered-file lookup and synthetic-FAT correction: the complete current
+image passed its checksum guards and the exact-mount application removed the
+dominant boot delay.  Display colors remain "very wrong," however.  The color
+fault is therefore independent of the old application mount sweep and stale
+firmware extent.  The next bounded discriminator should operate only on LCD
+pixel packing/transfer state while retaining this now-proven storage path.

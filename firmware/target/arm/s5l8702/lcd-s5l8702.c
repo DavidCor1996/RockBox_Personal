@@ -1131,8 +1131,13 @@ void lcd_init_device(void)
     /* Configure DMA channel */                             // TODO: this right after mutex_init()
     dmac_ch_init(&lcd_dma_ch, &lcd_dma_ch_cfg);
 
-#if defined(BOOTLOADER) || \
-    (defined(IPOD_NANO3G) && NANO3G_NATIVE_SAFE_BOOT)
+#ifdef BOOTLOADER
+    /*
+     * Match the original Nano 3G port and the working iPod 6G handoff: panel
+     * power/gamma setup belongs to the bootloader.  Replaying the complete
+     * panel sequence from the application needlessly rewrote the detected
+     * type-4 gamma table immediately before drawing the boot splash.
+     */
     lcd_run_seq(lcd_info->seq_init);
     nano3g_dump_display_state("panel-init-done");
 #if !defined(IPOD_NANO3G)
@@ -1146,7 +1151,7 @@ void lcd_init_device(void)
     nano3g_dump_display_state("post-force-test");
     nano3g_probe_clcd_status("post-force-test");
     nano3g_force_clcd_linecnt_test("post-force-test");
-#endif
+#endif /* BOOTLOADER */
 #endif
 
     lcd_ispowered = true;

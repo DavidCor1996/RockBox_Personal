@@ -1056,51 +1056,51 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x2e83
+.debug_str      0x0000000000000000     0x2f55
  *(.debug_str)
- .debug_str     0x0000000000000000     0x2e83 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/vorbis.o
+ .debug_str     0x0000000000000000     0x2f55 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/vorbis.o
                                        0x1421 (size before relaxing)
- .debug_str     0x0000000000002e83        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/codec_crt0.o
+ .debug_str     0x0000000000002f55        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/codec_crt0.o
                                         0xcbf (size before relaxing)
- .debug_str     0x0000000000002e83        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libtremor.a(vorbisfile.o)
+ .debug_str     0x0000000000002f55        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libtremor.a(vorbisfile.o)
                                         0xcb8 (size before relaxing)
- .debug_str     0x0000000000002e83        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libtremor.a(oggmalloc.o)
+ .debug_str     0x0000000000002f55        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libtremor.a(oggmalloc.o)
                                         0x871 (size before relaxing)
- .debug_str     0x0000000000002e83        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libtremor.a(block.o)
+ .debug_str     0x0000000000002f55        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libtremor.a(block.o)
                                         0xcbf (size before relaxing)
- .debug_str     0x0000000000002e83        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libtremor.a(framing.o)
+ .debug_str     0x0000000000002f55        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libtremor.a(framing.o)
                                         0xa3c (size before relaxing)
- .debug_str     0x0000000000002e83        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libtremor.a(info.o)
+ .debug_str     0x0000000000002f55        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libtremor.a(info.o)
                                         0x7da (size before relaxing)
- .debug_str     0x0000000000002e83        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libtremor.a(registry.o)
+ .debug_str     0x0000000000002f55        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libtremor.a(registry.o)
                                         0x984 (size before relaxing)
- .debug_str     0x0000000000002e83        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libtremor.a(res012.o)
+ .debug_str     0x0000000000002f55        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libtremor.a(res012.o)
                                         0xd2e (size before relaxing)
- .debug_str     0x0000000000002e83        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libtremor.a(sharedbook.o)
+ .debug_str     0x0000000000002f55        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libtremor.a(sharedbook.o)
                                         0x4eb (size before relaxing)
- .debug_str     0x0000000000002e83        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libtremor.a(synthesis.o)
+ .debug_str     0x0000000000002f55        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libtremor.a(synthesis.o)
                                         0x6ea (size before relaxing)
- .debug_str     0x0000000000002e83        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libtremor.a(window.o)
+ .debug_str     0x0000000000002f55        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libtremor.a(window.o)
                                         0x6c3 (size before relaxing)
- .debug_str     0x0000000000002e83        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libtremor.a(bitwise.o)
+ .debug_str     0x0000000000002f55        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libtremor.a(bitwise.o)
                                         0x686 (size before relaxing)
- .debug_str     0x0000000000002e83        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libtremor.a(codebook.o)
+ .debug_str     0x0000000000002f55        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libtremor.a(codebook.o)
                                         0x5af (size before relaxing)
- .debug_str     0x0000000000002e83        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libtremor.a(floor0.o)
+ .debug_str     0x0000000000002f55        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libtremor.a(floor0.o)
                                         0xd35 (size before relaxing)
- .debug_str     0x0000000000002e83        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libtremor.a(floor1.o)
+ .debug_str     0x0000000000002f55        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libtremor.a(floor1.o)
                                         0xd15 (size before relaxing)
- .debug_str     0x0000000000002e83        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libtremor.a(mapping0.o)
+ .debug_str     0x0000000000002f55        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libtremor.a(mapping0.o)
                                         0xce6 (size before relaxing)
- .debug_str     0x0000000000002e83        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libtlsf.a(tlsf.o)
+ .debug_str     0x0000000000002f55        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libtlsf.a(tlsf.o)
                                         0x410 (size before relaxing)
- .debug_str     0x0000000000002e83        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .debug_str     0x0000000000002f55        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
                                         0xedb (size before relaxing)
- .debug_str     0x0000000000002e83        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(mdct.o)
+ .debug_str     0x0000000000002f55        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(mdct.o)
                                         0x2b7 (size before relaxing)
- .debug_str     0x0000000000002e83        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(mdct_lookup.o)
+ .debug_str     0x0000000000002f55        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(mdct_lookup.o)
                                         0x666 (size before relaxing)
- .debug_str     0x0000000000002e83        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(fft-ffmpeg.o)
+ .debug_str     0x0000000000002f55        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(fft-ffmpeg.o)
                                         0x7c5 (size before relaxing)
 
 .debug_loc
@@ -1135,34 +1135,34 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
  *(.debug_line_str)
  .debug_line_str
                 0x0000000000000000      0xb26 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/vorbis.o
-                                        0x384 (size before relaxing)
+                                        0x380 (size before relaxing)
  .debug_line_str
                 0x0000000000000b26        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/codec_crt0.o
                                         0x264 (size before relaxing)
  .debug_line_str
                 0x0000000000000b26        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libtremor.a(vorbisfile.o)
-                                        0x1ef (size before relaxing)
+                                        0x1eb (size before relaxing)
  .debug_line_str
                 0x0000000000000b26        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libtremor.a(oggmalloc.o)
-                                        0x33c (size before relaxing)
+                                        0x338 (size before relaxing)
  .debug_line_str
                 0x0000000000000b26        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libtremor.a(block.o)
-                                        0x309 (size before relaxing)
+                                        0x305 (size before relaxing)
  .debug_line_str
                 0x0000000000000b26        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libtremor.a(framing.o)
-                                        0x261 (size before relaxing)
+                                        0x25d (size before relaxing)
  .debug_line_str
                 0x0000000000000b26        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libtremor.a(info.o)
-                                        0x201 (size before relaxing)
+                                        0x1fd (size before relaxing)
  .debug_line_str
                 0x0000000000000b26        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libtremor.a(registry.o)
                                         0x23c (size before relaxing)
  .debug_line_str
                 0x0000000000000b26        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libtremor.a(res012.o)
-                                        0x29b (size before relaxing)
+                                        0x297 (size before relaxing)
  .debug_line_str
                 0x0000000000000b26        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libtremor.a(sharedbook.o)
-                                        0x23c (size before relaxing)
+                                        0x238 (size before relaxing)
  .debug_line_str
                 0x0000000000000b26        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libtremor.a(synthesis.o)
                                         0x1c8 (size before relaxing)
@@ -1174,22 +1174,22 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
                                         0x1e6 (size before relaxing)
  .debug_line_str
                 0x0000000000000b26        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libtremor.a(codebook.o)
-                                        0x1de (size before relaxing)
+                                        0x1da (size before relaxing)
  .debug_line_str
                 0x0000000000000b26        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libtremor.a(floor0.o)
-                                        0x306 (size before relaxing)
+                                        0x302 (size before relaxing)
  .debug_line_str
                 0x0000000000000b26        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libtremor.a(floor1.o)
-                                        0x308 (size before relaxing)
+                                        0x304 (size before relaxing)
  .debug_line_str
                 0x0000000000000b26        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libtremor.a(mapping0.o)
-                                        0x2f5 (size before relaxing)
+                                        0x2f1 (size before relaxing)
  .debug_line_str
                 0x0000000000000b26        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libtlsf.a(tlsf.o)
                                         0x15d (size before relaxing)
  .debug_line_str
                 0x0000000000000b26        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
-                                        0x32c (size before relaxing)
+                                        0x328 (size before relaxing)
  .debug_line_str
                 0x0000000000000b26        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(mdct.o)
                                         0x183 (size before relaxing)

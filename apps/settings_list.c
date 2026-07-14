@@ -1250,7 +1250,11 @@ const struct settings_list settings[] = {
                    "ipone right pane",
                    "miniplayer,full art", NULL, 2,
                    "Miniplayer", "Full Art"),
+#ifdef IPOD_NANO3G
+    CHOICE_SETTING(0, ui_engine, -1, UI_ENGINE_IPODJS,
+#else
     CHOICE_SETTING(0, ui_engine, -1, UI_ENGINE_ROCKBOX,
+#endif
                    "ui engine", "rockbox,ipodjs", NULL, 2,
                    "Rockbox", "iPod"),
     CHOICE_SETTING(0, ui_engine_accent, -1, UI_ENGINE_ACCENT_BLUE,

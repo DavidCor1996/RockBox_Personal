@@ -48,6 +48,23 @@ def main() -> int:
     require(hw_plugin.stat().st_size < 3 * 1024 * 1024, "ARM plugin exceeds 3 MiB")
 
     engine_root = root / "apps/plugins/openlara"
+    frontend = (engine_root / "openlara.cpp").read_text(encoding="utf-8")
+    required_input_fragments = (
+        "rb->wheel_status()",
+        "wheel_zone_keys",
+        "IK_UP | IK_RIGHT",
+        "input_scroll_key = IK_UP",
+        "input_scroll_key = IK_DOWN",
+        "result |= IK_L | IK_A",
+        "if (held & BUTTON_RIGHT) result |= IK_R",
+        "result |= IK_SELECT",
+        "rb->button_hold()",
+        "quit_requested = true",
+        "hold_exit_initialized",
+    )
+    for fragment in required_input_fragments:
+        require(fragment in frontend, f"click-wheel input missing {fragment!r}")
+
     leaked = [path for path in engine_root.rglob("*") if path.suffix.lower() in FORBIDDEN_DATA]
     require(not leaked, f"game data leaked into source tree: {leaked}")
 

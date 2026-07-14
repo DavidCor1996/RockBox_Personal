@@ -29,6 +29,14 @@ rockboxlogo.176x54x16.bmp
 rockboxlogo.220x68x16.bmp
 #elif (LCD_WIDTH == 240) && (LCD_DEPTH >= 16)
 rockboxlogo.240x74x16.bmp
+#elif defined(IPOD_NANO3G) && (LCD_DEPTH >= 16)
+/*
+ * Keep Nano 3G hardware bring-up on the canonical 320x98 Rockbox splash.
+ * The shared 320-wide asset is a repository-specific 320x240 image used by
+ * the mature Video/Classic targets; it masks whether the Nano 3G panel is
+ * reproducing the known upstream logo colours correctly.
+ */
+rockboxlogo.nano3g.320x98x16.bmp
 #elif (LCD_WIDTH >= 320) && (LCD_WIDTH < 480)  && (LCD_DEPTH >= 16)
 rockboxlogo.320x98x16.bmp
 #elif (LCD_WIDTH >= 480) && (LCD_WIDTH < 640) && (LCD_DEPTH >= 16)

@@ -291,6 +291,7 @@ static uint32_t n3g_stat_before_copy;
 static uint32_t n3g_source_sweep[9][2];
 static uint32_t n3g_q78_trace[4][3];
 static uint32_t n3g_stage_spare[3];
+static uint32_t n3g_diag_spare_primed_mask;
 static const struct nand_device_info_type *n3g_selected_nand_type;
 static int n3g_selected_nand_type_done;
 
@@ -824,8 +825,12 @@ int32_t nano3g_nand_diag_bank_read(uint32_t bank, uint32_t page,
      * The direct pre-storage survey must still perform the same bounded local
      * bank reset that storage initialization normally supplies; otherwise a
      * freshly chained DFU image can consume stale FMC state and report four
-     * controller-residue words as page data.  Prime the stage-spare registers
-     * once and capture them after the second identical read.
+     * controller-residue words as page data.  Prime each bank's stage-spare
+     * registers with a second identical transfer on its first read.  Once a
+     * bank is primed, every completed transfer refreshes the stage registers,
+     * so repeating every later page only doubles exact-file boot time.
+     * Callers still validate the returned raw key/type, and the transient
+     * loader checksum-guards the complete application before entry.
      */
     memset(extra, 0xff, N3G_ROM_EXTRA_SIZE);
     init_rc = n3g_rom_init_bank(bank);
@@ -833,10 +838,13 @@ int32_t nano3g_nand_diag_bank_read(uint32_t bank, uint32_t page,
         return init_rc;
 
     rc = n3g_read_page_bootrom_xfer_bank(bank, page, data);
-    if (rc == 0)
+    if (rc == 0 && !(n3g_diag_spare_primed_mask & (1u << bank)))
         rc = n3g_read_page_bootrom_xfer_bank(bank, page, data);
     if (rc == 0)
+    {
+        n3g_diag_spare_primed_mask |= 1u << bank;
         n3g_copy_stage_spare(extra);
+    }
 
     return rc;
 }
@@ -1001,6 +1009,7 @@ void nano3g_nand_diag_regs(struct nano3g_nand_reg_diag *diag)
 
 static int n3g_reset_bank_idx(uint32_t bank, uint32_t *stat)
 {
+    n3g_diag_spare_primed_mask &= ~(1u << bank);
     N3G_NAND_DEBUG("N3G_RESET_SETUP_BANK");
     n3g_fmc_setup_bank(bank);
     N3G_NAND_DEBUG("N3G_RESET_CMD_FF");

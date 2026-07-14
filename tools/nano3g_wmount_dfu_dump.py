@@ -29,13 +29,13 @@ TARGET_LBA = 0xA07E
 NEAR_LO = 0x00009C00
 NEAR_HI = 0x0000A200
 
-N3G_CURRENT_FILE_SIZE = 881396
-N3G_CURRENT_FILE_SHA256 = "bb51649118740cc8c70a55d1a91474d454c53a8306ff7bf206c6801202c6b333"
-N3G_CURRENT_FILE_FIRST8 = bytes.fromhex("05673eef6e6e3367")
+N3G_CURRENT_FILE_SIZE = 842540
+N3G_CURRENT_FILE_SHA256 = "0091804ea11a52b855c570edf82b661e25f787cd068680c26337674cf4ff1a59"
+N3G_CURRENT_FILE_FIRST8 = bytes.fromhex("0550c12a6e6e3367")
 N3G_CURRENT_FILE_MODEL_NUMBER = 117
-N3G_CURRENT_FILE_RAW_BASE = 0x001D1800
-N3G_CURRENT_FILE_PAGE0 = 0x200
-N3G_CURRENT_FILE_BASE_PBLOCK = 0x0974
+N3G_CURRENT_FILE_RAW_BASE = 0x001D1C00
+N3G_CURRENT_FILE_PAGE0 = 0x160
+N3G_CURRENT_FILE_BASE_PBLOCK = 0x02F4
 
 
 @dataclass(frozen=True)
@@ -190,8 +190,15 @@ def run_windex_read_wide(
 def run_windex_read_extra(
     windex: str, bank: int, out: Path, physpages: list[int], timeout: float
 ) -> subprocess.CompletedProcess[str]:
-    cmd = [windex, "nand", "readextra-pages", str(bank), str(out), *(str(p) for p in physpages)]
-    return subprocess.run(
+    if not physpages:
+        raise ValueError("at least one physical page is required")
+
+    # Nano 3G's first completed NAND read after controller setup primes the
+    # spare-area path.  Request the first page twice and discard the priming
+    # result so a hit at a chunk boundary cannot be silently missed.
+    requested = [physpages[0], *physpages]
+    cmd = [windex, "nand", "readextra-pages", str(bank), str(out), *(str(p) for p in requested)]
+    proc = subprocess.run(
         cmd,
         check=True,
         text=True,
@@ -199,6 +206,16 @@ def run_windex_read_extra(
         stderr=subprocess.PIPE,
         timeout=timeout,
     )
+    expected = len(requested) * N3G_OOB_LEN
+    if out.exists():
+        data = out.read_bytes()
+        if len(data) != expected:
+            raise subprocess.CalledProcessError(
+                1, cmd, output=proc.stdout,
+                stderr=f"{proc.stderr}unexpected OOB byte count {len(data)} (expected {expected})",
+            )
+        out.write_bytes(data[N3G_OOB_LEN:])
+    return proc
 
 
 def read_body_oob(

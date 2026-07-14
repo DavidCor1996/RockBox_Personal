@@ -2,9 +2,11 @@
 
 import os
 import struct
+from pathlib import Path
 
 import pytest
 
+import services.rockbox_tagcache as rockbox_tagcache
 from models.track import Track
 from services.device_inventory import device_record_from_info, verify_device_inventory
 from services.device_detector import DeviceInfo, create_mock_device
@@ -181,6 +183,68 @@ def test_write_rockbox_tagcache_tracks_roundtrips_generated_database(tmp_dir):
     assert tracks[0]["artist"] == "Artist"
     assert tracks[0]["album"] == "Album"
     assert tracks[0]["duration"] == 123.4
+
+
+def test_read_rockbox_tagcache_rejects_dirty_master(tmp_dir):
+    mount_path = os.path.join(tmp_dir, "ipod")
+    _write_mock_tagcache(
+        mount_path,
+        [{TAG_TITLE: "Song", TAG_FILENAME: "/Music/Song.mp3"}],
+    )
+    master_path = os.path.join(mount_path, ".rockbox", "database_idx.tcd")
+    with open(master_path, "r+b") as handle:
+        handle.seek(20)
+        handle.write(struct.pack("<i", 1))
+
+    with pytest.raises(TagcacheError, match="marked dirty"):
+        read_rockbox_tagcache_tracks(mount_path)
+
+
+def test_write_rockbox_tagcache_rolls_back_partial_publish(tmp_dir, monkeypatch):
+    mount_path = os.path.join(tmp_dir, "ipod")
+    audio_dir = os.path.join(mount_path, "Music", "Artist", "Album")
+    os.makedirs(audio_dir, exist_ok=True)
+    track_path = os.path.join(audio_dir, "01 - Song.mp3")
+    with open(track_path, "wb") as handle:
+        handle.write(b"song")
+
+    base_track = {
+        "device_path": "Music/Artist/Album/01 - Song.mp3",
+        "title": "Original title",
+        "artist": "Artist",
+        "album": "Album",
+        "album_artist": "Artist",
+    }
+    write_rockbox_tagcache_tracks(mount_path, [base_track])
+    rockbox_dir = os.path.join(mount_path, ".rockbox")
+    original_files = {
+        name: (Path(rockbox_dir) / name).read_bytes()
+        for name in rockbox_tagcache.HOST_TAGCACHE_FILES
+    }
+
+    original_replace = os.replace
+    failed = False
+
+    def fail_during_publish(source, destination):
+        nonlocal failed
+        if not failed and os.path.basename(destination) == "database_3.tcd":
+            failed = True
+            raise OSError("injected publish failure")
+        return original_replace(source, destination)
+
+    monkeypatch.setattr(rockbox_tagcache.os, "replace", fail_during_publish)
+    changed_track = dict(base_track, title="Replacement title")
+
+    with pytest.raises(OSError, match="injected publish failure"):
+        write_rockbox_tagcache_tracks(mount_path, [changed_track])
+
+    restored_files = {
+        name: (Path(rockbox_dir) / name).read_bytes()
+        for name in rockbox_tagcache.HOST_TAGCACHE_FILES
+    }
+    assert restored_files == original_files
+    assert not os.path.exists(os.path.join(rockbox_dir, rockbox_tagcache.HOST_COMMIT_MARKER))
+    assert not os.path.exists(os.path.join(mount_path, rockbox_tagcache.HOST_TRANSACTION_DIR))
 
 
 def test_repair_refuses_empty_inventory_without_replacing_database(tmp_dir):

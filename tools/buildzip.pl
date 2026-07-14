@@ -696,6 +696,14 @@ sub buildzip {
              "$temp_dir/rocks/games/rockboy_launcher/covers/Doom.bmp");
         copy("$ROOT/assets/ipodjs/rockbox/clubpenguin/covers/Club Penguin.bmp",
              "$temp_dir/games/library/covers/systems/flash.bmp");
+        if(-e "$temp_dir/rocks/games/sm64.rock" ||
+           -e "$temp_dir/rocks/games/sm64.ovl") {
+            mkpath("$temp_dir/games/library/covers/n64", $verbose, 0777);
+            copy("$ROOT/assets/game_covers/n64/n64-system.bmp",
+                 "$temp_dir/games/library/covers/systems/n64.bmp");
+            copy("$ROOT/assets/game_covers/n64/Super Mario 64 (USA).bmp",
+                 "$temp_dir/games/library/covers/n64/Super Mario 64 (USA).bmp");
+        }
     }
 
     if(-e "$temp_dir/rocks/games/pokemini_launcher.rock" &&
