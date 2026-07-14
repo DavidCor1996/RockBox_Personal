@@ -2639,3 +2639,72 @@ dominant boot delay.  Display colors remain "very wrong," however.  The color
 fault is therefore independent of the old application mount sweep and stale
 firmware extent.  The next bounded discriminator should operate only on LCD
 pixel packing/transfer state while retaining this now-proven storage path.
+
+### Native P9 LCD transfer discriminator
+
+The later canonical Rockbox splash still had very wrong colors, so the prior
+asset explanation is superseded.  The saturated row-A probe ruled out only
+coarse byte and red/blue swaps; saturated primaries cannot validate the
+controller's intermediate-bit expansion.
+
+Comparison with the original Nano 3G port and the shared Nano 4G/iPod 6G LCD
+path found one Nano-3G-only workaround in the current tree.  Commit
+`9c076ce768` had replaced the target's declared 9-bit frame mode, 16-bit DMA,
+and native RGB565 words with `LCD_MODE_P8b`, 8-bit DMA, and software
+high-byte/low-byte streaming.  The original Nano 3G contract is
+`LCD_MODE_P9` (`0x81100db8`), described in-tree as two panel transfers per
+RGB565 pixel.  Nano 4G and iPod 6G likewise leave pixel serialization to the
+LCD controller and feed it 16-bit source words.  The P8b workaround can retain
+the identities of saturated primaries while losing the 9-bit transfer mode's
+intermediate color-bit placement, which matches the hardware symptom.
+
+The working tree now restores the original P9/16-bit/native-word path.  A
+visibility-only bootloader renders a 16-step neutral grayscale ramp, separate
+red/green/blue ramps, and six muted RGBCMY midtones, then loops before IRQ
+enable or any storage entry.  Prepared artifact:
+
+- bootloader body: `30944` bytes, SHA-256
+  `22b08d6df9cf8fa20a19b28fe3912d545acb722128198e1f0c1483b1dc857ef3`;
+- remaining 128-KiB haxed-DFU staging margin: `100128` bytes;
+- DFU image: `32992` bytes, SHA-256
+  `4d4769faf00088c45738367015a3c9b7f77b53bea45b97f95ace501d8a048b3c`;
+- artifacts: `tmp/n3g-lcd-p9-ramp-probe-20260713/`.
+
+The `87021.0` format-2 wrapper has three exact `30944`-byte length fields,
+2024 zero padding bytes, the byte-identical body at offset 2048, and no tail.
+Disassembly shows the permanent probe loop at `0x22021138`; storage init and
+NAND/NOR write or erase symbols are absent.
+
+The owned Nano was already in responsive genuine BootROM DFU `05ac:1223`,
+serial `87020000000001`, state 2.  The audited probe was uploaded at 22:27 ADT
+on 2026-07-13.  Haxed DFU entry, Nano-3G parsing, `dfuMANIFEST`, and
+`Image sent` completed successfully.  The owner reported that all colors on
+the P9 probe looked good.  This hardware-validates the neutral grayscale,
+RGB ramps, and muted midtones, and isolates the bad-color regression to the
+temporary P8b/8-bit/software-byte-stream path.  The validated
+P9/16-bit/native-RGB565 path is now promoted to the full application build;
+the probe remains in source as a disabled diagnostic.
+
+### P9 full-application promotion
+
+The promoted full application is archived at
+`tmp/n3g-full-safe-ipodjs-p9-20260713/`.  Its `843436`-byte `rockbox.ipod`
+has SHA-256
+`5d38e548cafa92e43f6afe59f86af5e29925e63d6f719e0ff7d6f1d26f240085`.
+The model-117 checksum `0x0550a794` matches the header, and the scrambled
+body is byte-identical to the `843428`-byte `rockbox.bin` (SHA-256
+`8051c0df02bcceee5bcf8cb8391c29480a0621ca2db160349357db552e66f082`).
+Both Nano 3G replay suites still pass all 18 tests.  The application target
+itself builds successfully; the wider all-plugin target later stops in the
+unrelated Puzzles packaging step because its `sgt-blackbox.map` output
+directory is absent.
+
+The archived image retains the constant-time exact physical read-only mount,
+hard-failed NAND writes/erase, native iPodJS default, and the workspace's
+pending native-plugin read retry.  The color-probe flag is disabled.  The next
+physical boundary is Apple Disk Mode on the owned Nano serial
+`000A27001AF57313`: deploy this exact image to both `/rockbox.ipod` and
+`/.rockbox/rockbox.ipod`, verify both against the local SHA-256 before and
+after sync/remount, then rediscover its new physical extent before generating
+the checksum-guarded transient DFU loader.  The 477-GiB iPod 6G serial
+`000A27002101824D` remains explicitly excluded.

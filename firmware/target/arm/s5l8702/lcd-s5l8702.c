@@ -92,8 +92,6 @@
  */
 
 #define LCD_MODE_P8     0x80000c20          // LCD_MODE_P8T1        // paralled 8-bit, 1 transfer, TBC: DB[17:10] or DB[8:1] ???
-#define LCD_MODE_P8b    0x80100c20          // TODO: see if it influences, so far we are using it in nano3g with 0x80000c20 and it seems to be working fine
-                                            // It may be a "pixel format" setting for 8 bit, which would only affect DATA and not CMD ???
 #define LCD_MODE_P9     0x81100db8          // LCD_MODE_P9T2        // TBC: DB[8:1] or DB[17:10] ???, 2-transfers or 1.5-transfers, RGB565 or RBG666 ???
 #define LCD_MODE_P16    0x80100db0          // LCD_MODE_P16T1       // TBC: DB[17:10,8:1]
 #define LCD_MODE_P18    0x80000da8          // LCD_MODE_P18T1       // TBC: DB[17:10,8:1]
@@ -149,14 +147,9 @@ static uint32_t lcd_frame_mode IDATA_ATTR;
 /* One single transfer at once, needed LLIs:
  *   screen_size / (DMAC_LLI_MAX_COUNT << swidth) =
  *   (320*240*2) / (4095*2) = 19
- * Nano 3G sends RGB565 as two LCD_WR byte transfers, so it needs 38 LLIs.
  */
 #define LCD_DMA_TSKBUF_SZ   1   /* N tasks, MUST be pow2 */
-#if defined(IPOD_NANO3G)
-#define LCD_DMA_LLIBUF_SZ   64  /* N LLIs, MUST be pow2 */
-#else
 #define LCD_DMA_LLIBUF_SZ   32  /* N LLIs, MUST be pow2 */
-#endif
 
 static struct dmac_tsk lcd_dma_tskbuf[LCD_DMA_TSKBUF_SZ];
 static struct dmac_lli volatile \
@@ -183,13 +176,8 @@ static struct dmac_ch_cfg lcd_dma_ch_cfg =
     .dstperi = S5L8702_DMAC0_PERI_LCD_WR,
     .sbsize  = DMACCxCONTROL_BSIZE_1,
     .dbsize  = DMACCxCONTROL_BSIZE_1,
-#if defined(IPOD_NANO3G)
-    .swidth  = DMACCxCONTROL_WIDTH_8,
-    .dwidth  = DMACCxCONTROL_WIDTH_8,
-#else
     .swidth  = DMACCxCONTROL_WIDTH_16,
     .dwidth  = DMACCxCONTROL_WIDTH_16,
-#endif
     .sbus    = DMAC_MASTER_AHB1,
     .dbus    = DMAC_MASTER_AHB1,
     .sinc    = DMACCxCONTROL_INC_ENABLE,
@@ -269,10 +257,6 @@ static void lcd_target_enable_clocks(bool enable)
 
 #ifndef NANO3G_LCD_FORCE_CLCD_LINECNT_TEST
 #define NANO3G_LCD_FORCE_CLCD_LINECNT_TEST 0
-#endif
-
-#ifndef NANO3G_LCD_FRAME_MODE_OVERRIDE
-#define NANO3G_LCD_FRAME_MODE_OVERRIDE LCD_MODE_P8b
 #endif
 
 static uint32_t nano3g_last_lcd_reg;
@@ -821,21 +805,6 @@ static void displaylcd_setup(int x, int y, int width, int height)
     }
 }
 
-#if defined(IPOD_NANO3G)
-static void nano3g_lcd_pack_rgb565_hi_lo(uint16_t *buf, int pixels)
-{
-    uint8_t *out = (uint8_t *)buf;
-
-    for (int i = 0; i < pixels; i++)
-    {
-        uint16_t rgb = buf[i];
-
-        out[i * 2] = rgb >> 8;
-        out[i * 2 + 1] = rgb & 0xff;
-    }
-}
-#endif
-
 static void displaylcd_wait_dma(void) ICODE_ATTR;
 static void displaylcd_dma(int pixels) ICODE_ATTR;
 static void displaylcd_dma(int pixels)
@@ -912,9 +881,6 @@ void lcd_update_rect(int x, int y, int width, int height)
             } while (--height);
         }
 
-#if defined(IPOD_NANO3G)
-        nano3g_lcd_pack_rgb565_hi_lo(lcd_dblbuf[0], pixels);
-#endif
         displaylcd_dma(pixels);
     }
     mutex_unlock(&lcd_mutex);
@@ -965,9 +931,6 @@ void lcd_blit_yuv(unsigned char * const src[3],
             out += width << 1;
         } while (--height);
 
-#if defined(IPOD_NANO3G)
-        nano3g_lcd_pack_rgb565_hi_lo(lcd_dblbuf[0], pixels);
-#endif
         displaylcd_dma(pixels);
     }
     mutex_unlock(&lcd_mutex);
@@ -1121,10 +1084,6 @@ void lcd_init_device(void)
         lcd_frame_mode = LCD_MODE_P16;
     else /* LCD_MPUIFACE_SERIAL */
         lcd_frame_mode = LCD_MODE_S9;
-
-#if defined(IPOD_NANO3G) && NANO3G_LCD_FRAME_MODE_OVERRIDE
-    lcd_frame_mode = NANO3G_LCD_FRAME_MODE_OVERRIDE;
-#endif
 
     s5l_lcd_set_command_mode();
 

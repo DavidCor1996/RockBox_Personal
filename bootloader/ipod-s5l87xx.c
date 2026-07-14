@@ -259,15 +259,15 @@ extern int line;
 #if defined(IPOD_NANO3G) && NANO3G_LCD_COLOR_PROBE
 static void nano3g_lcd_color_probe(void)
 {
-    static const uint16_t colors[4][6] =
+    static const uint16_t midtones[6] =
     {
-        /* RGB565, byte swap, red/blue swap, then both transforms. */
-        { 0xf800, 0x07e0, 0x001f, 0x07ff, 0xf81f, 0xffe0 },
-        { 0x00f8, 0xe007, 0x1f00, 0xff07, 0x1ff8, 0xe0ff },
-        { 0x001f, 0x07e0, 0xf800, 0xffe0, 0xf81f, 0x07ff },
-        { 0x1f00, 0xe007, 0x00f8, 0xe0ff, 0x1ff8, 0xff07 },
+        LCD_RGBPACK(160, 32, 32),
+        LCD_RGBPACK(32, 160, 32),
+        LCD_RGBPACK(32, 32, 160),
+        LCD_RGBPACK(32, 160, 160),
+        LCD_RGBPACK(160, 32, 160),
+        LCD_RGBPACK(160, 160, 32),
     };
-    static const unsigned char row_names[] = "ABCD";
     static const unsigned char col_names[] = "RGBCMY";
     unsigned char label[2] = { '\0', '\0' };
     extern unsigned char lcd_id[4];
@@ -277,31 +277,39 @@ static void nano3g_lcd_color_probe(void)
     lcd_set_foreground(LCD_WHITE);
     lcd_clear_display();
     lcd_setfont(FONT_SYSFIXED);
-    lcd_puts(0, 0, "N3G LCD COLOR PROBE");
+    lcd_puts(0, 0, "N3G P9 / 16-BIT RGB565");
     lcd_putsf(0, 1, "ID %02X %02X %02X %02X TYPE %d",
               lcd_id[0], lcd_id[1], lcd_id[2], lcd_id[3], lcd_type);
-    lcd_puts(0, 2, "A normal B byte C red/blue D both");
 
-    for (unsigned int row = 0; row < ARRAYLEN(colors); row++)
+    for (int i = 0; i < 16; i++)
     {
-        int y = 30 + row * 45;
+        int level = i * 17;
 
-        label[0] = row_names[row];
-        lcd_set_foreground(LCD_WHITE);
-        lcd_putsxy(2, y + 14, label);
-        for (unsigned int col = 0; col < ARRAYLEN(colors[row]); col++)
-        {
-            lcd_set_foreground(colors[row][col]);
-            lcd_fillrect(18 + col * 50, y, 44, 38);
-        }
+        lcd_set_foreground(LCD_RGBPACK(level, level, level));
+        lcd_fillrect(i * 20, 25, 20, 24);
+
+        lcd_set_foreground(LCD_RGBPACK(level, 0, 0));
+        lcd_fillrect(i * 20, 65, 20, 22);
+        lcd_set_foreground(LCD_RGBPACK(0, level, 0));
+        lcd_fillrect(i * 20, 91, 20, 22);
+        lcd_set_foreground(LCD_RGBPACK(0, 0, level));
+        lcd_fillrect(i * 20, 117, 20, 22);
     }
 
     lcd_set_foreground(LCD_WHITE);
-    for (unsigned int col = 0; col < 6; col++)
+    lcd_putsxy(0, 51, "GRAY: NEUTRAL BLACK TO WHITE");
+    lcd_putsxy(0, 141, "SMOOTH RED / GREEN / BLUE RAMPS");
+
+    for (unsigned int col = 0; col < ARRAYLEN(midtones); col++)
     {
         label[0] = col_names[col];
-        lcd_putsxy(37 + col * 50, 216, label);
+        lcd_set_foreground(midtones[col]);
+        lcd_fillrect(3 + col * 53, 160, 47, 42);
+        lcd_set_foreground(LCD_WHITE);
+        lcd_putsxy(23 + col * 53, 207, label);
     }
+
+    lcd_putsxy(0, 225, "MIDTONES MUTED; NO COLOR CAST");
     lcd_update();
 
     while (1)
