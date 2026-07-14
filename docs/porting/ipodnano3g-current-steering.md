@@ -2755,3 +2755,44 @@ on 2026-07-13.  Haxed DFU entry, Nano-3G image parsing, `dfuMANIFEST`, and
 "looks great."  This hardware-validates the new exact extent, full
 application entry, and P9 display path together.  Music playback and
 systematic plugin loading remain separate, unproven bring-up stages.
+
+### Reproducible package and SysCfg codec result
+
+Commit `e75ef4955f` makes a one-shot clean Nano 3G `make -j4 zip` reproducible,
+including 193 plugins and 43 loadable codecs, and adds identity-guarded package
+deployment, transient-DFU wrapping, release auditing, and a default-off general
+read-only FTL candidate.  The checkpoint is pushed on
+`agent/sync-current-worktree`.  Its normal `831988`-byte `rockbox.ipod` has
+SHA-256
+`ef41a73c425273131ac662031a44833980df19e237481fe8244b0aaaf923a190`;
+the matching package has SHA-256
+`40844dbe6e085ce423b5e069ba813e680198db40fd10f60fe83635d01628f367`.
+
+The first NOR-only SysCfg probe was uploaded through genuine BootROM DFU on
+2026-07-14.  Haxed DFU entry, Nano-3G image parsing, `dfuMANIFEST`, and
+`Image sent` completed.  Hardware displayed:
+
+```text
+N3G SYSCFG READ-ONLY
+NOR READ / NO NAND
+RC 0 MAGIC 53436667
+SIZE 184 ENTRIES 8
+CODC: MISSING
+HWVR: 00000000 00140010
+MODEL: MA978
+REPORT CODC + HEX
+SAFE HALT
+```
+
+The missing `Codc` entry is a real device result, not a failed SysCfg read.
+The Classic/6G assumption is therefore retired.  External Nano 3G board
+identification and the dormant in-tree `HAVE_WM1870` declaration both point to
+a Wolfson WM1870, while the Nano 4G and iPod 6G use Cirrus-family hardware.
+The closer code comparisons are the Nano 2G Wolfson packed control transport
+at address `0x34` and the iPod Video WM8758 driver, but neither proves the
+WM1870 register map or board power sequence.
+
+The follow-up probe displays all eight SysCfg tags and every one of their 16
+data bytes on a single screen.  It remains before IRQ and storage entry, reads
+NOR only, and safe-halts.  This is the next hardware boundary; codec and PCM
+writes remain disabled.

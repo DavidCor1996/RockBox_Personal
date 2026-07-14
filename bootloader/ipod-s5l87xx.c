@@ -321,11 +321,7 @@ static void nano3g_lcd_color_probe(void)
 static void nano3g_syscfg_probe(void)
 {
     struct SysCfg syscfg;
-    const struct SysCfgEntry *codec = NULL;
-    const struct SysCfgEntry *model = NULL;
-    const struct SysCfgEntry *hardware = NULL;
-    char codec_text[17];
-    char model_text[17];
+    bool codec_found = false;
     ssize_t result;
     size_t entries;
 
@@ -337,7 +333,7 @@ static void nano3g_syscfg_probe(void)
     lcd_clear_display();
     lcd_setfont(FONT_SYSFIXED);
     line = 0;
-    printf("N3G SYSCFG READ-ONLY");
+    printf("N3G SYSCFG ALL ENTRIES");
     printf("NOR READ / NO NAND");
     printf("RC %ld MAGIC %08lx", (long)result,
            (unsigned long)syscfg.header.magic);
@@ -357,48 +353,29 @@ static void nano3g_syscfg_probe(void)
     for (size_t i = 0; i < entries; i++)
     {
         const struct SysCfgEntry *entry = &syscfg.entries[i];
+        char tag_text[5];
 
         if (entry->tag == SYSCFG_TAG_CODC)
-            codec = entry;
-        else if (entry->tag == SYSCFG_TAG_MODN)
-            model = entry;
-        else if (entry->tag == SYSCFG_TAG_HWVR)
-            hardware = entry;
-    }
+            codec_found = true;
 
-    memset(codec_text, 0, sizeof(codec_text));
-    memset(model_text, 0, sizeof(model_text));
-    if (codec != NULL)
-    {
-        for (size_t i = 0; i < 16 && codec->data[i] != 0; i++)
-            codec_text[i] = codec->data[i] >= 0x20 && codec->data[i] <= 0x7e
-                          ? codec->data[i] : '.';
-        printf("CODC: %s", codec_text);
-        printf("CODC HEX %02x%02x%02x%02x %02x%02x%02x%02x",
-               codec->data[0], codec->data[1], codec->data[2], codec->data[3],
-               codec->data[4], codec->data[5], codec->data[6], codec->data[7]);
-        printf("         %02x%02x%02x%02x %02x%02x%02x%02x",
-               codec->data[8], codec->data[9], codec->data[10], codec->data[11],
-               codec->data[12], codec->data[13], codec->data[14], codec->data[15]);
-    }
-    else
-        printf("CODC: MISSING");
+        for (size_t j = 0; j < 4; j++)
+        {
+            uint8_t c = (entry->tag >> (24 - j * 8)) & 0xff;
+            tag_text[j] = c >= 0x20 && c <= 0x7e ? c : '.';
+        }
+        tag_text[4] = '\0';
 
-    if (hardware != NULL)
-    {
-        const uint32_t *data32 = (const uint32_t *)hardware->data;
-        printf("HWVR: %08lx %08lx", (unsigned long)data32[0],
-               (unsigned long)data32[1]);
+        printf("%lu %s %08lx", (unsigned long)i, tag_text,
+               (unsigned long)entry->tag);
+        printf(" A %02x%02x%02x%02x %02x%02x%02x%02x",
+               entry->data[0], entry->data[1], entry->data[2], entry->data[3],
+               entry->data[4], entry->data[5], entry->data[6], entry->data[7]);
+        printf(" B %02x%02x%02x%02x %02x%02x%02x%02x",
+               entry->data[8], entry->data[9], entry->data[10], entry->data[11],
+               entry->data[12], entry->data[13], entry->data[14], entry->data[15]);
     }
-    if (model != NULL)
-    {
-        for (size_t i = 0; i < 16 && model->data[i] != 0; i++)
-            model_text[i] = model->data[i] >= 0x20 && model->data[i] <= 0x7e
-                          ? model->data[i] : '.';
-        printf("MODEL: %s", model_text);
-    }
-    printf("REPORT CODC + HEX");
-    printf("SAFE HALT");
+    printf(codec_found ? "CODC ABOVE / SAFE HALT"
+                       : "NO CODC TAG / SAFE HALT");
     lcd_update();
     while (1)
         ;
