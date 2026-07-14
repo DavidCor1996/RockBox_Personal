@@ -2701,10 +2701,53 @@ directory is absent.
 
 The archived image retains the constant-time exact physical read-only mount,
 hard-failed NAND writes/erase, native iPodJS default, and the workspace's
-pending native-plugin read retry.  The color-probe flag is disabled.  The next
-physical boundary is Apple Disk Mode on the owned Nano serial
-`000A27001AF57313`: deploy this exact image to both `/rockbox.ipod` and
-`/.rockbox/rockbox.ipod`, verify both against the local SHA-256 before and
-after sync/remount, then rediscover its new physical extent before generating
-the checksum-guarded transient DFU loader.  The 477-GiB iPod 6G serial
-`000A27002101824D` remains explicitly excluded.
+pending native-plugin read retry.  The color-probe flag is disabled.  It was
+deployed in Apple Disk Mode to both `/rockbox.ipod` and
+`/.rockbox/rockbox.ipod` on the owned Nano serial `000A27001AF57313`; both
+copies matched the local SHA-256 before sync and again after a read-only
+remount.  Direct Disk Mode block readback also reproduced both complete files
+and found only the expected 340 zero bytes in each final allocation cluster.
+The 477-GiB iPod 6G serial `000A27002101824D` remained explicitly excluded.
+
+### P9 deployed-image exact map and loader
+
+The root copy now occupies FAT32 clusters `0xdebd0..0xdec9d`, 206 contiguous
+4-KiB clusters for the 843436-byte image.  Its first synthetic 512-byte host
+LBA is `0x007039de`; its 412 native 2-KiB pages use raw keys
+`0x001d2754..0x001d28ef`.
+
+Fresh BootROM DFU OOB scans resolved the extent in two log generations.  Raw
+keys below `0x001d2800` use user USN `0xfebf`: rows 106 through 127 of
+physical blocks `0x0f20`, `0x0f21`, `0x1f20`, and `0x1f21`.  Keys from
+`0x001d2800` through the end of the root file use USN `0xfeb9`: rows 0 through
+29 of blocks `0x0238`, `0x0239`, `0x1238`, and `0x1239`.  The bank-0 scans
+cover all 206 even raw keys without gaps or duplicates.  Each adjacent odd
+key remains the bank-1 member of the same physical-page pair, as established
+by the earlier native-reader hardware tests.
+
+The exact reader, synthetic root entry, and synthetic FAT boundary now encode
+that deployment.  The loader also guards the complete immutable application
+body (`843428` bytes, model checksum `0x0550a794`, FNV-1a `0xf1a098ec`) and
+all 12 application instructions used to prove entry and apply the seven
+read-only continuation words.  In particular, the relocated NAND page-write
+stub is guarded at body offset `0x00093ae4`; the loader's only linked NAND
+write entry remains the two-instruction `return -1` sector stub, with page
+program, block erase, and NOR write/erase routines absent.
+
+Prepared transient loader:
+
+- bootloader body: `75712` bytes, SHA-256
+  `dce513d11ab37d5b245d2df5f513d5ba51c60d27dd33c62f129b071eae043e11`;
+- remaining 128-KiB haxed-DFU staging margin: `55360` bytes;
+- DFU image: `77760` bytes, SHA-256
+  `5749fb3fe1547a3e329479ff5bffc1a17764257db32fbcb5886ac8fc057fa370`;
+- artifacts:
+  `tmp/n3g-full-safe-ipodjs-p9-exactmap-loader-20260713/`.
+
+The `87021.0` format-2 wrapper has three exact `75712`-byte length fields,
+2024 zero padding bytes, the byte-identical body at offset 2048, and no tail.
+The compiled 206-entry table matches the formulas derived from all eight
+physical blocks and both OOB manifests.  Both Nano 3G replay suites pass all
+18 tests.  The next physical boundary is the screen after transient DFU
+upload: confirm the guarded continuation screen, P9 splash colors, boot time,
+and first application UI.

@@ -1316,9 +1316,9 @@ static void n3g_handoff_disk_native(unsigned char *image, int length)
     while (1)
         ;
 #else
-    const uint32_t expected_length = 842532u;
-    const uint32_t expected_sum = 0x0550c12au;
-    const uint32_t expected_fnv1a = 0xef4c6f36u;
+    const uint32_t expected_length = 843428u;
+    const uint32_t expected_sum = 0x0550a794u;
+    const uint32_t expected_fnv1a = 0xf1a098ecu;
 #if NANO3G_FULL_IMAGE_PRESTOR_CHECKPOINT
     static const char checkpoint_expected[] = "N3G FULL STORAGE OK";
     static const char checkpoint_text[] = "PRESTORAGE RETURNED";
@@ -1339,7 +1339,7 @@ static void n3g_handoff_disk_native(unsigned char *image, int length)
         || *(uint32_t *)(image + 0x00000000u) != 0xea00000du
         || *(uint32_t *)(image + 0x0000003cu) != 0xe51ff004u
         || *(uint32_t *)(image + 0x00005e18u) != 0xe52de004u
-        || *(uint32_t *)(image + 0x00093b2cu) != 0xe3a00001u
+        || *(uint32_t *)(image + 0x00093ae4u) != 0xe3a00001u
 #if NANO3G_FULL_IMAGE_PRESTOR_CHECKPOINT
         || *(uint32_t *)(image + 0x00005f30u) != 0xeb01debcu
         || *(uint32_t *)(image + 0x00005f34u) != 0xe2504000u
@@ -1349,15 +1349,15 @@ static void n3g_handoff_disk_native(unsigned char *image, int length)
                   sizeof(checkpoint_expected)) != 0
 #endif
 #if NANO3G_FULL_IMAGE_PRESERVE_EXCEPTION
-        || *(uint32_t *)(image + 0x00089e70u) != 0xeb001c36u
-        || *(uint32_t *)(image + 0x00089e84u) != 0xeafffffeu
+        || *(uint32_t *)(image + 0x00089e38u) != 0xeb001c32u
+        || *(uint32_t *)(image + 0x00089e4cu) != 0xeafffffeu
 #endif
 #if NANO3G_FULL_IMAGE_READONLY_CONTINUE
-        || *(uint32_t *)(image + 0x00027db4u) != 0xeb014f4eu
-        || *(uint32_t *)(image + 0x00006070u) != 0xeb016eccu
+        || *(uint32_t *)(image + 0x00027a50u) != 0xeb015018u
+        || *(uint32_t *)(image + 0x00006070u) != 0xeb016e25u
         || *(uint32_t *)(image + 0x0000607cu) != 0xe5d43308u
-        || *(uint32_t *)(image + 0x000060ccu) != 0xeb0172ceu
-        || *(uint32_t *)(image + 0x000061a0u) != 0xeb014bf9u
+        || *(uint32_t *)(image + 0x000060ccu) != 0xeb017293u
+        || *(uint32_t *)(image + 0x000061a0u) != 0xeb014b1du
         || *(uint32_t *)(image + 0x000061a4u) != 0xe59f00a4u
 #endif
 #if NANO3G_FULL_IMAGE_IPODJS_CONTINUE
@@ -1408,7 +1408,7 @@ static void n3g_handoff_disk_native(unsigned char *image, int length)
      * to the function's terminal loop after its boottrace call so the UIE
      * diagnostic remains visible.  This changes one guarded word in DRAM.
      */
-    *(uint32_t *)(image + 0x00089e70u) = 0xea000003u;
+    *(uint32_t *)(image + 0x00089e38u) = 0xea000003u;
 
 #if NANO3G_FULL_IMAGE_READONLY_CONTINUE
     /*
@@ -1420,7 +1420,7 @@ static void n3g_handoff_disk_native(unsigned char *image, int length)
      * dircache persistence, tagcache state/scanning, playback logging, and
      * playername.txt creation.  NAND writes remain hard-failed globally.
      */
-    *(uint32_t *)(image + 0x00027db4u) = 0xea000019u;
+    *(uint32_t *)(image + 0x00027a50u) = 0xea000019u;
     *(uint32_t *)(image + 0x00006070u) = 0xe1a00000u;
     *(uint32_t *)(image + 0x0000607cu) = 0xea000012u;
     *(uint32_t *)(image + 0x000060ccu) = 0xea000003u;

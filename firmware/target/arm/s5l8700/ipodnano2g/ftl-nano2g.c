@@ -2924,7 +2924,7 @@ static void ftl_n3g_synth_fat32_bpb(uint8_t *out)
 
 static void ftl_n3g_synth_root_rockbox(uint8_t *out, uint32_t host_lpn)
 {
-    /* Delete-and-recreate Disk Mode ground truth: cluster 0xDEA28. */
+    /* Delete-and-recreate Disk Mode ground truth: cluster 0xDEBD0. */
     static const uint8_t dot_rockbox[64] = {
         0x41, 0x2e, 0x00, 0x72, 0x00, 0x6f, 0x00, 0x63,
         0x00, 0x6b, 0x00, 0x0f, 0x00, 0xbd, 0x62, 0x00,
@@ -2945,7 +2945,7 @@ static void ftl_n3g_synth_root_rockbox(uint8_t *out, uint32_t host_lpn)
         0x52, 0x4f, 0x43, 0x4b, 0x42, 0x4f, 0x7e, 0x31,
         0x49, 0x50, 0x4f, 0x20, 0x00, 0x35, 0xcf, 0x89,
         0xb7, 0x5c, 0xed, 0x5c, 0x0d, 0x00, 0x61, 0x97,
-        0xed, 0x5c, 0x28, 0xea, 0x2c, 0xdb, 0x0c, 0x00
+        0xed, 0x5c, 0xd0, 0xeb, 0xac, 0xde, 0x0c, 0x00
     };
 
     memset(out, 0, 0x200);
@@ -2983,7 +2983,7 @@ static void ftl_n3g_synth_rockbox_fat(uint8_t *out, uint32_t host_lpn)
          || cluster == 0x000db0bcu
          || cluster == 0x000db0bfu
          || cluster == 0x000db0c0u
-         || cluster == 0x000deaf5u)
+         || cluster == 0x000dec9du)
             value = 0x0fffffffu;
         else if ((cluster >= 0x000db06eu && cluster < 0x000db0a6u)
               || (cluster >= 0x000db0a7u && cluster < 0x000db0a8u)
@@ -2993,7 +2993,7 @@ static void ftl_n3g_synth_rockbox_fat(uint8_t *out, uint32_t host_lpn)
               || (cluster >= 0x000db0bau && cluster < 0x000db0bcu)
               || (cluster >= 0x000db0bdu && cluster < 0x000db0bfu))
             value = cluster + 1;
-        else if (cluster >= 0x000dea28u && cluster < 0x000deaf5u)
+        else if (cluster >= 0x000debd0u && cluster < 0x000dec9du)
             value = cluster + 1;
 
         ftl_n3g_put32(out, i * 4, value);
@@ -4493,56 +4493,56 @@ int ftl_n3g_read_rockbox_file_sector(uint32_t file_sector, uint32_t host_lpn,
 #if defined(IPOD_NANO3G) && defined(NANO3G_NATIVE_CURRENT_FILE_READ) \
     && NANO3G_NATIVE_CURRENT_FILE_READ
 /*
- * The delete-and-recreate deployment placed the current file in one
- * scattered FTL log generation (user USN 0xfe23).  A complete primed bank-0
- * OOB index resolved every even raw key from 0x001d2404 through 0x001d259e.
+ * The delete-and-recreate deployment placed the current file across two
+ * contiguous FTL log generations (user USNs 0xfebf and 0xfeb9).  Complete
+ * bank-0 OOB scans resolved every even raw key from 0x001d2754 through
+ * 0x001d28ee.
  * Each entry below is the physical page shared by one adjacent bank-0/bank-1
  * raw-page pair.  Native bank reads select the member with raw & 1 and still
  * require the exact raw key, user USN, and data-page type before returning it.
  */
 static const uint32_t n3g_current_file_pair_physpages[] =
 {
-    0x0003c400u, 0x0003c480u, 0x000bc400u, 0x000bc480u, 0x0003c401u, 0x0003c481u, 0x000bc401u, 0x000bc481u,
-    0x0003c402u, 0x0003c482u, 0x000bc402u, 0x000bc482u, 0x0003c403u, 0x0003c483u, 0x000bc403u, 0x000bc483u,
-    0x0003c404u, 0x0003c484u, 0x000bc404u, 0x000bc484u, 0x0003c405u, 0x0003c485u, 0x000bc405u, 0x000bc485u,
-    0x0003c406u, 0x0003c486u, 0x000bc406u, 0x000bc486u, 0x0003c407u, 0x0003c487u, 0x000bc407u, 0x000bc487u,
-    0x0003c408u, 0x0003c488u, 0x000bc408u, 0x000bc488u, 0x0003c409u, 0x0003c489u, 0x000bc409u, 0x000bc489u,
-    0x0003c40au, 0x0003c48au, 0x000bc40au, 0x000bc48au, 0x0003c40bu, 0x0003c48bu, 0x000bc40bu, 0x000bc48bu,
-    0x0003c40cu, 0x0003c48cu, 0x000bc40cu, 0x000bc48cu, 0x0003c40du, 0x0003c48du, 0x000bc40du, 0x000bc48du,
-    0x0003c40eu, 0x0003c48eu, 0x000bc40eu, 0x000bc48eu, 0x000bc416u, 0x000bc496u, 0x0003c417u, 0x0003c497u,
-    0x000bc417u, 0x000bc497u, 0x0003c418u, 0x0003c498u, 0x000bc418u, 0x000bc498u, 0x0003c419u, 0x0003c499u,
-    0x000bc419u, 0x000bc499u, 0x0003c41au, 0x0003c49au, 0x000bc41au, 0x000bc49au, 0x0003c41bu, 0x0003c49bu,
-    0x000bc41bu, 0x000bc49bu, 0x0003c41cu, 0x0003c49cu, 0x000bc41cu, 0x000bc49cu, 0x0003c41du, 0x0003c49du,
-    0x000bc41du, 0x000bc49du, 0x000bc425u, 0x000bc4a5u, 0x0003c426u, 0x0003c4a6u, 0x000bc426u, 0x000bc4a6u,
-    0x0003c427u, 0x0003c4a7u, 0x000bc427u, 0x000bc4a7u, 0x0003c428u, 0x0003c4a8u, 0x000bc428u, 0x000bc4a8u,
-    0x0003c429u, 0x0003c4a9u, 0x000bc429u, 0x000bc4a9u, 0x0003c42au, 0x0003c4aau, 0x000bc42au, 0x000bc4aau,
-    0x0003c42bu, 0x0003c4abu, 0x000bc42bu, 0x000bc4abu, 0x0003c42cu, 0x0003c4acu, 0x000bc42cu, 0x000bc4acu,
-    0x000bc434u, 0x000bc4b4u, 0x0003c435u, 0x0003c4b5u, 0x000bc435u, 0x000bc4b5u, 0x0003c436u, 0x0003c4b6u,
-    0x000bc436u, 0x000bc4b6u, 0x0003c437u, 0x0003c4b7u, 0x000bc437u, 0x000bc4b7u, 0x0003c438u, 0x0003c4b8u,
-    0x000bc438u, 0x000bc4b8u, 0x0003c439u, 0x0003c4b9u, 0x000bc439u, 0x000bc4b9u, 0x0003c43au, 0x0003c4bau,
-    0x000bc43au, 0x000bc4bau, 0x0003c43bu, 0x0003c4bbu, 0x000bc43bu, 0x000bc4bbu, 0x000bc443u, 0x000bc4c3u,
-    0x0003c444u, 0x0003c4c4u, 0x000bc444u, 0x000bc4c4u, 0x0003c445u, 0x0003c4c5u, 0x000bc445u, 0x000bc4c5u,
-    0x0003c446u, 0x0003c4c6u, 0x000bc446u, 0x000bc4c6u, 0x0003c447u, 0x0003c4c7u, 0x000bc447u, 0x000bc4c7u,
-    0x0003c448u, 0x0003c4c8u, 0x000bc448u, 0x000bc4c8u, 0x0003c449u, 0x0003c4c9u, 0x000bc449u, 0x000bc4c9u,
-    0x0003c44au, 0x0003c4cau, 0x000bc44au, 0x000bc4cau, 0x000bc452u, 0x000bc4d2u, 0x0003c453u, 0x0003c4d3u,
-    0x000bc453u, 0x000bc4d3u, 0x0003c454u, 0x0003c4d4u, 0x000bc454u, 0x000bc4d4u, 0x0003c455u, 0x0003c4d5u,
-    0x000bc455u, 0x000bc4d5u, 0x0003c456u, 0x0003c4d6u, 0x000bc456u, 0x000bc4d6u, 0x0003c457u, 0x0003c4d7u,
-    0x000bc457u, 0x000bc4d7u, 0x0003c458u, 0x0003c4d8u, 0x000bc458u, 0x000bc4d8u,
+    0x000f906au, 0x000f90eau, 0x0007906bu, 0x000790ebu, 0x000f906bu, 0x000f90ebu, 0x0007906cu, 0x000790ecu,
+    0x000f906cu, 0x000f90ecu, 0x0007906du, 0x000790edu, 0x000f906du, 0x000f90edu, 0x0007906eu, 0x000790eeu,
+    0x000f906eu, 0x000f90eeu, 0x0007906fu, 0x000790efu, 0x000f906fu, 0x000f90efu, 0x00079070u, 0x000790f0u,
+    0x000f9070u, 0x000f90f0u, 0x00079071u, 0x000790f1u, 0x000f9071u, 0x000f90f1u, 0x00079072u, 0x000790f2u,
+    0x000f9072u, 0x000f90f2u, 0x00079073u, 0x000790f3u, 0x000f9073u, 0x000f90f3u, 0x00079074u, 0x000790f4u,
+    0x000f9074u, 0x000f90f4u, 0x00079075u, 0x000790f5u, 0x000f9075u, 0x000f90f5u, 0x00079076u, 0x000790f6u,
+    0x000f9076u, 0x000f90f6u, 0x00079077u, 0x000790f7u, 0x000f9077u, 0x000f90f7u, 0x00079078u, 0x000790f8u,
+    0x000f9078u, 0x000f90f8u, 0x00079079u, 0x000790f9u, 0x000f9079u, 0x000f90f9u, 0x0007907au, 0x000790fau,
+    0x000f907au, 0x000f90fau, 0x0007907bu, 0x000790fbu, 0x000f907bu, 0x000f90fbu, 0x0007907cu, 0x000790fcu,
+    0x000f907cu, 0x000f90fcu, 0x0007907du, 0x000790fdu, 0x000f907du, 0x000f90fdu, 0x0007907eu, 0x000790feu,
+    0x000f907eu, 0x000f90feu, 0x0007907fu, 0x000790ffu, 0x000f907fu, 0x000f90ffu, 0x00011c00u, 0x00011c80u,
+    0x00091c00u, 0x00091c80u, 0x00011c01u, 0x00011c81u, 0x00091c01u, 0x00091c81u, 0x00011c02u, 0x00011c82u,
+    0x00091c02u, 0x00091c82u, 0x00011c03u, 0x00011c83u, 0x00091c03u, 0x00091c83u, 0x00011c04u, 0x00011c84u,
+    0x00091c04u, 0x00091c84u, 0x00011c05u, 0x00011c85u, 0x00091c05u, 0x00091c85u, 0x00011c06u, 0x00011c86u,
+    0x00091c06u, 0x00091c86u, 0x00011c07u, 0x00011c87u, 0x00091c07u, 0x00091c87u, 0x00011c08u, 0x00011c88u,
+    0x00091c08u, 0x00091c88u, 0x00011c09u, 0x00011c89u, 0x00091c09u, 0x00091c89u, 0x00011c0au, 0x00011c8au,
+    0x00091c0au, 0x00091c8au, 0x00011c0bu, 0x00011c8bu, 0x00091c0bu, 0x00091c8bu, 0x00011c0cu, 0x00011c8cu,
+    0x00091c0cu, 0x00091c8cu, 0x00011c0du, 0x00011c8du, 0x00091c0du, 0x00091c8du, 0x00011c0eu, 0x00011c8eu,
+    0x00091c0eu, 0x00091c8eu, 0x00011c0fu, 0x00011c8fu, 0x00091c0fu, 0x00091c8fu, 0x00011c10u, 0x00011c90u,
+    0x00091c10u, 0x00091c90u, 0x00011c11u, 0x00011c91u, 0x00091c11u, 0x00091c91u, 0x00011c12u, 0x00011c92u,
+    0x00091c12u, 0x00091c92u, 0x00011c13u, 0x00011c93u, 0x00091c13u, 0x00091c93u, 0x00011c14u, 0x00011c94u,
+    0x00091c14u, 0x00091c94u, 0x00011c15u, 0x00011c95u, 0x00091c15u, 0x00091c95u, 0x00011c16u, 0x00011c96u,
+    0x00091c16u, 0x00091c96u, 0x00011c17u, 0x00011c97u, 0x00091c17u, 0x00091c97u, 0x00011c18u, 0x00011c98u,
+    0x00091c18u, 0x00091c98u, 0x00011c19u, 0x00011c99u, 0x00091c19u, 0x00091c99u, 0x00011c1au, 0x00011c9au,
+    0x00091c1au, 0x00091c9au, 0x00011c1bu, 0x00011c9bu, 0x00091c1bu, 0x00091c9bu, 0x00011c1cu, 0x00011c9cu,
+    0x00091c1cu, 0x00091c9cu, 0x00011c1du, 0x00011c9du, 0x00091c1du, 0x00091c9du
 };
 
 static int32_t ftl_n3g_native_current_file_read(uint32_t host_lpn,
                                                 uint8_t *out)
 {
     /*
-     * The deployed 2026-07-13 iPodJS exact-mount image was recreated at
-     * cluster 0xdea28, giving synthetic host LBA 0x00702c9e and first raw
-     * key 0x001d2404.  The complete 412-page file is covered by the exact
+     * The deployed 2026-07-13 P9/iPodJS exact-mount image was recreated at
+     * cluster 0xdebd0, giving synthetic host LBA 0x007039de and first raw
+     * key 0x001d2754.  The complete 412-page file is covered by the exact
      * scattered-log pair map above.
      */
-    const uint32_t file_start = 0x00702c9eu;
-    const uint32_t file_size = 842540u;
-    const uint32_t first_raw = 0x001d2404u;
-    const uint32_t expected_usn = 0x0000fe23u;
+    const uint32_t file_start = 0x007039deu;
+    const uint32_t file_size = 843436u;
+    const uint32_t first_raw = 0x001d2754u;
     uint32_t file_sector;
     uint32_t file_page;
     uint32_t pair_index;
@@ -4550,6 +4550,7 @@ static int32_t ftl_n3g_native_current_file_read(uint32_t host_lpn,
     uint32_t bank;
     uint32_t physpage;
     uint32_t slot;
+    uint32_t expected_usn;
     uint32_t spare[0x10];
     int32_t rc;
 
@@ -4569,6 +4570,8 @@ static int32_t ftl_n3g_native_current_file_read(uint32_t host_lpn,
     bank = raw & 1u;
     physpage = n3g_current_file_pair_physpages[pair_index];
     slot = file_sector & 3u;
+    expected_usn = raw < 0x001d2800u
+                 ? 0x0000febfu : 0x0000feb9u;
 
     if (n3g_current_file_cached_raw != raw)
     {
@@ -4765,7 +4768,7 @@ static uint32_t ftl_n3g_physrb_mount(void)
     n3g_direct_mbr[0x1ff] = 0xaa;
 
     ftl_n3g_find_rockbox_phys_near();
-    FTL_PROGRESS("N3G_OLDMAP_FASTMOUNT p0=0000A07E sz=000E7F81 rb=current fc=000DEA28 lba=00702C9E usn=0000FE23");
+    FTL_PROGRESS("N3G_OLDMAP_FASTMOUNT p0=0000A07E sz=000E7F81 rb=current fc=000DEBD0 lba=007039DE usn=FEBF/FEB9");
     return 0;
 }
 
