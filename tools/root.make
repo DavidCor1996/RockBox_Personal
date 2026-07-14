@@ -204,10 +204,13 @@ $(RBINFO): $(BUILDDIR)/$(BINARY)
 	$(SILENT)echo Creating $(@F)
 	$(SILENT)$(TOOLSDIR)/mkinfo.pl $@
 
+# C++ plugins have target-specific flags and explicit makefile dependencies.
+# Feeding them through the global C dependency pass either invokes a C-only
+# Rockbox compiler or invents dependencies for the wrong platform setup.
 $(DEPFILE) dep:
 	$(call PRINTS,Generating dependencies)
 	$(call mkdepfile,$(DEPFILE)_,$(SRC),core)
-	$(call mkdepfile,$(DEPFILE)_,$(OTHER_SRC:%.lua=),other)
+	$(call mkdepfile,$(DEPFILE)_,$(filter-out %.cpp,$(OTHER_SRC:%.lua=)),other)
 	$(call mkdepfile,$(DEPFILE)_,$(ASMDEFS_SRC),asmdefs)
 	$(call bmpdepfile,$(DEPFILE)_,$(BMP) $(PBMP))
 	@mv $(DEPFILE)_ $(DEPFILE)

@@ -317,6 +317,94 @@ static void nano3g_lcd_color_probe(void)
 }
 #endif
 
+#if defined(IPOD_NANO3G) && NANO3G_SYSCFG_PROBE
+static void nano3g_syscfg_probe(void)
+{
+    struct SysCfg syscfg;
+    const struct SysCfgEntry *codec = NULL;
+    const struct SysCfgEntry *model = NULL;
+    const struct SysCfgEntry *hardware = NULL;
+    char codec_text[17];
+    char model_text[17];
+    ssize_t result;
+    size_t entries;
+
+    memset(&syscfg, 0, sizeof(syscfg));
+    result = syscfg_read(&syscfg);
+
+    lcd_set_background(LCD_BLACK);
+    lcd_set_foreground(LCD_WHITE);
+    lcd_clear_display();
+    lcd_setfont(FONT_SYSFIXED);
+    line = 0;
+    printf("N3G SYSCFG READ-ONLY");
+    printf("NOR READ / NO NAND");
+    printf("RC %ld MAGIC %08lx", (long)result,
+           (unsigned long)syscfg.header.magic);
+
+    if (result == -1 || syscfg.header.magic != SYSCFG_MAGIC)
+    {
+        printf("SCfg NOT FOUND");
+        printf("NO NAND/NOR WRITES");
+        lcd_update();
+        while (1)
+            ;
+    }
+
+    entries = MIN(syscfg.header.num_entries, SYSCFG_MAX_ENTRIES);
+    printf("SIZE %lu ENTRIES %lu",
+           (unsigned long)syscfg.header.size, (unsigned long)entries);
+    for (size_t i = 0; i < entries; i++)
+    {
+        const struct SysCfgEntry *entry = &syscfg.entries[i];
+
+        if (entry->tag == SYSCFG_TAG_CODC)
+            codec = entry;
+        else if (entry->tag == SYSCFG_TAG_MODN)
+            model = entry;
+        else if (entry->tag == SYSCFG_TAG_HWVR)
+            hardware = entry;
+    }
+
+    memset(codec_text, 0, sizeof(codec_text));
+    memset(model_text, 0, sizeof(model_text));
+    if (codec != NULL)
+    {
+        for (size_t i = 0; i < 16 && codec->data[i] != 0; i++)
+            codec_text[i] = codec->data[i] >= 0x20 && codec->data[i] <= 0x7e
+                          ? codec->data[i] : '.';
+        printf("CODC: %s", codec_text);
+        printf("CODC HEX %02x%02x%02x%02x %02x%02x%02x%02x",
+               codec->data[0], codec->data[1], codec->data[2], codec->data[3],
+               codec->data[4], codec->data[5], codec->data[6], codec->data[7]);
+        printf("         %02x%02x%02x%02x %02x%02x%02x%02x",
+               codec->data[8], codec->data[9], codec->data[10], codec->data[11],
+               codec->data[12], codec->data[13], codec->data[14], codec->data[15]);
+    }
+    else
+        printf("CODC: MISSING");
+
+    if (hardware != NULL)
+    {
+        const uint32_t *data32 = (const uint32_t *)hardware->data;
+        printf("HWVR: %08lx %08lx", (unsigned long)data32[0],
+               (unsigned long)data32[1]);
+    }
+    if (model != NULL)
+    {
+        for (size_t i = 0; i < 16 && model->data[i] != 0; i++)
+            model_text[i] = model->data[i] >= 0x20 && model->data[i] <= 0x7e
+                          ? model->data[i] : '.';
+        printf("MODEL: %s", model_text);
+    }
+    printf("REPORT CODC + HEX");
+    printf("SAFE HALT");
+    lcd_update();
+    while (1)
+        ;
+}
+#endif
+
 #ifndef S5L87XX_DEVELOPMENT_BOOTLOADER
 #ifdef HAVE_BOOTLOADER_USB_MODE
 static void usb_mode(void)
@@ -1560,6 +1648,9 @@ void main(void)
     n3g_lcd_ready = true;
 #if NANO3G_LCD_COLOR_PROBE
     nano3g_lcd_color_probe();
+#endif
+#if NANO3G_SYSCFG_PROBE
+    nano3g_syscfg_probe();
 #endif
 #endif
 

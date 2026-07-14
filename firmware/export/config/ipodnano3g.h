@@ -4,6 +4,13 @@
 
 #define IPOD_ARCH 1
 
+/* The metadata-driven WinPod mount is a read-only hardware candidate.  Keep
+ * the proven exact P9 mount as the default until the general path passes the
+ * volume-wide acceptance gates in ipodnano3g-completion-spec.md. */
+#ifndef NANO3G_NATIVE_FULL_READONLY_MOUNT
+#define NANO3G_NATIVE_FULL_READONLY_MOUNT 0
+#endif
+
 /* Nano 3G hardware bring-up guard.
  * Keep the application firmware guarded, but allow bootloader LCD/backlight
  * bring-up tests to touch target hardware.
@@ -13,6 +20,9 @@
 #define NANO3G_VISIBILITY_ONLY 1
 #define NANO3G_DISPLAY_BRINGUP 1
 #define NANO3G_LCD_COLOR_PROBE 0
+#ifndef NANO3G_SYSCFG_PROBE
+#define NANO3G_SYSCFG_PROBE 0
+#endif
 #define NANO3G_NATIVE_PRESTOR_ONLY 0
 #define NANO3G_NATIVE_SAFE_BOOT 0
 #define NANO3G_NATIVE_CHAIN 0
@@ -206,11 +216,12 @@
 /* The number of bytes reserved for loadable codecs */
 #define CODEC_SIZE 0x100000
 
-/* The number of bytes reserved for loadable plugins */
-/* Raised from 0x80000 to 0x200000: Nano 3G has 32 MB RAM (same as iPod 6G);
- * 512 KB was too small for cdogs.rock (~668 KB data). 2 MB is conservative
- * and leaves ~29 MB for the audio buffer. */
-#define PLUGIN_BUFFER_SIZE 0x200000
+/* The number of bytes reserved for loadable plugins.
+ * Nano 3G has the same 32 MiB RAM class as iPod Video/Classic, which both
+ * reserve 3 MiB.  Two MiB cannot link the configured ScummVM plugin (it is
+ * about 74 KiB over), so match those proven targets and retain roughly
+ * 28 MiB for the core and audio buffer. */
+#define PLUGIN_BUFFER_SIZE 0x300000
 
 // TODO: actually these are the nano2g defines
 #define BATTERY_CAPACITY_DEFAULT 400 /* default battery capacity */

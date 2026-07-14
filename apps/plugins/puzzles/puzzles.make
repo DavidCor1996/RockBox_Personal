@@ -16,13 +16,18 @@ PUZZLES_SHARED_OBJ = $(call c2obj, $(PUZZLES_SHARED_SRC))
 PUZZLES_GAMES_SRC = $(call preprocess, $(PUZZLES_SRCDIR)/SOURCES.games)
 PUZZLES_GAMES_OBJ = $(call c2obj, $(PUZZLES_GAMES_SRC))
 
+PUZZLES_UNFINISHED_SRC = $(filter $(PUZZLES_SRCDIR)/src/unfinished/%.c,$(PUZZLES_GAMES_SRC))
+PUZZLES_FINISHED_SRC = $(filter-out $(PUZZLES_UNFINISHED_SRC),$(PUZZLES_GAMES_SRC))
+
 PUZZLES_HELP_SRC = $(wildcard $(PUZZLES_SRCDIR)/help/*)
-PUZZLES_HELP_OBJ = $(call c2obj, $(PUZZLES_HELP_OBJ))
+PUZZLES_HELP_OBJ = $(call c2obj, $(PUZZLES_HELP_SRC))
 
 PUZZLES_SRC = $(PUZZLES_GAMES_SRC) $(PUZZLES_SHARED_SRC) $(PUZZLES_HELP_SRC)
 PUZZLES_OBJ = $(call c2obj, $(PUZZLES_SRC))
 
-PUZZLES_ROCKS = $(addprefix $(PUZZLES_OBJDIR)/sgt-, $(notdir $(PUZZLES_GAMES_SRC:.c=.rock)))
+PUZZLES_FINISHED_ROCKS = $(addprefix $(PUZZLES_OBJDIR)/sgt-, $(notdir $(PUZZLES_FINISHED_SRC:.c=.rock)))
+PUZZLES_UNFINISHED_ROCKS = $(addprefix $(PUZZLES_OBJDIR)/sgt-, $(notdir $(PUZZLES_UNFINISHED_SRC:.c=.rock)))
+PUZZLES_ROCKS = $(PUZZLES_FINISHED_ROCKS) $(PUZZLES_UNFINISHED_ROCKS)
 
 OTHER_SRC += $(PUZZLES_SRC)
 OTHER_INC += -I$(PUZZLES_SRCDIR)/src -I $(PUZZLES_SRCDIR)
@@ -44,14 +49,14 @@ PUZZLESFLAGS = -I$(PUZZLES_SRCDIR)/dummy $(filter-out			\
 		$(PUZZLES_SRCDIR)/rbcompat.h -ffunction-sections	\
 		-fdata-sections -w -Wl,--gc-sections
 
-$(PUZZLES_OBJDIR)/sgt-%.rock: $(PUZZLES_OBJDIR)/src/%.o $(PUZZLES_OBJDIR)/help/%.o $(PUZZLES_SHARED_OBJ) $(TLSFLIB)
+$(PUZZLES_FINISHED_ROCKS): $(PUZZLES_OBJDIR)/sgt-%.rock: $(PUZZLES_OBJDIR)/src/%.o $(PUZZLES_OBJDIR)/help/%.o $(PUZZLES_SHARED_OBJ) $(TLSFLIB)
 	$(call PRINTS,LD $(@F))$(CC) $(PLUGINFLAGS) -o $(PUZZLES_OBJDIR)/$*.elf \
 		$(filter %.o, $^) \
 		$(filter %.a, $+) \
 		-lgcc $(filter-out -Wl%.map, $(PLUGINLDFLAGS)) -Wl,$(LDMAP_OPT),$(PUZZLES_OBJDIR)/src/$*.map
 	$(SILENT)$(call objcopy_plugin,$(PUZZLES_OBJDIR)/$*.elf,$@)
 
-$(PUZZLES_OBJDIR)/sgt-%.rock: $(PUZZLES_OBJDIR)/src/unfinished/%.o $(PUZZLES_OBJDIR)/help/%.o $(PUZZLES_SHARED_OBJ) $(TLSFLIB)
+$(PUZZLES_UNFINISHED_ROCKS): $(PUZZLES_OBJDIR)/sgt-%.rock: $(PUZZLES_OBJDIR)/src/unfinished/%.o $(PUZZLES_OBJDIR)/help/%.o $(PUZZLES_SHARED_OBJ) $(TLSFLIB)
 	$(call PRINTS,LD $(@F))$(CC) $(PLUGINFLAGS) -o $(PUZZLES_OBJDIR)/$*.elf \
 		$(filter %.o, $^) \
 		$(filter %.a, $+) \

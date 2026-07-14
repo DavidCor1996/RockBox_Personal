@@ -93,9 +93,18 @@ PLUGINSUBDIRS := $(filter-out $(PLUGIN_EXCLUDES), $(PLUGINSUBDIRS))
 endif
 
 PLUGIN_LIBS := $(PLUGINLIB) $(PLUGINBITMAPLIB) $(SETJMPLIB) $(FIXEDPOINTLIB)
+PLUGIN_GENERATED_HEADERS := $(BUILDDIR)/sysfont.h $(BUILDDIR)/lang_enum.h
 
 # include <dir>.make from each subdir (yay!)
 $(foreach dir,$(PLUGINSUBDIRS),$(eval include $(dir)/$(notdir $(dir)).make))
+
+# Plugin sources commonly reach these generated core headers through
+# plugin.h, including from target-specific forced-include wrappers that the
+# global dependency scanner cannot reproduce.  Make the ordering explicit so
+# a clean parallel all-plugin build never relies on stale generated headers.
+PLUGIN_ALL_OBJ := $(call c2obj,$(filter-out %.lua,\
+	$(filter $(APPSDIR)/plugins/%,$(OTHER_SRC))))
+$(PLUGIN_ALL_OBJ): $(PLUGIN_GENERATED_HEADERS)
 
 OTHER_INC += -I$(APPSDIR)/plugins -I$(APPSDIR)/plugins/lib
 
@@ -208,6 +217,7 @@ ifdef USE_LTO
 endif
 
 $(BUILDDIR)/%.rock:
+	$(SILENT)mkdir -p $(dir $@)
 	$(call PRINTS,LD $(@F))$(CC) $(PLUGINFLAGS) -o $(BUILDDIR)/$*.elf \
 		$(filter %.o, $^) \
 		$(filter %.a, $+) \

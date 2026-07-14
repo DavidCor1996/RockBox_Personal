@@ -16,7 +16,10 @@
 #include "config.h"
 #include "inttypes.h"
 
-#ifdef BOOTLOADER
+/* Native Nano 3G storage remains read-only during bring-up.  This compiles
+ * the FTL write/erase machinery out of both bootloader and application builds
+ * instead of relying only on the low-level NAND failure stubs. */
+#if defined(BOOTLOADER) || defined(IPOD_NANO3G)
 #define FTL_READONLY
 #endif
 

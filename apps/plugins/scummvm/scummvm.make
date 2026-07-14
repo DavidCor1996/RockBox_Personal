@@ -15,10 +15,6 @@ SCUMMVM_OBJ := $(call c2obj, $(SCUMMVM_SRC))
 SCUMMVM_OBJ := $(SCUMMVM_OBJ:.cpp=.o)
 
 OTHER_SRC += $(SCUMMVM_SRC)
-OTHER_INC += -I$(SCUMMVMSRCDIR) \
-	-iquote $(SCUMMVMSRCDIR)/upstream-1.9.0 \
-	-iquote $(SCUMMVMSRCDIR)/upstream-1.9.0/engines \
-	-DHAVE_CONFIG_H -DSCUMM_LITTLE_ENDIAN
 
 SCUMMVMFLAGS = $(filter-out -O%,$(PLUGINFLAGS)) -Os
 SCUMMVM_CXXFLAGS = -iquote $(SCUMMVMSRCDIR)/upstream-1.9.0 \

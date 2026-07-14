@@ -5048,7 +5048,8 @@ static uint32_t ftl_n3g_direct_read_512(uint32_t lpn, uint8_t *out,
      * local path which reinitializes the bank first.  This is still strictly
      * read-only and avoids broad fallback scans.
      */
-    if (ret != 0 || lpn == 0x000dfe1du)
+    if (ret != 0 || (!NANO3G_NATIVE_FULL_READONLY_MOUNT
+                  && lpn == 0x000dfe1du))
     {
         int32_t body_rc;
         int32_t oob_rc;
@@ -5163,7 +5164,8 @@ static uint32_t ftl_n3g_direct_read(uint32_t sector, uint32_t count,
         uint32_t lpn = n3g_direct_sector_base
                      + host_lpn * n3g_direct_sector_scale;
 #if !defined(BOOTLOADER) && defined(NANO3G_NATIVE_STORAGE_PROBE) \
-    && NANO3G_NATIVE_STORAGE_PROBE
+    && NANO3G_NATIVE_STORAGE_PROBE \
+    && !NANO3G_NATIVE_FULL_READONLY_MOUNT
         /*
          * Disk-mode filefrag reports 512-byte LBAs, while this WinPod FAT32
          * volume uses 4096-byte sectors.  The current file begins at absolute
@@ -5189,6 +5191,7 @@ static uint32_t ftl_n3g_direct_read(uint32_t sector, uint32_t count,
             continue;
         }
 
+#if !NANO3G_NATIVE_FULL_READONLY_MOUNT
         if (n3g_direct_fsinfo_valid && host_lpn == n3g_direct_fsinfo_lpn)
         {
             memset(out, 0, 0x200);
@@ -5282,6 +5285,7 @@ static uint32_t ftl_n3g_direct_read(uint32_t sector, uint32_t count,
                 error = rc;
             continue;
         }
+#endif
 
         ftl_n3g_direct_trace_init(&trace);
         if (n3g_direct_boot_valid && host_lpn == n3g_direct_boot_lpn)
@@ -5703,11 +5707,25 @@ static uint32_t ftl_n3g_wmount_score_map_body(uint16_t *body,
 static uint32_t ftl_n3g_wmount_find_map_cluster(uint8_t *mbr_page,
                                                 struct n3g_wmount_map_candidate *best)
 {
+#if NANO3G_NATIVE_FULL_READONLY_MOUNT
+    /* Observed WinPod control metadata rotates among these mirrored pairs. */
+    static const uint32_t ranges[][2] =
+    {
+        { 1220, 1218 },
+        { 2822, 2820 },
+        { 5316, 5314 },
+        { 6168, 6166 },
+        { 6918, 6916 },
+    };
+    const uint32_t page_limit = 24;
+#else
     static const uint32_t ranges[][2] =
     {
         { 7168, 5632 },
         { 3072, 1024 },
     };
+    const uint32_t page_limit = 4;
+#endif
     uint32_t scanned = 0;
     uint32_t hits = 0;
     uint32_t printed = 0;
@@ -5715,7 +5733,7 @@ static uint32_t ftl_n3g_wmount_find_map_cluster(uint8_t *mbr_page,
     memset(best, 0, sizeof(*best));
     best->block = 6916;
     best->page = 0;
-    best->usn = 0;
+    best->usn = 0xffffffffu;
     best->score = 0;
 
     for (uint32_t ri = 0; ri < ARRAYLEN(ranges); ri++)
@@ -5728,7 +5746,7 @@ static uint32_t ftl_n3g_wmount_find_map_cluster(uint8_t *mbr_page,
                 FTL_PROGRESS("N3G_WMOUNT_MSCAN b=%lu",
                              (unsigned long)blk);
 
-            for (uint32_t page = 0; page < 4; page++)
+            for (uint32_t page = 0; page < page_limit; page++)
             {
                 uint32_t physpage = blk * ftl_nand_type->pagesperblock + page;
                 struct n3g_wmount_map_candidate cand;
@@ -5772,7 +5790,7 @@ static uint32_t ftl_n3g_wmount_find_map_cluster(uint8_t *mbr_page,
 
                 if (cand.score > best->score
                  || (cand.score == best->score && cand.score != 0
-                  && cand.usn > best->usn))
+                  && cand.usn < best->usn))
                     *best = cand;
             }
         }
@@ -5797,6 +5815,7 @@ static uint32_t ftl_n3g_wmount_load_map_pages(uint32_t map_block,
     uint32_t low_block = map_block > 256 ? map_block - 256 : 0;
     uint32_t high_block = map_block + 256;
     uint32_t page_limit = ftl_nand_type->pagesperblock;
+    uint32_t bank_limit = ftl_banks;
     uint32_t scan_hits = 0;
 
     if (high_block >= ftl_nand_type->blocks)
@@ -5812,11 +5831,22 @@ static uint32_t ftl_n3g_wmount_load_map_pages(uint32_t map_block,
      * is contrary to the bounded current-state steering.  Keep the transient
      * native probe on the verified adjacent cluster.
      */
+#if NANO3G_NATIVE_FULL_READONLY_MOUNT
+    low_block = map_block & ~1u;
+#else
     low_block = map_block;
+#endif
     high_block = map_block + 1;
+    if (low_block != map_block)
+        high_block = low_block + 1;
     if (high_block >= ftl_nand_type->blocks)
         high_block = ftl_nand_type->blocks - 1;
+#if NANO3G_NATIVE_FULL_READONLY_MOUNT
+    page_limit = 24;
+    bank_limit = 1;
+#else
     page_limit = 8;
+#endif
 #endif
 
     n3g_direct_map_loaded_entries = ARRAYLEN(ftl_map);
@@ -5825,7 +5855,7 @@ static uint32_t ftl_n3g_wmount_load_map_pages(uint32_t map_block,
     {
         for (uint32_t page = 0; page < page_limit; page++)
         {
-            for (uint32_t bank = 0; bank < ftl_banks; bank++)
+            for (uint32_t bank = 0; bank < bank_limit; bank++)
             {
                 uint32_t physpage = block * ftl_nand_type->pagesperblock + page;
                 uint32_t idx;
@@ -5842,7 +5872,9 @@ static uint32_t ftl_n3g_wmount_load_map_pages(uint32_t map_block,
                     continue;
 
                 idx = ftl_sparebuffer[0].meta.idx;
-                if (idx >= 8)
+                if ((ftl_sparebuffer[0].meta.type == 0x44 && idx >= 8)
+                 || (ftl_sparebuffer[0].meta.type == 0x45
+                  && idx >= ARRAYLEN(n3g_log_offsets)))
                     continue;
 
                 scan_hits++;
@@ -5921,7 +5953,11 @@ static uint32_t ftl_n3g_wmount_load_map_pages(uint32_t map_block,
 
 static uint32_t ftl_n3g_wmount_load_cxt_map_pages(void)
 {
-    static const uint32_t ctx_blocks[] = { 2820, 2821, 6916, 6917 };
+    static const uint32_t ctx_blocks[] =
+    {
+        1218, 1219, 2820, 2821, 5314,
+        5315, 6166, 6167, 6916, 6917,
+    };
     uint32_t best_usn = 0xffffffffu;
     uint32_t best_bank = 0xffffffffu;
     uint32_t best_block = 0xffffffffu;
@@ -5931,12 +5967,18 @@ static uint32_t ftl_n3g_wmount_load_cxt_map_pages(void)
     uint32_t loaded = 0;
     uint32_t max_idx = 0;
     uint32_t ctx_page_limit = ftl_nand_type->pagesperblock;
+    uint32_t ctx_bank_limit = ftl_banks;
 
 #if defined(IPOD_NANO3G) && !defined(BOOTLOADER) \
     && defined(NANO3G_NATIVE_STORAGE_PROBE) \
     && NANO3G_NATIVE_STORAGE_PROBE
-    /* Current captured context/control metadata is confined to page 0..7. */
+    /* Bound the control-ring scan; the current generation reaches page 9. */
+#if NANO3G_NATIVE_FULL_READONLY_MOUNT
+    ctx_page_limit = 24;
+    ctx_bank_limit = 1;
+#else
     ctx_page_limit = 8;
+#endif
 #endif
 
     memset(&best_cxt, 0, sizeof(best_cxt));
@@ -5954,7 +5996,7 @@ static uint32_t ftl_n3g_wmount_load_cxt_map_pages(void)
     {
         uint32_t block = ctx_blocks[bi];
 
-        for (uint32_t bank = 0; bank < ftl_banks; bank++)
+        for (uint32_t bank = 0; bank < ctx_bank_limit; bank++)
         {
             for (uint32_t pageoff = 0;
                  pageoff < ctx_page_limit; pageoff++)
@@ -6102,7 +6144,9 @@ static uint32_t ftl_n3g_wmount_load_cxt_map_pages(void)
             idx = ftl_sparebuffer[0].meta.idx;
             if ((ftl_sparebuffer[0].meta.type != 0x44
               && ftl_sparebuffer[0].meta.type != 0x45)
-             || idx >= 8)
+             || (ftl_sparebuffer[0].meta.type == 0x44 && idx >= 8)
+             || (ftl_sparebuffer[0].meta.type == 0x45
+              && idx >= ARRAYLEN(n3g_log_offsets)))
                 continue;
 
             if (0 && crefv_printed < 16)
@@ -6189,7 +6233,9 @@ static uint32_t ftl_n3g_wmount_load_cxt_map_pages(void)
             idx = ftl_sparebuffer[0].meta.idx;
             if ((ftl_sparebuffer[0].meta.type != 0x44
               && ftl_sparebuffer[0].meta.type != 0x45)
-             || idx >= 8)
+             || (ftl_sparebuffer[0].meta.type == 0x44 && idx >= 8)
+             || (ftl_sparebuffer[0].meta.type == 0x45
+              && idx >= ARRAYLEN(n3g_log_offsets)))
                 continue;
 
             if (0 && cref_printed < 8)
@@ -6208,12 +6254,14 @@ static uint32_t ftl_n3g_wmount_load_cxt_map_pages(void)
 
             if (ftl_sparebuffer[0].meta.type == 0x45 && l45_pages < 4)
             {
+#if !NANO3G_NATIVE_FULL_READONLY_MOUNT
                 uint32_t nz = 0;
                 uint32_t ff = 0;
                 uint32_t low = 0;
                 uint32_t shown = 0;
-                uint16_t *h = (uint16_t *)ftl_buffer;
                 uint32_t *w = (uint32_t *)ftl_buffer;
+#endif
+                uint16_t *h = (uint16_t *)ftl_buffer;
 
                 memset(ftl_buffer, 0, sizeof(ftl_buffer));
                 rc_body = nano3g_nand_diag_local_read(bank, physpage, 0,
@@ -6221,6 +6269,7 @@ static uint32_t ftl_n3g_wmount_load_cxt_map_pages(void)
                                               0x800 / sizeof(uint32_t));
                 if (rc_body == 0)
                 {
+#if !NANO3G_NATIVE_FULL_READONLY_MOUNT
                     for (uint32_t sj = 0; sj < 0x400; sj++)
                     {
                         if (h[sj] != 0)
@@ -6244,9 +6293,11 @@ static uint32_t ftl_n3g_wmount_load_cxt_map_pages(void)
                                  (unsigned long)w[1],
                                  (unsigned long)w[2],
                                  (unsigned long)w[3]);
+#endif
                     ftl_n3g_load_l45_tables(block, pageoff, idx,
                                             ftl_sparebuffer[0].meta.usn, h);
 
+#if !NANO3G_NATIVE_FULL_READONLY_MOUNT
                     for (uint32_t sj = 0; sj < 0x400 && shown < 12; sj++)
                     {
                         uint32_t v = h[sj];
@@ -6308,6 +6359,7 @@ static uint32_t ftl_n3g_wmount_load_cxt_map_pages(void)
                             l45_cover_a++;
                         shown++;
                     }
+#endif
                 }
 
                 l45_pages++;
@@ -6457,7 +6509,7 @@ static void ftl_n3g_wmount_probe_known_l45_pages(void)
                      (unsigned long)ftl_sparebuffer[0].meta.usn);
 
         if (rc_oob != 0 || ftl_sparebuffer[0].meta.type != 0x45
-         || idx >= 8)
+         || idx >= ARRAYLEN(n3g_log_offsets))
             continue;
 
         memset(ftl_buffer, 0, sizeof(ftl_buffer));
@@ -9900,9 +9952,14 @@ static uint32_t ftl_n3g_winpod_mount(void)
                      (unsigned long)part_start, (unsigned long)part_size);
 
     ftl_n3g_wmount_load_map_pages(map_block, map_usn);
+#if NANO3G_NATIVE_FULL_READONLY_MOUNT
+    /* The context supplies current log ownership and any non-local map refs. */
+    ftl_n3g_wmount_load_cxt_map_pages();
+#else
     if (n3g_direct_map_max_idx == 0)
         ftl_n3g_wmount_load_cxt_map_pages();
     ftl_n3g_wmount_probe_known_l45_pages();
+#endif
     N3G_NATIVE_STORAGE_STAGE(7);
     if (0 && n3g_direct_map_max_idx == 0)
         FTL_PROGRESS("N3G_DSCAN_SKIP targeted_l45");
@@ -11042,7 +11099,8 @@ static uint32_t ftl_n3g_winpod_mount(void)
             boot_sector_ok = 1;
             scale = bps / 512;
             fsinfo = (uint32_t)b[0x30] | ((uint32_t)b[0x31] << 8);
-            if (fsinfo != 0 && scale != 0)
+            if (!NANO3G_NATIVE_FULL_READONLY_MOUNT
+             && fsinfo != 0 && scale != 0)
             {
                 n3g_direct_fsinfo_valid = 1;
                 n3g_direct_fsinfo_lpn = part_start + fsinfo * scale;
@@ -11097,7 +11155,11 @@ static uint32_t ftl_n3g_winpod_mount(void)
             FTL_PROGRESS("N3G_WMOUNT_READY mbrj=%lu mbrpo=%lu xmap=0 st=%08lx sz=%08lx",
                          (unsigned long)mbr_j, (unsigned long)mbr_po,
                          (unsigned long)part_start, (unsigned long)part_size);
+#if NANO3G_NATIVE_FULL_READONLY_MOUNT
+        return -1;
+#else
         return 0;
+#endif
     }
 
     if (0)
@@ -14629,7 +14691,16 @@ uint32_t ftl_init(void)
      * 3G discovery path made a successful application boot take minutes even
      * though none of its results were needed by this exact synthetic view.
      */
+#if NANO3G_NATIVE_FULL_READONLY_MOUNT
+    if (ftl_n3g_winpod_mount() == 0)
+    {
+        DEBUGF("FTL: N3G full read-only map mounted\n");
+        return 0;
+    }
+    return -1;
+#else
     return ftl_n3g_physrb_mount();
+#endif
 #else
     if (ftl_n3g_winpod_mount() == 0)
     {
