@@ -2748,6 +2748,10 @@ The `87021.0` format-2 wrapper has three exact `75712`-byte length fields,
 2024 zero padding bytes, the byte-identical body at offset 2048, and no tail.
 The compiled 206-entry table matches the formulas derived from all eight
 physical blocks and both OOB manifests.  Both Nano 3G replay suites pass all
-18 tests.  The next physical boundary is the screen after transient DFU
-upload: confirm the guarded continuation screen, P9 splash colors, boot time,
-and first application UI.
+18 tests.  The owned Nano was in responsive genuine BootROM DFU
+`05ac:1223`, serial `87020000000001`; the artifact was uploaded at 23:12 ADT
+on 2026-07-13.  Haxed DFU entry, Nano-3G image parsing, `dfuMANIFEST`, and
+`Image sent` all completed successfully.  The owner reported that the result
+"looks great."  This hardware-validates the new exact extent, full
+application entry, and P9 display path together.  Music playback and
+systematic plugin loading remain separate, unproven bring-up stages.
