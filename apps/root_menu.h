@@ -27,6 +27,11 @@
 void root_menu(void) NORETURN_ATTR;
 bool root_menu_videos_browser_active(void);
 bool root_menu_ipodjs_native_screen_active(void);
+#ifdef HAVE_IPODJS_UI
+void root_menu_ipodjs_enter_wps_frame(void);
+void root_menu_ipodjs_leave_wps_frame(void);
+void root_menu_ipodjs_draw_wps_frame(void);
+#endif
 struct menu_table {
     char *string;
     const struct menu_item_ex *item;

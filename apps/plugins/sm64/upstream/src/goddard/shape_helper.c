@@ -131,6 +131,10 @@ static struct ObjGroup *D_801BAD08; // group of planes from make_netfromshape
 static u8 sUnrefSpaceD10[0x20];     // @ 801BAD10
 static struct GdVec3f D_801BAD30;   // printed with "c="
 static u8 sUnrefSpaceD40[0x120];    // @ 801BAD40
+/* Large parser/grid work arrays cannot live on Rockbox's 8 KiB main stack. */
+static struct ObjVertex *sObjVtxArr[4000];
+static struct ObjFace *sObjFaceArr[4000];
+static void *sGridObjBuf[32][32];
 
 // Forward Declarations
 struct ObjMaterial *find_or_add_new_mtl(struct ObjGroup *, s32, f32, f32, f32);
@@ -745,8 +749,6 @@ void get_OBJ_shape(struct ObjShape *shape) {
     s32 faceVtxIndex;
     struct GdVec3f tempVec;
     struct ObjFace *newFace;
-    struct ObjVertex *vtxArr[4000];
-    struct ObjFace *faceArr[4000];
     s32 faceCount = 0;
     s32 vtxCount = 0;
 
@@ -763,8 +765,8 @@ void get_OBJ_shape(struct ObjShape *shape) {
                 getfloat(&tempVec.y);
                 getfloat(&tempVec.z);
 
-                vtxArr[vtxCount] = gd_make_vertex(tempVec.x, tempVec.y, tempVec.z);
-                func_8019807C(vtxArr[vtxCount]);
+                sObjVtxArr[vtxCount] = gd_make_vertex(tempVec.x, tempVec.y, tempVec.z);
+                func_8019807C(sObjVtxArr[vtxCount]);
                 vtxCount++;
 
                 if (vtxCount >= 4000) {
@@ -776,7 +778,7 @@ void get_OBJ_shape(struct ObjShape *shape) {
 
             case 'f':
                 newFace = make_face_with_colour(faceClr.r, faceClr.g, faceClr.b);
-                faceArr[faceCount] = newFace;
+                sObjFaceArr[faceCount] = newFace;
                 faceCount++;
 
                 if (faceCount >= 4000) {
@@ -792,7 +794,7 @@ void get_OBJ_shape(struct ObjShape *shape) {
                     }
 
                     /* .obj vertex list is 1-indexed */
-                    newFace->vertices[curFaceVtx] = vtxArr[faceVtxIndex - 1];
+                    newFace->vertices[curFaceVtx] = sObjVtxArr[faceVtxIndex - 1];
                     curFaceVtx++;
 
                     if (is_line_end(get_current_buf_char())) {
@@ -827,8 +829,8 @@ void get_OBJ_shape(struct ObjShape *shape) {
         clear_buf_to_cr();
     }
 
-    shape->vtxGroup = make_group_of_type(OBJ_TYPE_VERTICES, (struct GdObj *) vtxArr[0], NULL);
-    shape->faceGroup = make_group_of_type(OBJ_TYPE_FACES, (struct GdObj *) faceArr[0], NULL);
+    shape->vtxGroup = make_group_of_type(OBJ_TYPE_VERTICES, (struct GdObj *) sObjVtxArr[0], NULL);
+    shape->faceGroup = make_group_of_type(OBJ_TYPE_FACES, (struct GdObj *) sObjFaceArr[0], NULL);
 }
 
 /* @ 247760 for 0x124; orig name: func_80198F90 */
@@ -1065,7 +1067,6 @@ struct GdFile *get_shape_from_file(struct ObjShape *shape, char *fileName) {
 /* @ 247F78 for 0x69c; orig name: Unknown801997A8 */
 struct ObjShape *make_grid_shape(enum ObjTypeFlag gridType, s32 a1, s32 a2, s32 a3, s32 a4) {
     UNUSED u32 pad1074;
-    void *objBuf[32][32]; // vertex or particle depending on gridType
     f32 sp70;
     f32 sp6C;
     f32 sp68;
@@ -1116,11 +1117,11 @@ struct ObjShape *make_grid_shape(enum ObjTypeFlag gridType, s32 a1, s32 a2, s32 
         for (row = 0; row <= a3; row++) {
             gridShape->vtxCount++;
             if (gridType == OBJ_TYPE_VERTICES) {
-                objBuf[row][col] = gd_make_vertex(sp68, sp6C, sp70);
+                sGridObjBuf[row][col] = gd_make_vertex(sp68, sp6C, sp70);
             } else if (gridType == OBJ_TYPE_PARTICLES) {
-                objBuf[row][col] = make_particle(0, 0, sp68, sp6C + 2.0f, sp70);
-                ((struct ObjParticle *) objBuf[row][col])->unk44 = (1.0 + sp68) / 2.0;
-                ((struct ObjParticle *) objBuf[row][col])->unk48 = (1.0 + sp70) / 2.0;
+                sGridObjBuf[row][col] = make_particle(0, 0, sp68, sp6C + 2.0f, sp70);
+                ((struct ObjParticle *) sGridObjBuf[row][col])->unk44 = (1.0 + sp68) / 2.0;
+                ((struct ObjParticle *) sGridObjBuf[row][col])->unk48 = (1.0 + sp70) / 2.0;
             }
             sp68 += sp44;
         }
@@ -1147,26 +1148,26 @@ struct ObjShape *make_grid_shape(enum ObjTypeFlag gridType, s32 a1, s32 a2, s32 
                 sp40 = D_801BAC9C;
             }
 
-            add_3_vtx_to_face(D_801BAC9C, objBuf[row][col + 1], objBuf[row + 1][col + 1],
-                              objBuf[row][col]);
-            add_3_vtx_to_face(D_801BACA0, objBuf[row + 1][col + 1], objBuf[row + 1][col],
-                              objBuf[row][col]);
+            add_3_vtx_to_face(D_801BAC9C, sGridObjBuf[row][col + 1], sGridObjBuf[row + 1][col + 1],
+                              sGridObjBuf[row][col]);
+            add_3_vtx_to_face(D_801BACA0, sGridObjBuf[row + 1][col + 1], sGridObjBuf[row + 1][col],
+                              sGridObjBuf[row][col]);
         }
     }
 
     if (gridType == OBJ_TYPE_PARTICLES) {
         for (parI = 0; parI <= a3; parI++) {
-            ((struct ObjParticle *) objBuf[parI][0])->unk54 |= 2;
-            ((struct ObjParticle *) objBuf[parI][a4])->unk54 |= 2;
+            ((struct ObjParticle *) sGridObjBuf[parI][0])->unk54 |= 2;
+            ((struct ObjParticle *) sGridObjBuf[parI][a4])->unk54 |= 2;
         }
 
         for (parI = 0; parI <= a4; parI++) {
-            ((struct ObjParticle *) objBuf[0][parI])->unk54 |= 2;
-            ((struct ObjParticle *) objBuf[a3][parI])->unk54 |= 2;
+            ((struct ObjParticle *) sGridObjBuf[0][parI])->unk54 |= 2;
+            ((struct ObjParticle *) sGridObjBuf[a3][parI])->unk54 |= 2;
         }
     }
 
-    parOrVtxGrp = make_group_of_type(gridType, (struct GdObj *) objBuf[0][0], NULL);
+    parOrVtxGrp = make_group_of_type(gridType, (struct GdObj *) sGridObjBuf[0][0], NULL);
     gridShape->vtxGroup = parOrVtxGrp;
     gridShape->mtlGroup = mtlGroup;
 

@@ -13,9 +13,11 @@ from services.file_safety import atomic_write_json
 SUPPORTED_PHOTO_EXTENSIONS = {".bmp", ".gif", ".jpg", ".jpe", ".jpeg", ".png", ".ppm"}
 PHOTO_TARGET_DIR = "Photos"
 PHOTO_THUMB_DIR = "Photos/.photo_thumbs"
+PHOTO_PREVIEW_DIR = "Photos/.photo_previews"
 DEVICE_PHOTO_MAX_SIZE = (800, 800)
 DEVICE_PHOTO_JPEG_QUALITY = 85
 THUMBNAIL_MAX_SIZE = (64, 48)
+PREVIEW_MAX_SIZE = (320, 320)
 HIDDEN_PHOTOS_FILE = ".hidden_photos.json"
 
 
@@ -156,8 +158,10 @@ class RockboxPhotoService:
     def build_sync_bundle(self, profile, photos, target_mode="device"):
         target_dir = self._photo_target_dir(profile, target_mode).rstrip("/")
         thumb_dir = self._photo_thumb_dir(profile, target_mode).rstrip("/")
+        preview_dir = self._photo_preview_dir(profile, target_mode).rstrip("/")
         assets = []
         thumb_destinations = set()
+        preview_destinations = set()
         for photo in photos:
             prepared = self._prepare_photo_for_device(profile, photo, target_mode)
             relpath = prepared["device_relative_path"].lstrip("/")
@@ -187,6 +191,23 @@ class RockboxPhotoService:
                     "preserve_metadata": False,
                 }
             )
+            preview_destination = f"{preview_dir}/{relpath}.bmp"
+            preview_exists = bool(
+                prepared["preview_abs"] and os.path.isfile(prepared["preview_abs"])
+            )
+            if preview_exists:
+                preview_destinations.add(preview_destination)
+            assets.append(
+                {
+                    "kind": "photo_preview",
+                    "source_rel": photo["relative_path"].lstrip("/"),
+                    "source_abs": prepared["preview_abs"],
+                    "destination_rel": preview_destination,
+                    "exists": preview_exists,
+                    "size": prepared.get("preview_size", 0),
+                    "preserve_metadata": False,
+                }
+            )
             original_relpath = photo["relative_path"].lstrip("/")
             if original_relpath and original_relpath != relpath:
                 assets.append(
@@ -209,9 +230,24 @@ class RockboxPhotoService:
                         "action": "remove",
                     }
                 )
+                assets.append(
+                    {
+                        "kind": "photo_stale_preview",
+                        "source_rel": "",
+                        "source_abs": "",
+                        "destination_rel": f"{preview_dir}/{original_relpath}.bmp",
+                        "exists": False,
+                        "action": "remove",
+                    }
+                )
         assets.extend(
             self._missing_device_thumbnail_assets(
                 profile, target_mode, target_dir, thumb_dir, thumb_destinations
+            )
+        )
+        assets.extend(
+            self._missing_device_preview_assets(
+                profile, target_mode, preview_dir, preview_destinations
             )
         )
         return {
@@ -223,6 +259,7 @@ class RockboxPhotoService:
     def build_remove_bundle(self, profile, photos, target_mode="device"):
         target_dir = self._photo_target_dir(profile, target_mode).rstrip("/")
         thumb_dir = self._photo_thumb_dir(profile, target_mode).rstrip("/")
+        preview_dir = self._photo_preview_dir(profile, target_mode).rstrip("/")
         assets = []
         for photo in photos:
             relpath = str(photo.get("device_relative_path") or self._device_photo_relpath(photo["relative_path"])).lstrip("/")
@@ -232,6 +269,16 @@ class RockboxPhotoService:
                     "source_rel": "",
                     "source_abs": "",
                     "destination_rel": f"{target_dir}/{relpath}",
+                    "exists": False,
+                    "action": "remove",
+                }
+            )
+            assets.append(
+                {
+                    "kind": "photo_preview",
+                    "source_rel": "",
+                    "source_abs": "",
+                    "destination_rel": f"{preview_dir}/{relpath}.bmp",
                     "exists": False,
                     "action": "remove",
                 }
@@ -261,6 +308,10 @@ class RockboxPhotoService:
         target_dir = self._photo_target_dir(profile, target_mode).rstrip("/")
         return f"{target_dir}/.photo_thumbs"
 
+    def _photo_preview_dir(self, profile, target_mode="device"):
+        target_dir = self._photo_target_dir(profile, target_mode).rstrip("/")
+        return f"{target_dir}/.photo_previews"
+
     def _prepare_photo_for_device(self, profile, photo, target_mode="device"):
         source_path = str(photo.get("source_path") or "")
         relpath = str(photo.get("relative_path") or "").lstrip("/")
@@ -270,15 +321,19 @@ class RockboxPhotoService:
                 "device_relative_path": device_relpath,
                 "photo_abs": "",
                 "thumb_abs": "",
+                "preview_abs": "",
                 "photo_size": 0,
                 "thumb_size": 0,
+                "preview_size": 0,
             }
 
         cache_root = self._photo_cache_root(profile, target_mode)
         photo_cache = os.path.join(cache_root, "photos", device_relpath)
         thumb_cache = os.path.join(cache_root, "thumbs", f"{device_relpath}.bmp")
+        preview_cache = os.path.join(cache_root, "previews", f"{device_relpath}.bmp")
         os.makedirs(os.path.dirname(photo_cache), exist_ok=True)
         os.makedirs(os.path.dirname(thumb_cache), exist_ok=True)
+        os.makedirs(os.path.dirname(preview_cache), exist_ok=True)
 
         try:
             with Image.open(source_path) as image:
@@ -297,21 +352,28 @@ class RockboxPhotoService:
 
                 thumb = image.copy()
                 self._write_thumbnail(profile, thumb, thumb_cache)
+
+                preview = image.copy()
+                self._write_preview(preview, preview_cache)
         except (OSError, UnidentifiedImageError):
             return {
                 "device_relative_path": relpath,
                 "photo_abs": source_path,
                 "thumb_abs": "",
+                "preview_abs": "",
                 "photo_size": os.path.getsize(source_path),
                 "thumb_size": 0,
+                "preview_size": 0,
             }
 
         return {
             "device_relative_path": device_relpath,
             "photo_abs": photo_cache,
             "thumb_abs": thumb_cache,
+            "preview_abs": preview_cache,
             "photo_size": os.path.getsize(photo_cache),
             "thumb_size": os.path.getsize(thumb_cache),
+            "preview_size": os.path.getsize(preview_cache),
         }
 
     def _missing_device_thumbnail_assets(self, profile, target_mode, target_dir, thumb_dir, planned_destinations):
@@ -364,6 +426,62 @@ class RockboxPhotoService:
         except (OSError, UnidentifiedImageError):
             return True
 
+    def _missing_device_preview_assets(
+        self, profile, target_mode, preview_dir, planned_destinations
+    ):
+        target_root = self.photo_target_root(profile, target_mode)
+        if not target_root or not os.path.isdir(target_root):
+            return []
+
+        assets = []
+        cache_root = os.path.join(
+            self._photo_cache_root(profile, target_mode), "repair_previews"
+        )
+        for source_path in self._scan_photo_files(target_root):
+            relpath = self._relative_photo_path(target_root, source_path)
+            preview_destination = f"{preview_dir}/{relpath}.bmp"
+            if preview_destination in planned_destinations:
+                continue
+
+            preview_abs = os.path.join(
+                self.mount_root(profile, target_mode), preview_destination
+            )
+            if not self._preview_needs_repair(preview_abs, source_path):
+                continue
+
+            preview_cache = os.path.join(cache_root, f"{relpath}.bmp")
+            if not self._generate_preview_from_file(source_path, preview_cache):
+                continue
+
+            assets.append(
+                {
+                    "kind": "photo_preview_repair",
+                    "source_rel": relpath,
+                    "source_abs": preview_cache,
+                    "destination_rel": preview_destination,
+                    "exists": True,
+                    "size": os.path.getsize(preview_cache),
+                    "preserve_metadata": False,
+                }
+            )
+            planned_destinations.add(preview_destination)
+        return assets
+
+    @staticmethod
+    def _preview_needs_repair(preview_abs, source_abs):
+        if not os.path.isfile(preview_abs):
+            return True
+
+        try:
+            with Image.open(source_abs) as source:
+                source = ImageOps.exif_transpose(source)
+                source.thumbnail(PREVIEW_MAX_SIZE, Image.Resampling.LANCZOS)
+                expected_size = source.size
+            with Image.open(preview_abs) as preview:
+                return preview.format != "BMP" or preview.size != expected_size
+        except (OSError, UnidentifiedImageError):
+            return True
+
     def _generate_thumbnail_from_file(self, profile, source_path, thumb_cache):
         os.makedirs(os.path.dirname(thumb_cache), exist_ok=True)
         try:
@@ -375,9 +493,25 @@ class RockboxPhotoService:
             return False
         return os.path.isfile(thumb_cache)
 
+    def _generate_preview_from_file(self, source_path, preview_cache):
+        os.makedirs(os.path.dirname(preview_cache), exist_ok=True)
+        try:
+            with Image.open(source_path) as image:
+                image = ImageOps.exif_transpose(image)
+                image = self._rgb_image(image)
+                self._write_preview(image, preview_cache)
+        except (OSError, UnidentifiedImageError):
+            return False
+        return os.path.isfile(preview_cache)
+
     def _write_thumbnail(self, profile, image, thumb_cache):
         image.thumbnail(self._thumbnail_size(profile), Image.Resampling.LANCZOS)
         image.save(thumb_cache, "BMP")
+
+    @staticmethod
+    def _write_preview(image, preview_cache):
+        image.thumbnail(PREVIEW_MAX_SIZE, Image.Resampling.LANCZOS)
+        image.save(preview_cache, "BMP")
 
     def _photo_cache_root(self, profile, target_mode):
         source_repo = profile.get("source_repo_path") or os.getcwd()

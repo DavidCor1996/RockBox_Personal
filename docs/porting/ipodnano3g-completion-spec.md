@@ -63,7 +63,7 @@ true on hardware:
 | LCD/input/kernel | Native path validated, including correct P9 colors and all click-wheel controls. | Regression-check after storage/audio changes. |
 | Storage | NAND writes and erases are hard-disabled. A fast exact P9 mount boots the current image. A separately guarded general read-only FTL mount is prepared for metadata-driven testing. | Prove current metadata selection, FAT BPB/root, random files, full-package plugins/codecs, and repeated cold boots with different file extents. |
 | Plugins | Full plugin package builds. Core loading includes bounded retry for transient storage reads. | Load simple, large, overlay, game, and audio plugins from ordinary FAT paths; verify clean exit and API matching. |
-| Codec identity | The first transient NOR-only probe returned a valid eight-entry SysCfg (`RC 0`, `SCfg`, size 184), model `MA978`, hardware data `00000000 00140010`, and no `Codc` tag. The follow-up probe displays every tag and all 16 data bytes instead of assuming the Classic/6G tag set. It cannot program or erase NAND/NOR. | Capture the complete eight-entry screen. Use it with board-component evidence and original-firmware transaction recovery; do not infer a register map from the Nano 4G/6G Cirrus code. |
+| Codec identity | Both transient NOR-only probes completed. The full capture contains `SrNm`, `FwId`, `HwId`, `HwVr`, `SwVr`, `MLBN`, `Mod#`, and `Regn`; there is no `Codc` tag. Raw `HwVr` is `10 00 14 00`, model is `MA978`, and board number is `J5745AGCTY4LE`. | Recover the original-firmware audio transport and power/clock sequence and correlate it with board-component evidence; do not infer a register map from the Nano 4G/6G Cirrus code. |
 | Audio hardware | S5L8702 PCM and codec shims compile, but safe bring-up deliberately suppresses output and the active CS42L55 selection is documented as a placeholder. | Identify the codec, recover the original firmware's bus and power/reset/clock sequence, then run a mute-first guarded diagnostic tone. |
 | Music playback | Software codecs build, but storage and hardware PCM are not yet end-to-end. | WAV first, then FLAC/MP3, followed by lifecycle and long-play tests. |
 | Writes/persistence | Disabled by `FTL_READONLY`; deploy is performed only by Apple Disk Mode on the host. | Implement only after read-only FTL has broad coverage; require power-loss, remap, free-space, and recovery validation. |
@@ -162,8 +162,9 @@ Audio work is evidence-gated:
 1. The first read-only `SysCfg` probe completed: `Codc` is absent, `HwVr` is
    `00000000 00140010`, and the model is `MA978`.  This disproves the assumption
    that the Classic/6G `Codc` field can select the Nano 3G driver.
-2. Capture all eight SysCfg tags and their 16-byte payloads with the follow-up
-   NOR-only probe.  Unknown tags remain raw evidence rather than guessed names.
+2. The follow-up NOR-only probe captured all eight SysCfg tags and their
+   16-byte payloads.  They are `SrNm`, `FwId`, `HwId`, `HwVr`, `SwVr`, `MLBN`,
+   `Mod#`, and `Regn`; no codec-specific entry exists.
 3. Compare the result and board wiring with the nearest Apple targets.  Board
    identification sources and the dormant `HAVE_WM1870` target declaration
    point to a Wolfson WM1870, while Nano 4G and iPod 6G use the materially
@@ -203,7 +204,8 @@ Until then:
 
 ## Current Next Hardware Boundary
 
-The next action is deliberately narrow: reset the Nano into BootROM DFU and run
-the updated volatile type-2 SysCfg probe.  Report all eight tag names, tag hex
-values, and both eight-byte data rows.  The probe only reads NOR and safe-halts;
-codec, PCM, NAND, and NOR writes remain prohibited.
+The SysCfg capture gate is complete.  The next action is static recovery of the
+Nano 3G RetailOS codec address, packed control transport, power/reset/MCLK
+sequence, and mute-first register order.  No codec or PCM write probe may be
+built until that evidence is internally consistent.  NAND and NOR programming
+remain prohibited.

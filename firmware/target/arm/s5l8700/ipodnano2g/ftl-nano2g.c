@@ -5821,32 +5821,28 @@ static uint32_t ftl_n3g_wmount_load_map_pages(uint32_t map_block,
     if (high_block >= ftl_nand_type->blocks)
         high_block = ftl_nand_type->blocks - 1;
 
-#if defined(IPOD_NANO3G) && !defined(BOOTLOADER) \
-    && defined(NANO3G_NATIVE_STORAGE_PROBE) \
-    && NANO3G_NATIVE_STORAGE_PROBE
+#if NANO3G_NATIVE_FULL_READONLY_MOUNT
     /*
      * The captured current WinPod layout keeps the selected type-0x44 page
      * and its type-0x45 companions at the start of a two-block cluster.  The
      * old +/-256-block sweep costs hundreds of thousands of raw OOB reads and
-     * is contrary to the bounded current-state steering.  Keep the transient
-     * native probe on the verified adjacent cluster.
+     * is contrary to the bounded current-state steering.  Apply the same
+     * verified bound to the bootloader and application.
      */
-#if NANO3G_NATIVE_FULL_READONLY_MOUNT
     low_block = map_block & ~1u;
-#else
-    low_block = map_block;
-#endif
-    high_block = map_block + 1;
-    if (low_block != map_block)
-        high_block = low_block + 1;
+    high_block = low_block + 1;
     if (high_block >= ftl_nand_type->blocks)
         high_block = ftl_nand_type->blocks - 1;
-#if NANO3G_NATIVE_FULL_READONLY_MOUNT
     page_limit = 24;
     bank_limit = 1;
-#else
+#elif defined(IPOD_NANO3G) && !defined(BOOTLOADER) \
+    && defined(NANO3G_NATIVE_STORAGE_PROBE) \
+    && NANO3G_NATIVE_STORAGE_PROBE
+    low_block = map_block;
+    high_block = map_block + 1;
+    if (high_block >= ftl_nand_type->blocks)
+        high_block = ftl_nand_type->blocks - 1;
     page_limit = 8;
-#endif
 #endif
 
     n3g_direct_map_loaded_entries = ARRAYLEN(ftl_map);
@@ -5969,16 +5965,16 @@ static uint32_t ftl_n3g_wmount_load_cxt_map_pages(void)
     uint32_t ctx_page_limit = ftl_nand_type->pagesperblock;
     uint32_t ctx_bank_limit = ftl_banks;
 
-#if defined(IPOD_NANO3G) && !defined(BOOTLOADER) \
-    && defined(NANO3G_NATIVE_STORAGE_PROBE) \
-    && NANO3G_NATIVE_STORAGE_PROBE
-    /* Bound the control-ring scan; the current generation reaches page 9. */
 #if NANO3G_NATIVE_FULL_READONLY_MOUNT
+    /* Bound the control-ring scan in both the loader and application.  The
+     * current generation reaches page 9 and all observed control metadata is
+     * in bank 0. */
     ctx_page_limit = 24;
     ctx_bank_limit = 1;
-#else
+#elif defined(IPOD_NANO3G) && !defined(BOOTLOADER) \
+    && defined(NANO3G_NATIVE_STORAGE_PROBE) \
+    && NANO3G_NATIVE_STORAGE_PROBE
     ctx_page_limit = 8;
-#endif
 #endif
 
     memset(&best_cxt, 0, sizeof(best_cxt));
@@ -9783,7 +9779,17 @@ static uint32_t ftl_n3g_winpod_mount(void)
         mbr_po = selected.mbr_po;
         mbr_slot = selected.mbr_slot;
         mbr_found = 1;
+#if NANO3G_NATIVE_FULL_READONLY_MOUNT
+        FTL_PROGRESS("N3G_FULLRO_MAP b=%lu p=%lu u=%08lx",
+                     (unsigned long)selected.block,
+                     (unsigned long)selected.page,
+                     (unsigned long)selected.usn);
+#endif
     }
+#if NANO3G_NATIVE_FULL_READONLY_MOUNT
+    else
+        FTL_PROGRESS("N3G_FULLRO_MAP FAIL");
+#endif
     N3G_NATIVE_STORAGE_STAGE(5);
 
     memset(ftl_buffer, 0, sizeof(ftl_buffer));
@@ -9951,11 +9957,19 @@ static uint32_t ftl_n3g_winpod_mount(void)
                      (unsigned long)part_idx, part_type,
                      (unsigned long)part_start, (unsigned long)part_size);
 
-    ftl_n3g_wmount_load_map_pages(map_block, map_usn);
+    uint32_t fullro_map_pages =
+        ftl_n3g_wmount_load_map_pages(map_block, map_usn);
 #if NANO3G_NATIVE_FULL_READONLY_MOUNT
+    FTL_PROGRESS("N3G_FULLRO_MLOAD n=%lu max=%lu",
+                 (unsigned long)fullro_map_pages,
+                 (unsigned long)n3g_direct_map_max_idx);
     /* The context supplies current log ownership and any non-local map refs. */
-    ftl_n3g_wmount_load_cxt_map_pages();
+    uint32_t fullro_cxt_pages = ftl_n3g_wmount_load_cxt_map_pages();
+    FTL_PROGRESS("N3G_FULLRO_CLOAD n=%lu max=%lu",
+                 (unsigned long)fullro_cxt_pages,
+                 (unsigned long)n3g_direct_map_max_idx);
 #else
+    (void)fullro_map_pages;
     if (n3g_direct_map_max_idx == 0)
         ftl_n3g_wmount_load_cxt_map_pages();
     ftl_n3g_wmount_probe_known_l45_pages();
@@ -14669,14 +14683,16 @@ uint32_t ftl_init(void)
 #if !N3G_SCREEN_COMPACT
     FTL_PROGRESS("N3G_STAGE before_sanity_scan");
 #endif
-    return ftl_n3g_physrb_mount();
+#if NANO3G_NATIVE_FULL_READONLY_MOUNT
     if (ftl_n3g_winpod_mount() == 0)
+    {
+        DEBUGF("FTL: N3G full read-only map mounted\n");
         return 0;
+    }
     return -1;
-#if !N3G_SCREEN_COMPACT
-    FTL_PROGRESS("N3G_STAGE after_sanity_scan");
+#else
+    return ftl_n3g_physrb_mount();
 #endif
-    return -1;
 #endif
 #if defined(IPOD_NANO3G) && !defined(BOOTLOADER)
     N3G_NATIVE_STORAGE_STAGE(8);

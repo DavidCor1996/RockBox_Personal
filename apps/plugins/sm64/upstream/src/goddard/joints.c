@@ -649,7 +649,9 @@ void func_801903E8(struct ObjJoint *j, struct GdVec3f *a1, f32 x, f32 y, f32 z) 
 }
 
 /* 23EBB8 -> 23F184 */
-void func_80190574(s32 a0, struct ObjJoint *a1, struct ObjJoint *a2, f32 x, f32 y, f32 z) // sp278
+__attribute__((noinline)) void func_80190574(s32 a0, struct ObjJoint *a1,
+                                             struct ObjJoint *a2, f32 x,
+                                             f32 y, f32 z) // sp278
 {
     struct ObjJoint *sp274; // = a2?
     struct ObjJoint *sp270; // mid-point of stack array?

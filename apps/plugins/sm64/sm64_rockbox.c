@@ -70,6 +70,14 @@ unsigned int configKeyStickRight;
 
 static bool game_initialized;
 static bool gfx_initialized;
+static int log_fd = -1;
+/*
+ * Native Rockbox gives the main thread an 8 KiB stack. Keeping this 4.25 KiB
+ * staging buffer in produce_one_frame() left too little room for the first
+ * real level-script/render call (frames 1 and 2 only sleep). The simulator's
+ * host stack hid that overflow.
+ */
+static int16_t frame_audio_buffer[SAMPLES_HIGH * 4];
 
 static void show_boot_status(const char *status)
 {
@@ -106,7 +114,6 @@ void sm64_logf(const char *format, ...)
 {
     char line[256];
     va_list args;
-    int fd;
     int length;
 
     va_start(args, format);
@@ -114,14 +121,10 @@ void sm64_logf(const char *format, ...)
     va_end(args);
     if (length < 0)
         return;
-    fd = rb->open(SM64_LOG_PATH, O_WRONLY | O_CREAT | O_APPEND, 0666);
-    if (fd >= 0)
-    {
-        rb->fdprintf(fd, "%s\n", line);
-        /* Closing each breadcrumb commits its FAT directory entry even if a
-         * later hardware initialization step hangs or resets the device. */
-        rb->close(fd);
-    }
+    if (log_fd < 0)
+        log_fd = rb->open(SM64_LOG_PATH, O_WRONLY | O_CREAT | O_APPEND, 0666);
+    if (log_fd >= 0)
+        rb->fdprintf(log_fd, "%s\n", line);
 #ifdef SIMULATOR
     DEBUGF("SM64: %s\n", line);
 #endif
@@ -239,17 +242,24 @@ static void produce_one_frame(void)
 {
     int samples_left;
     uint32_t samples;
-    int16_t audio_buffer[SAMPLES_HIGH * 4];
+    const unsigned long frame = sm64_rb.frames;
+    const bool trace_frame = frame < 6 || (frame < 180 && frame % 10 == 0);
+    const long started = *rb->current_tick;
 
+    if (trace_frame)
+        sm64_logf("frame %lu begin tick=%ld", frame, started);
     gfx_start_frame();
     game_loop_one_iteration();
     samples_left = sm64_audio_api.buffered();
     samples = samples_left < sm64_audio_api.get_desired_buffered() ?
               SAMPLES_HIGH : SAMPLES_LOW;
-    create_next_audio_buffer(audio_buffer, samples);
-    create_next_audio_buffer(audio_buffer + samples * 2, samples);
-    sm64_audio_api.play((const uint8_t *)audio_buffer, samples * 4 * 2);
+    create_next_audio_buffer(frame_audio_buffer, samples);
+    create_next_audio_buffer(frame_audio_buffer + samples * 2, samples);
+    sm64_audio_api.play((const uint8_t *)frame_audio_buffer, samples * 4 * 2);
     gfx_end_frame();
+    if (trace_frame)
+        sm64_logf("frame %lu complete ticks=%ld rendered=%lu", frame,
+                  *rb->current_tick - started, sm64_rb.rendered_frames);
 }
 
 static bool unthrottled_test(void)
@@ -292,7 +302,6 @@ static void pace_frame(void)
 static enum plugin_status run_game(void)
 {
     void *main_pool;
-    bool skip_next = false;
     bool first_frame = true;
 
     show_boot_status("Loading memory...");
@@ -330,11 +339,8 @@ static enum plugin_status run_game(void)
     {
         long elapsed;
         sm64_rb.frame_started = *rb->current_tick;
-        sm64_rb.render_frame = !skip_next;
-        sm64_video_set_render_allowed(sm64_rb.render_frame);
-        if (skip_next)
-            sm64_rb.skipped_frames++;
-        skip_next = false;
+        sm64_rb.render_frame = true;
+        sm64_video_set_render_allowed(true);
         if (first_frame)
         {
             show_boot_status("Rendering first frame...");
@@ -349,10 +355,7 @@ static enum plugin_status run_game(void)
         sm64_rb.frames++;
         elapsed = *rb->current_tick - sm64_rb.frame_started;
         if (elapsed * 30 > HZ)
-        {
-            skip_next = true;
             sm64_rb.overruns++;
-        }
         if (sm64_rb.test_frames > 0 &&
             sm64_rb.frames >= (unsigned long)sm64_rb.test_frames)
             sm64_rb.quit = true;
@@ -415,11 +418,17 @@ enum plugin_status plugin_start(const void *parameter)
     sm64_logf("tlsf arena ready size=%lu", (unsigned long)size);
 #ifdef HAVE_ADJUSTABLE_CPU_FREQ
     rb->cpu_boost(true);
+    sm64_logf("cpu boost frequency=%ld", *rb->cpu_frequency);
 #endif
     backlight_ignore_timeout();
     sm64_logf("start arena=%lu", (unsigned long)size);
     status = run_game();
     cleanup();
+    if (log_fd >= 0)
+    {
+        rb->close(log_fd);
+        log_fd = -1;
+    }
     destroy_memory_pool(buffer);
     rb->plugin_release_audio_buffer();
     return status;

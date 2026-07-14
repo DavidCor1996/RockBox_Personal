@@ -379,6 +379,7 @@ static const unsigned char pf_dither_table[16] =
 #define ERROR_BUFFER_FULL   -2
 #define ERROR_NO_ARTISTS    -3
 #define ERROR_USER_ABORT    -4
+#define ERROR_DATABASE      -5
 
 /* current version for cover cache */
 #define CACHE_VERSION 6
@@ -765,31 +766,91 @@ static inline bool storage_mode_is_ssd(void)
 #endif
 }
 
+static char database_error[80] = "Database unavailable";
+
 static bool check_database(void)
 {
-    bool needwarn = true;
-    int spin = 5;
+    const long deadline = *rb->current_tick + 10 * HZ;
+    long next_revalidate = *rb->current_tick;
+    bool warned = false;
+    int revalidate_tries = 0;
 
-    struct tagcache_stat *stat = rb->tagcache_get_stat();
-
-    while ( !(stat->initialized && stat->ready) )
+    while (true)
     {
-        if (--spin > 0)
+        struct tagcache_stat *stat = rb->tagcache_get_stat();
+
+        if (stat->initialized && stat->ready)
+            return true;
+
+        /* A failed background header open can leave ready false even though
+         * the complete on-disk database is still valid. Revalidate only while
+         * tagcache is otherwise idle; tagcache_commit_finalize() serializes
+         * this header pass against database writers. */
+        if (stat->initialized && !stat->ready &&
+            stat->commit_step == 0 &&
+            (stat->scan_status == TAGCACHE_SCAN_IDLE ||
+             stat->scan_status == TAGCACHE_SCAN_UP_TO_DATE) &&
+            revalidate_tries < 3 &&
+            !TIME_BEFORE(*rb->current_tick, next_revalidate))
         {
-            rb->sleep(HZ/5);
+            revalidate_tries++;
+            rb->tagcache_commit_finalize();
+            next_revalidate = *rb->current_tick + HZ;
+            stat = rb->tagcache_get_stat();
+            if (stat->initialized && stat->ready)
+                return true;
         }
-        else if (needwarn)
+
+        if (!warned &&
+            !TIME_BEFORE(*rb->current_tick, deadline - 9 * HZ))
         {
-            needwarn = false;
+            warned = true;
             rb->splash(0, ID2P(LANG_TAGCACHE_BUSY));
         }
-        else
-            return false;
 
+        if (!TIME_BEFORE(*rb->current_tick, deadline))
+        {
+            rb->snprintf(database_error, sizeof(database_error),
+                         "Database unavailable\nstate:%d step:%d valid:%d",
+                         stat->scan_status, stat->commit_step,
+                         stat->readyvalid ? 1 : 0);
+            return false;
+        }
+
+        rb->sleep(HZ/10);
         rb->yield();
-        stat = rb->tagcache_get_stat();
     }
-    return true;
+}
+
+/* Album changes can coincide with a background database update or an audio
+ * refill. Do not turn one failed open into an empty album; give the core a
+ * short opportunity to finish and use the same safe idle-state recovery. */
+static bool start_tagcache_search(struct tagcache_search *tcs, int tag)
+{
+    const long deadline = *rb->current_tick + 2 * HZ;
+    bool revalidated = false;
+
+    do
+    {
+        if (rb->tagcache_search(tcs, tag))
+            return true;
+
+        struct tagcache_stat *stat = rb->tagcache_get_stat();
+        if (!revalidated && stat->initialized && !stat->ready &&
+            stat->commit_step == 0 &&
+            (stat->scan_status == TAGCACHE_SCAN_IDLE ||
+             stat->scan_status == TAGCACHE_SCAN_UP_TO_DATE))
+        {
+            revalidated = true;
+            rb->tagcache_commit_finalize();
+        }
+
+        rb->sleep(HZ/10);
+        rb->yield();
+    }
+    while (TIME_BEFORE(*rb->current_tick, deadline));
+
+    return false;
 }
 
 static bool progress_cancel(int step, int count, char *msg)
@@ -1368,7 +1429,7 @@ static int create_album_untagged(struct tagcache_search *tcs,
     draw_progressbar(0, total_count, STR_STEP_INDEXING_UNTAGGED);
 
     /* search tagcache for all <untagged> albums & save the albumartist seek pos */
-    if (rb->tagcache_search(tcs, tag_albumartist))
+    if (start_tagcache_search(tcs, tag_albumartist))
     {
         rb->tagcache_search_add_filter(tcs, tag_album, pf_idx.album_untagged_seek);
 
@@ -1439,6 +1500,8 @@ static int create_album_untagged(struct tagcache_search *tcs,
             }
         }
     }
+    else
+        return ERROR_DATABASE;
 
     return ret;
 }
@@ -1457,9 +1520,9 @@ static int build_artist_index(struct tagcache_search *tcs,
     /* artist names starts at beginning of buf */
     pf_idx.artist_names = *buf;
 
-    rb->tagcache_search(tcs, tag_albumartist);
+    if (!start_tagcache_search(tcs, tag_albumartist))
+        return ERROR_DATABASE;
     res = get_tcs_search_res(ePFS_ARTIST, tcs, &(*buf), bufsz);
-    rb->tagcache_search_finish(tcs);
     if (res < SUCCESS)
         return res;
 
@@ -1499,7 +1562,7 @@ static int assign_album_year(void)
 
         int album_year = 0;
 
-        if (rb->tagcache_search(&tcs, tag_year))
+        if (start_tagcache_search(&tcs, tag_year))
         {
             rb->tagcache_search_add_filter(&tcs, tag_album,
                                        pf_idx.album_index[album_idx].seek);
@@ -1514,6 +1577,8 @@ static int assign_album_year(void)
                     album_year = track_year;
             }
         }
+        else
+            return ERROR_DATABASE;
         rb->tagcache_search_finish(&tcs);
 
         pf_idx.album_index[album_idx].year = album_year;
@@ -1555,9 +1620,9 @@ static int create_album_index(void)
     /* album_names starts at the beginning of buf */
     pf_idx.album_names = buf;
 
-    rb->tagcache_search(&tcs, tag_album);
+    if (!start_tagcache_search(&tcs, tag_album))
+        return ERROR_DATABASE;
     res = get_tcs_search_res(ePFS_ALBUM, &tcs, &buf, &buf_size);
-    rb->tagcache_search_finish(&tcs);
     if (res < SUCCESS)
         return res;
 
@@ -1590,7 +1655,8 @@ static int create_album_index(void)
 
         if (pf_idx.album_index[j].artist_seek >= 0) { continue; }
 
-        rb->tagcache_search(&tcs, tag_albumartist);
+        if (!start_tagcache_search(&tcs, tag_albumartist))
+            return ERROR_DATABASE;
         rb->tagcache_search_add_filter(&tcs, tag_album, pf_idx.album_index[j].seek);
 
         last = 0;
@@ -2118,7 +2184,7 @@ static void create_track_index(const int slide_index)
 
     buf_ctx_lock();
 
-    if (!rb->tagcache_search(&tcs, tag_title))
+    if (!start_tagcache_search(&tcs, tag_title))
         goto fail;
     search_started = true;
 
@@ -2232,7 +2298,7 @@ static bool get_albumart_for_index_from_db(const int slide_index, char *buf,
     bool ret;
     char tcs_buf[TAGCACHE_BUFSZ];
     const long tcs_bufsz = sizeof(tcs_buf);
-    if (tcs.valid || !rb->tagcache_search(&tcs, tag_filename))
+    if (tcs.valid || !start_tagcache_search(&tcs, tag_filename))
         return false;
 
     /* find the first track of the album */
@@ -5079,6 +5145,11 @@ static bool init(void)
         error_wait("No albums found. Please enable database");
         return false;
     }
+    else if (ret == ERROR_DATABASE)
+    {
+        error_wait(database_error);
+        return false;
+    }
     else if (ret == ERROR_USER_ABORT)
         return false;
 
@@ -5580,7 +5651,7 @@ enum plugin_status plugin_start(const void *parameter)
 
     if (!check_database())
     {
-        error_wait("Please enable database");
+        error_wait(database_error);
         return PLUGIN_OK;
     }
     atexit(cleanup);

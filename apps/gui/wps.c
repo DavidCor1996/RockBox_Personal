@@ -114,11 +114,35 @@ char* wps_default_skin(enum screen_type screen)
     return skin_buf[screen];
 }
 
+static bool ipodjs_native_wps(void)
+{
+#if defined(IPOD_6G)
+    return global_settings.ui_engine == UI_ENGINE_IPODJS;
+#else
+    return false;
+#endif
+}
+
 static void update_non_static(void)
 {
+#if defined(IPOD_6G)
+    if (ipodjs_native_wps())
+    {
+        root_menu_ipodjs_draw_wps_frame();
+        return;
+    }
+#endif
     FOR_NB_SCREENS(i)
-    skin_update(WPS, i, SKIN_REFRESH_NON_STATIC);
+        skin_update(WPS, i, SKIN_REFRESH_NON_STATIC);
 }
+
+#if defined(IPOD_6G)
+static void ipodjs_wps_full_redraw(void)
+{
+    if (ipodjs_native_wps())
+        root_menu_ipodjs_draw_wps_frame();
+}
+#endif
 
 void wps_do_action(enum wps_do_action_type action, bool updatewps)
 {
@@ -245,7 +269,13 @@ static bool ffwd_rew(int button, bool seek_from_end)
                 }
 
                 gstate->ff_rewind_count = ff_rewind_count;
-                FOR_NB_SCREENS(i) skin_update(WPS, i, SKIN_REFRESH_PLAYER_PROGRESS | SKIN_REFRESH_DYNAMIC);
+                if (ipodjs_native_wps())
+                    update_non_static();
+                else
+                    FOR_NB_SCREENS(i)
+                        skin_update(WPS, i,
+                            SKIN_REFRESH_PLAYER_PROGRESS |
+                            SKIN_REFRESH_DYNAMIC);
                 break;
 
             case ACTION_WPS_STOPSEEK:
@@ -384,13 +414,18 @@ static void wps_lcd_activation_hook(unsigned short id, void *param)
 
 static void gwps_leave_wps(bool theme_enabled)
 {
-    if (theme_enabled) skin_render_inhibit_flush(true);
+    bool restore_skin_theme = theme_enabled && !ipodjs_native_wps();
+
+    if (restore_skin_theme)
+        skin_render_inhibit_flush(true);
     FOR_NB_SCREENS(i) {
         struct gui_wps *gwps = skin_get_gwps(WPS, i);
         gwps->display->scroll_stop();
-        if (theme_enabled) viewportmanager_theme_undo(i, skin_has_sbs(gwps));
+        if (restore_skin_theme)
+            viewportmanager_theme_undo(i, skin_has_sbs(gwps));
     }
-    if (theme_enabled) skin_render_inhibit_flush(false);
+    if (restore_skin_theme)
+        skin_render_inhibit_flush(false);
     #if defined(HAVE_LCD_ENABLE) || defined(HAVE_LCD_SLEEP)
     remove_event(LCD_EVENT_ACTIVATION, wps_lcd_activation_hook);
     #endif
@@ -399,6 +434,10 @@ static void gwps_leave_wps(bool theme_enabled)
     #ifdef HAVE_TOUCHSCREEN
     touchscreen_set_mode(global_settings.touch_mode);
     #endif
+#if defined(IPOD_6G)
+    if (ipodjs_native_wps())
+        root_menu_ipodjs_leave_wps_frame();
+#endif
 }
 
 static void restore_theme(void)
@@ -413,7 +452,13 @@ static void restore_theme(void)
 static void gwps_enter_wps(bool theme_enabled)
 {
     wps_state_init();
-    if (theme_enabled) restore_theme();
+#if defined(IPOD_6G)
+    if (ipodjs_native_wps())
+        root_menu_ipodjs_enter_wps_frame();
+    else
+#endif
+    if (theme_enabled)
+        restore_theme();
     FOR_NB_SCREENS(i) {
         struct gui_wps *gwps = skin_get_gwps(WPS, i);
         struct screen *display = gwps->display;
@@ -431,8 +476,11 @@ static void gwps_enter_wps(bool theme_enabled)
         #ifdef HAVE_BACKDROP_IMAGE
         skin_backdrop_show(gwps->data->backdrop_id);
         #endif
-        display->clear_display();
-        skin_update(WPS, i, SKIN_REFRESH_ALL);
+        if (!ipodjs_native_wps())
+        {
+            display->clear_display();
+            skin_update(WPS, i, SKIN_REFRESH_ALL);
+        }
     }
     #ifdef HAVE_TOUCHSCREEN
     struct gui_wps *gwps = skin_get_gwps(WPS, SCREEN_MAIN);
@@ -494,6 +542,10 @@ long gui_wps_show(void)
     bool last_hold = button_hold();
     #endif
     long last_left = 0, last_right = 0;
+#if defined(IPOD_6G)
+    bool ipodjs_volume_active = false;
+    long ipodjs_volume_until = 0;
+#endif
     struct wps_state *state = get_wps_state();
 
     ab_reset_markers();
@@ -501,6 +553,17 @@ long gui_wps_show(void)
 
     while ( 1 )
     {
+#if defined(IPOD_6G)
+        if (ipodjs_volume_active &&
+            TIME_AFTER(current_tick, ipodjs_volume_until))
+        {
+            ipodjs_volume_active = false;
+            global_status.last_volume_change = 0;
+            skin_request_full_update(WPS);
+            ipodjs_wps_full_redraw();
+            update = true;
+        }
+#endif
         bool hotkey = false;
         bool audio_paused = (audio_status() & AUDIO_STATUS_PAUSE)?true:false;
         if (state->paused != audio_paused) {
@@ -517,6 +580,10 @@ long gui_wps_show(void)
             skin_request_full_update(WPS);
             update = true;
             gwps_enter_wps(theme_enabled);
+#if defined(IPOD_6G)
+            if (global_settings.ui_engine == UI_ENGINE_IPODJS)
+                root_menu_ipodjs_draw_wps_frame();
+#endif
             theme_enabled = true;
         } else {
             gwps_caption_backlight(state);
@@ -525,16 +592,30 @@ long gui_wps_show(void)
                 last_hold = button_hold();
                 global_status.last_volume_change = 0;
                 skin_request_full_update(WPS);
+#if defined(IPOD_6G)
+                if (global_settings.ui_engine == UI_ENGINE_IPODJS)
+                    ipodjs_wps_full_redraw();
+#endif
                 update = true;
             }
             #endif
-            FOR_NB_SCREENS(i) {
-                #if defined(HAVE_LCD_ENABLE) || defined(HAVE_LCD_SLEEP)
-                if (lcd_active() || (i != SCREEN_MAIN))
-                    #endif
-                {
-                    bool full_update = skin_do_full_update(WPS, i);
-                    if (update || full_update) skin_update(WPS, i, full_update ? SKIN_REFRESH_ALL : SKIN_REFRESH_NON_STATIC);
+#if defined(IPOD_6G)
+            if (ipodjs_native_wps())
+                root_menu_ipodjs_draw_wps_frame();
+            else
+#endif
+            {
+                FOR_NB_SCREENS(i) {
+                    #if defined(HAVE_LCD_ENABLE) || defined(HAVE_LCD_SLEEP)
+                    if (lcd_active() || (i != SCREEN_MAIN))
+                        #endif
+                    {
+                        bool full_update = skin_do_full_update(WPS, i);
+                        if (update || full_update)
+                            skin_update(WPS, i, full_update ?
+                                        SKIN_REFRESH_ALL :
+                                        SKIN_REFRESH_NON_STATIC);
+                    }
                 }
             }
             update = false;
@@ -543,7 +624,14 @@ long gui_wps_show(void)
         if (exit) return do_wps_exit(button, bookmark);
         if (button && !IS_SYSEVENT(button)) storage_spin();
 
-        button = skin_wait_for_action(WPS, CONTEXT_WPS|ALLOW_SOFTLOCK, HZ/5);
+#if defined(IPOD_6G)
+        if (ipodjs_native_wps())
+            button = get_action(CONTEXT_WPS|ALLOW_SOFTLOCK, HZ/5);
+        else
+#endif
+            button = skin_wait_for_action(WPS,
+                                          CONTEXT_WPS|ALLOW_SOFTLOCK,
+                                          HZ/5);
         if (!(audio_status() & AUDIO_STATUS_PLAY)) exit = true;
         #ifdef HAVE_TOUCHSCREEN
         if (button == ACTION_TOUCHSCREEN) button = skintouch_to_wps();
@@ -595,6 +683,19 @@ long gui_wps_show(void)
             case ACTION_WPS_VOLUP:
             case ACTION_WPS_VOLDOWN:
                 adjust_volume(button == ACTION_WPS_VOLUP ? 1 : -1);
+#if defined(IPOD_6G)
+                if (global_settings.ui_engine == UI_ENGINE_IPODJS)
+                {
+                    /* The skin renderer normally performs only a dynamic
+                     * refresh for %mv.  The iPodJS WPS uses a complete drawn
+                     * player, so force full frames both when the temporary
+                     * volume scrubber appears and when it expires. */
+                    ipodjs_volume_active = true;
+                    ipodjs_volume_until = current_tick + HZ * 3 / 2 + 1;
+                    skin_request_full_update(WPS);
+                    ipodjs_wps_full_redraw();
+                }
+#endif
                 update = true; break;
 
             case ACTION_WPS_SEEKFWD:

@@ -5588,11 +5588,24 @@ static void tagcache_thread(void)
     }
     else if (temp_exists && db_file_exists(TAGCACHE_FILE_MASTER))
     {
-        /* Without a marker, a temp file beside a live master is ambiguous: it
-         * may be a scan awaiting commit, or stale cleanup from a completed
-         * commit. Replaying it could duplicate entries, so rebuild safely. */
-        logf("tagcache: ambiguous interrupted commit");
-        force_rebuild = true;
+        /* A temp file without a transaction marker was never allowed to
+         * modify the live set. If the deployed master is clean, keep the
+         * validated database and discard only the abandoned scan. This also
+         * handles a zero-byte database_tmp.tcd left by a cancelled scan.
+         * Rebuilding here used to delete a good database after boot while
+         * cached browser rows could still select the first track. */
+        if (db_master_state() == 1)
+        {
+            logf("tagcache: discard stale temp beside clean master");
+            remove_db_file(TAGCACHE_FILE_TEMP);
+            flush_db_storage();
+            temp_exists = false;
+        }
+        else
+        {
+            logf("tagcache: temp beside invalid master");
+            force_rebuild = true;
+        }
     }
 
     if (force_rebuild)

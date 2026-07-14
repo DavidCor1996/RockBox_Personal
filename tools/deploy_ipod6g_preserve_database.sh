@@ -8,6 +8,7 @@ firmware="${build_dir}/rockbox.ipod"
 package="${build_dir}/rockbox.zip"
 backup_dir=""
 had_database=0
+transaction_artifacts=()
 mount_source=""
 parent_disk=""
 disk_size=0
@@ -139,10 +140,18 @@ backup_dir="$(mktemp -d)"
 trap cleanup EXIT INT TERM HUP
 
 shopt -s nullglob
-database_files=(
-    "${mount_path}"/.rockbox/database*.tcd
-    "${mount_path}"/.rockbox/tagcache*.tcd
-)
+database_files=()
+for path in "${mount_path}"/.rockbox/database*.tcd \
+            "${mount_path}"/.rockbox/tagcache*.tcd; do
+    case "$(basename "${path}")" in
+        database_tmp.tcd|database_commit.tcd|database_hostcommit.tcd)
+            transaction_artifacts+=("${path}")
+            ;;
+        *)
+            database_files+=("${path}")
+            ;;
+    esac
+done
 if [ ! -s "${mount_path}/.rockbox/database_idx.tcd" ]; then
     echo "database guard: refusing deploy without a readable database_idx.tcd" >&2
     exit 1
@@ -157,6 +166,13 @@ for path in "${database_files[@]}"; do
     cp -a "${path}" "${backup_dir}/"
 done
 echo "database guard: backed up ${#database_files[@]} tagcache files"
+if [ "${#transaction_artifacts[@]}" -gt 0 ]; then
+    mkdir "${backup_dir}/transaction-artifacts"
+    for path in "${transaction_artifacts[@]}"; do
+        cp -a "${path}" "${backup_dir}/transaction-artifacts/"
+    done
+    echo "database guard: quarantined ${#transaction_artifacts[@]} transient transaction artifact(s)"
+fi
 
 unzip -oq "${package}" -d "${mount_path}"
 
@@ -165,6 +181,13 @@ if [ "${had_database}" -eq 1 ]; then
         cp -a "${path}" "${mount_path}/.rockbox/"
     done
 fi
+
+# A scan/commit temp file is not part of the live multi-file database. Never
+# carry one across a host deployment: firmware recovery may otherwise treat a
+# clean restored database as an interrupted transaction.
+rm -f "${mount_path}/.rockbox/database_tmp.tcd" \
+      "${mount_path}/.rockbox/database_commit.tcd" \
+      "${mount_path}/.rockbox/database_hostcommit.tcd"
 
 enable_tagcache_autoupdate
 verify_database_unchanged

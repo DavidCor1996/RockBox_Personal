@@ -283,6 +283,13 @@ static char* get_skin_filename(char *buf, size_t buf_size,
             else
 #endif
             {
+#if defined(IPOD_6G)
+                /* Keep Rockbox's stock WPS lifecycle, but select the iPodJS
+                 * presentation whenever the iPodJS shell is active. */
+                if (global_settings.ui_engine == UI_ENGINE_IPODJS)
+                    setting = "ipodjs-classic";
+                else
+#endif
                 setting = global_settings.wps_file;
                 ext = "wps";
             }

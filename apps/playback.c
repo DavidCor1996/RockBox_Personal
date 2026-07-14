@@ -1087,6 +1087,18 @@ static void audio_update_filebuf_watermark(int seconds)
     size_t bytes = 0;
 
 #ifdef HAVE_DISK_STORAGE
+    if (storage_get_ssd_mode())
+    {
+        /* Flash adapters do not need an HDD-sized spinup reserve. Keeping the
+         * large disk watermark here makes the buffering thread refill while
+         * foreground code is opening plugins and tagcache files, which can
+         * starve those small reads on iPod 6G flash conversions. */
+        if (seconds != 0)
+            buffer_margin = seconds;
+        seconds = 1;
+    }
+    else
+    {
     int spinup = storage_spinup_time();
 
     if (seconds == 0)
@@ -1114,6 +1126,7 @@ static void audio_update_filebuf_watermark(int seconds)
         seconds += 5;
 
     seconds += buffer_margin;
+    } /* !storage_get_ssd_mode() */
 #else
     /* flash storage */
     seconds = 1;

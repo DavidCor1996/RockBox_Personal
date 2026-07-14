@@ -32,6 +32,7 @@
 #include "strptokspn_r.h"
 #include "scrollbar.h"
 #include "font.h"
+#include "ipodjs_ui.h"
 #ifndef BOOTLOADER
 #include "misc.h" /* get_current_activity */
 #endif
@@ -70,10 +71,15 @@ static bool splash_draw_modern_panel(struct screen *screen,
     if (screen->depth <= 1)
         return false;
 
-    const unsigned edge = global_settings.lss_color;
-    const unsigned panel = global_settings.bg_color;
-    const unsigned top = global_settings.lss_color;
-    const unsigned accent = global_settings.lse_color;
+    const bool ipodjs = ipodjs_ui_enabled(screen->screen_type);
+    const unsigned edge = ipodjs ? ipodjs_ui_header_bg() :
+                                   (unsigned)global_settings.lss_color;
+    const unsigned panel = ipodjs ? ipodjs_ui_panel() :
+                                    (unsigned)global_settings.bg_color;
+    const unsigned top = ipodjs ? ipodjs_ui_header_bg() :
+                                  (unsigned)global_settings.lss_color;
+    const unsigned accent = ipodjs ? ipodjs_ui_accent() :
+                                    (unsigned)global_settings.lse_color;
     int accent_w = vp->width - 12;
     if (accent_w > 54)
         accent_w = 54;
@@ -226,6 +232,11 @@ static bool splash_internal(struct screen * screen, const char *fmt, va_list ap,
     {
         fg = screen->get_foreground();
         bg = screen->get_background();
+
+#ifdef HAVE_LCD_COLOR
+        if (ipodjs_ui_enabled(screen->screen_type))
+            fg = ipodjs_ui_text();
+#endif
 
         broken = (fg == bg) ||
                  (bg == 63422 && fg == 65535); /* -> iPod reFresh themes from '22 */

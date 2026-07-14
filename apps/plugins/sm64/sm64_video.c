@@ -91,7 +91,6 @@ static inline fb_data pack_pixel(uint32_t pixel)
 static void video_swap_begin(void)
 {
     fb_data *destination = lcd_stage ? lcd_stage : get_lcd_framebuffer();
-    unsigned long active_pixels = 0;
     int y;
 
     if (!gfx_output || !destination)
@@ -109,8 +108,6 @@ static void video_swap_begin(void)
             uint32_t pixel = source[x];
             fb_data color = pack_pixel(pixel);
             int output_x = x * 2;
-            if ((pixel & 0x00ffffff) != 0)
-                active_pixels++;
             top[output_x] = color;
             top[output_x + 1] = color;
             bottom[output_x] = color;
@@ -127,8 +124,6 @@ static void video_swap_begin(void)
         for (x = 0; x < LCD_WIDTH; ++x)
         {
             uint32_t pixel = source[x * SM64_RENDER_WIDTH / LCD_WIDTH];
-            if ((pixel & 0x00ffffff) != 0)
-                active_pixels++;
             line[x] = pack_pixel(pixel);
         }
     }
@@ -139,26 +134,6 @@ static void video_swap_begin(void)
         rb->lcd_set_viewport(NULL);
         rb->lcd_bitmap(lcd_stage, 0, 0, LCD_WIDTH, LCD_HEIGHT);
     }
-#if CONFIG_PLATFORM & PLATFORM_NATIVE
-    if (sm64_rb.rendered_frames < 120)
-    {
-        char status[48];
-
-        rb->snprintf(status, sizeof(status), "Frame %lu  pixels %lu",
-                     sm64_rb.rendered_frames + 1, active_pixels);
-        rb->lcd_setfont(FONT_SYSFIXED);
-        rb->lcd_set_drawmode(DRMODE_SOLID);
-        rb->lcd_set_background(LCD_BLACK);
-        rb->lcd_set_foreground(LCD_WHITE);
-        rb->lcd_putsxy(2, 2, status);
-    }
-    if (sm64_rb.rendered_frames < 128 &&
-        ((sm64_rb.rendered_frames & (sm64_rb.rendered_frames + 1)) == 0))
-        sm64_logf("frame %lu active_pixels=%lu", sm64_rb.rendered_frames + 1,
-                  active_pixels);
-#else
-    (void)active_pixels;
-#endif
     rb->lcd_update();
     sm64_rb.rendered_frames++;
 }

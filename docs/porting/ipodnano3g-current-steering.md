@@ -2796,3 +2796,56 @@ The follow-up probe displays all eight SysCfg tags and every one of their 16
 data bytes on a single screen.  It remains before IRQ and storage entry, reads
 NOR only, and safe-halts.  This is the next hardware boundary; codec and PCM
 writes remain disabled.
+
+### Complete SysCfg capture
+
+The follow-up all-entry probe completed on the owned Nano 3G.  The owner
+transcribed:
+
+```text
+N3G SYSCFG ALL ENTRIES
+NOR READ / NO NAND
+RC 0 MAGIC 53496667
+SIZE 184 ENTRIES 8
+
+0 SrNm 53724E6D
+  A 37343734 35324B47
+  B 593D5000 00000000
+1 FwId 46774964
+  A 00000001 1373F51A
+  B 00270A00 00000000
+2 HwId 48774964
+  A FFFFFFFF FFFFFFFF
+  B FFFFFFFF FFFFFFFF
+3 HwVr 48775672
+  A 00000000 10001400
+  B 00000000 00000000
+4 SwVr 53775672
+  A 312E3000 00000000
+  B 00000000 00000000
+5 MLBN 4D4C424E
+  A 4A353734 35414743
+  B 5459344C 45000000
+6 Mod# 4D6F6423
+  A 4D413937 38000000
+  B 00000000 00000000
+7 Regn 5265676E
+  A 01000200 01000200
+  B 00000000 00000000
+
+NO CODC TAG / SAFE HALT
+```
+
+The displayed magic was transcribed as `53496667`, but the compiled probe can
+only enter the eight-entry rendering path after an exact comparison with
+`SYSCFG_MAGIC == 0x53436667`.  The earlier probe also displayed `53436667`.
+Therefore the `49` is a screen-font transcription ambiguity, not a different
+NOR structure.  The raw `HwVr` bytes are `10 00 14 00`; the earlier
+word-oriented display rendered the same four bytes as little-endian
+`00140010`.
+
+This closes the SysCfg capture gate and confirms that codec identity is not
+encoded in this device's eight-entry SysCfg.  No codec, PCM, NAND-program,
+NAND-erase, NOR-program, or NOR-erase path ran.  The next evidence gate is
+static recovery of the RetailOS audio transport and power/clock sequence before
+any codec write is permitted.

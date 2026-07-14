@@ -105,6 +105,27 @@ backlight on button hold: normal
 </theme>
 
 <theme>
+Name: ipodjs-classic
+Targets: ipod6g
+Authors: local build, styled to match the iPodJS native interface
+WPS: yes
+SBS: no
+FMS: no
+RWPS: no
+RSBS: no
+RFMS: no
+
+<main>
+wps.320x240x(16|24|32): ipodjs-classic.wps
+font.320x240x(16|24|32): 14-Adobe-Helvetica-Bold.fnt
+backdrop: -
+statusbar: off
+ui viewport: -
+album art: prefer image file
+</main>
+</theme>
+
+<theme>
 Name: iPoneCustom
 Targets: ipodvideo ipod6g
 Authors: iPone Custom test variant by local build, based on iPone/iClassic/adwaitapod work
@@ -119,7 +140,7 @@ RFMS: no
 wps.320x240x(16|24|32): iPoneCustom.wps
 sbs.320x240x(16|24|32): iPoneCustom.sbs
 fms.320x240x(16|24|32): iPoneCustom.fms
-font.320x240x(16|24|32): 18-Cantarell-Bold.fnt
+font.320x240x(16|24|32): 14-Adobe-Helvetica-Bold.fnt
 backdrop: -
 background color: 100F16
 foreground color: F7F4FA

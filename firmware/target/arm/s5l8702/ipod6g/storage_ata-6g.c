@@ -73,6 +73,8 @@ static long ata_last_activity_value = -1;
 static long ata_sleep_timeout = 7 * HZ;
 static bool ata_powered;
 static bool ata_ssd_mode = false;
+static long ssd_sleep_tick;
+static bool ssd_deep_asleep;
 static struct semaphore mmc_wakeup;
 static struct semaphore mmc_comp_wakeup;
 #ifdef HAVE_ATA_DMA
@@ -656,6 +658,17 @@ static int ata_power_up(void)
 
     ata_set_active();
 
+    if (ata_ssd_mode && !ceata) {
+        if (!ssd_deep_asleep) {
+            /* Fast path: clock was gated, AUTOLDO still on */
+            PWRCON(0) &= ~(1 << 5);
+            ata_powered = true;
+            return 0;
+        }
+        ssd_deep_asleep = false;
+        /* Fall through to full PATA init below */
+    }
+
     ide_power_enable(true);
     long spinup_start = current_tick;
     if (ceata) {
@@ -720,8 +733,7 @@ static int ata_power_up(void)
         uint32_t param = 0;
 #ifdef HAVE_ATA_DMA
         ata_dma_flags = 0;
-        if ((identify_info[53] & BIT(2)) &&
-            (identify_info[88] & BITRANGE(0, 4))) /* Any UDMA */
+        if ((identify_info[53] & BIT(2)) && (identify_info[88] & BITRANGE(0, 4))) /* Any UDMA */
         {
             int max_udma = ATA_MAX_UDMA;
 #if ATA_MAX_UDMA > 2
@@ -732,8 +744,7 @@ static int ata_power_up(void)
             ATA_UDMA_TIME = udmatimes[param & 0xf];
             ata_dma_flags = BIT(2) | BIT(3) | BIT(9) | BIT(10);
         }
-        if (!param &&
-            (identify_info[63] & BITRANGE(0, 2))) /* Fall back to any MWDMA */
+        if (!param && identify_info[63] & BITRANGE(0, 2)) /* Fall back to any MWDMA */
         {
             param = ata_get_best_mode(identify_info[63], ATA_MAX_MWDMA, 0x20);
             ATA_MDMA_TIME = mwdmatimes[param & 0xf];
@@ -920,7 +931,7 @@ static int ata_rw_chunk(uint64_t sector, uint32_t cnt, void* buffer, bool write)
 static int ata_transfer_sectors(uint64_t sector, int count, void* buffer, int write)
 {
     if (!ata_powered)
-        PASS_RC(ata_power_up(), 1, 0);
+        ata_power_up();
     if (sector + count > total_sectors)
         RET_ERR(0);
     ata_set_active();
@@ -943,20 +954,6 @@ static int ata_transfer_sectors(uint64_t sector, int count, void* buffer, int wr
         rc = ata_rw_chunk(sector, cnt, buffer, write);
         if (rc && ata_error_srst)
             ata_reset();
-#ifdef HAVE_ATA_DMA
-        if (rc && ata_dma && !ceata)
-        {
-            /* Some flash adapters advertise fast UDMA modes that are not
-             * reliable through the iPod flex cable. Do not repeat a failed
-             * transfer in the same mode: PIO is slower but easily fast enough
-             * for audio and remains selected until the next full power-up. */
-            logf("ata DMA error, fallback to PIO");
-            ata_dma = false;
-            dma_mode = 0;
-            ata_dma_flags = 0;
-            ata_set_feature(0x03, 0);
-        }
-#endif
         if (rc && ata_retries)
         {
             void* buf = buffer;
@@ -991,7 +988,7 @@ int ata_soft_reset(void)
     int rc;
     mutex_lock(&ata_mutex);
     if (!ata_powered)
-        PASS_RC_MTX(ata_power_up(), 1, 0, &ata_mutex);
+        PASS_RC(ata_power_up(), 1, 0);
     ata_set_active();
     if (ceata)
     {
@@ -1013,7 +1010,7 @@ int ata_soft_reset(void)
 int ata_hard_reset(void)
 {
     mutex_lock(&ata_mutex);
-    PASS_RC_MTX(ata_power_up(), 0, 0, &ata_mutex);
+    PASS_RC(ata_power_up(), 0, 0);
     ata_set_active();
     mutex_unlock(&ata_mutex);
     return 0;
@@ -1024,7 +1021,7 @@ static int ata_reset(void)
     int rc;
     mutex_lock(&ata_mutex);
     if (!ata_powered)
-        PASS_RC_MTX(ata_power_up(), 2, 0, &ata_mutex);
+        PASS_RC(ata_power_up(), 2, 0);
     ata_set_active();
     rc = ata_soft_reset();
     if (IS_ERR(rc))
@@ -1141,13 +1138,16 @@ void ata_sleepnow(void)
         ata_power_down();
     } else if (ata_ssd_mode) {
         /*
-         * Keep iFlash/SSD adapters and the ATA controller active. Marking the
-         * disk inactive without a real, standardized sleep transition made
-         * the next read depend on a fragile custom fast-wake path. That can
-         * strand playback, plugins and tagcache behind one adapter timeout.
+         * iFlash/SSD adapters are not reliable with the custom iPod 6G ATA
+         * clock-gate/deep-sleep path.  Treat SSD sleep as a logical idle
+         * state only: flush writes and report inactive, but leave the ATA
+         * controller and adapter power rails alone.  The fast wake path in
+         * ata_power_up() will simply mark the device active again.
          */
-        logf("ata SSD KEEP ACTIVE %ld", current_tick);
-        ata_set_active();
+        logf("ata SSD IDLE %ld", current_tick);
+        ata_powered = false;
+        ssd_deep_asleep = false;
+        ssd_sleep_tick = current_tick;
     } else if (ata_disk_can_sleep()) {
         logf("ata SLEEP %ld", current_tick);
         ata_wait_for_rdy(1000000);
@@ -1169,6 +1169,13 @@ void ata_sleepnow(void)
 
 void ata_spin(void)
 {
+    if (ata_ssd_mode && !ata_powered)
+    {
+        mutex_lock(&ata_mutex);
+        if (!ata_powered)
+            ata_power_up();
+        mutex_unlock(&ata_mutex);
+    }
     ata_set_active();
 }
 
@@ -1181,7 +1188,6 @@ void ata_set_storage_mode(int mode)
         ata_ssd_mode = false;
     else /* auto */
         ata_ssd_mode = ata_disk_isssd();
-
 }
 
 bool ata_get_ssd_mode(void)
@@ -1202,6 +1208,8 @@ int ata_init(void)
     semaphore_init(&mmc_comp_wakeup, 1, 0);
     ceata = PDAT(11) & BIT(1);
     ata_powered = false;
+    ssd_deep_asleep = false;
+    ssd_sleep_tick = 0;
     total_sectors = 0;
 
     /* get identify_info */
@@ -1337,7 +1345,7 @@ int ata_event(long id, intptr_t data)
        the first case is frequently hit anyway. */
     if (LIKELY(id == Q_STORAGE_TICK))
     {
-        if ((ata_ssd_mode && !ceata) || !ata_powered ||
+        if (!ata_powered ||
             TIME_BEFORE(current_tick, ata_last_activity_value + ata_sleep_timeout))
         {
             STG_EVENT_ASSERT_ACTIVE(STORAGE_ATA);
@@ -1353,6 +1361,13 @@ int ata_event(long id, intptr_t data)
     }
     else if (id == Q_STORAGE_PRE_WAKE)
     {
+        if (ata_ssd_mode && !ata_powered)
+        {
+            mutex_lock(&ata_mutex);
+            if (!ata_powered)
+                ata_power_up();
+            mutex_unlock(&ata_mutex);
+        }
         ata_set_active();
     }
     else if (id == SYS_USB_CONNECTED)

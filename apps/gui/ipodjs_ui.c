@@ -37,7 +37,7 @@
 #include "usb.h"
 #include "ipodjs_ui.h"
 
-#if defined(HAVE_LCD_COLOR) && (defined(IPOD_VIDEO) || defined(IPOD_6G) || defined(IPOD_NANO3G))
+#ifdef HAVE_IPODJS_UI
 
 #define IPODJS_UI_HEADER_TOP       LCD_RGBPACK(252, 253, 253)
 #define IPODJS_UI_HEADER_MID       LCD_RGBPACK(216, 219, 223)

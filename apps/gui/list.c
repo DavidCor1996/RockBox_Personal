@@ -223,7 +223,16 @@ int list_get_nb_lines(struct gui_synclist *list, enum screen_type screen)
     int lines = skinlist_get_line_count(screen, list);
     if (lines < 0)
     {
-        if (list_display_title(list, screen))
+        if (list_use_ipodjs_native(screen) &&
+            !list->force_fullscreen_albumlist)
+        {
+            /* The native iPodJS list renderer always reserves its own
+             * header. Keep selection paging in step with what it draws. */
+            lines = MAX(0, list->parent[screen]->height -
+                        IPODJS_UI_HEADER_HEIGHT) /
+                    list->line_height[screen];
+        }
+        else if (list_display_title(list, screen))
         {
             int title_height = list_get_title_height(list, screen);
             lines = MAX(0, list->parent[screen]->height - title_height) /

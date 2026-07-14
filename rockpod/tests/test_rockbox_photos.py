@@ -151,7 +151,7 @@ def test_photo_sync_and_remove_device_preserves_unrelated_files(tmp_dir):
     assert os.path.isfile(os.path.join(device, ".rockbox", "themes", "keep.cfg"))
 
 
-def test_photo_sync_converts_images_and_adds_thumbnails(tmp_dir):
+def test_photo_sync_converts_images_and_adds_thumbnails_and_previews(tmp_dir):
     repo_root = os.path.join(tmp_dir, "repo")
     photos = os.path.join(tmp_dir, "photos")
     device = os.path.join(tmp_dir, "device")
@@ -173,9 +173,11 @@ def test_photo_sync_converts_images_and_adds_thumbnails(tmp_dir):
 
     photo_path = os.path.join(device, "Photos", "Trip", "IMG_0001.jpg")
     thumb_path = os.path.join(device, "Photos", ".photo_thumbs", "Trip", "IMG_0001.jpg.bmp")
+    preview_path = os.path.join(device, "Photos", ".photo_previews", "Trip", "IMG_0001.jpg.bmp")
     assert synced["success"] is True
     assert os.path.isfile(photo_path)
     assert os.path.isfile(thumb_path)
+    assert os.path.isfile(preview_path)
     with Image.open(photo_path) as image:
         assert image.format == "JPEG"
         assert image.size[0] <= 800
@@ -184,15 +186,30 @@ def test_photo_sync_converts_images_and_adds_thumbnails(tmp_dir):
         assert image.format == "BMP"
         assert image.size[0] <= 87
         assert image.size[1] <= 70
+    with Image.open(preview_path) as image:
+        assert image.format == "BMP"
+        assert image.size == (320, 240)
+
+    remove_diff = deploy.build_diff(
+        deploy_profile,
+        service.build_remove_bundle(profile, selected, "device"),
+    )
+    assert remove_diff["summary"]["remove"] == 3
+    removed = deploy.apply_diff(deploy_profile, remove_diff)
+    assert removed["success"] is True
+    assert not os.path.exists(photo_path)
+    assert not os.path.exists(thumb_path)
+    assert not os.path.exists(preview_path)
 
 
-def test_photo_sync_removes_stale_preconversion_photo_and_thumb(tmp_dir):
+def test_photo_sync_removes_stale_preconversion_photo_thumb_and_preview(tmp_dir):
     repo_root = os.path.join(tmp_dir, "repo")
     photos = os.path.join(tmp_dir, "photos")
     device = os.path.join(tmp_dir, "device")
     _make_image(os.path.join(photos, "Trip", "IMG_0001.png"), size=(400, 300))
     _make_file(os.path.join(device, "Photos", "Trip", "IMG_0001.png"), b"old")
     _make_file(os.path.join(device, "Photos", ".photo_thumbs", "Trip", "IMG_0001.png.bmp"), b"old-thumb")
+    _make_file(os.path.join(device, "Photos", ".photo_previews", "Trip", "IMG_0001.png.bmp"), b"old-preview")
 
     _config, store = _make_store(tmp_dir, repo_root)
     profile = store.current_profile()
@@ -208,14 +225,60 @@ def test_photo_sync_removes_stale_preconversion_photo_and_thumb(tmp_dir):
 
     deploy_profile = service.deploy_profile(profile, "device")
     sync_diff = deploy.build_diff(deploy_profile, service.build_sync_bundle(profile, selected, "device"))
-    assert sync_diff["summary"]["remove"] == 2
+    assert sync_diff["summary"]["remove"] == 3
     synced = deploy.apply_diff(deploy_profile, sync_diff)
 
     assert synced["success"] is True
     assert os.path.isfile(os.path.join(device, "Photos", "Trip", "IMG_0001.jpg"))
     assert os.path.isfile(os.path.join(device, "Photos", ".photo_thumbs", "Trip", "IMG_0001.jpg.bmp"))
+    assert os.path.isfile(os.path.join(device, "Photos", ".photo_previews", "Trip", "IMG_0001.jpg.bmp"))
     assert not os.path.exists(os.path.join(device, "Photos", "Trip", "IMG_0001.png"))
     assert not os.path.exists(os.path.join(device, "Photos", ".photo_thumbs", "Trip", "IMG_0001.png.bmp"))
+    assert not os.path.exists(os.path.join(device, "Photos", ".photo_previews", "Trip", "IMG_0001.png.bmp"))
+
+
+def test_photo_sync_repairs_low_quality_device_previews(tmp_dir):
+    repo_root = os.path.join(tmp_dir, "repo")
+    photos = os.path.join(tmp_dir, "photos")
+    device = os.path.join(tmp_dir, "device")
+    _make_image(os.path.join(photos, "new.jpg"), size=(320, 240))
+    _make_image(os.path.join(device, "Photos", "Existing.jpg"), size=(800, 600))
+    _make_image(
+        os.path.join(device, "Photos", ".photo_previews", "Existing.jpg.bmp"),
+        size=(80, 60),
+    )
+
+    _config, store = _make_store(tmp_dir, repo_root)
+    profile = store.current_profile()
+    profile["photos_library_path"] = photos
+    profile["device_mount_path"] = device
+    profile = store.save_profile(profile)
+
+    service = RockboxPhotoService()
+    deploy = RockboxDeployService()
+    selected = service.list_photos(profile)
+    deploy_profile = service.deploy_profile(profile, "device")
+    bundle = service.build_sync_bundle(profile, selected, "device")
+    repair_assets = [
+        item for item in bundle["assets"]
+        if item["kind"] == "photo_preview_repair"
+    ]
+    assert [item["destination_rel"] for item in repair_assets] == [
+        "Photos/.photo_previews/Existing.jpg.bmp"
+    ]
+
+    synced = deploy.apply_diff(
+        deploy_profile,
+        deploy.build_diff(deploy_profile, bundle),
+    )
+
+    assert synced["success"] is True
+    preview_path = os.path.join(
+        device, "Photos", ".photo_previews", "Existing.jpg.bmp"
+    )
+    with Image.open(preview_path) as image:
+        assert image.format == "BMP"
+        assert image.size == (320, 240)
 
 
 def test_photo_sync_repairs_missing_device_thumbnails(tmp_dir):

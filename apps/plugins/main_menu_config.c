@@ -69,7 +69,7 @@ static unsigned char *item_name(int n)
 
 void load_from_cfg(void)
 {
-    char config_str[128];
+    char config_str[MAX_PATH];
     char *token, *save;
     int done = 0;
     int i = 0;
@@ -120,15 +120,26 @@ void load_from_cfg(void)
 
 static void save_to_cfg(void)
 {
-    char out[128];
-    int i, j = 0;
+    char out[MAX_PATH];
+    int i;
+    size_t used = 0;
 
     out[0] = '\0';
     for (i = 0; i < menu_item_count; i++)
     {
         if (menu_items[i].enabled)
         {
-            j += rb->snprintf(&out[j],sizeof(out) - j, "%s, ", menu_items[i].string);
+            int written = rb->snprintf(out + used, sizeof(out) - used,
+                                       "%s, ", menu_items[i].string);
+
+            if (written < 0)
+                break;
+            if ((size_t)written >= sizeof(out) - used)
+            {
+                used = sizeof(out) - 1;
+                break;
+            }
+            used += written;
         }
     }
 

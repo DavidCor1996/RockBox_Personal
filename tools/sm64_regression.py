@@ -46,10 +46,17 @@ def main() -> int:
     frontend = (root / "apps/plugins/sm64/sm64_rockbox.c").read_text(encoding="utf-8")
     controls = (root / "apps/plugins/sm64/sm64_input.c").read_text(encoding="utf-8")
     video = (root / "apps/plugins/sm64/sm64_video.c").read_text(encoding="utf-8")
+    renderer = (
+        root / "apps/plugins/sm64/upstream/src/pc/gfx/gfx_soft.c"
+    ).read_text(encoding="utf-8")
+    gfx_pc = (
+        root / "apps/plugins/sm64/upstream/src/pc/gfx/gfx_pc.c"
+    ).read_text(encoding="utf-8")
     categories = (root / "apps/plugins/CATEGORIES").read_text(encoding="utf-8")
     sound_source = (root / "apps/plugins/sm64/upstream/sound/sound_data.c").read_text(
         encoding="utf-8"
     )
+    makefile = (root / "apps/plugins/sm64/sm64.make").read_text(encoding="utf-8")
 
     for fragment in (
         '#define SM64_PLUGIN_PATH      PLUGIN_GAMES_DIR "/sm64.rock"',
@@ -79,8 +86,15 @@ def main() -> int:
     for fragment in (
         "plugin_get_audio_buffer", "plugin_release_audio_buffer",
         "destroy_memory_pool", "backlight_use_settings", "rb->cpu_boost(false)",
+        "static int16_t frame_audio_buffer[SAMPLES_HIGH * 4];",
     ):
         require(fragment in frontend, f"lifecycle cleanup missing {fragment!r}")
+    require("int16_t audio_buffer[SAMPLES_HIGH * 4];" not in frontend,
+            "4.25 KiB audio buffer remains on the native 8 KiB main stack")
+    require("skip_next" not in frontend,
+            "unsafe display-list frame skipping is enabled")
+    require("-Wstack-usage=2048" in makefile,
+            "native SM64 build does not guard against large stack frames")
 
     require("lcd_fb = select_lcd_framebuffer();" in video,
             "renderer does not select the main LCD framebuffer")
@@ -90,6 +104,29 @@ def main() -> int:
             "renderer mistakes the previous viewport for the main framebuffer")
     require("rb->lcd_bitmap(lcd_stage, 0, 0, LCD_WIDTH, LCD_HEIGHT);" in video,
             "renderer does not present through the Rockbox LCD blitter")
+    for fragment in (
+        "typedef int32_t fixed_t;",
+        "cur_shader->combine(FIXED_ONE, fp + 4)",
+        "vertex[property] *= w;",
+        "u >> FIXED_SHIFT, v >> FIXED_SHIFT",
+    ):
+        require(fragment in renderer,
+                f"ARM fixed-point renderer path missing {fragment!r}")
+    require("1.f / p[3]" not in renderer,
+            "software-float reciprocal remains in the per-pixel loop")
+    require("cur_shader->combine(w, p + 4)" not in renderer,
+            "float properties remain in the per-pixel combiner")
+    require("fixed_recip(fp[3])" not in renderer,
+            "integer software division remains in the per-pixel loop")
+    require("Frame %lu  pixels %lu" not in video,
+            "hardware frame-counter diagnostic is still visible")
+    require("static uint8_t rgba32_buf[32768];" in gfx_pc,
+            "texture conversion buffer is not in persistent storage")
+    for size in (8192, 16384):
+        require(f"uint8_t rgba32_buf[{size}];" not in gfx_pc,
+                f"{size}-byte texture buffer remains on the native stack")
+    require(gfx_pc.count("uint8_t rgba32_buf[32768];") == 1,
+            "32 KiB texture conversion buffer is duplicated on the stack")
 
     sim_plugin = sim / "apps/plugins/sm64/sm64.rock"
     hw_stub = hw / "apps/plugins/sm64.rock"

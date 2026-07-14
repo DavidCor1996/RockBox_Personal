@@ -55,6 +55,9 @@
 /* define this if you have a colour LCD */
 #define HAVE_LCD_COLOR
 
+/* Native Apple-style shell for the Classic 6G/7G target. */
+#define HAVE_IPODJS_UI
+
 /* define this if you want album art for this target */
 #define HAVE_ALBUMART
 

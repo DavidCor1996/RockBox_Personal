@@ -837,6 +837,28 @@ static bool find_manifest_thumb(const char *album, const char *artist,
         }
     }
 
+    /* Tagcache album rows can expose albumartist while the artwork manifest
+     * was indexed with the track artist (or vice versa).  If the strict
+     * album+artist match misses, accept a unique album match so covers still
+     * appear in both Albums and Artist -> Albums views. */
+    int matches = 0;
+    const char *candidate = NULL;
+    for (int i = 0; i < manifest_cache_count; i++)
+    {
+        struct albumlist_manifest_entry *entry = &manifest_cache[i];
+        if (!entry->thumb_path[0] ||
+            ascii_casecmp(entry->album, album) != 0)
+            continue;
+        candidate = entry->thumb_path;
+        if (++matches > 1)
+            return false;
+    }
+    if (matches == 1)
+    {
+        strmemccpy(path, candidate, path_size);
+        return true;
+    }
+
     return false;
 }
 

@@ -30,6 +30,9 @@ BASE_THEME_BY_RESOLUTION = {
 PREVIEW_MODES = ("simulator",)
 PREVIEW_THEME_ID = "ipone_preview"
 
+IPODJS_STOCK_FONT_REL = "fonts/14-Adobe-Helvetica-Bold.fnt"
+IPODJS_STOCK_FONT_LABEL = "iPodJS Stock (14 Adobe Helvetica Bold)"
+
 DEFAULT_COLORS = {
     "background": "100F16",
     "foreground": "F7F4FA",
@@ -347,11 +350,21 @@ class ThemeDesignerService:
                 fonts.append(
                     {
                         "id": rel,
-                        "label": name,
+                        "label": (
+                            IPODJS_STOCK_FONT_LABEL
+                            if rel == IPODJS_STOCK_FONT_REL
+                            else name
+                        ),
                         "path_rel": rel,
                         "path_abs": os.path.abspath(os.path.join(fonts_dir, name)),
                     }
                 )
+        fonts.sort(
+            key=lambda font: (
+                font["path_rel"] != IPODJS_STOCK_FONT_REL,
+                font["label"].lower(),
+            )
+        )
         return fonts
 
     def load_base_theme(self, repo_root, profile):

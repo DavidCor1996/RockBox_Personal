@@ -60,7 +60,8 @@ SM64FLAGS = -I$(SM64SRCDIR) -I$(SM64UPSTREAM) -I$(SM64UPSTREAM)/include \
 	-fomit-frame-pointer -Wno-unused-parameter -Wno-unused-function \
 	-Wno-sign-compare -Wno-missing-prototypes -Wno-strict-prototypes \
 	-Wno-old-style-definition -Wno-parentheses -Wno-pointer-sign \
-	-Wno-implicit-function-declaration -Wno-int-conversion
+	-Wno-implicit-function-declaration -Wno-int-conversion \
+	-Wstack-usage=2048
 
 ifndef APP_TYPE
 ROCKS += $(SM64OBJDIR)/sm64.ovl

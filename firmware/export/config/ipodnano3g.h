@@ -23,6 +23,11 @@
 #ifndef NANO3G_SYSCFG_PROBE
 #define NANO3G_SYSCFG_PROBE 0
 #endif
+#ifndef NANO3G_DUALBOOT_SELECT
+/* The metadata-driven candidate is intended for persistent dual boot.  Keep
+ * the older exact-map probes on their historical no-button path. */
+#define NANO3G_DUALBOOT_SELECT NANO3G_NATIVE_FULL_READONLY_MOUNT
+#endif
 #define NANO3G_NATIVE_PRESTOR_ONLY 0
 #define NANO3G_NATIVE_SAFE_BOOT 0
 #define NANO3G_NATIVE_CHAIN 0

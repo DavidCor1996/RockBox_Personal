@@ -5,7 +5,13 @@ from PIL import Image
 from PySide6.QtWidgets import QApplication
 
 from services.rockbox_deploy import RockboxDeployService
-from services.theme_designer import DEFAULT_LOCKSCREEN_CLOCK, ThemeDesignerService, WEATHER_LOCKSCREEN_ART_HEIGHT
+from services.theme_designer import (
+    DEFAULT_LOCKSCREEN_CLOCK,
+    IPODJS_STOCK_FONT_LABEL,
+    IPODJS_STOCK_FONT_REL,
+    ThemeDesignerService,
+    WEATHER_LOCKSCREEN_ART_HEIGHT,
+)
 from ui.theme_designer import ThemeDesignerWidget, _EmbeddedSimulatorPreview
 
 
@@ -221,6 +227,17 @@ def test_loads_ipone_base_theme(tmp_dir):
     assert variant["base_theme_id"] == "iPone"
     assert variant["font_rel"] == "fonts/24 iLike.fnt"
     assert variant["colors"]["foreground"] == "F7F4FA"
+
+
+def test_ipodjs_stock_font_is_named_and_prioritized_in_designer(tmp_dir):
+    repo_root = os.path.join(tmp_dir, "repo")
+    _make_repo(repo_root)
+    service = ThemeDesignerService()
+
+    fonts = service.fonts_for_profile(repo_root)
+
+    assert fonts[0]["path_rel"] == IPODJS_STOCK_FONT_REL
+    assert fonts[0]["label"] == IPODJS_STOCK_FONT_LABEL
 
 
 def test_generates_and_persists_custom_variant(tmp_dir):

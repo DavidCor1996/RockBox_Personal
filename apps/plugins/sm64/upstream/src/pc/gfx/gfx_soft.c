@@ -81,14 +81,38 @@ struct Tri {
     float *v2;
 };
 
+/*
+ * The ARM926EJ-S in the iPod 6G has no floating-point unit.  Keep the PC
+ * renderer's triangle setup in float (it runs once per triangle), but never
+ * use float or division in the pixel loop.  Q16.16 gives enough range for
+ * SM64's vertex attributes and lets ARM use integer MACs.
+ */
+typedef int32_t fixed_t;
+
+#define FIXED_SHIFT 16
+#define FIXED_ONE   ((fixed_t)1 << FIXED_SHIFT)
+
+static inline fixed_t fixed_from_float(const float v) {
+    return (fixed_t)(v * (float)FIXED_ONE);
+}
+
+static inline fixed_t fixed_mul(const fixed_t a, const fixed_t b) {
+    return (fixed_t)(((int64_t)a * b) >> FIXED_SHIFT);
+}
+
+static inline uint8_t fixed_u8(const fixed_t v) {
+    const int value = v >> FIXED_SHIFT;
+    return (uint8_t)((value < 0) ? 0 : (value > 255) ? 255 : value);
+}
+
 struct Texture;
 
 // texture sampling function: takes integer u,v and wraps/clamps it, samples texture, returns color
 typedef Color4 (*sample_fn_t)(const struct Texture * const, const int, const int);
 // pixel drawing function: does blending, zwriting, alpha edge checking or whatever else, then plots pixel
 typedef void (*draw_fn_t)(const int idx, uint16_t uz, const Color4 src);
-// color combiner: takes float vertex properties and obtains final fragment color from them
-typedef Color4 (*combine_fn_t)(const float z, const float *props);
+// color combiner: takes Q16.16 vertex properties and obtains a fragment color
+typedef Color4 (*combine_fn_t)(const fixed_t z, const fixed_t *props);
 // rasterizer: walks the triangle and interpolates a fixed amount of vertex properties
 typedef void (*rast_fn_t)(const struct Tri tri);
 
@@ -152,7 +176,7 @@ static Color4 fog_color; // this is set by set_fog_color() calls from gfx_pc
 
 static bool z_test;        // whether to perform depth testing
 static bool z_write;       // whether to write into the Z buffer
-static float z_offset;     // offset for decal mode
+static int z_offset;       // 16-bit depth offset for decal mode
 static uint16_t *z_buffer;
 
 static int scr_width;
@@ -299,15 +323,15 @@ static Color4 tex_sample_nearest_mr(const struct Texture * const tex, const int 
     return tex_get(tex, imirror0w(x, tex->wrap_w), iwrap0w(y, tex->wrap_h));
 }
 
-static inline Color4 tex_sample_linear(const struct Texture * const tex, const float u, const float v, const Vector2 d) {
-    const int x = d.u + u * tex->fw;
-    const int y = d.v + v * tex->fh;
+static inline Color4 tex_sample_linear(const struct Texture * const tex, const fixed_t u, const fixed_t v, const Vector2 d) {
+    const int x = (int)d.u + (int)(((int64_t)u * tex->w) >> FIXED_SHIFT);
+    const int y = (int)d.v + (int)(((int64_t)v * tex->h) >> FIXED_SHIFT);
     return tex->sample(tex, x, y);
 }
 
-static inline Color4 tex_sample_nearest(const struct Texture * const tex, const float u, const float v) {
-    const int x = u * tex->fw;
-    const int y = v * tex->fh;
+static inline Color4 tex_sample_nearest(const struct Texture * const tex, const fixed_t u, const fixed_t v) {
+    const int x = (int)(((int64_t)u * tex->w) >> FIXED_SHIFT);
+    const int y = (int)(((int64_t)v * tex->h) >> FIXED_SHIFT);
     return tex->sample(tex, x, y);
 }
 
@@ -315,99 +339,99 @@ static inline Color4 tex_sample_nearest(const struct Texture * const tex, const 
 
 #define tex_sample tex_sample_nearest
 
-static Color4 combine_rgb(const float z, const float *props) {
-    return (Color4) {{ .r = props[0] * z, .g = props[1] * z, .b = props[2] * z, .a = 0xFF }};
+static Color4 combine_rgb(const fixed_t z, const fixed_t *props) {
+    return (Color4) {{ .r = fixed_u8(fixed_mul(props[0], z)), .g = fixed_u8(fixed_mul(props[1], z)), .b = fixed_u8(fixed_mul(props[2], z)), .a = 0xFF }};
 }
 
-static Color4 combine_rgba(const float z, const float *props) {
-    return (Color4) {{ .r = props[0] * z, .g = props[1] * z, .b = props[2] * z, .a = props[3] * z }};
+static Color4 combine_rgba(const fixed_t z, const fixed_t *props) {
+    return (Color4) {{ .r = fixed_u8(fixed_mul(props[0], z)), .g = fixed_u8(fixed_mul(props[1], z)), .b = fixed_u8(fixed_mul(props[2], z)), .a = fixed_u8(fixed_mul(props[3], z)) }};
 }
 
-static Color4 combine_fog_rgb(const float z, const float *props) {
-    const uint8_t fog = props[0] * z;
-    const Color4 c = (Color4) {{ .r = props[1] * z, .g = props[2] * z, .b = props[3] * z, .a = 0xFF }};
+static Color4 combine_fog_rgb(const fixed_t z, const fixed_t *props) {
+    const uint8_t fog = fixed_u8(fixed_mul(props[0], z));
+    const Color4 c = (Color4) {{ .r = fixed_u8(fixed_mul(props[1], z)), .g = fixed_u8(fixed_mul(props[2], z)), .b = fixed_u8(fixed_mul(props[3], z)), .a = 0xFF }};
     return rgba_blend(fog_color, c, fog);
 }
 
-static Color4 combine_fog_rgba(const float z, const float *props) {
-    const uint8_t fog = props[0] * z;
-    const Color4 c = (Color4) {{ .r = props[1] * z, .g = props[2] * z, .b = props[3] * z, .a = props[4] * z }};
+static Color4 combine_fog_rgba(const fixed_t z, const fixed_t *props) {
+    const uint8_t fog = fixed_u8(fixed_mul(props[0], z));
+    const Color4 c = (Color4) {{ .r = fixed_u8(fixed_mul(props[1], z)), .g = fixed_u8(fixed_mul(props[2], z)), .b = fixed_u8(fixed_mul(props[3], z)), .a = fixed_u8(fixed_mul(props[4], z)) }};
     return rgba_blend(fog_color, c, fog);
 }
 
-static Color4 combine_rgba_rgba(const float z, const float *props) {
-    const Color4 ca = (Color4) {{ .r = props[0] * z, .g = props[1] * z, .b = props[2] * z, .a = props[3] * z }};
-    const Color4 cb = (Color4) {{ .r = props[4] * z, .g = props[5] * z, .b = props[6] * z, .a = props[7] * z }};
+static Color4 combine_rgba_rgba(const fixed_t z, const fixed_t *props) {
+    const Color4 ca = (Color4) {{ .r = fixed_u8(fixed_mul(props[0], z)), .g = fixed_u8(fixed_mul(props[1], z)), .b = fixed_u8(fixed_mul(props[2], z)), .a = fixed_u8(fixed_mul(props[3], z)) }};
+    const Color4 cb = (Color4) {{ .r = fixed_u8(fixed_mul(props[4], z)), .g = fixed_u8(fixed_mul(props[5], z)), .b = fixed_u8(fixed_mul(props[6], z)), .a = fixed_u8(fixed_mul(props[7], z)) }};
     return rgba_modulate(ca, cb);
 }
 
-static Color4 combine_tex(const float z, const float *props) {
-    return tex_sample(cur_tex[0], props[0] * z, props[1] * z);
+static Color4 combine_tex(const fixed_t z, const fixed_t *props) {
+    return tex_sample(cur_tex[0], fixed_mul(props[0], z), fixed_mul(props[1], z));
 }
 
-static Color4 combine_tex_fog(const float z, const float *props) {
-    const Color4 tc = tex_sample(cur_tex[0], props[0] * z, props[1] * z);
-    const uint8_t fog = props[2] * z;
+static Color4 combine_tex_fog(const fixed_t z, const fixed_t *props) {
+    const Color4 tc = tex_sample(cur_tex[0], fixed_mul(props[0], z), fixed_mul(props[1], z));
+    const uint8_t fog = fixed_u8(fixed_mul(props[2], z));
     return rgba_blend(fog_color, tc, fog);
 }
 
-static Color4 combine_tex_rgb(const float z, const float *props) {
-    const Color4 tc = tex_sample(cur_tex[0], props[0] * z, props[1] * z);
-    const Color4 cc = (Color4) {{ .r = props[2] * z, .g = props[3] * z, .b = props[4] * z, .a = 0xFF }};
+static Color4 combine_tex_rgb(const fixed_t z, const fixed_t *props) {
+    const Color4 tc = tex_sample(cur_tex[0], fixed_mul(props[0], z), fixed_mul(props[1], z));
+    const Color4 cc = (Color4) {{ .r = fixed_u8(fixed_mul(props[2], z)), .g = fixed_u8(fixed_mul(props[3], z)), .b = fixed_u8(fixed_mul(props[4], z)), .a = 0xFF }};
     return rgba_modulate(tc, cc);
 }
 
-static Color4 combine_tex_fog_rgb(const float z, const float *props) {
-    const Color4 tc = tex_sample(cur_tex[0], props[0] * z, props[1] * z);
-    const uint8_t fog = props[2] * z;
-    const Color4 cc = (Color4) {{ .r = props[3] * z, .g = props[4] * z, .b = props[5] * z, .a = 0xFF }};
+static Color4 combine_tex_fog_rgb(const fixed_t z, const fixed_t *props) {
+    const Color4 tc = tex_sample(cur_tex[0], fixed_mul(props[0], z), fixed_mul(props[1], z));
+    const uint8_t fog = fixed_u8(fixed_mul(props[2], z));
+    const Color4 cc = (Color4) {{ .r = fixed_u8(fixed_mul(props[3], z)), .g = fixed_u8(fixed_mul(props[4], z)), .b = fixed_u8(fixed_mul(props[5], z)), .a = 0xFF }};
     return rgba_blend(fog_color, rgba_modulate(tc, cc), fog);
 }
 
-static Color4 combine_tex_rgb_decal(const float z, const float *props) {
-    const Color4 tc = tex_sample(cur_tex[0], props[0] * z, props[1] * z);
-    const Color4 cc = (Color4) {{ .r = props[2] * z, .g = props[3] * z, .b = props[4] * z, .a = 0xFF }};
+static Color4 combine_tex_rgb_decal(const fixed_t z, const fixed_t *props) {
+    const Color4 tc = tex_sample(cur_tex[0], fixed_mul(props[0], z), fixed_mul(props[1], z));
+    const Color4 cc = (Color4) {{ .r = fixed_u8(fixed_mul(props[2], z)), .g = fixed_u8(fixed_mul(props[3], z)), .b = fixed_u8(fixed_mul(props[4], z)), .a = 0xFF }};
     return rgba_blend(tc, cc, tc.a);
 }
 
-static Color4 combine_tex_rgba(const float z, const float *props) {
-    const Color4 tc = tex_sample(cur_tex[0], props[0] * z, props[1] * z);
-    const Color4 cc = (Color4) {{ .r = props[2] * z, .g = props[3] * z, .b = props[4] * z, .a = props[5] * z }};
+static Color4 combine_tex_rgba(const fixed_t z, const fixed_t *props) {
+    const Color4 tc = tex_sample(cur_tex[0], fixed_mul(props[0], z), fixed_mul(props[1], z));
+    const Color4 cc = (Color4) {{ .r = fixed_u8(fixed_mul(props[2], z)), .g = fixed_u8(fixed_mul(props[3], z)), .b = fixed_u8(fixed_mul(props[4], z)), .a = fixed_u8(fixed_mul(props[5], z)) }};
     return rgba_modulate(tc, cc);
 }
 
-static Color4 combine_tex_rgba_texa(const float z, const float *props) {
-    const Color4 tc = tex_sample(cur_tex[0], props[0] * z, props[1] * z);
-    const Color4 cc = (Color4) {{ .r = props[2] * z, .g = props[3] * z, .b = props[4] * z, .a = 0xFF }};
+static Color4 combine_tex_rgba_texa(const fixed_t z, const fixed_t *props) {
+    const Color4 tc = tex_sample(cur_tex[0], fixed_mul(props[0], z), fixed_mul(props[1], z));
+    const Color4 cc = (Color4) {{ .r = fixed_u8(fixed_mul(props[2], z)), .g = fixed_u8(fixed_mul(props[3], z)), .b = fixed_u8(fixed_mul(props[4], z)), .a = 0xFF }};
     return rgba_modulate(tc, cc);
 }
 
-static Color4 combine_tex_fog_rgba(const float z, const float *props) {
-    const Color4 tc = tex_sample(cur_tex[0], props[0] * z, props[1] * z);
-    const uint8_t fog = props[2] * z;
-    const Color4 cc = (Color4) {{ .r = props[3] * z, .g = props[4] * z, .b = props[5] * z, .a = props[6] * z }};
+static Color4 combine_tex_fog_rgba(const fixed_t z, const fixed_t *props) {
+    const Color4 tc = tex_sample(cur_tex[0], fixed_mul(props[0], z), fixed_mul(props[1], z));
+    const uint8_t fog = fixed_u8(fixed_mul(props[2], z));
+    const Color4 cc = (Color4) {{ .r = fixed_u8(fixed_mul(props[3], z)), .g = fixed_u8(fixed_mul(props[4], z)), .b = fixed_u8(fixed_mul(props[5], z)), .a = fixed_u8(fixed_mul(props[6], z)) }};
     return rgba_blend(fog_color, rgba_modulate(tc, cc), fog);
 }
 
-static Color4 combine_tex_rgba_decal(const float z, const float *props) {
-    const Color4 tc = tex_sample(cur_tex[0], props[0] * z, props[1] * z);
-    const Color4 cc = (Color4) {{ .r = props[2] * z, .g = props[3] * z, .b = props[4] * z, .a = props[5] * z }};
+static Color4 combine_tex_rgba_decal(const fixed_t z, const fixed_t *props) {
+    const Color4 tc = tex_sample(cur_tex[0], fixed_mul(props[0], z), fixed_mul(props[1], z));
+    const Color4 cc = (Color4) {{ .r = fixed_u8(fixed_mul(props[2], z)), .g = fixed_u8(fixed_mul(props[3], z)), .b = fixed_u8(fixed_mul(props[4], z)), .a = fixed_u8(fixed_mul(props[5], z)) }};
     return rgba_blend(tc, cc, tc.a);
 }
 
-static Color4 combine_tex_rgb_rgb(const float z, const float *props) {
-    const Color4 tc = tex_sample(cur_tex[0], props[0] * z, props[1] * z);
-    const Color4 cc1 = (Color4) {{ .r = props[2] * z, .g = props[3] * z, .b = props[4] * z, 0xFF }};
-    const Color4 cc2 = (Color4) {{ .r = props[5] * z, .g = props[6] * z, .b = props[7] * z, 0xFF }};
+static Color4 combine_tex_rgb_rgb(const fixed_t z, const fixed_t *props) {
+    const Color4 tc = tex_sample(cur_tex[0], fixed_mul(props[0], z), fixed_mul(props[1], z));
+    const Color4 cc1 = (Color4) {{ .r = fixed_u8(fixed_mul(props[2], z)), .g = fixed_u8(fixed_mul(props[3], z)), .b = fixed_u8(fixed_mul(props[4], z)), 0xFF }};
+    const Color4 cc2 = (Color4) {{ .r = fixed_u8(fixed_mul(props[5], z)), .g = fixed_u8(fixed_mul(props[6], z)), .b = fixed_u8(fixed_mul(props[7], z)), 0xFF }};
     return rgba_lerp(cc2, cc1, tc.r);
 }
 
-static Color4 combine_tex_tex_rgba(const float z, const float *props) {
-    const float u = props[0] * z;
-    const float v = props[1] * z;
+static Color4 combine_tex_tex_rgba(const fixed_t z, const fixed_t *props) {
+    const fixed_t u = fixed_mul(props[0], z);
+    const fixed_t v = fixed_mul(props[1], z);
     const Color4 tc1 = tex_sample(cur_tex[0], u, v);
     const Color4 tc2 = tex_sample(cur_tex[1], u, v);
-    const uint8_t r = props[2] * z;
+    const uint8_t r = fixed_u8(fixed_mul(props[2], z));
     return rgba_lerp(tc1, tc2, r);
 }
 
@@ -475,7 +499,8 @@ static void draw_pixel_blend_edge_zwrite(const int idx, const uint16_t z, Color4
     register int y_end = y_b; \
     register int x, x_end; \
     register int idx; \
-    register float dx, w; \
+    register float dx; \
+    fixed_t fdx; \
     uint16_t uz; \
     /* draw triangle segment from y_a to y_b */ \
     while (y < y_end) { \
@@ -484,22 +509,22 @@ static void draw_pixel_blend_edge_zwrite(const int idx, const uint16_t z, Color4
         x_end = imin(r_clip.x1, x_b); \
         /* do X subpixel prestepping */ \
         dx = 1.f - (x_a - x); \
-        for (i = 2; i < nprops; ++i) p[i] = p_a[i] + dx * dp[i].x; \
+        fdx = fixed_from_float(dx); \
+        for (i = 2; i < nprops; ++i) fp[i] = fp_a[i] + fixed_mul(fdx, fdp_x[i]); \
         idx = scr_width * (scr_height - y - 1) + x; \
         /* draw scanline from current x_a to current x_b */ \
         while (x++ < x_end) { \
-            uz = u16clamp(p[2] * 65535.f + z_offset); \
+            uz = u16clamp((int)(((int64_t)fp[2] * 65535) >> FIXED_SHIFT) + z_offset); \
             if (!z_test || uz <= z_buffer[idx]) { \
-                w = 1.f / p[3]; /* the combiner will multiply by w any props it needs to persp correct */ \
-                draw_fn(idx, uz, cur_shader->combine(w, p + 4)); \
+                draw_fn(idx, uz, cur_shader->combine(FIXED_ONE, fp + 4)); \
             } \
-            for (i = 2; i < nprops; ++i) p[i] += dp[i].x; \
+            for (i = 2; i < nprops; ++i) fp[i] += fdp_x[i]; \
             ++idx; \
         } \
         /* advance scanline start and end and prop starts */ \
         x_a += dxdy_a; \
         x_b += dxdy_b; \
-        for (i = 2; i < nprops; ++i) p_a[i] += dpdy_a[i]; \
+        for (i = 2; i < nprops; ++i) fp_a[i] += fdpdy_a[i]; \
         ++y; \
     }
 
@@ -521,15 +546,17 @@ static void draw_pixel_blend_edge_zwrite(const int idx, const uint16_t z, Color4
     const float dxdy_bc = bc.x / bc.y; /* x increment along bc */ \
     const bool side = dxdy_ac > dxdy_ab; /* which side the longer edge (AC) is on */ \
     const float y_pre0 = 1.f - (v0[1] - y0i); /* subpixel pre-step */ \
-    float dpdy_a[nprops]; /* vertex prop increments along left edge */ \
-    float p_a[nprops]; /* vertex leftmost points */ \
-    float p[nprops]; /* current vertex prop values */ \
+    fixed_t fdpdy_a[nprops]; /* Q16.16 prop increments along left edge */ \
+    fixed_t fp_a[nprops]; /* Q16.16 vertex leftmost points */ \
+    fixed_t fp[nprops]; /* Q16.16 current vertex prop values */ \
+    fixed_t fdp_x[nprops]; /* Q16.16 horizontal prop increments */ \
     Vector2 dp[nprops]; /* X and Y increments for vertex props */ \
     register int i; \
     /* we'll interpolate z/w (p[2]), 1/w (p[3]) and the other properties (also divided by w) */ \
     for (i = 2; i < nprops; ++i) { \
         dp[i].x = ((v2[i] - v0[i]) * ab.y - (v1[i] - v0[i]) * ac.y) * denom; \
         dp[i].y = ((v1[i] - v0[i]) * ac.x - (v2[i] - v0[i]) * ab.x) * denom; \
+        fdp_x[i] = fixed_from_float(dp[i].x); \
     } \
     if (!side) { \
         /* longer edge is on the left */ \
@@ -537,8 +564,9 @@ static void draw_pixel_blend_edge_zwrite(const int idx, const uint16_t z, Color4
         /* first column of this scanline is on AC */ \
         float x_a = v0[0] + y_pre0 * dxdy_a; \
         for (i = 2; i < nprops; ++i) { \
-            dpdy_a[i] = dxdy_ac * dp[i].x + dp[i].y; \
-            p_a[i] = v0[i] + y_pre0 * dpdy_a[i]; \
+            const float dpdy = dxdy_ac * dp[i].x + dp[i].y; \
+            fdpdy_a[i] = fixed_from_float(dpdy); \
+            fp_a[i] = fixed_from_float(v0[i] + y_pre0 * dpdy); \
         } \
         if (y0i < y1i) { \
             /* left is AC, right is AB */ \
@@ -565,8 +593,9 @@ static void draw_pixel_blend_edge_zwrite(const int idx, const uint16_t z, Color4
             const float dxdy_a = dxdy_ab; \
             float x_a = v0[0] + y_pre0 * dxdy_a; \
             for (i = 2; i < nprops; ++i) { \
-                dpdy_a[i] = dxdy_ab * dp[i].x + dp[i].y; \
-                p_a[i] = v0[i] + y_pre0 * dpdy_a[i]; \
+                const float dpdy = dxdy_ab * dp[i].x + dp[i].y; \
+                fdpdy_a[i] = fixed_from_float(dpdy); \
+                fp_a[i] = fixed_from_float(v0[i] + y_pre0 * dpdy); \
             } \
             R_RASTERIZE_TRI_SEG(y0i, y1i, nprops); \
         } \
@@ -576,8 +605,9 @@ static void draw_pixel_blend_edge_zwrite(const int idx, const uint16_t z, Color4
             const float dxdy_a = dxdy_bc; \
             float x_a = v1[0] + y_pre1 * dxdy_a; \
             for (i = 2; i < nprops; ++i) { \
-                dpdy_a[i] = dxdy_bc * dp[i].x + dp[i].y; \
-                p_a[i] = v1[i] + y_pre1 * dpdy_a[i]; \
+                const float dpdy = dxdy_bc * dp[i].x + dp[i].y; \
+                fdpdy_a[i] = fixed_from_float(dpdy); \
+                fp_a[i] = fixed_from_float(v1[i] + y_pre1 * dpdy); \
             } \
             R_RASTERIZE_TRI_SEG(y1i, y2i, nprops); \
         } \
@@ -607,7 +637,27 @@ static inline void pop_triangle(const float *buf, const int stride) {
     Vector4 *v2 = (Vector4 *)(buf + (stride << 1));
     Vector4 *vt;
 
-    // the vertices come to us in clip space, but already divided by w, still gotta transform
+    /*
+     * gfx_pc supplies attributes multiplied by inverse W.  Undo that once
+     * per vertex, then interpolate them affinely.  At 160x120 the visual
+     * difference is small, and this removes the ARM software divide that
+     * otherwise ran for every covered pixel.
+     */
+    Vector4 *vertices[3] = { v0, v1, v2 };
+    int vertex_index;
+
+    for (vertex_index = 0; vertex_index < 3; ++vertex_index) {
+        float *vertex = (float *)vertices[vertex_index];
+        const float inv_w = vertex[3];
+        const float w = inv_w != 0.f ? 1.f / inv_w : 0.f;
+        int property;
+
+        for (property = 4; property < stride; ++property)
+            vertex[property] *= w;
+        vertex[3] = 1.f;
+    }
+
+    // the vertices come to us in clip space, still gotta transform XY
     viewport_transform(v0);
     viewport_transform(v1);
     viewport_transform(v2);
@@ -836,7 +886,7 @@ static void gfx_soft_set_depth_mask(bool z_upd) {
 }
 
 static void gfx_soft_set_zmode_decal(bool zmode_decal) {
-    z_offset = zmode_decal ? -32.f : 0.f;
+    z_offset = zmode_decal ? -32 : 0;
 }
 
 static void gfx_soft_set_viewport(int x, int y, int width, int height) {
@@ -909,13 +959,16 @@ static inline void gfx_soft_tex_rect_replace(int x0, int y0, int x1, int y1, con
     register int base = y0 * scr_width + x0;
     register int idx;
     register int x, y;
-    float u;
-    float v = v0;
-    for (y = y0; y < y1; ++y, base += scr_width, v += dvdy) {
+    fixed_t u;
+    fixed_t v = fixed_from_float(v0);
+    const fixed_t du = fixed_from_float(dudx);
+    const fixed_t dv = fixed_from_float(dvdy);
+    const fixed_t u_start = fixed_from_float(u0);
+    for (y = y0; y < y1; ++y, base += scr_width, v += dv) {
         idx = base;
-        u = u0;
-        for (x = x0; x < x1; ++x, ++idx, u += dudx)
-            draw_fn(idx, 0, cur_tex[0]->sample(cur_tex[0], u, v));
+        u = u_start;
+        for (x = x0; x < x1; ++x, ++idx, u += du)
+            draw_fn(idx, 0, cur_tex[0]->sample(cur_tex[0], u >> FIXED_SHIFT, v >> FIXED_SHIFT));
     }
 }
 
@@ -923,13 +976,16 @@ static inline void gfx_soft_tex_rect_modulate(int x0, int y0, int x1, int y1, co
     register int base = y0 * scr_width + x0;
     register int idx;
     register int x, y;
-    float u;
-    float v = v0;
-    for (y = y0; y < y1; ++y, base += scr_width, v += dvdy) {
+    fixed_t u;
+    fixed_t v = fixed_from_float(v0);
+    const fixed_t du = fixed_from_float(dudx);
+    const fixed_t dv = fixed_from_float(dvdy);
+    const fixed_t u_start = fixed_from_float(u0);
+    for (y = y0; y < y1; ++y, base += scr_width, v += dv) {
         idx = base;
-        u = u0;
-        for (x = x0; x < x1; ++x, ++idx, u += dudx)
-            draw_fn(idx, 0, rgba_modulate(cur_tex[0]->sample(cur_tex[0], u, v), rgba));
+        u = u_start;
+        for (x = x0; x < x1; ++x, ++idx, u += du)
+            draw_fn(idx, 0, rgba_modulate(cur_tex[0]->sample(cur_tex[0], u >> FIXED_SHIFT, v >> FIXED_SHIFT), rgba));
     }
 }
 

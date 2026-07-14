@@ -1688,6 +1688,16 @@ static void tagtree_resolve_album_artist(struct tagcache_search *album_tcs,
 
     buf[0] = '\0';
 
+    /* Album entries are already unique values backed by a representative
+     * track.  In the normal case the representative carries albumartist;
+     * use it directly instead of opening two additional filtered searches
+     * for every album row.  Keep the exhaustive path for files with missing
+     * albumartist metadata so Various Artists detection remains intact there.
+     */
+    if (tagcache_retrieve(album_tcs, idx_id, tag_albumartist, buf, size) &&
+        tagtree_valid_artist_name(buf))
+        return;
+
     if (tagtree_single_album_tag_value(tag_albumartist, album_seek, level,
                                        buf, size, &multiple))
         return;
@@ -1705,10 +1715,6 @@ static void tagtree_resolve_album_artist(struct tagcache_search *album_tcs,
         strmemccpy(buf, "Various Artists", size);
         return;
     }
-
-    if (tagcache_retrieve(album_tcs, idx_id, tag_albumartist, buf, size) &&
-        tagtree_valid_artist_name(buf))
-        return;
 
     if (!tagcache_retrieve(album_tcs, idx_id, tag_artist, buf, size) ||
         !tagtree_valid_artist_name(buf))

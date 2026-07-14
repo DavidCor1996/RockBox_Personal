@@ -174,6 +174,55 @@ def test_album_list_fullscreen_viewport_keeps_non_album_iclassic_pane():
     assert "list_get_title_height(list, screen)" in bitmap_list
 
 
+def test_ipodjs_fullscreen_album_lists_keep_ipodjs_palette():
+    bitmap_list = _read("apps/gui/bitmap/list.c")
+    root_menu = _read("apps/root_menu.c")
+
+    enabled_body = bitmap_list.split(
+        "static bool list_ipodjs_enabled", 1
+    )[1].split("static int list_ipodjs_font", 1)[0]
+    assert "global_settings.ui_engine == UI_ENGINE_IPODJS" in enabled_body
+    assert "force_fullscreen_albumlist" not in enabled_body
+    assert "if (list_ipodjs_enabled(display))" in bitmap_list
+    assert "ipodjs_ui_header_text()" in bitmap_list
+    assert "ipodjs_ui_header_bg()" in bitmap_list
+    assert "ipodjs_ui_glass_gradient" in bitmap_list
+    assert "global_settings.ui_engine_dark_mode" in bitmap_list
+
+    handoff_body = root_menu.split(
+        "static int root_menu_video_finish_native_screen", 1
+    )[1].split("static int root_menu_video_row_height", 1)[0]
+    assert "root_menu_video_uses_stock_music()" in handoff_body
+    assert "ret == GO_TO_DBBROWSER" in handoff_body
+
+
+def test_ipodjs_photos_slideshow_uses_full_quality_previews():
+    root_menu = _read("apps/root_menu.c")
+    photo_loader = root_menu.split(
+        "static void root_menu_video_preview_load_photo_paths", 1
+    )[1].split("static void root_menu_video_preview_load_game_paths", 1)[0]
+
+    assert '"/Photos/.photo_previews"' in photo_loader
+    assert ".photo_thumbs" not in photo_loader
+    assert "root_menu_video_draw_source_slideshow(source, x, y, w, h)" in root_menu
+
+
+def test_ipodjs_photos_slideshow_excludes_locked_photos_and_folders():
+    root_menu = _read("apps/root_menu.c")
+    lock_filter = root_menu.split(
+        "static bool root_menu_video_photo_preview_is_locked", 1
+    )[1].split("static void root_menu_video_preview_load_photo_paths", 1)[0]
+    photo_launcher = root_menu.split(
+        "static int launch_photos_plugin", 1
+    )[1].split("MENUITEM_FUNCTION(photos_item", 1)[0]
+
+    assert 'PLUGIN_APPS_DATA_DIR "/photos.locks"' in root_menu
+    assert "relative_len == lock_len || relative[lock_len] == '/'" in lock_filter
+    assert "root_menu_video_preview_filter_locked_photos();" in root_menu
+    assert "root_menu_video_preview_path_count = 0;" in lock_filter
+    assert "IPODJS_PREVIEW_PHOTOS" in photo_launcher
+
+
 def test_album_list_change_does_not_edit_ipone_colors():
     cfg = _read("build-sim-video-5g/simdisk/.rockbox/config.cfg")
 

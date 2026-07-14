@@ -77,7 +77,7 @@ iap/iap-lingo7.c
 #endif
 screen_access.c
 gui/icon.c
-#if defined(HAVE_LCD_COLOR) && (defined(IPOD_VIDEO) || defined(IPOD_6G) || defined(IPOD_NANO3G))
+#ifdef HAVE_IPODJS_UI
 gui/ipodjs_ui.c
 #endif
 gui/list.c

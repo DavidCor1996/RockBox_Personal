@@ -100,9 +100,10 @@
 #include "font.h"
 #include "timefuncs.h"
 #endif
-#if defined(IPOD_VIDEO) || defined(IPOD_6G) || defined(IPOD_NANO3G)
+#ifdef HAVE_IPODJS_UI
 #include "gui/albumlist_art.h"
 static bool root_menu_video_enabled(void);
+static bool root_menu_video_uses_stock_music(void);
 static int ipodjs_video_wps(void);
 static bool ipodjs_video_wps_empty(const char *title, const char *message,
                                    bool allow_replay);
@@ -239,12 +240,14 @@ static int browser(void* param)
                         continue;
                     }
 
-                    /* Re-init if required */
+                    /* Revalidate a previously deployed database without
+                     * deleting it. A transient playback/storage failure must
+                     * never turn entering Music into an automatic rebuild. */
                     if (!reinit_attempted && !stat->ready &&
                         stat->processed_entries == 0 && stat->commit_step == 0)
                     {
                         reinit_attempted = true;
-                        tagcache_rebuild();
+                        tagcache_commit_finalize();
                     }
 
                     /* Display building progress */
@@ -1659,6 +1662,7 @@ static void videos_draw_item(struct list_putlineinfo_t *list_info)
                                 thumb_path, sizeof(thumb_path)))
         bm = video_load_thumb_bitmap(thumb_path);
 
+#ifdef HAVE_IPODJS_UI
     if (global_settings.ui_engine == UI_ENGINE_IPODJS)
     {
         int row_height = list_info->linedes->height;
@@ -1681,6 +1685,7 @@ static void videos_draw_item(struct list_putlineinfo_t *list_info)
                            list_info->dsp_text, false);
         return;
     }
+#endif
 
     if (!bm)
     {
@@ -1704,8 +1709,12 @@ static void videos_setup_art_list(struct gui_synclist *list)
     if (!list)
         return;
 
-    gui_synclist_set_fullscreen_albumlist(
-        list, global_settings.ui_engine != UI_ENGINE_IPODJS);
+    gui_synclist_set_fullscreen_albumlist(list,
+#ifdef HAVE_IPODJS_UI
+        global_settings.ui_engine != UI_ENGINE_IPODJS);
+#else
+        true);
+#endif
 
     int fd = open(VIDEO_LIST_INDEX, O_RDONLY);
     if (fd < 0)
@@ -1727,7 +1736,7 @@ static struct video_browser_state *current_video_browser_state;
 static bool videos_browser_screen_active;
 static void root_menu_video_preview_invalidate_source_cache(
     enum root_menu_video_preview_source source);
-#if !defined(IPOD_VIDEO) && !defined(IPOD_6G) && !defined(IPOD_NANO3G)
+#ifndef HAVE_IPODJS_UI
 static void root_menu_video_preview_invalidate_source_cache(
     enum root_menu_video_preview_source source)
 {
@@ -2120,7 +2129,11 @@ static int videos_scrn(void* param)
     list.get_icon = global_settings.show_icons ? videos_get_icon : NULL;
     list.action_callback = videos_action_cb;
     list.title_icon = Icon_file_view_menu;
+#ifdef HAVE_IPODJS_UI
     list.hide_theme = global_settings.ui_engine == UI_ENGINE_IPODJS;
+#else
+    list.hide_theme = false;
+#endif
     list.selection = MIN(state.selection, state.count - 1);
 
     videos_browser_screen_active = true;
@@ -2167,8 +2180,9 @@ static int wpsscrn(void* param)
     if (audstatus)
     {
         talk_shutup();
-#if defined(IPOD_VIDEO) || defined(IPOD_6G) || defined(IPOD_NANO3G)
-        if (root_menu_video_enabled())
+#ifdef HAVE_IPODJS_UI
+        if (root_menu_video_enabled() &&
+            !root_menu_video_uses_stock_music())
             ret_val = ipodjs_video_wps();
         else
 #endif
@@ -2186,8 +2200,9 @@ static int wpsscrn(void* param)
                 global_status.resume_crc32,
                 global_status.resume_elapsed,
                 global_status.resume_offset);
-#if defined(IPOD_VIDEO) || defined(IPOD_6G) || defined(IPOD_NANO3G)
-            if (root_menu_video_enabled())
+#ifdef HAVE_IPODJS_UI
+            if (root_menu_video_enabled() &&
+                !root_menu_video_uses_stock_music())
                 ret_val = ipodjs_video_wps();
             else
 #endif
@@ -2196,8 +2211,9 @@ static int wpsscrn(void* param)
     }
     else if (!file_exists(PLAYLIST_CONTROL_FILE))
     {
-#if defined(IPOD_VIDEO) || defined(IPOD_6G) || defined(IPOD_NANO3G)
-        if (root_menu_video_enabled())
+#ifdef HAVE_IPODJS_UI
+        if (root_menu_video_enabled() &&
+            !root_menu_video_uses_stock_music())
         {
             ipodjs_video_wps_empty("No Music", "Nothing to resume", false);
             ret_val = GO_TO_ROOT;
@@ -2207,8 +2223,9 @@ static int wpsscrn(void* param)
         splash(HZ*2, ID2P(LANG_NOTHING_TO_RESUME));
     }
     else if (
-#if defined(IPOD_VIDEO) || defined(IPOD_6G) || defined(IPOD_NANO3G)
-             (root_menu_video_enabled() ?
+#ifdef HAVE_IPODJS_UI
+             (root_menu_video_enabled() &&
+              !root_menu_video_uses_stock_music() ?
               ipodjs_video_wps_empty("Playlist Finished",
                                      "Select to replay", true) :
               yesno_pop(ID2P(LANG_REPLAY_FINISHED_PLAYLIST))) &&
@@ -2218,20 +2235,22 @@ static int wpsscrn(void* param)
              playlist_resume() != -1)
     {
         playlist_start(0, 0, 0);
-#if defined(IPOD_VIDEO) || defined(IPOD_6G) || defined(IPOD_NANO3G)
-        if (root_menu_video_enabled())
+#ifdef HAVE_IPODJS_UI
+        if (root_menu_video_enabled() &&
+            !root_menu_video_uses_stock_music())
             ret_val = ipodjs_video_wps();
         else
 #endif
         ret_val = gui_wps_show();
     }
 
-#ifdef HAVE_TAGCACHE
+#if defined(HAVE_TAGCACHE) && defined(HAVE_IPODJS_UI)
     /* When WPS was entered from cover flow, route WPS exits that normally
      * jump to root/files back through screen history so GO_TO_PREVIOUS
      * reopens pictureflow instead. Do the same for WPS launched from the
      * root menu so browse/back returns there instead of the default browser. */
-    if ((ret_val == GO_TO_ROOT || ret_val == GO_TO_PREVIOUS_BROWSER) &&
+    if (!root_menu_video_uses_stock_music() &&
+        (ret_val == GO_TO_ROOT || ret_val == GO_TO_PREVIOUS_BROWSER) &&
         (last_screen == GO_TO_PICTUREFLOW || last_screen == GO_TO_ROOT) &&
         audio_status())
     {
@@ -2437,8 +2456,12 @@ static int load_plugin_path_screen(const char *path, const char *param);
 
 static int launch_photos_plugin(void *param)
 {
+    int ret;
+
     (void)param;
-    return load_plugin_path_screen(PLUGIN_APPS_DIR "/photos.rock", NULL);
+    ret = load_plugin_path_screen(PLUGIN_APPS_DIR "/photos.rock", NULL);
+    root_menu_video_preview_invalidate_source_cache(IPODJS_PREVIEW_PHOTOS);
+    return ret;
 }
 
 MENUITEM_FUNCTION(photos_item, MENU_FUNC_CHECK_RETVAL,
@@ -3005,6 +3028,22 @@ static struct menu_table menu_table[] = {
 #define MAX_MENU_ITEMS (sizeof(menu_table) / sizeof(struct menu_table))
 static struct menu_item_ex *root_menu__[MAX_MENU_ITEMS];
 
+/* Keep the uncustomized iPodJS home screen and Main Menu Configuration's
+ * "Load Default" action on the same stock Apple-style item set. */
+#ifdef HAVE_IPODJS_UI
+static const struct menu_item_ex * const root_menu_ipodjs_default_items[] = {
+#ifdef HAVE_TAGCACHE
+    &pictureflow_item,
+    &db_browser,
+#endif
+    &videos,
+    &photos_item,
+    &applications_menu,
+    &menu_,
+    &wps_item,
+};
+#endif
+
 enum root_power_menu_choice
 {
     ROOT_POWER_MENU_SHUTDOWN = 0,
@@ -3030,9 +3069,6 @@ void root_menu_load_from_cfg(void* setting, char *value)
 {
     char *next = value, *start, *end;
     unsigned int menu_item_count = 0, i;
-    bool main_menu_added = false;
-    bool games_added = false;
-    int insert_at = -1;
 
     if (*value == '-')
     {
@@ -3060,31 +3096,14 @@ void root_menu_load_from_cfg(void* setting, char *value)
             if (*start && !strcmp(start, menu_table[i].string))
             {
                 root_menu__[menu_item_count++] = (struct menu_item_ex *)menu_table[i].item;
-                if (menu_table[i].item == &menu_)
-                    main_menu_added = true;
-                if (menu_table[i].item == &gameboy_browser ||
-                    menu_table[i].item == &pokemini_item)
-                    games_added = true;
-                if (menu_table[i].item == &videos
-#ifdef HAVE_TAGCACHE
-                    || menu_table[i].item == &db_browser
-#endif
-                   )
-                    insert_at = (int)menu_item_count;
                 break;
             }
         }
     }
-    if (!games_added)
-    {
-        if (insert_at < 0 || (unsigned)insert_at > menu_item_count)
-            insert_at = menu_item_count;
-        for (i = menu_item_count; i > (unsigned)insert_at; i--)
-            root_menu__[i] = root_menu__[i - 1];
-        root_menu__[insert_at] = (struct menu_item_ex *)&gameboy_browser;
-        menu_item_count++;
-    }
-    if (!main_menu_added)
+
+    /* An empty root cannot be navigated. Preserve one recovery route, but
+     * otherwise honor the configured visibility exactly. */
+    if (menu_item_count == 0)
         root_menu__[menu_item_count++] = (struct menu_item_ex *)&menu_;
     root_menu_.flags |= MENU_ITEM_COUNT(menu_item_count);
     *(bool*)setting = true;
@@ -3093,14 +3112,27 @@ void root_menu_load_from_cfg(void* setting, char *value)
 char* root_menu_write_to_cfg(void* setting, char*buf, int buf_len)
 {
     (void)setting;
-    unsigned i, written, j;
+    unsigned i, j;
+
+    if (buf == NULL || buf_len <= 0)
+        return buf;
+
     for (i = 0; i < MENU_GET_COUNT(root_menu_.flags); i++)
     {
         for (j=0; j<MAX_MENU_ITEMS; j++)
         {
             if (menu_table[j].item == root_menu__[i])
             {
-                written = snprintf(buf, buf_len, "%s, ", menu_table[j].string);
+                int written = snprintf(buf, buf_len, "%s, ",
+                                       menu_table[j].string);
+
+                if (written < 0)
+                    return buf;
+                if (written >= buf_len)
+                {
+                    buf += buf_len - 1;
+                    return buf;
+                }
                 buf_len -= written;
                 buf += written;
                 break;
@@ -3120,15 +3152,26 @@ void root_menu_set_default(void* setting, void* defaultval)
     root_menu_.submenus = (const struct menu_item_ex **)&root_menu__;
     root_menu_.callback_and_desc = &root_menu_desc;
 
-    for (i=0; i<MAX_MENU_ITEMS; i++)
+#ifdef HAVE_IPODJS_UI
+    if (global_settings.ui_engine == UI_ENGINE_IPODJS)
     {
-        if (menu_table[i].item == &podemon_go_item ||
-            menu_table[i].item == &pokemini_item ||
-            menu_table[i].item == &applications_menu ||
-            menu_table[i].item == &desktop_mode_item)
-            continue;
+        for (i = 0; i < ARRAYLEN(root_menu_ipodjs_default_items); i++)
+            root_menu__[count++] = (struct menu_item_ex *)
+                root_menu_ipodjs_default_items[i];
+    }
+    else
+#endif
+    {
+        for (i=0; i<MAX_MENU_ITEMS; i++)
+        {
+            if (menu_table[i].item == &podemon_go_item ||
+                menu_table[i].item == &pokemini_item ||
+                menu_table[i].item == &applications_menu ||
+                menu_table[i].item == &desktop_mode_item)
+                continue;
 
-        root_menu__[count++] = (struct menu_item_ex *)menu_table[i].item;
+            root_menu__[count++] = (struct menu_item_ex *)menu_table[i].item;
+        }
     }
     root_menu_.flags |= MENU_ITEM_COUNT(count);
     *(bool*)setting = false;
@@ -3833,7 +3876,7 @@ static int root_menu_nano2g_dashboard(int *selectedp)
 }
 #endif /* IPOD_NANO2G */
 
-#if defined(IPOD_VIDEO) || defined(IPOD_6G) || defined(IPOD_NANO3G)
+#ifdef HAVE_IPODJS_UI
 #define IPODJS_HEADER_TOP       LCD_RGBPACK(252, 253, 253)
 #define IPODJS_HEADER_MID       LCD_RGBPACK(216, 219, 223)
 #define IPODJS_HEADER_BOTTOM    LCD_RGBPACK(174, 178, 183)
@@ -3889,6 +3932,7 @@ static int root_menu_nano2g_dashboard(int *selectedp)
 #define IPODJS_DB_PLAYPAUSE_DEBOUNCE MAX(1, HZ / 5)
 #define IPODJS_ASSET_DIR        ROCKBOX_DIR "/ipodjs"
 #define IPODJS_APPLE_ASSET_DIR  ROCKBOX_DIR "/ipodjs/apple"
+#define IPODJS_PHOTOS_LOCKS     PLUGIN_APPS_DATA_DIR "/photos.locks"
 
 #if defined(LOGF_ENABLE) && defined(SIMULATOR)
 #define IPODJS_LOGF(...) logf(__VA_ARGS__)
@@ -3915,24 +3959,12 @@ static bool root_menu_video_hold_storm_active(void)
     return TIME_BEFORE(current_tick, root_menu_video_hold_storm_until);
 }
 
-static const struct menu_item_ex * const root_menu_video_items[] = {
-#ifdef HAVE_TAGCACHE
-    &pictureflow_item,
-    &db_browser,
-#endif
-    &videos,
-    &photos_item,
-    &applications_menu,
-    &menu_,
-    &wps_item,
-};
-
 static int root_menu_video_count(void)
 {
     if (global_settings.root_menu_customized)
         return MENU_GET_COUNT(root_menu_.flags);
 
-    return ARRAYLEN(root_menu_video_items);
+    return ARRAYLEN(root_menu_ipodjs_default_items);
 }
 
 static const struct menu_item_ex *root_menu_video_item(int index)
@@ -3943,7 +3975,7 @@ static const struct menu_item_ex *root_menu_video_item(int index)
     if (global_settings.root_menu_customized)
         return root_menu__[index];
 
-    return root_menu_video_items[index];
+    return root_menu_ipodjs_default_items[index];
 }
 
 static bool root_menu_video_has_current_track(void)
@@ -3996,6 +4028,18 @@ static bool root_menu_video_enabled(void)
     return global_settings.ui_engine == UI_ENGINE_IPODJS;
 }
 
+/* Keep the iPodJS dashboard on Classic hardware, but hand music browsing and
+ * playback to Rockbox's normal tagtree/WPS lifecycle.  This deliberately
+ * avoids maintaining a second database/playlist/WPS path on the 6G. */
+static bool root_menu_video_uses_stock_music(void)
+{
+#ifdef IPOD_6G
+    return true;
+#else
+    return false;
+#endif
+}
+
 static void root_menu_video_enter_native_screen(void)
 {
     if (root_menu_video_theme_depth++ == 0)
@@ -4014,7 +4058,9 @@ static int root_menu_video_finish_native_screen(int ret)
         --root_menu_video_theme_depth == 0)
     {
         if (root_menu_video_enabled() &&
-            (ret == GO_TO_ROOT || ret == GO_TO_WPS))
+            (ret == GO_TO_ROOT || ret == GO_TO_WPS ||
+             (root_menu_video_uses_stock_music() &&
+              ret == GO_TO_DBBROWSER)))
             root_menu_video_native_handoff = true;
         else
         {
@@ -4024,6 +4070,18 @@ static int root_menu_video_finish_native_screen(int ret)
     }
 
     return ret;
+}
+
+void root_menu_ipodjs_enter_wps_frame(void)
+{
+    if (root_menu_video_enabled())
+        root_menu_video_enter_native_screen();
+}
+
+void root_menu_ipodjs_leave_wps_frame(void)
+{
+    if (root_menu_video_enabled())
+        root_menu_video_finish_native_screen(GO_TO_ROOT);
 }
 
 static int root_menu_video_row_height(void)
@@ -4363,7 +4421,7 @@ static void root_menu_video_storage_info(char *buf, size_t buf_size,
     static bool cached_valid;
     sector_t size = 0;
     sector_t free = 0;
-    char avail[32];
+    unsigned long free_tenths_gb;
     unsigned long long total_kib;
     unsigned long long used_kib;
 
@@ -4388,8 +4446,13 @@ static void root_menu_video_storage_info(char *buf, size_t buf_size,
     total_kib = (unsigned long long)size;
     used_kib = free < size ? (unsigned long long)(size - free) : 0;
     cached_used_pct = MIN(100, (int)((used_kib * 100) / total_kib));
-    output_dyn_value(avail, sizeof(avail), free, kibyte_units, 3, true);
-    snprintf(cached, sizeof(cached), "%s Free", avail);
+    /* The stock Classic labels this value as GB (not Rockbox's GiB) and
+     * keeps a single decimal place in the split-menu Settings preview. */
+    free_tenths_gb = (unsigned long)
+        ((((unsigned long long)free * 10) + (512ULL * 1024)) /
+         (1024ULL * 1024));
+    snprintf(cached, sizeof(cached), "%lu.%lu GB Free",
+             free_tenths_gb / 10, free_tenths_gb % 10);
     cached_tick = current_tick;
     cached_valid = true;
     strmemccpy(buf, cached, buf_size);
@@ -4428,38 +4491,29 @@ static void root_menu_video_draw_apple_mark(int cx, int y)
 static void root_menu_video_draw_storage_bar(int x, int y, int w, int used_pct)
 {
     int h = 11;
-    int inner_x = x + 2;
-    int inner_y = y + 2;
-    int inner_w = w - 4;
-    int inner_h = h - 4;
-    int fill_w = inner_w * MAX(0, MIN(used_pct, 100)) / 100;
+    int fill_w;
 
-    lcd_set_foreground(LCD_RGBPACK(58, 62, 68));
-    lcd_fillrect(x + 1, y, w - 2, h);
-    lcd_fillrect(x, y + 1, w, h - 2);
+    /* Stock Classic: a dark inset capsule is the unused-space cutout and a
+     * white capsule grows from the left to show used capacity. */
+    lcd_set_foreground(LCD_RGBPACK(69, 78, 92));
+    lcd_fillrect(x + 3, y + 1, w - 6, h);
+    lcd_fillrect(x + 1, y + 3, w - 2, h - 4);
+    lcd_fillrect(x, y + 5, w, h - 8);
 
-    lcd_set_foreground(LCD_RGBPACK(226, 229, 234));
-    lcd_fillrect(x + 1, y + 1, w - 2, h - 2);
+    lcd_set_foreground(LCD_RGBPACK(105, 116, 132));
+    lcd_fillrect(x + 3, y + 2, w - 6, h - 3);
+    lcd_fillrect(x + 1, y + 4, w - 2, h - 7);
 
-    root_menu_video_gradient(inner_x, inner_y, inner_w, inner_h,
-                             LCD_RGBPACK(248, 249, 251),
-                             LCD_RGBPACK(201, 207, 216));
-
+    fill_w = (w - 2) * MAX(0, MIN(used_pct, 100)) / 100;
     if (fill_w > 0)
     {
-        if (fill_w < 2)
-            fill_w = 2;
-        root_menu_video_gradient(inner_x, inner_y, fill_w, inner_h,
-                                 LCD_RGBPACK(112, 190, 245),
-                                 LCD_RGBPACK(0, 105, 205));
-        lcd_set_foreground(LCD_RGBPACK(182, 226, 255));
-        lcd_hline(inner_x, inner_x + fill_w - 1, inner_y);
+        /* Apple leaves even a nearly-empty device with a small white pip. */
+        fill_w = MAX(h - 2, MIN(fill_w, w - 2));
+        lcd_set_foreground(LCD_RGBPACK(255, 255, 255));
+        lcd_fillrect(x + 4, y + 1, MAX(1, fill_w - 6), h - 2);
+        lcd_fillrect(x + 2, y + 3, MAX(1, fill_w - 2), h - 6);
+        lcd_fillrect(x + 1, y + 4, fill_w, h - 8);
     }
-
-    lcd_set_foreground(LCD_RGBPACK(255, 255, 255));
-    lcd_hline(x + 2, x + w - 3, y + 1);
-    lcd_set_foreground(LCD_RGBPACK(86, 91, 100));
-    lcd_drawrect(x, y, w, h);
 }
 
 static void root_menu_video_draw_settings_preview(int x, int y, int w, int h,
@@ -6175,6 +6229,8 @@ static void root_menu_video_preview_invalidate_source_cache(
 
     root_menu_video_preview_source_caches[source].loaded = false;
     root_menu_video_preview_source_caches[source].next_reload = 0;
+    if (root_menu_video_preview_loaded == source)
+        root_menu_video_preview_loaded = IPODJS_PREVIEW_NONE;
 }
 
 static void root_menu_video_preview_reset_slots(void)
@@ -6308,8 +6364,8 @@ static bool root_menu_video_preview_pane_variant(const char *path,
     return file_exists(out);
 }
 
-static void root_menu_video_preview_scan_photo_thumbs(const char *path,
-                                                      int depth)
+static void root_menu_video_preview_scan_photo_previews(const char *path,
+                                                        int depth)
 {
     DIR *dir;
     struct dirent *entry;
@@ -6336,7 +6392,7 @@ static void root_menu_video_preview_scan_photo_thumbs(const char *path,
         snprintf(child, sizeof(child), "%s/%s", path, entry->d_name);
         if (info.attribute & ATTR_DIRECTORY)
         {
-            root_menu_video_preview_scan_photo_thumbs(child, depth + 1);
+            root_menu_video_preview_scan_photo_previews(child, depth + 1);
             continue;
         }
 
@@ -6348,9 +6404,83 @@ static void root_menu_video_preview_scan_photo_thumbs(const char *path,
     closedir(dir);
 }
 
+static bool root_menu_video_photo_preview_is_locked(const char *path,
+                                                    const char *lock_path)
+{
+    static const char prefix[] = "/Photos/.photo_previews/";
+    const char *relative;
+    size_t relative_len;
+    size_t lock_len;
+
+    if (!path || !lock_path || !lock_path[0] ||
+        strncmp(path, prefix, sizeof(prefix) - 1))
+        return false;
+
+    relative = path + sizeof(prefix) - 1;
+    relative_len = strlen(relative);
+    if (relative_len <= 4 || strcasecmp(relative + relative_len - 4, ".bmp"))
+        return false;
+
+    relative_len -= 4;
+    lock_len = strlen(lock_path);
+    if (relative_len < lock_len || strncmp(relative, lock_path, lock_len))
+        return false;
+
+    return relative_len == lock_len || relative[lock_len] == '/';
+}
+
+static void root_menu_video_preview_filter_locked_photos(void)
+{
+    char line[MAX_PATH + 16];
+    int fd;
+
+    if (!file_exists(IPODJS_PHOTOS_LOCKS))
+        return;
+
+    fd = open(IPODJS_PHOTOS_LOCKS, O_RDONLY);
+    if (fd < 0)
+    {
+        /* A lock database that cannot be read must not leak private images. */
+        root_menu_video_preview_path_count = 0;
+        return;
+    }
+
+    while (root_menu_video_preview_path_count > 0 &&
+           read_line(fd, line, sizeof(line)) > 0)
+    {
+        char *separator;
+        int kept = 0;
+
+        video_trim_line(line);
+        separator = strrchr(line, '|');
+        if (!separator || separator == line)
+            continue;
+        *separator = '\0';
+
+        for (int i = 0; i < root_menu_video_preview_path_count; i++)
+        {
+            if (root_menu_video_photo_preview_is_locked(
+                    root_menu_video_preview_paths[i], line))
+                continue;
+
+            if (kept != i)
+            {
+                strmemccpy(root_menu_video_preview_paths[kept],
+                           root_menu_video_preview_paths[i],
+                           sizeof(root_menu_video_preview_paths[kept]));
+            }
+            kept++;
+        }
+        root_menu_video_preview_path_count = kept;
+    }
+
+    close(fd);
+}
+
 static void root_menu_video_preview_load_photo_paths(void)
 {
-    root_menu_video_preview_scan_photo_thumbs("/Photos/.photo_thumbs", 0);
+    root_menu_video_preview_scan_photo_previews("/Photos/.photo_previews", 0);
+    root_menu_video_preview_filter_locked_photos();
 }
 
 static void root_menu_video_preview_load_game_paths(void)
@@ -6726,14 +6856,13 @@ static void root_menu_video_draw_preview_for_title(const char *title,
     enum root_menu_video_preview_source source =
         root_menu_video_preview_source_for_title(title);
     bool drew = false;
-    int status = audio_status();
 
     root_menu_video_preview_gradient(x, y, w, h);
     lcd_setfont(root_menu_video_font());
     lcd_set_foreground(IPODJS_PREVIEW_TEXT);
     lcd_set_background(IPODJS_PREVIEW_BOTTOM);
 
-    if (button_hold() || (status & AUDIO_STATUS_PAUSE))
+    if (button_hold())
         source = IPODJS_PREVIEW_NONE;
 
     if (source == IPODJS_PREVIEW_MUSIC)
@@ -7111,21 +7240,7 @@ static void root_menu_video_draw_preview(int selected)
         title = root_menu_video_preview(item);
     }
 
-    if (root_menu_video_paused_playback())
-    {
-        root_menu_video_preview_gradient(x, y, w, h);
-        lcd_setfont(root_menu_video_font());
-        lcd_set_foreground(IPODJS_PREVIEW_TEXT);
-        lcd_set_background(IPODJS_PREVIEW_BOTTOM);
-        root_menu_video_puts_fit(x + 14, 70, w - 28,
-                                 root_menu_video_now_title(), true);
-        lcd_set_foreground(LCD_RGBPACK(220, 226, 234));
-        root_menu_video_puts_fit(x + 14, 95, w - 28,
-                                 root_menu_video_now_artist(), true);
-        root_menu_video_puts_fit(x + 14, 132, w - 28,
-                                 "Paused", true);
-    }
-    else if (root_menu_video_item_is_settings(item))
+    if (root_menu_video_item_is_settings(item))
     {
         root_menu_video_preview_gradient(x, y, w, h);
         lcd_setfont(root_menu_video_font());
@@ -7931,6 +8046,17 @@ static void ipodjs_video_draw_wps(void)
     lcd_update();
 }
 
+void root_menu_ipodjs_draw_wps_frame(void)
+{
+    if (global_settings.ui_engine != UI_ENGINE_IPODJS)
+        return;
+
+    root_menu_video_ensure_aa_slot();
+    root_menu_video_volume_left_stock_asset();
+    root_menu_video_volume_right_stock_asset();
+    ipodjs_video_draw_wps();
+}
+
 static void ipodjs_video_draw_wps_empty_state(const char *title,
                                               const char *message,
                                               bool allow_replay)
@@ -8097,6 +8223,7 @@ static void ipodjs_video_pause_for_exit(void)
 
 static int ipodjs_video_wps_finish(int ret)
 {
+    wps_state_deinit();
     return root_menu_video_finish_native_screen(ret);
 }
 
@@ -8114,6 +8241,7 @@ static int ipodjs_video_wps(void)
     char last_track_path[MAX_PATH] = "";
 
     root_menu_video_enter_native_screen();
+    wps_state_init();
     root_menu_video_ensure_aa_slot();
     root_menu_video_volume_left_stock_asset();
     root_menu_video_volume_right_stock_asset();
@@ -8262,10 +8390,12 @@ static int ipodjs_video_wps(void)
                 int ret;
 
                 root_menu_video_finish_native_screen(0);
+                wps_state_deinit();
                 root_menu_wait_for_button_release();
                 button_clear_queue();
                 ret = launch_lrcplayer_plugin(NULL);
                 root_menu_video_enter_native_screen();
+                wps_state_init();
                 if (ret == GO_TO_ROOT)
                     return ipodjs_video_wps_finish(ret);
                 redraw = true;
@@ -8298,18 +8428,21 @@ static void root_menu_video_draw_home(
 {
     lcd_set_viewport(NULL);
     lcd_set_drawmode(DRMODE_SOLID);
+
+    if (button_hold() &&
+        global_settings.ui_engine_hold_effect == UI_ENGINE_HOLD_LOCKSCREEN &&
+        root_menu_video_hold_static_frame_valid)
+        return;
+
     lcd_set_background(root_menu_video_screen_bg());
     lcd_clear_display();
 
     if (button_hold() &&
         global_settings.ui_engine_hold_effect == UI_ENGINE_HOLD_LOCKSCREEN)
     {
-        if (!root_menu_video_hold_static_frame_valid)
-        {
-            ipodjs_video_draw_hold_overlay();
-            lcd_update();
-            root_menu_video_hold_static_frame_valid = true;
-        }
+        ipodjs_video_draw_hold_overlay();
+        lcd_update();
+        root_menu_video_hold_static_frame_valid = true;
         return;
     }
 
@@ -9749,7 +9882,11 @@ static int root_menu_video_launch_menu_item(const struct menu_item_ex *item)
     {
 #ifdef HAVE_TAGCACHE
         if (item->value == GO_TO_DBBROWSER)
+        {
+            if (root_menu_video_uses_stock_music())
+                return GO_TO_DBBROWSER;
             return root_menu_video_music_menu();
+        }
 #endif
         if (item->value == GO_TO_MAINMENU)
             return root_menu_video_settings_menu();
@@ -10638,6 +10775,15 @@ static int root_menu_video_qs_percent(int item)
     return 0;
 }
 
+#ifdef HAVE_HARDWARE_CLICK
+static bool root_menu_video_qs_click_feedback_enabled(void)
+{
+    return global_settings.haptics_enabled ||
+           global_settings.keyclick_hardware ||
+           global_settings.keyclick != 0;
+}
+#endif
+
 static void root_menu_video_qs_value(int item, char *buf, size_t buf_size)
 {
     static const char *repeat[] = {
@@ -10712,7 +10858,8 @@ static void root_menu_video_qs_value(int item, char *buf, size_t buf_size)
 
 #ifdef HAVE_HARDWARE_CLICK
         case IPODJS_QS_HAPTICS:
-            strmemccpy(buf, global_settings.haptics_enabled ? "On" : "Off",
+            strmemccpy(buf, root_menu_video_qs_click_feedback_enabled() ?
+                       "On" : "Off",
                        buf_size);
             break;
 #endif
@@ -10847,10 +10994,13 @@ static bool root_menu_video_qs_adjust(int item, int delta)
 
 #ifdef HAVE_HARDWARE_CLICK
         case IPODJS_QS_HAPTICS:
-            if (global_settings.haptics_enabled)
+            if (root_menu_video_qs_click_feedback_enabled())
             {
-                haptic_feedback(24, 48);
+                if (global_settings.haptics_enabled)
+                    haptic_feedback(24, 48);
                 global_settings.haptics_enabled = false;
+                global_settings.keyclick_hardware = false;
+                global_settings.keyclick = 0;
             }
             else
             {
@@ -11220,7 +11370,12 @@ struct root_menu_video_settings_item {
 
 static int root_menu_video_main_menu_config(void)
 {
-    int ret = plugin_load(PLUGIN_APPS_DIR "/main_menu_config.rock", NULL);
+    int ret;
+
+    if (!global_settings.root_menu_customized)
+        root_menu_set_default(&global_settings.root_menu_customized, NULL);
+
+    ret = plugin_load(PLUGIN_APPS_DIR "/main_menu_config.rock", NULL);
 
     if (ret == PLUGIN_USB_CONNECTED)
         return MENU_ATTACHED_USB;
@@ -11488,9 +11643,6 @@ static int root_menu_video_dashboard(int *selectedp)
         switch (action)
         {
             case ACTION_NONE:
-                if (paused)
-                    break;
-
                 if (preview_pending &&
                     TIME_AFTER(current_tick, preview_settle_tick))
                 {
@@ -11501,6 +11653,9 @@ static int root_menu_video_dashboard(int *selectedp)
                     root_menu_video_draw_home_preview_only(preview_selected);
                     break;
                 }
+
+                if (paused)
+                    break;
 
                 preview_source = root_menu_video_preview_source_for_item(
                     root_menu_video_item(preview_selected));
@@ -11663,9 +11818,9 @@ static int root_menu_video_dashboard(int *selectedp)
         }
     }
 }
-#endif /* IPOD_VIDEO || IPOD_6G || IPOD_NANO3G */
+#endif /* HAVE_IPODJS_UI */
 
-#if !defined(IPOD_VIDEO) && !defined(IPOD_6G) && !defined(IPOD_NANO3G)
+#ifndef HAVE_IPODJS_UI
 bool root_menu_ipodjs_native_screen_active(void)
 {
     return false;
@@ -12014,7 +12169,9 @@ void root_menu(void)
 {
     int previous_browser = browser_default();
     int selected = 0;
+#ifdef HAVE_IPODJS_UI
     int ipodjs_selected = 0;
+#endif
     int shortcut_origin = GO_TO_ROOT;
 
     push_current_activity(ACTIVITY_MAINMENU);
@@ -12042,7 +12199,7 @@ void root_menu(void)
 
 #if defined(IPOD_NANO2G)
                 next_screen = root_menu_nano2g_dashboard(&selected);
-#elif defined(IPOD_VIDEO) || defined(IPOD_6G) || defined(IPOD_NANO3G)
+#elif defined(HAVE_IPODJS_UI)
                 if (root_menu_video_enabled())
                     next_screen = root_menu_video_dashboard(&ipodjs_selected);
                 else
