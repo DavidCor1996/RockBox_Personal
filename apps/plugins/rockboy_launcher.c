@@ -3339,6 +3339,7 @@ static struct cover_slot *get_cover_slot(int entry_index)
 {
     struct cover_slot *slot;
     const char *path;
+    char library_path[MAX_PATH];
 
     if (entry_index < 0 || entry_index >= launcher.entry_count)
         return NULL;
@@ -3359,6 +3360,22 @@ static struct cover_slot *get_cover_slot(int entry_index)
         {
             slot->loaded = true;
             slot->fallback = false;
+        }
+        else if (path[0] != '\0')
+        {
+            /* A sidecar keeps precedence when it decodes, but a corrupt or
+             * oversized sidecar must not hide a usable library cover. */
+            detect_library_cover(launcher.entries[entry_index].system_id,
+                                 launcher.entries[entry_index].rom_path,
+                                 library_path, sizeof(library_path));
+            if (library_path[0] != '\0' && rb->strcmp(path, library_path) &&
+                decode_cover_bitmap(library_path, &slot->bitmap,
+                                    slot->data, slot->bytes))
+            {
+                rb->strlcpy(slot->path, library_path, sizeof(slot->path));
+                slot->loaded = true;
+                slot->fallback = true;
+            }
         }
     }
 

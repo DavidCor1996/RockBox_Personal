@@ -694,8 +694,13 @@ sub buildzip {
         }
         copy("$ROOT/apps/plugins/bitmaps/native/doom_cover.120x140x24.bmp",
              "$temp_dir/rocks/games/rockboy_launcher/covers/Doom.bmp");
-        copy("$ROOT/assets/ipodjs/rockbox/clubpenguin/covers/Club Penguin.bmp",
+        copy("$ROOT/assets/game_covers/systems/flash.bmp",
              "$temp_dir/games/library/covers/systems/flash.bmp");
+        if(-e "$ROOT/assets/game_covers/snes/Killer Instinct (USA) (Rev 1).bmp") {
+            mkpath("$temp_dir/games/library/covers/snes", $verbose, 0777);
+            copy("$ROOT/assets/game_covers/snes/Killer Instinct (USA) (Rev 1).bmp",
+                 "$temp_dir/games/library/covers/snes/Killer Instinct (USA) (Rev 1).bmp");
+        }
         if(-e "$temp_dir/rocks/games/sm64.rock" ||
            -e "$temp_dir/rocks/games/sm64.ovl") {
             mkpath("$temp_dir/games/library/covers/n64", $verbose, 0777);

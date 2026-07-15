@@ -1,5 +1,6 @@
 """Static checks for Rockboy profiling detail instrumentation."""
 
+import struct
 from pathlib import Path
 
 
@@ -8,6 +9,13 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 
 def _read(rel_path):
     return (REPO_ROOT / rel_path).read_text(encoding="utf-8", errors="replace")
+
+
+def _bmp_dimensions(rel_path):
+    with (REPO_ROOT / rel_path).open("rb") as handle:
+        header = handle.read(26)
+    assert header[:2] == b"BM"
+    return struct.unpack_from("<ii", header, 18)
 
 
 def test_profile_log_includes_phase1_detail_counters():
@@ -203,6 +211,27 @@ def test_games_launcher_has_source_derived_snes_and_flash_icons():
     assert "return &bm_game_system_flash;" in launcher
     assert (REPO_ROOT / "apps/plugins/bitmaps/sources/game_system_snes_source.png").is_file()
     assert (REPO_ROOT / "apps/plugins/bitmaps/sources/game_system_flash_source.svg").is_file()
+
+
+def test_game_cover_flow_packages_real_flash_stickrpg_and_killer_instinct_art():
+    launcher = _read("apps/plugins/rockboy_launcher.c")
+    buildzip = _read("tools/buildzip.pl")
+
+    assets = (
+        "assets/ipodjs/rockbox/stickrpg/covers/Stick RPG.bmp",
+        "assets/game_covers/systems/flash.bmp",
+        "assets/game_covers/snes/Killer Instinct (USA) (Rev 1).bmp",
+    )
+    for asset in assets:
+        width, height = _bmp_dimensions(asset)
+        assert width <= 120
+        assert height <= 120
+
+    assert "assets/game_covers/systems/flash.bmp" in buildzip
+    assert "assets/game_covers/snes/Killer Instinct (USA) (Rev 1).bmp" in buildzip
+    assert "clubpenguin/covers/Club Penguin.bmp" not in buildzip
+    assert "detect_library_cover(launcher.entries[entry_index].system_id" in launcher
+    assert "oversized sidecar must not hide a usable library cover" in launcher
 
 
 def test_snes_lite_performance_and_menu_paths_are_explicit():
