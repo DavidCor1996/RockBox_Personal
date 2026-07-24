@@ -71,8 +71,61 @@
 #include "statusbar-skinned.h"
 #include "skin_display.h"
 #include "skin_albumart_color.h"
+#include "ipodjs_ui.h"
 
-void skin_render(struct gui_wps *gwps, unsigned refresh_mode);
+void skin_render(struct gui_wps *gwps, unsigned refresh_mode,
+                 enum skinnable_screens skin);
+
+#if defined(HAVE_IPODJS_UI) && defined(HAVE_LCD_COLOR)
+static void draw_ipodjs_wps_progressbar(struct screen *display,
+                                        int x, int y, int width, int height,
+                                        unsigned long length,
+                                        unsigned long end)
+{
+    int track_h = MIN(height, 16);
+    int track_y = y + (height - track_h) / 2;
+    int inner_w = MAX(0, width - 4);
+    int inner_h = MAX(0, track_h - 4);
+    int fill_w;
+    unsigned accent = ipodjs_ui_accent();
+    unsigned border = global_settings.ui_engine_dark_mode ?
+        LCD_RGBPACK(91, 98, 110) : LCD_RGBPACK(151, 157, 165);
+    unsigned track_top = global_settings.ui_engine_dark_mode ?
+        LCD_RGBPACK(34, 38, 45) : LCD_RGBPACK(219, 223, 228);
+    unsigned track_bottom = global_settings.ui_engine_dark_mode ?
+        LCD_RGBPACK(55, 61, 70) : LCD_RGBPACK(250, 251, 252);
+    unsigned fill_top = ipodjs_ui_rgb_blend(
+        RGB_UNPACK_RED(accent), RGB_UNPACK_GREEN(accent),
+        RGB_UNPACK_BLUE(accent), 255, 255, 255, 104);
+
+    end = MIN(end, length);
+    fill_w = length > 0 ? inner_w * end / length : 0;
+
+    display->set_foreground(border);
+    display->fillrect(x + 2, track_y, width - 4, track_h);
+    display->fillrect(x + 1, track_y + 1, width - 2, track_h - 2);
+    display->fillrect(x, track_y + 2, width, track_h - 4);
+
+    ipodjs_ui_gradient(display, x + 2, track_y + 2,
+                        inner_w, inner_h, track_top, track_bottom);
+    if (fill_w > 0)
+    {
+        ipodjs_ui_gradient(display, x + 2, track_y + 2,
+                            fill_w, inner_h, fill_top, accent);
+    }
+
+    /* Reassert the rounded frame after the fill. Even at 100%, the accent
+     * remains inside the two-pixel well and cannot cover the border. */
+    display->set_foreground(border);
+    display->hline(x + 2, x + width - 3, track_y);
+    display->hline(x + 1, x + width - 2, track_y + 1);
+    display->hline(x + 1, x + width - 2, track_y + track_h - 2);
+    display->hline(x + 2, x + width - 3, track_y + track_h - 1);
+    display->vline(x, track_y + 2, track_y + track_h - 3);
+    display->vline(x + width - 1, track_y + 2,
+                   track_y + track_h - 3);
+}
+#endif
 
 /* update a skinned screen, update_type is WPS_REFRESH_* values.
  * Usually it should only be WPS_REFRESH_NON_STATIC
@@ -81,6 +134,12 @@ void skin_render(struct gui_wps *gwps, unsigned refresh_mode);
 void skin_update(enum skinnable_screens skin, enum screen_type screen,
                  unsigned int update_type)
 {
+    /* iPodJS owns the complete main LCD, including its Apple-style header.
+     * Never let a previously selected Rockbox SBS repaint a battery, title,
+     * or right-pane album cover over a native iPodJS frame. */
+    if (skin == CUSTOM_STATUSBAR && ipodjs_ui_enabled(screen))
+        return;
+
     struct gui_wps *gwps = skin_get_gwps(skin, screen);
     /* This maybe shouldnt be here,
      * This is also safe for skined screen which dont use the id3 */
@@ -90,7 +149,7 @@ void skin_update(enum skinnable_screens skin, enum screen_type screen,
         skin_request_full_update(skin);
 
     skin_render(gwps, skin_do_full_update(skin, screen) ?
-                        SKIN_REFRESH_ALL : update_type);
+                        SKIN_REFRESH_ALL : update_type, skin);
 }
 
 #ifdef AB_REPEAT_ENABLE
@@ -280,6 +339,19 @@ void draw_progressbar(struct gui_wps *gwps, struct skin_viewport* skin_viewport,
         flags |= BORDER_NOFILL;
     }
 
+#if defined(HAVE_IPODJS_UI) && defined(HAVE_LCD_COLOR)
+    if (display->screen_type == SCREEN_MAIN && pb->horizontal &&
+        global_settings.ui_engine == UI_ENGINE_IPODJS &&
+        get_current_activity() == ACTIVITY_WPS &&
+        (pb->type == SKIN_TOKEN_PROGRESSBAR ||
+         pb->type == SKIN_TOKEN_VOLUMEBAR))
+    {
+        draw_ipodjs_wps_progressbar(display, x, y, width, height,
+                                    length, end);
+        return;
+    }
+#endif
+
     if (SKINOFFSETTOPTR(get_skin_buffer(gwps->data), pb->slider))
     {
         struct gui_img *img = SKINOFFSETTOPTR(get_skin_buffer(gwps->data), pb->slider);
@@ -343,6 +415,43 @@ void draw_progressbar(struct gui_wps *gwps, struct skin_viewport* skin_viewport,
                 yoff = height - yoff;
         }
         display->bmp_part(&img->bm, 0, 0, x + xoff, y + yoff, w, h);
+    }
+
+    if (end > 0 &&
+        SKINOFFSETTOPTR(get_skin_buffer(gwps->data), pb->endcap))
+    {
+        struct gui_img *img = SKINOFFSETTOPTR(
+            get_skin_buffer(gwps->data), pb->endcap);
+        int xoff = 0;
+        int yoff = 0;
+
+        img->bm.data = core_get_data(img->buflib_handle);
+        if (flags & HORIZONTAL)
+        {
+            int edge = width * end / length;
+
+            if (edge >= img->bm.width)
+            {
+                xoff = MIN(width - img->bm.width,
+                           edge - img->bm.width);
+                yoff = MAX(0, (height - img->bm.height) / 2);
+                display->bmp_part(&img->bm, 0, 0, x + xoff, y + yoff,
+                                  img->bm.width, img->bm.height);
+            }
+        }
+        else
+        {
+            int edge = height * end / length;
+
+            if (edge >= img->bm.height)
+            {
+                xoff = MAX(0, (width - img->bm.width) / 2);
+                yoff = MIN(height - img->bm.height,
+                           edge - img->bm.height);
+                display->bmp_part(&img->bm, 0, 0, x + xoff, y + yoff,
+                                  img->bm.width, img->bm.height);
+            }
+        }
     }
 
     if (pb->type == SKIN_TOKEN_PROGRESSBAR)
@@ -635,10 +744,16 @@ void write_line(struct screen *display, struct align_pos *format_align,
     else
     {
         linedes->scroll = false;
-        /* clear the line first */
-        display->set_drawmode(DRMODE_SOLID|DRMODE_INVERSEVID);
-        display->fillrect(0, line*string_height, viewport_width, string_height);
-        display->set_drawmode(DRMODE_SOLID);
+        /* STYLE_NONE is an explicit overlay request: preserve bitmap or
+         * artwork pixels behind the glyphs. Other styles retain Rockbox's
+         * ordinary full-line clear. */
+        if ((linedes->style & _STYLE_DECO_MASK) != STYLE_NONE)
+        {
+            display->set_drawmode(DRMODE_SOLID|DRMODE_INVERSEVID);
+            display->fillrect(0, line*string_height,
+                              viewport_width, string_height);
+            display->set_drawmode(DRMODE_SOLID);
+        }
 
         /* Nasty hack: we output an empty scrolling string,
         which will reset the scroller for that line */
@@ -777,6 +892,8 @@ bool skin_has_sbs(struct gui_wps *gwps)
 int skin_wait_for_action(enum skinnable_screens skin, int context, int timeout)
 {
     int button = ACTION_NONE;
+    bool fixed_ipodjs_wps = skin == WPS &&
+        global_settings.ui_engine == UI_ENGINE_IPODJS;
     /* when the peak meter is enabled we want to have a
         few extra updates to make it look smooth. On the
         other hand we don't want to waste energy if it
@@ -788,8 +905,12 @@ int skin_wait_for_action(enum skinnable_screens skin, int context, int timeout)
            pm = true;
     }
 
-    bool fading = dynamic_colors_fading();
-    bool pending = dynamic_colors_pending();
+    bool fading = !fixed_ipodjs_wps && dynamic_colors_fading();
+    /* Album art is polled by the ordinary WPS refresh.  The stock iPodJS
+     * screen does not consume album-derived palette colors, so its 20 Hz
+     * extraction refresh would only race overlapping skin viewports and can
+     * publish an incomplete transition frame. */
+    bool pending = !fixed_ipodjs_wps && dynamic_colors_pending();
 
     if (pm || fading || pending) {
         long next_pm_refresh = current_tick;
@@ -818,12 +939,12 @@ int skin_wait_for_action(enum skinnable_screens skin, int context, int timeout)
                 FOR_NB_SCREENS(i)
                     skin_update(skin, i, refresh);
                 next_fade_refresh += HZ / 20;
-                fading = dynamic_colors_fading();
-                pending = dynamic_colors_pending();
+                fading = !fixed_ipodjs_wps && dynamic_colors_fading();
+                pending = !fixed_ipodjs_wps && dynamic_colors_pending();
             }
         }
 
-        if (dynamic_colors_needs_full_update()) {
+        if (!fixed_ipodjs_wps && dynamic_colors_needs_full_update()) {
             FOR_NB_SCREENS(i)
                 skin_update(skin, i, SKIN_REFRESH_ALL);
         }

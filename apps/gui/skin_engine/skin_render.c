@@ -1362,11 +1362,14 @@ bool skin_render_pending_update(void)
     return ret;
 }
 
-void skin_render(struct gui_wps *gwps, unsigned refresh_mode)
+void skin_render(struct gui_wps *gwps, unsigned refresh_mode,
+                 enum skinnable_screens skin)
 {
     const int vp_is_appearing = (VP_DRAW_WASHIDDEN|VP_DRAW_HIDEABLE);
     struct wps_data *data = gwps->data;
     struct screen *display = gwps->display;
+    bool fixed_ipodjs_wps = skin == WPS &&
+        global_settings.ui_engine == UI_ENGINE_IPODJS;
 
     struct skin_element* viewport;
     struct skin_viewport* skin_viewport;
@@ -1379,7 +1382,8 @@ void skin_render(struct gui_wps *gwps, unsigned refresh_mode)
 #endif
 
     /* Framebuffer is likely dirty */
-    if ((refresh_mode&SKIN_REFRESH_ALL) == SKIN_REFRESH_ALL)
+    if ((refresh_mode&SKIN_REFRESH_ALL) == SKIN_REFRESH_ALL &&
+        !fixed_ipodjs_wps)
     {
         /* should already be the default buffer */
         struct viewport * first_vp = display->set_viewport_ex(NULL, 0);
@@ -1409,6 +1413,12 @@ void skin_render(struct gui_wps *gwps, unsigned refresh_mode)
     if (!viewport) return;
     skin_viewport = SKINOFFSETTOPTR(skin_buffer, viewport->data);
     if (!skin_viewport) return;
+
+    /* Bind semantic WPS colors to the same iPodJS settings used by menus.
+     * This render context is more reliable than activity state during the
+     * first hardware frame. */
+    dynamic_colors_set_ipodjs_wps(fixed_ipodjs_wps);
+
     label = SKINOFFSETTOPTR(skin_buffer, skin_viewport->label);
     if (skin_viewport->label == VP_DEFAULT_LABEL)
         label = VP_DEFAULT_LABEL_STRING;
@@ -1537,7 +1547,11 @@ void skin_render(struct gui_wps *gwps, unsigned refresh_mode)
         display->set_background(skin_viewport->vp.bg_pattern);
 #endif
 
-        if ((vp_refresh_mode&SKIN_REFRESH_ALL) == SKIN_REFRESH_ALL)
+        if ((vp_refresh_mode&SKIN_REFRESH_ALL) == SKIN_REFRESH_ALL
+#ifdef HAVE_LCD_COLOR
+            && !skin_viewport->preserve_background
+#endif
+           )
         {
             display->clear_viewport();
         }
@@ -1572,6 +1586,7 @@ void skin_render(struct gui_wps *gwps, unsigned refresh_mode)
 #ifdef SIMULATOR
     skin_profile_report();
 #endif
+    dynamic_colors_set_ipodjs_wps(false);
 }
 
 static __attribute__((noinline))

@@ -16,9 +16,19 @@
 
 #define PHOTOS_ROOT      "/Photos"
 #define PHOTOS_THUMB_DIR PHOTOS_ROOT "/.photo_thumbs"
+#define PHOTOS_PREVIEW_DIR PHOTOS_ROOT "/.photo_previews"
 #define PHOTOS_VIEWER    VIEWERS_DIR "/imageviewer.rock"
 #define PHOTOS_STATE     PLUGIN_APPS_DATA_DIR "/photos.state"
 #define PHOTOS_LOCKS     PLUGIN_APPS_DATA_DIR "/photos.locks"
+#define PHOTOS_SHARED_PIN ROCKBOX_DIR "/videolist/locked.pin"
+#define PHOTOS_APPLE_DIR ROCKBOX_DIR "/ipodjs/apple"
+
+#define PHOTOS_PIN_PANEL_W 95
+#define PHOTOS_PIN_PANEL_H 82
+#define PHOTOS_PIN_SURFACE_W 97
+#define PHOTOS_PIN_SURFACE_H 32
+#define PHOTOS_PIN_PANEL_ALPHA_BYTES \
+    (((PHOTOS_PIN_PANEL_W + 1) / 2) * PHOTOS_PIN_PANEL_H)
 
 #define MAX_VISIBLE_THUMBS 6
 #define MIN_ENTRY_CAPACITY 32
@@ -92,6 +102,25 @@ static struct photo_move_dir photo_move_dirs[MAX_MOVE_DIRS];
 static int photo_lock_count;
 static int photo_move_dir_count;
 
+struct photos_pin_surfaces {
+    struct bitmap panel;
+    unsigned char panel_data[
+        BM_SIZE(PHOTOS_PIN_PANEL_W, PHOTOS_PIN_PANEL_H,
+                FORMAT_NATIVE, false) + PHOTOS_PIN_PANEL_ALPHA_BYTES];
+    struct bitmap field;
+    unsigned char field_data[
+        BM_SIZE(PHOTOS_PIN_SURFACE_W, PHOTOS_PIN_SURFACE_H,
+                FORMAT_NATIVE, false)];
+    struct bitmap selected;
+    unsigned char selected_data[
+        BM_SIZE(PHOTOS_PIN_SURFACE_W, PHOTOS_PIN_SURFACE_H,
+                FORMAT_NATIVE, false)];
+    bool tried;
+    bool valid;
+};
+
+static struct photos_pin_surfaces photos_pin_surfaces;
+
 static int photos_tsr_exit(bool reenter)
 {
     return reenter ? PLUGIN_TSR_TERMINATE : PLUGIN_TSR_SUSPEND;
@@ -110,7 +139,50 @@ static const struct button_mapping photos_ipod_ctx[] =
     { PLA_UP_REPEAT,          BUTTON_SELECT|BUTTON_REPEAT,       BUTTON_SELECT },
     LAST_ITEM_IN_LIST
 };
+
+static const struct button_mapping photos_pin_ipod_ctx[] =
+{
+    { PLA_SCROLL_BACK,        BUTTON_SCROLL_BACK,                BUTTON_NONE },
+    { PLA_SCROLL_FWD,         BUTTON_SCROLL_FWD,                 BUTTON_NONE },
+    { PLA_SCROLL_BACK_REPEAT, BUTTON_SCROLL_BACK|BUTTON_REPEAT,  BUTTON_NONE },
+    { PLA_SCROLL_FWD_REPEAT,  BUTTON_SCROLL_FWD|BUTTON_REPEAT,   BUTTON_NONE },
+    { PLA_CANCEL,             BUTTON_MENU|BUTTON_REL,            BUTTON_MENU },
+    { PLA_LEFT,               BUTTON_LEFT|BUTTON_REL,            BUTTON_LEFT },
+    { PLA_SELECT_REL,         BUTTON_SELECT|BUTTON_REL,          BUTTON_SELECT },
+    LAST_ITEM_IN_LIST
+};
 #endif
+
+static bool photos_dark_mode(void)
+{
+    return rb->global_settings != NULL &&
+           rb->global_settings->ui_engine == UI_ENGINE_IPODJS &&
+           rb->global_settings->ui_engine_dark_mode;
+}
+
+static unsigned photos_background(void)
+{
+    return photos_dark_mode() ? LCD_RGBPACK(18, 20, 24) : LCD_WHITE;
+}
+
+static unsigned photos_text(void)
+{
+    return photos_dark_mode() ? LCD_RGBPACK(239, 242, 246) : LCD_BLACK;
+}
+
+static unsigned photos_tile_background(void)
+{
+    return photos_dark_mode() ? LCD_RGBPACK(20, 20, 20) :
+                                LCD_RGBPACK(246, 247, 248);
+}
+
+static unsigned photos_tile_border(bool selected)
+{
+    if (selected)
+        return photos_dark_mode() ? LCD_WHITE : LCD_RGBPACK(0, 92, 192);
+    return photos_dark_mode() ? LCD_RGBPACK(85, 85, 85) :
+                                LCD_RGBPACK(176, 180, 185);
+}
 
 static bool photos_is_hidden(const char *name)
 {
@@ -326,9 +398,259 @@ static void photos_update_lock_paths(const char *old_path, const char *new_path)
     }
 }
 
+static bool photos_load_pin_bitmap(const char *path, struct bitmap *bitmap,
+                                   unsigned char *data, size_t data_size,
+                                   int width, int height)
+{
+    int rc;
+
+    if (!rb->file_exists(path))
+        return false;
+    rb->memset(bitmap, 0, sizeof(*bitmap));
+    bitmap->width = width;
+    bitmap->height = height;
+    bitmap->format = FORMAT_NATIVE;
+    bitmap->data = data;
+    rc = rb->read_bmp_file(path, bitmap, (int)data_size,
+                           FORMAT_NATIVE | FORMAT_DITHER |
+                           FORMAT_TRANSPARENT, NULL);
+    return rc >= 0 && bitmap->width == width && bitmap->height == height;
+}
+
+static bool photos_load_pin_surfaces(void)
+{
+    if (photos_pin_surfaces.tried)
+        return photos_pin_surfaces.valid;
+
+    photos_pin_surfaces.tried = true;
+    photos_pin_surfaces.valid =
+        photos_load_pin_bitmap(
+            PHOTOS_APPLE_DIR "/fast-scroll-blank.apple.95x82x32.bmp",
+            &photos_pin_surfaces.panel, photos_pin_surfaces.panel_data,
+            sizeof(photos_pin_surfaces.panel_data),
+            PHOTOS_PIN_PANEL_W, PHOTOS_PIN_PANEL_H) &&
+        photos_load_pin_bitmap(
+            PHOTOS_APPLE_DIR "/search-field.apple.97x32x24.bmp",
+            &photos_pin_surfaces.field, photos_pin_surfaces.field_data,
+            sizeof(photos_pin_surfaces.field_data),
+            PHOTOS_PIN_SURFACE_W, PHOTOS_PIN_SURFACE_H) &&
+        photos_load_pin_bitmap(
+            PHOTOS_APPLE_DIR "/search-selected.apple.97x32x24.bmp",
+            &photos_pin_surfaces.selected,
+            photos_pin_surfaces.selected_data,
+            sizeof(photos_pin_surfaces.selected_data),
+            PHOTOS_PIN_SURFACE_W, PHOTOS_PIN_SURFACE_H);
+    return photos_pin_surfaces.valid;
+}
+
+static void photos_draw_tiled_pin_part(struct bitmap *bitmap,
+                                       int src_x, int src_y,
+                                       int src_w, int src_h,
+                                       int x, int y, int width, int height)
+{
+    int drawn_y = 0;
+
+    while (drawn_y < height)
+    {
+        int part_h = MIN(src_h, height - drawn_y);
+        int part_src_y = src_y + (src_h - part_h) / 2;
+        int drawn_x = 0;
+
+        while (drawn_x < width)
+        {
+            int part_w = MIN(src_w, width - drawn_x);
+            int part_src_x = src_x + (src_w - part_w) / 2;
+
+            rb->lcd_bmp_part(bitmap, part_src_x, part_src_y,
+                             x + drawn_x, y + drawn_y, part_w, part_h);
+            drawn_x += part_w;
+        }
+        drawn_y += part_h;
+    }
+}
+
+static void photos_draw_pin_surface(struct bitmap *bitmap, int border,
+                                    int x, int y, int width, int height)
+{
+    int center_w = width - border * 2;
+    int center_h = height - border * 2;
+
+    rb->lcd_set_drawmode(DRMODE_FG);
+    rb->lcd_bmp_part(bitmap, 0, 0, x, y, border, border);
+    rb->lcd_bmp_part(bitmap, bitmap->width - border, 0,
+                     x + width - border, y, border, border);
+    rb->lcd_bmp_part(bitmap, 0, bitmap->height - border,
+                     x, y + height - border, border, border);
+    rb->lcd_bmp_part(bitmap, bitmap->width - border,
+                     bitmap->height - border,
+                     x + width - border, y + height - border,
+                     border, border);
+    photos_draw_tiled_pin_part(bitmap, border, 0,
+        bitmap->width - border * 2, border,
+        x + border, y, center_w, border);
+    photos_draw_tiled_pin_part(bitmap, border, bitmap->height - border,
+        bitmap->width - border * 2, border,
+        x + border, y + height - border, center_w, border);
+    photos_draw_tiled_pin_part(bitmap, 0, border, border,
+        bitmap->height - border * 2,
+        x, y + border, border, center_h);
+    photos_draw_tiled_pin_part(bitmap, bitmap->width - border, border,
+        border, bitmap->height - border * 2,
+        x + width - border, y + border, border, center_h);
+    photos_draw_tiled_pin_part(bitmap, border, border,
+        bitmap->width - border * 2, bitmap->height - border * 2,
+        x + border, y + border, center_w, center_h);
+    rb->lcd_set_drawmode(DRMODE_SOLID);
+}
+
+static void photos_draw_pin_prompt(const char *title, const char *pin,
+                                   int digit)
+{
+    static const char digits[] = "0123456789";
+    const int panel_x = 20;
+    const int panel_y = LCD_HEIGHT - 69;
+    const int panel_w = LCD_WIDTH - 42;
+    const int panel_h = 50;
+    const int field_x = 27;
+    const int field_y = panel_y + 12;
+    const int field_w = 68;
+    const int field_h = 25;
+    const int center_x = LCD_WIDTH / 2 - 9;
+    char masked[PIN_LEN + 1];
+    int title_w;
+    int text_h;
+    int masked_w;
+    int length = rb->strlen(pin);
+    int i;
+
+    rb->lcd_set_drawmode(DRMODE_SOLID);
+    rb->lcd_set_background(photos_background());
+    rb->lcd_set_foreground(photos_text());
+    rb->lcd_clear_display();
+    rb->lcd_setfont(FONT_UI);
+    rb->lcd_getstringsize(title, &title_w, &text_h);
+    rb->lcd_putsxy(MAX(4, (LCD_WIDTH - title_w) / 2), 38, title);
+    rb->lcd_putsxy(42, 78, "Scroll to choose, Select to enter");
+
+    photos_draw_pin_surface(&photos_pin_surfaces.panel, 16,
+                            panel_x, panel_y, panel_w, panel_h);
+    photos_draw_pin_surface(&photos_pin_surfaces.field, 6,
+                            field_x, field_y, field_w, field_h);
+
+    for (i = 0; i < length && i < PIN_LEN; i++)
+        masked[i] = '*';
+    masked[MIN(length, PIN_LEN)] = '\0';
+    rb->lcd_getstringsize(masked, &masked_w, &text_h);
+    rb->lcd_set_foreground(LCD_RGBPACK(20, 24, 27));
+    rb->lcd_set_drawmode(DRMODE_FG);
+    rb->lcd_putsxy(MAX(field_x + 4, field_x + field_w - masked_w - 4),
+                   field_y + MAX(0, (field_h - text_h) / 2), masked);
+
+    for (i = -5; i <= 6; i++)
+    {
+        int index = (digit + i + 20) % 10;
+        int x = center_x + i * 19;
+        char glyph[2] = { digits[index], '\0' };
+        int glyph_w;
+        int glyph_h;
+
+        if (x < field_x + field_w + 9)
+            continue;
+        rb->lcd_getstringsize(glyph, &glyph_w, &glyph_h);
+        if (i == 0)
+        {
+            int selected_w = MAX(glyph_w + 6, 16);
+            int selected_x = x - (selected_w - glyph_w) / 2;
+
+            photos_draw_pin_surface(&photos_pin_surfaces.selected, 6,
+                                    selected_x, panel_y + 10,
+                                    selected_w, text_h + 3);
+            rb->lcd_set_foreground(LCD_WHITE);
+        }
+        else
+            rb->lcd_set_foreground(LCD_RGBPACK(239, 244, 246));
+        rb->lcd_set_drawmode(DRMODE_FG);
+        rb->lcd_putsxy(x, panel_y + 11, glyph);
+    }
+    rb->lcd_set_drawmode(DRMODE_SOLID);
+    rb->lcd_update();
+}
+
+/* Returns 1 on entry, 0 on cancel/USB, and -1 when the stock wheel prompt is
+ * unavailable and the normal Rockbox keyboard should be used. */
+static int photos_prompt_pin_wheel(const char *title, char *pin,
+                                   size_t pin_size)
+{
+#ifdef PHOTOS_IPOD_CONTROLS
+    static const struct button_mapping *contexts[] = {
+        photos_pin_ipod_ctx,
+    };
+    int digit = 0;
+
+    if (pin_size < PIN_LEN + 1 || LCD_WIDTH < 220 || LCD_HEIGHT < 180 ||
+        rb->global_settings == NULL ||
+        rb->global_settings->ui_engine != UI_ENGINE_IPODJS ||
+        !photos_load_pin_surfaces())
+        return -1;
+
+    pin[0] = '\0';
+    while (true)
+    {
+        int action;
+        size_t length;
+
+        photos_draw_pin_prompt(title, pin, digit);
+        action = pluginlib_getaction(TIMEOUT_BLOCK, contexts,
+                                     ARRAYLEN(contexts));
+        switch (action)
+        {
+            case PLA_SCROLL_BACK:
+            case PLA_SCROLL_BACK_REPEAT:
+                digit = digit <= 0 ? 9 : digit - 1;
+                break;
+            case PLA_SCROLL_FWD:
+            case PLA_SCROLL_FWD_REPEAT:
+                digit = (digit + 1) % 10;
+                break;
+            case PLA_LEFT:
+                length = rb->strlen(pin);
+                if (length > 0)
+                    pin[length - 1] = '\0';
+                break;
+            case PLA_SELECT:
+            case PLA_SELECT_REL:
+                length = rb->strlen(pin);
+                if (length < PIN_LEN)
+                {
+                    pin[length] = (char)('0' + digit);
+                    pin[length + 1] = '\0';
+                }
+                if (length + 1 == PIN_LEN)
+                    return 1;
+                break;
+            case PLA_CANCEL:
+                return 0;
+            default:
+                if (rb->default_event_handler(action) == SYS_USB_CONNECTED)
+                    return 0;
+                break;
+        }
+    }
+#else
+    (void)title;
+    (void)pin;
+    (void)pin_size;
+    return -1;
+#endif
+}
+
 static bool photos_prompt_pin(const char *title, char *pin, size_t pin_size)
 {
     int rc;
+    int wheel_rc = photos_prompt_pin_wheel(title, pin, pin_size);
+
+    if (wheel_rc >= 0)
+        return wheel_rc > 0;
 
     rb->splash(HZ / 2, title);
     pin[0] = '\0';
@@ -342,6 +664,54 @@ static bool photos_prompt_pin(const char *title, char *pin, size_t pin_size)
         return false;
     }
 
+    return true;
+}
+
+static bool photos_read_shared_pin(char *pin, size_t pin_size)
+{
+    int fd;
+
+    if (pin_size < PIN_LEN + 1)
+        return false;
+    fd = rb->open(PHOTOS_SHARED_PIN, O_RDONLY);
+    if (fd < 0)
+        return false;
+    pin[0] = '\0';
+    if (rb->read_line(fd, pin, pin_size) <= 0)
+        pin[0] = '\0';
+    rb->close(fd);
+    return photos_is_valid_pin(pin);
+}
+
+static void photos_write_shared_pin(const char *pin)
+{
+    int fd;
+
+    if (!photos_is_valid_pin(pin))
+        return;
+    rb->mkdir(ROCKBOX_DIR "/videolist");
+    fd = rb->open(PHOTOS_SHARED_PIN, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+    if (fd < 0)
+        return;
+    rb->fdprintf(fd, "%s\n", pin);
+    rb->close(fd);
+}
+
+static bool photos_get_or_create_shared_pin(char *pin, size_t pin_size)
+{
+    /* Existing Photos locks define the shared code for compatibility. */
+    if (photo_lock_count > 0 &&
+        photos_is_valid_pin(photo_locks[0].pin))
+    {
+        rb->strlcpy(pin, photo_locks[0].pin, pin_size);
+        photos_write_shared_pin(pin);
+        return true;
+    }
+    if (photos_read_shared_pin(pin, pin_size))
+        return true;
+    if (!photos_prompt_pin("Set 4-digit code", pin, pin_size))
+        return false;
+    photos_write_shared_pin(pin);
     return true;
 }
 
@@ -529,6 +899,47 @@ static void photos_thumb_path(const char *photo_path, char *thumb_path,
 
     rb->snprintf(thumb_path, thumb_path_size, "%s/%s.bmp",
                  PHOTOS_THUMB_DIR, relpath);
+}
+
+static void photos_sidecar_path(const char *photo_path, const char *root,
+                                bool is_dir, char *sidecar_path,
+                                size_t sidecar_path_size)
+{
+    char relpath[MAX_PATH];
+
+    if (!photos_relpath(photo_path, relpath, sizeof(relpath)))
+    {
+        sidecar_path[0] = '\0';
+        return;
+    }
+
+    rb->snprintf(sidecar_path, sidecar_path_size,
+                 is_dir ? "%s/%s" : "%s/%s.bmp", root, relpath);
+}
+
+static void photos_move_sidecar(const char *old_path, const char *new_path,
+                                const char *root, bool is_dir)
+{
+    char old_sidecar[MAX_PATH];
+    char new_sidecar[MAX_PATH];
+
+    photos_sidecar_path(old_path, root, is_dir, old_sidecar,
+                        sizeof(old_sidecar));
+    photos_sidecar_path(new_path, root, is_dir, new_sidecar,
+                        sizeof(new_sidecar));
+    if (old_sidecar[0] == '\0' || new_sidecar[0] == '\0' ||
+        (!rb->file_exists(old_sidecar) && !rb->dir_exists(old_sidecar)))
+        return;
+
+    photos_ensure_parent_dirs(new_sidecar);
+    rb->rename(old_sidecar, new_sidecar);
+}
+
+static void photos_move_sidecars(const char *old_path, const char *new_path,
+                                 bool is_dir)
+{
+    photos_move_sidecar(old_path, new_path, PHOTOS_THUMB_DIR, is_dir);
+    photos_move_sidecar(old_path, new_path, PHOTOS_PREVIEW_DIR, is_dir);
 }
 
 static bool photos_load_thumb(struct thumb_slot *slot, const char *photo_path)
@@ -767,14 +1178,16 @@ static void photos_draw_tile_placeholder(int x, int y, int w, int h,
     int text_x;
     int text_y;
 
-    rb->lcd_set_foreground(LCD_RGBPACK(60, 60, 60));
+    rb->lcd_set_foreground(photos_dark_mode() ? LCD_RGBPACK(60, 60, 60) :
+                                                LCD_RGBPACK(232, 234, 237));
     rb->lcd_fillrect(x, y, w, h);
-    rb->lcd_set_foreground(LCD_RGBPACK(110, 110, 110));
+    rb->lcd_set_foreground(photos_dark_mode() ? LCD_RGBPACK(110, 110, 110) :
+                                                LCD_RGBPACK(174, 178, 184));
     rb->lcd_drawrect(x, y, w, h);
     rb->lcd_getstringsize(label, &text_w, &text_h);
     text_x = x + (w - text_w) / 2;
     text_y = y + (h - text_h) / 2;
-    rb->lcd_set_foreground(LCD_WHITE);
+    rb->lcd_set_foreground(photos_text());
     rb->lcd_putsxy(text_x, text_y, label);
 }
 
@@ -818,14 +1231,14 @@ static void photos_draw_folder_tile_contents(const struct photo_entry *entry,
     icon_x = x + (w - icon_w) / 2;
     icon_y = y + MAX(2, (h - label_h - icon_h) / 2);
 
-    rb->lcd_set_foreground(LCD_RGBPACK(34, 34, 34));
+    rb->lcd_set_foreground(photos_tile_background());
     rb->lcd_fillrect(x, y, w, h);
     photos_draw_folder_icon(icon_x, icon_y, icon_w, icon_h);
 
     photos_truncate_to_width(photos_basename(entry->path), label,
                              sizeof(label), w);
     rb->lcd_getstringsize(label, &label_w, NULL);
-    rb->lcd_set_foreground(LCD_WHITE);
+    rb->lcd_set_foreground(photos_text());
     rb->lcd_putsxy(x + MAX(0, (w - label_w) / 2), label_y, label);
 }
 
@@ -855,12 +1268,12 @@ static void photos_draw_tile(int slot_index)
     x = photos.margin + col * (photos.tile_w + photos.gap);
     y = photos.margin + photos.header_h + row * (photos.tile_h + photos.gap);
 
-    rb->lcd_set_foreground(selected ? LCD_WHITE : LCD_RGBPACK(85, 85, 85));
+    rb->lcd_set_foreground(photos_tile_border(selected));
     rb->lcd_drawrect(x - 1, y - 1, photos.tile_w + 2, photos.tile_h + 2);
     if (selected)
         rb->lcd_drawrect(x - 2, y - 2, photos.tile_w + 4, photos.tile_h + 4);
 
-    rb->lcd_set_foreground(LCD_RGBPACK(20, 20, 20));
+    rb->lcd_set_foreground(photos_tile_background());
     rb->lcd_fillrect(x, y, photos.tile_w, photos.tile_h);
 
     inner_w = photos.tile_w - 8;
@@ -888,7 +1301,7 @@ static void photos_draw_tile(int slot_index)
 
     if (entry->locked)
     {
-        rb->lcd_set_foreground(LCD_WHITE);
+        rb->lcd_set_foreground(photos_text());
         rb->lcd_putsxy(x + photos.tile_w - 10, y + 2, "L");
     }
 }
@@ -905,6 +1318,7 @@ static void photos_draw_header(void)
 
     photos_truncate_to_width(header, header, sizeof(header),
                              LCD_WIDTH - photos.margin * 2);
+    rb->lcd_set_foreground(photos_text());
     rb->lcd_putsxy(photos.margin, photos.margin, header);
 }
 
@@ -916,6 +1330,7 @@ static void photos_draw_footer(void)
     int pages;
     int page_num;
 
+    rb->lcd_set_foreground(photos_text());
     if (photos.entry_count <= 0)
     {
         rb->lcd_putsxy(photos.margin, LCD_HEIGHT - photos.footer_h + 2,
@@ -947,8 +1362,8 @@ static void photos_draw_screen(void)
 {
     int i;
 
-    rb->lcd_set_background(LCD_BLACK);
-    rb->lcd_set_foreground(LCD_WHITE);
+    rb->lcd_set_background(photos_background());
+    rb->lcd_set_foreground(photos_text());
     rb->lcd_clear_display();
     rb->lcd_setfont(FONT_UI);
 
@@ -959,6 +1374,7 @@ static void photos_draw_screen(void)
 
     if (photos.entry_count <= 0)
     {
+        rb->lcd_set_foreground(photos_text());
         rb->lcd_putsxy(photos.margin,
                        photos.margin + photos.header_h + photos.line_h,
                        "Empty folder");
@@ -1032,6 +1448,7 @@ static bool photos_rename_selected(void)
         return false;
     }
 
+    photos_move_sidecars(entry->path, newpath, entry->is_dir);
     photos_update_lock_paths(entry->path, newpath);
     photos_save_locks();
     rb->strlcpy(photos.selected_path, newpath, sizeof(photos.selected_path));
@@ -1070,7 +1487,7 @@ static bool photos_lock_selected(void)
         return false;
 
     entry = &photos.entries[photos.selected];
-    if (!photos_prompt_pin("Set 4-digit code", pin, sizeof(pin)))
+    if (!photos_get_or_create_shared_pin(pin, sizeof(pin)))
         return false;
     if (!photos_relpath(entry->path, relpath, sizeof(relpath)))
         return false;
@@ -1178,26 +1595,26 @@ static bool photos_delete_tree(const char *path)
     return (rb->rmdir(path) == 0) && ok;
 }
 
-static void photos_delete_thumbs_for(const char *path, bool is_dir)
+static void photos_delete_sidecar_for(const char *path, const char *root,
+                                      bool is_dir)
 {
-    char thumb_path[MAX_PATH];
-    char relpath[MAX_PATH];
+    char sidecar_path[MAX_PATH];
+
+    photos_sidecar_path(path, root, is_dir, sidecar_path,
+                        sizeof(sidecar_path));
+    if (sidecar_path[0] == '\0')
+        return;
 
     if (is_dir)
-    {
-        if (!photos_relpath(path, relpath, sizeof(relpath)) || relpath[0] == '\0')
-            return;
-
-        rb->snprintf(thumb_path, sizeof(thumb_path), "%s/%s",
-                     PHOTOS_THUMB_DIR, relpath);
-        photos_delete_tree(thumb_path);
-    }
+        photos_delete_tree(sidecar_path);
     else
-    {
-        photos_thumb_path(path, thumb_path, sizeof(thumb_path));
-        if (thumb_path[0] != '\0')
-            rb->remove(thumb_path);
-    }
+        rb->remove(sidecar_path);
+}
+
+static void photos_delete_sidecars_for(const char *path, bool is_dir)
+{
+    photos_delete_sidecar_for(path, PHOTOS_THUMB_DIR, is_dir);
+    photos_delete_sidecar_for(path, PHOTOS_PREVIEW_DIR, is_dir);
 }
 
 static bool photos_delete_selected(void)
@@ -1239,7 +1656,7 @@ static bool photos_delete_selected(void)
         return false;
     }
 
-    photos_delete_thumbs_for(delete_path, is_dir);
+    photos_delete_sidecars_for(delete_path, is_dir);
     photos_remove_locks_under(delete_path);
     photos_save_locks();
     photos_rescan_current_dir();
@@ -1391,8 +1808,6 @@ static bool photos_move_selected_to_folder(void)
     char destination[MAX_PATH];
     char current_parent[MAX_PATH];
     char newpath[MAX_PATH];
-    char old_thumb[MAX_PATH];
-    char new_thumb[MAX_PATH];
 
     if (photos.entry_count <= 0)
         return false;
@@ -1428,15 +1843,7 @@ static bool photos_move_selected_to_folder(void)
         return false;
     }
 
-    photos_thumb_path(entry->path, old_thumb, sizeof(old_thumb));
-    photos_thumb_path(newpath, new_thumb, sizeof(new_thumb));
-    if (old_thumb[0] != '\0' && new_thumb[0] != '\0' &&
-        rb->file_exists(old_thumb))
-    {
-        photos_ensure_parent_dirs(new_thumb);
-        rb->rename(old_thumb, new_thumb);
-    }
-
+    photos_move_sidecars(entry->path, newpath, false);
     photos_update_lock_paths(entry->path, newpath);
     photos_save_locks();
     rb->strlcpy(photos.selected_path, newpath, sizeof(photos.selected_path));

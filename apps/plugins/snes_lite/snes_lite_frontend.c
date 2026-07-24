@@ -53,6 +53,15 @@ void *snes_lite_malloc(size_t size)
     return result;
 }
 
+void *snes_lite_try_malloc(size_t size)
+{
+    bool failed = snes_lite.core_failed;
+    void *result = snes_lite_malloc(size);
+
+    snes_lite.core_failed = failed;
+    return result;
+}
+
 void *snes_lite_calloc(size_t count, size_t size)
 {
     size_t total;
@@ -382,4 +391,36 @@ void *snes_lite_core_sram(size_t *size)
 bool snes_lite_core_audio_enabled(void)
 {
     return snes_lite.audio_available;
+}
+
+uint32_t snes_lite_core_achievement_peek(uint32_t address,
+                                         uint32_t num_bytes,
+                                         void *userdata)
+{
+    const uint8_t *memory = NULL;
+    size_t memory_size = 0;
+    uint32_t value = 0;
+    uint32_t index;
+
+    (void)userdata;
+    if (address < 0x20000)
+    {
+        memory = retro_get_memory_data(RETRO_MEMORY_SYSTEM_RAM);
+        memory_size = retro_get_memory_size(RETRO_MEMORY_SYSTEM_RAM);
+    }
+    else if (address < 0xA0000)
+    {
+        address -= 0x20000;
+        memory = retro_get_memory_data(RETRO_MEMORY_SAVE_RAM);
+        memory_size = retro_get_memory_size(RETRO_MEMORY_SAVE_RAM);
+    }
+    if (!memory || address >= memory_size)
+        return 0;
+    for (index = 0; index < num_bytes && index < 4; ++index)
+    {
+        if (address + index >= memory_size)
+            break;
+        value |= (uint32_t)memory[address + index] << (index * 8);
+    }
+    return value;
 }

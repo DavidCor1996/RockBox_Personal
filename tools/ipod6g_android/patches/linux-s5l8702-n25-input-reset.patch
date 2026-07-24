@@ -1,0 +1,651 @@
+diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+index 6ba984d7f..b06888fce 100644
+--- a/drivers/input/misc/Kconfig
++++ b/drivers/input/misc/Kconfig
+@@ -10,6 +10,19 @@ menuconfig INPUT_MISC
+ 
+ if INPUT_MISC
+ 
++config INPUT_S5L8702_N25_CLICKWHEEL
++	bool "Apple iPod Classic N25 click wheel"
++	depends on ARCH_S5L87XX && I2C
++	help
++	  Enable the S5L8702 click-wheel controller used by the Apple iPod
++	  Classic N25 family.  The driver follows Rockbox's controller setup
++	  and packet format, reports the five physical buttons and wheel as
++	  Linux input events, polls only the PCF50635 GPIOSTAT Hold bit, and
++	  disables the wheel clock while Hold is locked.
++
++	  This driver does not register the generic PCF50635 MFD or any storage
++	  peripheral.
++
+ config INPUT_88PM860X_ONKEY
+ 	tristate "88PM860x ONKEY support"
+ 	depends on MFD_88PM860X
+diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
+index 6b0ca9c40..9cfbf1974 100644
+--- a/drivers/input/misc/Makefile
++++ b/drivers/input/misc/Makefile
+@@ -6,6 +6,7 @@
+ 
+ # Each configuration option enables a list of files.
+ 
++obj-$(CONFIG_INPUT_S5L8702_N25_CLICKWHEEL) += s5l8702-n25-clickwheel.o
+ obj-$(CONFIG_INPUT_88PM860X_ONKEY)	+= 88pm860x_onkey.o
+ obj-$(CONFIG_INPUT_88PM80X_ONKEY)	+= 88pm80x_onkey.o
+ obj-$(CONFIG_INPUT_88PM886_ONKEY)	+= 88pm886-onkey.o
+diff --git a/drivers/input/misc/s5l8702-n25-clickwheel.c b/drivers/input/misc/s5l8702-n25-clickwheel.c
+new file mode 100644
+index 000000000..0a65bc0c5
+--- /dev/null
++++ b/drivers/input/misc/s5l8702-n25-clickwheel.c
+@@ -0,0 +1,442 @@
++// SPDX-License-Identifier: GPL-2.0-only
++/*
++ * Apple iPod Classic N25 click-wheel input
++ *
++ * Register setup, packet fields, Hold handling, and wheel geometry are
++ * intentionally derived from Rockbox's S5L8702 iPod Classic target.
++ */
++
++#include <linux/bitops.h>
++#include <linux/i2c.h>
++#include <linux/input.h>
++#include <linux/interrupt.h>
++#include <linux/io.h>
++#include <linux/jiffies.h>
++#include <linux/module.h>
++#include <linux/of.h>
++#include <linux/platform_device.h>
++#include <linux/reboot.h>
++#include <linux/workqueue.h>
++
++#define N25_WHEEL_CTRL0		0x00
++#define N25_WHEEL_CTRL1		0x04
++#define N25_WHEEL_TIMING	0x08
++#define N25_WHEEL_MODE		0x10
++#define N25_WHEEL_INT		0x14
++#define N25_WHEEL_RX		0x18
++#define N25_WHEEL_TX		0x1c
++
++#define N25_WHEEL_CLOCK_BIT	BIT(1) /* gate 33: PWRCON1 bit 1 */
++#define N25_WHEEL_PCON_MASK	0x00ffff00
++#define N25_WHEEL_PCON_ACTIVE	0x00222200
++#define N25_WHEEL_PCON_HOLD	0x000e0e00
++
++#define N25_WHEEL_POSITIONS	96
++#define N25_WHEEL_SENSITIVITY	4
++#define N25_HOLD_POLL_MS	50
++#define N25_HOLD_ERROR_LIMIT	3
++#define N25_RESET_CHORD_MS	8000
++
++#define PCF50635_I2C_ADDR	0x73
++#define PCF50635_REG_GPIOSTAT	0x87
++#define PCF50635_GPIOSTAT_GPIO2	BIT(1)
++
++#define N25_BUTTON_SELECT	BIT(0)
++#define N25_BUTTON_RIGHT	BIT(1)
++#define N25_BUTTON_LEFT		BIT(2)
++#define N25_BUTTON_PLAY		BIT(3)
++#define N25_BUTTON_MENU		BIT(4)
++
++struct n25_key {
++	u32 mask;
++	u16 code;
++};
++
++static const struct n25_key n25_keys[] = {
++	{ N25_BUTTON_SELECT, KEY_ENTER },
++	{ N25_BUTTON_RIGHT, KEY_RIGHT },
++	{ N25_BUTTON_LEFT, KEY_LEFT },
++	{ N25_BUTTON_PLAY, KEY_PLAYPAUSE },
++	{ N25_BUTTON_MENU, KEY_BACK },
++};
++
++struct n25_clickwheel {
++	struct device *dev;
++	struct input_dev *input;
++	struct i2c_adapter *pmu_i2c;
++	void __iomem *wheel;
++	void __iomem *pcon14;
++	void __iomem *pwrcon1;
++	struct delayed_work hold_work;
++	unsigned long reset_chord_start;
++	u32 buttons;
++	int old_position;
++	int wheel_accumulator;
++	int irq;
++	unsigned int hold_errors;
++	bool held;
++	bool irq_disabled;
++};
++
++static void n25_put_i2c_adapter(void *data)
++{
++	i2c_put_adapter(data);
++}
++
++static int n25_read_hold(struct n25_clickwheel *wheel)
++{
++	u8 reg = PCF50635_REG_GPIOSTAT;
++	u8 value = 0;
++	struct i2c_msg messages[] = {
++		{
++			.addr = PCF50635_I2C_ADDR,
++			.len = 1,
++			.buf = &reg,
++		},
++		{
++			.addr = PCF50635_I2C_ADDR,
++			.flags = I2C_M_RD,
++			.len = 1,
++			.buf = &value,
++		},
++	};
++	int ret;
++
++	ret = i2c_transfer(wheel->pmu_i2c, messages, ARRAY_SIZE(messages));
++	if (ret < 0)
++		return ret;
++	if (ret != ARRAY_SIZE(messages))
++		return -EIO;
++
++	return !(value & PCF50635_GPIOSTAT_GPIO2);
++}
++
++static void n25_wheel_stop(struct n25_clickwheel *wheel)
++{
++	u32 value;
++
++	writel(0, wheel->wheel + N25_WHEEL_CTRL0);
++	value = readl(wheel->pcon14);
++	value = (value & ~N25_WHEEL_PCON_MASK) | N25_WHEEL_PCON_HOLD;
++	writel(value, wheel->pcon14);
++	writel(readl(wheel->pwrcon1) | N25_WHEEL_CLOCK_BIT,
++	       wheel->pwrcon1);
++}
++
++static void n25_wheel_start(struct n25_clickwheel *wheel)
++{
++	u32 value;
++
++	/* Rockbox S5L8702 Classic sequence, in the same order. */
++	writel(readl(wheel->pwrcon1) & ~N25_WHEEL_CLOCK_BIT,
++	       wheel->pwrcon1);
++	value = readl(wheel->pcon14);
++	value = (value & ~N25_WHEEL_PCON_MASK) | N25_WHEEL_PCON_ACTIVE;
++	writel(value, wheel->pcon14);
++	writel(0, wheel->wheel + N25_WHEEL_CTRL0);
++	writel(7, wheel->wheel + N25_WHEEL_INT);
++	writel(1, wheel->wheel + N25_WHEEL_MODE);
++	writel(0x380000, wheel->wheel + N25_WHEEL_CTRL0);
++	writel(0x20000, wheel->wheel + N25_WHEEL_TIMING);
++	writel(0x8000023a, wheel->wheel + N25_WHEEL_TX);
++	writel(readl(wheel->wheel + N25_WHEEL_CTRL1) | 1,
++	       wheel->wheel + N25_WHEEL_CTRL1);
++}
++
++static void n25_release_buttons(struct n25_clickwheel *wheel)
++{
++	unsigned int i;
++
++	for (i = 0; i < ARRAY_SIZE(n25_keys); i++)
++		if (wheel->buttons & n25_keys[i].mask)
++			input_report_key(wheel->input, n25_keys[i].code, 0);
++	wheel->buttons = 0;
++	wheel->old_position = -1;
++	wheel->wheel_accumulator = 0;
++	wheel->reset_chord_start = 0;
++	input_sync(wheel->input);
++}
++
++static void n25_set_hold(struct n25_clickwheel *wheel, bool held)
++{
++	if (wheel->held == held)
++		return;
++
++	if (held) {
++		disable_irq(wheel->irq);
++		wheel->irq_disabled = true;
++		n25_release_buttons(wheel);
++		n25_wheel_stop(wheel);
++	} else {
++		n25_wheel_start(wheel);
++		wheel->irq_disabled = false;
++		enable_irq(wheel->irq);
++	}
++
++	wheel->held = held;
++	input_report_switch(wheel->input, SW_LID, held);
++	input_sync(wheel->input);
++	dev_info(wheel->dev, "Hold switch %s; click wheel %s\n",
++		 held ? "locked" : "unlocked",
++		 held ? "clock-gated" : "active");
++}
++
++static void n25_check_reset_chord(struct n25_clickwheel *wheel)
++{
++	u32 chord = N25_BUTTON_MENU | N25_BUTTON_SELECT;
++
++	if ((wheel->buttons & chord) != chord) {
++		wheel->reset_chord_start = 0;
++		return;
++	}
++
++	if (!wheel->reset_chord_start) {
++		wheel->reset_chord_start = jiffies;
++		return;
++	}
++
++	if (time_after_eq(jiffies, wheel->reset_chord_start +
++			  msecs_to_jiffies(N25_RESET_CHORD_MS))) {
++		dev_emerg(wheel->dev,
++			  "Menu+Select held for 8 seconds; requesting reset\n");
++		emergency_restart();
++	}
++}
++
++static void n25_hold_work(struct work_struct *work)
++{
++	struct n25_clickwheel *wheel =
++		container_of(to_delayed_work(work), struct n25_clickwheel,
++			     hold_work);
++	int held;
++
++	held = n25_read_hold(wheel);
++	if (held < 0) {
++		wheel->hold_errors++;
++		dev_warn_ratelimited(wheel->dev,
++			"PCF50635 Hold read failed (%d, count %u)\n",
++			held, wheel->hold_errors);
++		if (wheel->hold_errors >= N25_HOLD_ERROR_LIMIT)
++			n25_set_hold(wheel, true);
++	} else {
++		wheel->hold_errors = 0;
++		n25_set_hold(wheel, held);
++	}
++
++	if (!wheel->held)
++		n25_check_reset_chord(wheel);
++
++	schedule_delayed_work(&wheel->hold_work,
++			      msecs_to_jiffies(N25_HOLD_POLL_MS));
++}
++
++static void n25_report_buttons(struct n25_clickwheel *wheel, u32 buttons)
++{
++	u32 changed = wheel->buttons ^ buttons;
++	unsigned int i;
++
++	for (i = 0; i < ARRAY_SIZE(n25_keys); i++)
++		if (changed & n25_keys[i].mask)
++			input_report_key(wheel->input, n25_keys[i].code,
++					 !!(buttons & n25_keys[i].mask));
++	wheel->buttons = buttons;
++}
++
++static void n25_wheel_pulse(struct n25_clickwheel *wheel, unsigned int code)
++{
++	input_report_key(wheel->input, code, 1);
++	input_sync(wheel->input);
++	input_report_key(wheel->input, code, 0);
++	input_sync(wheel->input);
++}
++
++static void n25_report_position(struct n25_clickwheel *wheel, u32 status)
++{
++	int delta;
++	int position;
++	unsigned int pulses = 0;
++
++	if (!(status & BIT(30))) {
++		wheel->old_position = -1;
++		wheel->wheel_accumulator = 0;
++		return;
++	}
++
++	position = (status >> 16) & 0x7f;
++	if (position >= N25_WHEEL_POSITIONS)
++		return;
++	if (wheel->old_position < 0) {
++		wheel->old_position = position;
++		return;
++	}
++
++	delta = position - wheel->old_position;
++	if (delta < -(N25_WHEEL_POSITIONS / 2))
++		delta += N25_WHEEL_POSITIONS;
++	else if (delta > N25_WHEEL_POSITIONS / 2)
++		delta -= N25_WHEEL_POSITIONS;
++	wheel->old_position = position;
++	wheel->wheel_accumulator += delta;
++
++	while (wheel->wheel_accumulator >= N25_WHEEL_SENSITIVITY &&
++	       pulses++ < 4) {
++		n25_wheel_pulse(wheel, KEY_DOWN);
++		wheel->wheel_accumulator -= N25_WHEEL_SENSITIVITY;
++	}
++	pulses = 0;
++	while (wheel->wheel_accumulator <= -N25_WHEEL_SENSITIVITY &&
++	       pulses++ < 4) {
++		n25_wheel_pulse(wheel, KEY_UP);
++		wheel->wheel_accumulator += N25_WHEEL_SENSITIVITY;
++	}
++}
++
++static irqreturn_t n25_clickwheel_irq(int irq, void *data)
++{
++	struct n25_clickwheel *wheel = data;
++	u32 events;
++	u32 status;
++	u32 buttons;
++
++	events = readl(wheel->wheel + N25_WHEEL_INT);
++	if (!(events & 7))
++		return IRQ_NONE;
++	if (events & 4)
++		writel(4, wheel->wheel + N25_WHEEL_INT);
++	if (events & 2)
++		writel(2, wheel->wheel + N25_WHEEL_INT);
++	if (events & 1)
++		writel(1, wheel->wheel + N25_WHEEL_INT);
++
++	status = readl(wheel->wheel + N25_WHEEL_RX);
++	if ((status & 0x800000ff) == 0x8000001a) {
++		buttons = (status >> 8) & 0x1f;
++		n25_report_buttons(wheel, buttons);
++		n25_report_position(wheel, status);
++		input_sync(wheel->input);
++	} else if ((status & 0x8000ffff) == 0x8000023a) {
++		buttons = (status >> 16) & 0x1f;
++		n25_report_buttons(wheel, buttons);
++		input_sync(wheel->input);
++	}
++
++	return IRQ_HANDLED;
++}
++
++static int n25_clickwheel_probe(struct platform_device *pdev)
++{
++	struct device *dev = &pdev->dev;
++	struct device_node *i2c_node;
++	struct n25_clickwheel *wheel;
++	struct input_dev *input;
++	unsigned int i;
++	int held;
++	int ret;
++
++	wheel = devm_kzalloc(dev, sizeof(*wheel), GFP_KERNEL);
++	if (!wheel)
++		return -ENOMEM;
++	wheel->dev = dev;
++	wheel->old_position = -1;
++
++	wheel->wheel = devm_platform_ioremap_resource(pdev, 0);
++	if (IS_ERR(wheel->wheel))
++		return PTR_ERR(wheel->wheel);
++	wheel->pcon14 = devm_platform_ioremap_resource(pdev, 1);
++	if (IS_ERR(wheel->pcon14))
++		return PTR_ERR(wheel->pcon14);
++	wheel->pwrcon1 = devm_platform_ioremap_resource(pdev, 2);
++	if (IS_ERR(wheel->pwrcon1))
++		return PTR_ERR(wheel->pwrcon1);
++
++	i2c_node = of_parse_phandle(dev->of_node, "pmu-i2c", 0);
++	if (!i2c_node)
++		return dev_err_probe(dev, -EINVAL, "missing pmu-i2c phandle\n");
++	wheel->pmu_i2c = of_find_i2c_adapter_by_node(i2c_node);
++	of_node_put(i2c_node);
++	if (!wheel->pmu_i2c)
++		return dev_err_probe(dev, -EPROBE_DEFER,
++				     "display-control I2C adapter unavailable\n");
++	ret = devm_add_action_or_reset(dev, n25_put_i2c_adapter,
++				       wheel->pmu_i2c);
++	if (ret)
++		return ret;
++
++	input = devm_input_allocate_device(dev);
++	if (!input)
++		return -ENOMEM;
++	wheel->input = input;
++	input->name = "iPod Classic Click Wheel";
++	input->phys = "n25-clickwheel/input0";
++	input->id.bustype = BUS_HOST;
++	for (i = 0; i < ARRAY_SIZE(n25_keys); i++)
++		input_set_capability(input, EV_KEY, n25_keys[i].code);
++	input_set_capability(input, EV_KEY, KEY_UP);
++	input_set_capability(input, EV_KEY, KEY_DOWN);
++	input_set_capability(input, EV_SW, SW_LID);
++	__set_bit(EV_REP, input->evbit);
++
++	ret = input_register_device(input);
++	if (ret)
++		return dev_err_probe(dev, ret, "cannot register input device\n");
++
++	wheel->irq = platform_get_irq(pdev, 0);
++	if (wheel->irq < 0)
++		return wheel->irq;
++	ret = devm_request_irq(dev, wheel->irq, n25_clickwheel_irq, 0,
++			       dev_name(dev), wheel);
++	if (ret)
++		return dev_err_probe(dev, ret, "cannot request wheel IRQ\n");
++
++	held = n25_read_hold(wheel);
++	if (held < 0)
++		return dev_err_probe(dev, held,
++				     "initial PCF50635 Hold read failed\n");
++	wheel->held = !held; /* force n25_set_hold() to apply hardware state */
++	if (held)
++		n25_set_hold(wheel, true);
++	else {
++		n25_wheel_start(wheel);
++		wheel->held = false;
++		input_report_switch(input, SW_LID, 0);
++		input_sync(input);
++	}
++
++	INIT_DELAYED_WORK(&wheel->hold_work, n25_hold_work);
++	platform_set_drvdata(pdev, wheel);
++	schedule_delayed_work(&wheel->hold_work,
++			      msecs_to_jiffies(N25_HOLD_POLL_MS));
++	dev_info(dev, "Rockbox-derived N25 click wheel ready; Hold=%s\n",
++		 held ? "locked" : "unlocked");
++	return 0;
++}
++
++static void n25_clickwheel_remove(struct platform_device *pdev)
++{
++	struct n25_clickwheel *wheel = platform_get_drvdata(pdev);
++
++	cancel_delayed_work_sync(&wheel->hold_work);
++	if (!wheel->irq_disabled)
++		disable_irq(wheel->irq);
++	n25_release_buttons(wheel);
++	n25_wheel_stop(wheel);
++}
++
++static const struct of_device_id n25_clickwheel_of_match[] = {
++	{ .compatible = "apple,n25-clickwheel" },
++	{ }
++};
++MODULE_DEVICE_TABLE(of, n25_clickwheel_of_match);
++
++static struct platform_driver n25_clickwheel_driver = {
++	.probe = n25_clickwheel_probe,
++	.remove = n25_clickwheel_remove,
++	.driver = {
++		.name = "n25-clickwheel",
++		.of_match_table = n25_clickwheel_of_match,
++	},
++};
++module_platform_driver(n25_clickwheel_driver);
++
++MODULE_DESCRIPTION("Apple iPod Classic N25 click-wheel input");
++MODULE_LICENSE("GPL");
+diff --git a/drivers/power/reset/Kconfig b/drivers/power/reset/Kconfig
+index 74bf0bb8b..874d7f270 100644
+--- a/drivers/power/reset/Kconfig
++++ b/drivers/power/reset/Kconfig
+@@ -13,6 +13,17 @@ menuconfig POWER_RESET
+ 
+ if POWER_RESET
+ 
++config POWER_RESET_S5L8702
++	bool "S5L8702 watchdog restart"
++	depends on ARCH_S5L87XX
++	help
++	  Register the Rockbox-proven S5L8702 watchdog reset write as the
++	  kernel restart handler.  A device-tree test timeout may additionally
++	  force a restart after a bounded volatile bring-up window.
++
++	  The driver maps only the watchdog reset register.  It does not expose
++	  a userspace watchdog device and has no persistent-storage access.
++
+ config POWER_RESET_AS3722
+ 	bool "ams AS3722 power-off driver"
+ 	depends on MFD_AS3722
+diff --git a/drivers/power/reset/Makefile b/drivers/power/reset/Makefile
+index a95aa8819..9ac375dab 100644
+--- a/drivers/power/reset/Makefile
++++ b/drivers/power/reset/Makefile
+@@ -1,4 +1,5 @@
+ # SPDX-License-Identifier: GPL-2.0
++obj-$(CONFIG_POWER_RESET_S5L8702) += s5l8702-restart.o
+ obj-$(CONFIG_POWER_RESET_AS3722) += as3722-poweroff.o
+ obj-$(CONFIG_POWER_RESET_AT91_POWEROFF) += at91-poweroff.o
+ obj-$(CONFIG_POWER_RESET_AT91_RESET) += at91-reset.o
+diff --git a/drivers/power/reset/s5l8702-restart.c b/drivers/power/reset/s5l8702-restart.c
+new file mode 100644
+index 000000000..1303cfaba
+--- /dev/null
++++ b/drivers/power/reset/s5l8702-restart.c
+@@ -0,0 +1,129 @@
++// SPDX-License-Identifier: GPL-2.0-only
++/* Rockbox-proven watchdog restart for Samsung S5L8702. */
++
++#include <linux/delay.h>
++#include <linux/io.h>
++#include <linux/jiffies.h>
++#include <linux/module.h>
++#include <linux/notifier.h>
++#include <linux/of.h>
++#include <linux/platform_device.h>
++#include <linux/reboot.h>
++#include <linux/workqueue.h>
++
++#define S5L8702_WATCHDOG_RESET	0x00100000
++#define S5L8702_MIN_TIMEOUT	30
++#define S5L8702_MAX_TIMEOUT	600
++
++struct s5l8702_restart {
++	struct device *dev;
++	void __iomem *base;
++	struct notifier_block restart_nb;
++	struct delayed_work timeout_work;
++	u32 timeout_seconds;
++};
++
++static int s5l8702_restart_handler(struct notifier_block *nb,
++				   unsigned long mode, void *cmd)
++{
++	struct s5l8702_restart *restart =
++		container_of(nb, struct s5l8702_restart, restart_nb);
++
++	local_irq_disable();
++	writel(S5L8702_WATCHDOG_RESET, restart->base);
++	mb();
++	while (1)
++		cpu_relax();
++
++	return NOTIFY_DONE;
++}
++
++static void s5l8702_timeout_work(struct work_struct *work)
++{
++	struct s5l8702_restart *restart =
++		container_of(to_delayed_work(work), struct s5l8702_restart,
++			     timeout_work);
++
++	dev_emerg(restart->dev,
++		  "volatile test window expired after %u seconds; resetting\n",
++		  restart->timeout_seconds);
++	emergency_restart();
++}
++
++static void s5l8702_unregister_restart(void *data)
++{
++	struct s5l8702_restart *restart = data;
++
++	unregister_restart_handler(&restart->restart_nb);
++}
++
++static int s5l8702_restart_probe(struct platform_device *pdev)
++{
++	struct device *dev = &pdev->dev;
++	struct s5l8702_restart *restart;
++	int ret;
++
++	restart = devm_kzalloc(dev, sizeof(*restart), GFP_KERNEL);
++	if (!restart)
++		return -ENOMEM;
++	restart->dev = dev;
++	restart->base = devm_platform_ioremap_resource(pdev, 0);
++	if (IS_ERR(restart->base))
++		return PTR_ERR(restart->base);
++
++	restart->restart_nb.notifier_call = s5l8702_restart_handler;
++	restart->restart_nb.priority = 192;
++	ret = register_restart_handler(&restart->restart_nb);
++	if (ret)
++		return dev_err_probe(dev, ret,
++				     "cannot register restart handler\n");
++	ret = devm_add_action_or_reset(dev, s5l8702_unregister_restart,
++				       restart);
++	if (ret)
++		return ret;
++
++	if (!of_property_read_u32(dev->of_node,
++				  "apple,test-timeout-seconds",
++				  &restart->timeout_seconds)) {
++		if (restart->timeout_seconds < S5L8702_MIN_TIMEOUT ||
++		    restart->timeout_seconds > S5L8702_MAX_TIMEOUT)
++			return dev_err_probe(dev, -ERANGE,
++				"test timeout must be between 30 and 600 seconds\n");
++		INIT_DELAYED_WORK(&restart->timeout_work, s5l8702_timeout_work);
++		schedule_delayed_work(&restart->timeout_work,
++			msecs_to_jiffies(restart->timeout_seconds * 1000));
++		dev_warn(dev, "volatile test reset armed for %u seconds\n",
++			 restart->timeout_seconds);
++	}
++
++	platform_set_drvdata(pdev, restart);
++	dev_info(dev, "Rockbox-derived S5L8702 restart handler ready\n");
++	return 0;
++}
++
++static void s5l8702_restart_remove(struct platform_device *pdev)
++{
++	struct s5l8702_restart *restart = platform_get_drvdata(pdev);
++
++	if (restart->timeout_seconds)
++		cancel_delayed_work_sync(&restart->timeout_work);
++}
++
++static const struct of_device_id s5l8702_restart_of_match[] = {
++	{ .compatible = "apple,s5l8702-watchdog-reset" },
++	{ }
++};
++MODULE_DEVICE_TABLE(of, s5l8702_restart_of_match);
++
++static struct platform_driver s5l8702_restart_driver = {
++	.probe = s5l8702_restart_probe,
++	.remove = s5l8702_restart_remove,
++	.driver = {
++		.name = "s5l8702-restart",
++		.of_match_table = s5l8702_restart_of_match,
++	},
++};
++module_platform_driver(s5l8702_restart_driver);
++
++MODULE_DESCRIPTION("Samsung S5L8702 watchdog restart");
++MODULE_LICENSE("GPL");

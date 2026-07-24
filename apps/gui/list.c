@@ -25,6 +25,7 @@
 #include "font.h"
 #include "button.h"
 #include "string.h"
+#include "strmemccpy.h"
 #include "settings.h"
 #include "kernel.h"
 #include "system.h"
@@ -43,6 +44,7 @@
 #include "skin_engine/skin_albumart_color.h"
 #include "skin_engine/skin_engine.h"
 #include "ipodjs_ui.h"
+#include "root_menu.h"
 
 static bool list_is_ipodvideo_iclassic_theme(void)
 {
@@ -680,15 +682,26 @@ void gui_synclist_set_viewport_defaults(struct viewport *vp,
 void gui_synclist_set_fullscreen_albumlist(struct gui_synclist *list,
                                            bool enable)
 {
+    bool hide_theme;
+    bool owner_hidden;
+
     if (!list)
         return;
 
-    bool owner_hidden = fullscreen_albumlist_theme_hidden &&
-                        fullscreen_albumlist_owner == list;
+    /*
+     * Full album rows rebuild the list viewport and can wake the SBS action
+     * update path even while the surrounding iPodJS browser is native. Keep a
+     * list-owned disabled-theme frame for the lifetime of this layout so a
+     * legacy backdrop cannot repaint over the native list. exit_to_new_screen
+     * releases this frame before WPS/root/plugin handoff.
+     */
+    hide_theme = enable;
+    owner_hidden = fullscreen_albumlist_theme_hidden &&
+                   fullscreen_albumlist_owner == list;
 
     if (list->force_fullscreen_albumlist == enable)
     {
-        if (enable)
+        if (hide_theme)
         {
             if (owner_hidden && list->fullscreen_albumlist_theme_hidden)
                 return;
@@ -699,7 +712,7 @@ void gui_synclist_set_fullscreen_albumlist(struct gui_synclist *list,
         }
     }
 
-    if (enable && fullscreen_albumlist_theme_hidden &&
+    if (fullscreen_albumlist_theme_hidden &&
         fullscreen_albumlist_owner != list)
     {
         FOR_NB_SCREENS(i)
@@ -710,7 +723,7 @@ void gui_synclist_set_fullscreen_albumlist(struct gui_synclist *list,
         fullscreen_albumlist_owner = NULL;
     }
 
-    if (enable && !fullscreen_albumlist_theme_hidden)
+    if (hide_theme && !fullscreen_albumlist_theme_hidden)
     {
         FOR_NB_SCREENS(i)
             viewportmanager_theme_enable(i, false, NULL);
@@ -723,17 +736,22 @@ void gui_synclist_set_fullscreen_albumlist(struct gui_synclist *list,
     if (!enable)
         list->fullscreen_albumlist_first_item = 0;
 
-    if (!enable && owner_hidden)
+    if ((!enable || !hide_theme) && owner_hidden)
     {
         FOR_NB_SCREENS(i)
         {
             viewportmanager_theme_undo(i, true);
-            skin_update(CUSTOM_STATUSBAR, i, SKIN_REFRESH_ALL);
+            if (!list_use_ipodjs_native(i))
+                skin_update(CUSTOM_STATUSBAR, i, SKIN_REFRESH_ALL);
         }
         fullscreen_albumlist_theme_hidden = false;
         fullscreen_albumlist_owner = NULL;
         list->fullscreen_albumlist_theme_hidden = false;
         need_full_update = true;
+    }
+    else if (!hide_theme)
+    {
+        list->fullscreen_albumlist_theme_hidden = false;
     }
 
     list_init_viewports(list);
@@ -867,10 +885,166 @@ static void _lists_uiviewport_update_callback(unsigned short id,
         gui_synclist_draw(current_lists);
 }
 
+#define IPODJS_FAST_SCROLL_MIN_ITEMS 12
+#define IPODJS_FAST_SCROLL_MIN_ALBUM_ARTIST_ITEMS 3
+#define IPODJS_FAST_SCROLL_BUCKETS 27
+#define IPODJS_FAST_SCROLL_ACCEL_TRIGGER 2
+
+struct list_ipodjs_fast_scroll_index {
+    bool valid;
+    struct gui_synclist *list;
+    void *data;
+    int nb_items;
+    int first[IPODJS_FAST_SCROLL_BUCKETS];
+    int active_bucket;
+    char title[64];
+};
+
+static struct list_ipodjs_fast_scroll_index list_ipodjs_fast_index;
+
+static int list_ipodjs_fast_scroll_bucket(struct gui_synclist *list,
+                                           int item)
+{
+    unsigned char buffer[128];
+    const unsigned char *name;
+
+    if (!list->callback_get_item_name || item < 0 || item >= list->nb_items)
+        return 0;
+
+    name = list->callback_get_item_name(item, list->data, buffer,
+                                         sizeof(buffer));
+    if (P2ID((unsigned char *)name) > VOICEONLY_DELIMITER)
+        return 0;
+    name = P2STR(name);
+    return ipodjs_ui_fast_scroll_bucket((const char *)name);
+}
+
+static bool list_ipodjs_fast_scroll_is_album_artist_title(const char *title)
+{
+    return title &&
+           (!strcmp(title, "Album Artist") ||
+            !strcmp(title, "Album Artists") ||
+            !strcmp(title, "Album Artists by First Letter") ||
+            !strcmp(title, str(LANG_ID3_ALBUMARTIST)) ||
+            !strcmp(title, str(LANG_ID3_ALBUMARTISTS)) ||
+            !strcmp(title,
+                    str(LANG_SHOW_ALBUM_ARTISTS_BY_FIRST_LETTER)));
+}
+
+static bool list_ipodjs_fast_scroll_eligible(struct gui_synclist *list)
+{
+    const char *title = list->title;
+    bool album_artists;
+
+    if (!title || list->selected_size != 1 ||
+        !list->callback_get_item_name)
+        return false;
+
+    album_artists =
+        list_ipodjs_fast_scroll_is_album_artist_title(title);
+    if (list->nb_items < (album_artists ?
+            IPODJS_FAST_SCROLL_MIN_ALBUM_ARTIST_ITEMS :
+            IPODJS_FAST_SCROLL_MIN_ITEMS))
+        return false;
+
+    return !strcmp(title, str(LANG_ARTISTS)) ||
+           !strcmp(title, "Artist") ||
+           !strcmp(title, "Artists by First Letter") ||
+           !strcmp(title, str(LANG_ALBUMS)) ||
+           !strcmp(title, "Albums by First Letter") ||
+           !strcmp(title, str(LANG_TRACKS)) ||
+           !strcmp(title, "Tracks by First Letter") ||
+           !strcmp(title, "Title") ||
+           !strcmp(title, "Songs") ||
+           album_artists;
+}
+
+static bool list_ipodjs_fast_scroll_build(struct gui_synclist *list)
+{
+    const char *title = list->title ? list->title : "";
+
+    if (list_ipodjs_fast_index.valid &&
+        list_ipodjs_fast_index.list == list &&
+        list_ipodjs_fast_index.data == list->data &&
+        list_ipodjs_fast_index.nb_items == list->nb_items &&
+        !strcmp(list_ipodjs_fast_index.title, title))
+        return true;
+
+    memset(&list_ipodjs_fast_index, 0, sizeof(list_ipodjs_fast_index));
+    list_ipodjs_fast_index.list = list;
+    list_ipodjs_fast_index.data = list->data;
+    list_ipodjs_fast_index.nb_items = list->nb_items;
+    list_ipodjs_fast_index.active_bucket = -1;
+    strmemccpy(list_ipodjs_fast_index.title, title,
+               sizeof(list_ipodjs_fast_index.title));
+    for (int i = 0; i < IPODJS_FAST_SCROLL_BUCKETS; i++)
+        list_ipodjs_fast_index.first[i] = -1;
+    for (int i = 0; i < list->nb_items; i++)
+    {
+        int bucket = list_ipodjs_fast_scroll_bucket(list, i);
+
+        if (bucket < 0)
+        {
+            list_ipodjs_fast_index.valid = false;
+            return false;
+        }
+
+        if (list_ipodjs_fast_index.first[bucket] < 0)
+            list_ipodjs_fast_index.first[bucket] = i;
+    }
+    list_ipodjs_fast_index.valid = true;
+    return true;
+}
+
+static void list_ipodjs_fast_scroll_reset(void)
+{
+    list_ipodjs_fast_index.active_bucket = -1;
+    ipodjs_ui_fast_scroll_clear();
+}
+
+static bool list_ipodjs_fast_scroll_step(struct gui_synclist *list,
+                                         int direction)
+{
+    int bucket;
+    char label[2];
+
+    if (!list_ipodjs_fast_scroll_build(list))
+        return false;
+    bucket = list_ipodjs_fast_index.active_bucket;
+    if (bucket < 0)
+        bucket = list_ipodjs_fast_scroll_bucket(list, list->selected_item);
+    else
+    {
+        int candidate = bucket + direction;
+
+        while (candidate >= 0 && candidate < IPODJS_FAST_SCROLL_BUCKETS &&
+               list_ipodjs_fast_index.first[candidate] < 0)
+            candidate += direction;
+        if (candidate >= 0 && candidate < IPODJS_FAST_SCROLL_BUCKETS)
+            bucket = candidate;
+    }
+
+    if (list_ipodjs_fast_index.first[bucket] >= 0)
+        gui_synclist_select_item(list,
+                                 list_ipodjs_fast_index.first[bucket]);
+    list_ipodjs_fast_index.active_bucket = bucket;
+    label[0] = bucket == 0 ? '#' : (char)('A' + bucket - 1);
+    label[1] = '\0';
+    ipodjs_ui_fast_scroll_show(label);
+    return true;
+}
+
 bool gui_synclist_do_button(struct gui_synclist * lists, int *actionptr)
 {
     int action = *actionptr;
     static bool pgleft_allow_cancel = false;
+
+    if (root_menu_ipodjs_handle_lockscreen())
+    {
+        *actionptr = ACTION_REDRAW;
+        gui_synclist_draw(lists);
+        return true;
+    }
 
 #ifdef HAVE_WHEEL_ACCELERATION
     int next_item_modifier = button_apply_acceleration(get_action_data());
@@ -906,6 +1080,22 @@ bool gui_synclist_do_button(struct gui_synclist * lists, int *actionptr)
         }
     }
 #endif
+
+    if (ipodjs_ui_enabled(SCREEN_MAIN))
+    {
+        if (action == ACTION_NONE && ipodjs_ui_fast_scroll_take_expired())
+        {
+            list_ipodjs_fast_index.active_bucket = -1;
+            gui_synclist_draw(lists);
+            return true;
+        }
+        if (action != ACTION_STD_PREVREPEAT &&
+            action != ACTION_STD_NEXTREPEAT &&
+            action != ACTION_STD_PREV &&
+            action != ACTION_STD_NEXT &&
+            action != ACTION_NONE)
+            list_ipodjs_fast_scroll_reset();
+    }
 #if defined(HAVE_TOUCHSCREEN)
     if (action == ACTION_TOUCHSCREEN)
         action = *actionptr = gui_synclist_do_touchscreen(lists);
@@ -959,7 +1149,19 @@ bool gui_synclist_do_button(struct gui_synclist * lists, int *actionptr)
             /*Fallthrough*/
         case ACTION_STD_PREV:
 
-            gui_list_select_at_offset(lists, -next_item_modifier, allow_wrap);
+            if (ipodjs_ui_enabled(SCREEN_MAIN) &&
+                ipodjs_ui_fast_scroll_available() &&
+                list_ipodjs_fast_scroll_eligible(lists) &&
+                (ipodjs_ui_fast_scroll_active() ||
+                 next_item_modifier >= IPODJS_FAST_SCROLL_ACCEL_TRIGGER))
+            {
+                if (!list_ipodjs_fast_scroll_step(lists, -1))
+                    gui_list_select_at_offset(lists, -next_item_modifier,
+                                              allow_wrap);
+            }
+            else
+                gui_list_select_at_offset(lists, -next_item_modifier,
+                                          allow_wrap);
 #ifndef HAVE_WHEEL_ACCELERATION
             if (button_queue_count() < FRAMEDROP_TRIGGER)
 #endif
@@ -972,7 +1174,19 @@ bool gui_synclist_do_button(struct gui_synclist * lists, int *actionptr)
             allow_wrap = false; /* Prevent list wraparound on repeating actions */
             /*Fallthrough*/
         case ACTION_STD_NEXT:
-            gui_list_select_at_offset(lists, next_item_modifier, allow_wrap);
+            if (ipodjs_ui_enabled(SCREEN_MAIN) &&
+                ipodjs_ui_fast_scroll_available() &&
+                list_ipodjs_fast_scroll_eligible(lists) &&
+                (ipodjs_ui_fast_scroll_active() ||
+                 next_item_modifier >= IPODJS_FAST_SCROLL_ACCEL_TRIGGER))
+            {
+                if (!list_ipodjs_fast_scroll_step(lists, 1))
+                    gui_list_select_at_offset(lists, next_item_modifier,
+                                              allow_wrap);
+            }
+            else
+                gui_list_select_at_offset(lists, next_item_modifier,
+                                          allow_wrap);
 #ifndef HAVE_WHEEL_ACCELERATION
             if (button_queue_count() < FRAMEDROP_TRIGGER)
 #endif
@@ -1047,6 +1261,14 @@ bool gui_synclist_do_button(struct gui_synclist * lists, int *actionptr)
         }
         return true;
     }
+    if (action == ACTION_NONE && sb_skin_needs_fast_update(SCREEN_MAIN))
+    {
+        /* A shorter button timeout only wakes the list loop.  Advance the
+         * SBS here as well so out-of-band right-pane animations get a draw
+         * opportunity while the user is idle. */
+        sb_skin_update(SCREEN_MAIN, false);
+        return true;
+    }
     if(lists->scheduled_talk_tick
        && TIME_AFTER(current_tick, lists->scheduled_talk_tick))
         /* scheduled postponed item announcement is due */
@@ -1081,6 +1303,7 @@ int list_do_action_timeout(struct gui_synclist *lists, int timeout)
             timeout = fade_timeout;
     }
 #endif
+    sb_skin_service_fast_update(SCREEN_MAIN);
     if (sb_skin_needs_fast_update(SCREEN_MAIN))
     {
         int fast_timeout = MAX(1, HZ / 30);

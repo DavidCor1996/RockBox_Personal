@@ -3,10 +3,12 @@
 from __future__ import annotations
 
 import hashlib
+import fcntl
 import logging
 import os
 import shutil
 import json
+from contextlib import contextmanager
 from pathlib import Path
 
 from models.track import compute_metadata_hash
@@ -130,28 +132,37 @@ class VideoRvpTranscoder:
         marker_path = self._cache_marker_path(source_path, row, device_key)
         yuv_path = os.path.splitext(marker_path)[0] + ".yuv"
         pcm_path = os.path.splitext(marker_path)[0] + ".pcm"
-        self._ensure_bundle(
-            ffmpeg_bin,
-            source_path,
-            marker_path,
-            yuv_path,
-            pcm_path,
-            row,
-            video_width,
-            video_height,
-        )
+        with self._bundle_lock(marker_path):
+            self._ensure_bundle(
+                ffmpeg_bin,
+                source_path,
+                marker_path,
+                yuv_path,
+                pcm_path,
+                row,
+                video_width,
+                video_height,
+            )
 
-        sizes = {
-            "marker": os.path.getsize(marker_path),
-            "yuv": os.path.getsize(yuv_path),
-            "pcm": os.path.getsize(pcm_path),
-        }
-        segments = self._ensure_segments(marker_path, yuv_path, pcm_path, video_width, video_height)
-        if segments:
-            sizes = {"marker": os.path.getsize(marker_path)}
-            for index, segment in enumerate(segments, start=1):
-                sizes[f"seg{index:02d}_yuv"] = os.path.getsize(segment["yuv"])
-                sizes[f"seg{index:02d}_pcm"] = os.path.getsize(segment["pcm"])
+            sizes = {
+                "marker": os.path.getsize(marker_path),
+                "yuv": os.path.getsize(yuv_path),
+                "pcm": os.path.getsize(pcm_path),
+            }
+            segments = self._ensure_segments(marker_path, yuv_path, pcm_path, video_width, video_height)
+            if segments:
+                sizes = {"marker": os.path.getsize(marker_path)}
+                for index, segment in enumerate(segments, start=1):
+                    sizes[f"seg{index:02d}_yuv"] = os.path.getsize(segment["yuv"])
+                    sizes[f"seg{index:02d}_pcm"] = os.path.getsize(segment["pcm"])
+
+            hash_paths = [marker_path]
+            if segments:
+                for segment in segments:
+                    hash_paths.extend([segment["yuv"], segment["pcm"]])
+            else:
+                hash_paths.extend([yuv_path, pcm_path])
+            bundle_hash = self._bundle_hash_cached(marker_path, *hash_paths)
         row["sync_source_path"] = marker_path
         row["sync_output_ext"] = ".rvp"
         row["sync_transcoded"] = True
@@ -169,13 +180,7 @@ class VideoRvpTranscoder:
             row["sync_video_segments"] = segments
         row["sync_video_bundle_sizes"] = sizes
         row["file_size"] = int(sum(sizes.values()))
-        hash_paths = [marker_path]
-        if segments:
-            for segment in segments:
-                hash_paths.extend([segment["yuv"], segment["pcm"]])
-        else:
-            hash_paths.extend([yuv_path, pcm_path])
-        row["file_hash"] = self._bundle_hash_cached(marker_path, *hash_paths)
+        row["file_hash"] = bundle_hash
         row["codec"] = "RVP"
         row["bitrate"] = 0
         row["metadata_hash"] = compute_metadata_hash(
@@ -198,6 +203,19 @@ class VideoRvpTranscoder:
             row.get("episode_number"),
         )
         return row, {"converted": True, "cache_path": marker_path, "reason": "rvp_video"}
+
+    @staticmethod
+    @contextmanager
+    def _bundle_lock(marker_path: str):
+        """Serialize preparation of one deterministic cache bundle."""
+        lock_path = marker_path + ".lock"
+        os.makedirs(os.path.dirname(lock_path), exist_ok=True)
+        with open(lock_path, "a+b") as lock_handle:
+            fcntl.flock(lock_handle.fileno(), fcntl.LOCK_EX)
+            try:
+                yield
+            finally:
+                fcntl.flock(lock_handle.fileno(), fcntl.LOCK_UN)
 
     def _cache_marker_path(self, source_path: str, row: dict, device_key: str) -> str:
         try:
@@ -464,9 +482,7 @@ class VideoRvpTranscoder:
                 part_frames = min(segment_frames, frames_total - frame_start)
                 self._copy_exact(yuv_in, segment["yuv"], part_frames * frame_bytes)
                 pcm_bytes = part_frames * self._pcm_bytes_per_frame
-                if index == len(expected):
-                    pcm_bytes = pcm_size - pcm_in.tell()
-                self._copy_exact(pcm_in, segment["pcm"], pcm_bytes)
+                self._copy_or_pad(pcm_in, segment["pcm"], pcm_bytes)
                 segments.append(segment)
                 frame_start += part_frames
 
@@ -561,6 +577,25 @@ class VideoRvpTranscoder:
                 chunk = source.read(min(4 * 1024 * 1024, remaining))
                 if not chunk:
                     raise RuntimeError("short read while segmenting raw video")
+                out.write(chunk)
+                remaining -= len(chunk)
+        os.replace(tmp_path, target_path)
+
+    @staticmethod
+    def _copy_or_pad(source, target_path: str, byte_count: int):
+        """Copy a fixed PCM duration, padding a damaged/short stream silently."""
+        tmp_path = target_path + ".tmp"
+        with open(tmp_path, "wb") as out:
+            remaining = byte_count
+            while remaining > 0:
+                chunk = source.read(min(4 * 1024 * 1024, remaining))
+                if not chunk:
+                    zero_chunk = b"\0" * min(1024 * 1024, remaining)
+                    while remaining > 0:
+                        written = min(len(zero_chunk), remaining)
+                        out.write(zero_chunk[:written])
+                        remaining -= written
+                    break
                 out.write(chunk)
                 remaining -= len(chunk)
         os.replace(tmp_path, target_path)

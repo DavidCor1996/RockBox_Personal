@@ -54,6 +54,7 @@
 #include "quickscreen.h"
 #include "shortcuts.h"
 #include "statusbar-skinned.h"
+#include "gui/ipodjs_ui.h"
 
 #include "icons.h"
 
@@ -484,6 +485,15 @@ int do_menu(const struct menu_item_ex *start_menu, int *start_selected,
         else
             action = new_action;
 
+#if defined(IPOD_VIDEO) || defined(IPOD_6G)
+        /* Stock iPod navigation treats a short Menu press as one-level Back.
+         * Keep Rockbox's root-menu behavior and long-Menu Quick Settings,
+         * but do not let an iPodJS secondary/context menu jump to Home. */
+        if (global_settings.ui_engine == UI_ENGINE_IPODJS &&
+            action == ACTION_STD_MENU && menu != &root_menu_)
+            action = ACTION_STD_CANCEL;
+#endif
+
         if (LIKELY(gui_synclist_do_button(&lists, &action)))
             continue;
 #ifdef HAVE_QUICKSCREEN
@@ -577,7 +587,9 @@ int do_menu(const struct menu_item_ex *start_menu, int *start_selected,
                         context_menu = &non_quickscreen_op_menu;
                     }
 #endif
+                    ipodjs_ui_transition_begin(1);
                     int msel = do_menu(context_menu, NULL, NULL, false);
+                    ipodjs_ui_transition_begin(-1);
 
                     switch (msel)
                     {
@@ -624,6 +636,7 @@ int do_menu(const struct menu_item_ex *start_menu, int *start_selected,
                 ret = GO_TO_ROOT;
             else
                 ret = GO_TO_PREVIOUS;
+            ipodjs_ui_transition_begin(-1);
             done = true;
         }
         else if (action == ACTION_STD_CANCEL)
@@ -643,6 +656,7 @@ int do_menu(const struct menu_item_ex *start_menu, int *start_selected,
 
             if (stack_top > 0)
             {
+                ipodjs_ui_transition_begin(-1);
                 stack_top--;
                 menu = mstack[stack_top].menu;
                 int msel = mstack[stack_top].selected;
@@ -656,6 +670,7 @@ int do_menu(const struct menu_item_ex *start_menu, int *start_selected,
             }
             else if (menu != &root_menu_)
             {
+                ipodjs_ui_transition_begin(-1);
                 ret = GO_TO_PREVIOUS;
                 done = true;
             }
@@ -686,6 +701,7 @@ int do_menu(const struct menu_item_ex *start_menu, int *start_selected,
                 case MT_MENU:
                     if (stack_top < MAX_MENUS)
                     {
+                        ipodjs_ui_transition_begin(1);
                         mstack[stack_top].menu = menu;
                         mstack[stack_top].selected = selected;
                         stack_top++;
@@ -740,6 +756,7 @@ int do_menu(const struct menu_item_ex *start_menu, int *start_selected,
                     }
                     else if (stack_top < MAX_MENUS)
                     {
+                        ipodjs_ui_transition_begin(1);
                         mstack[stack_top].menu = menu;
                         mstack[stack_top].selected = selected;
                         stack_top++;

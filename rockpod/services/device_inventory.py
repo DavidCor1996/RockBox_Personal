@@ -5,6 +5,7 @@ thread. It reconciles the cached device inventory with the filesystem without
 blocking the UI thread.
 """
 
+import csv
 import logging
 import os
 from pathlib import Path
@@ -19,6 +20,7 @@ from services.rockbox_playlists import import_device_playlists
 from services.rockbox_runtime import import_runtime_data_for_device
 from services.rockbox_tagcache import TagcacheError, read_rockbox_tagcache_tracks
 from services.track_matcher import TrackMatcher
+from models.track import compute_metadata_hash
 
 logger = logging.getLogger(__name__)
 DEVICE_TRACK_FORMATS = frozenset(SUPPORTED_FORMATS) | frozenset(SUPPORTED_VIDEO_FORMATS) | {".rvp"}
@@ -150,13 +152,121 @@ def _normalize_device_path(rel_path):
     return str(rel_path or "").replace("\\", "/").lower()
 
 
+def _read_rockpod_video_manifest(mount_path):
+    manifest_path = os.path.join(
+        mount_path, ".rockbox", "videolist", "index.tsv"
+    )
+    try:
+        with open(manifest_path, "r", encoding="utf-8", newline="") as handle:
+            if not handle.readline().startswith("# rockpod videolist"):
+                return {}
+            return {
+                _normalize_device_path(row.get("device_path")): dict(row)
+                for row in csv.DictReader(handle, delimiter="\t")
+                if str(row.get("device_path") or "").strip()
+            }
+    except (OSError, csv.Error):
+        return {}
+
+
+def _manifest_int(value):
+    try:
+        return int(str(value or "").strip())
+    except (TypeError, ValueError):
+        return None
+
+
+def _local_video_id_for_manifest(db, entry):
+    show_title = str(entry.get("show") or "").strip()
+    season_number = _manifest_int(entry.get("season"))
+    episode_number = _manifest_int(entry.get("episode"))
+    if show_title and season_number is not None and episode_number is not None:
+        rows = db.execute(
+            "SELECT id FROM tracks WHERE lower(coalesce(media_type, '')) = 'video' "
+            "AND lower(trim(coalesce(show_title, ''))) = lower(trim(?)) "
+            "AND season_number = ? AND episode_number = ? ORDER BY id",
+            (show_title, season_number, episode_number),
+        ).fetchall()
+        if len(rows) == 1:
+            return rows[0]["id"]
+
+    title = str(entry.get("title") or "").strip()
+    if title:
+        rows = db.execute(
+            "SELECT id FROM tracks WHERE lower(coalesce(media_type, '')) = 'video' "
+            "AND lower(trim(coalesce(title, ''))) = lower(trim(?)) ORDER BY id",
+            (title,),
+        ).fetchall()
+        if len(rows) == 1:
+            return rows[0]["id"]
+    return None
+
+
+def _rvp_track_row_from_manifest(
+    db, device_key, rel_path, stat, entry, file_hash=""
+):
+    title = str(entry.get("title") or Path(rel_path).stem).strip()
+    show_title = str(entry.get("show") or "").strip()
+    video_kind = str(entry.get("kind") or "movie").strip()
+    season_number = _manifest_int(entry.get("season"))
+    episode_number = _manifest_int(entry.get("episode"))
+    duration = float(_manifest_int(entry.get("duration")) or 0)
+    year = _manifest_int(entry.get("year"))
+    genre = str(entry.get("genre") or "").strip()
+    artist = show_title
+    album = (
+        ("Specials" if season_number == 0 else f"Season {season_number}")
+        if video_kind == "show" and season_number is not None
+        else title
+    )
+    return {
+        "device_id": device_key,
+        "device_path": rel_path,
+        "file_size": stat.st_size,
+        "title": title,
+        "artist": artist,
+        "album": album,
+        "album_artist": artist,
+        "genre": genre,
+        "year": year,
+        "track_number": episode_number,
+        "disc_number": 1,
+        "duration": duration,
+        "bitrate": 0,
+        "codec": "RVP",
+        "metadata_hash": compute_metadata_hash(
+            title,
+            artist,
+            album,
+            artist,
+            episode_number,
+            1,
+            genre,
+            year,
+            "",
+            duration,
+            0,
+            "RVP",
+            "video",
+            video_kind,
+            show_title,
+            season_number,
+            episode_number,
+        ),
+        "file_hash": file_hash,
+        "local_track_id": _local_video_id_for_manifest(db, entry),
+        "present_on_device": 1,
+    }
+
+
 def _filesystem_only_paths(filesystem_paths, known_paths):
     known = {_normalize_device_path(path) for path in known_paths}
     return sorted(path for path in filesystem_paths if _normalize_device_path(path) not in known)
 
 
 def _import_device_file(db, cached, device_key, mount_path, rel, force_full,
-                        compute_hashes, metadata_reader_func, file_hash_func):
+                        compute_hashes, metadata_reader_func, file_hash_func,
+                        video_manifest=None):
     full = os.path.join(mount_path, rel)
     stat = os.stat(full)
     cached_row = cached.get(rel)
@@ -169,6 +279,17 @@ def _import_device_file(db, cached, device_key, mount_path, rel, force_full,
     )
     if reusable:
         return _cached_track_row(cached_row), False, False, not cached_row.get("local_track_id")
+
+    if Path(rel).suffix.lower() == ".rvp":
+        manifest_entry = (video_manifest or {}).get(
+            _normalize_device_path(rel)
+        )
+        if manifest_entry:
+            file_hash = file_hash_func(full) if compute_hashes else ""
+            row = _rvp_track_row_from_manifest(
+                db, device_key, rel, stat, manifest_entry, file_hash
+            )
+            return row, cached_row is None, cached_row is not None, True
 
     track = metadata_reader_func(full)
     if not track.metadata_hash:
@@ -230,6 +351,7 @@ def verify_device_inventory(
     compute_hashes = duplicate_strictness in ("metadata_and_hash", "file_hash_only")
     metadata_reader_func = metadata_reader_func or read_metadata
     file_hash_func = file_hash_func or compute_file_hash
+    video_manifest = _read_rockpod_video_manifest(mount_path)
 
     imported_from_tagcache = False
     inventory_confirmed = False
@@ -299,6 +421,7 @@ def verify_device_inventory(
                                 compute_hashes,
                                 metadata_reader_func,
                                 file_hash_func,
+                                video_manifest,
                             )
                             db.upsert_device_track(dev_data)
                             scanned += 1
@@ -354,6 +477,7 @@ def verify_device_inventory(
                             compute_hashes,
                             metadata_reader_func,
                             file_hash_func,
+                            video_manifest,
                         )
                         if relink_needed:
                             needs_relink = True
@@ -461,7 +585,16 @@ def _link_device_to_local(db, device_key, duplicate_strictness, duration_toleran
     matcher = TrackMatcher(duplicate_strictness, duration_tolerance)
     matched, unmatched, _, _ = matcher.match_all(local_tracks, device_tracks)
 
-    synced_updates = []
+    synced_updates = [
+        (
+            row.get("local_track_id"),
+            row.get("device_path", ""),
+            row.get("metadata_hash", ""),
+            row.get("file_hash", ""),
+        )
+        for row in (dict(track) for track in device_tracks)
+        if row.get("local_track_id") and row.get("present_on_device", 1)
+    ]
     for result in matched:
         if cancel_callback and cancel_callback():
             raise DeviceInventoryCancelled()
@@ -489,6 +622,13 @@ def _link_device_to_local(db, device_key, duplicate_strictness, duration_toleran
         lt = dict(result.local_track)
         local_id = lt.get("id")
         if local_id:
+            linked_elsewhere = db.execute(
+                "SELECT 1 FROM device_tracks "
+                "WHERE local_track_id = ? AND present_on_device = 1 LIMIT 1",
+                (local_id,),
+            ).fetchone()
+            if linked_elsewhere:
+                continue
             db.execute(
                 "UPDATE tracks SET synced_to_device = 0, device_path = NULL, "
                 "last_synced_metadata_hash = '', last_synced_file_hash = '' "

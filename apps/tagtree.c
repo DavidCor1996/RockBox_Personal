@@ -60,6 +60,9 @@
 #include "plugin.h"
 #include "language.h"
 #include "playlist_catalog.h"
+#include "root_menu.h"
+#include "gui/ipodjs_ui.h"
+#include "ipodjs_trace.h"
 
 #define str_or_empty(x) (x ? x : "(NULL)")
 
@@ -1591,6 +1594,101 @@ static bool tagtree_valid_artist_name(const char *name)
     return name && name[0] && strcmp(name, UNTAGGED) != 0;
 }
 
+static bool tagtree_search_with_recovery(struct tagcache_search *tcs, int tag)
+{
+    long idle_deadline;
+    long next_retry = 0;
+    long next_recovery = 0;
+#ifdef SIMULATOR
+    long simulated_storage_release = 0;
+#endif
+
+    if (tagcache_search(tcs, tag))
+        return true;
+
+#ifdef HAVE_IPODJS_UI
+    if (global_settings.ui_engine != UI_ENGINE_IPODJS)
+        return false;
+
+    /* Rapid hardware navigation can overlap playback refills, album-art I/O,
+     * and an automatic tagcache scan/commit. Keep the valid deployed database
+     * intact, display a deterministic loading state, and retry after the
+     * transient owner releases storage resources. Navigation input remains
+     * queued for the tree to coalesce after recovery; treating MENU as an
+     * abort here is what turned a transient open failure into the misleading
+     * LANG_TAGCACHE_BUSY screen. */
+    idle_deadline = current_tick + HZ * 15;
+#ifdef SIMULATOR
+    if (file_exists(ROCKBOX_DIR "/ipodjs-menu-storm.gate"))
+    {
+        remove(ROCKBOX_DIR "/ipodjs-menu-storm.gate");
+        simulated_storage_release = current_tick + HZ;
+        for (int tap = 0; tap < 8; tap++)
+        {
+            button_queue_post(BUTTON_MENU, 0);
+            button_queue_post(BUTTON_MENU | BUTTON_REL, 0);
+        }
+    }
+#endif
+    ipodjs_trace_screen("Loading Music", "start", tag, 0, 0,
+                        0, 0, LCD_WIDTH, LCD_HEIGHT);
+
+    while (true)
+    {
+#ifdef SIMULATOR
+        if (simulated_storage_release > 0 &&
+            TIME_AFTER(current_tick, simulated_storage_release))
+        {
+            remove(ROCKBOX_DIR "/tagcache-storage-persistent.gate");
+            simulated_storage_release = 0;
+        }
+#endif
+        struct tagcache_stat *stat = tagcache_get_stat();
+
+        splash(0, "Loading Music...");
+
+        if (stat->scan_status != TAGCACHE_SCAN_COMMITTING &&
+            stat->commit_step == 0 &&
+            TIME_AFTER(current_tick, next_retry))
+        {
+            next_retry = current_tick + HZ;
+            if (tagcache_search(tcs, tag))
+            {
+                ipodjs_trace_screen("Loading Music", "recovered", tag,
+                                    0, 0, 0, 0, LCD_WIDTH, LCD_HEIGHT);
+                return true;
+            }
+
+            if (TIME_AFTER(current_tick, next_recovery))
+            {
+                next_recovery = current_tick + HZ * 3;
+                if (tagcache_recover() && tagcache_search(tcs, tag))
+                {
+                    ipodjs_trace_screen("Loading Music", "revalidated",
+                                        tag, 0, 0, 0, 0,
+                                        LCD_WIDTH, LCD_HEIGHT);
+                    return true;
+                }
+            }
+        }
+
+        if (TIME_AFTER(current_tick, idle_deadline))
+        {
+            ipodjs_trace_screen("Loading Music", "failed", tag,
+                                0, 0, 0, 0, LCD_WIDTH, LCD_HEIGHT);
+            return false;
+        }
+
+        sleep(HZ / 5);
+    }
+#else
+    (void)idle_deadline;
+    (void)next_retry;
+    (void)next_recovery;
+    return false;
+#endif
+}
+
 static bool tagtree_add_search_context(struct tagcache_search *tcs, int level,
                                        struct tagcache_search_clause *num_clauses)
 {
@@ -1622,103 +1720,6 @@ static bool tagtree_add_search_context(struct tagcache_search *tcs, int level,
     }
 
     return true;
-}
-
-static bool tagtree_single_album_tag_value(int result_tag, int album_seek,
-                                           int level, char *buf, size_t size,
-                                           bool *multiple)
-{
-    struct tagcache_search tcs;
-    struct tagcache_search_clause num_clauses[MAX_TAGS];
-    char tcs_buf[TAGCACHE_BUFSZ];
-    char first[TAGCACHE_BUFSZ];
-    bool found = false;
-
-    if (multiple)
-        *multiple = false;
-    if (buf && size > 0)
-        buf[0] = '\0';
-
-    if (!tagcache_search(&tcs, result_tag))
-        return false;
-
-    if (!tagcache_search_add_filter(&tcs, tag_album, album_seek) ||
-        !tagtree_add_search_context(&tcs, level, num_clauses))
-    {
-        tagcache_search_finish(&tcs);
-        return false;
-    }
-
-    first[0] = '\0';
-    while (tagcache_get_next(&tcs, tcs_buf, sizeof(tcs_buf)))
-    {
-        if (!tagtree_valid_artist_name(tcs.result))
-            continue;
-
-        if (!found)
-        {
-            strmemccpy(first, tcs.result, sizeof(first));
-            found = true;
-        }
-        else if (strcasecmp(first, tcs.result) != 0)
-        {
-            if (multiple)
-                *multiple = true;
-            found = false;
-            break;
-        }
-    }
-
-    tagcache_search_finish(&tcs);
-
-    if (found && buf && size > 0)
-        strmemccpy(buf, first, size);
-
-    return found;
-}
-
-static void tagtree_resolve_album_artist(struct tagcache_search *album_tcs,
-                                         int album_seek, int idx_id,
-                                         int level, char *buf, size_t size)
-{
-    bool multiple = false;
-
-    if (!buf || size == 0)
-        return;
-
-    buf[0] = '\0';
-
-    /* Album entries are already unique values backed by a representative
-     * track.  In the normal case the representative carries albumartist;
-     * use it directly instead of opening two additional filtered searches
-     * for every album row.  Keep the exhaustive path for files with missing
-     * albumartist metadata so Various Artists detection remains intact there.
-     */
-    if (tagcache_retrieve(album_tcs, idx_id, tag_albumartist, buf, size) &&
-        tagtree_valid_artist_name(buf))
-        return;
-
-    if (tagtree_single_album_tag_value(tag_albumartist, album_seek, level,
-                                       buf, size, &multiple))
-        return;
-    if (multiple)
-    {
-        strmemccpy(buf, "Various Artists", size);
-        return;
-    }
-
-    if (tagtree_single_album_tag_value(tag_artist, album_seek, level,
-                                       buf, size, &multiple))
-        return;
-    if (multiple)
-    {
-        strmemccpy(buf, "Various Artists", size);
-        return;
-    }
-
-    if (!tagcache_retrieve(album_tcs, idx_id, tag_artist, buf, size) ||
-        !tagtree_valid_artist_name(buf))
-        buf[0] = '\0';
 }
 
 static int retrieve_entries(struct tree_context *c, int offset, bool init)
@@ -1770,7 +1771,7 @@ static int retrieve_entries(struct tree_context *c, int offset, bool init)
         tag = tag_filename;
     }
 
-    if (!tagcache_search(&tcs, tag))
+    if (!tagtree_search_with_recovery(&tcs, tag))
         return -1;
 
     /* Prevent duplicate entries in the search list. */
@@ -2034,19 +2035,33 @@ static int retrieve_entries(struct tree_context *c, int offset, bool init)
 entry_skip_formatter:
         if (tag == tag_album)
         {
-            char album_artist[TAGCACHE_BUFSZ];
-            tagtree_resolve_album_artist(&tcs, dptr->extraseek, tcs.idx_id,
-                                         level, album_artist,
-                                         sizeof(album_artist));
-            if (album_artist[0])
+            int remaining = c->cache.name_buffer_size - namebufused;
+            char *album_artist = remaining > 0 ?
+                core_get_data(c->cache.name_buffer_handle) + namebufused :
+                NULL;
+
+            /* The album search already owns a representative track.  Read
+             * its albumartist (or artist fallback) through that search
+             * instead of opening nested filtered searches for every row.
+             * Besides being much faster on disk targets, this keeps the
+             * native UI thread well below its 8 KiB stack limit. */
+            if (album_artist &&
+                ((!tagcache_retrieve(&tcs, tcs.idx_id, tag_albumartist,
+                                     album_artist, remaining) ||
+                  !tagtree_valid_artist_name(album_artist)) &&
+                 (!tagcache_retrieve(&tcs, tcs.idx_id, tag_artist,
+                                     album_artist, remaining) ||
+                  !tagtree_valid_artist_name(album_artist))))
+            {
+                album_artist[0] = '\0';
+            }
+
+            if (album_artist && album_artist[0])
             {
                 int len = strlen(album_artist) + 1;
-                if (namebufused + len <= c->cache.name_buffer_size)
+                if (len <= remaining)
                 {
-                    dptr->album_artist =
-                        core_get_data(c->cache.name_buffer_handle) +
-                        namebufused;
-                    strcpy(dptr->album_artist, album_artist);
+                    dptr->album_artist = album_artist;
                     namebufused += len;
                 }
             }
@@ -2249,10 +2264,19 @@ int tagtree_load(struct tree_context* c)
 
             if (loaded_entries_crc != 0)
             {
-                if (loaded_entries_crc == tagtree_data_crc(c))
+                /* This is a one-shot return cache created immediately before
+                 * entering WPS. Its raw CRC includes pointers, so normal
+                 * buflib compaction while the codec starts changes the CRC
+                 * even though the rows and their relocated pointers remain
+                 * valid. No other tree owner runs while WPS is active. */
+                if (ipodjs_ui_enabled(SCREEN_MAIN) ||
+                    loaded_entries_crc == tagtree_data_crc(c))
                 {
                     count = c->dirlength;
                     logf("Reusing %d entries", count);
+                    ipodjs_trace_screen("Tagtree Cache", "reused", count,
+                                        c->dirlevel, c->dirlength,
+                                        0, 0, LCD_WIDTH, LCD_HEIGHT);
                     break;
                 }
             }
@@ -2326,6 +2350,20 @@ int tagtree_enter(struct tree_context* c, bool is_visible)
         seek = dptr->extraseek;
     }
     newextra = dptr->newtable;
+
+#if defined(HAVE_IPODJS_UI)
+    /* The Classic Search item is a single live click-wheel search, not the
+     * Rockbox category submenu.  Intercept only that exact root link and
+     * leave every other tagtree/menu path on the established browser and
+     * playlist lifecycle. */
+    if (c->currtable == TABLE_ROOT && newextra == TABLE_ROOT &&
+        root_menu_ipodjs_search_available() &&
+        !strcasecmp(P2STR((unsigned char *)dptr->name), "Search"))
+    {
+        int search_result = root_menu_ipodjs_search();
+        return search_result == GO_TO_WPS ? GO_TO_WPS : 0;
+    }
+#endif
 
     if (c->dirlevel >= MAX_DIR_LEVELS)
         return 0;
@@ -2584,27 +2622,48 @@ bool tagtree_get_album_art_row(struct tree_context *c, int id,
         tagtree_valid_artist_name(entry->album_artist))
         strmemccpy(artist, entry->album_artist, artist_size);
 
-    if (artist && artist_size > 0 && !artist[0])
-    {
-        for (int i = c->currextra - 1; i >= 0; i--)
-        {
-            int tag = csi->tagorder[i];
-            if (tag != tag_albumartist && tag != tag_artist)
-                continue;
+    return true;
+}
 
-            struct tagcache_search tcs;
-            if (!tagcache_search(&tcs, tag))
-                continue;
-            bool found = tagcache_retrieve(&tcs, csi->result_seek[i], tag,
-                                           artist, artist_size);
-            tagcache_search_finish(&tcs);
-            if (found)
-                break;
-            artist[0] = '\0';
-        }
+bool tagtree_get_album_art_path(struct tree_context *c, int id,
+                                char *path, size_t path_size)
+{
+    struct tagcache_search tcs;
+    struct tagcache_search_clause num_clauses[MAX_TAGS];
+    struct tagentry *entry;
+    char tcs_buf[TAGCACHE_BUFSZ];
+    bool found = false;
+
+    if (path && path_size > 0)
+        path[0] = '\0';
+
+    if (!path || path_size == 0 || !c || !csi ||
+        c->currtable != TABLE_NAVIBROWSE || c->currextra < 0 ||
+        c->currextra >= csi->tagorder_count ||
+        csi->tagorder[c->currextra] != tag_album ||
+        id < c->special_entry_count)
+        return false;
+
+    entry = tagtree_get_entry(c, id);
+    if (!entry || entry->extraseek < 0 ||
+        !tagcache_search(&tcs, tag_filename))
+        return false;
+
+    if (!tagcache_search_add_filter(&tcs, tag_album, entry->extraseek) ||
+        !tagtree_add_search_context(&tcs, c->currextra, num_clauses))
+    {
+        tagcache_search_finish(&tcs);
+        return false;
     }
 
-    return true;
+    if (tagcache_get_next(&tcs, tcs_buf, sizeof(tcs_buf)))
+    {
+        strmemccpy(path, tcs.result, path_size);
+        found = true;
+    }
+
+    tagcache_search_finish(&tcs);
+    return found;
 }
 
 bool tagtree_should_disable_paginated_scroll(struct tree_context *c)

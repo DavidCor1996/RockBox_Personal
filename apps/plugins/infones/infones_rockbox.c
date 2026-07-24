@@ -4,6 +4,7 @@
 #include "lib/pluginlib_exit.h"
 #include "InfoNES.h"
 #include "InfoNES_System.h"
+#include "lib/rockachievements.h"
 
 #include <stdarg.h>
 
@@ -90,6 +91,7 @@ static bool right_run_active;
 static long right_last_tap_tick;
 static bool left_was_down;
 static bool left_run_active;
+static struct rockachievements_runtime infones_achievements;
 static long left_last_tap_tick;
 #ifdef HAVE_WHEEL_POSITION
 static DWORD wheel_pad_latch;
@@ -533,6 +535,7 @@ void InfoNES_ProfileApu(long ticks)
 
 void InfoNES_ProfileFrameEnd(int rendered)
 {
+    rockachievements_do_frame(&infones_achievements);
 #ifdef SIMULATOR
     if (!profiling_enabled && test_frame_limit)
     {
@@ -565,6 +568,27 @@ void InfoNES_ProfileFrameEnd(int rendered)
         profile_record_bucket(&profile.wait_bucket, wait_ticks);
     }
 
+}
+
+static uint32_t infones_achievement_peek(uint32_t address,
+                                         uint32_t num_bytes,
+                                         void *userdata)
+{
+    uint32_t value = 0;
+    uint32_t index;
+
+    (void)userdata;
+    for (index = 0; index < num_bytes && index < 4; ++index, ++address)
+    {
+        BYTE result = 0;
+
+        if (address < 0x2000)
+            result = RAM[address & 0x07FF];
+        else if (address >= 0x6000 && address < 0x8000)
+            result = SRAM[address - 0x6000];
+        value |= (uint32_t)result << (index * 8);
+    }
+    return value;
 }
 
 static void profile_write_log(void)
@@ -1412,6 +1436,15 @@ enum plugin_status plugin_start(const void *parameter)
         return PLUGIN_ERROR;
     }
     load_sram();
+    if (rockachievements_available(rom_path))
+    {
+        void *workspace = infones_alloc(ROCKACHIEVEMENTS_WORKSPACE_TARGET);
+
+        if (workspace)
+            rockachievements_init(
+                &infones_achievements, rom_path, infones_achievement_peek,
+                NULL, workspace, ROCKACHIEVEMENTS_WORKSPACE_TARGET);
+    }
     FrameSkip = INFONES_HARDWARE_FRAMESKIP;
 
     rb->lcd_clear_display();
@@ -1427,6 +1460,7 @@ enum plugin_status plugin_start(const void *parameter)
     profile_write_log();
     if (autosave_enabled)
         save_sram();
+    rockachievements_shutdown(&infones_achievements);
     InfoNES_Fin();
     restore_playback_state();
     rb->plugin_release_audio_buffer();

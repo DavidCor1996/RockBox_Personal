@@ -112,9 +112,11 @@ class Sidebar(QWidget):
     ROCKBOX_BOOT = "rockbox_boot"
     ROCKBOX_PLUGINS = "rockbox_plugins"
     ROCKBOX_GAME_SYNC = "rockbox_game_sync"
+    ROCKBOX_ACHIEVEMENTS_AVATAR = "rockbox_achievements_avatar"
     ROCKBOX_GAMES = "rockbox_games"
     ROCKBOX_PHOTOS = "rockbox_photos"
     ROCKBOX_LINUX = "rockbox_linux"
+    ROCKBOX_ANDROID = "rockbox_android"
     ROCKBOX_BROWSER = "rockbox_browser"
     ROCKBOX_WEBSITE_SYNC = "rockbox_website_sync"
     ROCKBOX_SIMULATOR = "rockbox_simulator"
@@ -238,6 +240,11 @@ class Sidebar(QWidget):
             self._rockbox_header, "Game Sync", self.ROCKBOX_GAME_SYNC,
             _make_icon("#6f8fb8", "device")
         )
+        self._achievements_avatar_item = self._add_item(
+            self._rockbox_header, "Achievements & Avatar",
+            self.ROCKBOX_ACHIEVEMENTS_AVATAR,
+            _make_icon("#69a719", "artist")
+        )
         self._photos_item = self._add_item(
             self._rockbox_header, "Photos", self.ROCKBOX_PHOTOS,
             _make_icon("#8c9f6f", "album")
@@ -245,6 +252,10 @@ class Sidebar(QWidget):
         self._linux_item = self._add_item(
             self._rockbox_header, "Linux", self.ROCKBOX_LINUX,
             _asset_icon(LINUX_ICON_PATH) or _make_icon("#5f9ea0", "device")
+        )
+        self._android_item = self._add_item(
+            self._rockbox_header, "Android on iPod", self.ROCKBOX_ANDROID,
+            _make_icon("#78a85a", "device")
         )
         self._browser_item = self._add_item(
             self._rockbox_header, "Store", self.ROCKBOX_BROWSER,

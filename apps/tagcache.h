@@ -151,6 +151,11 @@ struct tagcache_search {
     int entry_count;
     bool valid;
     bool initialized;
+    /* Core-owned search registry identity.  This lets runtime recovery close
+     * only abandoned tagcache descriptors, without touching playback, album
+     * art, playlist, or arbitrary filesystem owners. */
+    int owner_slot;
+    uint32_t owner_cookie;
     uint32_t *unique_list;
     int unique_list_capacity;
     int unique_list_count;
@@ -222,6 +227,8 @@ void tagcache_init(void) INIT_ATTR;
 bool tagcache_is_initialized(void);
 bool tagcache_is_fully_initialized(void);
 bool tagcache_is_usable(void);
+bool tagcache_revalidate(void);
+bool tagcache_recover(void);
 void tagcache_start_scan(void);
 void tagcache_stop_scan(void);
 bool tagcache_update(void);

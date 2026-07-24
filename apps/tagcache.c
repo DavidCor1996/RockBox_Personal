@@ -153,6 +153,9 @@
 #define TAGCACHE_FILE_COMMIT     "database_commit.tcd"
 #define TAGCACHE_FILE_HOSTCOMMIT "database_hostcommit.tcd"
 
+/* Last known-good database installed by the guarded iPod deployment. */
+#define TAGCACHE_BACKUP_DIRECTORY "tagcache_backup"
+
 /* The main database master index and numeric data. */
 #define TAGCACHE_FILE_MASTER     "database_idx.tcd"
 
@@ -282,6 +285,7 @@ enum tagcache_queue {
     Q_IMPORT_CHANGELOG,
     Q_UPDATE,
     Q_REBUILD,
+    Q_RECOVER,
 
     /* Internal tagcache command queue. */
     CMD_UPDATE_MASTER_HEADER,
@@ -424,6 +428,167 @@ static int processed_dir_count;
 /* Thread safe locking */
 static volatile int write_lock;
 static volatile int read_lock;
+
+#ifndef __PCTOOL__
+#define TAGCACHE_SEARCH_OWNER_COUNT 16
+#define TAGCACHE_STALE_SEARCH_TICKS (5 * HZ)
+
+enum tagcache_runtime_failure {
+    TAGCACHE_FAILURE_NONE = 0,
+    TAGCACHE_FAILURE_NOT_READY,
+    TAGCACHE_FAILURE_BUSY,
+    TAGCACHE_FAILURE_FD_LIMIT,
+    TAGCACHE_FAILURE_STORAGE,
+    TAGCACHE_FAILURE_MISSING,
+    TAGCACHE_FAILURE_CORRUPT,
+};
+
+struct tagcache_search_owner {
+    struct tagcache_search *search;
+    uint32_t cookie;
+    long last_activity;
+    int masterfd;
+    int idxfd[TAG_COUNT];
+    bool active;
+};
+
+static struct tagcache_search_owner search_owners[TAGCACHE_SEARCH_OWNER_COUNT];
+static uint32_t next_search_cookie;
+static enum tagcache_runtime_failure last_runtime_failure;
+static int last_runtime_errno;
+static volatile long recovery_scan_restart_tick;
+
+static void tagcache_note_failure(enum tagcache_runtime_failure failure,
+                                  int err)
+{
+    last_runtime_failure = failure;
+    last_runtime_errno = err;
+}
+
+static void tagcache_note_io_failure(int err)
+{
+    if (err == EMFILE)
+        tagcache_note_failure(TAGCACHE_FAILURE_FD_LIMIT, err);
+    else if (err == ENOENT || err == ENOTDIR)
+        tagcache_note_failure(TAGCACHE_FAILURE_MISSING, err);
+    else
+        tagcache_note_failure(TAGCACHE_FAILURE_STORAGE, err);
+}
+
+static void tagcache_owner_copy_fds(struct tagcache_search_owner *owner,
+                                    const struct tagcache_search *tcs)
+{
+    owner->masterfd = tcs->masterfd;
+    for (int tag = 0; tag < TAG_COUNT; tag++)
+        owner->idxfd[tag] = tcs->idxfd[tag];
+}
+
+static bool tagcache_owner_matches(const struct tagcache_search *tcs)
+{
+    int slot = tcs->owner_slot;
+
+    return slot >= 0 && slot < TAGCACHE_SEARCH_OWNER_COUNT &&
+           search_owners[slot].active &&
+           search_owners[slot].search == tcs &&
+           search_owners[slot].cookie == tcs->owner_cookie;
+}
+
+static void tagcache_owner_touch(struct tagcache_search *tcs)
+{
+    if (!tagcache_owner_matches(tcs))
+        return;
+
+    struct tagcache_search_owner *owner = &search_owners[tcs->owner_slot];
+    owner->last_activity = current_tick;
+    tagcache_owner_copy_fds(owner, tcs);
+}
+
+static void tagcache_owner_register(struct tagcache_search *tcs)
+{
+    tcs->owner_slot = -1;
+    tcs->owner_cookie = 0;
+
+    for (int slot = 0; slot < TAGCACHE_SEARCH_OWNER_COUNT; slot++)
+    {
+        struct tagcache_search_owner *owner = &search_owners[slot];
+        if (owner->active)
+            continue;
+
+        next_search_cookie++;
+        if (next_search_cookie == 0)
+            next_search_cookie++;
+        tcs->owner_slot = slot;
+        tcs->owner_cookie = next_search_cookie;
+        owner->search = tcs;
+        owner->cookie = next_search_cookie;
+        owner->last_activity = current_tick;
+        owner->active = true;
+        tagcache_owner_copy_fds(owner, tcs);
+        return;
+    }
+
+    logf("tagcache: search owner table full");
+}
+
+/* Returns false if recovery already reclaimed this search.  In that case its
+ * descriptor numbers may since have been reused, so the late caller must not
+ * close or access them. */
+static bool tagcache_owner_unregister(struct tagcache_search *tcs)
+{
+    if (tcs->owner_slot < 0)
+        return true;
+    if (!tagcache_owner_matches(tcs))
+        return false;
+
+    memset(&search_owners[tcs->owner_slot], 0,
+           sizeof(search_owners[tcs->owner_slot]));
+    return true;
+}
+
+static int tagcache_reclaim_stale_searches(void)
+{
+    int reclaimed = 0;
+
+    for (int slot = 0; slot < TAGCACHE_SEARCH_OWNER_COUNT; slot++)
+    {
+        struct tagcache_search_owner *owner = &search_owners[slot];
+        if (!owner->active ||
+            !TIME_AFTER(current_tick,
+                        owner->last_activity + TAGCACHE_STALE_SEARCH_TICKS))
+            continue;
+
+        if (owner->masterfd >= 0)
+            close(owner->masterfd);
+        for (int tag = 0; tag < TAG_COUNT; tag++)
+        {
+            if (owner->idxfd[tag] >= 0)
+                close(owner->idxfd[tag]);
+        }
+
+        logf("tagcache: reclaimed stale search slot=%d cookie=%lu",
+             slot, (unsigned long)owner->cookie);
+        memset(owner, 0, sizeof(*owner));
+        if (write_lock > 0)
+            write_lock--;
+        reclaimed++;
+    }
+
+    return reclaimed;
+}
+#else
+static inline void tagcache_note_failure(int failure, int err)
+{
+    (void)failure;
+    (void)err;
+}
+static inline void tagcache_note_io_failure(int err) { (void)err; }
+static inline void tagcache_owner_touch(struct tagcache_search *tcs)
+    { (void)tcs; }
+static inline void tagcache_owner_register(struct tagcache_search *tcs)
+    { tcs->owner_slot = -1; tcs->owner_cookie = 0; }
+static inline bool tagcache_owner_unregister(struct tagcache_search *tcs)
+    { (void)tcs; return true; }
+#endif
 
 static bool delete_entry(long idx_id);
 
@@ -739,35 +904,83 @@ static bool create_commit_marker(void)
 static int open_tag_fd(struct tagcache_header *hdr, int tag, bool write)
 {
     int fd = -1;
+    int last_err = 0;
     char fname[MAX_PATH];
+#ifdef SIMULATOR
+    bool force_failure = false;
+#endif
 
     if (TAGCACHE_IS_NUMERIC(tag) || tag < 0 || tag >= TAG_COUNT)
         return -1;
 
+#ifdef SIMULATOR
+    /* Deterministically exercise the partial-open cleanup path.  The gate is
+     * simulator-only and consumed once, so production storage is untouched. */
+    if (file_exists(ROCKBOX_DIR "/tagcache-open-fail.gate"))
+    {
+        remove(ROCKBOX_DIR "/tagcache-open-fail.gate");
+        force_failure = true;
+    }
+    /* Persistent I/O fault: unlike the one-shot cleanup gate, this survives
+     * ordinary retries and is cleared only by the recovery/reset path. */
+    if (file_exists(ROCKBOX_DIR "/tagcache-storage-stuck.gate") ||
+        file_exists(ROCKBOX_DIR "/tagcache-storage-persistent.gate"))
+        force_failure = true;
+#endif
+
     for (int tries = 0; tries < 3; tries++)
     {
+#ifdef SIMULATOR
+        if (force_failure)
+        {
+            errno = EIO;
+            fd = -1;
+        }
+        else
+#endif
+        {
+        errno = 0;
         fd = open_pathfmt(fname, sizeof(fname),
                           write ? O_RDWR : O_RDONLY,
                           "%s/" TAGCACHE_FILE_INDEX,
                           tc_stat.db_path, tag);
+        }
         if (fd >= 0)
         {
+            errno = 0;
             /* Check the header. */
-            if (read_tagcache_header(fd, hdr) ==
-                    sizeof(struct tagcache_header) &&
-                hdr->magic == TAGCACHE_MAGIC)
-                return fd;
+            ssize_t rc = read_tagcache_header(fd, hdr);
+            if (rc == sizeof(struct tagcache_header))
+            {
+                if (hdr->magic == TAGCACHE_MAGIC)
+                    return fd;
+
+#ifndef __PCTOOL__
+                tagcache_note_failure(TAGCACHE_FAILURE_CORRUPT, 0);
+#endif
+                last_err = 0;
+            }
+            else
+            {
+                last_err = errno ? errno : EIO;
+                tagcache_note_io_failure(last_err);
+            }
 
             close(fd);
             fd = -2;
+        }
+        else
+        {
+            last_err = errno ? errno : EIO;
+            tagcache_note_io_failure(last_err);
         }
 
         if (tries < 2)
             tagcache_retry_io();
     }
 
-    logf("%s failed: tag=%d write=%d rc=%d file= " TAGCACHE_FILE_INDEX,
-         __func__, tag, write, fd, tag);
+    logf("%s failed: tag=%d write=%d rc=%d errno=%d file= "
+         TAGCACHE_FILE_INDEX, __func__, tag, write, fd, last_err, tag);
     tagcache_mark_unavailable();
     return fd;
 }
@@ -776,18 +989,39 @@ static int open_master_fd(struct master_header *hdr, bool write)
 {
     int fd = -1;
     int rc = -1;
+    int last_err = 0;
 
     for (int tries = 0; tries < 3; tries++)
     {
+#ifdef SIMULATOR
+        if (file_exists(ROCKBOX_DIR "/tagcache-storage-stuck.gate") ||
+            file_exists(ROCKBOX_DIR "/tagcache-storage-persistent.gate"))
+        {
+            errno = EIO;
+            fd = -1;
+        }
+        else
+#endif
+        {
+        errno = 0;
         fd = open_db_fd(TAGCACHE_FILE_MASTER, write ? O_RDWR : O_RDONLY);
+        }
         if (fd >= 0)
         {
+            errno = 0;
             rc = read(fd, hdr, sizeof(struct master_header));
             if (rc == sizeof(struct master_header))
                 break;
 
+            last_err = errno ? errno : EIO;
+            tagcache_note_io_failure(last_err);
             close(fd);
             fd = -1;
+        }
+        else
+        {
+            last_err = errno ? errno : EIO;
+            tagcache_note_io_failure(last_err);
         }
 
         if (tries < 2)
@@ -796,7 +1030,8 @@ static int open_master_fd(struct master_header *hdr, bool write)
 
     if (fd < 0)
     {
-        logf("master file open/read failed: write=%d rc=%d", write, rc);
+        logf("master file open/read failed: write=%d rc=%d errno=%d",
+             write, rc, last_err);
         tagcache_mark_unavailable();
         return fd;
     }
@@ -816,6 +1051,9 @@ static int open_master_fd(struct master_header *hdr, bool write)
     else
     {
         logf("master file bad magic: %08lx\n", (unsigned long)hdr->tch.magic);
+#ifndef __PCTOOL__
+        tagcache_note_failure(TAGCACHE_FAILURE_CORRUPT, 0);
+#endif
         close(fd);
         return -2;
     }
@@ -1269,17 +1507,26 @@ static bool write_index(int masterfd, int idxid, struct index_entry *idx)
 
 static bool open_files(struct tagcache_search *tcs, int tag)
 {
+#ifndef __PCTOOL__
+    if (tcs->owner_slot >= 0 && !tagcache_owner_matches(tcs))
+        return false;
+#endif
+
     if (tcs->idxfd[tag] < 0)
     {
         char fname[MAX_PATH];
+        errno = 0;
         tcs->idxfd[tag] = open_pathfmt(fname, sizeof(fname),
                                        O_RDONLY, "%s/" TAGCACHE_FILE_INDEX,
                                        tc_stat.db_path, tag);
         if (tcs->idxfd[tag] < 0)
         {
-            logf("File not open!");
+            int err = errno ? errno : EIO;
+            tagcache_note_io_failure(err);
+            logf("File not open: tag=%d errno=%d", tag, err);
             return false;
         }
+        tagcache_owner_touch(tcs);
     }
 
     return true;
@@ -1929,6 +2176,78 @@ static bool build_lookup_list(struct tagcache_search *tcs)
     return tcs->seek_list_count > 0;
 }
 
+static void tagcache_search_close_files(struct tagcache_search *tcs)
+{
+    int i;
+
+    if (tcs->masterfd >= 0)
+    {
+        close(tcs->masterfd);
+        tcs->masterfd = -1;
+    }
+
+    for (i = 0; i < TAG_COUNT; i++)
+    {
+        if (tcs->idxfd[i] >= 0)
+        {
+            close(tcs->idxfd[i]);
+            tcs->idxfd[i] = -1;
+        }
+    }
+}
+
+#ifdef SIMULATOR
+/* Turn a copied simulator database into the exact durable state left by an
+ * interrupted firmware commit.  The navigation regression consumes this
+ * one-shot gate from its private runtime tree; production builds contain no
+ * fault injection. */
+static void tagcache_simulate_interrupted_commit(void)
+{
+    struct master_header myhdr;
+    int fd;
+
+    if (!file_exists(ROCKBOX_DIR "/tagcache-commit-fail.gate"))
+        return;
+
+    remove(ROCKBOX_DIR "/tagcache-commit-fail.gate");
+    fd = open_master_fd(&myhdr, true);
+    if (fd < 0)
+        return;
+
+    myhdr.dirty = true;
+    lseek(fd, 0, SEEK_SET);
+    if (write_master_header(fd, &myhdr) == sizeof(struct master_header) &&
+        sync_db_fd(fd) && create_commit_marker())
+    {
+        current_tcmh.dirty = true;
+        tc_stat.ready = false;
+    }
+    close(fd);
+}
+
+/* Model an abandoned caller exactly: it owns real tagcache descriptors and a
+ * write lock but will never call finish.  The outer search is made unavailable
+ * so the UI has to exercise stale-owner recovery. */
+static void tagcache_simulate_stale_search(void)
+{
+    static struct tagcache_search abandoned;
+    static bool creating;
+
+    if (creating ||
+        !file_exists(ROCKBOX_DIR "/tagcache-stale-search.gate"))
+        return;
+
+    remove(ROCKBOX_DIR "/tagcache-stale-search.gate");
+    creating = true;
+    if (tagcache_search(&abandoned, tag_artist))
+    {
+        tc_stat.ready = false;
+        tagcache_note_failure(TAGCACHE_FAILURE_NOT_READY, 0);
+    }
+    creating = false;
+}
+#endif
+
 
 bool tagcache_search(struct tagcache_search *tcs, int tag)
 {
@@ -1940,9 +2259,24 @@ bool tagcache_search(struct tagcache_search *tcs, int tag)
     while (read_lock)
         sleep(1);
 
+#ifdef SIMULATOR
+    tagcache_simulate_interrupted_commit();
+    tagcache_simulate_stale_search();
+    if (file_exists(ROCKBOX_DIR "/tagcache-scan-updating.gate"))
+        tc_stat.scan_status = TAGCACHE_SCAN_UPDATING;
+#endif
+
     memset(tcs, 0, sizeof(struct tagcache_search));
     if (tc_stat.commit_step > 0 || !tc_stat.ready)
+    {
+#ifndef __PCTOOL__
+        if (tc_stat.commit_step > 0)
+            tagcache_note_failure(TAGCACHE_FAILURE_BUSY, 0);
+        else if (last_runtime_failure == TAGCACHE_FAILURE_NONE)
+            tagcache_note_failure(TAGCACHE_FAILURE_NOT_READY, 0);
+#endif
         return false;
+    }
 
     tcs->position = sizeof(struct tagcache_header);
     tcs->type = tag;
@@ -1951,6 +2285,7 @@ bool tagcache_search(struct tagcache_search *tcs, int tag)
     tcs->seek_list_count = 0;
     tcs->filter_count = 0;
     tcs->masterfd = -1;
+    tcs->owner_slot = -1;
 
     for (i = 0; i < TAG_COUNT; i++)
         tcs->idxfd[i] = -1;
@@ -1976,7 +2311,13 @@ bool tagcache_search(struct tagcache_search *tcs, int tag)
         {
             tcs->idxfd[tcs->type] = open_tag_fd(&tag_hdr, tcs->type, false);
             if (tcs->idxfd[tcs->type] < 0)
+            {
+                /* The master was already open.  A transient index failure
+                 * must not leak it and turn one hardware I/O error into
+                 * permanent descriptor exhaustion until reboot. */
+                tagcache_search_close_files(tcs);
                 return false;
+            }
 
             tcs->entry_count = tag_hdr.entry_count;
         }
@@ -1988,7 +2329,11 @@ bool tagcache_search(struct tagcache_search *tcs, int tag)
 
     tcs->valid = true;
     tcs->initialized = true;
+    tagcache_owner_register(tcs);
     write_lock++;
+#ifndef __PCTOOL__
+    tagcache_note_failure(TAGCACHE_FAILURE_NONE, 0);
+#endif
 
     return true;
 }
@@ -1996,6 +2341,7 @@ bool tagcache_search(struct tagcache_search *tcs, int tag)
 void tagcache_search_set_uniqbuf(struct tagcache_search *tcs,
                                  void *buffer, long length)
 {
+    tagcache_owner_touch(tcs);
     tcs->unique_list = (uint32_t *)buffer;
     tcs->unique_list_capacity = length / sizeof(*tcs->unique_list);
     tcs->unique_list_count = 0;
@@ -2005,6 +2351,7 @@ void tagcache_search_set_uniqbuf(struct tagcache_search *tcs,
 bool tagcache_search_add_filter(struct tagcache_search *tcs,
                                 int tag, int seek)
 {
+    tagcache_owner_touch(tcs);
     if (tcs->filter_count == TAGCACHE_MAX_FILTERS)
         return false;
 
@@ -2023,6 +2370,8 @@ bool tagcache_search_add_clause(struct tagcache_search *tcs,
 {
     int i;
     int clause_count = tcs->clause_count;
+
+    tagcache_owner_touch(tcs);
 
     if (clause_count >= TAGCACHE_MAX_CLAUSES)
     {
@@ -2053,6 +2402,10 @@ bool tagcache_search_add_clause(struct tagcache_search *tcs,
             tcs->idxfd[clause->tag] = open_pathfmt(fname, sizeof(fname), O_RDONLY,
                                                    "%s/" TAGCACHE_FILE_INDEX,
                                                    tc_stat.db_path, clause->tag);
+            if (tcs->idxfd[clause->tag] < 0)
+                tagcache_note_io_failure(errno ? errno : EIO);
+            else
+                tagcache_owner_touch(tcs);
         }
     }
 
@@ -2213,6 +2566,11 @@ static bool get_next(struct tagcache_search *tcs, bool is_numeric, char *buf, lo
 
 bool tagcache_get_next(struct tagcache_search *tcs, char *buf, long size)
 {
+#ifndef __PCTOOL__
+    if (tcs->owner_slot >= 0 && !tagcache_owner_matches(tcs))
+        return false;
+#endif
+    tagcache_owner_touch(tcs);
     if (tcs->valid && tagcache_is_usable())
     {
         bool is_numeric = TAGCACHE_IS_NUMERIC(tcs->type);
@@ -2236,6 +2594,11 @@ bool tagcache_retrieve(struct tagcache_search *tcs, int idxid,
     struct index_entry idx;
 
     *buf = '\0';
+#ifndef __PCTOOL__
+    if (tcs->owner_slot >= 0 && !tagcache_owner_matches(tcs))
+        return false;
+#endif
+    tagcache_owner_touch(tcs);
     if (!get_index(tcs->masterfd, idxid, &idx, true))
         return false;
 
@@ -2244,30 +2607,18 @@ bool tagcache_retrieve(struct tagcache_search *tcs, int idxid,
 
 void tagcache_search_finish(struct tagcache_search *tcs)
 {
-    int i;
-
     if (!tcs->initialized)
         return;
 
-    if (tcs->masterfd >= 0)
-    {
-        close(tcs->masterfd);
-        tcs->masterfd = -1;
-    }
+    bool still_owned = tagcache_owner_unregister(tcs);
 
-    for (i = 0; i < TAG_COUNT; i++)
-    {
-        if (tcs->idxfd[i] >= 0)
-        {
-            close(tcs->idxfd[i]);
-            tcs->idxfd[i] = -1;
-        }
-    }
+    if (still_owned)
+        tagcache_search_close_files(tcs);
 
     tcs->ramsearch = false;
     tcs->valid = false;
     tcs->initialized = 0;
-    if (write_lock > 0)
+    if (still_owned && write_lock > 0)
         write_lock--;
 }
 
@@ -5539,6 +5890,145 @@ static bool NO_INLINE db_file_exists(const char* filename)
     return file_exists(buf);
 }
 
+static void db_backup_path(char *buf, size_t size, const char *filename)
+{
+    snprintf(buf, size, "%s/%s/%s", tc_stat.db_path,
+             TAGCACHE_BACKUP_DIRECTORY, filename);
+}
+
+static bool copy_db_path(const char *source, const char *target)
+{
+    unsigned char buffer[512];
+    int source_fd = -1;
+    int target_fd = -1;
+    bool ok = false;
+
+    source_fd = open(source, O_RDONLY);
+    if (source_fd < 0)
+        goto out;
+
+    target_fd = open(target, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+    if (target_fd < 0)
+        goto out;
+
+    while (true)
+    {
+        ssize_t count = read(source_fd, buffer, sizeof(buffer));
+        ssize_t written = 0;
+
+        if (count < 0)
+            goto out;
+        if (count == 0)
+            break;
+
+        while (written < count)
+        {
+            ssize_t rc = write(target_fd, buffer + written,
+                               count - written);
+            if (rc <= 0)
+                goto out;
+            written += rc;
+        }
+        yield();
+    }
+
+    ok = sync_db_fd(target_fd);
+
+out:
+    if (target_fd >= 0)
+        close(target_fd);
+    if (source_fd >= 0)
+        close(source_fd);
+    if (!ok)
+        remove(target);
+    return ok;
+}
+
+static bool tagcache_backup_valid(void)
+{
+    struct master_header master;
+    struct tagcache_header header;
+    char path[MAX_PATH];
+    int32_t magic;
+    int fd;
+
+    db_backup_path(path, sizeof(path), TAGCACHE_FILE_MASTER);
+    fd = open(path, O_RDONLY);
+    if (fd < 0)
+        return false;
+    bool valid = read(fd, &master, sizeof(master)) == sizeof(master);
+    close(fd);
+    if (!valid || master.dirty || master.tch.entry_count <= 0)
+        return false;
+
+    magic = master.tch.magic;
+    if (magic != TAGCACHE_MAGIC
+#ifdef TAGCACHE_SUPPORT_FOREIGN_ENDIAN
+        && magic != swap32(TAGCACHE_MAGIC)
+#endif
+       )
+        return false;
+
+    for (int tag = 0; tag < TAG_COUNT; tag++)
+    {
+        if (TAGCACHE_IS_NUMERIC(tag))
+            continue;
+
+        snprintf(path, sizeof(path), "%s/%s/" TAGCACHE_FILE_INDEX,
+                 tc_stat.db_path, TAGCACHE_BACKUP_DIRECTORY, tag);
+        fd = open(path, O_RDONLY);
+        if (fd < 0)
+            return false;
+        valid = read(fd, &header, sizeof(header)) == sizeof(header);
+        close(fd);
+        if (!valid || header.magic != magic)
+            return false;
+    }
+
+    return true;
+}
+
+/* Restore the immutable deployment snapshot using only a sector-sized stack
+ * buffer.  Playback retains its audio buffer and playlist throughout.  The
+ * transaction marker remains durable until every live index and the master
+ * (copied last) have reached storage, so an interrupted restore is retryable. */
+static bool tagcache_restore_backup(void)
+{
+    char source[MAX_PATH];
+    char target[MAX_PATH];
+
+    if (!tagcache_backup_valid())
+        return false;
+
+    for (int tag = 0; tag < TAG_COUNT; tag++)
+    {
+        if (TAGCACHE_IS_NUMERIC(tag))
+            continue;
+
+        snprintf(source, sizeof(source), "%s/%s/" TAGCACHE_FILE_INDEX,
+                 tc_stat.db_path, TAGCACHE_BACKUP_DIRECTORY, tag);
+        snprintf(target, sizeof(target), "%s/" TAGCACHE_FILE_INDEX,
+                 tc_stat.db_path, tag);
+        if (!copy_db_path(source, target))
+            return false;
+    }
+
+    db_backup_path(source, sizeof(source), TAGCACHE_FILE_MASTER);
+    snprintf(target, sizeof(target), "%s/%s", tc_stat.db_path,
+             TAGCACHE_FILE_MASTER);
+    if (!copy_db_path(source, target) || !check_all_headers())
+        return false;
+
+    tc_stat.ready = true;
+    tc_stat.readyvalid = true;
+    tc_stat.commit_delayed = false;
+    remove_db_file(TAGCACHE_FILE_TEMP);
+    remove_db_file(TAGCACHE_FILE_COMMIT);
+    remove_db_file(TAGCACHE_FILE_HOSTCOMMIT);
+    flush_db_storage();
+    return true;
+}
+
 /* Return -1 for a missing/invalid master, 0 for dirty, and 1 for clean. */
 static int db_master_state(void)
 {
@@ -5568,7 +6058,13 @@ static void tagcache_thread(void)
     if (db_file_exists(TAGCACHE_FILE_HOSTCOMMIT))
     {
         logf("tagcache: interrupted host publish");
-        force_rebuild = true;
+        if (tagcache_restore_backup())
+        {
+            logf("tagcache: restored deployment snapshot");
+            temp_exists = false;
+        }
+        else
+            force_rebuild = true;
     }
     else if (db_file_exists(TAGCACHE_FILE_COMMIT))
     {
@@ -5583,7 +6079,13 @@ static void tagcache_thread(void)
         else
         {
             logf("tagcache: interrupted firmware commit");
-            force_rebuild = true;
+            if (tagcache_restore_backup())
+            {
+                logf("tagcache: restored deployment snapshot");
+                temp_exists = false;
+            }
+            else
+                force_rebuild = true;
         }
     }
     else if (temp_exists && db_file_exists(TAGCACHE_FILE_MASTER))
@@ -5691,6 +6193,13 @@ static void tagcache_thread(void)
                 tagcache_build();
                 break;
 
+            case Q_RECOVER:
+                tc_stat.scan_status = TAGCACHE_SCAN_BUILDING;
+                if (!tagcache_restore_backup())
+                    logf("tagcache: deployment snapshot restore failed");
+                tc_stat.scan_status = TAGCACHE_SCAN_IDLE;
+                break;
+
             case Q_UPDATE:
                 tc_stat.scan_status = TAGCACHE_SCAN_UPDATING;
                 tagcache_build();
@@ -5704,6 +6213,13 @@ static void tagcache_thread(void)
                 check_done = false;
                 /* fallthrough */
             case SYS_TIMEOUT:
+                if (recovery_scan_restart_tick != 0 &&
+                    TIME_AFTER(current_tick, recovery_scan_restart_tick))
+                {
+                    recovery_scan_restart_tick = 0;
+                    check_done = false;
+                    logf("tagcache: resume update after foreground recovery");
+                }
                 if (check_done || !tc_stat.ready)
                     break ;
 
@@ -5860,6 +6376,13 @@ void tagcache_init(void)
     memset(&current_tcmh, 0, sizeof(struct master_header));
     filenametag_fd = -1;
     write_lock = read_lock = 0;
+#ifndef __PCTOOL__
+    memset(search_owners, 0, sizeof(search_owners));
+    next_search_cookie = 0;
+    last_runtime_failure = TAGCACHE_FAILURE_NONE;
+    last_runtime_errno = 0;
+    recovery_scan_restart_tick = 0;
+#endif
 
 #ifndef __PCTOOL__
     strmemccpy(tc_stat.db_path, global_settings.tagcache_db_path,
@@ -5900,6 +6423,162 @@ bool tagcache_is_fully_initialized(void)
 bool tagcache_is_usable(void)
 {
     return tc_stat.initialized && tc_stat.ready;
+}
+
+/* Re-open and validate the existing live database without creating, deleting,
+ * or committing any files. This is deliberately separate from rebuild/update:
+ * a UI recovery attempt must never replace a database that was valid at boot.
+ * Holding write_lock keeps commit() from beginning while the live headers are
+ * inspected. A scan may continue because it writes only database_tmp.tcd until
+ * its later commit phase. */
+bool tagcache_revalidate(void)
+{
+    bool valid;
+
+    if (!tc_stat.initialized || read_lock || write_lock ||
+        tc_stat.commit_step > 0 ||
+        tc_stat.scan_status == TAGCACHE_SCAN_COMMITTING)
+        return false;
+
+    write_lock++;
+    valid = check_all_headers();
+    write_lock--;
+
+    if (valid)
+    {
+        tc_stat.ready = true;
+        tc_stat.readyvalid = true;
+    }
+
+    return valid;
+}
+
+/* Recover only states for which the on-disk transaction markers prove what
+ * happened.  A clean master plus a firmware marker completed successfully and
+ * only needs its stale recovery files removed.  A dirty firmware transaction,
+ * or an interrupted host publish, may contain a mixed set of indexes and must
+ * use the same rebuild path as boot.  An unexplained open/read failure never
+ * deletes the deployed database. */
+bool tagcache_recover(void)
+{
+#ifndef __PCTOOL__
+    bool clean_commit = false;
+    bool restore = false;
+    bool transaction = false;
+    int reclaimed = 0;
+
+    if (!tc_stat.initialized || read_lock || tc_stat.commit_step > 0 ||
+        tc_stat.scan_status == TAGCACHE_SCAN_COMMITTING)
+        return false;
+
+    /* The live database remains readable while an automatic update scans
+     * into database_tmp.tcd. If a foreground browser open fails, however,
+     * waiting for that scan to finish can strand iPodJS on Loading Music for
+     * minutes on a large disk. Ask the background builder to yield, retain
+     * the startup-validated live files, and retry once it reports idle. A
+     * later timeout resumes normal autoupdate work. */
+    if (tc_stat.scan_status == TAGCACHE_SCAN_UPDATING &&
+        tc_stat.readyvalid)
+    {
+        if (recovery_scan_restart_tick == 0)
+        {
+            logf("tagcache: pause update for foreground recovery");
+            recovery_scan_restart_tick = current_tick + HZ * 60;
+            tagcache_stop_scan();
+        }
+#ifdef SIMULATOR
+        if (file_exists(ROCKBOX_DIR "/tagcache-scan-updating.gate"))
+        {
+            remove(ROCKBOX_DIR "/tagcache-scan-updating.gate");
+            tc_stat.scan_status = TAGCACHE_SCAN_IDLE;
+        }
+#endif
+        return false;
+    }
+
+    if (tc_stat.scan_status != TAGCACHE_SCAN_IDLE &&
+        tc_stat.scan_status != TAGCACHE_SCAN_UP_TO_DATE)
+        return false;
+
+    /* Q_STOP_SCAN leaves the interrupted scan's private temporary file in
+     * place. It never modified the validated live indexes, so discard only
+     * that partial file before recovery and before the delayed rescan. */
+    if (recovery_scan_restart_tick != 0 &&
+        !db_file_exists(TAGCACHE_FILE_COMMIT) &&
+        !db_file_exists(TAGCACHE_FILE_HOSTCOMMIT))
+    {
+        remove_db_file(TAGCACHE_FILE_TEMP);
+        flush_db_storage();
+    }
+
+    /* A leaked search used to make this function reject recovery forever.
+     * Registry timestamps let us close only proven-idle tagcache searches;
+     * descriptors owned by playback, art decoders, playlists and the rest of
+     * Rockbox are deliberately outside this mechanism. */
+    if (write_lock)
+        reclaimed = tagcache_reclaim_stale_searches();
+    if (write_lock)
+        return false;
+
+    /* Recovery must not reset the shared ATA path while playback or a plugin
+     * may own it. A device-wide reset turned one failed database open into a
+     * state where later codec and plugin opens could fail too. The regular
+     * file API already performs storage wakeup/retry; revalidate the live
+     * database without mutating global storage state. */
+    if (last_runtime_failure == TAGCACHE_FAILURE_STORAGE)
+    {
+        logf("tagcache: non-invasive storage retry errno=%d stale=%d",
+             last_runtime_errno, reclaimed);
+#ifdef SIMULATOR
+        remove(ROCKBOX_DIR "/tagcache-storage-stuck.gate");
+#endif
+    }
+    else if (last_runtime_failure == TAGCACHE_FAILURE_FD_LIMIT)
+    {
+        logf("tagcache: descriptor recovery stale=%d", reclaimed);
+    }
+    (void)reclaimed;
+
+    write_lock++;
+    if (db_file_exists(TAGCACHE_FILE_HOSTCOMMIT))
+    {
+        transaction = true;
+        restore = tagcache_backup_valid();
+    }
+    else if (db_file_exists(TAGCACHE_FILE_COMMIT))
+    {
+        transaction = true;
+        if (db_master_state() == 1)
+            clean_commit = true;
+        else
+            restore = tagcache_backup_valid();
+    }
+
+    if (clean_commit)
+    {
+        logf("tagcache: runtime commit cleanup");
+        remove_db_file(TAGCACHE_FILE_TEMP);
+        remove_db_file(TAGCACHE_FILE_COMMIT);
+        flush_db_storage();
+    }
+    else if (restore)
+    {
+        logf("tagcache: runtime transaction recovery");
+        tc_stat.commit_delayed = false;
+        tc_stat.scan_status = TAGCACHE_SCAN_BUILDING;
+    }
+    write_lock--;
+
+    if (clean_commit)
+        return tagcache_revalidate();
+
+    if (restore)
+        queue_post(&tagcache_queue, Q_RECOVER, 0);
+    else if (!transaction)
+        return tagcache_revalidate();
+#endif
+
+    return false;
 }
 #ifdef HAVE_TC_RAMCACHE
 bool tagcache_is_in_ram(void)

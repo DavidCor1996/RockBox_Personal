@@ -22,6 +22,7 @@
 #include "config.h"
 
 #include "action.h"
+#include "button.h"
 #include "system.h"
 #include "settings.h"
 #include "appevents.h"
@@ -29,7 +30,6 @@
 #include "screen_access.h"
 #include "lcd.h"
 #include "file.h"
-#include "core_alloc.h"
 #include "skin_parser.h"
 #include "skin_buffer.h"
 #include "skin_engine/skin_engine.h"
@@ -47,6 +47,7 @@
 #include "timefuncs.h"
 #include "misc.h"
 #include "root_menu.h"
+#include "ipodjs_ui.h"
 #ifdef HAVE_TOUCHSCREEN
 #include "sound.h"
 #endif
@@ -76,7 +77,10 @@ static bool sbs_fullscreen_ui[NB_SCREENS] = { false };
 #define IPONE_RIGHT_PANE_VIDEO_MAGIC 0x50564252u /* RBVP */
 #define IPONE_RIGHT_PANE_VIDEO_VERSION 1
 static bool sb_ipone_slideshow_was_active[NB_SCREENS] = {false};
-static int sb_ipone_video_cache_handle = -1;
+/* Target-only BSS cost: 156 * 240 * 2 = 74,880 bytes.  Keeping this outside
+ * the core allocator prevents decorative video from taking playback memory. */
+static fb_data sb_ipone_video_cache[IPONE_RIGHT_PANE_VIDEO_PIXELS];
+static bool sb_ipone_video_cache_valid;
 static char sb_ipone_video_cached_path[MAX_PATH];
 static int sb_ipone_video_cached_frame = -1;
 static int sb_ipone_video_fd = -1;
@@ -84,7 +88,7 @@ static unsigned sb_ipone_video_frame_count;
 static char sb_ipone_video_stream_path[MAX_PATH];
 static long sb_ipone_video_missing_retry_until;
 static char sb_ipone_video_missing_path[MAX_PATH];
-static long sb_ipone_video_idle_free_tick;
+static long sb_ipone_video_next_service[NB_SCREENS];
 static char sb_ipone_video_path_sbs_cache[MAX_PATH];
 static char sb_ipone_video_path_cache[MAX_PATH];
 static bool sb_ipone_video_path_valid;
@@ -179,22 +183,18 @@ static bool sb_ipone_right_pane_slideshow_eligible(enum screen_type screen)
 
 static bool sb_ipone_right_pane_video_eligible(enum screen_type screen)
 {
-    int status = audio_status();
-
     if (root_menu_videos_browser_active())
         return false;
 
     if (screen != SCREEN_MAIN ||
-        global_settings.ipone_right_pane != 0 ||
+        global_settings.ipone_right_pane != 2 ||
+        ipodjs_ui_enabled(screen) ||
         !sb_ipone_right_pane_theme_compatible() ||
         !sb_ipone_right_pane_can_draw() ||
         sb_ipone_right_pane_hold_blocked())
     {
         return false;
     }
-
-    if (!(status & AUDIO_STATUS_PLAY) || (status & AUDIO_STATUS_PAUSE))
-        return false;
 
 #ifdef HAS_BUTTON_HOLD
     if (button_hold())
@@ -229,19 +229,6 @@ static bool sb_ipone_video_read_exact(int fd, void *buf, size_t size)
     return true;
 }
 
-static fb_data *sb_ipone_video_cache_data(void)
-{
-    if (sb_ipone_video_cache_handle <= 0)
-    {
-        sb_ipone_video_cache_handle =
-            core_alloc(IPONE_RIGHT_PANE_VIDEO_PIXELS * sizeof(fb_data));
-        if (sb_ipone_video_cache_handle <= 0)
-            return NULL;
-    }
-
-    return core_get_data(sb_ipone_video_cache_handle);
-}
-
 static void sb_ipone_video_close_stream(void)
 {
     if (sb_ipone_video_fd >= 0)
@@ -252,6 +239,7 @@ static void sb_ipone_video_close_stream(void)
 
     sb_ipone_video_frame_count = 0;
     sb_ipone_video_stream_path[0] = '\0';
+    sb_ipone_video_cache_valid = false;
     sb_ipone_video_cached_path[0] = '\0';
     sb_ipone_video_cached_frame = -1;
 }
@@ -259,15 +247,6 @@ static void sb_ipone_video_close_stream(void)
 static void sb_ipone_video_release_cache(void)
 {
     sb_ipone_video_close_stream();
-
-    if (sb_ipone_video_cache_handle > 0)
-    {
-        if (sb_ipone_video_idle_free_tick == 0)
-            sb_ipone_video_idle_free_tick = current_tick + HZ * 30;
-
-        if (TIME_AFTER(current_tick, sb_ipone_video_idle_free_tick))
-            sb_ipone_video_cache_handle = core_free(sb_ipone_video_cache_handle);
-    }
 }
 
 static bool sb_ipone_video_path(char *path, size_t path_size)
@@ -297,9 +276,12 @@ static bool sb_ipone_video_path(char *path, size_t path_size)
         base = strrchr(sbs_file, '/');
         strmemccpy(name, base ? base + 1 : sbs_file, sizeof(name));
         ext = strrchr(name, '.');
-        if (!ext || strcmp(ext, ".sbs"))
+        /* Filename settings strip their configured prefix and suffix before
+         * storing them, so the normal runtime value is the bare SBS name. */
+        if (ext && !strcmp(ext, ".sbs"))
+            *ext = '\0';
+        if (!name[0])
             return false;
-        *ext = '\0';
 
         snprintf(sb_ipone_video_path_cache, sizeof(sb_ipone_video_path_cache),
                  "/.rockbox/wps/%s/RightPaneVideo.rbvp", name);
@@ -317,11 +299,7 @@ static bool sb_ipone_video_load_frame(const char *path, int frame)
 {
     unsigned char header[IPONE_RIGHT_PANE_VIDEO_HEADER_SIZE];
     size_t frame_bytes = IPONE_RIGHT_PANE_VIDEO_PIXELS * sizeof(fb_data);
-    fb_data *cache = sb_ipone_video_cache_data();
     bool ok;
-
-    if (!cache)
-        return false;
 
     if (TIME_BEFORE(current_tick, sb_ipone_video_missing_retry_until) &&
         !strcmp(path, sb_ipone_video_missing_path))
@@ -376,42 +354,77 @@ static bool sb_ipone_video_load_frame(const char *path, int frame)
     off_t offset = IPONE_RIGHT_PANE_VIDEO_HEADER_SIZE +
         (off_t)frame * (off_t)frame_bytes;
     ok = lseek(sb_ipone_video_fd, offset, SEEK_SET) == offset;
-    ok = ok && sb_ipone_video_read_exact(sb_ipone_video_fd, cache, frame_bytes);
+    ok = ok && sb_ipone_video_read_exact(sb_ipone_video_fd,
+                                          sb_ipone_video_cache, frame_bytes);
     if (!ok)
         sb_ipone_video_close_stream();
 
     return ok;
 }
 
-static bool sb_ipone_draw_right_pane_video(enum screen_type screen)
+static void sb_ipone_service_right_pane_video(enum screen_type screen)
 {
     char path[MAX_PATH];
-    fb_data *cache;
-    int frame = (current_tick / IPONE_RIGHT_PANE_VIDEO_UPDATE_DELAY) % 24;
+    int frame;
 
     if (!sb_ipone_right_pane_video_eligible(screen) ||
         !sb_ipone_video_path(path, sizeof(path)))
     {
-        sb_ipone_video_close_stream();
-        return false;
+        sb_ipone_video_release_cache();
+        sb_ipone_video_next_service[screen] =
+            current_tick + IPONE_RIGHT_PANE_VIDEO_UPDATE_DELAY;
+        return;
     }
 
-    if (frame != sb_ipone_video_cached_frame ||
-        strcmp(path, sb_ipone_video_cached_path))
+    /* Decorative storage reads must never get ahead of pending controls. */
+    if (button_queue_count() > 0 ||
+        TIME_BEFORE(current_tick, sb_ipone_video_next_service[screen]))
+        return;
+
+    /* Opening validates the header and discovers the complete frame count.
+     * Older packs contained 24 frames; designer packs can contain a full clip. */
+    if (sb_ipone_video_fd < 0 || strcmp(path, sb_ipone_video_stream_path))
+    {
+        if (!sb_ipone_video_load_frame(path, 0))
+            goto serviced;
+        strmemccpy(sb_ipone_video_cached_path, path,
+                   sizeof(sb_ipone_video_cached_path));
+        sb_ipone_video_cached_frame = 0;
+        sb_ipone_video_cache_valid = true;
+    }
+
+    if (sb_ipone_video_frame_count == 0)
+        goto serviced;
+
+    frame = (current_tick / IPONE_RIGHT_PANE_VIDEO_UPDATE_DELAY) %
+        sb_ipone_video_frame_count;
+    if (frame != sb_ipone_video_cached_frame)
     {
         if (!sb_ipone_video_load_frame(path, frame))
-            return false;
+            goto serviced;
         strmemccpy(sb_ipone_video_cached_path, path,
                    sizeof(sb_ipone_video_cached_path));
         sb_ipone_video_cached_frame = frame;
+        sb_ipone_video_cache_valid = true;
     }
 
-    cache = sb_ipone_video_cache_data();
-    if (!cache)
+serviced:
+    sb_ipone_video_next_service[screen] =
+        current_tick + IPONE_RIGHT_PANE_VIDEO_UPDATE_DELAY;
+}
+
+static bool sb_ipone_draw_right_pane_video(enum screen_type screen)
+{
+    char path[MAX_PATH];
+
+    if (!sb_ipone_right_pane_video_eligible(screen) ||
+        !sb_ipone_video_path(path, sizeof(path)) ||
+        !sb_ipone_video_cache_valid ||
+        strcmp(path, sb_ipone_video_cached_path))
         return false;
 
     screens[screen].set_drawmode(DRMODE_SOLID);
-    screens[screen].bitmap_part(cache,
+    screens[screen].bitmap_part(sb_ipone_video_cache,
                                 0, 0, IPONE_RIGHT_PANE_VIDEO_WIDTH,
                                 IPONE_RIGHT_PANE_VIDEO_X,
                                 IPONE_RIGHT_PANE_VIDEO_Y,
@@ -429,13 +442,10 @@ static bool sb_ipone_update_right_pane_video(enum screen_type screen, bool force
 
     if (!sb_ipone_right_pane_video_eligible(screen))
     {
-        sb_ipone_video_release_cache();
         next_video_update[screen] =
             current_tick + IPONE_RIGHT_PANE_VIDEO_UPDATE_DELAY;
         return false;
     }
-
-    sb_ipone_video_idle_free_tick = 0;
 
     if (!force && !TIME_AFTER(current_tick, next_video_update[screen]))
         return false;
@@ -454,14 +464,12 @@ static bool sb_ipone_update_right_pane(enum screen_type screen, bool force)
     if (screen == SCREEN_MAIN && sb_ipone_right_pane_hold_blocked())
     {
         albumlist_slideshow_set_paused(true);
-        sb_ipone_video_release_cache();
         return false;
     }
 
-    if (global_settings.ipone_right_pane == 0)
+    if (global_settings.ipone_right_pane == 2)
         return sb_ipone_update_right_pane_video(screen, force);
 
-    sb_ipone_video_release_cache();
     return sb_ipone_update_right_pane_slideshow(screen, force);
 }
 
@@ -545,6 +553,15 @@ static void sb_ipone_right_pane_track_active_state(enum screen_type screen,
 }
 #endif
 
+void sb_skin_service_fast_update(enum screen_type screen)
+{
+#if (defined(IPOD_VIDEO) || defined(IPOD_6G)) && defined(HAVE_LCD_COLOR)
+    sb_ipone_service_right_pane_video(screen);
+#else
+    (void)screen;
+#endif
+}
+
 bool sb_skin_is_ipod3g_galaxy_theme(void)
 {
 #if CONFIG_KEYPAD == IPOD_3G_PAD
@@ -556,8 +573,12 @@ bool sb_skin_is_ipod3g_galaxy_theme(void)
 
 bool sb_skin_needs_fast_update(enum screen_type screen)
 {
+    if (ipodjs_ui_enabled(screen))
+        return false;
+
 #if (defined(IPOD_VIDEO) || defined(IPOD_6G)) && defined(HAVE_LCD_COLOR)
-    return sb_ipone_right_pane_slideshow_active(screen);
+    return sb_ipone_right_pane_slideshow_active(screen) ||
+           sb_ipone_right_pane_video_eligible(screen);
 #else
     (void)screen;
     return false;
@@ -762,6 +783,11 @@ int sb_get_backdrop(enum screen_type screen)
 static bool force_waiting = false;
 void sb_skin_update(enum screen_type screen, bool force)
 {
+    /* Native iPodJS lists and full-screen panels own every framebuffer pixel.
+     * Suppress both the legacy SBS and its out-of-band right-pane artwork. */
+    if (ipodjs_ui_enabled(screen))
+        return;
+
     struct wps_data *data = skin_get_gwps(CUSTOM_STATUSBAR, screen)->data;
     static long next_update[NB_SCREENS] = {0};
     int i = screen;

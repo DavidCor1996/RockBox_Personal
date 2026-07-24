@@ -2953,6 +2953,15 @@ static int handle_button(void)
     switch (button)
     {
         case ACTION_WPS_BROWSE:
+            if (!stock_ipod_ui)
+            {
+                save_changes();
+                ret = PLUGIN_OK;
+            }
+            /* iPodJS reserves short Select while Lyrics is open.  Menu is
+             * the sole browser-return action; long Select is handled by the
+             * editor action above. */
+            break;
         case ACTION_WPS_STOP:
             save_changes();
             ret = PLUGIN_OK;
@@ -3041,7 +3050,16 @@ static int handle_button(void)
             ret = LRC_GOTO_EDITOR;
             break;
         case ACTION_WPS_MENU:
-            ret = LRC_GOTO_MENU;
+            if (stock_ipod_ui)
+            {
+                /* Preserve the Menu intent across plugin_load(), which clears
+                 * the raw button queue after teardown.  The WPS caller will
+                 * balance its own state before routing this to the saved
+                 * Music origin. */
+                ret = PLUGIN_GOTO_ROOT;
+            }
+            else
+                ret = LRC_GOTO_MENU;
             break;
         default:
             if(rb->default_event_handler(button) == SYS_USB_CONNECTED)
@@ -3234,22 +3252,29 @@ enum plugin_status plugin_start(const void* parameter)
     /* initialize settings. */
     load_or_save_settings(false);
 
-    /* try to load a full-Unicode font for lyrics (CJK/Japanese support).
-     * 18-Cantarell-Regular covers 65,469 glyphs via on-demand glyph caching.
-     * fall back to the system UI font if the file is not present. */
-    cjk_font = rb->font_load(LRC_FONT_PATH);
-    if (cjk_font >= 0)
+    cjk_font = -1;
+    stock_header_font = -1;
+
+    if (stock_ipod_ui)
     {
-        uifont = cjk_font;
+        /* font_load() reserves a 60 KiB core glyph cache. At WPS entry that
+         * can invoke playback's audio-buffer shrink callback, evict the
+         * codec, and force storage-heavy codec/metadata reloads while Menu
+         * input is already queued. The iPodJS WPS has a suitable persistent
+         * UI font loaded already; reuse it without any core allocation. */
+        uifont = rb->screens[0]->getuifont();
         font_ui_height = rb->font_get(uifont)->height;
     }
     else
     {
-        uifont = rb->screens[0]->getuifont();
+        /* Non-iPodJS builds retain the full-Unicode lyrics font. */
+        cjk_font = rb->font_load(LRC_FONT_PATH);
+        if (cjk_font >= 0)
+            uifont = cjk_font;
+        else
+            uifont = rb->screens[0]->getuifont();
         font_ui_height = rb->font_get(uifont)->height;
     }
-    if (stock_ipod_ui)
-        stock_header_font = rb->font_load(LRC_STOCK_FONT_PATH);
 
     lrc_buffer = rb->plugin_get_buffer(&lrc_buffer_size);
     lrc_buffer = ALIGN_UP(lrc_buffer, 4); /* 4 bytes aligned */
@@ -3319,6 +3344,8 @@ enum plugin_status plugin_start(const void* parameter)
         rb->font_unload(cjk_font);
     if (stock_header_font >= 0)
         rb->font_unload(stock_header_font);
+    cjk_font = -1;
+    stock_header_font = -1;
 
     return ret;
 }

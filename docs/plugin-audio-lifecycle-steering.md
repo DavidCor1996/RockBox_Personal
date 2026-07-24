@@ -127,6 +127,20 @@ to play their own music. If user music is active:
 Avoid `playlist_create()`, `playlist_remove_all_tracks()`, or similar global
 playlist mutation from plugins unless the plugin is explicitly a playlist tool.
 
+Playback-adjacent display plugins must also avoid ordinary `font_load()` when
+entering from WPS with active playback. Its default core glyph cache can invoke
+playback's audio-buffer shrink callback, evict the codec, and force a codec and
+metadata reload even though the plugin never requested the shared audio buffer.
+Reuse an already-loaded UI font, or use an explicitly bounded allocation path
+that has been proven not to shrink playback. For iPodJS Lyrics, restore WPS
+state only for exits that actually return to WPS. A Lyrics Menu exit must carry
+its intent through normal plugin teardown and return to the saved Music browser
+without reconstructing WPS first. WPS was already left before `plugin_load()`;
+normal plugin teardown restores the theme, so an extra WPS enter/leave pair is
+both unnecessary and a source of playback-adjacent redraw work. Do not depend
+on the raw Menu release surviving `plugin_load()`, because plugin cleanup clears
+the button queue.
+
 ## Anti-Patterns
 
 Do not introduce these patterns:

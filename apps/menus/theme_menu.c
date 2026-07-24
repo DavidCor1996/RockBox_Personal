@@ -399,6 +399,15 @@ MENUITEM_SETTING_W_TEXT(ui_engine_surface, &global_settings.ui_engine_surface,
                         "iPod Surface", NULL);
 MENUITEM_SETTING_W_TEXT(ui_engine_hold_effect, &global_settings.ui_engine_hold_effect,
                         "iPod Hold Screen", NULL);
+MENUITEM_SETTING_W_TEXT(ui_engine_video_appearance,
+                        &global_settings.ui_engine_video_appearance,
+                        "iPod Video Appearance", NULL);
+MENUITEM_SETTING_W_TEXT(ui_engine_games_appearance,
+                        &global_settings.ui_engine_games_appearance,
+                        "iPod Games Appearance", NULL);
+MENUITEM_SETTING_W_TEXT(ui_engine_lock_settings,
+                        &global_settings.ui_engine_lock_settings,
+                        "Lock Settings Menu", NULL);
 MENUITEM_SETTING_W_TEXT(ui_engine_dark_mode, &global_settings.ui_engine_dark_mode,
                         "iPod Dark Mode", NULL);
 #endif
@@ -441,6 +450,9 @@ MAKE_MENU(theme_menu, ID2P(LANG_THEME_MENU),
             &ui_engine_font_scale,
             &ui_engine_surface,
             &ui_engine_hold_effect,
+            &ui_engine_video_appearance,
+            &ui_engine_games_appearance,
+            &ui_engine_lock_settings,
             &ui_engine_dark_mode,
 #endif
             &show_icons,

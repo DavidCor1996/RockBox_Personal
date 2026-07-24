@@ -515,12 +515,12 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x1feb0
+.debug_info     0x0000000000000000    0x1ffd4
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x8643 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/starfield.o
- .debug_info    0x0000000000008643     0x7d95 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
- .debug_info    0x00000000000103d8     0x7f4b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
- .debug_info    0x0000000000018323     0x7b8d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
+ .debug_info    0x0000000000000000     0x868c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/starfield.o
+ .debug_info    0x000000000000868c     0x7dde /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+ .debug_info    0x000000000001046a     0x7f94 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
+ .debug_info    0x00000000000183fe     0x7bd6 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
 
 .debug_abbrev   0x0000000000000000     0x105a
  *(.debug_abbrev)
@@ -539,16 +539,16 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x617f
+.debug_str      0x0000000000000000     0x61e5
  *(.debug_str)
- .debug_str     0x0000000000000000     0x617f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/starfield.o
-                                       0x656f (size before relaxing)
- .debug_str     0x000000000000617f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
-                                       0x528e (size before relaxing)
- .debug_str     0x000000000000617f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
-                                       0x63df (size before relaxing)
- .debug_str     0x000000000000617f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
-                                       0x5285 (size before relaxing)
+ .debug_str     0x0000000000000000     0x61e5 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/starfield.o
+                                       0x65d5 (size before relaxing)
+ .debug_str     0x00000000000061e5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+                                       0x52f4 (size before relaxing)
+ .debug_str     0x00000000000061e5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
+                                       0x6445 (size before relaxing)
+ .debug_str     0x00000000000061e5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
+                                       0x52eb (size before relaxing)
 
 .debug_loc
  *(.debug_loc)

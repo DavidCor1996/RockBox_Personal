@@ -1,0 +1,15 @@
+diff --git a/drivers/android/Makefile b/drivers/android/Makefile
+--- a/drivers/android/Makefile
++++ b/drivers/android/Makefile
+@@ -1,5 +1,11 @@
+ # SPDX-License-Identifier: GPL-2.0-only
+ ccflags-y += -I$(src)			# needed for trace events
++# Android 2.0 uses Binder protocol 7's 32-bit scalar layout.  Define the
++# selection for every Binder translation unit, not only binder.c: declarations
++# shared with binder_alloc.c contain binder_size_t arguments and otherwise
++# acquire a mismatched ABI even on a 32-bit ARM kernel.
++ccflags-$(CONFIG_ARM) += -DBINDER_IPC_32BIT
++
+ 
+ obj-$(CONFIG_ANDROID_BINDERFS)		+= binderfs.o
+ obj-$(CONFIG_ANDROID_BINDER_IPC)	+= binder.o binder_alloc.o

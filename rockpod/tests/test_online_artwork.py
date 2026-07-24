@@ -314,6 +314,56 @@ def test_get_video_poster_repairs_stale_square_video_meta(config, tmp_dir):
         manager.shutdown()
 
 
+def test_verified_imdb_poster_replaces_stale_cached_video_match(config, tmp_dir):
+    manager = ArtworkManager(
+        os.path.join(tmp_dir, "art"),
+        config=config,
+        lookup_client=FakeLookupClient(),
+    )
+    try:
+        video = os.path.join(tmp_dir, "Movies", "Pitch.mkv")
+        os.makedirs(os.path.dirname(video), exist_ok=True)
+        with open(video, "wb") as handle:
+            handle.write(b"video")
+        stale = os.path.join(tmp_dir, "wrong-kenny-show.jpg")
+        Image.new("RGB", (800, 1200), "#ff00ff").save(stale, "JPEG")
+        key = "movie:pitch"
+        manager._save_album_meta(
+            key,
+            {
+                "desktop_source_art_path": stale,
+                "desktop_source_type": "online",
+                "desktop_source_resolution": [800, 1200],
+            },
+        )
+        info = {
+            "group_key": key,
+            "album": "Pitch",
+            "artist": "",
+            "media_type": "video",
+            "video_kind": "movie",
+            "video_scope": "movie",
+            "tracks": [{
+                "file_path": video,
+                "title": "Pitch",
+                "year": 1997,
+                "imdb_id": "tt0125459",
+                "media_type": "video",
+                "video_kind": "movie",
+            }],
+        }
+
+        poster = manager.get_video_poster(info, "thumb", allow_online=False)
+        meta = manager._load_album_meta(key)
+
+        assert os.path.exists(poster)
+        assert meta["desktop_source_type"] == "imdb_catalog"
+        assert meta["source_provenance"].endswith("pitch-1997.jpg")
+        assert meta["desktop_source_art_path"] != stale
+    finally:
+        manager.shutdown()
+
+
 def test_get_artwork_path_for_video_uses_show_poster_target_not_album_lookup(config, tmp_dir, monkeypatch):
     config.enable_online_artwork_lookup = True
     manager = ArtworkManager(os.path.join(tmp_dir, "art"), config=config, lookup_client=FakeLookupClient())

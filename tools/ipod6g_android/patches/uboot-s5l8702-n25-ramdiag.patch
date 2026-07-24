@@ -1,0 +1,396 @@
+From: Rockpod iPod 6G Android qualification work
+Subject: [PATCH] arm: s5l8702: add storage-free N25 RAM diagnostic target
+
+This target is intentionally narrower than a normal board port. It qualifies
+volatile execution on the iPod Classic before persistent storage work. The
+board runs Rockbox's proven iPod 6G cold DRAM sequence from IRAM, verifies both
+32 MiB banks without touching storage, and then exposes only RAM-backed USB
+DFU. There is no ATA, CE-ATA, MMC, NAND, SPI flash, filesystem, partition, or
+persistent environment support.
+
+The N25 identity, 64 MiB DRAM geometry, ARM926EJ-S CPU, UART pins, clock gates,
+and memory-controller values come from the Rockbox ipod6g target. The ROM's
+CPU/AHB/APB clocks are retained; only OSC0 selection, the 12 MHz MIU refresh
+clock, and Rockbox's two SDRAM gates are changed before the cold-start sequence.
+
+---
+diff --git a/arch/arm/dts/s5l8702-n25-ramdiag.dts b/arch/arm/dts/s5l8702-n25-ramdiag.dts
+new file mode 100644
+index 00000000..945c87bd
+--- /dev/null
++++ b/arch/arm/dts/s5l8702-n25-ramdiag.dts
+@@ -0,0 +1,26 @@
++// SPDX-License-Identifier: GPL-2.0+ OR MIT
++/*
++ * Apple iPod classic (6th generation), N25.
++ * Volatile RAM diagnostic profile: persistent storage is not described.
++ */
++
++/dts-v1/;
++
++#include "s5l8702.dtsi"
++#include "s5l87xx-nxx.dtsi"
++
++/ {
++	compatible = "apple,n25", "samsung,s5l8702", "apple,arm-platform";
++	model = "Apple iPod classic (6th generation) RAM diagnostic";
++	rockpod,safety-profile = "ram-only-no-storage";
++};
++
++&memory {
++	reg = <0x08000000 0x04000000>; /* 64 MiB SDRAM */
++};
++
++&clkref {
++	clock-frequency = <12000000>;
++};
++
++/* No ATA, CE-ATA, MMC, NAND, NOR, or filesystem node is permitted here. */
+diff --git a/arch/arm/mach-s5l87xx/s5l8702/Kconfig b/arch/arm/mach-s5l87xx/s5l8702/Kconfig
+index f8285a46..ed153292 100644
+--- a/arch/arm/mach-s5l87xx/s5l8702/Kconfig
++++ b/arch/arm/mach-s5l87xx/s5l8702/Kconfig
+@@ -3,6 +3,10 @@ if S5L8702
+ config TARGET_N46
+     bool "Apple N46 - iPod nano (3rd generation)"
+ 
++config TARGET_N25_RAMDIAG
++    bool "Apple N25 - iPod classic (6th generation) RAM diagnostic"
++
+ source "board/apple/n46/Kconfig"
++source "board/apple/n25_ramdiag/Kconfig"
+ 
+ endif
+diff --git a/board/apple/n25_ramdiag/Kconfig b/board/apple/n25_ramdiag/Kconfig
+new file mode 100644
+index 00000000..e5597386
+--- /dev/null
++++ b/board/apple/n25_ramdiag/Kconfig
+@@ -0,0 +1,15 @@
++if TARGET_N25_RAMDIAG
++
++config SYS_BOARD
++    default "n25_ramdiag"
++
++config SYS_VENDOR
++    default "apple"
++
++config SYS_SOC
++    default "s5l8702"
++
++config SYS_CONFIG_NAME
++    default "apple_n25_ramdiag"
++
++endif
+diff --git a/board/apple/n25_ramdiag/Makefile b/board/apple/n25_ramdiag/Makefile
+new file mode 100644
+index 00000000..f5e3de98
+--- /dev/null
++++ b/board/apple/n25_ramdiag/Makefile
+@@ -0,0 +1 @@
++obj-y += n25_ramdiag.o
+diff --git a/board/apple/n25_ramdiag/n25_ramdiag.c b/board/apple/n25_ramdiag/n25_ramdiag.c
+new file mode 100644
+index 00000000..388b83bc
+--- /dev/null
++++ b/board/apple/n25_ramdiag/n25_ramdiag.c
+@@ -0,0 +1,207 @@
++// SPDX-License-Identifier: GPL-2.0+
++/* Storage-free volatile diagnostic target for Apple N25. */
++
++#include <asm/global_data.h>
++#include <asm/io.h>
++#include <asm/arch-s5l87xx/s5l87xx.h>
++#include <linux/errno.h>
++
++DECLARE_GLOBAL_DATA_PTR;
++
++#define N25_CLKCON0            (S5L87XX_CLK_BASE + 0x00)
++#define N25_CG16_RTIME         (S5L87XX_CLK_BASE + 0x12)
++#define N25_PLLMODE            (S5L87XX_CLK_BASE + 0x44)
++#define N25_CLKCON0_SDR_OFF    BIT(31)
++#define N25_PLLMODE_OSCSEL     BIT(8)
++
++#define N25_MIU_BASE           0x38100000
++#define N25_MIU_REG(off)       (N25_MIU_BASE + (off))
++#define N25_MIUCON             N25_MIU_REG(0x00)
++#define N25_MIUCOM             N25_MIU_REG(0x04)
++#define N25_MIUAREF            N25_MIU_REG(0x08)
++#define N25_MIUMRS             N25_MIU_REG(0x0c)
++#define N25_MIUSDPARA          N25_MIU_REG(0x10)
++
++#define N25_DRAM_BASE          0x08000000
++#define N25_DRAM_BANK_SIZE     0x02000000
++
++static void n25_miu_command(uint32_t command)
++{
++    writel(command, N25_MIUCOM);
++}
++
++/*
++ * This is the IPOD_6G cold-start sequence from Rockbox's
++ * miu_preinit(false). It runs from IRAM before U-Boot relocates to SDRAM.
++ */
++void n25_dram_cold_init(void)
++{
++    uint32_t value;
++    int i;
++
++    /* Keep the ROM's CPU/AHB/APB clocks; select OSC0 for 12 MHz MIU_Clk. */
++    clrbits_le32(N25_CLKCON0, N25_CLKCON0_SDR_OFF);
++    clrbits_le32(N25_PLLMODE, N25_PLLMODE_OSCSEL);
++    value = readl(N25_CG16_RTIME & ~3);
++    value &= 0x0000ffff;
++    writel(value, N25_CG16_RTIME & ~3);
++
++    /* Rockbox clock gates CLOCKGATE_SMx=3 and CLOCKGATE_SM1=4. */
++    s5l87xx_enable_clkgate_bit(0, 3);
++    s5l87xx_enable_clkgate_bit(0, 4);
++
++    writel(0x80d, N25_MIUCON);
++    writel(0, N25_MIU_REG(0xf0));
++    writel(0x6105d, N25_MIUAREF);
++    writel(0x1fb621, N25_MIUSDPARA);
++
++    writel(0x1845, N25_MIU_REG(0x200));
++    writel(0x1845, N25_MIU_REG(0x204));
++    writel(0x1800, N25_MIU_REG(0x210));
++    writel(0x1800, N25_MIU_REG(0x214));
++    writel(0x1845, N25_MIU_REG(0x220));
++    writel(0x1845, N25_MIU_REG(0x224));
++    writel(0x1885, N25_MIU_REG(0x230));
++    writel(0x1885, N25_MIU_REG(0x234));
++    writel(0x19, N25_MIU_REG(0x14));
++    writel(0x19, N25_MIU_REG(0x18));
++    writel(0x0790682b, N25_MIU_REG(0x1c));
++    clrbits_le32(N25_MIU_REG(0x314), 0x10);
++
++    for (i = 0; i < 0x24; i++)
++        clrbits_le32(N25_MIU_REG(0x2c + i * 4), BIT(24));
++
++    writel(0x540, N25_MIU_REG(0x1cc));
++    setbits_le32(N25_MIU_REG(0x1d4), 0x80);
++
++    n25_miu_command(0x33);
++    n25_miu_command(0x33);
++    n25_miu_command(0x233);
++    n25_miu_command(0x33);
++    n25_miu_command(0x33);
++    n25_miu_command(0x33);
++    n25_miu_command(0x333);
++    n25_miu_command(0x33);
++    n25_miu_command(0x33);
++    n25_miu_command(0x33);
++    n25_miu_command(0x333);
++    n25_miu_command(0x33);
++    n25_miu_command(0x33);
++    n25_miu_command(0x33);
++
++    writel(0x33, N25_MIUMRS);
++    n25_miu_command(0x133);
++    n25_miu_command(0x33);
++    n25_miu_command(0x33);
++    n25_miu_command(0x33);
++    writel(0x8040, N25_MIUMRS);
++    n25_miu_command(0x133);
++    n25_miu_command(0x33);
++    n25_miu_command(0x33);
++    n25_miu_command(0x33);
++
++    setbits_le32(N25_MIUAREF, 0x61000);
++}
++
++/* Detect a missing second 32 MiB bank or an address-line alias. */
++int n25_dram_probe(void)
++{
++    static const uintptr_t address[] = {
++        N25_DRAM_BASE,
++        N25_DRAM_BASE + N25_DRAM_BANK_SIZE - sizeof(uint32_t),
++        N25_DRAM_BASE + N25_DRAM_BANK_SIZE,
++        N25_DRAM_BASE + 2 * N25_DRAM_BANK_SIZE - sizeof(uint32_t),
++    };
++    static const uint32_t pattern[] = {
++        0x55aa00ff, 0xaa55ff00, 0x0ff033cc, 0xf00fcc33,
++    };
++    int i;
++
++    for (i = 0; i < ARRAY_SIZE(address); i++)
++        writel(pattern[i], address[i]);
++
++    for (i = 0; i < ARRAY_SIZE(address); i++) {
++        if (readl(address[i]) != pattern[i])
++            return -EIO;
++    }
++
++    for (i = 0; i < ARRAY_SIZE(address); i++)
++        writel(0, address[i]);
++
++    return 0;
++}
++
++int dram_init(void)
++{
++    return fdtdec_setup_mem_size_base();
++}
++
++int dram_init_banksize(void)
++{
++    return fdtdec_setup_memory_banksize();
++}
++
++void lowlevel_init(void)
++{
++}
++
++int board_init(void)
++{
++    return 0;
++}
++
++void reset_cpu(void)
++{
++    s5l87xx_reset_cpu();
++}
++
++ulong get_tbclk(void)
++{
++    return 1000000;
++}
++
++int print_cpuinfo(void)
++{
++    printf("CPU: Samsung S5L8702 / Apple N25 RAM diagnostic\n");
++    return 0;
++}
++
++static void board_clock_init(void)
++{
++    s5l87xx_enable_clkgate("uart0");
++    s5l87xx_enable_clkgate("timer");
++    s5l87xx_enable_clkgate("usb-otg");
++    s5l87xx_enable_clkgate("usb2-phy");
++
++    /* Keep the DWC2 device core accessible to the RAM-only DFU command. */
++    writel(0, S5L87XX_OTG_BASE + 0xe00);
++}
++
++static void board_vic_init(void)
++{
++    writel(0xffffffff, S5L87XX_VICINTENCLEAR(0));
++    writel(0xffffffff, S5L87XX_VICINTENCLEAR(1));
++}
++
++int board_early_init_f(void)
++{
++    board_clock_init();
++    n25_dram_cold_init();
++    if (n25_dram_probe())
++        return -EIO;
++    board_vic_init();
++    return 0;
++}
++
++void board_debug_uart_init(void)
++{
++    uint32_t gpio = readl(S5L87XX_PCON(0));
++
++    /* Rockbox proves UART0 RX/TX on N25 bank 0 pins 4 and 5. */
++    gpio &= S5L87XX_PCON_PINS_CLEAR_FN(4, 5);
++    gpio |= S5L87XX_PCON_PINS_SET_FN(4, 5, 0x2);
++    writel(gpio, S5L87XX_PCON(0));
++
++    s5l87xx_enable_clkgate_bit(1, 9);
++    s5l87xx_enable_clkgate_bit(9, 7);
++}
+diff --git a/configs/apple_n25_ramdiag_defconfig b/configs/apple_n25_ramdiag_defconfig
+new file mode 100644
+index 00000000..4b2e7a65
+--- /dev/null
++++ b/configs/apple_n25_ramdiag_defconfig
+@@ -0,0 +1,69 @@
++CONFIG_ARM=y
++CONFIG_ARCH_S5L87XX=y
++CONFIG_S5L8702=y
++CONFIG_TARGET_N25_RAMDIAG=y
++CONFIG_DEFAULT_DEVICE_TREE="s5l8702-n25-ramdiag"
++CONFIG_TEXT_BASE=0x22000000
++CONFIG_SYS_LOAD_ADDR=0x08800000
++CONFIG_SYS_MALLOC_LEN=0x00800000
++CONFIG_BOARD_EARLY_INIT_F=y
++CONFIG_OF_CONTROL=y
++CONFIG_CLK=y
++CONFIG_USB=y
++CONFIG_USB_GADGET=y
++CONFIG_DM_USB_GADGET=y
++CONFIG_USB_GADGET_DWC2_OTG=y
++CONFIG_USB_GADGET_DOWNLOAD=y
++CONFIG_USB_GADGET_VENDOR_NUM=0x05ac
++CONFIG_USB_GADGET_PRODUCT_NUM=0x8007
++CONFIG_CMD_DFU=y
++CONFIG_DFU_RAM=y
++CONFIG_FIT=y
++CONFIG_USE_BOOTCOMMAND=y
++CONFIG_BOOTCOMMAND="dfu 0 ram 0; bootm"
++CONFIG_BOOTDELAY=0
++CONFIG_DEBUG_UART=y
++CONFIG_DEBUG_UART_S5P=y
++CONFIG_DEBUG_UART_BASE=0x3CC00000
++CONFIG_DEBUG_UART_CLOCK=12000000
++CONFIG_DEBUG_UART_BOARD_INIT=y
++CONFIG_DEBUG_UART_ANNOUNCE=y
++CONFIG_BAUDRATE=57600
++CONFIG_SYS_DFU_DATA_BUF_SIZE=0x01800000
++CONFIG_ENV_IS_NOWHERE=y
++# CONFIG_BOOTSTD is not set
++CONFIG_NO_NET=y
++# CONFIG_CMD_BDI is not set
++# CONFIG_CMD_CONSOLE is not set
++# CONFIG_CMD_BOOTD is not set
++# CONFIG_CMD_ELF is not set
++# CONFIG_CMD_FDT is not set
++# CONFIG_CMD_GO is not set
++# CONFIG_CMD_RUN is not set
++# CONFIG_CMD_IMI is not set
++# CONFIG_CMD_XIMG is not set
++# CONFIG_CMD_EXPORTENV is not set
++# CONFIG_CMD_IMPORTENV is not set
++# CONFIG_CMD_EDITENV is not set
++# CONFIG_CMD_SAVEENV is not set
++# CONFIG_CMD_ENV_EXISTS is not set
++# CONFIG_CMD_CRC32 is not set
++# CONFIG_CMD_MEMORY is not set
++# CONFIG_CMD_BIND is not set
++# CONFIG_CMD_DM is not set
++# CONFIG_CMD_LOADB is not set
++# CONFIG_CMD_LOADS is not set
++# CONFIG_CMD_ITEST is not set
++# CONFIG_CMD_SOURCE is not set
++# CONFIG_CMD_SETEXPR is not set
++# CONFIG_CMD_BLOCK_CACHE is not set
++# CONFIG_MMC is not set
++# CONFIG_MTD is not set
++# CONFIG_CMD_PART is not set
++# CONFIG_CMD_FS_GENERIC is not set
++# CONFIG_CMD_FAT is not set
++# CONFIG_CMD_EXT2 is not set
++# CONFIG_CMD_EXT4 is not set
++# CONFIG_CMD_IDE is not set
++# CONFIG_CMD_MMC is not set
++# CONFIG_CMD_SATA is not set
+diff --git a/include/configs/apple_n25_ramdiag.h b/include/configs/apple_n25_ramdiag.h
+new file mode 100644
+index 00000000..60301bd2
+--- /dev/null
++++ b/include/configs/apple_n25_ramdiag.h
+@@ -0,0 +1,11 @@
++#ifndef __CONFIG_APPLE_N25_RAMDIAG_H
++#define __CONFIG_APPLE_N25_RAMDIAG_H
++
++#define CFG_SYS_UBOOT_BASE      CONFIG_TEXT_BASE
++#define CFG_SYS_INIT_RAM_ADDR   0x22000000
++#define CFG_SYS_INIT_RAM_SIZE   0x00040000
++
++#define CFG_EXTRA_ENV_SETTINGS \
++    "dfu_alt_info=diagnostic ram 0x08800000 0x01800000\0"
++
++#endif

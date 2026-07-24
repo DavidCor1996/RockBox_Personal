@@ -31,6 +31,7 @@
 #include "lang.h"
 #include "kernel.h"
 #include "plugin.h"
+#include "rockachievements_telemetry.h"
 #include "filetypes.h"
 #include "screens.h"
 #include "dir.h"
@@ -695,8 +696,12 @@ int filetype_list_viewers(const char* current_file)
 {
     int ret = PLUGIN_ERROR;
     char plugin[MAX_PATH];
+    long started = current_tick;
+
     if (filetype_get_viewer(plugin, sizeof(plugin), current_file) != NULL)
         ret = plugin_load(plugin, current_file);
+    if (ret != PLUGIN_ERROR)
+        rockachievements_record_session(current_file, started);
     return ret;
 }
 
@@ -724,5 +729,9 @@ int filetype_load_plugin(const char* plugin, const char* file)
         return PLUGIN_ERROR;
     snprintf(plugin_name, MAX_PATH, "%s/%s." ROCK_EXTENSION,
              PLUGIN_DIR, filetypes[i].plugin);
-    return plugin_load(plugin_name, file);
+    long started = current_tick;
+    int result = plugin_load(plugin_name, file);
+    if (result != PLUGIN_ERROR)
+        rockachievements_record_session(file, started);
+    return result;
 }

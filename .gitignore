@@ -15,6 +15,10 @@
 # RockPod generated output
 /rockpod/.theme_designer/generated/
 /rockpod/generated/
+/rockpod/native/**/target/
+/rockpod/bin/*/ipod6g-android-installer
+/rockpod/bin/ipod6g-android/
+/tools/ipod6g_android/out/
 /rockpod/.wallpaper_apply/
 /rockpod/.wallpaper_clock/
 /tmp/
@@ -395,3 +399,6 @@ ollama
 
 # Simulator runtime database files
 database_idx.tcd
+
+# User-installed iPod Hero source and converted commercial artwork
+/assets/ipodhero/local/

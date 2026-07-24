@@ -1,0 +1,628 @@
+diff --git a/build/core/main.mk b/build/core/main.mk
+--- a/build/core/main.mk
++++ b/build/core/main.mk
+@@ -93,6 +93,7 @@ endif
+ 
+ 
+ # The windows build server currently uses 1.6.  This will be fixed.
++ifneq ($(ECLAIR_NATIVE_ONLY),true)
+ ifneq ($(HOST_OS),windows)
+ 
+ # Check for the correct version of java
+@@ -128,6 +129,7 @@ $(error stop)
+ endif
+ 
+ endif # windows
++endif # ECLAIR_NATIVE_ONLY
+ 
+ $(shell echo 'VERSIONS_CHECKED := $(VERSION_CHECK_SEQUENCE_NUMBER)' \
+         > $(OUT_DIR)/versions_checked.mk)
+diff --git a/build/tools/findleaves.py b/build/tools/findleaves.py
+--- a/build/tools/findleaves.py
++++ b/build/tools/findleaves.py
+@@ -87,7 +87,7 @@ def main(argv):
+   results = perform_find(mindepth, prune, dirlist, filename)
+   results.sort()
+   for r in set(results):
+-    print r
++    print(r)
+ 
+ if __name__ == "__main__":
+   main(sys.argv)
+diff --git a/build/core/definitions.mk b/build/core/definitions.mk
+--- a/build/core/definitions.mk
++++ b/build/core/definitions.mk
+@@ -701,7 +701,8 @@ echo '#ifndef '$(@F:$1=_h) > $(@:$1=.h)
+ echo '#define '$(@F:$1=_h) >> $(@:$1=.h)
+ cat $(@:$1=$(YACC_HEADER_SUFFIX)) >> $(@:$1=.h)
+ echo '#endif' >> $(@:$1=.h)
+-rm -f $(@:$1=$(YACC_HEADER_SUFFIX))
++# Modern Bison's generated C++ parser includes this .hpp directly.
++true
+ endef
+ 
+ 
+diff --git a/bionic/libc/private/bionic_tls.h b/bionic/libc/private/bionic_tls.h
+--- a/bionic/libc/private/bionic_tls.h
++++ b/bionic/libc/private/bionic_tls.h
+@@ -99,6 +99,12 @@ extern int __set_tls(void *ptr);
+        (volatile void*)__val; })
+ #  else /* !HAVE_ARM_TLS_REGISTER */
+-#    define __get_tls() ( *((volatile void **) 0xffff0ff0) )
++/*
++ * New Linux kernels and QEMU expose the stable __kuser_get_tls helper but do
++ * not necessarily mirror the TLS pointer into the old readable word.  The
++ * helper works on ARM926EJ-S and preserves Eclair's no-CP15-TLS path.
++ */
++#    define __get_tls() \
++        (((void* (*)(void)) 0xffff0fe0)())
+ #  endif
+ #else
+ extern void*  __get_tls( void );
+diff --git a/frameworks/base/cmds/servicemanager/service_manager.c b/frameworks/base/cmds/servicemanager/service_manager.c
+--- a/frameworks/base/cmds/servicemanager/service_manager.c
++++ b/frameworks/base/cmds/servicemanager/service_manager.c
+@@ -249,11 +249,14 @@ int main(int argc, char **argv)
+     void *svcmgr = BINDER_SERVICE_MANAGER;
+ 
+     bs = binder_open(128*1024);
++    if (!bs)
++        return -1;
+ 
+     if (binder_become_context_manager(bs)) {
+         LOGE("cannot become context manager (%s)\n", strerror(errno));
+         return -1;
+     }
+ 
++    fprintf(stderr, "IPOD6G_ECLAIR_BINDER:CONTEXT_MANAGER_READY\n");
+     svcmgr_handle = svcmgr;
+     binder_loop(bs, svcmgr_handler);
+     return 0;
+diff --git a/frameworks/base/include/utils/KeyedVector.h b/frameworks/base/include/utils/KeyedVector.h
+--- a/frameworks/base/include/utils/KeyedVector.h
++++ b/frameworks/base/include/utils/KeyedVector.h
+@@ -190,6 +190,6 @@ DefaultKeyedVector<KEY,VALUE>::DefaultKeyedVector(const VALUE& defValue)
+ template<typename KEY, typename VALUE> inline
+ const VALUE& DefaultKeyedVector<KEY,VALUE>::valueFor(const KEY& key) const {
+-    ssize_t i = indexOfKey(key);
++    ssize_t i = this->indexOfKey(key);
+     return i >= 0 ? KeyedVector<KEY,VALUE>::valueAt(i) : mDefault;
+ }
+ 
+diff --git a/frameworks/base/include/utils/TypeHelpers.h b/frameworks/base/include/utils/TypeHelpers.h
+--- a/frameworks/base/include/utils/TypeHelpers.h
++++ b/frameworks/base/include/utils/TypeHelpers.h
+@@ -237,19 +237,15 @@ struct key_value_pair_t {
+     }
+ };
+ 
+-template<>
+ template <typename K, typename V>
+ struct trait_trivial_ctor< key_value_pair_t<K, V> >
+ { enum { value = aggregate_traits<K,V>::has_trivial_ctor }; };
+-template<> 
+ template <typename K, typename V>
+ struct trait_trivial_dtor< key_value_pair_t<K, V> >
+ { enum { value = aggregate_traits<K,V>::has_trivial_dtor }; };
+-template<> 
+ template <typename K, typename V>
+ struct trait_trivial_copy< key_value_pair_t<K, V> >
+ { enum { value = aggregate_traits<K,V>::has_trivial_copy }; };
+-template<> 
+ template <typename K, typename V>
+ struct trait_trivial_move< key_value_pair_t<K, V> >
+ { enum { value = aggregate_traits<K,V>::has_trivial_move }; };
+diff --git a/system/core/liblog/logd_write.c b/system/core/liblog/logd_write.c
+--- a/system/core/liblog/logd_write.c
++++ b/system/core/liblog/logd_write.c
+@@ -31,2 +31,6 @@
+ #define LOG_BUF_SIZE\t1024
+ 
++#ifndef IPOD6G_STDERR_LOG
++#define IPOD6G_STDERR_LOG 0
++#endif
++
+@@ -34,3 +38,7 @@
+ #if FAKE_LOG_DEVICE
+ // This will be defined when building for the host.
++int fakeLogOpen(const char *pathName, int flags);
++int fakeLogClose(int fd);
++ssize_t fakeLogWritev(int fd, const struct iovec* vector, int count);
++
+ #define log_open(pathname, flags) fakeLogOpen(pathname, flags)
+@@ -81,6 +89,48 @@ static int __write_to_log_null(log_id_t log_fd, struct iovec *vec, size_t nr)
+     return -1;
+ }
+ 
++#if IPOD6G_STDERR_LOG
++static int write_all_stderr(const void *buffer, size_t length)
++{
++    const char *next = buffer;
++    size_t remaining = length;
++
++    while (remaining > 0) {
++        ssize_t count = write(STDERR_FILENO, next, remaining);
++        if (count < 0 && errno == EINTR)
++            continue;
++        if (count <= 0)
++            return -1;
++        next += count;
++        remaining -= count;
++    }
++    return (int) length;
++}
++
++static int __write_to_log_stderr(log_id_t log_id, struct iovec *vec, size_t nr)
++{
++    size_t index;
++    int total = 0;
++    (void) log_id;
++
++    for (index = 1; index < nr; ++index) {
++        size_t length = vec[index].iov_len;
++        int count;
++        if (length > 0 && ((const char *) vec[index].iov_base)[length - 1] == '\0')
++            --length;
++        if (index > 1 && write_all_stderr(": ", 2) < 0)
++            return -1;
++        count = write_all_stderr(vec[index].iov_base, length);
++        if (count < 0)
++            return -1;
++        total += count;
++    }
++    if (write_all_stderr("\n", 1) < 0)
++        return -1;
++    return total + 1;
++}
++#endif
++
+ static int __write_to_log_kernel(log_id_t log_id, struct iovec *vec, size_t nr)
+ {
+     ssize_t ret;
+@@ -120,7 +170,11 @@ static int __write_to_log_init(log_id_t log_id, struct iovec *vec, size_t nr)
+             log_fds[LOG_ID_MAIN] = -1;
+             log_fds[LOG_ID_RADIO] = -1;
+             log_fds[LOG_ID_EVENTS] = -1;
++#if IPOD6G_STDERR_LOG
++            write_to_log = __write_to_log_stderr;
++#else
+             write_to_log = __write_to_log_null;
++#endif
+         }
+     }
+ 
+diff --git a/system/core/liblog/Android.mk b/system/core/liblog/Android.mk
+--- a/system/core/liblog/Android.mk
++++ b/system/core/liblog/Android.mk
+@@ -63,6 +63,9 @@ else # !sim
+   include $(CLEAR_VARS)
+   LOCAL_MODULE := liblog
+   LOCAL_SRC_FILES := $(liblog_sources)
++  ifeq ($(ECLAIR_NATIVE_ONLY),true)
++    LOCAL_CFLAGS += -DIPOD6G_STDERR_LOG=1
++  endif
+   include $(BUILD_STATIC_LIBRARY)
+ 
+   include $(CLEAR_VARS)
+diff --git a/system/core/libcutils/process_name.c b/system/core/libcutils/process_name.c
+--- a/system/core/libcutils/process_name.c
++++ b/system/core/libcutils/process_name.c
+@@ -20,6 +20,7 @@
+ #include <string.h>
+ #include <unistd.h>
+ #include <fcntl.h>
++#include <stdlib.h>
+ 
+ static const char* process_name = "unknown";
+ 
+diff --git a/system/core/libcutils/private.h b/system/core/libcutils/private.h
+--- a/system/core/libcutils/private.h
++++ b/system/core/libcutils/private.h
+@@ -237 +237 @@
+-#ifndef asctime_r
++#if !defined(__linux__) && !defined(asctime_r)
+diff --git a/system/core/libcutils/tzstrftime.c b/system/core/libcutils/tzstrftime.c
+--- a/system/core/libcutils/tzstrftime.c
++++ b/system/core/libcutils/tzstrftime.c
+@@ -37,6 +37,7 @@
+ #include <time.h>
+ #include <string.h>
+ #include <ctype.h>
++#include <stdio.h>
+ 
+ #include <cutils/tztime.h>
+ 
+diff --git a/system/core/libpixelflinger/Android.mk b/system/core/libpixelflinger/Android.mk
+--- a/system/core/libpixelflinger/Android.mk
++++ b/system/core/libpixelflinger/Android.mk
+@@ -5,12 +5,16 @@
+ # ARMv6 specific objects
+ #
+ 
++PIXELFLINGER_HAS_ARMV6 := false
+ ifeq ($(TARGET_ARCH),arm)
++ifneq ($(filter armv6% armv7%,$(TARGET_ARCH_VARIANT)),)
++PIXELFLINGER_HAS_ARMV6 := true
+ LOCAL_ASFLAGS := -march=armv6
+ LOCAL_SRC_FILES := rotate90CW_4x4_16v6.S
+ LOCAL_MODULE := libpixelflinger_armv6
+ include $(BUILD_STATIC_LIBRARY)
+ endif
++endif
+ 
+ #
+ # C/C++ and ARMv5 objects
+@@ -72,7 +76,7 @@
+ LOCAL_CFLAGS += -DWITH_LIB_HARDWARE
+ endif
+ 
+-ifeq ($(TARGET_ARCH),arm)
++ifeq ($(PIXELFLINGER_HAS_ARMV6),true)
+ LOCAL_WHOLE_STATIC_LIBRARIES := libpixelflinger_armv6
+ endif
+ include $(BUILD_SHARED_LIBRARY)
+@@ -85,7 +89,7 @@
+ LOCAL_MODULE:= libpixelflinger_static
+ LOCAL_SRC_FILES := $(PIXELFLINGER_SRC_FILES)
+ LOCAL_CFLAGS := $(PIXELFLINGER_CFLAGS) 
+-ifeq ($(TARGET_ARCH),arm)
++ifeq ($(PIXELFLINGER_HAS_ARMV6),true)
+ LOCAL_WHOLE_STATIC_LIBRARIES := libpixelflinger_armv6
+ endif
+ include $(BUILD_STATIC_LIBRARY)
+
+diff --git a/frameworks/base/preloaded-classes b/frameworks/base/preloaded-classes
+--- a/frameworks/base/preloaded-classes
++++ b/frameworks/base/preloaded-classes
+@@ -396,21 +396,15 @@
+ android.location.Location
+ android.location.LocationManager
+ android.location.LocationManager$ListenerTransport
+-android.media.AmrInputStream
+ android.media.AudioFormat
+ android.media.AudioManager
+ android.media.AudioRecord
+ android.media.AudioSystem
+ android.media.AudioTrack
+-android.media.ExifInterface
+ android.media.IAudioService$Stub
+ android.media.IAudioService$Stub$Proxy
+ android.media.JetPlayer
+-android.media.MediaMetadataRetriever
+-android.media.MediaPlayer
+ android.media.MediaPlayer$OnVideoSizeChangedListener
+-android.media.MediaRecorder
+-android.media.MediaScanner
+ android.media.MediaScannerConnection$MediaScannerConnectionClient
+ android.media.Metadata
+ android.media.Ringtone
+@@ -658,8 +652,6 @@
+ android.speech.RecognitionResult
+ android.speech.RecognitionServiceUtil
+ android.speech.RecognitionServiceUtil$Connection
+-android.speech.srec.MicrophoneInputStream
+-android.speech.srec.Recognizer
+ android.speech.srec.Recognizer$Grammar
+ android.speech.tts.ITts
+ android.speech.tts.ITts$Stub
+@@ -861,7 +853,6 @@
+ android.webkit.WebView$HitTestResult
+ android.webkit.WebView$RequestFormData
+ android.webkit.WebViewClient
+-android.webkit.WebViewCore
+ android.webkit.WebViewCore$CursorData
+ android.webkit.WebViewCore$TextSelectionData
+ android.webkit.WebViewCore$TouchUpData
+
+diff --git a/frameworks/base/services/java/Android.mk b/frameworks/base/services/java/Android.mk
+--- a/frameworks/base/services/java/Android.mk
++++ b/frameworks/base/services/java/Android.mk
+@@ -9,6 +9,10 @@
+ 
+ LOCAL_MODULE:= services
+ 
++ifeq ($(ECLAIR_NATIVE_ONLY),true)
++LOCAL_JAVA_LIBRARIES := android.policy_phone
++else
+ LOCAL_JAVA_LIBRARIES := android.policy
++endif
+ 
+ include $(BUILD_JAVA_LIBRARY)
+
+diff --git a/frameworks/base/cmds/system_server/library/Android.mk b/frameworks/base/cmds/system_server/library/Android.mk
+--- a/frameworks/base/cmds/system_server/library/Android.mk
++++ b/frameworks/base/cmds/system_server/library/Android.mk
+@@ -13,6 +13,15 @@
+ 	$(base)/media/libmediaplayerservice \
+ 	$(JNI_H_INCLUDE)
+ 
++ifeq ($(ECLAIR_NATIVE_ONLY),true)
++LOCAL_CFLAGS += -DECLAIR_NATIVE_ONLY
++LOCAL_SHARED_LIBRARIES := \
++	libandroid_runtime \
++	libsurfaceflinger \
++	libutils \
++	libbinder \
++	libcutils
++else
+ LOCAL_SHARED_LIBRARIES := \
+ 	libandroid_runtime \
+ 	libsurfaceflinger \
+@@ -22,6 +31,7 @@
+ 	libutils \
+ 	libbinder \
+ 	libcutils
++endif
+ 
+ LOCAL_MODULE:= libsystem_server
+ 
+diff --git a/frameworks/base/cmds/system_server/library/system_init.cpp b/frameworks/base/cmds/system_server/library/system_init.cpp
+--- a/frameworks/base/cmds/system_server/library/system_init.cpp
++++ b/frameworks/base/cmds/system_server/library/system_init.cpp
+@@ -15,10 +15,12 @@
+ #include <utils/Log.h>
+ 
+ #include <SurfaceFlinger.h>
++#ifndef ECLAIR_NATIVE_ONLY
+ #include <AudioFlinger.h>
+ #include <CameraService.h>
+ #include <AudioPolicyService.h>
+ #include <MediaPlayerService.h>
++#endif
+ 
+ #include <android_runtime/AndroidRuntime.h>
+ 
+@@ -71,6 +73,7 @@
+ 
+     // On the simulator, audioflinger et al don't get started the
+     // same way as on the device, and we need to start them here
++    #ifndef ECLAIR_NATIVE_ONLY
+     if (!proc->supportsProcesses()) {
+ 
+         // Start the AudioFlinger
+@@ -85,6 +88,7 @@
+         // Start the audio policy service
+         AudioPolicyService::instantiate();
+     }
++    #endif
+ 
+     // And now start the Android runtime.  We have to do this bit
+     // of nastiness because the Android runtime initialization requires
+
+diff --git a/hardware/libhardware/modules/gralloc/Android.mk b/hardware/libhardware/modules/gralloc/Android.mk
+--- a/hardware/libhardware/modules/gralloc/Android.mk
++++ b/hardware/libhardware/modules/gralloc/Android.mk
+@@ -30,4 +30,7 @@
+ 	
+ LOCAL_MODULE := gralloc.default
+ LOCAL_CFLAGS:= -DLOG_TAG=\"gralloc\"
++ifeq ($(ECLAIR_NATIVE_ONLY),true)
++LOCAL_CFLAGS += -DECLAIR_NATIVE_ONLY
++endif
+ include $(BUILD_SHARED_LIBRARY)
+diff --git a/hardware/libhardware/modules/gralloc/framebuffer.cpp b/hardware/libhardware/modules/gralloc/framebuffer.cpp
+--- a/hardware/libhardware/modules/gralloc/framebuffer.cpp
++++ b/hardware/libhardware/modules/gralloc/framebuffer.cpp
+@@ -55,6 +55,55 @@
+     framebuffer_device_t  device;
+ };
+ 
++#ifdef ECLAIR_NATIVE_ONLY
++static int mapHeadlessFrameBuffer(struct private_module_t* module)
++{
++    const uint32_t width = 320;
++    const uint32_t height = 240;
++    const size_t line_length = width * 2;
++    const size_t fb_size = roundUpToPageSize(line_length * height);
++    int fd = ashmem_create_region("ipod6g-headless-framebuffer", fb_size);
++
++    if (fd < 0)
++        return -errno;
++
++    memset(&module->info, 0, sizeof(module->info));
++    memset(&module->finfo, 0, sizeof(module->finfo));
++    strncpy(module->finfo.id, "ipod6g-headless", sizeof(module->finfo.id) - 1);
++    module->finfo.line_length = line_length;
++    module->finfo.smem_len = fb_size;
++    module->info.xres = width;
++    module->info.yres = height;
++    module->info.xres_virtual = width;
++    module->info.yres_virtual = height;
++    module->info.bits_per_pixel = 16;
++    module->info.red.offset = 11;
++    module->info.red.length = 5;
++    module->info.green.offset = 5;
++    module->info.green.length = 6;
++    module->info.blue.length = 5;
++    module->info.width = 51;
++    module->info.height = 38;
++    module->flags = 0;
++    module->xdpi = (width * 25.4f) / module->info.width;
++    module->ydpi = (height * 25.4f) / module->info.height;
++    module->fps = 60.0f;
++    module->numBuffers = 1;
++    module->bufferMask = 0;
++    module->framebuffer = new private_handle_t(dup(fd), fb_size,
++            private_handle_t::PRIV_FLAGS_USES_PMEM);
++
++    void* vaddr = mmap(0, fb_size, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
++    close(fd);
++    if (vaddr == MAP_FAILED)
++        return -errno;
++    module->framebuffer->base = intptr_t(vaddr);
++    memset(vaddr, 0, fb_size);
++    LOGI("IPOD6G_ECLAIR_HEADLESS_GRALLOC:READY 320x240 RGB565");
++    return 0;
++}
++#endif
++
+ /*****************************************************************************/
+ 
+ static int fb_setSwapInterval(struct framebuffer_device_t* dev,
+@@ -164,8 +213,17 @@
+         fd = open(name, O_RDWR, 0);
+         i++;
+     }
+-    if (fd < 0)
++    if (fd < 0) {
++#ifdef ECLAIR_NATIVE_ONLY
++        LOGI("IPOD6G_ECLAIR_GRALLOC:NO_FB_DEVICE_USING_HEADLESS");
++        return mapHeadlessFrameBuffer(module);
++#else
+         return -errno;
++#endif
++    }
++#ifdef ECLAIR_NATIVE_ONLY
++    LOGI("IPOD6G_ECLAIR_GRALLOC:USING_LINUX_FRAMEBUFFER %s", name);
++#endif
+ 
+     struct fb_fix_screeninfo finfo;
+     if (ioctl(fd, FBIOGET_FSCREENINFO, &finfo) == -1)
+diff --git a/hardware/libhardware/modules/gralloc/gralloc.cpp b/hardware/libhardware/modules/gralloc/gralloc.cpp
+--- a/hardware/libhardware/modules/gralloc/gralloc.cpp
++++ b/hardware/libhardware/modules/gralloc/gralloc.cpp
+@@ -130,6 +130,10 @@
+         // If we have only one buffer, we never use page-flipping. Instead,
+         // we return a regular buffer which will be memcpy'ed to the main
+         // screen when post is called.
++#ifdef ECLAIR_NATIVE_ONLY
++        int newUsage = usage & ~GRALLOC_USAGE_HW_FB;
++#else
+         int newUsage = (usage & ~GRALLOC_USAGE_HW_FB) | GRALLOC_USAGE_HW_2D;
++#endif
+         return gralloc_alloc_buffer(dev, bufferSize, newUsage, pHandle);
+     }
+diff --git a/frameworks/base/libs/surfaceflinger/SurfaceFlinger.cpp b/frameworks/base/libs/surfaceflinger/SurfaceFlinger.cpp
+--- a/frameworks/base/libs/surfaceflinger/SurfaceFlinger.cpp
++++ b/frameworks/base/libs/surfaceflinger/SurfaceFlinger.cpp
+@@ -67,8 +67,13 @@
+ // ---------------------------------------------------------------------------
+ 
+ void SurfaceFlinger::instantiate() {
+-    defaultServiceManager()->addService(
++    status_t status = defaultServiceManager()->addService(
+             String16("SurfaceFlinger"), new SurfaceFlinger());
++    if (status == NO_ERROR) {
++        LOGI("IPOD6G_ECLAIR_SURFACEFLINGER_SERVICE:PUBLISHED");
++    } else {
++        LOGE("IPOD6G_ECLAIR_SURFACEFLINGER_SERVICE:FAILED status=%d", status);
++    }
+ }
+ 
+ void SurfaceFlinger::shutdown() {
+diff --git a/frameworks/base/services/java/com/android/server/SystemServer.java b/frameworks/base/services/java/com/android/server/SystemServer.java
+--- a/frameworks/base/services/java/com/android/server/SystemServer.java
++++ b/frameworks/base/services/java/com/android/server/SystemServer.java
+@@ -82,6 +82,11 @@
+         String factoryTestStr = SystemProperties.get("ro.factorytest");
+         int factoryTest = "".equals(factoryTestStr) ? SystemServer.FACTORY_TEST_OFF
+                 : Integer.parseInt(factoryTestStr);
++        final boolean ipod6gMinimal = SystemProperties.getBoolean(
++                "ro.ipod6g.eclair_minimal", false);
++        if (ipod6gMinimal) {
++            Log.i(TAG, "IPOD6G_ECLAIR_SYSTEM_SERVER:MINIMAL_PROFILE");
++        }
+ 
+         HardwareService hardware = null;
+         PowerManagerService power = null;
+@@ -107,8 +112,10 @@
+             Log.i(TAG, "Activity Manager");
+             context = ActivityManagerService.main(factoryTest);
+ 
+-            Log.i(TAG, "Telephony Registry");
+-            ServiceManager.addService("telephony.registry", new TelephonyRegistry(context));
++            if (!ipod6gMinimal) {
++                Log.i(TAG, "Telephony Registry");
++                ServiceManager.addService("telephony.registry", new TelephonyRegistry(context));
++            }
+ 
+             AttributeCache.init(context);
+ 
+@@ -168,10 +175,18 @@
+             ((ActivityManagerService)ServiceManager.getService("activity"))
+                     .setWindowManager(wm);
+ 
++            if (ipod6gMinimal) {
++                Log.i(TAG, "IPOD6G_ECLAIR_ACCESSIBILITY:READY");
++                ServiceManager.addService(Context.ACCESSIBILITY_SERVICE,
++                        new AccessibilityManagerService(context));
++            }
++
+             // Skip Bluetooth if we have an emulator kernel
+             // TODO: Use a more reliable check to see if this product should
+             // support Bluetooth - see bug 988521
+-            if (SystemProperties.get("ro.kernel.qemu").equals("1")) {
++            if (ipod6gMinimal) {
++                Log.i(TAG, "Bluetooth Service omitted by minimal profile");
++            } else if (SystemProperties.get("ro.kernel.qemu").equals("1")) {
+                 Log.i(TAG, "Registering null Bluetooth Service (emulator)");
+                 ServiceManager.addService(BluetoothAdapter.BLUETOOTH_SERVICE, null);
+             } else if (factoryTest == SystemServer.FACTORY_TEST_LOW_LEVEL) {
+@@ -203,7 +218,7 @@
+         NotificationManagerService notification = null;
+         WallpaperManagerService wallpaper = null;
+ 
+-        if (factoryTest != SystemServer.FACTORY_TEST_LOW_LEVEL) {
++        if (!ipod6gMinimal && factoryTest != SystemServer.FACTORY_TEST_LOW_LEVEL) {
+             try {
+                 Log.i(TAG, "Status Bar");
+                 statusBar = new StatusBarService(context);
+@@ -360,12 +375,15 @@
+         }
+ 
+         // make sure the ADB_ENABLED setting value matches the secure property value
+-        Settings.Secure.putInt(mContentResolver, Settings.Secure.ADB_ENABLED,
+-                "1".equals(SystemProperties.get("persist.service.adb.enable")) ? 1 : 0);
+-
+-        // register observer to listen for settings changes
+-        mContentResolver.registerContentObserver(Settings.Secure.getUriFor(Settings.Secure.ADB_ENABLED),
+-                false, new AdbSettingsObserver());
++        if (!ipod6gMinimal) {
++            Settings.Secure.putInt(mContentResolver, Settings.Secure.ADB_ENABLED,
++                    "1".equals(SystemProperties.get("persist.service.adb.enable")) ? 1 : 0);
++
++            // register observer to listen for settings changes
++            mContentResolver.registerContentObserver(
++                    Settings.Secure.getUriFor(Settings.Secure.ADB_ENABLED),
++                    false, new AdbSettingsObserver());
++        }
+ 
+         // Before things start rolling, be sure we have decided whether
+         // we are in safe mode.
+@@ -410,6 +428,7 @@
+                 .systemReady(new Runnable() {
+             public void run() {
+                 Log.i(TAG, "Making services ready");
++                Log.i(TAG, "IPOD6G_ECLAIR_SYSTEM_SERVER:READY");
+                 
+                 if (batteryF != null) batteryF.systemReady();
+                 if (connectivityF != null) connectivityF.systemReady();
+diff --git a/frameworks/base/services/java/com/android/server/BatteryService.java b/frameworks/base/services/java/com/android/server/BatteryService.java
+--- a/frameworks/base/services/java/com/android/server/BatteryService.java
++++ b/frameworks/base/services/java/com/android/server/BatteryService.java
+@@ -30,6 +30,7 @@
+ import android.os.RemoteException;
+ import android.os.ServiceManager;
+ import android.os.SystemClock;
++import android.os.SystemProperties;
+ import android.os.UEventObserver;
+ import android.provider.Checkin;
+ import android.provider.Settings;
+@@ -132,6 +133,17 @@
+         mLowBatteryCloseWarningLevel = mContext.getResources().getInteger(
+                 com.android.internal.R.integer.config_lowBatteryCloseWarningLevel);
+ 
++        if (SystemProperties.getBoolean("ro.ipod6g.eclair_minimal", false)) {
++            mAcOnline = true;
++            mBatteryStatus = BatteryManager.BATTERY_STATUS_UNKNOWN;
++            mBatteryHealth = BatteryManager.BATTERY_HEALTH_UNKNOWN;
++            mBatteryPresent = true;
++            mBatteryLevel = BATTERY_SCALE;
++            mBatteryTechnology = "RAM-only";
++            Log.i(TAG, "IPOD6G_ECLAIR_BATTERY:STUB_READY");
++            return;
++        }
++
+         mUEventObserver.startObserving("SUBSYSTEM=power_supply");
+ 
+         // set initial status

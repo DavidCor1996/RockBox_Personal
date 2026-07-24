@@ -57,6 +57,50 @@ def test_metadata_editor_emits_new_audio_library_fields():
     ]
 
 
+def test_metadata_editor_offers_and_saves_music_video_type():
+    app = QApplication.instance() or QApplication([])
+    track = {
+        "id": 8,
+        "media_type": "video",
+        "video_kind": "movie",
+        "title": "Performance",
+        "disc_number": 1,
+    }
+    editor = MetadataEditor(track)
+    saved = []
+    editor.metadata_saved.connect(lambda track_id, updates: saved.append((track_id, updates)))
+
+    music_video_index = editor._video_kind_combo.findData("music_video")
+    assert music_video_index >= 0
+    assert editor._video_kind_combo.itemText(music_video_index) == "Music Video"
+
+    editor._video_kind_combo.setCurrentIndex(music_video_index)
+    editor._on_ok()
+
+    assert saved == [(8, {"video_kind": "music_video"})]
+
+
+def test_metadata_editor_partial_video_edit_preserves_title_and_type():
+    app = QApplication.instance() or QApplication([])
+    track = {
+        "id": 9,
+        "media_type": "video",
+        "video_kind": "music_video",
+        "title": "Custom Title",
+        "comment": "Old comment",
+        "disc_number": 1,
+    }
+    editor = MetadataEditor(track)
+    saved = []
+    editor.metadata_saved.connect(lambda track_id, updates: saved.append((track_id, updates)))
+
+    editor._comment_edit.setText("New comment")
+    editor._on_ok()
+
+    assert editor._video_kind_combo.currentData() == "music_video"
+    assert saved == [(9, {"comment": "New comment"})]
+
+
 def test_update_track_metadata_recomputes_hash_for_tag_changes(db):
     old_hash = compute_metadata_hash(
         "Song", "Artist", "Album", "Artist", 1, 1, "Rock", 2020, "Composer", 240.0, 320, "MP3"
@@ -204,6 +248,30 @@ def test_main_window_metadata_save_writes_file_backed_tags_then_refreshes_db(con
         assert row["last_modified"] == 456.0
     finally:
         window.close()
+
+
+def test_metadata_file_refresh_preserves_library_video_type(monkeypatch):
+    monkeypatch.setattr("ui.main_window.compute_file_hash", lambda path: "new-file-hash")
+    existing = {
+        "id": 9,
+        "file_path": "/videos/performance.m4v",
+        "media_type": "video",
+        "video_kind": "music_video",
+        "title": "Custom Title",
+    }
+    scanned = {
+        "file_path": "/videos/performance.m4v",
+        "media_type": "video",
+        "video_kind": "movie",
+        "title": "Custom Title",
+        "comment": "Updated",
+    }
+
+    merged = MainWindow._merge_track_row_from_file(existing, scanned)
+
+    assert merged["video_kind"] == "music_video"
+    assert merged["title"] == "Custom Title"
+    assert merged["comment"] == "Updated"
 
 
 def test_main_window_bulk_metadata_backfill_processes_library_rows(config, monkeypatch):

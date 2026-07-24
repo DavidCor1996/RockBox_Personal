@@ -1,5 +1,6 @@
 import os
 import sys
+import threading
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
@@ -51,6 +52,27 @@ class _Runner:
         return _Result()
 
 
+class _BlockingRunner(_Runner):
+    def __init__(self):
+        super().__init__()
+        self.video_started = threading.Event()
+        self.release_video = threading.Event()
+        self.video_runs = 0
+        self.audio_runs = 0
+        self._count_lock = threading.Lock()
+
+    def run(self, command, cwd="", timeout=None, env=None):
+        if "-f" in command and "rawvideo" in command:
+            with self._count_lock:
+                self.video_runs += 1
+            self.video_started.set()
+            assert self.release_video.wait(timeout=5)
+        elif "-f" in command and "s16le" in command:
+            with self._count_lock:
+                self.audio_runs += 1
+        return super().run(command, cwd=cwd, timeout=timeout, env=env)
+
+
 def test_video_rvp_transcoder_creates_bundle_and_sync_metadata(tmp_dir):
     source = os.path.join(tmp_dir, "Movie.mp4")
     with open(source, "wb") as handle:
@@ -92,6 +114,51 @@ def test_video_rvp_transcoder_creates_bundle_and_sync_metadata(tmp_dir):
     assert any("-show_entries" in cmd for cmd in runner.commands if isinstance(cmd, list))
     assert any("rawvideo" in cmd for cmd in runner.commands if isinstance(cmd, list))
     assert any("s16le" in cmd for cmd in runner.commands if isinstance(cmd, list))
+
+
+def test_video_rvp_serializes_concurrent_preparation_of_same_bundle(tmp_dir):
+    source = os.path.join(tmp_dir, "Concurrent Movie.mp4")
+    with open(source, "wb") as handle:
+        handle.write(b"source-video")
+
+    runner = _BlockingRunner()
+    cache_root = os.path.join(tmp_dir, "cache")
+    track = {
+        "file_path": source,
+        "title": "Concurrent Movie",
+        "media_type": "video",
+        "file_hash": "same-source",
+    }
+    results = []
+    failures = []
+
+    def prepare():
+        try:
+            transcoder = VideoRvpTranscoder(
+                cache_root,
+                ffmpeg_path="/bin/true",
+                command_runner=runner,
+            )
+            results.append(transcoder.prepare_track_for_sync(track, "mock-ipod")[0])
+        except Exception as exc:
+            failures.append(exc)
+
+    first = threading.Thread(target=prepare)
+    second = threading.Thread(target=prepare)
+    first.start()
+    assert runner.video_started.wait(timeout=5)
+    second.start()
+    runner.release_video.set()
+    first.join(timeout=5)
+    second.join(timeout=5)
+
+    assert not first.is_alive()
+    assert not second.is_alive()
+    assert failures == []
+    assert len(results) == 2
+    assert runner.video_runs == 1
+    assert runner.audio_runs == 1
+    assert results[0]["file_hash"] == results[1]["file_hash"]
 
 
 def test_video_rvp_ffmpeg_filter_fits_screen_without_cropping_portrait():
@@ -154,6 +221,46 @@ def test_video_rvp_segments_long_video_before_sync(tmp_dir):
     for segment in row["sync_video_segments"]:
         assert os.path.isfile(segment["yuv"])
         assert os.path.isfile(segment["pcm"])
+
+
+def test_video_rvp_pads_short_recoverable_audio_while_segmenting(tmp_dir):
+    source = os.path.join(tmp_dir, "Damaged Show.mkv")
+    with open(source, "wb") as handle:
+        handle.write(b"source-video")
+
+    profile = RVP_PROFILE_DEFINITIONS[RVP_PROFILE_DEFAULT]
+    fps = int(profile["fps"])
+    sample_rate = int(profile["sample_rate"])
+    pcm_bytes_per_frame = sample_rate * 2 * 2 // fps
+    segment_frames = fps * 120
+    frames = segment_frames * 2 + 10
+    runner = _Runner(
+        frames=frames,
+        audio_bytes=(segment_frames + 5) * pcm_bytes_per_frame,
+    )
+    transcoder = VideoRvpTranscoder(
+        os.path.join(tmp_dir, "cache"),
+        ffmpeg_path="/bin/true",
+        command_runner=runner,
+    )
+
+    row, _info = transcoder.prepare_track_for_sync(
+        {
+            "file_path": source,
+            "title": "Damaged Show",
+            "media_type": "video",
+            "file_hash": "damaged-source",
+        },
+        "mock-ipod",
+    )
+
+    segments = row["sync_video_segments"]
+    assert len(segments) == 3
+    assert os.path.getsize(segments[0]["pcm"]) == segment_frames * pcm_bytes_per_frame
+    assert os.path.getsize(segments[1]["pcm"]) == segment_frames * pcm_bytes_per_frame
+    assert os.path.getsize(segments[2]["pcm"]) == 10 * pcm_bytes_per_frame
+    with open(segments[2]["pcm"], "rb") as handle:
+        assert handle.read() == b"\0" * (10 * pcm_bytes_per_frame)
 
 
 def test_video_rvp_reuses_digest_until_a_component_changes(tmp_dir, monkeypatch):

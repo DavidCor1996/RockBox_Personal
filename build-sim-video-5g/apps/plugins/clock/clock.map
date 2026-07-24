@@ -937,32 +937,32 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x6f6cb
+.debug_info     0x0000000000000000    0x6fa80
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x84a1 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/clock/clock.o
- .debug_info    0x00000000000084a1      0x5f7 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/clock/clock_bitmaps.o
- .debug_info    0x0000000000008a98     0x7743 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/clock/clock_bitmap_strings.o
- .debug_info    0x00000000000101db     0x77e3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/clock/clock_counter.o
- .debug_info    0x00000000000179be     0x7a73 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/clock/clock_draw.o
- .debug_info    0x000000000001f431     0x858b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/clock/clock_draw_analog.o
- .debug_info    0x00000000000279bc     0x129a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/clock/clock_draw_binary.o
- .debug_info    0x0000000000028c56     0x805a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/clock/clock_draw_digital.o
- .debug_info    0x0000000000030cb0     0x9c34 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/clock/clock_menu.o
- .debug_info    0x000000000003a8e4     0x9f3f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/clock/clock_settings.o
- .debug_info    0x0000000000044823     0x7d95 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
- .debug_info    0x000000000004c5b8     0x7f4b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
- .debug_info    0x0000000000054503     0x9ac4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
- .debug_info    0x000000000005dfc7      0xdcd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(picture.o)
- .debug_info    0x000000000005ed94     0x8349 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_draw.o)
- .debug_info    0x00000000000670dd     0x75e7 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_core.o)
- .debug_info    0x000000000006e6c4      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_binary.320x240x16.o)
- .debug_info    0x000000000006e807      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_digits.320x240x16.o)
- .debug_info    0x000000000006e94a      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_smalldigits.320x240x16.o)
- .debug_info    0x000000000006ea8d      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_segments.320x240x16.o)
- .debug_info    0x000000000006ebd0      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_smallsegments.320x240x16.o)
- .debug_info    0x000000000006ed13      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_logo.320x240x16.o)
- .debug_info    0x000000000006ee56      0x145 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_messages.320x240x16.o)
- .debug_info    0x000000000006ef9b      0x730 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libfixedpoint.a(fixedpoint.o)
+ .debug_info    0x0000000000000000     0x84ea /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/clock/clock.o
+ .debug_info    0x00000000000084ea      0x5f7 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/clock/clock_bitmaps.o
+ .debug_info    0x0000000000008ae1     0x778c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/clock/clock_bitmap_strings.o
+ .debug_info    0x000000000001026d     0x782c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/clock/clock_counter.o
+ .debug_info    0x0000000000017a99     0x7abc /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/clock/clock_draw.o
+ .debug_info    0x000000000001f555     0x85d4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/clock/clock_draw_analog.o
+ .debug_info    0x0000000000027b29     0x129a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/clock/clock_draw_binary.o
+ .debug_info    0x0000000000028dc3     0x80a3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/clock/clock_draw_digital.o
+ .debug_info    0x0000000000030e66     0x9c7d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/clock/clock_menu.o
+ .debug_info    0x000000000003aae3     0x9f88 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/clock/clock_settings.o
+ .debug_info    0x0000000000044a6b     0x7dde /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+ .debug_info    0x000000000004c849     0x7f94 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
+ .debug_info    0x00000000000547dd     0x9b0d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
+ .debug_info    0x000000000005e2ea      0xdcd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(picture.o)
+ .debug_info    0x000000000005f0b7     0x8392 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_draw.o)
+ .debug_info    0x0000000000067449     0x7630 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_core.o)
+ .debug_info    0x000000000006ea79      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_binary.320x240x16.o)
+ .debug_info    0x000000000006ebbc      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_digits.320x240x16.o)
+ .debug_info    0x000000000006ecff      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_smalldigits.320x240x16.o)
+ .debug_info    0x000000000006ee42      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_segments.320x240x16.o)
+ .debug_info    0x000000000006ef85      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_smallsegments.320x240x16.o)
+ .debug_info    0x000000000006f0c8      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_logo.320x240x16.o)
+ .debug_info    0x000000000006f20b      0x145 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_messages.320x240x16.o)
+ .debug_info    0x000000000006f350      0x730 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libfixedpoint.a(fixedpoint.o)
 
 .debug_abbrev   0x0000000000000000     0x4141
  *(.debug_abbrev)
@@ -1021,55 +1021,55 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0xbf60
+.debug_str      0x0000000000000000     0xbfc6
  *(.debug_str)
- .debug_str     0x0000000000000000     0xbf60 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/clock/clock.o
-                                       0x6688 (size before relaxing)
- .debug_str     0x000000000000bf60        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/clock/clock_bitmaps.o
+ .debug_str     0x0000000000000000     0xbfc6 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/clock/clock.o
+                                       0x66ee (size before relaxing)
+ .debug_str     0x000000000000bfc6        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/clock/clock_bitmaps.o
                                         0x9d0 (size before relaxing)
- .debug_str     0x000000000000bf60        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/clock/clock_bitmap_strings.o
-                                       0x4981 (size before relaxing)
- .debug_str     0x000000000000bf60        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/clock/clock_counter.o
-                                       0x4a0b (size before relaxing)
- .debug_str     0x000000000000bf60        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/clock/clock_draw.o
-                                       0x4b33 (size before relaxing)
- .debug_str     0x000000000000bf60        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/clock/clock_draw_analog.o
-                                       0x4c6c (size before relaxing)
- .debug_str     0x000000000000bf60        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/clock/clock_draw_binary.o
+ .debug_str     0x000000000000bfc6        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/clock/clock_bitmap_strings.o
+                                       0x49e7 (size before relaxing)
+ .debug_str     0x000000000000bfc6        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/clock/clock_counter.o
+                                       0x4a71 (size before relaxing)
+ .debug_str     0x000000000000bfc6        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/clock/clock_draw.o
+                                       0x4b99 (size before relaxing)
+ .debug_str     0x000000000000bfc6        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/clock/clock_draw_analog.o
+                                       0x4cd2 (size before relaxing)
+ .debug_str     0x000000000000bfc6        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/clock/clock_draw_binary.o
                                         0xfd4 (size before relaxing)
- .debug_str     0x000000000000bf60        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/clock/clock_draw_digital.o
-                                       0x5337 (size before relaxing)
- .debug_str     0x000000000000bf60        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/clock/clock_menu.o
-                                       0xa411 (size before relaxing)
- .debug_str     0x000000000000bf60        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/clock/clock_settings.o
-                                       0xa4e1 (size before relaxing)
- .debug_str     0x000000000000bf60        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
-                                       0x528e (size before relaxing)
- .debug_str     0x000000000000bf60        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
-                                       0x63df (size before relaxing)
- .debug_str     0x000000000000bf60        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
-                                       0xa5e5 (size before relaxing)
- .debug_str     0x000000000000bf60        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(picture.o)
+ .debug_str     0x000000000000bfc6        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/clock/clock_draw_digital.o
+                                       0x539d (size before relaxing)
+ .debug_str     0x000000000000bfc6        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/clock/clock_menu.o
+                                       0xa477 (size before relaxing)
+ .debug_str     0x000000000000bfc6        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/clock/clock_settings.o
+                                       0xa547 (size before relaxing)
+ .debug_str     0x000000000000bfc6        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+                                       0x52f4 (size before relaxing)
+ .debug_str     0x000000000000bfc6        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
+                                       0x6445 (size before relaxing)
+ .debug_str     0x000000000000bfc6        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
+                                       0xa64b (size before relaxing)
+ .debug_str     0x000000000000bfc6        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(picture.o)
                                         0x7a2 (size before relaxing)
- .debug_str     0x000000000000bf60        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_draw.o)
-                                       0x4af4 (size before relaxing)
- .debug_str     0x000000000000bf60        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_core.o)
-                                       0x4948 (size before relaxing)
- .debug_str     0x000000000000bf60        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_binary.320x240x16.o)
+ .debug_str     0x000000000000bfc6        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_draw.o)
+                                       0x4b5a (size before relaxing)
+ .debug_str     0x000000000000bfc6        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_core.o)
+                                       0x49ae (size before relaxing)
+ .debug_str     0x000000000000bfc6        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_binary.320x240x16.o)
                                         0x16c (size before relaxing)
- .debug_str     0x000000000000bf60        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_digits.320x240x16.o)
+ .debug_str     0x000000000000bfc6        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_digits.320x240x16.o)
                                         0x16c (size before relaxing)
- .debug_str     0x000000000000bf60        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_smalldigits.320x240x16.o)
+ .debug_str     0x000000000000bfc6        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_smalldigits.320x240x16.o)
                                         0x176 (size before relaxing)
- .debug_str     0x000000000000bf60        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_segments.320x240x16.o)
+ .debug_str     0x000000000000bfc6        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_segments.320x240x16.o)
                                         0x170 (size before relaxing)
- .debug_str     0x000000000000bf60        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_smallsegments.320x240x16.o)
+ .debug_str     0x000000000000bfc6        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_smallsegments.320x240x16.o)
                                         0x17a (size before relaxing)
- .debug_str     0x000000000000bf60        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_logo.320x240x16.o)
+ .debug_str     0x000000000000bfc6        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_logo.320x240x16.o)
                                         0x168 (size before relaxing)
- .debug_str     0x000000000000bf60        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_messages.320x240x16.o)
+ .debug_str     0x000000000000bfc6        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_messages.320x240x16.o)
                                         0x170 (size before relaxing)
- .debug_str     0x000000000000bf60        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libfixedpoint.a(fixedpoint.o)
+ .debug_str     0x000000000000bfc6        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libfixedpoint.a(fixedpoint.o)
                                         0x285 (size before relaxing)
 
 .debug_loc

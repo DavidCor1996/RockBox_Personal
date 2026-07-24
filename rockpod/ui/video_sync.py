@@ -25,6 +25,8 @@ class VideoSyncPanel(QWidget):
     force_repair_requested = Signal(set)
     remove_requested = Signal(set)
     delete_requested = Signal(set)
+    hide_requested = Signal(set)
+    lock_requested = Signal(set)
     refresh_requested = Signal()
     context_requested = Signal(object, object)
 
@@ -71,6 +73,8 @@ class VideoSyncPanel(QWidget):
         self._clear_btn = QPushButton("Clear")
         self._remove_btn = QPushButton("Remove from iPod")
         self._delete_btn = QPushButton("Delete Local Files")
+        self._hide_btn = QPushButton("Hide Selected")
+        self._lock_btn = QPushButton("Lock & Hide on iPod")
         self._preview_btn = QPushButton("Preview Sync")
         self._sync_btn = QPushButton("Sync Selected")
         self._repair_btn = QPushButton("Repair Selected")
@@ -86,7 +90,7 @@ class VideoSyncPanel(QWidget):
         for button in (self._preview_btn, self._sync_btn, self._repair_btn):
             button.setObjectName("store_buy_button")
             action_layout.addWidget(button)
-        for button in (self._remove_btn, self._delete_btn):
+        for button in (self._hide_btn, self._lock_btn, self._remove_btn, self._delete_btn):
             button.setObjectName("store_nav_button")
             action_layout.addWidget(button)
         layout.addWidget(actions)
@@ -114,6 +118,8 @@ class VideoSyncPanel(QWidget):
         self._repair_btn.clicked.connect(lambda: self.force_repair_requested.emit(self.selected_track_ids()))
         self._remove_btn.clicked.connect(lambda: self.remove_requested.emit(self.selected_track_ids()))
         self._delete_btn.clicked.connect(lambda: self.delete_requested.emit(self.selected_track_ids()))
+        self._hide_btn.clicked.connect(lambda: self.hide_requested.emit(self.selected_track_ids()))
+        self._lock_btn.clicked.connect(lambda: self.lock_requested.emit(self.selected_track_ids()))
 
     def set_videos(self, videos):
         self._videos = [dict(video or {}) for video in (videos or [])]
@@ -124,6 +130,10 @@ class VideoSyncPanel(QWidget):
             kind = str(video.get("video_sync_label") or video.get("video_kind") or "video").replace("_", " ").title()
             on_ipod = bool(video.get("synced_to_device"))
             status = "On iPod" if on_ipod else "Not on iPod"
+            if video.get("video_hidden"):
+                status += " · Hidden"
+            if video.get("video_locked"):
+                status += " · Locked"
             device_path = str(video.get("device_path") or video.get("device_device_path") or "")
             file_path = str(video.get("file_path") or "")
             item = QTreeWidgetItem([title, kind, status, device_path, file_path])
@@ -193,6 +203,18 @@ class VideoSyncPanel(QWidget):
         selected_videos = self.selected_videos()
         self._remove_btn.setEnabled(any(video.get("synced_to_device") for video in selected_videos))
         self._delete_btn.setEnabled(selected > 0)
+        self._hide_btn.setEnabled(selected > 0)
+        self._lock_btn.setEnabled(selected > 0)
+        self._hide_btn.setText(
+            "Unhide Selected"
+            if selected_videos and all(video.get("video_hidden") for video in selected_videos)
+            else "Hide Selected"
+        )
+        self._lock_btn.setText(
+            "Move to Normal iPod Folder"
+            if selected_videos and all(video.get("video_locked") for video in selected_videos)
+            else "Lock & Hide on iPod"
+        )
 
     def _resize_columns(self):
         for column in range(5):

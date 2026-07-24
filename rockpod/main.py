@@ -2,6 +2,7 @@
 """RockPod entrypoint and local maintenance commands."""
 
 import argparse
+import fcntl
 import json
 import logging
 import os
@@ -117,7 +118,7 @@ def parse_args(argv=None):
 
 def launch_ui(args):
     from PySide6.QtGui import QIcon
-    from PySide6.QtWidgets import QApplication
+    from PySide6.QtWidgets import QApplication, QMessageBox
 
     from services.theme_assets import ThemeAssetManager
     from ui.main_window import MainWindow
@@ -126,57 +127,105 @@ def launch_ui(args):
     logger = logging.getLogger("rockpod")
     logger.info("Starting RockPod")
 
-    config = Config(args.config)
-
-    if args.music_dir:
-        config.music_dir = args.music_dir
-    if args.db:
-        config.db_path = args.db
-    if args.mock or args.mock_path:
-        config.mock_device_enabled = True
-        if args.mock_path:
-            config.mock_device_path = args.mock_path
-        elif not config.mock_device_path:
-            config.mock_device_path = os.path.join(
-                os.path.expanduser("~"), ".rockpod", "mock_device"
-            )
-            from services.device_detector import create_mock_device
-            if not os.path.isdir(config.mock_device_path):
-                create_mock_device(config.mock_device_path)
-
-    config.ensure_dirs()
-    configured_db_path = config.db_path
-    runtime_db_path = _resolve_runtime_db_path(config, logger)
-    config.db_path = runtime_db_path
-    Database.init_db_once(config.db_path)
-    try:
-        config.db_path = configured_db_path
-        config.save()
-    except OSError as exc:
-        logger.warning("Could not save config at startup: %s", exc)
-    finally:
-        config.db_path = runtime_db_path
-
     app = QApplication(sys.argv)
     app.setApplicationName("RockPod")
     app.setApplicationVersion("0.1.0")
     if hasattr(app, "setDesktopFileName"):
         app.setDesktopFileName("RockPod")
-    app.setStyleSheet(get_stylesheet())
-    theme_assets = ThemeAssetManager(config)
-    app_icon_path = theme_assets.asset_path("branding_app_icon")
-    if app_icon_path:
-        app.setWindowIcon(QIcon(app_icon_path))
 
-    window = MainWindow(config)
-    if app_icon_path:
-        window.setWindowIcon(QIcon(app_icon_path))
-    window.show()
-    window.raise_()
-    window.activateWindow()
+    instance_lock = _acquire_ui_instance_lock()
+    if instance_lock is None:
+        logger.warning("Another RockPod instance is already running")
+        QMessageBox.information(
+            None,
+            "RockPod Already Running",
+            "RockPod is already open. Close the existing window before "
+            "starting another instance.",
+        )
+        return 0
 
-    logger.info("RockPod UI ready")
-    return app.exec()
+    try:
+        config = Config(args.config)
+
+        if args.music_dir:
+            config.music_dir = args.music_dir
+        if args.db:
+            config.db_path = args.db
+        if args.mock or args.mock_path:
+            config.mock_device_enabled = True
+            if args.mock_path:
+                config.mock_device_path = args.mock_path
+            elif not config.mock_device_path:
+                config.mock_device_path = os.path.join(
+                    os.path.expanduser("~"), ".rockpod", "mock_device"
+                )
+                from services.device_detector import create_mock_device
+                if not os.path.isdir(config.mock_device_path):
+                    create_mock_device(config.mock_device_path)
+
+        config.ensure_dirs()
+        configured_db_path = config.db_path
+        runtime_db_path = _resolve_runtime_db_path(config, logger)
+        config.db_path = runtime_db_path
+        Database.init_db_once(config.db_path)
+        try:
+            config.db_path = configured_db_path
+            config.save()
+        except OSError as exc:
+            logger.warning("Could not save config at startup: %s", exc)
+        finally:
+            config.db_path = runtime_db_path
+
+        app.setStyleSheet(get_stylesheet())
+        theme_assets = ThemeAssetManager(config)
+        app_icon_path = theme_assets.asset_path("branding_app_icon")
+        if app_icon_path:
+            app.setWindowIcon(QIcon(app_icon_path))
+
+        window = MainWindow(config)
+        if app_icon_path:
+            window.setWindowIcon(QIcon(app_icon_path))
+        window.show()
+        window.raise_()
+        window.activateWindow()
+
+        logger.info("RockPod UI ready")
+        return app.exec()
+    finally:
+        _release_ui_instance_lock(instance_lock)
+
+
+def _ui_instance_lock_path():
+    try:
+        uid = os.getuid()
+    except AttributeError:
+        uid = os.environ.get("USERNAME") or "user"
+    return os.path.join(tempfile.gettempdir(), f"rockpod-ui-{uid}.lock")
+
+
+def _acquire_ui_instance_lock(lock_path=None):
+    """Hold a non-blocking process lock so only one GUI can use the live DB."""
+    path = lock_path or _ui_instance_lock_path()
+    lock_handle = open(path, "a+", encoding="utf-8")
+    try:
+        fcntl.flock(lock_handle.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except BlockingIOError:
+        lock_handle.close()
+        return None
+    lock_handle.seek(0)
+    lock_handle.truncate()
+    lock_handle.write(f"{os.getpid()}\n")
+    lock_handle.flush()
+    return lock_handle
+
+
+def _release_ui_instance_lock(lock_handle):
+    if lock_handle is None:
+        return
+    try:
+        fcntl.flock(lock_handle.fileno(), fcntl.LOCK_UN)
+    finally:
+        lock_handle.close()
 
 
 def _resolve_runtime_db_path(config, logger):

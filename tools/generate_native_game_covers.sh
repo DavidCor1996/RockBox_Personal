@@ -65,6 +65,25 @@ file_cover()
     write_source "$stem" "existing-cover" "${src#$repo_root/}"
 }
 
+ipodhero_cover()
+{
+    background="$repo_root/assets/ipodhero/local/device-package/skins/foo-fighters/background.bmp"
+    logo="$repo_root/assets/ipodhero/local/device-package/skins/foo-fighters/logo.bmp"
+
+    if [ ! -f "$background" ] || [ ! -f "$logo" ]; then
+        echo "missing iPod Hero cover source assets" >&2
+        exit 1
+    fi
+
+    magick "$background" -auto-orient -resize 160x120^ -gravity center \
+        -extent 160x120 \
+        \( "$logo" -transparent '#ff00ff' -resize 138x46 \) \
+        -gravity north -geometry +0+4 -composite \
+        -colorspace sRGB -strip BMP3:"$out_dir/ipodhero.bmp"
+    write_source "ipodhero" "existing-cover" \
+        "assets/ipodhero/local/device-package/skins/foo-fighters/background.bmp + logo.bmp"
+}
+
 online_cover()
 {
     stem="$1"
@@ -214,6 +233,7 @@ screenshot_cover "xrick" "xrick"
 
 file_cover "clubpenguin" "$repo_root/assets/ipodjs/rockbox/clubpenguin/covers/Club Penguin.bmp"
 file_cover "runescape_classic" "$repo_root/assets/ipodjs/rockbox/runescape_classic/covers/RuneScape Classic.bmp"
+ipodhero_cover
 
 generated_cover "arduboy" "Arduboy" "Game Launcher" "classic"
 generated_cover "cdogs" "C-Dogs" "SDL Classic" "arcade"

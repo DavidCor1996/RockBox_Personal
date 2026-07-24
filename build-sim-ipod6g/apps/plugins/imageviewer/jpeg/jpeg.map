@@ -483,11 +483,11 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x19fc8
+.debug_info     0x0000000000000000    0x1a0a3
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x87db /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/imageviewer/jpeg/jpeg.o
- .debug_info    0x00000000000087db     0x9142 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/imageviewer/jpeg/jpeg_decoder.o
- .debug_info    0x000000000001191d     0x86ab /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/imageviewer/jpeg/yuv2rgb.o
+ .debug_info    0x0000000000000000     0x8824 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/imageviewer/jpeg/jpeg.o
+ .debug_info    0x0000000000008824     0x918b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/imageviewer/jpeg/jpeg_decoder.o
+ .debug_info    0x00000000000119af     0x86f4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/imageviewer/jpeg/yuv2rgb.o
 
 .debug_abbrev   0x0000000000000000      0xf1b
  *(.debug_abbrev)
@@ -504,14 +504,14 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x52a3
+.debug_str      0x0000000000000000     0x5309
  *(.debug_str)
- .debug_str     0x0000000000000000     0x52a3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/imageviewer/jpeg/jpeg.o
-                                       0x5571 (size before relaxing)
- .debug_str     0x00000000000052a3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/imageviewer/jpeg/jpeg_decoder.o
-                                       0x54d0 (size before relaxing)
- .debug_str     0x00000000000052a3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/imageviewer/jpeg/yuv2rgb.o
-                                       0x528e (size before relaxing)
+ .debug_str     0x0000000000000000     0x5309 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/imageviewer/jpeg/jpeg.o
+                                       0x55d7 (size before relaxing)
+ .debug_str     0x0000000000005309        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/imageviewer/jpeg/jpeg_decoder.o
+                                       0x5536 (size before relaxing)
+ .debug_str     0x0000000000005309        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/imageviewer/jpeg/yuv2rgb.o
+                                       0x52f4 (size before relaxing)
 
 .debug_loc
  *(.debug_loc)

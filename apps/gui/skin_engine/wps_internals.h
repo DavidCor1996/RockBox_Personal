@@ -148,6 +148,7 @@ struct progressbar {
     bool noborder;
     bool nobar;
     OFFSETTYPE(struct gui_img *) slider;
+    OFFSETTYPE(struct gui_img *) endcap;
 
     OFFSETTYPE(struct gui_img *) backdrop;
     const struct settings_list *setting;
@@ -209,6 +210,7 @@ struct skin_viewport {
 #if (LCD_DEPTH > 1) || (defined(HAVE_REMOTE_LCD) && (LCD_REMOTE_DEPTH > 1))
     bool output_to_backdrop_buffer;
     bool fgbg_changed;
+    bool preserve_background;
 #ifdef HAVE_LCD_COLOR
     struct gradient_config start_gradient;
     unsigned char fg_alpha;

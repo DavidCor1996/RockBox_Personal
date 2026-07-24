@@ -107,6 +107,7 @@ float           between_row = 0.0f;
 int             hv_resolution = 60;
 int             dump_glyphs = 0;
 int             digits_equally_wide = 1; /* Try to make digits equally wide */
+int             embedded_bitmaps = 0;
 int             trimming    = 0;
 int             trim_dp     = 0; /* trim descent percent */
 int             trim_da     = 0; /* trim descnet actual  */
@@ -209,6 +210,7 @@ void usage(void)
         "    -t N   Index of true type collection. It must be start from 0.(default N=0).\n"
         "    -ta    Convert all fonts in ttc (ignores outfile option)\n"
         "    -w     Don't try to make digits (0-9) equally wide\n"
+        "    -B     Prefer an embedded bitmap strike when available\n"
         "    -L     Use lighter hinting algorithm\n"
     };
     fprintf(stderr, "%s", help);
@@ -658,7 +660,11 @@ void convttf(char* path, char* destfile, FT_Long face_index)
 #endif
 
     extra_space = (float)(between_row-trim_aa-trim_da);
-    FT_Set_Char_Size( face, 0, pixel_size << 6, hv_resolution, hv_resolution );
+    if (embedded_bitmaps)
+        FT_Set_Pixel_Sizes(face, 0, pixel_size);
+    else
+        FT_Set_Char_Size(face, 0, pixel_size << 6,
+                         hv_resolution, hv_resolution);
     export_font.header.ascent =
             ((face->size->metrics.ascender*(100-trim_ap)/100) >> 6) - trim_aa;
 
@@ -1252,6 +1258,12 @@ void getopts(int *pac, char ***pav)
                 break;
             case 'w':     /* Don't try to make digits equally wide */
                 digits_equally_wide = 0;
+                while (*p && *p != ' ')
+                    p++;
+                break;
+            case 'B':     /* Prefer the font's embedded bitmap strike */
+                embedded_bitmaps = 1;
+                ft_load_opts &= ~FT_LOAD_NO_BITMAP;
                 while (*p && *p != ' ')
                     p++;
                 break;

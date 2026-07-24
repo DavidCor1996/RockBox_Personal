@@ -1,0 +1,249 @@
+{
+  "schema": 1,
+  "aosp_tag": "android-2.0_r1",
+  "platform_version": "2.0",
+  "platform_sdk": 5,
+  "build_id": "ESD20",
+  "archives": [
+    {
+      "file": "eclair-build.tar.gz",
+      "project": "platform/build",
+      "destination": "build",
+      "url": "https://android.googlesource.com/platform/build/+archive/android-2.0_r1.tar.gz",
+      "sha256": "7b2348c9f4fc411c49e740f04346b71d9748a5ef93d713f5b6cf489765086038"
+    },
+    {
+      "file": "eclair-ecj.tar.gz",
+      "project": "platform/prebuilt",
+      "subtree": "common/ecj",
+      "destination": "prebuilt/common/ecj",
+      "url": "https://android.googlesource.com/platform/prebuilt/+archive/android-2.0_r1/common/ecj.tar.gz",
+      "sha256": "2ffb53b76fa5ce7345be508903e2eeb91c5693744a62d54f5ecd7f8e56ddb306"
+    },
+    {
+      "file": "eclair-bionic.tar.gz",
+      "project": "platform/bionic",
+      "destination": "bionic",
+      "url": "https://android.googlesource.com/platform/bionic/+archive/android-2.0_r1.tar.gz",
+      "sha256": "e3020ce3f017a316535a77d9c5b7f13fafe15b33881a3282528037f854633c97"
+    },
+    {
+      "file": "eclair-system-core.tar.gz",
+      "project": "platform/system/core",
+      "destination": "system/core",
+      "url": "https://android.googlesource.com/platform/system/core/+archive/android-2.0_r1.tar.gz",
+      "sha256": "84b7097c98b0a26d417c1e85bedd8d1c98a89455d2ffcbcd9eb60e0d7fdbac7a"
+    },
+    {
+      "file": "eclair-dalvik.tar.gz",
+      "project": "platform/dalvik",
+      "destination": "dalvik",
+      "url": "https://android.googlesource.com/platform/dalvik/+archive/android-2.0_r1.tar.gz",
+      "sha256": "64f5de7ff8c0e70ddf8e6cec32e5e93ee918a47c1dd906db71de0ebb4dfa5209"
+    },
+    {
+      "file": "eclair-frameworks-base.tar.gz",
+      "project": "platform/frameworks/base",
+      "destination": "frameworks/base",
+      "url": "https://android.googlesource.com/platform/frameworks/base/+archive/android-2.0_r1.tar.gz",
+      "sha256": "fbf9a04792e2fd3c2e7f72ee79f35ef1e5871410eac2d4d4916c3dd0c5a0e86a"
+    },
+    {
+      "file": "eclair-frameworks-policies-base.tar.gz",
+      "project": "platform/frameworks/policies/base",
+      "destination": "frameworks/policies/base",
+      "url": "https://android.googlesource.com/platform/frameworks/policies/base/+archive/android-2.0_r1.tar.gz",
+      "sha256": "3eb2f2db7ac099d6b11d933d62c5b78b6c4e650efa3d51c56451c80eb4574eaf"
+    },
+    {
+      "file": "eclair-libhardware.tar.gz",
+      "project": "platform/hardware/libhardware",
+      "destination": "hardware/libhardware",
+      "url": "https://android.googlesource.com/platform/hardware/libhardware/+archive/android-2.0_r1.tar.gz",
+      "sha256": "b6a5fc820139ba9313e9b7244817732d4cfa5ccda40b32d85b8a77d8ddb9b4e1"
+    },
+    {
+      "file": "eclair-zlib.tar.gz",
+      "project": "platform/external/zlib",
+      "destination": "external/zlib",
+      "url": "https://android.googlesource.com/platform/external/zlib/+archive/android-2.0_r1.tar.gz",
+      "sha256": "94038bc594c36f078215703bedba3236d7bf2ec39caacdbe5c63c0440c6f1358"
+    },
+    {
+      "file": "eclair-expat.tar.gz",
+      "project": "platform/external/expat",
+      "destination": "external/expat",
+      "url": "https://android.googlesource.com/platform/external/expat/+archive/android-2.0_r1.tar.gz",
+      "sha256": "eb9ebe27d8de805ac66dbd0e957da2df46f979ce69b8e0906b3968b34ebc7629"
+    },
+    {
+      "file": "eclair-fdlibm.tar.gz",
+      "project": "platform/external/fdlibm",
+      "destination": "external/fdlibm",
+      "url": "https://android.googlesource.com/platform/external/fdlibm/+archive/android-2.0_r1.tar.gz",
+      "sha256": "401f454c9f7bd4a4918eb6b650d597d721e1aa23128098fcbbd5035f564c286d"
+    },
+    {
+      "file": "eclair-icu4c.tar.gz",
+      "project": "platform/external/icu4c",
+      "destination": "external/icu4c",
+      "url": "https://android.googlesource.com/platform/external/icu4c/+archive/android-2.0_r1.tar.gz",
+      "sha256": "0164c482a17ee8f55fcb7b741c8826367a2f3870fa0cae0cf589e6dce55b1416"
+    },
+    {
+      "file": "eclair-libpng.tar.gz",
+      "project": "platform/external/libpng",
+      "destination": "external/libpng",
+      "url": "https://android.googlesource.com/platform/external/libpng/+archive/android-2.0_r1.tar.gz",
+      "sha256": "ca96baf5bd25123c99a501d806663442f786201bf67924c966495b46151f46e5"
+    },
+    {
+      "file": "eclair-openssl.tar.gz",
+      "project": "platform/external/openssl",
+      "destination": "external/openssl",
+      "url": "https://android.googlesource.com/platform/external/openssl/+archive/android-2.0_r1.tar.gz",
+      "sha256": "5a54715363776ff7384fb79944f0f860ed433aaa3dc475743457160f64163ad4"
+    },
+    {
+      "file": "eclair-safe-iop.tar.gz",
+      "project": "platform/external/safe-iop",
+      "destination": "external/safe-iop",
+      "url": "https://android.googlesource.com/platform/external/safe-iop/+archive/android-2.0_r1.tar.gz",
+      "sha256": "f785a942224cedf3f2fe0061f3e72bf4ce79bbc38c5883f8a99736779ad9e1ea"
+    },
+    {
+      "file": "eclair-sqlite.tar.gz",
+      "project": "platform/external/sqlite",
+      "destination": "external/sqlite",
+      "url": "https://android.googlesource.com/platform/external/sqlite/+archive/android-2.0_r1.tar.gz",
+      "sha256": "9235cabc8dc26cb04e655223a393664a38ae518b41c23dc59c8503f674b602bb"
+    },
+    {
+      "file": "eclair-svox.tar.gz",
+      "project": "platform/external/svox",
+      "destination": "external/svox",
+      "url": "https://android.googlesource.com/platform/external/svox/+archive/android-2.0_r1.tar.gz",
+      "sha256": "c249929552e3a4bf6e882e88c65dce9de90b390741fdfc57493ce00e4edf22b6"
+    },
+    {
+      "file": "eclair-apache-http.tar.gz",
+      "project": "platform/external/apache-http",
+      "destination": "external/apache-http",
+      "url": "https://android.googlesource.com/platform/external/apache-http/+archive/android-2.0_r1.tar.gz",
+      "sha256": "fd3474de09eee424092ddb4ef52d70e09f66b3f7f5de4f0bbd61a69eea849b06"
+    },
+    {
+      "file": "eclair-gdata.tar.gz",
+      "project": "platform/external/gdata",
+      "destination": "external/gdata",
+      "url": "https://android.googlesource.com/platform/external/gdata/+archive/android-2.0_r1.tar.gz",
+      "sha256": "4f1524452458bb4431640039cba6018d038110c5214b80677903c243aa083b7b"
+    },
+    {
+      "file": "eclair-protobuf.tar.gz",
+      "project": "platform/external/protobuf",
+      "destination": "external/protobuf",
+      "url": "https://android.googlesource.com/platform/external/protobuf/+archive/android-2.0_r1.tar.gz",
+      "sha256": "b56df8792ad118f7cf37ab8974b8d26e248e6f18e4f22bd0398f6596a7d596d5"
+    },
+    {
+      "file": "eclair-tagsoup.tar.gz",
+      "project": "platform/external/tagsoup",
+      "destination": "external/tagsoup",
+      "url": "https://android.googlesource.com/platform/external/tagsoup/+archive/android-2.0_r1.tar.gz",
+      "sha256": "57da2ab82d05e5530822e6a8c082422862348f4f4bfd3613b92f7d893bd52027"
+    },
+    {
+      "file": "eclair-googleclient.tar.gz",
+      "project": "platform/external/googleclient",
+      "destination": "external/googleclient",
+      "url": "https://android.googlesource.com/platform/external/googleclient/+archive/android-2.0_r1.tar.gz",
+      "sha256": "81f1f963626615372ce166e6eecb2a89e2e98e3bd544930beee90e5439bf7532"
+    },
+    {
+      "file": "eclair-emoji.tar.gz",
+      "project": "platform/frameworks/opt/emoji",
+      "destination": "frameworks/opt/emoji",
+      "url": "https://android.googlesource.com/platform/frameworks/opt/emoji/+archive/android-2.0_r1.tar.gz",
+      "sha256": "7e039bcaadb703f257e53292183b060e0b9f6dc52984c34c5e4113fe626bae4d"
+    },
+    {
+      "file": "eclair-libhardware-legacy.tar.gz",
+      "project": "platform/hardware/libhardware_legacy",
+      "destination": "hardware/libhardware_legacy",
+      "url": "https://android.googlesource.com/platform/hardware/libhardware_legacy/+archive/android-2.0_r1.tar.gz",
+      "sha256": "3462e24d34a6502d9fb18a7df769c7e69988f77d98cb34536294bc6fba3cc2f9"
+    },
+    {
+      "file": "eclair-skia.tar.gz",
+      "project": "platform/external/skia",
+      "destination": "external/skia",
+      "url": "https://android.googlesource.com/platform/external/skia/+archive/android-2.0_r1.tar.gz",
+      "sha256": "5cf58ea51a3b66a9b1c054872144c9e5656e0f0b1eebfbd258ad5504e7c5e06d"
+    },
+    {
+      "file": "eclair-freetype.tar.gz",
+      "project": "platform/external/freetype",
+      "destination": "external/freetype",
+      "url": "https://android.googlesource.com/platform/external/freetype/+archive/android-2.0_r1.tar.gz",
+      "sha256": "b80a75980afc6e8c285e9d894acb023f7d81d44f329bead611e53b09fe582ca4"
+    },
+    {
+      "file": "eclair-jpeg.tar.gz",
+      "project": "platform/external/jpeg",
+      "destination": "external/jpeg",
+      "url": "https://android.googlesource.com/platform/external/jpeg/+archive/android-2.0_r1.tar.gz",
+      "sha256": "1365a1e05b18723a09db0797e582138b3aff86fa4f15080159b1c9c1c2078708"
+    },
+    {
+      "file": "eclair-giflib.tar.gz",
+      "project": "platform/external/giflib",
+      "destination": "external/giflib",
+      "url": "https://android.googlesource.com/platform/external/giflib/+archive/android-2.0_r1.tar.gz",
+      "sha256": "072f5b266f86ddae3355d337e67019af4b9a6f129657bcf89386921ca5b8af6d"
+    },
+    {
+      "file": "eclair-tremor.tar.gz",
+      "project": "platform/external/tremor",
+      "destination": "external/tremor",
+      "url": "https://android.googlesource.com/platform/external/tremor/+archive/android-2.0_r1.tar.gz",
+      "sha256": "e7a439a7775aaa832e352f46d64812a29353d21591d4f03fafbeacca648aaf88"
+    },
+    {
+      "file": "eclair-speex.tar.gz",
+      "project": "platform/external/speex",
+      "destination": "external/speex",
+      "url": "https://android.googlesource.com/platform/external/speex/+archive/android-2.0_r1.tar.gz",
+      "sha256": "56a1ba995154f948253e5aaaa08e2021fb84710a76bbd60da8d8fd72150224be"
+    },
+    {
+      "file": "eclair-opencore.tar.gz",
+      "project": "platform/external/opencore",
+      "destination": "external/opencore",
+      "url": "https://android.googlesource.com/platform/external/opencore/+archive/android-2.0_r1.tar.gz",
+      "sha256": "07799a957a1cced213ce13f28cfca5716e03cfbe40fd73855c2709a96718b833"
+    },
+    {
+      "file": "eclair-wpa-supplicant.tar.gz",
+      "project": "platform/external/wpa_supplicant",
+      "destination": "external/wpa_supplicant",
+      "url": "https://android.googlesource.com/platform/external/wpa_supplicant/+archive/android-2.0_r1.tar.gz",
+      "sha256": "e0f34378dc6c2ff10ae551c28091656d5783a65959f32ed19a2341113043feda"
+    },
+    {
+      "file": "eclair-sonivox.tar.gz",
+      "project": "platform/external/sonivox",
+      "destination": "external/sonivox",
+      "url": "https://android.googlesource.com/platform/external/sonivox/+archive/android-2.0_r1.tar.gz",
+      "sha256": "463b5568428b2cd4eef425b26e407d827b7f0aa577d8daaee6f6f12378d3403b"
+    },
+    {
+      "file": "eclair-arm-eabi-4.4.0.tar.gz",
+      "project": "platform/prebuilt",
+      "subtree": "linux-x86/toolchain/arm-eabi-4.4.0",
+      "destination": "prebuilt/linux-x86/toolchain/arm-eabi-4.4.0",
+      "url": "https://android.googlesource.com/platform/prebuilt/+archive/android-2.0_r1/linux-x86/toolchain/arm-eabi-4.4.0.tar.gz",
+      "sha256": "1d2e05024f0d5b18072e7040a0e86da84d73101a27037e5e62acaed28c1b75a5"
+    }
+  ]
+}

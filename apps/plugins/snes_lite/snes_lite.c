@@ -4,12 +4,14 @@
 
 #include "plugin.h"
 #include "snes_lite.h"
+#include "lib/rockachievements.h"
 #include <stdarg.h>
 #ifdef SIMULATOR
 #include <stdlib.h>
 #endif
 
 struct snes_lite_runtime snes_lite;
+static struct rockachievements_runtime snes_achievements;
 
 static int log_fd = -1;
 
@@ -252,6 +254,21 @@ enum plugin_status plugin_start(const void *parameter)
     }
     core_started = true;
     snes_lite_sram_load();
+    if (rockachievements_available(parameter))
+    {
+        void *achievement_workspace = snes_lite_try_malloc(
+            ROCKACHIEVEMENTS_WORKSPACE_TARGET);
+
+        if (achievement_workspace && rockachievements_init(
+                &snes_achievements, parameter,
+                snes_lite_core_achievement_peek, NULL,
+                achievement_workspace,
+                ROCKACHIEVEMENTS_WORKSPACE_TARGET))
+            snes_lite_log("achievements active=%u",
+                          snes_achievements.active_count);
+        else
+            snes_lite_log("achievements inactive");
+    }
     snes_lite.fps_tick = *rb->current_tick;
     snes_lite.total_start_tick = snes_lite.fps_tick;
     snes_lite.frame_deadline = snes_lite.fps_tick;
@@ -263,6 +280,7 @@ enum plugin_status plugin_start(const void *parameter)
     while (!snes_lite.quit_requested && !snes_lite.core_failed)
     {
         snes_lite_core_run();
+        rockachievements_do_frame(&snes_achievements);
         pace_frame();
         update_fps();
 #ifdef SIMULATOR
@@ -282,6 +300,7 @@ enum plugin_status plugin_start(const void *parameter)
         {
             snes_lite.reset_requested = false;
             snes_lite_core_reset();
+            rockachievements_reset(&snes_achievements);
         }
     }
     if (snes_lite.core_failed)
@@ -292,6 +311,7 @@ enum plugin_status plugin_start(const void *parameter)
 
 cleanup:
     snes_lite_audio_close();
+    rockachievements_shutdown(&snes_achievements);
     if (core_started)
     {
         snes_lite_sram_save();

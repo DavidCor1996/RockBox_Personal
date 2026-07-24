@@ -9,7 +9,7 @@ import shutil
 import subprocess
 
 from PySide6.QtCore import Qt, QRectF, Signal, QTimer, QProcess, QEvent
-from PySide6.QtGui import QColor, QFont, QPainter, QPainterPath, QPen, QPixmap, QWindow
+from PySide6.QtGui import QColor, QFont, QImage, QPainter, QPainterPath, QPen, QPixmap, QWindow
 from PySide6.QtWidgets import (
     QComboBox,
     QCheckBox,
@@ -666,6 +666,14 @@ class _ScreenPreview(QWidget):
         self._loading_timer = QTimer(self)
         self._loading_timer.setInterval(90)
         self._loading_timer.timeout.connect(self._tick_loading_spinner)
+        self._video_path = ""
+        self._video_width = 0
+        self._video_height = 0
+        self._video_frame_count = 0
+        self._video_frame_index = 0
+        self._video_frame = QPixmap()
+        self._video_timer = QTimer(self)
+        self._video_timer.timeout.connect(self._tick_video_frame)
 
     def set_preview(self, state, mode):
         self._state = dict(state or {})
@@ -675,11 +683,101 @@ class _ScreenPreview(QWidget):
                 self._loading_timer.start()
         else:
             self._loading_timer.stop()
+        video_path = ""
+        if (
+            self._mode == "simulator"
+            and self._state.get("preview_screen") == "sbs"
+            and not self._state.get("preview_loading")
+        ):
+            video_path = str(self._state.get("simulator_video_framepack_path") or "").strip()
+        self._set_video_framepack(video_path)
         self.update()
 
     def _tick_loading_spinner(self):
         self._spinner_frame = (self._spinner_frame + 1) % 12
         self.update()
+
+    def _set_video_framepack(self, path):
+        path = str(path or "").strip()
+        if path == self._video_path and self._video_frame_count > 0:
+            if not self._video_timer.isActive():
+                self._video_timer.start()
+            return
+
+        self._video_timer.stop()
+        self._video_path = ""
+        self._video_width = 0
+        self._video_height = 0
+        self._video_frame_count = 0
+        self._video_frame_index = 0
+        self._video_frame = QPixmap()
+        if not path or not os.path.isfile(path):
+            return
+
+        try:
+            with open(path, "rb") as handle:
+                header = handle.read(32)
+            if len(header) != 32 or header[:4] != b"RBVP":
+                return
+            version = int.from_bytes(header[4:6], "little")
+            header_size = int.from_bytes(header[6:8], "little")
+            width = int.from_bytes(header[8:10], "little")
+            height = int.from_bytes(header[10:12], "little")
+            fps = int.from_bytes(header[12:14], "little")
+            frame_count = int.from_bytes(header[14:16], "little")
+            bytes_per_pixel = int.from_bytes(header[16:18], "little")
+            required_size = header_size + width * height * bytes_per_pixel * frame_count
+            if (
+                version != 1
+                or header_size != 32
+                or width <= 0
+                or height <= 0
+                or fps <= 0
+                or frame_count <= 0
+                or bytes_per_pixel != 2
+                or os.path.getsize(path) < required_size
+            ):
+                return
+        except OSError:
+            return
+
+        self._video_path = path
+        self._video_width = width
+        self._video_height = height
+        self._video_frame_count = frame_count
+        self._read_video_frame(0)
+        self._video_timer.setInterval(max(1, int(round(1000 / fps))))
+        self._video_timer.start()
+
+    def _read_video_frame(self, index):
+        if not self._video_path or self._video_frame_count <= 0:
+            return False
+        index %= self._video_frame_count
+        frame_bytes = self._video_width * self._video_height * 2
+        try:
+            with open(self._video_path, "rb") as handle:
+                handle.seek(32 + index * frame_bytes)
+                data = handle.read(frame_bytes)
+        except OSError:
+            return False
+        if len(data) != frame_bytes:
+            return False
+        image = QImage(
+            data,
+            self._video_width,
+            self._video_height,
+            self._video_width * 2,
+            QImage.Format_RGB16,
+        ).copy()
+        if image.isNull():
+            return False
+        self._video_frame_index = index
+        self._video_frame = QPixmap.fromImage(image)
+        return True
+
+    def _tick_video_frame(self):
+        if self._read_video_frame(self._video_frame_index + 1):
+            self.update()
 
     def paintEvent(self, event):
         painter = QPainter(self)
@@ -711,8 +809,27 @@ class _ScreenPreview(QWidget):
                 x = int(target_rect.center().x() - fitted.width() / 2)
                 y = int(target_rect.center().y() - fitted.height() / 2)
                 painter.drawPixmap(x, y, fitted)
+                self._paint_video_overlay(
+                    painter,
+                    QRectF(x, y, fitted.width(), fitted.height()),
+                    pixmap.width(),
+                    pixmap.height(),
+                )
                 return True
         return False
+
+    def _paint_video_overlay(self, painter, screen_rect, source_width, source_height):
+        if self._video_frame.isNull() or source_width <= 0 or source_height <= 0:
+            return
+        scale_x = screen_rect.width() / source_width
+        scale_y = screen_rect.height() / source_height
+        target = QRectF(
+            screen_rect.x() + (source_width - self._video_width) * scale_x,
+            screen_rect.y(),
+            self._video_width * scale_x,
+            self._video_height * scale_y,
+        )
+        painter.drawPixmap(target, self._video_frame, QRectF(self._video_frame.rect()))
 
     def _paint_loading_overlay(self, painter):
         if not self._state.get("preview_loading"):
@@ -803,6 +920,38 @@ class _EmbeddedSimulatorPreview(QWidget):
         if not self._simdisk_path:
             return ""
         return "/.rockbox/live_preview.bmp"
+
+    def video_framepack_path(self):
+        simdisk = str(self._simdisk_path or "").strip()
+        if not simdisk:
+            return ""
+        for config_path in (
+            os.path.join(simdisk, ".rockbox", "config.cfg"),
+            os.path.join(simdisk, "config.cfg"),
+        ):
+            try:
+                with open(config_path, "r", encoding="utf-8", errors="replace") as handle:
+                    lines = handle.readlines()
+            except OSError:
+                continue
+            for raw in lines:
+                parsed = RockboxSimulatorService._split_cfg_line(raw)
+                if not parsed or parsed[0].strip().lower() != "sbs":
+                    continue
+                skin_path = parsed[2].strip()
+                skin_name = os.path.splitext(os.path.basename(skin_path))[0]
+                if not skin_name:
+                    continue
+                framepack = os.path.join(
+                    simdisk,
+                    ".rockbox",
+                    "wps",
+                    skin_name,
+                    "RightPaneVideo.rbvp",
+                )
+                if os.path.isfile(framepack):
+                    return framepack
+        return ""
 
     def status_text(self):
         return self._placeholder.text().strip()
@@ -1075,6 +1224,7 @@ class ThemeDesignerWidget(QWidget):
         self._base_right_pane_wallpaper_path = ""
         self._base_menu_backdrop_path = ""
         self._base_simulator_preview_path = ""
+        self._base_simulator_video_framepack_path = ""
         self._preview_loading = False
         self._suppress_preview_signal = False
         self._right_pane_offset_x = 0
@@ -1151,7 +1301,7 @@ class ThemeDesignerWidget(QWidget):
         wallpapers_layout.setSpacing(8)
         wallpapers_title = QLabel("Artwork")
         wallpapers_title.setObjectName("SectionTitle")
-        wallpapers_hint = QLabel("Default artwork is used unless a photo is selected. MP4 animates on the right pane mini player screen only.")
+        wallpapers_hint = QLabel("Default artwork is used unless a photo is selected. MP4 animates only when the right pane is in Video mode.")
         wallpapers_hint.setObjectName("SectionHint")
         wallpapers_layout.addWidget(wallpapers_title)
         wallpapers_layout.addWidget(wallpapers_hint)
@@ -1177,6 +1327,7 @@ class ThemeDesignerWidget(QWidget):
         self._right_pane_mode_combo = QComboBox()
         self._right_pane_mode_combo.addItem("Miniplayer", "miniplayer")
         self._right_pane_mode_combo.addItem("Full art", "full art")
+        self._right_pane_mode_combo.addItem("Video", "video")
         self._wallpaper_cycle_check = QCheckBox("Cycle lock and charge wallpapers")
         self._wallpaper_cycle_check.stateChanged.connect(self._sync_preview)
         self._fit_combo.currentIndexChanged.connect(self._sync_preview)
@@ -1706,8 +1857,9 @@ class ThemeDesignerWidget(QWidget):
     def set_status(self, text):
         self._status.setText(text)
 
-    def set_simulator_preview(self, path):
+    def set_simulator_preview(self, path, video_framepack_path=""):
         self._base_simulator_preview_path = str(path or "").strip()
+        self._base_simulator_video_framepack_path = str(video_framepack_path or "").strip()
         self._preview_loading = False
         self._refresh_preview_btn.setEnabled(True)
         self._sync_preview_silent()
@@ -1836,6 +1988,10 @@ class ThemeDesignerWidget(QWidget):
             self._right_pane_video_edit.setText(path)
 
     def _on_right_pane_video_changed(self, path):
+        if str(path or "").strip():
+            self._set_right_pane_mode_value("video")
+        elif self._right_pane_mode_combo.currentData() == "video":
+            self._set_right_pane_mode_value("miniplayer")
         self._sync_preview()
 
     def _choose_right_pane_position(self):
@@ -1937,7 +2093,7 @@ class ThemeDesignerWidget(QWidget):
 
     def _set_right_pane_mode_value(self, value):
         mode = str(value or "miniplayer").strip().lower()
-        if mode not in {"miniplayer", "full art"}:
+        if mode not in {"miniplayer", "full art", "video"}:
             mode = "miniplayer"
         index = self._right_pane_mode_combo.findData(mode)
         if index >= 0:
@@ -1983,8 +2139,10 @@ class ThemeDesignerWidget(QWidget):
             "right_pane_wallpaper_path": self._right_pane_wallpaper_edit.text().strip() or self._base_right_pane_wallpaper_path,
             "menu_backdrop_path": self._base_menu_backdrop_path,
             "simulator_preview_path": simulator_preview_path,
+            "simulator_video_framepack_path": self._resolved_simulator_video_framepack_path(),
             "simulator_status_text": "Updating preview..." if self._preview_loading else self._simulator_surface.status_text(),
             "preview_loading": self._preview_loading,
+            "preview_screen": variant.get("preview_screen", "sbs"),
             "colors": variant["colors"],
         }
         self._preview.set_preview(state, self._preview_mode.currentData())
@@ -2005,6 +2163,12 @@ class ThemeDesignerWidget(QWidget):
         if path and os.path.isfile(path):
             return path
         return ""
+
+    def _resolved_simulator_video_framepack_path(self):
+        path = str(getattr(self, "_base_simulator_video_framepack_path", "") or "").strip()
+        if path and os.path.isfile(path):
+            return path
+        return self._simulator_surface.video_framepack_path()
 
     def _send_simulator_control(self, action):
         self._simulator_surface.send_control(action)

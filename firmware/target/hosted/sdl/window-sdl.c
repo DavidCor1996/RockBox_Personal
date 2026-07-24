@@ -32,6 +32,16 @@
 #include "sim_tasks.h"
 #include "screendump.h"
 
+/* Preview paths are absolute host paths supplied by the regression harness.
+ * The simulator filesystem macros would remap them into the virtual player
+ * root, so publishing the SDL staging BMP must use the host libc calls. */
+#ifdef remove
+#undef remove
+#endif
+#ifdef rename
+#undef rename
+#endif
+
 extern SDL_Surface *lcd_surface;
 #ifdef HAVE_REMOTE_LCD
 extern SDL_Surface *remote_surface;
@@ -58,6 +68,15 @@ static bool rockpod_auto_dump_once;
 static bool rockpod_auto_dump_done;
 static Uint32 rockpod_auto_dump_after_ticks;
 static const char rockpod_auto_dump_flagfile[] = "tmp/cherryblossom-sim-autodump.flag";
+
+/* panicf() renders its message on the simulated LCD.  It is therefore not
+ * safe until the LCD surface exists; using it for an SDL startup failure can
+ * turn the useful SDL error into a null-surface crash. */
+static void sdl_window_startup_fatal(const char *operation)
+{
+    fprintf(stderr, "%s failed: %s\n", operation, SDL_GetError());
+    exit(EXIT_FAILURE);
+}
 
 static void rockpod_preview_configure(void)
 {
@@ -87,7 +106,10 @@ static void rockpod_preview_configure(void)
     if (interval && *interval)
     {
         long value = strtol(interval, NULL, 10);
-        if (value >= 16 && value <= 5000)
+        /* Zero is a regression-only mode that publishes every render.  It
+         * guarantees the final full LCD update replaces any intermediate
+         * dirty rectangle on an otherwise static screen. */
+        if (value >= 0 && value <= 5000)
             rockpod_preview_interval_ms = (Uint32)value;
     }
 
@@ -261,6 +283,9 @@ void sdl_window_render(void)
 
     SDL_RenderClear(sdlRenderer);
     SDL_RenderCopy(sdlRenderer, gui_texture, NULL, NULL);
+    /* Read the composed backbuffer before Present swaps or invalidates it.
+     * Reading afterward can return the previous LCD frame on SDL renderers. */
+    rockpod_preview_capture_if_needed();
     SDL_RenderPresent(sdlRenderer);
 
     if (rockpod_auto_dump_once && !rockpod_auto_dump_done &&
@@ -270,7 +295,6 @@ void sdl_window_render(void)
         screen_dump();
     }
 
-    rockpod_preview_capture_if_needed();
 }
 
 bool sdl_window_adjust(void)
@@ -340,22 +364,30 @@ void sdl_window_setup(void)
     if ((sdlWindow = SDL_CreateWindow(UI_TITLE, SDL_WINDOWPOS_CENTERED,
                                    SDL_WINDOWPOS_CENTERED, width * display_zoom,
                                    height * display_zoom , flags)) == NULL)
-        panicf("%s", SDL_GetError());
+        sdl_window_startup_fatal("SDL window creation");
     if ((sdlRenderer = SDL_CreateRenderer(sdlWindow, -1, SDL_RENDERER_PRESENTVSYNC)) == NULL)
-        panicf("%s", SDL_GetError());
+        sdl_window_startup_fatal("SDL renderer creation");
 
     /* Surface for LCD content only. Needs to fit largest LCD */
-    if ((sim_lcd_surface = SDL_CreateRGBSurface(0,
+    int surface_width =
 #ifdef HAVE_REMOTE_LCD
-                                                SIM_LCD_WIDTH > SIM_REMOTE_WIDTH ?
-                                                SIM_LCD_WIDTH : SIM_REMOTE_WIDTH,
-                                                SIM_LCD_HEIGHT > SIM_REMOTE_HEIGHT ?
-                                                SIM_LCD_HEIGHT : SIM_REMOTE_HEIGHT,
+        SIM_LCD_WIDTH > SIM_REMOTE_WIDTH ? SIM_LCD_WIDTH : SIM_REMOTE_WIDTH;
+    int surface_height =
+        SIM_LCD_HEIGHT > SIM_REMOTE_HEIGHT ? SIM_LCD_HEIGHT : SIM_REMOTE_HEIGHT;
 #else
-                                                SIM_LCD_WIDTH, SIM_LCD_HEIGHT,
+        SIM_LCD_WIDTH;
+    int surface_height = SIM_LCD_HEIGHT;
 #endif
-                                                depth, 0, 0, 0, 0)) == NULL)
-        panicf("%s", SDL_GetError());
+
+    if (depth == 16)
+        sim_lcd_surface = SDL_CreateRGBSurfaceWithFormat(0, surface_width,
+                              surface_height, 16, SDL_PIXELFORMAT_RGB565);
+    else
+        sim_lcd_surface = SDL_CreateRGBSurface(0, surface_width,
+                              surface_height, depth, 0, 0, 0, 0);
+
+    if (sim_lcd_surface == NULL)
+        sdl_window_startup_fatal("SDL LCD surface creation");
 
     SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, display_zoom == 1 ? "best" : "nearest");
     window_mutex = SDL_CreateMutex();

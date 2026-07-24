@@ -72,6 +72,7 @@ HOST_TAGCACHE_FILES = [
 FIRMWARE_COMMIT_MARKER = "database_commit.tcd"
 HOST_COMMIT_MARKER = "database_hostcommit.tcd"
 HOST_TRANSACTION_DIR = ".rockpod_tagcache_transaction"
+RECOVERY_BACKUP_DIR = "tagcache_backup"
 HOST_TAGCACHE_REMOVE_GLOBS = [
     "database*.tcd",
     "tagcache*.tcd",
@@ -150,6 +151,28 @@ def _copy_database_set(source: Path, destination: Path) -> None:
         copy2(source_path, destination_path)
         _fsync_file(destination_path)
     _fsync_directory(destination)
+
+
+def _replace_recovery_snapshot(rockbox_dir: Path) -> None:
+    """Publish a verified copy for firmware's low-memory rollback path."""
+    snapshot = rockbox_dir / RECOVERY_BACKUP_DIR
+    staging = rockbox_dir / f".{RECOVERY_BACKUP_DIR}.new"
+
+    rmtree(staging, ignore_errors=True)
+    staging.mkdir(parents=False, exist_ok=False)
+    try:
+        for filename in HOST_TAGCACHE_FILES:
+            source = rockbox_dir / filename
+            destination = staging / filename
+            copy2(source, destination)
+            _fsync_file(destination)
+        _fsync_directory(staging)
+
+        rmtree(snapshot, ignore_errors=True)
+        os.replace(staging, snapshot)
+        _fsync_directory(rockbox_dir)
+    finally:
+        rmtree(staging, ignore_errors=True)
 
 
 def _rollback_host_transaction(rockbox_dir: Path, transaction_dir: Path) -> None:
@@ -249,6 +272,7 @@ def write_rockbox_tagcache_tracks(
 
         marker.unlink()
         _fsync_directory(rockbox_dir)
+        _replace_recovery_snapshot(rockbox_dir)
         rmtree(transaction_dir)
         _fsync_directory(mount)
 

@@ -712,29 +712,29 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x1fb0
+.debug_str      0x0000000000000000     0x2082
  *(.debug_str)
- .debug_str     0x0000000000000000     0x1fb0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/mpc.o
+ .debug_str     0x0000000000000000     0x2082 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/mpc.o
                                        0x1335 (size before relaxing)
- .debug_str     0x0000000000001fb0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/codec_crt0.o
+ .debug_str     0x0000000000002082        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/codec_crt0.o
                                         0xcba (size before relaxing)
- .debug_str     0x0000000000001fb0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmusepack.a(mpc_demux.o)
+ .debug_str     0x0000000000002082        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmusepack.a(mpc_demux.o)
                                         0xd43 (size before relaxing)
- .debug_str     0x0000000000001fb0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmusepack.a(streaminfo.o)
+ .debug_str     0x0000000000002082        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmusepack.a(streaminfo.o)
                                         0x4d0 (size before relaxing)
- .debug_str     0x0000000000001fb0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmusepack.a(crc32.o)
+ .debug_str     0x0000000000002082        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmusepack.a(crc32.o)
                                         0x1c4 (size before relaxing)
- .debug_str     0x0000000000001fb0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmusepack.a(mpc_bits_reader.o)
+ .debug_str     0x0000000000002082        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmusepack.a(mpc_bits_reader.o)
                                         0x2be (size before relaxing)
- .debug_str     0x0000000000001fb0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmusepack.a(mpc_decoder.o)
+ .debug_str     0x0000000000002082        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmusepack.a(mpc_decoder.o)
                                         0xda2 (size before relaxing)
- .debug_str     0x0000000000001fb0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmusepack.a(requant.o)
+ .debug_str     0x0000000000002082        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmusepack.a(requant.o)
                                         0x30d (size before relaxing)
- .debug_str     0x0000000000001fb0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmusepack.a(synth_filter.o)
+ .debug_str     0x0000000000002082        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmusepack.a(synth_filter.o)
                                         0xa08 (size before relaxing)
- .debug_str     0x0000000000001fb0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmusepack.a(huffman.o)
+ .debug_str     0x0000000000002082        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmusepack.a(huffman.o)
                                         0x5cf (size before relaxing)
- .debug_str     0x0000000000001fb0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .debug_str     0x0000000000002082        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
                                         0xed6 (size before relaxing)
 
 .debug_loc
@@ -765,41 +765,41 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
  *(.debug_addr)
 
 .debug_line_str
-                0x0000000000000000      0x743
+                0x0000000000000000      0x76f
  *(.debug_line_str)
  .debug_line_str
-                0x0000000000000000      0x743 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/mpc.o
-                                        0x37b (size before relaxing)
+                0x0000000000000000      0x76f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/mpc.o
+                                        0x377 (size before relaxing)
  .debug_line_str
-                0x0000000000000743        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/codec_crt0.o
+                0x000000000000076f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/codec_crt0.o
                                         0x268 (size before relaxing)
  .debug_line_str
-                0x0000000000000743        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmusepack.a(mpc_demux.o)
-                                        0x2f7 (size before relaxing)
+                0x000000000000076f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmusepack.a(mpc_demux.o)
+                                        0x2f3 (size before relaxing)
  .debug_line_str
-                0x0000000000000743        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmusepack.a(streaminfo.o)
-                                        0x1bb (size before relaxing)
+                0x000000000000076f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmusepack.a(streaminfo.o)
+                                        0x1b7 (size before relaxing)
  .debug_line_str
-                0x0000000000000743        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmusepack.a(crc32.o)
+                0x000000000000076f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmusepack.a(crc32.o)
                                         0x134 (size before relaxing)
  .debug_line_str
-                0x0000000000000743        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmusepack.a(mpc_bits_reader.o)
+                0x000000000000076f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmusepack.a(mpc_bits_reader.o)
                                         0x184 (size before relaxing)
  .debug_line_str
-                0x0000000000000743        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmusepack.a(mpc_decoder.o)
-                                        0x2a1 (size before relaxing)
+                0x000000000000076f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmusepack.a(mpc_decoder.o)
+                                        0x29d (size before relaxing)
  .debug_line_str
-                0x0000000000000743        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmusepack.a(requant.o)
-                                        0x1b2 (size before relaxing)
+                0x000000000000076f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmusepack.a(requant.o)
+                                        0x1ae (size before relaxing)
  .debug_line_str
-                0x0000000000000743        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmusepack.a(synth_filter.o)
-                                        0x25d (size before relaxing)
+                0x000000000000076f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmusepack.a(synth_filter.o)
+                                        0x259 (size before relaxing)
  .debug_line_str
-                0x0000000000000743        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmusepack.a(huffman.o)
+                0x000000000000076f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmusepack.a(huffman.o)
                                         0x150 (size before relaxing)
  .debug_line_str
-                0x0000000000000743        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
-                                        0x330 (size before relaxing)
+                0x000000000000076f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+                                        0x32c (size before relaxing)
 
 .debug_loclists
                 0x0000000000000000     0x6419

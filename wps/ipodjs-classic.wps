@@ -1,57 +1,57 @@
-# Stock-style iPod Classic 6G WPS using Rockbox's playback lifecycle.
-# All chrome is drawn; no iPone/purple bitmap assets are used.
+# Stock iPod Classic 6G Now Playing screen on Rockbox's WPS lifecycle.
+# Chrome and indicators are verified Apple bitmaps; only the flat body fill
+# and text are rendered by the skin engine.
 %wd
 %Fl(2,14-Adobe-Helvetica-Bold.fnt)
-%Cl(15,42,128,128,c,c,1)
 
-# Always-rendered player base. Dynamic overlays are evaluated after it.
-%V(0,0,320,240,-)%Vf(000000)%Vb(FFFFFF)
-%dr(0,0,320,240,FFFFFF)
+# Semantic body color is resolved by the iPodJS palette at render time.
+%V(0,0,320,240,-)%Vf(F7F7F7)%Vb(F7F7F7)
+%dr(0,0,320,240,F7F7F7)
 
-%V(0,0,320,21,2)%Vf(000000)%Vb(D9DCE0)
-%dr(0,0,320,10,FBFCFD,D9DCE0)
-%dr(0,10,320,10,D9DCE0,AEB3B9)
-%dr(0,20,320,1,7D858E)
-%dr(282,5,25,11,FFFFFF,747B83)%dr(284,7,21,7,63A94B)%dr(307,8,3,5,747B83)
-%V(6,3,240,16,2)%Vf(000000)%Vb(D9DCE0)%alNow Playing
+# Apple status bar, playback/Hold state, and sparse documented battery states.
+%V(0,0,320,24,2)%Vf(080808)%Vb(E6E9EC)
+%xl(H,/.rockbox/ipodjs/apple/status-header.apple.320x24x24.bmp,0,0)
+%xl(B,/.rockbox/ipodjs/apple/status-battery.apple.26x65x24.bmp,289,5,5)
+%xl(P,/.rockbox/ipodjs/apple/status-playback.apple.20x32x24.bmp,270,4,2)
+%xl(L,/.rockbox/ipodjs/apple/status-hold.apple.12x15x24.bmp,274,4)
+%?St(ui engine dark mode)<%dr(0,0,320,24,E6E9EC)|%?mh<%xd(H)%xd(L)|%xd(H)%?mp<|%xd(Pa)|%xd(Pb)|%xd(Pa)|%xd(Pa)|||%xd(Pa)|%xd(Pb)>>>
+%?St(ui engine dark mode)<|%?bp<%?if(%bl, >=, 100)<%xd(Be)|%xd(Bd)>|%?if(%bl, <=, 20)<%xd(Ba)|%?if(%bl, <, 80)<%xd(Bb)|%xd(Bc)>>>>
+%V(6,3,244,18,2)%Vf(080808)%Vb(DDE2E7)
+%Vs(none)%alNow Playing
+%V(252,3,27,18,2)%Vf(2A8ADD)%Vb(DDE2E7)
+%Vs(none)%?St(ui engine dark mode)<%ar%?mh<H|%?mp<|P|II|P|R||||P|II>>|>
+%V(282,3,32,18,2)%Vf(080808)%Vb(DDE2E7)
+%Vs(none)%?St(ui engine dark mode)<%ar%bl|>
 
-%V(15,42,128,128,2)%Vf(777777)%Vb(EEEEEE)
-%?C(1)<%Cd(1)|%dr(0,0,128,128,F8F8F8,E2E2E2)%dr(0,0,128,1,B6B6B6)%dr(0,127,128,1,B6B6B6)%acNo Artwork>
-%V(157,48,151,24,2)%Vf(000000)%Vb(FFFFFF)
-%s%al%?it<%it|%fn>
-%V(157,78,151,20,2)%Vf(333333)%Vb(FFFFFF)
-%s%al%?ia<%ia|Unknown Artist>
-%V(157,101,151,20,2)%Vf(666666)%Vb(FFFFFF)
-%s%al%?id<%id|Unknown Album>
-%V(157,134,151,20,2)%Vf(555555)%Vb(FFFFFF)
-%al%pp of %pe
+# Stock shuffle/repeat glyphs sit directly below the status bar.
+%V(258,24,62,20,2)%Vf(2A8ADD)%Vb(F7F7F7)
+%xl(S,/.rockbox/ipodjs/apple/status-shuffle.apple.21x19x24.bmp,6,0)
+%xl(R,/.rockbox/ipodjs/apple/status-repeat.apple.21x38x24.bmp,32,0,2)
+%dr(0,0,62,20,F7F7F7)%?St(ui engine dark mode)<%?ps<S|>%?mm<|R|1|R|R>|%?ps<%xd(S)|>%?mm<|%xd(Ra)|%xd(Rb)|%xd(Ra)|%xd(Ra)>>
 
-# Playback scrubber and temporary volume replacement occupy identical pixels.
-%?mv(1.5)<%Vd(VolumeBar)%Vd(VolumeLabel)|%Vd(Progress)%Vd(Time)>
-%Vl(Progress,15,198,290,8,-)%Vf(287BC1)%Vb(D4D4D4)
-%pb(0,0,290,8,noborder)
-%Vl(Time,15,211,290,19,2)%Vf(555555)%Vb(FFFFFF)
-%al%pc%ac%?mp<Stopped|Playing|Paused|Fast Forward|Rewind>%ar-%pr
-%Vl(VolumeBar,15,198,290,8,-)%Vf(287BC1)%Vb(D4D4D4)
-%pv(0,0,290,8,noborder)
-%Vl(VolumeLabel,15,211,290,19,2)%Vf(555555)%Vb(FFFFFF)
-%al-%acVolume%ar+
+# Album artwork and Apple's stock music-note fallback.
+%V(15,34,128,128,-)%Vf(777777)%Vb(F7F7F7)
+%xl(D,/.rockbox/ipodjs/default_album_artwork.128x128x24.bmp,0,0)
+%xl(d,/.rockbox/ipodjs/default_album_artwork.128x128x24-dark.bmp,0,0)
+%Cl(0,0,128,128,c,c,1)
+%dr(0,0,128,128,F7F7F7)%?C(1)<%Cd(1)|%?St(ui engine dark mode)<%xd(d)|%xd(D)>>
 
-# Hold is drawn last and covers the player, matching native iPodJS geometry.
-%?mh<%Vd(LockBg)%Vd(LockHeader)%Vd(LockHeaderTitle)%Vd(LockArt)%Vd(LockTitle)%Vd(LockArtist)%Vd(LockState)%Vd(LockMessage)|>
-%Vl(LockBg,0,0,320,240,-)%Vf(FFFFFF)%Vb(22242A)
-%dr(0,0,320,240,22242A)
-%Vl(LockHeader,0,0,320,21,2)%Vf(000000)%Vb(D9DCE0)
-%dr(0,0,320,10,FBFCFD,D9DCE0)%dr(0,10,320,10,D9DCE0,AEB3B9)%dr(0,20,320,1,7D858E)
-%dr(282,5,25,11,FFFFFF,747B83)%dr(284,7,21,7,63A94B)%dr(307,8,3,5,747B83)
-%Vl(LockHeaderTitle,6,3,240,16,2)%Vf(000000)%Vb(D9DCE0)%alHOLD
-%Vl(LockArt,32,54,96,96,2)%Vf(777777)%Vb(22242A)
-%Cl(0,0,96,96,c,c,2)%?C(2)<%Cd(2)|%dr(0,0,96,96,353840)%acNo Artwork>
-%Vl(LockTitle,150,78,142,20,2)%Vf(FFFFFF)%Vb(22242A)
-%s%al%?it<%it|%fn>
-%Vl(LockArtist,150,100,142,20,2)%Vf(BEC2C8)%Vb(22242A)
-%s%al%?ia<%ia|Unknown Artist>
-%Vl(LockState,150,140,142,20,2)%Vf(BEC2C8)%Vb(22242A)
-%al%?mp<Stopped|Hold|Paused|Hold|Hold>
-%Vl(LockMessage,150,160,142,20,2)%Vf(BEC2C8)%Vb(22242A)
-%alControls Locked
+# Stock metadata hierarchy: title, artist, album, then playlist position.
+%V(157,58,153,20,2)%Vf(080808)%Vb(F7F7F7)
+%dr(0,0,153,20,F7F7F7)%Vs(none)%s%al%?it<%it|%fn>
+%V(157,81,153,18,2)%Vf(393939)%Vb(F7F7F7)
+%dr(0,0,153,18,F7F7F7)%Vs(none)%s%al%?ia<%ia|Unknown Artist>
+%V(157,102,153,18,2)%Vf(5A5A5A)%Vb(F7F7F7)
+%dr(0,0,153,18,F7F7F7)%Vs(none)%s%al%?id<%id|Unknown Album>
+%V(157,130,153,18,2)%Vf(5A5A5A)%Vb(F7F7F7)
+%dr(0,0,153,18,F7F7F7)%Vs(none)%al%pp of %pe
+
+# The iPodJS WPS renderer draws the selected accent inside a rounded track
+# and reasserts the frame after the fill, including at 100 percent.
+%V(60,198,200,22,-)%Vf(2A8ADD)%Vb(F7F7F7)
+%?mv(1.5)<%pv(0,0,200,22,noborder)|%pb(0,0,200,22,noborder)>
+
+%V(8,201,46,18,2)%Vf(1C1C1D)%Vb(F7F7F7)
+%dr(0,0,46,18,F7F7F7)%Vs(none)%al%?mv(1.5)<-|%pc>
+%V(266,201,46,18,2)%Vf(1C1C1D)%Vb(F7F7F7)
+%dr(0,0,46,18,F7F7F7)%Vs(none)%ar%?mv(1.5)<+|-%pr>
