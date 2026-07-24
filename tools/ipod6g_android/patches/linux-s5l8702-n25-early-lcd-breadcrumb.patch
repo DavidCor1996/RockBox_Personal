@@ -1,0 +1,58 @@
+From: Rockpod N25 platform work
+Subject: [PATCH] ARM: s5l8702: append pre-MMU N25 LCD trace band
+
+The N25 diagnostic has no usable serial console on an unmodified iPod. Append
+a green 320x48 band at the raw Image entry, before processor lookup and MMU
+setup. Rockbox prepared one full-screen GRAM transaction and appended the red
+loader band immediately before branching; this appends the second band without
+depending on panel cursor wraparound. The option is diagnostic-only.
+
+diff --git a/arch/arm/kernel/head.S b/arch/arm/kernel/head.S
+index 9eb0b4d6d..97b283743 100644
+--- a/arch/arm/kernel/head.S
++++ b/arch/arm/kernel/head.S
+@@ -94,6 +94,24 @@ ENTRY(stext)
+  THUMB(	.thumb			)	@ switch to Thumb now.
+  THUMB(1:			)
+ 
++#ifdef CONFIG_S5L8702_N25_EARLY_LCD_BREADCRUMB
++	/*
++	 * Rockbox starts one full-screen GRAM transaction and appends the red
++	 * loader band. Append green before CPUID lookup, page-table creation,
++	 * timer setup, and all Linux device drivers.
++	 */
++	ldr	r3, =0x3830001c		@ LCD_STATUS
++	ldr	r4, =0x38300040		@ LCD_WDATA
++	ldr	r5, =0x000007e0		@ RGB565 green
++	ldr	r6, =15360
++1:	ldr	r7, [r3]
++	tst	r7, #0x10
++	bne	1b
++	str	r5, [r4]
++	subs	r6, r6, #1
++	bne	1b
++#endif
++
+ #ifdef CONFIG_ARM_VIRT_EXT
+ 	bl	__hyp_stub_install
+ #endif
+diff --git a/arch/arm/mach-s5l87xx/Kconfig b/arch/arm/mach-s5l87xx/Kconfig
+index 8558243e8..1a78402bc 100644
+--- a/arch/arm/mach-s5l87xx/Kconfig
++++ b/arch/arm/mach-s5l87xx/Kconfig
+@@ -14,6 +14,13 @@ config CPU_S5L8702
+ 	  Enable support for the Samsung/Apple S5L8702 SoC (ARM926EJ-S),
+ 	  as found in the iPod Nano 3rd Generation (N46).
+ 
++config S5L8702_N25_EARLY_LCD_BREADCRUMB
++	bool "Enable the N25 pre-MMU LCD breadcrumb"
++	depends on CPU_S5L8702
++	help
++	  Append a diagnostic green band at raw ARM Linux entry before CPU and
++	  MMU setup. This is only for the storage-free iPod Classic boot probe.
++
+ config CPU_S5L8740
+ 	bool "Enable S5L8740 (iPod nano 7th Generation / N31) CPU support"
+ 	select ARCH_MULTI_V7
+-- 
+2.50.1

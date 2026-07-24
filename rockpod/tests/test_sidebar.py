@@ -50,8 +50,21 @@ def test_sidebar_exposes_store_and_game_sync_entries():
 
     store = sidebar._find_item("rockbox_browser")
     game_sync = sidebar._find_item("rockbox_game_sync")
+    avatar = sidebar._find_item("rockbox_achievements_avatar")
 
     assert store is not None
     assert store.text(0) == "Store"
     assert game_sync is not None
     assert game_sync.text(0) == "Game Sync"
+    assert avatar is not None
+    assert avatar.text(0) == "Achievements & Avatar"
+
+
+def test_sidebar_exposes_android_engineering_workspace():
+    app = QApplication.instance() or QApplication([])
+    sidebar = Sidebar()
+
+    android = sidebar._find_item("rockbox_android")
+
+    assert android is not None
+    assert android.text(0) == "Android on iPod"

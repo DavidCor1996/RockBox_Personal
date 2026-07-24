@@ -384,6 +384,8 @@ class TestDatabase:
         assert "show_title" in cols
         assert "season_number" in cols
         assert "episode_number" in cols
+        assert "video_hidden" in cols
+        assert "video_locked" in cols
 
     def test_delete_tracks_not_in(self, db):
         db.upsert_track({"file_path": "/a.mp3", "title": "A"})

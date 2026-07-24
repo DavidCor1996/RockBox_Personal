@@ -17,8 +17,8 @@ Expected behavior:
 RockPod currently preprocesses MP4 into a generated framepack asset:
 
 - `RightPaneVideo.rbvp`
-- 24 frames
 - 12 fps
+- the complete source clip (up to the RBVP 65,535-frame format limit)
 - 156x240 right-pane crop
 - RGB565 raw frames with a small `RBVP` header
 
@@ -46,18 +46,20 @@ Current preferred approach:
 - The video framepack contains distinct frames.
 - The simulator capture showed correct iPone layout with a right-pane video frame after the short-name fix.
 
-## Unresolved issue
+## Runtime animation
 
-Runtime animation was not conclusively verified.
+The menu-list timeout now treats an eligible right-pane video as fast-update
+content, so an idle menu continues calling the 12-fps renderer. The renderer
+uses the frame count in the RBVP header instead of assuming the original
+24-frame/two-second prototype.
 
-The generated `.rbvp` contains different frames, but screenshot pairs captured by the SBS harness showed identical right-pane crops. Possible causes:
+The designer's baked simulator result remains a captured BMP by design. Its
+preview widget now reads the deployed RBVP, composites each frame over that
+capture, and loops it at the framepack rate. This keeps WPS and lockscreen
+previews static and avoids keeping a hidden simulator process alive.
 
-- The hardcoded video draw path is not firing in the capture screen state.
-- The draw path is firing but drawing the same frame due to timing/refresh state.
-- The capture harness is not waiting on a display update that includes the hardcoded video layer.
-- The renderer path needs instrumentation/logging or a visible forced frame-index test.
-
-Do not claim video animation is fully done until a simulator recording or frame-diff capture proves changing right-pane pixels over time.
+Physical iPod cadence, storage bandwidth, and battery impact still require the
+hardware gate before release.
 
 ## Current test assets and screenshots
 
@@ -91,13 +93,12 @@ Known good visual result:
 
 ## Next video tasks
 
-1. Add temporary instrumentation or a forced frame-index mode to prove the hardcoded renderer is called.
-2. Verify the runtime draw path reads `/.rockbox/wps/<active-sbs-name>/RightPaneVideo.rbvp`.
-3. Record a short simulator clip, not just two screenshots, and confirm right-pane pixel motion.
-4. Confirm hold/lockscreen does not show video.
-5. Confirm Full Art still shows original iPone album-art slideshow.
-6. Confirm Settings/submenus keep normal iPone background behavior.
-7. Only after simulator proof, test on device.
+1. Record a short simulator clip and confirm right-pane pixel motion.
+2. Confirm hold/lockscreen does not show video.
+3. Confirm Full Art still shows original iPone album-art slideshow.
+4. Confirm Settings/submenus keep normal iPone background behavior.
+5. Test source clips longer than two seconds and verify the final frame loops to the first.
+6. Only after simulator proof, test on device.
 
 ## Next requested designer fixes
 
@@ -140,4 +141,3 @@ Recommended behavior:
 
 - Normal lockscreen: use selected lockscreen clock color.
 - AOD/light lockscreen: either keep current high-contrast black or add a separate AOD-safe override after testing.
-

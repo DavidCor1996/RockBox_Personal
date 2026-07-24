@@ -50,6 +50,7 @@ void emu_reset(void)
     cpu_reset();
     mbc_reset();
     sound_reset();
+    rockboy_achievements_reset();
 }
 
 static void emu_profile_cpu_emulate(int cycles, unsigned long *cpu_ticks)
@@ -239,6 +240,7 @@ void emu_run(void)
         }
 
         frames++;
+        rockboy_achievements_frame();
         emu_update_frame_pacing(&pace_start, &pace_frames, &stable_frames);
 
         if(options.showstats)

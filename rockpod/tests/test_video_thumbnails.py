@@ -146,6 +146,15 @@ def test_video_list_thumbnail_and_manifest_generated_for_ipod(tmp_dir):
     }
     thumb_path, thumb_hash, device_name, video_id = service.export_video_list_thumbnail(track)
     preview_path, preview_hash, preview_name, preview_video_id = service.export_video_list_preview(track)
+    netflix_path, netflix_hash, netflix_name, netflix_video_id = (
+        service.export_video_list_netflix_poster(track)
+    )
+    detail_path, detail_hash, detail_name, detail_video_id = (
+        service.export_video_list_netflix_poster(track, detail=True)
+    )
+    landing_path, landing_hash, landing_name, landing_video_id = (
+        service.export_video_list_netflix_poster(track, landing=True)
+    )
 
     assert os.path.exists(thumb_path)
     assert thumb_hash
@@ -160,6 +169,21 @@ def test_video_list_thumbnail_and_manifest_generated_for_ipod(tmp_dir):
     with Image.open(preview_path) as rendered:
         assert rendered.format == "BMP"
         assert rendered.size == (174, 240)
+    assert netflix_hash and netflix_name == f"{video_id}.bmp"
+    assert netflix_video_id == video_id
+    with Image.open(netflix_path) as rendered:
+        assert rendered.format == "BMP"
+        assert rendered.size == (28, 42)
+    assert detail_hash and detail_name == f"{video_id}.bmp"
+    assert detail_video_id == video_id
+    with Image.open(detail_path) as rendered:
+        assert rendered.format == "BMP"
+        assert rendered.size == (96, 144)
+    assert landing_hash and landing_name == f"{video_id}.bmp"
+    assert landing_video_id == video_id
+    with Image.open(landing_path) as rendered:
+        assert rendered.format == "BMP"
+        assert rendered.size == (72, 108)
     assert runner.commands == []
 
     manifest_path, manifest_hash = service.export_video_list_manifest(
@@ -172,6 +196,15 @@ def test_video_list_thumbnail_and_manifest_generated_for_ipod(tmp_dir):
                 "kind": "movie",
                 "group_key": video_path,
                 "device_path": "Videos/Movies/Real Movie.mpg",
+                "locked": "1",
+                "year": "2007",
+                "genre": "Drama",
+                "rating": "4",
+                "plot_short": "A concise synopsis.",
+                "plot_long": "A longer synopsis for the detail view.",
+                "content_rating": "PG-13",
+                "netflix_poster": os.path.join("netflix", netflix_name),
+                "netflix_detail": os.path.join("netflix-detail", detail_name),
             }
         ]
     )
@@ -182,11 +215,73 @@ def test_video_list_thumbnail_and_manifest_generated_for_ipod(tmp_dir):
         data = handle.read()
     assert "video_id\tthumb\tpreview\ttitle\tkind\tgroup_key\tdevice_path" in data
     assert f"{video_id}\tthumbs/{device_name}\tpreviews/{preview_name}\tReal Movie\tmovie" in data
+    assert data.startswith("# rockpod videolist v5\n")
+    assert "\t1\t2007\tDrama\t4\tA concise synopsis." in data
+    assert data.rstrip().endswith(f"netflix-detail/{detail_name}")
     assert os.path.basename(manifest_path) == "index.tsv"
     assert not [
         name for name in os.listdir(os.path.dirname(manifest_path))
         if name.startswith("tmp")
     ]
+
+    pin_path, pin_hash = service.export_locked_video_pin("1234")
+    assert pin_hash
+    with open(pin_path, "r", encoding="utf-8") as handle:
+        assert handle.read() == "1234\n"
+
+
+def test_verified_imdb_catalog_drives_show_and_season_art(tmp_dir):
+    video_path = os.path.join(tmp_dir, "Kenny vs Spenny", "Season 1", "ep.mkv")
+    os.makedirs(os.path.dirname(video_path), exist_ok=True)
+    with open(video_path, "wb") as handle:
+        handle.write(b"video")
+
+    runner = _FakeFrameRunner()
+    service = VideoThumbnailService(tmp_dir, command_runner=runner)
+    service._ffmpeg = "/usr/bin/ffmpeg"
+    track = {
+        "file_path": video_path,
+        "title": "Who Can Stand Up the Longest?",
+        "show_title": "Kenny vs. Spenny",
+        "season_number": 1,
+        "video_kind": "show",
+        "imdb_id": "tt0384746",
+    }
+
+    show_path, _show_hash, show_name, show_id = (
+        service.export_video_list_hierarchy_poster(track, "show", landing=True)
+    )
+    season_path, _season_hash, season_name, season_id = (
+        service.export_video_list_hierarchy_poster(track, "season", landing=True)
+    )
+
+    assert runner.commands == []
+    assert show_id != season_id
+    assert show_name == f"{show_id}.bmp"
+    assert season_name == f"{season_id}.bmp"
+    with Image.open(show_path) as show_art, Image.open(season_path) as season_art:
+        assert show_art.size == (72, 108)
+        assert season_art.size == (72, 108)
+        assert show_art.tobytes() != season_art.tobytes()
+
+    manifest_path, _manifest_hash = service.export_video_list_manifest(
+        [{
+            "video_id": service.video_list_id(track),
+            "title": track["title"],
+            "kind": "show",
+            "device_path": "Videos/TV/Kenny vs. Spenny/S01E04.mpg",
+            "show": track["show_title"],
+            "season": "1",
+            "episode": "4",
+            "show_art_id": show_id,
+            "season_art_id": season_id,
+        }]
+    )
+    with open(manifest_path, "r", encoding="utf-8") as handle:
+        rows = handle.read().splitlines()
+    assert rows[0] == "# rockpod videolist v5"
+    assert rows[1].endswith("show_art_id\tseason_art_id")
+    assert rows[2].endswith(f"\t{show_id}\t{season_id}")
 
 
 def test_video_heavy_fixture_records_thumbnail_manifest_profile(tmp_dir):

@@ -41,6 +41,7 @@ void sb_skin_set_update_delay(int delay);
 void sb_skin_force_next_update(void);
 bool sb_skin_is_ipod3g_galaxy_theme(void);
 bool sb_skin_needs_fast_update(enum screen_type screen);
+void sb_skin_service_fast_update(enum screen_type screen);
 bool sb_set_title_text(const char* title, enum themable_icons icon, enum screen_type screen);
 bool sb_set_persistent_title(const char* title, enum themable_icons icon,
                              enum screen_type screen);

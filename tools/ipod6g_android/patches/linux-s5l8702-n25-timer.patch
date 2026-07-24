@@ -1,0 +1,258 @@
+From: Rockpod N25 platform work
+Subject: [PATCH] clocksource: s5l8702: use Classic-proven timer channels
+
+The first physical N25 Linux boots retained the Rockbox framebuffer without
+ever reaching the Linux framebuffer probe.  ARM926 emulation of the exact
+Image and DTB reaches s5l8702_timer_init and then requires a working tick to
+leave calibrate_delay.
+
+For the N25 compatible, use the exact timer topology already exercised by
+Rockbox on iPod Classic: 10 kHz 16-bit Timer B on IRQ 8 for clock events and
+the 1 MHz Timer E counter for the clock source.  Register the parsed IRQ and
+CPU mask, use Rockbox's exact 100 Hz periodic programming and acknowledgement,
+open the documented S5L8702 primary timer gate, and fail closed if the clock
+source does not advance.  Leave the existing N46 path unchanged.
+
+diff --git a/drivers/clocksource/timer-s5l8702.c b/drivers/clocksource/timer-s5l8702.c
+index 29c7036b4..e5b723836 100644
+--- a/drivers/clocksource/timer-s5l8702.c
++++ b/drivers/clocksource/timer-s5l8702.c
+@@ -15,12 +15,17 @@
+ #include <linux/init.h>
+ #include <linux/interrupt.h>
+ #include <linux/io.h>
++#include <linux/jiffies.h>
+ #include <linux/of_address.h>
+ #include <linux/of_irq.h>
+ #include <linux/sched_clock.h>
+ 
+-#define TIMER_CLKEVT  0x0A0u   /* Timer F — clock event  */
+-#define TIMER_CLKSRC  0x0C0u   /* Timer G — clock source */
++#define TIMER_CLKEVT  0x0A0u
++#define TIMER_CLKSRC  0x0C0u
++
++/* Rockbox-proven iPod Classic choices: Timer B event, Timer E source. */
++#define N25_TIMER_CLKEVT  0x020u
++#define N25_TIMER_CLKSRC  0x0A0u
+ 
+ /* Per-channel register offsets */
+ #define REG_CON    0x00
+@@ -47,11 +52,20 @@
+ #define TIMER_CON_ECLK   0x440u  /* ECLK=1 (bit 6), CS=0b100 (bits 10:8) */
+ #define TIMER_PRE_1MHZ   11u     /* ECLK / (11+1) = 1 MHz */
+ #define TIMER_RATE       1000000u
++#define N25_CLKEVT_RATE  10000u
++#define N25_CLKEVT_MAX   0xffffu
++#define N25_TIMER_CON    (INT0_EN | (2u << 8) | BIT(6))
++#define N25_TIMER_PRE    74u
+ 
+ #ifdef CONFIG_TIMER_OF
+ 
+ struct s5l8702_tcu {
+ 	void __iomem *base;
++	u32 clkevt;
++	u32 clksrc;
++	u32 clkevt_rate;
++	u32 clkevt_max;
++	bool n25;
+ };
+ 
+ static struct s5l8702_tcu *s5l8702_tcu;
+@@ -60,7 +74,7 @@ static struct s5l8702_tcu *s5l8702_tcu;
+ 
+ static u64 notrace s5l8702_read_sched_clock(void)
+ {
+-	return readl(s5l8702_tcu->base + TIMER_CLKSRC + REG_CNT);
++	return readl(s5l8702_tcu->base + s5l8702_tcu->clksrc + REG_CNT);
+ }
+ 
+ /* --- Clock event --- */
+@@ -69,19 +83,40 @@ static int s5l8702_clkevt_set_next_event(unsigned long delta,
+ 					  struct clock_event_device *ce)
+ {
+ 	struct s5l8702_tcu *t = s5l8702_tcu;
+-	u32 tcon = readl(t->base + TIMER_CLKEVT + REG_CON);
++	u32 tcon;
+ 
+-	writel(tcon & ~INT0_EN, t->base + TIMER_CLKEVT + REG_CON);
+-	writel(CMD_STOP,        t->base + TIMER_CLKEVT + REG_CMD);
+-	writel(delta,           t->base + TIMER_CLKEVT + REG_DATA0);
+-	writel(CMD_START | CMD_CLR, t->base + TIMER_CLKEVT + REG_CMD);
+-	writel(tcon | INT0_EN,  t->base + TIMER_CLKEVT + REG_CON);
++	if (t->n25) {
++		writel(CMD_STOP, t->base + t->clkevt + REG_CMD);
++		writel(delta, t->base + t->clkevt + REG_DATA0);
++		writel(CMD_START | CMD_CLR, t->base + t->clkevt + REG_CMD);
++	} else {
++		tcon = readl(t->base + t->clkevt + REG_CON);
++		writel(tcon & ~INT0_EN, t->base + t->clkevt + REG_CON);
++		writel(CMD_STOP, t->base + t->clkevt + REG_CMD);
++		writel(delta, t->base + t->clkevt + REG_DATA0);
++		writel(CMD_START | CMD_CLR, t->base + t->clkevt + REG_CMD);
++		writel(tcon | INT0_EN, t->base + t->clkevt + REG_CON);
++	}
+ 	return 0;
+ }
+ 
+ static int s5l8702_clkevt_shutdown(struct clock_event_device *ce)
+ {
+-	writel(CMD_STOP, s5l8702_tcu->base + TIMER_CLKEVT + REG_CMD);
++	writel(CMD_STOP, s5l8702_tcu->base + s5l8702_tcu->clkevt + REG_CMD);
++	return 0;
++}
++
++static int s5l8702_clkevt_set_periodic(struct clock_event_device *ce)
++{
++	struct s5l8702_tcu *t = s5l8702_tcu;
++
++	/* Exact periodic Timer B setup used by the Classic Rockbox tick. */
++	writel(CMD_CLR, t->base + t->clkevt + REG_CMD);
++	writel(N25_TIMER_PRE, t->base + t->clkevt + REG_PRE);
++	writel(N25_TIMER_CON, t->base + t->clkevt + REG_CON);
++	writel(N25_CLKEVT_RATE / HZ,
++	       t->base + t->clkevt + REG_DATA0);
++	writel(CMD_START, t->base + t->clkevt + REG_CMD);
+ 	return 0;
+ }
+ 
+@@ -89,19 +124,35 @@ static int s5l8702_clkevt_set_oneshot(struct clock_event_device *ce)
+ {
+ 	struct s5l8702_tcu *t = s5l8702_tcu;
+ 
+-	writel(CMD_STOP, t->base + TIMER_CLKEVT + REG_CMD);
+-	/* MODE_SEL=2 (one-shot) | ECLK | CS=0b100 */
+-	writel(TIMER_CON_ECLK | 0x40, t->base + TIMER_CLKEVT + REG_CON);
+-	writel(TIMER_PRE_1MHZ,        t->base + TIMER_CLKEVT + REG_PRE);
++	writel(CMD_STOP, t->base + t->clkevt + REG_CMD);
++	if (t->n25) {
++		/* Exact 10 kHz Timer B setup used by the Classic Rockbox tick. */
++		writel(N25_TIMER_PRE, t->base + t->clkevt + REG_PRE);
++		writel(N25_TIMER_CON, t->base + t->clkevt + REG_CON);
++		writel(CMD_CLR, t->base + t->clkevt + REG_CMD);
++	} else {
++		/* MODE_SEL=2 (one-shot) | ECLK | CS=0b100 */
++		writel(TIMER_CON_ECLK | 0x40,
++		       t->base + t->clkevt + REG_CON);
++		writel(TIMER_PRE_1MHZ, t->base + t->clkevt + REG_PRE);
++	}
+ 	return 0;
+ }
+ 
+ static irqreturn_t s5l8702_timer_interrupt(int irq, void *dev_id)
+ {
+ 	struct clock_event_device *ce = dev_id;
+-	u32 stat = readl(s5l8702_tcu->base + REG_TSTAT);
++	u32 stat;
+ 
+-	writel(stat, s5l8702_tcu->base + REG_TSTAT);
++	if (s5l8702_tcu->n25) {
++		stat = readl(s5l8702_tcu->base +
++			     s5l8702_tcu->clkevt + REG_CON);
++		writel(stat, s5l8702_tcu->base +
++		       s5l8702_tcu->clkevt + REG_CON);
++	} else {
++		stat = readl(s5l8702_tcu->base + REG_TSTAT);
++		writel(stat, s5l8702_tcu->base + REG_TSTAT);
++	}
+ 	ce->event_handler(ce);
+ 	return IRQ_HANDLED;
+ }
+@@ -120,27 +171,37 @@ static struct clock_event_device s5l8702_clockevent = {
+  * (offset 0xC0). Clear it before bringing up the clocksource.
+  */
+ #define S5L8702_PWRCON_APB    0x3C50004CUL
++#define S5L8702_TIMER_GATE    BIT(5)
+ #define S5L8702_TIMER_G_GATE  BIT(28)
+ 
+ static int __init s5l8702_timer_init(struct device_node *np)
+ {
+ 	struct s5l8702_tcu *tcu;
+ 	void __iomem *pwrcon;
+-	int irq, ret;
++	u32 count_before, count_after, gate_mask;
++	int irq, ret, i;
++
++	tcu = kzalloc(sizeof(*tcu), GFP_KERNEL);
++	if (!tcu)
++		return -ENOMEM;
++	tcu->n25 = of_device_is_compatible(np, "apple,n25-timer");
++	tcu->clkevt = tcu->n25 ? N25_TIMER_CLKEVT : TIMER_CLKEVT;
++	tcu->clksrc = tcu->n25 ? N25_TIMER_CLKSRC : TIMER_CLKSRC;
++	tcu->clkevt_rate = tcu->n25 ? N25_CLKEVT_RATE : TIMER_RATE;
++	tcu->clkevt_max = tcu->n25 ? N25_CLKEVT_MAX : UINT_MAX;
++	gate_mask = S5L8702_TIMER_GATE;
++	if (!tcu->n25)
++		gate_mask |= S5L8702_TIMER_G_GATE;
+ 
+ 	pwrcon = ioremap(S5L8702_PWRCON_APB, 4);
+ 	if (pwrcon) {
+-		writel(readl(pwrcon) & ~S5L8702_TIMER_G_GATE, pwrcon);
++		writel(readl(pwrcon) & ~gate_mask, pwrcon);
+ 		iounmap(pwrcon);
+ 	} else {
+ 		pr_warn("s5l8702-timer: can't ioremap PWRCON_APB, "
+-			"Timer G gate may be closed\n");
++			"timer gates may be closed\n");
+ 	}
+ 
+-	tcu = kzalloc(sizeof(*tcu), GFP_KERNEL);
+-	if (!tcu)
+-		return -ENOMEM;
+-
+ 	tcu->base = of_iomap(np, 0);
+ 	if (!tcu->base) {
+ 		pr_err("s5l8702-timer: can't remap registers\n");
+@@ -156,15 +217,27 @@ static int __init s5l8702_timer_init(struct device_node *np)
+ 		ret = -EINVAL;
+ 		goto out_free;
+ 	}
++	s5l8702_clockevent.irq = irq;
++	s5l8702_clockevent.cpumask = cpumask_of(0);
+ 
+ 	/* Initialize Timer G as a free-running 32-bit clocksource at 1 MHz. */
+-	writel(CMD_STOP,            tcu->base + TIMER_CLKSRC + REG_CMD);
+-	writel(TIMER_CON_ECLK,      tcu->base + TIMER_CLKSRC + REG_CON);
+-	writel(TIMER_PRE_1MHZ,      tcu->base + TIMER_CLKSRC + REG_PRE);
+-	writel(0xFFFFFFFF,          tcu->base + TIMER_CLKSRC + REG_DATA0);
+-	writel(CMD_START | CMD_CLR, tcu->base + TIMER_CLKSRC + REG_CMD);
++	writel(CMD_STOP, tcu->base + tcu->clksrc + REG_CMD);
++	writel(TIMER_CON_ECLK, tcu->base + tcu->clksrc + REG_CON);
++	writel(TIMER_PRE_1MHZ, tcu->base + tcu->clksrc + REG_PRE);
++	writel(0xFFFFFFFF, tcu->base + tcu->clksrc + REG_DATA0);
++	writel(CMD_START | CMD_CLR, tcu->base + tcu->clksrc + REG_CMD);
++
++	count_before = readl(tcu->base + tcu->clksrc + REG_CNT);
++	for (i = 0; i < 10000; i++)
++		cpu_relax();
++	count_after = readl(tcu->base + tcu->clksrc + REG_CNT);
++	if (count_before == count_after) {
++		pr_err("s5l8702-timer: clocksource did not advance\n");
++		ret = -ENODEV;
++		goto out_free;
++	}
+ 
+-	clocksource_mmio_init(tcu->base + TIMER_CLKSRC + REG_CNT,
++	clocksource_mmio_init(tcu->base + tcu->clksrc + REG_CNT,
+ 			      "s5l8702-timerG", TIMER_RATE,
+ 			      200, 32, clocksource_mmio_readl_up);
+ 
+@@ -178,8 +251,16 @@ static int __init s5l8702_timer_init(struct device_node *np)
+ 		goto out_free;
+ 	}
+ 
++	if (tcu->n25) {
++		s5l8702_clockevent.name = "s5l8702-timerB";
++		s5l8702_clockevent.features = CLOCK_EVT_FEAT_PERIODIC;
++		s5l8702_clockevent.set_state_periodic =
++			s5l8702_clkevt_set_periodic;
++		s5l8702_clockevent.set_state_oneshot = NULL;
++		s5l8702_clockevent.set_next_event = NULL;
++	}
+ 	clockevents_config_and_register(&s5l8702_clockevent,
+-					TIMER_RATE, 1, UINT_MAX);
++					tcu->clkevt_rate, 1, tcu->clkevt_max);
+ 	return 0;
+ 
+ out_free:
+-- 
+2.50.1

@@ -79,6 +79,9 @@
 #include "appevents.h"
 
 #include "root_menu.h"
+#include "gui/ipodjs_ui.h"
+#include "gui/ipodjs_trace.h"
+
 
 static struct gui_synclist tree_lists;
 
@@ -721,6 +724,15 @@ void set_current_file(const char *path)
 
 static int exit_to_new_screen(int screen)
 {
+#if defined(HAVE_TAGCACHE) && defined(HAVE_LCD_COLOR)
+    /*
+     * Full-width album layout is owned by this browser. Do not carry its
+     * hidden-theme frame into WPS, root, plugins, or another browser; the
+     * destination screen has its own viewport/theme lifecycle.
+     */
+    if (screen != 0)
+        gui_synclist_set_fullscreen_albumlist(&tree_lists, false);
+#endif
     gui_synclist_scroll_stop(&tree_lists);
     return screen;
 }
@@ -775,7 +787,23 @@ static int dirbrowse(void)
         button = get_action(CONTEXT_TREE|ALLOW_SOFTLOCK,
                             list_do_action_timeout(&tree_lists, HZ/2));
         oldbutton = button;
+#ifdef HAVE_IPODJS_UI
+        /* The iPod Menu button walks back through Music hierarchy levels. */
+        if (global_settings.ui_engine == UI_ENGINE_IPODJS &&
+            button == ACTION_STD_MENU)
+        {
+            button = ACTION_STD_CANCEL;
+        }
+#endif
         gui_synclist_do_button(&tree_lists, &button);
+#if defined(HAVE_TAGCACHE) && defined(HAVE_LCD_COLOR)
+        /* Album thumbnails are decoration, so only decode them after the
+         * browser is genuinely idle. In particular, never service rows from
+         * a hierarchy level that a queued Menu press is abandoning. */
+        if (button == ACTION_NONE && button_queue_empty() &&
+            albumlist_art_service_pending())
+            gui_synclist_draw(&tree_lists);
+#endif
         tc.selected_item = gui_synclist_get_sel_pos(&tree_lists);
         int customaction = ONPLAY_NO_CUSTOMACTION;
         bool do_restore_display = true;
@@ -809,8 +837,12 @@ static int dirbrowse(void)
                     }
                 }
 #ifdef HAVE_TAGCACHE
+                if (ipodjs_ui_enabled(SCREEN_MAIN))
+                    ipodjs_ui_transition_begin(1);
                 switch (id3db ? tagtree_enter(&tc, true) : ft_enter(&tc))
 #else
+                if (ipodjs_ui_enabled(SCREEN_MAIN))
+                    ipodjs_ui_transition_begin(1);
                 switch (ft_enter(&tc))
 #endif
                 {
@@ -842,9 +874,15 @@ static int dirbrowse(void)
                     if (oldbutton == ACTION_TREE_PGLEFT)
                         break;
                     else
+                    {
+                        if (ipodjs_ui_enabled(SCREEN_MAIN))
+                            ipodjs_ui_transition_begin(-1);
                         return exit_to_new_screen(GO_TO_ROOT);
+                    }
                 }
 
+                if (ipodjs_ui_enabled(SCREEN_MAIN))
+                    ipodjs_ui_transition_begin(-1);
 #ifdef HAVE_TAGCACHE
                 if (id3db)
                     tagtree_exit(&tc, true);

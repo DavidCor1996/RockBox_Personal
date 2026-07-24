@@ -31,6 +31,9 @@ void dynamic_colors_init(void);
  * Otherwise return the original color unchanged. */
 unsigned int dynamic_colors_resolve(unsigned int original);
 
+/* Select the fixed iPodJS WPS palette while that skin is being rendered. */
+void dynamic_colors_set_ipodjs_wps(bool active);
+
 /* Returns true while a color fade is in progress (for fast refresh) */
 bool dynamic_colors_fading(void);
 
@@ -53,6 +56,7 @@ bool dynamic_colors_pending(void);
 
 #define dynamic_colors_init()                do {} while(0)
 #define dynamic_colors_resolve(c)            (c)
+#define dynamic_colors_set_ipodjs_wps(a)     do {} while(0)
 #define dynamic_colors_fading()              false
 #define dynamic_colors_check_extraction(s)   do {} while(0)
 #define dynamic_colors_save_theme()          do {} while(0)

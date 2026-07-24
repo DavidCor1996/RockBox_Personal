@@ -544,14 +544,14 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x2701d
+.debug_info     0x0000000000000000    0x2718a
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x79cf /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/fractals/fractal.o
- .debug_info    0x00000000000079cf      0x8a1 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/fractals/fractal_rect.o
- .debug_info    0x0000000000008270     0x80b0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/fractals/mandelbrot_set.o
- .debug_info    0x0000000000010320     0x7d95 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
- .debug_info    0x00000000000180b5     0x7981 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_scroll.o)
- .debug_info    0x000000000001fa36     0x75e7 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_core.o)
+ .debug_info    0x0000000000000000     0x7a18 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/fractals/fractal.o
+ .debug_info    0x0000000000007a18      0x8a1 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/fractals/fractal_rect.o
+ .debug_info    0x00000000000082b9     0x80f9 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/fractals/mandelbrot_set.o
+ .debug_info    0x00000000000103b2     0x7dde /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+ .debug_info    0x0000000000018190     0x79ca /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_scroll.o)
+ .debug_info    0x000000000001fb5a     0x7630 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_core.o)
 
 .debug_abbrev   0x0000000000000000     0x155c
  *(.debug_abbrev)
@@ -574,20 +574,20 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x4e8f
+.debug_str      0x0000000000000000     0x4ef5
  *(.debug_str)
- .debug_str     0x0000000000000000     0x4e8f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/fractals/fractal.o
-                                       0x4b13 (size before relaxing)
- .debug_str     0x0000000000004e8f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/fractals/fractal_rect.o
+ .debug_str     0x0000000000000000     0x4ef5 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/fractals/fractal.o
+                                       0x4b79 (size before relaxing)
+ .debug_str     0x0000000000004ef5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/fractals/fractal_rect.o
                                         0x9e5 (size before relaxing)
- .debug_str     0x0000000000004e8f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/fractals/mandelbrot_set.o
-                                       0x5298 (size before relaxing)
- .debug_str     0x0000000000004e8f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
-                                       0x528e (size before relaxing)
- .debug_str     0x0000000000004e8f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_scroll.o)
-                                       0x499b (size before relaxing)
- .debug_str     0x0000000000004e8f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_core.o)
-                                       0x4948 (size before relaxing)
+ .debug_str     0x0000000000004ef5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/fractals/mandelbrot_set.o
+                                       0x52fe (size before relaxing)
+ .debug_str     0x0000000000004ef5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+                                       0x52f4 (size before relaxing)
+ .debug_str     0x0000000000004ef5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_scroll.o)
+                                       0x4a01 (size before relaxing)
+ .debug_str     0x0000000000004ef5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_core.o)
+                                       0x49ae (size before relaxing)
 
 .debug_loc
  *(.debug_loc)

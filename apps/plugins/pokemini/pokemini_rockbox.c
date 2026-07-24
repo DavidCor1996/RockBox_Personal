@@ -1,4 +1,5 @@
 #include "plugin.h"
+#include "lib/rockachievements.h"
 
 #include "source/PokeMini.h"
 #include "source/CommandLine.h"
@@ -49,6 +50,46 @@ static unsigned int audio_buf_samples[PM_AUDIO_QUEUE];
 static bool audio_ready;
 static bool audio_started;
 static char eeprom_path[MAX_PATH];
+static struct rockachievements_runtime achievements;
+
+static uint32_t achievements_peek(uint32_t address, uint32_t num_bytes,
+                                  void *userdata)
+{
+    uint32_t value = 0;
+    uint32_t index;
+
+    (void)userdata;
+    if (num_bytes > 4)
+        num_bytes = 4;
+    for (index = 0; index < num_bytes; ++index)
+    {
+        uint32_t current = address + index;
+        uint8_t byte = 0;
+
+        if (current < 0x1000)
+            byte = PM_BIOS[current];
+        else if (current < 0x2000)
+            byte = PM_RAM[current - 0x1000];
+        value |= (uint32_t)byte << (index * 8);
+    }
+    return value;
+}
+
+static void achievements_start(const char *rom_path)
+{
+    size_t available = alloc_ptr && alloc_end > alloc_ptr ?
+                       (size_t)(alloc_end - alloc_ptr) : 0;
+    void *workspace;
+
+    if (!rockachievements_available(rom_path) ||
+        available < ROCKACHIEVEMENTS_WORKSPACE_TARGET)
+        return;
+    workspace = pm_malloc(ROCKACHIEVEMENTS_WORKSPACE_TARGET);
+    if (workspace != NULL)
+        rockachievements_init(&achievements, rom_path, achievements_peek,
+                              NULL, workspace,
+                              ROCKACHIEVEMENTS_WORKSPACE_TARGET);
+}
 
 enum input_result
 {
@@ -474,6 +515,7 @@ enum plugin_status plugin_start(const void *parameter)
     PokeMini_Reset(0);
     build_eeprom_path(rom);
     load_eeprom();
+    achievements_start(rom);
 
 #ifdef HAVE_ADJUSTABLE_CPU_FREQ
     rb->cpu_boost(true);
@@ -512,6 +554,7 @@ enum plugin_status plugin_start(const void *parameter)
             break;
 
         PokeMini_EmulateFrame();
+        rockachievements_do_frame(&achievements);
         audio_submit_frame();
         draw_frame();
 
@@ -525,6 +568,7 @@ enum plugin_status plugin_start(const void *parameter)
     }
 
 cleanup:
+    rockachievements_shutdown(&achievements);
     if (cpu_boosted)
     {
 #ifdef HAVE_ADJUSTABLE_CPU_FREQ

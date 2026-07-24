@@ -5,6 +5,8 @@ UI_TRACK_DEFAULTS = {
     "id": None,
     "media_type": "audio",
     "video_kind": "",
+    "video_hidden": 0,
+    "video_locked": 0,
     "file_path": "",
     "device_path": "",
     "title": "",

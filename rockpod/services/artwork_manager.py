@@ -17,6 +17,7 @@ from PySide6.QtCore import QObject, Signal
 
 from app.config import ARTWORK_FILENAMES, ARTWORK_THUMB_SIZE, ARTWORK_DISPLAY_SIZE
 from services.metadata_reader import extract_artwork_data
+from services.imdb_video_artwork import IMDbVideoArtworkCatalog
 from services.online_artwork import (
     ITunesArtworkLookup,
     OnlineArtworkForbiddenError,
@@ -94,6 +95,7 @@ class ArtworkManager(QObject):
         storefront = getattr(config, "online_artwork_storefront", "us") if config else "us"
         interval = self._effective_artwork_interval(config)
         self._lookup = lookup_client or ITunesArtworkLookup(storefront=storefront, min_interval_seconds=interval)
+        self._imdb_artwork = IMDbVideoArtworkCatalog()
         self._fetch_lock = threading.Lock()
         self._queued_fetches = set()
         self._high_queue = deque()
@@ -309,17 +311,30 @@ class ArtworkManager(QObject):
                 or self._get_value(track_row, "album_artist", "")
                 or "Unknown Show"
             )
+            season_number = int(
+                self._get_value(track_row, "season_number", 0) or 0
+            )
+            scope = str(
+                self._get_value(track_row, "_video_artwork_scope", "")
+                or ("season" if season_number else "show")
+            )
+            identity = str(
+                self._get_value(track_row, "imdb_id", "")
+                or show_title
+            ).strip().casefold()
+            group_key = (
+                f"show:{identity}:season:{season_number}"
+                if scope == "season" and season_number
+                else f"show:{identity}"
+            )
             return {
-                "group_key": str(
-                    self._get_value(track_row, "video_group_key", "")
-                    or f"show:{str(show_title).casefold()}"
-                ),
+                "group_key": group_key,
                 "album": str(show_title),
-                "artist": "",
+                "artist": f"Season {season_number}" if season_number else "",
                 "tracks": [track_row],
                 "media_type": "video",
                 "video_kind": "show",
-                "video_scope": "show",
+                "video_scope": scope,
             }
 
         title = (
@@ -1072,9 +1087,12 @@ class ArtworkManager(QObject):
 
         cached_desktop = meta.get("desktop_source_art_path", "")
         cached_resolution = meta.get("desktop_source_resolution", [])
-        if cached_desktop and os.path.exists(cached_desktop):
-            if not allow_online or not self._is_low_quality_resolution(cached_resolution):
-                return cached_desktop
+        if (
+            meta.get("desktop_source_type") == "manual"
+            and cached_desktop
+            and os.path.exists(cached_desktop)
+        ):
+            return cached_desktop
 
         img_data, source_path, source_kind, source_resolution = self._get_best_local_video_artwork(video_info)
         if img_data:
@@ -1122,6 +1140,44 @@ class ArtworkManager(QObject):
 
     def _get_best_local_video_artwork(self, video_info):
         best = None
+        scope = str(video_info.get("video_scope") or "")
+
+        # An explicit library assignment or verified IMDb catalog match is
+        # authoritative.  Do not let a larger embedded frame or stale online
+        # cache replace a deliberately identified title/season poster.
+        for track in video_info.get("tracks") or []:
+            explicit = str(self._get_value(track, "artwork_path", "") or "")
+            catalog_path, catalog_entry = self._imdb_artwork.resolve(
+                track, scope=scope
+            )
+            catalog_first = (
+                scope in {"show", "season"}
+                or str(self._get_value(track, "metadata_source", "") or "")
+                .casefold() == "imdb"
+            )
+            candidates = (
+                ((catalog_path, "imdb_catalog"), (explicit, "explicit"))
+                if catalog_first else
+                ((explicit, "explicit"), (catalog_path, "imdb_catalog"))
+            )
+            for source_path, source_kind in candidates:
+                if not source_path or not os.path.isfile(source_path):
+                    continue
+                try:
+                    with open(source_path, "rb") as handle:
+                        data = handle.read()
+                except OSError as e:
+                    self._record_artwork_failure(
+                        source_path, f"video artwork read failure: {e}"
+                    )
+                    continue
+                return (
+                    data,
+                    source_path,
+                    source_kind,
+                    self._image_resolution_from_bytes(data),
+                )
+
         # Check embedded artwork first (Apple/iTunes embedded artwork is extremely common in store-downloaded videos!)
         for track in video_info.get("tracks") or []:
             if self._get_value(track, "has_embedded_artwork", 0):

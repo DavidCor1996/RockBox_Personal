@@ -590,13 +590,13 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x1c985
+.debug_info     0x0000000000000000    0x1ca60
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0xca21 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/amaze.o
- .debug_info    0x000000000000ca21     0x7d95 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
- .debug_info    0x00000000000147b6     0x7f4b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
- .debug_info    0x000000000001c701      0x142 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(amaze_tiles_9.9x9x16.o)
- .debug_info    0x000000000001c843      0x142 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(amaze_tiles_7.7x7x16.o)
+ .debug_info    0x0000000000000000     0xca6a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/amaze.o
+ .debug_info    0x000000000000ca6a     0x7dde /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+ .debug_info    0x0000000000014848     0x7f94 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
+ .debug_info    0x000000000001c7dc      0x142 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(amaze_tiles_9.9x9x16.o)
+ .debug_info    0x000000000001c91e      0x142 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(amaze_tiles_7.7x7x16.o)
 
 .debug_abbrev   0x0000000000000000     0x1010
  *(.debug_abbrev)
@@ -617,17 +617,17 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0xb4c4
+.debug_str      0x0000000000000000     0xb52a
  *(.debug_str)
- .debug_str     0x0000000000000000     0xb4c4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/amaze.o
-                                       0xb9df (size before relaxing)
- .debug_str     0x000000000000b4c4        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
-                                       0x528e (size before relaxing)
- .debug_str     0x000000000000b4c4        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
-                                       0x63df (size before relaxing)
- .debug_str     0x000000000000b4c4        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(amaze_tiles_9.9x9x16.o)
+ .debug_str     0x0000000000000000     0xb52a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/amaze.o
+                                       0xba45 (size before relaxing)
+ .debug_str     0x000000000000b52a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+                                       0x52f4 (size before relaxing)
+ .debug_str     0x000000000000b52a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
+                                       0x6445 (size before relaxing)
+ .debug_str     0x000000000000b52a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(amaze_tiles_9.9x9x16.o)
                                         0x16e (size before relaxing)
- .debug_str     0x000000000000b4c4        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(amaze_tiles_7.7x7x16.o)
+ .debug_str     0x000000000000b52a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(amaze_tiles_7.7x7x16.o)
                                         0x16e (size before relaxing)
 
 .debug_loc

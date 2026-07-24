@@ -1,0 +1,26 @@
+[Song]
+{
+    Name = "Reference"
+    Resolution = 192
+}
+[SyncTrack]
+{
+    0 = B 120000
+    768 = B 150000
+}
+[Events]
+{
+    0 = E "section Intro"
+    768 = E "section Fast Part"
+}
+[ExpertSingle]
+{
+    192 = N 0 0
+    384 = N 1 0
+    384 = N 2 0
+    576 = S 2 768
+    576 = N 3 192
+    768 = N 4 0
+    960 = N 0 0
+    1152 = N 1 0
+}

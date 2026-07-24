@@ -110,6 +110,7 @@ extern struct snes_lite_runtime snes_lite;
 
 void snes_lite_arena_init(void *buffer, size_t size);
 void *snes_lite_malloc(size_t size);
+void *snes_lite_try_malloc(size_t size);
 void *snes_lite_calloc(size_t count, size_t size);
 void snes_lite_free(void *ptr);
 void snes_lite_core_abort(int status);
@@ -154,6 +155,9 @@ void snes_lite_core_reset(void);
 void snes_lite_core_stop(void);
 void *snes_lite_core_sram(size_t *size);
 bool snes_lite_core_audio_enabled(void);
+uint32_t snes_lite_core_achievement_peek(uint32_t address,
+                                         uint32_t num_bytes,
+                                         void *userdata);
 
 bool snes_lite_audio_init(void);
 void snes_lite_audio_submit(const int16_t *data, size_t frames);

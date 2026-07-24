@@ -1,0 +1,537 @@
+diff --git a/drivers/video/fbdev/Kconfig b/drivers/video/fbdev/Kconfig
+index c7f2cc9..8cf7853 100644
+--- a/drivers/video/fbdev/Kconfig
++++ b/drivers/video/fbdev/Kconfig
+@@ -1802,12 +1802,14 @@ config FB_S5L8702
+ 	select FB_SYSMEM_HELPERS_DEFERRED
+ 	help
+ 	  Framebuffer driver for the LCD controller block on the Apple
+-	  S5L8702 SoC (iPod nano 3rd generation, N46). Auto-detects the
+-	  attached ILI93xx-family panel via display ID and provides a
+-	  320x240 RGB565 framebuffer with deferred I/O.
++	  S5L8702 SoC (iPod nano 3rd generation/N46 and iPod classic/N25).
++	  The N46 panel is detected via display ID.  The N25 panel type is
++	  selected by the two hardware strap bits used by the original
++	  firmware and Rockbox.  Both provide a 320x240 RGB565 framebuffer
++	  with deferred I/O.
+ 
+ 	  This driver does PIO blits and has no DMA path yet; it is meant
+-	  for bring-up. Say Y here if you are building for the N46.
++	  for bring-up. Say Y here if you are building for the N46 or N25.
+ 
+ config FB_SSD1307
+ 	tristate "Solomon SSD1307 framebuffer support"
+diff --git a/drivers/video/fbdev/s5l8702-lcd.c b/drivers/video/fbdev/s5l8702-lcd.c
+index 249cd53..2c76741 100644
+--- a/drivers/video/fbdev/s5l8702-lcd.c
++++ b/drivers/video/fbdev/s5l8702-lcd.c
+@@ -1,13 +1,18 @@
+ // SPDX-License-Identifier: GPL-2.0
+ /*
+  * Framebuffer driver for the Apple/Samsung S5L8702 LCD controller
+- * (iPod nano 3rd generation / N46), 320x240 RGB565.
++ * (iPod nano 3rd generation / N46 and iPod classic / N25),
++ * 320x240 RGB565.
+  *
+  * The S5L8702 has a custom 8080-series parallel MPU interface block.
+- * The attached panel is one of several ILI93xx-family controllers
+- * auto-detected by reading the display ID (command 0x04).  Init
+- * sequences are derived from the Rockbox port (firmware/target/arm/
+- * s5l8702/ipodnano3g/lcd-nano3g.c, lcd-s5l8702.c).
++ * N46 panels are auto-detected by reading display ID command 0x04.
++ * N25 has four panel variants selected by PDAT6 strap bits 4 and 5.
++ * N25 panel initialisation and PCF50635 display-power values are copied
++ * from the Rockbox Classic bootloader.  PMU access is deliberately limited
++ * to LDO3 and the four LED registers used by that proven display path.
++ *
++ * Register modes, panel selection, and window commands are derived from
++ * Rockbox firmware/target/arm/s5l8702/{lcd-s5l8702.c,ipod6g/lcd-6g.c}.
+  *
+  */
+ 
+@@ -47,26 +52,47 @@
+ /* LCD_CONFIG values - opaque magic from Rockbox / firmware RE */
+ #define LCD_MODE_P8	0x80000c20	/* 8-bit parallel - commands */
+ #define LCD_MODE_P9	0x81100db8	/* 9-bit parallel - frame data */
++#define LCD_MODE_P16	0x80100db0	/* 16-bit parallel - frame data */
++#define LCD_MODE_P18	0x80000da8	/* 18-bit parallel - commands */
+ 
+ /* PWRCON0 clock-gate (PWRCON0 bit 1 = LCD) */
+ #define S5L8702_PWRCON0_PHYS	0x3c500048UL
+ #define PWRCON0_LCD_BIT		BIT(1)
+ 
+-/* Dialog D1671 PMU (I2C) - backlight control.  No upstream backlight
+- * driver exists for this PMU yet; we just poke it directly here to
+- * get pixels visible.  Brightness is the low 5 bits; bit 7 enables.
+- */
++/* N46 Dialog D1671 backlight control. */
+ #define D1671_I2C_ADDR		0x73
+ #define D1671_REG_LEDCTL	0x20
+ #define D1671_LEDCTL_ENABLE	BIT(7)
+ #define D1671_LEDCTL_BRIGHT_MAX	0x1f
+ 
++/* N25 PCF50635 display-only register allowlist. */
++#define PCF50635_I2C_ADDR	0x73
++#define PCF50635_REG_LEDOUT	0x28
++#define PCF50635_REG_LEDENA	0x29
++#define PCF50635_REG_LEDCTL	0x2a
++#define PCF50635_REG_LEDDIM	0x2b
++#define PCF50635_REG_LDO3OUT	0x31
++#define PCF50635_REG_LDO3ENA	0x32
++#define PCF50635_LEDCTL_ROCKBOX	0x05
++#define PCF50635_LEDDIM_ROCKBOX	0x14
++#define PCF50635_LEDOUT_DEFAULT	0x20
++#define PCF50635_LDO3_3000MV	0x15
++
+ /* Panel commands (8-bit set) */
+ #define R_COLUMN_ADDR_SET	0x2a
+ #define R_ROW_ADDR_SET		0x2b
+ #define R_MEMORY_WRITE		0x2c
+ #define R_READ_DISPLAY_ID	0x04
+ 
++/* Classic 16-bit panel register set. */
++#define R_HORIZ_GRAM_ADDR_SET	0x200
++#define R_VERT_GRAM_ADDR_SET	0x201
++#define R_WRITE_DATA_TO_GRAM	0x202
++#define R_HORIZ_ADDR_START_POS	0x210
++#define R_HORIZ_ADDR_END_POS	0x211
++#define R_VERT_ADDR_START_POS	0x212
++#define R_VERT_ADDR_END_POS	0x213
++
+ /* Init-sequence opcodes */
+ enum {
+ 	SEQ_CMD = 0,	/* CMD, opcode, len, <len bytes> */
+@@ -255,10 +281,76 @@ static const u8 * const init_seq_by_type[N_LCD_TYPES] = {
+ 	[LCD_TYPE_58XX] = lcd_init_seq_58,
+ };
+ 
++/* Exact Classic bootloader sequences from Rockbox lcd-6g.c. */
++static const u8 n25_init_seq_0[] = {
++	SEQ_CMD, 0x11, 0,
++	SEQ_SLEEP, 3,
++	SEQ_CMD, 0x35, 1, 0x00,
++	SEQ_CMD, 0x3a, 1, 0x06,
++	SEQ_CMD, 0x36, 1, 0x00,
++	SEQ_CMD, 0x13, 0,
++	SEQ_CMD, 0x29, 0,
++	SEQ_END,
++};
++
++static const u8 n25_init_seq_1[] = {
++	SEQ_CMD, 0xb0, 21, 0x3a, 0x3a, 0x80, 0x80, 0x0a, 0x0a, 0x0a,
++		 0x0a, 0x0a, 0x0a, 0x0a, 0x0a, 0x3c, 0x30, 0x0f, 0x00,
++		 0x01, 0x54, 0x06, 0x66, 0x66,
++	SEQ_CMD, 0xb8, 1, 0xd8,
++	SEQ_CMD, 0xb1, 30, 0x14, 0x59, 0x00, 0x15, 0x57, 0x27, 0x04,
++		 0x85, 0x14, 0x59, 0x00, 0x15, 0x57, 0x27, 0x04, 0x85,
++		 0x14, 0x09, 0x15, 0x57, 0x27, 0x04, 0x05, 0x14, 0x09,
++		 0x15, 0x57, 0x27, 0x04, 0x05,
++	SEQ_CMD, 0xd2, 1, 0x01,
++	SEQ_CMD, 0xe0, 13, 0x00, 0x00, 0x00, 0x05, 0x0b, 0x12, 0x16,
++		 0x1f, 0x25, 0x22, 0x24, 0x29, 0x1c,
++	SEQ_CMD, 0xe1, 13, 0x08, 0x01, 0x01, 0x06, 0x0b, 0x11, 0x15,
++		 0x1f, 0x27, 0x26, 0x29, 0x2f, 0x1e,
++	SEQ_CMD, 0xe2, 13, 0x07, 0x01, 0x01, 0x05, 0x09, 0x0f, 0x13,
++		 0x1e, 0x26, 0x25, 0x28, 0x2e, 0x1e,
++	SEQ_CMD, 0xe3, 13, 0x00, 0x00, 0x00, 0x05, 0x0b, 0x12, 0x16,
++		 0x1f, 0x25, 0x22, 0x24, 0x29, 0x1c,
++	SEQ_CMD, 0xe4, 13, 0x08, 0x01, 0x01, 0x06, 0x0b, 0x11, 0x15,
++		 0x1f, 0x27, 0x26, 0x29, 0x2f, 0x1e,
++	SEQ_CMD, 0xe5, 13, 0x07, 0x01, 0x01, 0x05, 0x09, 0x0f, 0x13,
++		 0x1e, 0x26, 0x25, 0x28, 0x2e, 0x1e,
++	SEQ_CMD, 0x3a, 1, 0x06,
++	SEQ_CMD, 0xc2, 1, 0x00,
++	SEQ_CMD, 0x35, 1, 0x00,
++	SEQ_CMD, 0x11, 0,
++	SEQ_SLEEP, 6,
++	SEQ_CMD, 0x13, 0,
++	SEQ_CMD, 0x29, 0,
++	SEQ_END,
++};
++
++static const u16 n25_display_10[] = {
++	0x0013, 0x0300, 0x0101, 0x0a03, 0x0a0e, 0x0a19, 0x2402,
++};
++static const u16 n25_gamma_300[] = {
++	0x0307, 0x0003, 0x0402, 0x0303, 0x0300, 0x0407, 0x1c04,
++	0x0307, 0x0003, 0x0402, 0x0303, 0x0300, 0x0407, 0x1c04,
++};
++static const u16 n25_gamma_310[] = {
++	0x0707, 0x0407, 0x0306, 0x0303, 0x0300, 0x0407, 0x1c01,
++	0x0707, 0x0407, 0x0306, 0x0303, 0x0300, 0x0407, 0x1c01,
++};
++static const u16 n25_gamma_320[] = {
++	0x0206, 0x0102, 0x0404, 0x0303, 0x0300, 0x0407, 0x1c1f,
++	0x0206, 0x0102, 0x0404, 0x0303, 0x0300, 0x0407, 0x1c1f,
++};
++static const u16 n25_power_100[] = {
++	0x17b0, 0x0220, 0x00bd, 0x1500, 0x0103, 0x0105,
++};
++
+ struct s5l_lcd_par {
+ 	struct fb_info *info;
+ 	void __iomem *regs;
+ 	void __iomem *pwrcon0;
++	void __iomem *panel_strap;
++	bool is_n25;
++	bool n25_cmdset16;
+ 	struct mutex io_lock;
+ 	int lcd_type;
+ 	u8 lcd_id[4];
+@@ -302,6 +394,21 @@ static void s5l_lcd_write_data(struct s5l_lcd_par *par, u16 data)
+ 	writel(data, par->regs + LCD_WDATA);
+ }
+ 
++static void s5l_lcd_write_reg(struct s5l_lcd_par *par, u16 reg, u16 data)
++{
++	s5l_lcd_write_cmd(par, reg);
++	s5l_lcd_write_data(par, data);
++}
++
++static void s5l_lcd_write_regs(struct s5l_lcd_par *par, u16 reg,
++			       const u16 *values, size_t count)
++{
++	size_t i;
++
++	for (i = 0; i < count; i++)
++		s5l_lcd_write_reg(par, reg + i, values[i]);
++}
++
+ static void s5l_lcd_send_cmd8(struct s5l_lcd_par *par, u8 cmd,
+ 			      int len, const u8 *data)
+ {
+@@ -351,9 +458,58 @@ static void s5l_lcd_run_seq(struct s5l_lcd_par *par, const u8 *seq)
+ 	}
+ }
+ 
++static void s5l_lcd_init_n25_type23(struct s5l_lcd_par *par)
++{
++	static const u16 gram_base[] = { 0x001d, 0x0001 };
++
++	s5l_lcd_write_config(par, LCD_MODE_P18);
++	s5l_lcd_write_reg(par, 0x008, 0x0808);
++	s5l_lcd_write_regs(par, 0x010, n25_display_10,
++			   ARRAY_SIZE(n25_display_10));
++	s5l_lcd_write_reg(par, 0x018, 0x0001);
++	s5l_lcd_write_reg(par, 0x090, 0x0021);
++	s5l_lcd_write_regs(par, 0x300, n25_gamma_300,
++			   ARRAY_SIZE(n25_gamma_300));
++	s5l_lcd_write_regs(par, 0x310, n25_gamma_310,
++			   ARRAY_SIZE(n25_gamma_310));
++	s5l_lcd_write_regs(par, 0x320, n25_gamma_320,
++			   ARRAY_SIZE(n25_gamma_320));
++	s5l_lcd_write_regs(par, 0x400, gram_base, ARRAY_SIZE(gram_base));
++	s5l_lcd_write_reg(par, 0x205, 0x0060);
++	s5l_lcd_write_reg(par, 0x007, 0x0001);
++	s5l_lcd_write_reg(par, 0x031, 0x0071);
++	s5l_lcd_write_reg(par, 0x110, 0x0001);
++	s5l_lcd_write_regs(par, 0x100, n25_power_100,
++			   ARRAY_SIZE(n25_power_100));
++	s5l_lcd_write_reg(par, 0x007, 0x0021);
++	s5l_lcd_write_reg(par, 0x001, 0x0110);
++	s5l_lcd_write_reg(par, 0x003, 0x0230);
++	s5l_lcd_write_reg(par, 0x002, 0x0500);
++	s5l_lcd_write_reg(par, 0x007, 0x0031);
++	s5l_lcd_write_reg(par, 0x030, 0x0007);
++	msleep(30);
++	s5l_lcd_write_reg(par, 0x030, 0x03ff);
++	msleep(60);
++	s5l_lcd_write_reg(par, 0x007, 0x0072);
++	msleep(150);
++	s5l_lcd_write_reg(par, 0x007, 0x0173);
++}
++
++static void s5l_lcd_init_n25(struct s5l_lcd_par *par)
++{
++	if (par->n25_cmdset16) {
++		s5l_lcd_init_n25_type23(par);
++		return;
++	}
++
++	s5l_lcd_write_config(par, LCD_MODE_P8);
++	s5l_lcd_run_seq(par, par->lcd_type ? n25_init_seq_1 : n25_init_seq_0);
++}
++
+ /* Look up the PMU i2c_adapter once, so probe can defer cleanly. */
+ static struct i2c_adapter *s5l_lcd_get_pmu(struct device *dev)
+ {
++#if IS_ENABLED(CONFIG_I2C)
+ 	struct device_node *i2c_np;
+ 	struct i2c_adapter *adap;
+ 
+@@ -367,21 +523,88 @@ static struct i2c_adapter *s5l_lcd_get_pmu(struct device *dev)
+ 		return ERR_PTR(-EPROBE_DEFER);
+ 
+ 	return adap;
++#else
++	return ERR_PTR(-ENODEV);
++#endif
+ }
+ 
+-static void s5l_lcd_backlight_on(struct device *dev, struct i2c_adapter *adap)
++static int s5l_lcd_pmu_write(struct device *dev, struct i2c_adapter *adap,
++			     u8 address, u8 reg, u8 value)
+ {
+-	u8 buf[2] = { D1671_REG_LEDCTL,
+-		      D1671_LEDCTL_ENABLE | D1671_LEDCTL_BRIGHT_MAX };
++#if IS_ENABLED(CONFIG_I2C)
++	u8 buf[2] = { reg, value };
+ 	struct i2c_msg msg = {
+-		.addr	= D1671_I2C_ADDR,
++		.addr	= address,
+ 		.flags	= 0,
+ 		.len	= sizeof(buf),
+ 		.buf	= buf,
+ 	};
++	int ret;
+ 
+-	if (i2c_transfer(adap, &msg, 1) != 1)
+-		dev_warn(dev, "backlight enable I2C write failed\n");
++	ret = i2c_transfer(adap, &msg, 1);
++	if (ret == 1)
++		return 0;
++	dev_err(dev, "display PMU write 0x%02x failed: %d\n", reg, ret);
++	return ret < 0 ? ret : -EIO;
++#else
++	return -ENODEV;
++#endif
++}
++
++static int s5l_lcd_n46_backlight_on(struct device *dev,
++				    struct i2c_adapter *adap)
++{
++	return s5l_lcd_pmu_write(dev, adap, D1671_I2C_ADDR,
++				 D1671_REG_LEDCTL,
++				 D1671_LEDCTL_ENABLE |
++				 D1671_LEDCTL_BRIGHT_MAX);
++}
++
++static int s5l_lcd_n25_display_power_on(struct device *dev,
++					struct i2c_adapter *adap)
++{
++	int ret;
++
++	/* Keep the light off while panel registers and the black frame load. */
++	ret = s5l_lcd_pmu_write(dev, adap, PCF50635_I2C_ADDR,
++				PCF50635_REG_LEDENA, 0);
++	if (ret)
++		return ret;
++	ret = s5l_lcd_pmu_write(dev, adap, PCF50635_I2C_ADDR,
++				PCF50635_REG_LDO3OUT, PCF50635_LDO3_3000MV);
++	if (ret)
++		return ret;
++	return s5l_lcd_pmu_write(dev, adap, PCF50635_I2C_ADDR,
++				 PCF50635_REG_LDO3ENA, 1);
++}
++
++static int s5l_lcd_n25_backlight_on(struct device *dev,
++				    struct i2c_adapter *adap)
++{
++	static const u8 init[][2] = {
++		{ PCF50635_REG_LEDCTL, PCF50635_LEDCTL_ROCKBOX },
++		{ PCF50635_REG_LEDDIM, PCF50635_LEDDIM_ROCKBOX },
++		{ PCF50635_REG_LEDOUT, PCF50635_LEDOUT_DEFAULT },
++		{ PCF50635_REG_LEDENA, 1 },
++	};
++	size_t i;
++	int ret;
++
++	for (i = 0; i < ARRAY_SIZE(init); i++) {
++		ret = s5l_lcd_pmu_write(dev, adap, PCF50635_I2C_ADDR,
++					init[i][0], init[i][1]);
++		if (ret)
++			return ret;
++	}
++	return 0;
++}
++
++static void s5l_lcd_put_pmu(struct i2c_adapter *adap)
++{
++#if IS_ENABLED(CONFIG_I2C)
++	if (adap)
++		i2c_put_adapter(adap);
++#endif
+ }
+ 
+ static int s5l_lcd_detect_panel(struct s5l_lcd_par *par)
+@@ -406,6 +629,19 @@ static int s5l_lcd_detect_panel(struct s5l_lcd_par *par)
+ 	return -ENODEV;
+ }
+ 
++static int s5l_lcd_detect_n25_panel(struct s5l_lcd_par *par)
++{
++	u32 strap;
++
++	if (!par->panel_strap)
++		return -ENODEV;
++
++	strap = readl(par->panel_strap);
++	par->n25_cmdset16 = ((strap >> 4) & 0x3) >= 2;
++
++	return (strap >> 4) & 0x3;
++}
++
+ /* Blit the framebuffer to the panel.  Called from deferred-IO context;
+  * a sleeping mutex around the whole transfer is fine.
+  */
+@@ -419,12 +655,26 @@ static void s5l_lcd_blit(struct s5l_lcd_par *par)
+ 
+ 	mutex_lock(&par->io_lock);
+ 
+-	s5l_lcd_write_config(par, LCD_MODE_P8);
+-	s5l_lcd_send_cmd8(par, R_COLUMN_ADDR_SET, sizeof(col), col);
+-	s5l_lcd_send_cmd8(par, R_ROW_ADDR_SET, sizeof(row), row);
+-	s5l_lcd_write_cmd(par, R_MEMORY_WRITE);
++	if (par->is_n25 && par->n25_cmdset16) {
++		s5l_lcd_write_config(par, LCD_MODE_P18);
++		s5l_lcd_write_reg(par, R_HORIZ_ADDR_START_POS, 0);
++		s5l_lcd_write_reg(par, R_HORIZ_ADDR_END_POS, DPY_W - 1);
++		s5l_lcd_write_reg(par, R_VERT_ADDR_START_POS, 0);
++		s5l_lcd_write_reg(par, R_VERT_ADDR_END_POS, DPY_H - 1);
++		s5l_lcd_write_reg(par, R_HORIZ_GRAM_ADDR_SET, 0);
++		s5l_lcd_write_reg(par, R_VERT_GRAM_ADDR_SET, 0);
++		s5l_lcd_write_cmd(par, R_WRITE_DATA_TO_GRAM);
++	} else {
++		s5l_lcd_write_config(par, LCD_MODE_P8);
++		s5l_lcd_send_cmd8(par, R_COLUMN_ADDR_SET, sizeof(col), col);
++		s5l_lcd_send_cmd8(par, R_ROW_ADDR_SET, sizeof(row), row);
++		s5l_lcd_write_cmd(par, R_MEMORY_WRITE);
++	}
+ 
+-	s5l_lcd_write_config(par, LCD_MODE_P9);
++	/* N25 uses one 16-bit transfer per RGB565 pixel.  N46 uses its
++	 * original 9-bit/two-transfer controller mode.
++	 */
++	s5l_lcd_write_config(par, par->is_n25 ? LCD_MODE_P16 : LCD_MODE_P9);
+ 	for (i = 0; i < pixels; i++)
+ 		s5l_lcd_write_data(par, src[i]);
+ 
+@@ -521,12 +771,14 @@ static int s5l_lcd_probe(struct platform_device *pdev)
+ 
+ 	info = framebuffer_alloc(sizeof(*par), dev);
+ 	if (!info) {
+-		i2c_put_adapter(pmu);
++		s5l_lcd_put_pmu(pmu);
+ 		return -ENOMEM;
+ 	}
+ 
+ 	par = info->par;
+ 	par->info = info;
++	par->is_n25 = of_device_is_compatible(dev->of_node,
++						 "apple,n25-lcd");
+ 	mutex_init(&par->io_lock);
+ 
+ 	par->regs = devm_platform_ioremap_resource(pdev, 0);
+@@ -535,6 +787,16 @@ static int s5l_lcd_probe(struct platform_device *pdev)
+ 		goto err_release_info;
+ 	}
+ 
++	if (par->is_n25) {
++		par->panel_strap = devm_platform_ioremap_resource_byname(pdev,
++								 "panel-strap");
++		if (IS_ERR(par->panel_strap)) {
++			ret = PTR_ERR(par->panel_strap);
++			par->panel_strap = NULL;
++			goto err_release_info;
++		}
++	}
++
+ 	/* PWRCON0 LCD clock-gate.  Modelled standalone for now (mirrors
+ 	 * what s5l8702_nand.c does for its own gates); once a proper
+ 	 * clock controller driver exists this should consume a clock
+@@ -550,20 +812,36 @@ static int s5l_lcd_probe(struct platform_device *pdev)
+ 
+ 	writel(0x33, par->regs + LCD_PHTIME);
+ 
+-	par->lcd_type = s5l_lcd_detect_panel(par);
++	if (par->is_n25)
++		par->lcd_type = s5l_lcd_detect_n25_panel(par);
++	else
++		par->lcd_type = s5l_lcd_detect_panel(par);
+ 	if (par->lcd_type < 0) {
+-		dev_err(dev, "no panel detected (id %02x %02x %02x %02x)\n",
+-			par->lcd_id[0], par->lcd_id[1],
+-			par->lcd_id[2], par->lcd_id[3]);
++		if (par->is_n25)
++			dev_err(dev, "N25 panel strap unavailable\n");
++		else
++			dev_err(dev,
++				"no panel detected (id %02x %02x %02x %02x)\n",
++				par->lcd_id[0], par->lcd_id[1],
++				par->lcd_id[2], par->lcd_id[3]);
+ 		ret = par->lcd_type;
+ 		goto err_gate_off;
+ 	}
+-	dev_info(dev, "panel id %02x %02x %02x %02x (type %d)\n",
+-		 par->lcd_id[0], par->lcd_id[1],
+-		 par->lcd_id[2], par->lcd_id[3], par->lcd_type);
+-
+-	s5l_lcd_write_config(par, LCD_MODE_P8);
+-	s5l_lcd_run_seq(par, init_seq_by_type[par->lcd_type]);
++	if (par->is_n25) {
++		dev_info(dev,
++			 "N25 panel strap type %d, %s command set; applying Rockbox Classic init\n",
++			 par->lcd_type, par->n25_cmdset16 ? "16-bit" : "8-bit");
++		ret = s5l_lcd_n25_display_power_on(dev, pmu);
++		if (ret)
++			goto err_gate_off;
++		s5l_lcd_init_n25(par);
++	} else {
++		dev_info(dev, "panel id %02x %02x %02x %02x (type %d)\n",
++			 par->lcd_id[0], par->lcd_id[1],
++			 par->lcd_id[2], par->lcd_id[3], par->lcd_type);
++		s5l_lcd_write_config(par, LCD_MODE_P8);
++		s5l_lcd_run_seq(par, init_seq_by_type[par->lcd_type]);
++	}
+ 
+ 	vmem = vzalloc(FB_SIZE);
+ 	if (!vmem) {
+@@ -590,13 +868,21 @@ static int s5l_lcd_probe(struct platform_device *pdev)
+ 
+ 	s5l_lcd_blit(par);
+ 
+-	s5l_lcd_backlight_on(dev, pmu);
+-	i2c_put_adapter(pmu);
++	ret = par->is_n25 ? s5l_lcd_n25_backlight_on(dev, pmu) :
++			       s5l_lcd_n46_backlight_on(dev, pmu);
++	if (ret)
++		goto err_unregister_fb;
++	s5l_lcd_put_pmu(pmu);
+ 
+ 	dev_info(dev, "registered fb%d (%dx%d RGB565)\n",
+ 		 info->node, DPY_W, DPY_H);
+ 	return 0;
+ 
++err_unregister_fb:
++	if (par->is_n25)
++		s5l_lcd_pmu_write(dev, pmu, PCF50635_I2C_ADDR,
++				  PCF50635_REG_LEDENA, 0);
++	unregister_framebuffer(info);
+ err_defio_cleanup:
+ 	fb_deferred_io_cleanup(info);
+ 	vfree(vmem);
+@@ -604,7 +890,7 @@ static int s5l_lcd_probe(struct platform_device *pdev)
+ 	writel(readl(par->pwrcon0) | PWRCON0_LCD_BIT, par->pwrcon0);
+ err_release_info:
+ 	framebuffer_release(info);
+-	i2c_put_adapter(pmu);
++	s5l_lcd_put_pmu(pmu);
+ 	return ret;
+ }
+ 
+@@ -623,6 +909,7 @@ static void s5l_lcd_remove(struct platform_device *pdev)
+ 
+ static const struct of_device_id s5l_lcd_of_match[] = {
+ 	{ .compatible = "apple,s5l8702-lcd" },
++	{ .compatible = "apple,n25-lcd" },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(of, s5l_lcd_of_match);
+@@ -637,6 +924,6 @@ static struct platform_driver s5l_lcd_driver = {
+ };
+ module_platform_driver(s5l_lcd_driver);
+ 
+-MODULE_DESCRIPTION("Apple S5L8702 LCD framebuffer (iPod nano 3G)");
++MODULE_DESCRIPTION("Apple S5L8702 LCD framebuffer (iPod nano 3G / classic)");
+ MODULE_AUTHOR("Tucker Osman");
+ MODULE_LICENSE("GPL");

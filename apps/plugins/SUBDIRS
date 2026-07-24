@@ -47,6 +47,18 @@ goban
 #ifdef HAVE_LCD_COLOR
 pocketcatch
 #endif
+#if defined(HAVE_LCD_COLOR) && (LCD_WIDTH >= 320) && (LCD_HEIGHT >= 240) \
+    && (PLUGIN_BUFFER_SIZE >= 0x300000) && (CONFIG_KEYPAD == IPOD_4G_PAD)
+pocketsky
+#endif
+#if defined(HAVE_LCD_COLOR) && (LCD_WIDTH >= 320) && (LCD_HEIGHT >= 240) \
+    && (PLUGIN_BUFFER_SIZE >= 0x300000) && (CONFIG_KEYPAD == IPOD_4G_PAD)
+ipodhero
+#endif
+#if defined(IPOD_6G) && defined(HAVE_LCD_COLOR) \
+    && (LCD_WIDTH >= 320) && (LCD_HEIGHT >= 240)
+ipodgames
+#endif
 frotz
 
 #ifndef OLYMPUS_MROBE_500
@@ -73,6 +85,7 @@ flashplayer
 #if defined(HAVE_LCD_COLOR) && (LCD_WIDTH >= 320) && (LCD_HEIGHT >= 240) \
     && (PLUGIN_BUFFER_SIZE >= 0x100000)
 smsgg
+picodrive
 arduboy
 tamagotchi
 gwatch

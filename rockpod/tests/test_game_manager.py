@@ -72,3 +72,18 @@ def test_game_manager_disables_source_actions_for_missing_game():
     assert widget._remove_btn.isEnabled() is True
 
     widget.close()
+
+
+def test_game_manager_exposes_separate_genesis_library_source():
+    QApplication.instance() or QApplication([])
+    widget = GameManagerWidget()
+
+    widget.set_library_state(
+        "/roms/gameboy", "/device/gameboy", "1 game indexed",
+        genesis_library_path="/roms/genesis",
+    )
+
+    assert widget._genesis_library_edit.text() == "/roms/genesis"
+    assert widget._genesis_browse_btn.text() == "Choose Genesis Folder"
+
+    widget.close()

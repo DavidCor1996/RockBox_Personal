@@ -1728,50 +1728,50 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0xc73e4
+.debug_info     0x0000000000000000    0xc782b
  *(.debug_info .gnu.linkonce.wi.*)
  .debug_info    0x0000000000000000      0xea6 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/drv_nos.o
- .debug_info    0x0000000000000ea6     0x979d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_669.o
- .debug_info    0x000000000000a643     0x29a2 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_amf.o
- .debug_info    0x000000000000cfe5     0x221c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_asy.o
- .debug_info    0x000000000000f201     0x259e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_dsm.o
- .debug_info    0x000000000001179f     0x241b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_far.o
- .debug_info    0x0000000000013bba     0x2750 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_gdm.o
- .debug_info    0x000000000001630a     0x2ed3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_imf.o
- .debug_info    0x00000000000191dd     0xa81a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_it.o
- .debug_info    0x00000000000239f7     0x262f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_m15.o
- .debug_info    0x0000000000026026     0x33a4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_med.o
- .debug_info    0x00000000000293ca     0x29ec /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_mod.o
- .debug_info    0x000000000002bdb6     0x20c3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_mtm.o
- .debug_info    0x000000000002de79     0x2453 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_okt.o
- .debug_info    0x00000000000302cc     0x2598 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_s3m.o
- .debug_info    0x0000000000032864     0x2424 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_stm.o
- .debug_info    0x0000000000034c88     0x26eb /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_stx.o
- .debug_info    0x0000000000037373     0x954e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_ult.o
- .debug_info    0x00000000000408c1     0x8acb /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_umx.o
- .debug_info    0x000000000004938c     0x9ce1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_uni.o
- .debug_info    0x000000000005306d     0xa52d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_xm.o
- .debug_info    0x000000000005d59a      0x711 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/mdreg.o
- .debug_info    0x000000000005dcab     0xb061 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/mdriver.o
- .debug_info    0x0000000000068d0c     0xa503 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/mloader.o
- .debug_info    0x000000000007320f      0x38e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/mlreg.o
- .debug_info    0x000000000007359d     0x306e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/mlutil.o
- .debug_info    0x000000000007660b     0x7b55 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/mmalloc.o
- .debug_info    0x000000000007e160      0xa45 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/mmerror.o
- .debug_info    0x000000000007eba5     0xa478 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/mmio.o
- .debug_info    0x000000000008901d     0xf6af /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/mplayer.o
- .debug_info    0x00000000000986cc      0xca8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/munitrk.o
- .debug_info    0x0000000000099374      0x694 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/npertab.o
- .debug_info    0x0000000000099a08     0x1bb9 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/sloader.o
- .debug_info    0x000000000009b5c1     0x2bb4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/virtch.o
- .debug_info    0x000000000009e175     0x2b24 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/virtch2.o
- .debug_info    0x00000000000a0c99     0x162f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/virtch_common.o
- .debug_info    0x00000000000a22c8     0xc230 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/mikmod.o
- .debug_info    0x00000000000ae4f8     0x7d4a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
- .debug_info    0x00000000000b6242     0x1b6b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libtlsf.a(tlsf.o)
- .debug_info    0x00000000000b7dad     0x777a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
- .debug_info    0x00000000000bf527     0x7d93 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(configfile.o)
- .debug_info    0x00000000000c72ba      0x12a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(strncpy.o)
+ .debug_info    0x0000000000000ea6     0x97e6 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_669.o
+ .debug_info    0x000000000000a68c     0x29a2 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_amf.o
+ .debug_info    0x000000000000d02e     0x221c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_asy.o
+ .debug_info    0x000000000000f24a     0x259e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_dsm.o
+ .debug_info    0x00000000000117e8     0x241b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_far.o
+ .debug_info    0x0000000000013c03     0x2750 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_gdm.o
+ .debug_info    0x0000000000016353     0x2ed3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_imf.o
+ .debug_info    0x0000000000019226     0xa863 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_it.o
+ .debug_info    0x0000000000023a89     0x262f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_m15.o
+ .debug_info    0x00000000000260b8     0x33a4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_med.o
+ .debug_info    0x000000000002945c     0x29ec /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_mod.o
+ .debug_info    0x000000000002be48     0x20c3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_mtm.o
+ .debug_info    0x000000000002df0b     0x2453 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_okt.o
+ .debug_info    0x000000000003035e     0x2598 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_s3m.o
+ .debug_info    0x00000000000328f6     0x2424 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_stm.o
+ .debug_info    0x0000000000034d1a     0x26eb /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_stx.o
+ .debug_info    0x0000000000037405     0x9597 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_ult.o
+ .debug_info    0x000000000004099c     0x8b14 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_umx.o
+ .debug_info    0x00000000000494b0     0x9d2a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_uni.o
+ .debug_info    0x00000000000531da     0xa576 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_xm.o
+ .debug_info    0x000000000005d750      0x711 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/mdreg.o
+ .debug_info    0x000000000005de61     0xb0aa /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/mdriver.o
+ .debug_info    0x0000000000068f0b     0xa54c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/mloader.o
+ .debug_info    0x0000000000073457      0x38e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/mlreg.o
+ .debug_info    0x00000000000737e5     0x306e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/mlutil.o
+ .debug_info    0x0000000000076853     0x7b9e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/mmalloc.o
+ .debug_info    0x000000000007e3f1      0xa45 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/mmerror.o
+ .debug_info    0x000000000007ee36     0xa4c1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/mmio.o
+ .debug_info    0x00000000000892f7     0xf6f8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/mplayer.o
+ .debug_info    0x00000000000989ef      0xca8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/munitrk.o
+ .debug_info    0x0000000000099697      0x694 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/npertab.o
+ .debug_info    0x0000000000099d2b     0x1bb9 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/sloader.o
+ .debug_info    0x000000000009b8e4     0x2bb4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/virtch.o
+ .debug_info    0x000000000009e498     0x2b24 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/virtch2.o
+ .debug_info    0x00000000000a0fbc     0x162f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/virtch_common.o
+ .debug_info    0x00000000000a25eb     0xc279 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/mikmod.o
+ .debug_info    0x00000000000ae864     0x7d93 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+ .debug_info    0x00000000000b65f7     0x1b6b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libtlsf.a(tlsf.o)
+ .debug_info    0x00000000000b8162     0x77c3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
+ .debug_info    0x00000000000bf925     0x7ddc /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(configfile.o)
+ .debug_info    0x00000000000c7701      0x12a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(strncpy.o)
 
 .debug_abbrev   0x0000000000000000     0xc025
  *(.debug_abbrev)
@@ -1866,91 +1866,91 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000    0x10866
+.debug_str      0x0000000000000000    0x108cc
  *(.debug_str)
- .debug_str     0x0000000000000000    0x10866 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/drv_nos.o
+ .debug_str     0x0000000000000000    0x108cc /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/drv_nos.o
                                        0x11dd (size before relaxing)
- .debug_str     0x0000000000010866        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_669.o
-                                       0x6539 (size before relaxing)
- .debug_str     0x0000000000010866        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_amf.o
+ .debug_str     0x00000000000108cc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_669.o
+                                       0x659f (size before relaxing)
+ .debug_str     0x00000000000108cc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_amf.o
                                        0x1f84 (size before relaxing)
- .debug_str     0x0000000000010866        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_asy.o
+ .debug_str     0x00000000000108cc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_asy.o
                                        0x1e5c (size before relaxing)
- .debug_str     0x0000000000010866        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_dsm.o
+ .debug_str     0x00000000000108cc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_dsm.o
                                        0x1e90 (size before relaxing)
- .debug_str     0x0000000000010866        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_far.o
+ .debug_str     0x00000000000108cc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_far.o
                                        0x1e67 (size before relaxing)
- .debug_str     0x0000000000010866        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_gdm.o
+ .debug_str     0x00000000000108cc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_gdm.o
                                        0x1f17 (size before relaxing)
- .debug_str     0x0000000000010866        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_imf.o
+ .debug_str     0x00000000000108cc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_imf.o
                                        0x1f45 (size before relaxing)
- .debug_str     0x0000000000010866        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_it.o
-                                       0x68cd (size before relaxing)
- .debug_str     0x0000000000010866        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_m15.o
+ .debug_str     0x00000000000108cc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_it.o
+                                       0x6933 (size before relaxing)
+ .debug_str     0x00000000000108cc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_m15.o
                                        0x1ee4 (size before relaxing)
- .debug_str     0x0000000000010866        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_med.o
+ .debug_str     0x00000000000108cc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_med.o
                                        0x21b1 (size before relaxing)
- .debug_str     0x0000000000010866        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_mod.o
+ .debug_str     0x00000000000108cc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_mod.o
                                        0x1f7b (size before relaxing)
- .debug_str     0x0000000000010866        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_mtm.o
+ .debug_str     0x00000000000108cc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_mtm.o
                                        0x1e69 (size before relaxing)
- .debug_str     0x0000000000010866        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_okt.o
+ .debug_str     0x00000000000108cc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_okt.o
                                        0x1e70 (size before relaxing)
- .debug_str     0x0000000000010866        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_s3m.o
+ .debug_str     0x00000000000108cc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_s3m.o
                                        0x1f32 (size before relaxing)
- .debug_str     0x0000000000010866        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_stm.o
+ .debug_str     0x00000000000108cc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_stm.o
                                        0x1ec7 (size before relaxing)
- .debug_str     0x0000000000010866        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_stx.o
+ .debug_str     0x00000000000108cc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_stx.o
                                        0x1ef9 (size before relaxing)
- .debug_str     0x0000000000010866        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_ult.o
-                                       0x6526 (size before relaxing)
- .debug_str     0x0000000000010866        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_umx.o
-                                       0x57b5 (size before relaxing)
- .debug_str     0x0000000000010866        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_uni.o
-                                       0x657a (size before relaxing)
- .debug_str     0x0000000000010866        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_xm.o
-                                       0x6650 (size before relaxing)
- .debug_str     0x0000000000010866        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/mdreg.o
+ .debug_str     0x00000000000108cc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_ult.o
+                                       0x658c (size before relaxing)
+ .debug_str     0x00000000000108cc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_umx.o
+                                       0x581b (size before relaxing)
+ .debug_str     0x00000000000108cc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_uni.o
+                                       0x65e0 (size before relaxing)
+ .debug_str     0x00000000000108cc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/load_xm.o
+                                       0x66b6 (size before relaxing)
+ .debug_str     0x00000000000108cc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/mdreg.o
                                         0x478 (size before relaxing)
- .debug_str     0x0000000000010866        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/mdriver.o
-                                       0x6ca1 (size before relaxing)
- .debug_str     0x0000000000010866        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/mloader.o
-                                       0x6776 (size before relaxing)
- .debug_str     0x0000000000010866        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/mlreg.o
+ .debug_str     0x00000000000108cc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/mdriver.o
+                                       0x6d07 (size before relaxing)
+ .debug_str     0x00000000000108cc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/mloader.o
+                                       0x67dc (size before relaxing)
+ .debug_str     0x00000000000108cc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/mlreg.o
                                         0x2b7 (size before relaxing)
- .debug_str     0x0000000000010866        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/mlutil.o
+ .debug_str     0x00000000000108cc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/mlutil.o
                                        0x15a6 (size before relaxing)
- .debug_str     0x0000000000010866        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/mmalloc.o
-                                       0x5158 (size before relaxing)
- .debug_str     0x0000000000010866        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/mmerror.o
+ .debug_str     0x00000000000108cc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/mmalloc.o
+                                       0x51be (size before relaxing)
+ .debug_str     0x00000000000108cc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/mmerror.o
                                        0x1632 (size before relaxing)
- .debug_str     0x0000000000010866        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/mmio.o
-                                       0x55e4 (size before relaxing)
- .debug_str     0x0000000000010866        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/mplayer.o
-                                       0x6766 (size before relaxing)
- .debug_str     0x0000000000010866        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/munitrk.o
+ .debug_str     0x00000000000108cc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/mmio.o
+                                       0x564a (size before relaxing)
+ .debug_str     0x00000000000108cc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/mplayer.o
+                                       0x67cc (size before relaxing)
+ .debug_str     0x00000000000108cc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/munitrk.o
                                         0xef0 (size before relaxing)
- .debug_str     0x0000000000010866        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/npertab.o
+ .debug_str     0x00000000000108cc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/npertab.o
                                         0xdcc (size before relaxing)
- .debug_str     0x0000000000010866        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/sloader.o
+ .debug_str     0x00000000000108cc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/sloader.o
                                        0x19ac (size before relaxing)
- .debug_str     0x0000000000010866        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/virtch.o
+ .debug_str     0x00000000000108cc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/virtch.o
                                        0x1c75 (size before relaxing)
- .debug_str     0x0000000000010866        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/virtch2.o
+ .debug_str     0x00000000000108cc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/virtch2.o
                                        0x1cc3 (size before relaxing)
- .debug_str     0x0000000000010866        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/virtch_common.o
+ .debug_str     0x00000000000108cc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/virtch_common.o
                                        0x1507 (size before relaxing)
- .debug_str     0x0000000000010866        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/mikmod.o
-                                       0xbfdf (size before relaxing)
- .debug_str     0x0000000000010866        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
-                                       0x5237 (size before relaxing)
- .debug_str     0x0000000000010866        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libtlsf.a(tlsf.o)
+ .debug_str     0x00000000000108cc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mikmod/mikmod.o
+                                       0xc045 (size before relaxing)
+ .debug_str     0x00000000000108cc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+                                       0x529d (size before relaxing)
+ .debug_str     0x00000000000108cc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libtlsf.a(tlsf.o)
                                         0x410 (size before relaxing)
- .debug_str     0x0000000000010866        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
-                                       0x48de (size before relaxing)
- .debug_str     0x0000000000010866        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(configfile.o)
-                                       0x49ad (size before relaxing)
- .debug_str     0x0000000000010866        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(strncpy.o)
+ .debug_str     0x00000000000108cc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
+                                       0x4944 (size before relaxing)
+ .debug_str     0x00000000000108cc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(configfile.o)
+                                       0x4a13 (size before relaxing)
+ .debug_str     0x00000000000108cc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(strncpy.o)
                                         0x19c (size before relaxing)
 
 .debug_loc

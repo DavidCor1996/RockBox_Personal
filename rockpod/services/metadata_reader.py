@@ -21,6 +21,7 @@ logger = logging.getLogger(__name__)
 VIDEO_EXTENSIONS = {".mp4", ".m4v", ".mov", ".mkv", ".avi", ".webm", ".mpg", ".mpeg", ".mpe"}
 _GENERIC_VIDEO_FOLDER_NAMES = {
     "video", "videos", "movie", "movies", "tv", "tv shows", "shows", "series", "anime",
+    "music video", "music videos",
     "archive", "_archive", "mediadrive", "_mediadrive", "youtube", "sample", "sample & cover",
     "other cartoons you'd probably like, here",
 }
@@ -30,6 +31,7 @@ _HOME_VIDEO_KEYWORDS = {
     "camera", "dcim", "iphone", "gopro", "phone", "vacation", "holiday",
     "birthday", "wedding", "family", "home video", "home videos", "clip", "clips",
 }
+_MUSIC_VIDEO_KEYWORDS = {"music video", "music videos"}
 _NOISE_TOKENS = {
     "2160p", "1080p", "720p", "480p", "x264", "x265", "h264", "h265", "hevc",
     "xvid", "divx", "bluray", "brrip", "dvdrip", "webrip", "webdl", "web-dl",
@@ -415,6 +417,12 @@ def _normalize_video_kind(value):
     text = str(value or "").strip().casefold().replace("-", " ").replace("_", " ")
     if not text:
         return ""
+    if text == "6" or "music video" in text:
+        return "music_video"
+    if text == "10":
+        return "show"
+    if text == "9":
+        return "movie"
     if any(token in text for token in ("tv show", "show", "series", "episode")):
         return "show"
     if any(token in text for token in ("home video", "camcorder", "personal", "family")):
@@ -800,6 +808,8 @@ def _apply_video_path_fallback(track, filepath):
         ).casefold()
         if track.show_title or track.season_number or track.episode_number:
             track.video_kind = "show"
+        elif any(keyword in text for keyword in _MUSIC_VIDEO_KEYWORDS):
+            track.video_kind = "music_video"
         elif any(keyword in text for keyword in _HOME_VIDEO_KEYWORDS) or _CAMERA_FILENAME_RE.match(path.stem):
             track.video_kind = "home_video"
         else:

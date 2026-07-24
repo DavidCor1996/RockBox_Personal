@@ -1,0 +1,119 @@
+diff --git a/drivers/video/fbdev/s5l8702-lcd.c b/drivers/video/fbdev/s5l8702-lcd.c
+index 2c76741..13e36cc 100644
+--- a/drivers/video/fbdev/s5l8702-lcd.c
++++ b/drivers/video/fbdev/s5l8702-lcd.c
+@@ -351,6 +351,7 @@ struct s5l_lcd_par {
+ 	void __iomem *panel_strap;
+ 	bool is_n25;
+ 	bool n25_cmdset16;
++	bool preserve_handoff;
+ 	struct mutex io_lock;
+ 	int lcd_type;
+ 	u8 lcd_id[4];
+@@ -755,6 +756,21 @@ static struct fb_deferred_io s5l_lcd_defio = {
+ 	.deferred_io	= s5l_lcd_deferred_io,
+ };
+ 
++static void noinline s5l_lcd_n25_first_frame_complete(void)
++{
++	barrier();
++}
++
++static void s5l_lcd_n25_append_trace_band(struct s5l_lcd_par *par, u16 color)
++{
++	int i;
++
++	/* Continue the single GRAM transaction prepared by Rockbox. */
++	for (i = 0; i < DPY_W * 48; i++)
++		s5l_lcd_write_data(par, color);
++	s5l_lcd_n25_first_frame_complete();
++}
++
+ static int s5l_lcd_probe(struct platform_device *pdev)
+ {
+ 	struct device *dev = &pdev->dev;
+@@ -763,11 +779,18 @@ static int s5l_lcd_probe(struct platform_device *pdev)
+ 	struct fb_info *info;
+ 	void *vmem;
+ 	u32 pwr;
++	u16 *pixel;
++	int i;
+ 	int ret;
+ 
+-	pmu = s5l_lcd_get_pmu(dev);
+-	if (IS_ERR(pmu))
+-		return PTR_ERR(pmu);
++	if (of_property_read_bool(dev->of_node,
++				  "rockpod,preserve-display-handoff")) {
++		pmu = NULL;
++	} else {
++		pmu = s5l_lcd_get_pmu(dev);
++		if (IS_ERR(pmu))
++			return PTR_ERR(pmu);
++	}
+ 
+ 	info = framebuffer_alloc(sizeof(*par), dev);
+ 	if (!info) {
+@@ -779,6 +802,8 @@ static int s5l_lcd_probe(struct platform_device *pdev)
+ 	par->info = info;
+ 	par->is_n25 = of_device_is_compatible(dev->of_node,
+ 						 "apple,n25-lcd");
++	par->preserve_handoff = of_property_read_bool(dev->of_node,
++					"rockpod,preserve-display-handoff");
+ 	mutex_init(&par->io_lock);
+ 
+ 	par->regs = devm_platform_ioremap_resource(pdev, 0);
+@@ -827,7 +852,10 @@ static int s5l_lcd_probe(struct platform_device *pdev)
+ 		ret = par->lcd_type;
+ 		goto err_gate_off;
+ 	}
+-	if (par->is_n25) {
++	if (par->is_n25 && par->preserve_handoff) {
++		dev_info(dev,
++			 "preserving Rockbox N25 panel power and initialization\n");
++	} else if (par->is_n25) {
+ 		dev_info(dev,
+ 			 "N25 panel strap type %d, %s command set; applying Rockbox Classic init\n",
+ 			 par->lcd_type, par->n25_cmdset16 ? "16-bit" : "8-bit");
+@@ -849,6 +877,14 @@ static int s5l_lcd_probe(struct platform_device *pdev)
+ 		goto err_gate_off;
+ 	}
+ 
++	/* Keep fb0 deterministic, then append the fifth persistent trace band. */
++	if (par->preserve_handoff) {
++		pixel = vmem;
++		for (i = 0; i < DPY_W * DPY_H; i++)
++			pixel[i] = 0xfd20;
++		s5l_lcd_n25_append_trace_band(par, 0xfd20);
++	}
++
+ 	info->screen_buffer = vmem;
+ 	info->fbops = &s5l_lcd_fbops;
+ 	info->var = s5l_lcd_var;
+@@ -867,9 +903,14 @@ static int s5l_lcd_probe(struct platform_device *pdev)
+ 	platform_set_drvdata(pdev, info);
+ 
+-	s5l_lcd_blit(par);
++	if (!par->preserve_handoff)
++		s5l_lcd_blit(par);
+ 
+-	ret = par->is_n25 ? s5l_lcd_n25_backlight_on(dev, pmu) :
+-			       s5l_lcd_n46_backlight_on(dev, pmu);
++	if (par->preserve_handoff)
++		ret = 0;
++	else if (par->is_n25)
++		ret = s5l_lcd_n25_backlight_on(dev, pmu);
++	else
++		ret = s5l_lcd_n46_backlight_on(dev, pmu);
+ 	if (ret)
+ 		goto err_unregister_fb;
+ 	s5l_lcd_put_pmu(pmu);
+@@ -879,7 +920,7 @@ static int s5l_lcd_probe(struct platform_device *pdev)
+ 	return 0;
+ 
+ err_unregister_fb:
+-	if (par->is_n25)
++	if (par->is_n25 && !par->preserve_handoff)
+ 		s5l_lcd_pmu_write(dev, pmu, PCF50635_I2C_ADDR,
+ 				  PCF50635_REG_LEDENA, 0);
+ 	unregister_framebuffer(info);

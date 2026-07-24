@@ -172,6 +172,56 @@ def test_album_list_fullscreen_viewport_keeps_non_album_iclassic_pane():
     bitmap_list = _read("apps/gui/bitmap/list.c")
     assert "!list->force_fullscreen_albumlist &&" in bitmap_list
     assert "list_get_title_height(list, screen)" in bitmap_list
+    assert "(list_text_vp->height % linedes.height) != 0" in bitmap_list
+    assert "end < list->nb_items" in bitmap_list
+
+
+def test_album_list_draws_clipped_partial_bottom_row():
+    bitmap_list = _read("apps/gui/bitmap/list.c")
+
+    ipodjs_draw = bitmap_list.split(
+        "static void list_ipodjs_draw(struct screen", 1
+    )[1].split("void gui_list_draw_item_default", 1)[0]
+    assert "int draw_rows = visible;" in ipodjs_draw
+    assert "(list_h % row_h) != 0" in ipodjs_draw
+    assert "draw_rows++;" in ipodjs_draw
+
+    stock_draw = bitmap_list.split("void list_draw(struct screen", 1)[1]
+    assert "list->force_fullscreen_albumlist" in stock_draw
+    assert "(list_text_vp->height % linedes.height) != 0" in stock_draw
+    assert "end++;" in stock_draw
+
+
+def test_right_pane_video_is_not_gated_by_audio_playback():
+    statusbar = _read("apps/gui/statusbar-skinned.c")
+    eligibility = statusbar.split(
+        "static bool sb_ipone_right_pane_video_eligible", 1
+    )[1].split("static unsigned sb_ipone_video_read_le16", 1)[0]
+
+    assert "audio_status()" not in eligibility
+    assert "AUDIO_STATUS_PLAY" not in eligibility
+    assert "AUDIO_STATUS_PAUSE" not in eligibility
+
+
+def test_right_pane_video_accepts_rockbox_extensionless_sbs_setting():
+    statusbar = _read("apps/gui/statusbar-skinned.c")
+    resolver = statusbar.split(
+        "static bool sb_ipone_video_path", 1
+    )[1].split("static bool sb_ipone_video_load_frame", 1)[0]
+
+    assert 'if (ext && !strcmp(ext, ".sbs"))' in resolver
+    assert 'if (!ext || strcmp(ext, ".sbs"))' not in resolver
+    assert '"/.rockbox/wps/%s/RightPaneVideo.rbvp"' in resolver
+
+
+def test_right_pane_video_is_a_distinct_third_setting():
+    settings = _read("apps/settings_list.c")
+    statusbar = _read("apps/gui/statusbar-skinned.c")
+
+    assert '"miniplayer,full art,video", NULL, 3' in settings
+    assert '"Miniplayer", "Full Art", "Video"' in settings
+    assert "global_settings.ipone_right_pane != 2" in statusbar
+    assert "global_settings.ipone_right_pane == 2" in statusbar
 
 
 def test_ipodjs_fullscreen_album_lists_keep_ipodjs_palette():
@@ -204,7 +254,25 @@ def test_ipodjs_photos_slideshow_uses_full_quality_previews():
 
     assert '"/Photos/.photo_previews"' in photo_loader
     assert ".photo_thumbs" not in photo_loader
-    assert "root_menu_video_draw_source_slideshow(source, x, y, w, h)" in root_menu
+    assert "root_menu_video_draw_source_slideshow_cached(source," in root_menu
+
+
+def test_ipodjs_photo_and_game_slideshows_cover_the_full_right_pane():
+    root_menu = _read("apps/root_menu.c")
+    cover_draw = root_menu.split(
+        "static bool root_menu_video_draw_preview_cover", 1
+    )[1].split("static bool root_menu_video_draw_source_slideshow_cached", 1)[0]
+    slideshow_draw = root_menu.split(
+        "static bool root_menu_video_draw_source_slideshow_cached", 1
+    )[1].split("static void root_menu_video_draw_clock_date", 1)[0]
+
+    assert "bm->width * h > bm->height * w" in cover_draw
+    assert "crop_w = MAX(1, bm->height * w / h);" in cover_draw
+    assert "crop_h = MAX(1, bm->width * h / w);" in cover_draw
+    assert "dst[dst_x] = src[sample_x];" in cover_draw
+    assert "core_alloc" not in cover_draw
+    assert "root_menu_video_draw_preview_cover(&slot->bm" in slideshow_draw
+    assert "lcd_fillrect" not in slideshow_draw
 
 
 def test_ipodjs_photos_slideshow_excludes_locked_photos_and_folders():
@@ -221,6 +289,18 @@ def test_ipodjs_photos_slideshow_excludes_locked_photos_and_folders():
     assert "root_menu_video_preview_filter_locked_photos();" in root_menu
     assert "root_menu_video_preview_path_count = 0;" in lock_filter
     assert "IPODJS_PREVIEW_PHOTOS" in photo_launcher
+    assert "file_exists(photo_path)" in root_menu
+
+
+def test_photos_plugin_keeps_full_quality_previews_with_photo_operations():
+    photos = _read("apps/plugins/photos.c")
+
+    assert '#define PHOTOS_PREVIEW_DIR PHOTOS_ROOT "/.photo_previews"' in photos
+    assert "static void photos_move_sidecars" in photos
+    assert "photos_move_sidecars(entry->path, newpath, entry->is_dir);" in photos
+    assert "photos_move_sidecars(entry->path, newpath, false);" in photos
+    assert "static void photos_delete_sidecars_for" in photos
+    assert "photos_delete_sidecars_for(delete_path, is_dir);" in photos
 
 
 def test_album_list_change_does_not_edit_ipone_colors():

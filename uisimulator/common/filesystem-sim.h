@@ -73,6 +73,7 @@ off_t   sim_filesize(int fildes);
 int     sim_fsamefile(int fildes1, int fildes2);
 int     sim_relate(const char *path1, const char *path2);
 bool    sim_file_exists(const char *path);
+int     sim_file_open_count(void);
 #endif /* !FILEFUNCTIONS_DECLARED */
 
 #endif /* _FILESYSTEM_SIM_H__FILE_H_ */

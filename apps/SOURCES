@@ -49,6 +49,7 @@ playlist.c
 playlist_catalog.c
 playlist_viewer.c
 plugin.c
+rockachievements_telemetry.c
 root_menu.c
 screens.c
 settings.c
@@ -79,6 +80,9 @@ screen_access.c
 gui/icon.c
 #ifdef HAVE_IPODJS_UI
 gui/ipodjs_ui.c
+#ifdef SIMULATOR
+gui/ipodjs_trace.c
+#endif
 #endif
 gui/list.c
 gui/line.c

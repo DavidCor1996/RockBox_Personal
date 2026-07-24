@@ -541,6 +541,11 @@ sub buildzip {
 
     find(find_copyfile(qr/\.(rock|ovl|lua)/, abs_path("$temp_dir/rocks/")), 'apps/plugins');
 
+    # PicoDrive is an explicitly enabled, non-commercial personal-use port.
+    # RockPod installs it directly; never let a stale opt-in build artifact
+    # leak into a normal Rockbox distribution archive.
+    glob_unlink("$temp_dir/rocks/picodrive.rock");
+
     #lua include scripts
     if(-e "$ROOT/apps/plugins/lua/include_lua") {
         glob_mkdir("$temp_dir/rocks/viewers/lua");
@@ -711,6 +716,34 @@ sub buildzip {
         }
     }
 
+    # The optional iPodJS Steam library uses only verifiable, non-placeholder
+    # native-game artwork: official Rockbox manual screenshots or existing
+    # title artwork recorded in SOURCES.tsv. The firmware discovers these
+    # covers beside the plugins that actually made it into this build.
+    if(-d "$temp_dir/rocks/games" &&
+       -e "$ROOT/assets/game_covers/native/SOURCES.tsv") {
+        my %steam_native_copied;
+        open(my $steam_sources, '<',
+             "$ROOT/assets/game_covers/native/SOURCES.tsv") or
+            die "can't open native game cover sources";
+        while(my $line = <$steam_sources>) {
+            chomp($line);
+            my ($plugin, $kind, $source) = split(/\t/, $line, 3);
+            next if !defined($plugin) || $plugin eq 'plugin';
+            next unless $kind eq 'rockbox-manual-screenshot' ||
+                        $kind eq 'existing-cover';
+            next if $steam_native_copied{$plugin};
+            next unless -e "$temp_dir/rocks/games/$plugin.rock";
+            next unless -e "$ROOT/assets/game_covers/native/$plugin.bmp";
+            mkpath("$temp_dir/games/library/covers/native",
+                   $verbose, 0777);
+            copy("$ROOT/assets/game_covers/native/$plugin.bmp",
+                 "$temp_dir/games/library/covers/native/$plugin.bmp");
+            $steam_native_copied{$plugin} = 1;
+        }
+        close($steam_sources);
+    }
+
     if(-e "$temp_dir/rocks/games/pokemini_launcher.rock" &&
        -d "$ROOT/assets/ipodjs/rockbox/pokemini/covers") {
         mkpath("$temp_dir/rocks/games/pokemini_launcher/covers",
@@ -794,8 +827,18 @@ sub buildzip {
 
     if(-d "$ROOT/assets/ipodjs/rockbox") {
         tree_copy("$ROOT/assets/ipodjs/rockbox", "$temp_dir/ipodjs",
-                  qr{^clubpenguin(?:/|$)|(?:^|/)\.rockbox(?:/|$)});
+                  qr{^clubpenguin(?:/|$)|(?:^|/)\.rockbox(?:/|$)|^(?:24-iLike\.fnt|alphabet-overlay-stock\.|status-(?:battery|playing|hold|header|repeat|shuffle)-stock\.|volume_(?:left|right)_stock\.)});
         copy_clubpenguin_assets("$temp_dir/ipodjs/clubpenguin");
+        # The iPodJS Hold screen uses this larger stock-like clock face.  It
+        # must be in FONT_DIR on hardware or the renderer falls back to the
+        # much smaller menu font.
+        copy("$ROOT/fonts/35-Adobe-Helvetica-Bold.fnt", "$temp_dir/fonts");
+    }
+    if(-d "$ROOT/assets/ipodjs/apple") {
+        # Apple binaries are private and gitignored.  When the verified
+        # extraction tool has prepared them, preserve their explicit apple/
+        # namespace so iPodJS never mistakes third-party theme art for stock.
+        tree_copy("$ROOT/assets/ipodjs/apple", "$temp_dir/ipodjs/apple");
     }
 
     if(-d "$ROOT/apps/plugins/offlineweb_seed/.rockbox/offlineweb") {

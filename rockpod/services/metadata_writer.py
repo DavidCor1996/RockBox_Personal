@@ -84,27 +84,51 @@ def _set_id3_comment(tags, value):
 
 def _write_id3_tags(audio, updates):
     tags = _ensure_tags(audio)
-    _set_id3_text(tags, "TIT2", TIT2, updates.get("title"))
-    _set_id3_text(tags, "TPE1", TPE1, updates.get("artist"))
-    _set_id3_text(tags, "TALB", TALB, updates.get("album"))
-    _set_id3_text(tags, "TPE2", TPE2, updates.get("album_artist"))
-    _set_id3_text(tags, "TCON", TCON, updates.get("genre"))
-    _set_id3_text(tags, "TDRC", TDRC, updates.get("year"))
-    _set_id3_text(
-        tags,
-        "TRCK",
-        TRCK,
-        _track_position(updates.get("track_number"), updates.get("track_total")),
-    )
-    _set_id3_text(
-        tags,
-        "TPOS",
-        TPOS,
-        _track_position(updates.get("disc_number"), updates.get("disc_total")),
-    )
-    _set_id3_text(tags, "TCOM", TCOM, updates.get("composer"))
-    _set_id3_comment(tags, updates.get("comment"))
-    _set_id3_text(tags, "TCMP", TCMP, "1" if _number(updates.get("compilation")) else "")
+    for field, frame_id, frame_type in (
+        ("title", "TIT2", TIT2),
+        ("artist", "TPE1", TPE1),
+        ("album", "TALB", TALB),
+        ("album_artist", "TPE2", TPE2),
+        ("genre", "TCON", TCON),
+        ("year", "TDRC", TDRC),
+        ("composer", "TCOM", TCOM),
+    ):
+        if field in updates:
+            _set_id3_text(tags, frame_id, frame_type, updates[field])
+    if "track_number" in updates or "track_total" in updates:
+        current_number, current_total = _id3_position(tags, "TRCK")
+        _set_id3_text(
+            tags,
+            "TRCK",
+            TRCK,
+            _track_position(
+                updates.get("track_number", current_number),
+                updates.get("track_total", current_total),
+            ),
+        )
+    if "disc_number" in updates or "disc_total" in updates:
+        current_number, current_total = _id3_position(tags, "TPOS")
+        _set_id3_text(
+            tags,
+            "TPOS",
+            TPOS,
+            _track_position(
+                updates.get("disc_number", current_number),
+                updates.get("disc_total", current_total),
+            ),
+        )
+    if "comment" in updates:
+        _set_id3_comment(tags, updates["comment"])
+    if "compilation" in updates:
+        _set_id3_text(tags, "TCMP", TCMP, "1" if _number(updates["compilation"]) else "")
+
+
+def _id3_position(tags, frame_id):
+    frames = tags.getall(frame_id)
+    if not frames or not getattr(frames[0], "text", None):
+        return 0, 0
+    parts = str(frames[0].text[0]).split("/", 1)
+    return _number(parts[0]), _number(parts[1] if len(parts) > 1 else 0)
 
 
 def _set_mapping_text(tags, key, value):
@@ -117,19 +141,28 @@ def _set_mapping_text(tags, key, value):
 
 def _write_vorbis_tags(audio, updates):
     tags = _ensure_tags(audio)
-    _set_mapping_text(tags, "title", updates.get("title"))
-    _set_mapping_text(tags, "artist", updates.get("artist"))
-    _set_mapping_text(tags, "album", updates.get("album"))
-    _set_mapping_text(tags, "albumartist", updates.get("album_artist"))
-    _set_mapping_text(tags, "genre", updates.get("genre"))
-    _set_mapping_text(tags, "date", updates.get("year"))
-    _set_mapping_text(tags, "tracknumber", _number(updates.get("track_number")) or "")
-    _set_mapping_text(tags, "tracktotal", _number(updates.get("track_total")) or "")
-    _set_mapping_text(tags, "discnumber", _number(updates.get("disc_number")) or "")
-    _set_mapping_text(tags, "disctotal", _number(updates.get("disc_total")) or "")
-    _set_mapping_text(tags, "composer", updates.get("composer"))
-    _set_mapping_text(tags, "comment", updates.get("comment"))
-    _set_mapping_text(tags, "compilation", "1" if _number(updates.get("compilation")) else "")
+    for field, key in (
+        ("title", "title"),
+        ("artist", "artist"),
+        ("album", "album"),
+        ("album_artist", "albumartist"),
+        ("genre", "genre"),
+        ("year", "date"),
+        ("composer", "composer"),
+        ("comment", "comment"),
+    ):
+        if field in updates:
+            _set_mapping_text(tags, key, updates[field])
+    for field, key in (
+        ("track_number", "tracknumber"),
+        ("track_total", "tracktotal"),
+        ("disc_number", "discnumber"),
+        ("disc_total", "disctotal"),
+    ):
+        if field in updates:
+            _set_mapping_text(tags, key, _number(updates[field]) or "")
+    if "compilation" in updates:
+        _set_mapping_text(tags, "compilation", "1" if _number(updates["compilation"]) else "")
 
 
 def _set_mp4_text(tags, key, value):
@@ -159,23 +192,55 @@ def _set_mp4_pair(tags, key, number, total):
 
 def _write_mp4_tags(audio, updates):
     tags = _ensure_tags(audio)
-    _set_mp4_text(tags, "\xa9nam", updates.get("title"))
-    _set_mp4_text(tags, "\xa9ART", updates.get("artist"))
-    _set_mp4_text(tags, "\xa9alb", updates.get("album"))
-    _set_mp4_text(tags, "aART", updates.get("album_artist"))
-    _set_mp4_text(tags, "\xa9gen", updates.get("genre"))
-    _set_mp4_text(tags, "\xa9day", updates.get("year"))
-    _set_mp4_text(tags, "\xa9wrt", updates.get("composer"))
-    _set_mp4_text(tags, "\xa9cmt", updates.get("comment"))
-    _set_mp4_pair(tags, "trkn", updates.get("track_number"), updates.get("track_total"))
-    _set_mp4_pair(tags, "disk", updates.get("disc_number"), updates.get("disc_total"))
-    if _number(updates.get("compilation")):
-        tags["cpil"] = True
-    else:
-        tags.pop("cpil", None)
-    _set_mp4_text(tags, "tvsh", updates.get("show_title"))
-    _set_mp4_int(tags, "tvsn", updates.get("season_number"))
-    _set_mp4_int(tags, "tves", updates.get("episode_number"))
+    for field, key in (
+        ("title", "\xa9nam"),
+        ("artist", "\xa9ART"),
+        ("album", "\xa9alb"),
+        ("album_artist", "aART"),
+        ("genre", "\xa9gen"),
+        ("year", "\xa9day"),
+        ("composer", "\xa9wrt"),
+        ("comment", "\xa9cmt"),
+        ("show_title", "tvsh"),
+    ):
+        if field in updates:
+            _set_mp4_text(tags, key, updates[field])
+    if "track_number" in updates or "track_total" in updates:
+        current_number, current_total = _mp4_pair(tags, "trkn")
+        _set_mp4_pair(
+            tags,
+            "trkn",
+            updates.get("track_number", current_number),
+            updates.get("track_total", current_total),
+        )
+    if "disc_number" in updates or "disc_total" in updates:
+        current_number, current_total = _mp4_pair(tags, "disk")
+        _set_mp4_pair(
+            tags,
+            "disk",
+            updates.get("disc_number", current_number),
+            updates.get("disc_total", current_total),
+        )
+    if "compilation" in updates:
+        if _number(updates["compilation"]):
+            tags["cpil"] = True
+        else:
+            tags.pop("cpil", None)
+    if "season_number" in updates:
+        _set_mp4_int(tags, "tvsn", updates["season_number"])
+    if "episode_number" in updates:
+        _set_mp4_int(tags, "tves", updates["episode_number"])
+
+
+def _mp4_pair(tags, key):
+    value = tags.get(key)
+    if isinstance(value, list) and value:
+        value = value[0]
+    if isinstance(value, (tuple, list)):
+        number = value[0] if value else 0
+        total = value[1] if len(value) > 1 else 0
+        return _number(number), _number(total)
+    return 0, 0
 
 
 def write_track_metadata_to_file(filepath, updates, mutagen_file_func=None):

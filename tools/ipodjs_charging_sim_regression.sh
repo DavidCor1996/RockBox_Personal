@@ -57,13 +57,13 @@ capture()
 {
     local name="$1"
     local attempt
-    local preview_tmp="${dump_bmp}.tmp.bmp"
+    local preview_bmp="${dump_bmp}"
 
     for attempt in 1 2 3 4 5 6 7 8 9 10; do
-        if [ -s "${preview_tmp}" ] &&
-           [ "$(stat -c %s "${preview_tmp}")" -ge 307338 ]; then
+        if [ -s "${preview_bmp}" ] &&
+           [ "$(stat -c %s "${preview_bmp}")" -ge 307200 ]; then
             sleep 0.04
-            if magick "${preview_tmp}" "${out_dir}/${name}" 2>/dev/null; then
+            if magick "${preview_bmp}" "${out_dir}/${name}" 2>/dev/null; then
                 return
             fi
         fi
@@ -124,6 +124,8 @@ prepare_root()
 {
     local mode="$1"
     local config_file
+    local directory
+    local file
 
     runtime_root="$(mktemp -d)"
     dump_bmp="${runtime_root}/simdump.bmp"
@@ -131,12 +133,24 @@ prepare_root()
         printf "simulator root: %s\n" "${runtime_root}"
     fi
     mkdir -p "${runtime_root}/.rockbox"
-    (cd "${source_root}/.rockbox" && tar -cf - .) | \
-        (cd "${runtime_root}/.rockbox" && tar -xf -)
+    # Keep the regression root intentionally small.  Simulator roots used for
+    # development can contain multi-gigabyte games/maps that are unrelated to
+    # charging and can exhaust /tmp before the actual UI test begins.
+    for file in "${source_root}"/.rockbox/*; do
+        [ -f "${file}" ] && cp "${file}" "${runtime_root}/.rockbox/"
+    done
+    for directory in langs icons backdrops wps themes fonts albumlist rockpod; do
+        if [ -d "${source_root}/.rockbox/${directory}" ]; then
+            mkdir -p "${runtime_root}/.rockbox/${directory}"
+            cp -a "${source_root}/.rockbox/${directory}/." \
+                  "${runtime_root}/.rockbox/${directory}/"
+        fi
+    done
     mkdir -p "${runtime_root}/.rockbox/ipodjs" \
              "${runtime_root}/.rockbox/fonts"
     for font in 12-Adobe-Helvetica.fnt 14-Adobe-Helvetica-Bold.fnt \
-                16-Adobe-Helvetica-Bold.fnt 18-Adobe-Helvetica-Bold.fnt; do
+                16-Adobe-Helvetica-Bold.fnt 18-Adobe-Helvetica-Bold.fnt \
+                24-iLike.fnt; do
         cp "${repo_root}/assets/ipodjs/rockbox/${font}" \
             "${runtime_root}/.rockbox/ipodjs/${font}"
         cp "${repo_root}/assets/ipodjs/rockbox/${font}" \
@@ -213,13 +227,18 @@ run_mode()
     sleep 3
     capture "${prefix}-00-home.png"
 
-    # Capture every fixed iPodJS root selection. One additional Down press at
-    # the seventh item must clamp, proving the simulator is not exposing the
-    # longer configurable Rockbox root list.
+    # Capture every fixed iPodJS root selection. Then deliberately over-scroll
+    # to the last row before checking the clamp. This makes the assertion
+    # insensitive to a synthetic wheel pulse landing while a preview redraw is
+    # in progress.
     for root_index in 1 2 3 4 5 6; do
         tap_key KP_2 0.65
         capture "${prefix}-20-root-${root_index}.png"
     done
+    for root_index in 1 2 3 4 5 6; do
+        tap_key KP_2 0.25
+    done
+    capture "${prefix}-20-root-6.png"
     tap_key KP_2 0.65
     capture "${prefix}-26-root-end-clamped.png"
 
@@ -250,15 +269,22 @@ run_mode()
     done
     sleep 0.4
 
-    # Exercise Select and Back separately after restoring the first row.
-    tap_key KP_2 0.4
+    # Exercise Select and Back on Settings. Clamp at Now Playing first, then
+    # move up one row so the destination is deterministic even when the host
+    # drops a synthetic wheel pulse during rendering.
+    for root_index in 1 2 3 4 5 6 7 8 9 10; do
+        tap_key KP_2 0.25
+    done
+    tap_key KP_8 0.6
     sleep 1
     capture "${prefix}-16-home-next.png"
     tap_key KP_5 0.6
     capture "${prefix}-17-child.png"
     tap_key KP_4 0.6
     capture "${prefix}-18-home-returned.png"
-    tap_key KP_8 0.4
+    for root_index in 1 2 3 4 5 6 7 8 9 10; do
+        tap_key KP_8 0.25
+    done
     capture "${prefix}-19-home-restored.png"
     sleep 1
 
@@ -343,12 +369,32 @@ assert_captures()
     local settled_preview_hash
     local settled_extras_left_hash
     local fast_left_hash
+    local art_pixels
+    local home_battery_green
 
     for mode in light dark; do
         first_hash="$(sha256sum "${out_dir}/${mode}-01-charge-a.png" | \
             awk '{ print $1 }')"
         home_hash="$(sha256sum "${out_dir}/${mode}-00-home.png" | \
             awk '{ print $1 }')"
+        home_battery_green="$(magick "${out_dir}/${mode}-00-home.png" \
+            -crop 25x12+114+4 +repage \
+            -fx 'g>r*1.03&&g>b*1.03?1:0' \
+            -format '%[fx:round(mean*300)]' info:)"
+        if [ "${home_battery_green}" -lt 30 ]; then
+            printf "%s high-level Home battery rendered black/empty (%s green pixels)\n" \
+                "${mode}" "${home_battery_green}" >&2
+            exit 1
+        fi
+        art_pixels="$(magick "${out_dir}/${mode}-00-home.png" \
+            -crop 156x220+164+20 +repage \
+            -fx 'r>0.80&&g>0.80&&b>0.80?1:0' \
+            -format '%[fx:round(mean*34320)]' info:)"
+        if [ "${art_pixels}" -lt 500 ]; then
+            printf "%s Home right pane did not decode album artwork (%s light pixels)\n" \
+                "${mode}" "${art_pixels}" >&2
+            exit 1
+        fi
         home_left_hash="$(magick "${out_dir}/${mode}-00-home.png" \
             -crop 159x220+0+20 rgba:- | sha256sum | awk '{ print $1 }')"
         next_left_hash="$(magick "${out_dir}/${mode}-16-home-next.png" \

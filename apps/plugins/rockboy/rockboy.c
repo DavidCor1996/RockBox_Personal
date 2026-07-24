@@ -25,12 +25,58 @@
 #include "input.h"
 #include "emu.h"
 #include "hw.h"
+#include "mem.h"
 #include "pcm.h"
 #include "profiler.h"
+#include "lib/rockachievements.h"
 
 int shut,cleanshut;
 char *errormsg;
 bool rockboy_return_to_launcher;
+static struct rockachievements_runtime rockboy_achievements;
+
+static uint32_t rockboy_achievement_peek(uint32_t address,
+                                         uint32_t num_bytes,
+                                         void *userdata)
+{
+    uint32_t value = 0;
+    uint32_t index;
+
+    (void)userdata;
+    for (index = 0; index < num_bytes && index < 4; ++index, ++address)
+    {
+        byte result = 0;
+
+        if (address < 0x10000)
+            result = READB(address);
+        else if (address < 0x16000)
+        {
+            unsigned bank = 2 + (address - 0x10000) / 0x1000;
+            unsigned offset = (address - 0x10000) & 0x0FFF;
+            if (bank < 8)
+                result = ram.ibank[bank][offset];
+        }
+        else if (address < 0x34000 && ram.sbank)
+        {
+            unsigned bank = 1 + (address - 0x16000) / 0x2000;
+            unsigned offset = (address - 0x16000) & 0x1FFF;
+            if (bank < (unsigned)mbc.ramsize)
+                result = ram.sbank[bank][offset];
+        }
+        value |= (uint32_t)result << (index * 8);
+    }
+    return value;
+}
+
+void rockboy_achievements_frame(void)
+{
+    rockachievements_do_frame(&rockboy_achievements);
+}
+
+void rockboy_achievements_reset(void)
+{
+    rockachievements_reset(&rockboy_achievements);
+}
 
 #define ROCKBOY_LAUNCHER_PATH PLUGIN_GAMES_DIR "/rockboy_launcher.rock"
 
@@ -699,13 +745,25 @@ static int gnuboy_main(const char *rom)
     loader_init(rom);
     if(shut)
         return PLUGIN_ERROR;
+    if (rockachievements_available(rom))
+    {
+        void *workspace = my_malloc(ROCKACHIEVEMENTS_WORKSPACE_TARGET);
+
+        if (workspace)
+            rockachievements_init(
+                &rockboy_achievements, rom, rockboy_achievement_peek, NULL,
+                workspace, ROCKACHIEVEMENTS_WORKSPACE_TARGET);
+    }
     rb->lcd_puts(0,3,"Emu reset");
     emu_reset();
     rb->lcd_puts(0,4,"Emu run");
     rb->lcd_clear_display();
     rb->lcd_update();
-    if(options.autosave) sn_load();
+    if(options.autosave &&
+       !rockachievements_hardcore_active(&rockboy_achievements))
+        sn_load();
     emu_run();
+    rockachievements_shutdown(&rockboy_achievements);
 
     /* never reached */
     return PLUGIN_OK;

@@ -59,6 +59,7 @@ pocketcatch_simple.c
 photos.c
 
 #if defined(HAVE_LCD_COLOR) && (LCD_WIDTH >= 320) && (LCD_HEIGHT >= 240)
+achievements.c
 weather.c
 nb_maps.c
 #endif
