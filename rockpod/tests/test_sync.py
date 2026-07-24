@@ -194,6 +194,52 @@ def test_video_manifest_merge_preserves_present_uncached_device_rows(env):
     }
 
 
+def test_video_manifest_merge_keeps_untouched_existing_metadata(env):
+    existing_rel = os.path.join("Videos", "Movies", "Existing Movie.rvp")
+    existing_path = os.path.join(env["device_path"], existing_rel)
+    os.makedirs(os.path.dirname(existing_path), exist_ok=True)
+    with open(existing_path, "w", encoding="utf-8") as handle:
+        handle.write("ROCKPOD_RVP_V1\n")
+
+    manifest_dir = os.path.join(env["device_path"], VIDEO_LIST_DEVICE_DIR)
+    os.makedirs(manifest_dir, exist_ok=True)
+    with open(
+        os.path.join(manifest_dir, "index.tsv"), "w", encoding="utf-8"
+    ) as handle:
+        handle.write("# rockpod videolist v5\n")
+        handle.write("video_id\ttitle\tdevice_path\tyear\n")
+        handle.write(
+            f"existing-id\tExisting Exact Title\t{existing_rel}\t1999\n"
+        )
+
+    new_rel = os.path.join("Videos", "Movies", "New Movie.rvp")
+    plan = SyncPlan()
+    plan.to_copy.append(({"title": "New Movie"}, new_rel))
+    merged = _merge_existing_video_manifest_entries(
+        [
+            {
+                "video_id": "changed-id",
+                "title": "Changed Existing Metadata",
+                "device_path": existing_rel,
+                "year": "2026",
+            },
+            {
+                "video_id": "new-id",
+                "title": "New Movie",
+                "device_path": new_rel,
+            },
+        ],
+        plan,
+        env["device_path"],
+    )
+
+    by_path = {entry["device_path"]: entry for entry in merged}
+    assert by_path[existing_rel]["video_id"] == "existing-id"
+    assert by_path[existing_rel]["title"] == "Existing Exact Title"
+    assert by_path[existing_rel]["year"] == "1999"
+    assert by_path[new_rel]["video_id"] == "new-id"
+
+
 def test_video_manifest_merge_discovers_unindexed_physical_rvp(env):
     existing_rel = os.path.join(
         "Videos", "TV Shows", "Recess", "Season 03",

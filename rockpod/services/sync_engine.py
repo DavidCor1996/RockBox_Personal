@@ -980,20 +980,33 @@ def _fallback_video_manifest_entry(rel_path):
 
 
 def _merge_existing_video_manifest_entries(entries, plan, device_mount):
-    """Preserve physically present videos if the device cache is incomplete."""
+    """Preserve untouched physical videos and merge only planned changes."""
     obsolete_paths = {
         str(rel_path or "").strip()
         for rel_path in getattr(plan, "to_delete", [])
         if str(rel_path or "").strip()
     }
+    replacement_paths = {
+        str(rel_path or "").strip()
+        for _row, rel_path in getattr(plan, "to_copy", [])
+        if str(rel_path or "").strip()
+    }
+    replacement_paths.update(
+        str(rel_path or "").strip()
+        for _row, rel_path in getattr(plan, "preflight_linked", [])
+        if str(rel_path or "").strip()
+    )
     for _row, old_rel_path, new_rel_path in getattr(plan, "to_resync", []):
         old_rel_path = str(old_rel_path or "").strip()
         new_rel_path = str(new_rel_path or "").strip()
+        if new_rel_path:
+            replacement_paths.add(new_rel_path)
         if old_rel_path and old_rel_path != new_rel_path:
             obsolete_paths.add(old_rel_path)
 
     physical_paths = _physical_rvp_paths(device_mount)
     obsolete_keys = {path.casefold() for path in obsolete_paths}
+    replacement_keys = {path.casefold() for path in replacement_paths}
     merged = {
         str(entry.get("device_path") or "").strip().casefold(): entry
         for entry in _read_existing_video_manifest_entries(device_mount)
@@ -1006,7 +1019,8 @@ def _merge_existing_video_manifest_entries(entries, plan, device_mount):
             key = rel_path.casefold()
             item = dict(entry)
             item["device_path"] = physical_paths.get(key, rel_path)
-            merged[key] = item
+            if key not in merged or key in replacement_keys:
+                merged[key] = item
     for key, rel_path in physical_paths.items():
         if key in obsolete_keys or key in merged:
             continue
