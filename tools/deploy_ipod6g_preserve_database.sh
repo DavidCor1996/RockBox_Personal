@@ -108,6 +108,31 @@ verify_database_unchanged()
     echo "database guard: all ${#database_files[@]} tagcache files are byte-identical"
 }
 
+install_recovery_snapshot()
+{
+    local snapshot="${mount_path}/.rockbox/tagcache_backup"
+    local staging="${mount_path}/.rockbox/.tagcache_backup.new"
+    local original
+    local name
+
+    rm -rf "${staging}"
+    mkdir "${staging}"
+    for original in "${backup_dir}"/*.tcd; do
+        cp -a "${original}" "${staging}/"
+    done
+    for original in "${backup_dir}"/*.tcd; do
+        name="$(basename "${original}")"
+        if ! cmp -s "${original}" "${staging}/${name}"; then
+            echo "database guard: recovery snapshot ${name} differs" >&2
+            exit 1
+        fi
+    done
+
+    rm -rf "${snapshot}"
+    mv "${staging}" "${snapshot}"
+    echo "database guard: installed verified last-known-good recovery snapshot"
+}
+
 if [ -z "${mount_path}" ]; then
     usage
 fi
@@ -189,6 +214,7 @@ rm -f "${mount_path}/.rockbox/database_tmp.tcd" \
       "${mount_path}/.rockbox/database_commit.tcd" \
       "${mount_path}/.rockbox/database_hostcommit.tcd"
 
+install_recovery_snapshot
 enable_tagcache_autoupdate
 verify_database_unchanged
 cp "${firmware}" "${mount_path}/rockbox.ipod"

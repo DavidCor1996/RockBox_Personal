@@ -131,6 +131,16 @@ enum ui_engine_hold_effect {
     UI_ENGINE_HOLD_LOCKSCREEN = 1,
 };
 
+enum ui_engine_video_appearance {
+    UI_ENGINE_VIDEO_CLASSIC = 0,
+    UI_ENGINE_VIDEO_NETFLIX = 1,
+};
+
+enum ui_engine_games_appearance {
+    UI_ENGINE_GAMES_CLASSIC = 0,
+    UI_ENGINE_GAMES_STEAM = 1,
+};
+
 #ifdef HAVE_CROSSFADE
 enum {
     CROSSFADE_ENABLE_OFF = 0,
@@ -700,7 +710,7 @@ struct user_settings
 
     int ipone_charge_wallpaper; /* iPone charge wallpaper mode */
     int ipone_lock_wallpaper;   /* iPone lock wallpaper mode */
-    int ipone_right_pane;       /* iPone SBS right pane mode: miniplayer/full art */
+    int ipone_right_pane;       /* iPone SBS right pane: miniplayer/full art/video */
     int ui_engine;              /* root/menu UI engine */
     int ui_engine_accent;       /* native engine accent palette */
     int ui_engine_density;      /* native engine row density */
@@ -1003,6 +1013,10 @@ struct user_settings
 #if defined(HAVE_GENERAL_PURPOSE_LED)
     bool use_led_indicators;
 #endif
+    /* Append custom settings to preserve offsets used by installed plugins. */
+    bool ui_engine_lock_settings; /* shared privacy PIN gates Settings */
+    int ui_engine_video_appearance; /* native Videos catalog style */
+    int ui_engine_games_appearance; /* native Games library style */
 };
 
 /* global settings */

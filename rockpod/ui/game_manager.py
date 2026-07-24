@@ -27,6 +27,7 @@ class GameManagerWidget(QWidget):
     profile_selected = Signal(str)
     target_mode_selected = Signal(str)
     choose_library_requested = Signal()
+    choose_genesis_library_requested = Signal()
     refresh_requested = Signal()
     selection_changed = Signal()
     dry_run_requested = Signal()
@@ -41,6 +42,8 @@ class GameManagerWidget(QWidget):
     optimize_cover_requested = Signal()
     launch_simulator_requested = Signal()
     default_games_changed = Signal()
+    achievements_settings_changed = Signal(str, str)
+    avatar_creator_requested = Signal()
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -66,6 +69,12 @@ class GameManagerWidget(QWidget):
         self._library_edit.setReadOnly(True)
         self._browse_btn = QPushButton("Choose ROM Folder")
         self._browse_btn.clicked.connect(self.choose_library_requested)
+        self._genesis_library_edit = QLineEdit()
+        self._genesis_library_edit.setReadOnly(True)
+        self._genesis_browse_btn = QPushButton("Choose Genesis Folder")
+        self._genesis_browse_btn.clicked.connect(
+            self.choose_genesis_library_requested
+        )
         self._refresh_btn = QPushButton("Refresh Library")
         self._refresh_btn.clicked.connect(self.refresh_requested)
         self._target_path_label = QLabel("")
@@ -81,6 +90,15 @@ class GameManagerWidget(QWidget):
         self._show_doom_check.toggled.connect(self.default_games_changed)
         self._show_stickrpg_check.toggled.connect(self.default_games_changed)
         self._show_runescape_check.toggled.connect(self.default_games_changed)
+        self._ra_username_edit = QLineEdit()
+        self._ra_username_edit.setPlaceholderText("Optional RetroAchievements username")
+        self._ra_api_key_edit = QLineEdit()
+        self._ra_api_key_edit.setEchoMode(QLineEdit.Password)
+        self._ra_api_key_edit.setPlaceholderText("Optional Web API key")
+        self._ra_save_btn = QPushButton("Save Achievement Settings")
+        self._ra_save_btn.clicked.connect(self._emit_achievement_settings)
+        self._avatar_creator_btn = QPushButton("Open Avatar Creator")
+        self._avatar_creator_btn.clicked.connect(self.avatar_creator_requested)
 
         grid.addWidget(QLabel("Profile:"), 0, 0)
         grid.addWidget(self._profile_combo, 0, 1)
@@ -89,23 +107,43 @@ class GameManagerWidget(QWidget):
         grid.addWidget(QLabel("ROM Library:"), 1, 0)
         grid.addWidget(self._library_edit, 1, 1, 1, 2)
         grid.addWidget(self._browse_btn, 1, 3)
-        grid.addWidget(self._refresh_btn, 2, 3)
-        grid.addWidget(QLabel("Target Path:"), 2, 0)
-        grid.addWidget(self._target_path_label, 2, 1, 1, 2)
-        grid.addWidget(QLabel("Status:"), 3, 0)
-        grid.addWidget(self._status_label, 3, 1, 1, 3)
-        grid.addWidget(QLabel("Last Save Backup:"), 4, 0)
-        grid.addWidget(self._backup_label, 4, 1, 1, 3)
-        grid.addWidget(QLabel("Rockboy Tips:"), 5, 0)
-        grid.addWidget(self._settings_help, 5, 1, 1, 3)
+        grid.addWidget(QLabel("Genesis ROMs:"), 2, 0)
+        grid.addWidget(self._genesis_library_edit, 2, 1, 1, 2)
+        grid.addWidget(self._genesis_browse_btn, 2, 3)
+        grid.addWidget(self._refresh_btn, 3, 3)
+        grid.addWidget(QLabel("Target Path:"), 3, 0)
+        grid.addWidget(self._target_path_label, 3, 1, 1, 2)
+        grid.addWidget(QLabel("Status:"), 4, 0)
+        grid.addWidget(self._status_label, 4, 1, 1, 3)
+        grid.addWidget(QLabel("Last Save Backup:"), 5, 0)
+        grid.addWidget(self._backup_label, 5, 1, 1, 3)
+        grid.addWidget(QLabel("Emulator Tips:"), 6, 0)
+        grid.addWidget(self._settings_help, 6, 1, 1, 3)
         builtins = QHBoxLayout()
         builtins.setSpacing(8)
         builtins.addWidget(self._show_doom_check)
         builtins.addWidget(self._show_stickrpg_check)
         builtins.addWidget(self._show_runescape_check)
         builtins.addStretch(1)
-        grid.addWidget(QLabel("Show Defaults:"), 6, 0)
-        grid.addLayout(builtins, 6, 1, 1, 3)
+        grid.addWidget(QLabel("Show Defaults:"), 7, 0)
+        grid.addLayout(builtins, 7, 1, 1, 3)
+        grid.addWidget(QLabel("RA Username:"), 8, 0)
+        grid.addWidget(self._ra_username_edit, 8, 1)
+        grid.addWidget(QLabel("Web API Key:"), 8, 2)
+        grid.addWidget(self._ra_api_key_edit, 8, 3)
+        grid.addWidget(QLabel("Achievements:"), 9, 0)
+        achievement_help = QLabel(
+            "Every synced game gets an offline set. An API key adds official "
+            "RetroAchievements sets in iPod Hardcore mode: state loading is "
+            "blocked and new unlocks are recorded on this iPod. Offline "
+            "verification does not grant official RA mastery; credentials "
+            "stay in RockPod."
+        )
+        achievement_help.setWordWrap(True)
+        grid.addWidget(achievement_help, 9, 1, 1, 2)
+        grid.addWidget(self._ra_save_btn, 9, 3)
+        grid.addWidget(QLabel("Xbox Profile:"), 10, 0)
+        grid.addWidget(self._avatar_creator_btn, 10, 1, 1, 3)
         layout.addWidget(header)
 
         body = QHBoxLayout()
@@ -240,8 +278,12 @@ class GameManagerWidget(QWidget):
             self._target_combo.setCurrentIndex(index)
         self._target_combo.blockSignals(False)
 
-    def set_library_state(self, library_path, target_path, status_text, settings_help=None, last_backup_text=""):
+    def set_library_state(
+        self, library_path, target_path, status_text, settings_help=None,
+        last_backup_text="", genesis_library_path="",
+    ):
         self._library_edit.setText(library_path or "")
+        self._genesis_library_edit.setText(genesis_library_path or "Not configured")
         self._target_path_label.setText(target_path or "")
         self._status_label.setText(status_text or "")
         self._settings_help.setText("\n".join(settings_help or []))
@@ -264,6 +306,16 @@ class GameManagerWidget(QWidget):
             "games_show_builtin_stickrpg": self._show_stickrpg_check.isChecked(),
             "games_show_builtin_runescape": self._show_runescape_check.isChecked(),
         }
+
+    def set_achievement_settings(self, username, api_key):
+        self._ra_username_edit.setText(str(username or ""))
+        self._ra_api_key_edit.setText(str(api_key or ""))
+
+    def _emit_achievement_settings(self):
+        self.achievements_settings_changed.emit(
+            self._ra_username_edit.text().strip(),
+            self._ra_api_key_edit.text().strip(),
+        )
 
     def set_games(self, games, selected_ids=None):
         selected_ids = set(selected_ids or [])

@@ -1,0 +1,37 @@
+From: Rockpod qualification tooling
+Subject: [PATCH] ARM: s5l87xx: build S5L8702 for ARM926EJ-S
+
+The freemyipod s5l87xx branch selects the ARMv5 architecture family for
+S5L8702 but does not select its ARM926 CPU implementation. The generic ARM
+multiplatform defaults can consequently leave ARMv7 enabled, producing a
+Thumb-2/VFP kernel that cannot execute on S5L8702.
+
+Keep the Nano 3G baseline strictly ARMv5 and select the ARM926 implementation.
+This patch is a prerequisite/toolchain gate only; it does not add an iPod
+Classic board, storage, click-wheel, audio, or power-management support.
+
+diff --git a/arch/arm/configs/apple_n46_defconfig b/arch/arm/configs/apple_n46_defconfig
+index d12aa68aee9c..b18d7e6ab013 100644
+--- a/arch/arm/configs/apple_n46_defconfig
++++ b/arch/arm/configs/apple_n46_defconfig
+@@ -1,5 +1,6 @@
+ CONFIG_ARCH_S5L87XX=y
+ CONFIG_CPU_S5L8702=y
++# CONFIG_ARCH_MULTI_V7 is not set
+ CONFIG_CMDLINE="console=ttySAC0,57600 earlycon=s5l,mmio32,0x3cc00000"
+ CONFIG_EARLY_PRINTK=y
+ CONFIG_PRINTK_TIME=y
+diff --git a/arch/arm/mach-s5l87xx/Kconfig b/arch/arm/mach-s5l87xx/Kconfig
+index e672afd39f52..65f93163bc57 100644
+--- a/arch/arm/mach-s5l87xx/Kconfig
++++ b/arch/arm/mach-s5l87xx/Kconfig
+@@ -8,6 +8,7 @@ config CPU_S5L8702
+ 	bool "Enable S5L8702 (iPod Nano 3rd Generation / N46) CPU support"
+ 	select ARCH_MULTI_V5
+ 	select ARM_VIC
++	select CPU_ARM926T
+ 	help
+ 	  Enable support for the Samsung/Apple S5L8702 SoC (ARM926EJ-S),
+ 	  as found in the iPod Nano 3rd Generation (N46).
+-- 
+2.50.1

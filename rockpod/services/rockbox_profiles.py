@@ -7,6 +7,20 @@ import os
 import re
 
 
+_AVATAR_APPEARANCE_VALUES = {
+    "skin": {"original", "light", "medium", "deep"},
+    "hair": {"original", "black", "brown", "blond", "auburn"},
+    "top": {"original", "xbox-green", "blue", "red", "black", "white"},
+    "bottom": {"original", "denim", "black", "gray", "khaki"},
+    "shoes": {"original", "white", "black", "brown", "red"},
+}
+
+
+def _normalize_avatar_appearance(field, value):
+    value = str(value or "original")
+    return value if value in _AVATAR_APPEARANCE_VALUES[field] else "original"
+
+
 def _slug(value):
     text = re.sub(r"[^a-z0-9]+", "-", str(value or "").strip().lower())
     text = text.strip("-")
@@ -269,6 +283,15 @@ class RockboxProfileStore:
             "games_library_path": os.path.abspath(
                 str(item.get("games_library_path") or self._config.get("games_library_path", "")).strip()
             ),
+            "games_genesis_library_path": os.path.abspath(
+                str(
+                    item.get("games_genesis_library_path")
+                    or self._config.get("games_genesis_library_path", "")
+                ).strip()
+            ) if str(
+                item.get("games_genesis_library_path")
+                or self._config.get("games_genesis_library_path", "")
+            ).strip() else "",
             "games_device_target_dir": games_device_target_dir,
             "games_simulator_target_dir": games_simulator_target_dir,
             "games_show_builtin_doom": bool(
@@ -280,6 +303,44 @@ class RockboxProfileStore:
             "games_show_builtin_runescape": bool(
                 item.get("games_show_builtin_runescape", self._config.get("games_show_builtin_runescape", True))
             ),
+            "retroachievements_username": str(
+                item.get("retroachievements_username")
+                or self._config.get("retroachievements_username", "")
+            ).strip(),
+            "retroachievements_web_api_key": str(
+                item.get("retroachievements_web_api_key")
+                or self._config.get("retroachievements_web_api_key", "")
+            ).strip(),
+            "xbox_avatar_display_name": str(
+                item.get("xbox_avatar_display_name")
+                or self._config.get("xbox_avatar_display_name", "OFFLINE PLAYER")
+            ).strip()[:15] or "OFFLINE PLAYER",
+            "xbox_avatar_body": (
+                str(item.get("xbox_avatar_body")
+                    or self._config.get("xbox_avatar_body", "xna-boy"))
+                if str(item.get("xbox_avatar_body")
+                       or self._config.get("xbox_avatar_body", "xna-boy"))
+                    in {"xna-boy", "xna-girl", "xna-girl-heels"}
+                    else "xna-boy"
+            ),
+            "xbox_avatar_favorite_clip": (
+                str(item.get("xbox_avatar_favorite_clip")
+                    or self._config.get("xbox_avatar_favorite_clip", "jump"))
+                if str(item.get("xbox_avatar_favorite_clip")
+                       or self._config.get("xbox_avatar_favorite_clip", "jump"))
+                in {
+                    "jump", "throw", "faint", "sit-idle",
+                    "punch", "kick", "walk",
+                } else "jump"
+            ),
+            **{
+                f"xbox_avatar_{field}": _normalize_avatar_appearance(
+                    field,
+                    item.get(f"xbox_avatar_{field}")
+                    or self._config.get(f"xbox_avatar_{field}", "original")
+                )
+                for field in _AVATAR_APPEARANCE_VALUES
+            },
         }
 
     @staticmethod

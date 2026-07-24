@@ -61,6 +61,9 @@
 #include "i2c-s5l8702.h"
 #include "gpio-s5l8702.h"
 #include "pmu-target.h"
+#ifdef IPOD_6G
+#include "dma-s5l8702.h"
+#endif
 #if defined(IPOD_6G) || defined(IPOD_NANO3G)
 #include "norboot-target.h"
 #endif
@@ -238,6 +241,7 @@ static void n3g_storage_direct_lba_diag(void)
 #define ERR_OF      1
 #define ERR_STORAGE 2
 #define ERR_LBA28   3
+#define ERR_ANDROID 4
 
 /* Safety measure - maximum allowed firmware image size.
    The largest known current (October 2009) firmware is about 6.2MB so
@@ -470,6 +474,10 @@ void fatal_error(int err)
         case ERR_LBA28:
             printf("Hold MENU+SELECT to reboot");
             printf("and LEFT if you are REALLY sure");
+            break;
+        case ERR_ANDROID:
+            printf("Android boot stopped safely");
+            printf("Hold MENU+SELECT to reboot");
             break;
     }
 
@@ -1577,9 +1585,207 @@ static void n3g_handoff_disk_native(unsigned char *image, int length)
 }
 #endif
 
+#ifdef IPOD_6G
+extern void lcd_wait_for_dma(void);
+extern void lcd_prepare_for_pio_trace(void);
+
+/*
+ * The first hardware gate deliberately uses three ordinary Rockbox firmware
+ * containers on the existing FAT volume.  load_firmware() checks both the
+ * ip6g model tag and the additive Rockbox checksum before exposing a body.
+ * Exact body sizes make a valid prefix/trailing-data substitution fail closed.
+ */
+#ifdef N25_ANDROID_VISIBLE_DIAG_TEST
+#define N25_ANDROID_KERNEL_PATH BOOTDIR "/android/diagnostic-trace2/n25-visible-kernel.ipod"
+#define N25_ANDROID_INITRD_PATH BOOTDIR "/android/diagnostic-trace2/n25-visible-initramfs.ipod"
+#define N25_ANDROID_DTB_PATH    BOOTDIR "/android/diagnostic-trace2/n25-visible-dtb.ipod"
+#else
+#define N25_ANDROID_KERNEL_PATH BOOTDIR "/android/n25-eclair-kernel.ipod"
+#define N25_ANDROID_INITRD_PATH BOOTDIR "/android/n25-eclair-initramfs.ipod"
+#define N25_ANDROID_DTB_PATH    BOOTDIR "/android/n25-eclair-dtb.ipod"
+#endif
+
+#define N25_ANDROID_KERNEL_ADDR 0x08008000u
+#define N25_ANDROID_INITRD_ADDR 0x09c00000u
+#define N25_ANDROID_DTB_ADDR    0x0ad00000u
+
+/* tools/scramble pads bodies to four bytes before adding the ip6g header. */
+#ifndef N25_ANDROID_KERNEL_SIZE
+#define N25_ANDROID_KERNEL_SIZE 1683480
+#endif
+#ifndef N25_ANDROID_INITRD_SIZE
+#define N25_ANDROID_INITRD_SIZE 13842304
+#endif
+#ifndef N25_ANDROID_DTB_SIZE
+#define N25_ANDROID_DTB_SIZE    3024
+#endif
+
+static int n25_android_load_exact(const char *path, uintptr_t address,
+                                  int expected_size)
+{
+    int loaded = load_firmware((unsigned char *)address, path, expected_size);
+
+    if (loaded != expected_size)
+    {
+        printf("Android component rejected");
+        printf("%s", path);
+        if (loaded < 0)
+            printf("%s", loader_strerror(loaded));
+        else
+            printf("size %d expected %d", loaded, expected_size);
+    }
+
+    return loaded == expected_size ? 0 : -1;
+}
+
+/*
+ * ARM Linux boot protocol: SVC mode with IRQ/FIQ and MMU/caches disabled,
+ * r0=0, r1=legacy machine id, r2=physical DTB address.  This final routine
+ * is naked because changing processor mode changes the active stack bank.
+ */
+static void __attribute__((naked, noinline, noreturn))
+n25_android_linux_jump(uintptr_t entry __attribute__((unused)),
+                       uintptr_t dtb __attribute__((unused)))
+{
+    asm volatile(
+        "mov r4, r0\n"
+        "mov r2, r1\n"
+        "mrs r3, cpsr\n"
+        "bic r3, r3, #0x1f\n"
+        "orr r3, r3, #0xd3\n"
+        "msr cpsr_c, r3\n"
+        "mrc p15, 0, r3, c1, c0, 0\n"
+        "bic r3, r3, #0x1000\n"
+        "bic r3, r3, #0x5\n"
+        "mcr p15, 0, r3, c1, c0, 0\n"
+        "mov r3, #0\n"
+        "mcr p15, 0, r3, c8, c7, 0\n"
+        "mcr p15, 0, r3, c7, c5, 4\n"
+        /*
+         * Post-cache breadcrumb. Rockbox explicitly starts one full-screen
+         * GRAM transaction immediately before handoff. Each of five opaque
+         * boot stages appends one 320x48 band, so the final display retains
+         * every completed milestone without resetting the panel cursor here.
+         */
+        "ldr r5, 2f\n"
+        "ldr r6, 3f\n"
+        "ldr r7, 4f\n"
+        "ldr r8, 5f\n"
+        "1:\n"
+        "ldr r3, [r5]\n"
+        "tst r3, #0x10\n"
+        "bne 1b\n"
+        "str r7, [r6]\n"
+        "subs r8, r8, #1\n"
+        "bne 1b\n"
+        "mov r0, #0\n"
+        "mvn r1, #0\n"
+        "bx r4\n"
+        ".align 2\n"
+        "2: .word 0x3830001c\n"
+        "3: .word 0x38300040\n"
+        "4: .word 0x0000f800\n"
+        "5: .word 15360\n"
+    );
+}
+
+/*
+ * Leave no Rockbox interrupt source able to run after the final cache clean.
+ * Storage has already been unmounted and synchronously put to sleep here. The
+ * final LCD transfer is complete, so reset DMA0 before Linux can reuse RAM.
+ */
+static void __attribute__((noinline)) n25_android_quiesce(void)
+{
+    disable_interrupt(IRQ_FIQ_STATUS);
+
+    /* ARM Linux requires every DMA master to be quiescent at entry. */
+    dmac_open(&s5l8702_dmac0);
+
+    VIC0INTENCLEAR = ~0u;
+    VIC1INTENCLEAR = ~0u;
+    VIC0SOFTINTCLEAR = ~0u;
+    VIC1SOFTINTCLEAR = ~0u;
+    VIC0ADDRESS = (void *)~(uintptr_t)0;
+    VIC1ADDRESS = (void *)~(uintptr_t)0;
+
+    /* Stop and acknowledge the Rockbox Timer B kernel tick. */
+    TBCMD = 0;
+    TBCON = TBCON;
+}
+
+/*
+ * Keep the complete final handoff behind one linked symbol.  The N25 host
+ * gate enters this function, with a real IRAM stack, so DMA/VIC/timer
+ * quiescence and the cache transition are executed rather than inferred from
+ * disassembly before the Linux entry branch is allowed to run.
+ */
+static void __attribute__((noinline, noreturn)) n25_android_handoff(void)
+{
+    lcd_prepare_for_pio_trace();
+    n25_android_quiesce();
+    commit_discard_idcache();
+    n25_android_linux_jump(N25_ANDROID_KERNEL_ADDR, N25_ANDROID_DTB_ADDR);
+}
+
+static void __attribute__((noinline)) n25_android_boot(void)
+{
+    lcd_clear_display();
+    line = 0;
+    lcd_set_foreground(LCD_WHITE);
+#ifdef N25_ANDROID_VISIBLE_DIAG_TEST
+    printf("N25 LINUX VISIBLE PROBE");
+    printf("RAM ONLY / STORAGE ABSENT");
+#else
+    printf("Android 2.0 RAM boot");
+    printf("Menu+Play / no storage in Linux");
+#endif
+    printf("Loading kernel...");
+    lcd_update();
+
+    if (n25_android_load_exact(N25_ANDROID_KERNEL_PATH,
+            N25_ANDROID_KERNEL_ADDR, N25_ANDROID_KERNEL_SIZE) != 0)
+        fatal_error(ERR_ANDROID);
+
+    printf("Loading RAM root...");
+    lcd_update();
+    if (n25_android_load_exact(N25_ANDROID_INITRD_PATH,
+            N25_ANDROID_INITRD_ADDR, N25_ANDROID_INITRD_SIZE) != 0)
+        fatal_error(ERR_ANDROID);
+
+    printf("Loading device tree...");
+    lcd_update();
+    if (n25_android_load_exact(N25_ANDROID_DTB_PATH,
+            N25_ANDROID_DTB_ADDR, N25_ANDROID_DTB_SIZE) != 0)
+        fatal_error(ERR_ANDROID);
+
+    /* No filesystem or storage driver exists on the Linux side of handoff. */
+    disk_unmount_all();
+    storage_sleepnow();
+#ifdef N25_ANDROID_VISIBLE_DIAG_TEST
+    printf("WHITE TEXT = HANDOFF");
+    printf("AMBER = KERNEL DISPLAY");
+    printf("3 BANDS = PID 1");
+#else
+    printf("Verified; starting Android");
+#endif
+    lcd_update();
+    lcd_wait_for_dma();
+
+    n25_android_handoff();
+}
+#endif /* IPOD_6G */
+
 void main(void)
 {
     int rc = 0;
+#ifdef IPOD_6G
+#if defined(N25_ANDROID_FORCE_VOLATILE_TEST) || \
+    defined(N25_ANDROID_VISIBLE_DIAG_TEST)
+    bool android_boot_requested = true;
+#else
+    bool android_boot_requested = false;
+#endif
+#endif
 #ifdef IPOD_NANO3G
     bool n3g_lcd_ready = false;
 #endif
@@ -1601,9 +1807,11 @@ void main(void)
 #endif
 
 #if !defined(IPOD_NANO3G) || !NANO3G_VISIBILITY_ONLY
+#if !defined(IPOD_6G) || !defined(N25_ANDROID_FORCE_VOLATILE_TEST)
     if (pmu_is_hibernated()) {
         rc = launch_onb(1); /* 27/2 = 13.5 MHz. */
     }
+#endif
 #endif
 #ifdef IPOD_NANO3G
     nano3g_nand_stage_diag_run(1);
@@ -1688,6 +1896,11 @@ void main(void)
             sleep(HZ);
             btn = button_read_device();
         }
+#ifdef IPOD_6G
+        /* Exact unused chord; all existing Apple/Rockbox chords are retained. */
+        if (btn == (BUTTON_MENU|BUTTON_PLAY))
+            android_boot_requested = true;
+#endif
         /* Enter OF, diagmode and diskmode using ONB */
         if (button_hold()
                 || (btn == BUTTON_MENU)
@@ -2004,6 +2217,11 @@ of_loaded:
         }
         fatal_error(ERR_RB);
     }
+
+#ifdef IPOD_6G
+    if (android_boot_requested)
+        n25_android_boot();
+#endif
 
 #if defined(IPOD_NANO3G) && 0
     lcd_clear_display();

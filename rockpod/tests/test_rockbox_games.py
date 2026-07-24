@@ -1,4 +1,5 @@
 import os
+import zlib
 import zipfile
 from pathlib import Path
 
@@ -17,6 +18,131 @@ def _make_file(path, content=b"x"):
     mode = "wb" if isinstance(content, bytes) else "w"
     with open(path, mode) as handle:
         handle.write(content)
+
+
+def _make_genesis_rom(path, title="SONIC THE HEDGEHOG 3"):
+    rom = bytearray(0x4000)
+    rom[4:8] = (0x200).to_bytes(4, "big")
+    rom[0x100:0x10C] = b"SEGA GENESIS"
+    rom[0x120:0x120 + len(title)] = title.encode("ascii")
+    rom[0x150:0x150 + len(title)] = title.encode("ascii")
+    rom[0x180:0x18E] = b"GM MK-1079 -00"
+    rom[0x1B0:0x1B2] = b"RA"
+    rom[0x1B4:0x1B8] = (0x200001).to_bytes(4, "big")
+    rom[0x1B8:0x1BC] = (0x203FFF).to_bytes(4, "big")
+    rom[0x1F0:0x1F1] = b"U"
+    _make_file(path, bytes(rom))
+    return bytes(rom)
+
+
+def test_genesis_inspection_accepts_cartridge_and_rejects_arbitrary_bin(tmp_dir):
+    rom_path = os.path.join(tmp_dir, "Sonic The Hedgehog 3 (USA).md")
+    data = _make_genesis_rom(rom_path)
+    bad_path = os.path.join(tmp_dir, "firmware.bin")
+    _make_file(bad_path, b"x" * 0x4000)
+
+    service = RockboxGameService()
+    result = service.inspect_genesis_rom(rom_path)
+
+    assert result["valid"] is True
+    assert result["internal_title"] == "SONIC THE HEDGEHOG 3"
+    assert result["product_code"] == "GM MK-1079 -00"
+    assert result["region"] == "U"
+    assert result["sram_start"] == 0x200001
+    assert result["sram_end"] == 0x203FFF
+    assert result["crc32"] == f"{zlib.crc32(data) & 0xffffffff:08x}"
+    assert service.inspect_genesis_rom(bad_path)["valid"] is False
+
+
+def test_genesis_sync_routes_picodrive_manifests_and_authentic_cover(tmp_dir):
+    repo_root = os.path.join(tmp_dir, "repo")
+    roms = os.path.join(tmp_dir, "roms")
+    device = os.path.join(tmp_dir, "device")
+    rom_path = os.path.join(roms, "Sonic The Hedgehog 3 (USA).md")
+    cover_path = os.path.join(roms, "Sonic The Hedgehog 3 (USA).png")
+    _make_genesis_rom(rom_path)
+
+    from PIL import Image
+    os.makedirs(roms, exist_ok=True)
+    Image.new("RGB", (512, 700), color=(12, 42, 180)).save(
+        cover_path, format="PNG"
+    )
+    _make_file(
+        os.path.join(
+            repo_root, "build-hw-ipod6g", "apps", "plugins",
+            "picodrive", "picodrive.rock",
+        ),
+        b"plugin",
+    )
+    os.makedirs(device, exist_ok=True)
+
+    config, store = _make_store(tmp_dir, repo_root)
+    profile = store.current_profile()
+    profile["games_library_path"] = roms
+    profile["device_mount_path"] = device
+    profile = store.save_profile(profile)
+    service = RockboxGameService()
+    deploy = RockboxDeployService()
+    games = service.list_games(profile, config=config)
+    bundle = service.build_sync_bundle(profile, games, "device")
+    destinations = {asset["destination_rel"] for asset in bundle["assets"]}
+
+    assert destinations >= {
+        ".rockbox/games/genesis/roms/Sonic The Hedgehog 3 (USA).md",
+        ".rockbox/rocks/games/picodrive.rock",
+        ".rockbox/games/genesis/games.tsv",
+        ".rockbox/games/library/systems.tsv",
+        ".rockbox/games/library/covers/genesis/Sonic The Hedgehog 3 (USA).bmp",
+        ".rockbox/games/library/covers/systems/genesis.bmp",
+    }
+
+    deploy_profile = service.deploy_profile(profile, "device")
+    result = deploy.apply_diff(
+        deploy_profile, deploy.build_diff(deploy_profile, bundle)
+    )
+    assert result["success"] is True
+    launcher_entries = service.parse_launcher_index(os.path.join(
+        device, ".rockbox", "rocks", "games", "rockboy_launcher", "games.tsv"
+    ))
+    assert launcher_entries[0]["rom_path"].endswith("/picodrive.rock")
+    assert launcher_entries[0]["plugin_param"].endswith(
+        "/genesis/roms/Sonic The Hedgehog 3 (USA).md"
+    )
+    assert launcher_entries[0]["cover_path"].endswith(
+        "/covers/genesis/Sonic The Hedgehog 3 (USA).bmp"
+    )
+
+
+def test_genesis_save_and_state_backup_preserves_crc_identity(tmp_dir):
+    repo_root = os.path.join(tmp_dir, "repo")
+    roms = os.path.join(tmp_dir, "roms")
+    device = os.path.join(tmp_dir, "device")
+    rom_path = os.path.join(roms, "Sonic The Hedgehog 3 (USA).md")
+    data = _make_genesis_rom(rom_path)
+    identity = f"Sonic The Hedgehog 3 _USA_-{zlib.crc32(data) & 0xffffffff:08x}"
+    save_path = os.path.join(
+        device, ".rockbox", "games", "genesis", "saves", identity + ".srm"
+    )
+    state_path = os.path.join(
+        device, ".rockbox", "games", "genesis", "states", identity + ".state0"
+    )
+    _make_file(save_path, b"sram")
+    _make_file(state_path, b"state")
+
+    _config, store = _make_store(tmp_dir, repo_root)
+    profile = store.current_profile()
+    profile["games_library_path"] = roms
+    profile["device_mount_path"] = device
+    profile = store.save_profile(profile)
+    service = RockboxGameService()
+    games = service.list_games(profile)
+
+    assert games[0]["device_save_exists"] is True
+    result = service.backup_saves(profile, games, "device")
+    assert result["success"] is True
+    assert {os.path.basename(path) for path in result["copied"]} == {
+        identity + ".srm", identity + ".state0"
+    }
 
 
 def _make_store(tmp_dir, repo_root):
@@ -49,6 +175,34 @@ def test_rom_discovery_and_extension_filtering(tmp_dir):
     assert {game["filename"] for game in games} == {"Mario.nes", "Pokemon.gb", "Sonic.gg", "Zelda.gbc"}
     assert all(game["added_time"] > 0 for game in games)
     assert {game["platform"] for game in games} == {"Game Boy", "Game Boy Color", "NES", "Game Gear"}
+
+
+def test_dedicated_genesis_library_scans_alongside_general_roms(tmp_dir):
+    repo_root = os.path.join(tmp_dir, "repo")
+    general_roms = os.path.join(tmp_dir, "gameboy")
+    genesis_roms = os.path.join(tmp_dir, "genesis")
+    _make_file(os.path.join(general_roms, "Pokemon.gb"), b"gb")
+    _make_genesis_rom(
+        os.path.join(genesis_roms, "Sonic The Hedgehog 3 (USA).md")
+    )
+    # A dedicated Genesis source must not accidentally import other ROM types
+    # from a broad folder such as Downloads.
+    _make_file(os.path.join(genesis_roms, "Loose Game Boy ROM.gb"), b"gb")
+
+    _config, store = _make_store(tmp_dir, repo_root)
+    profile = store.current_profile()
+    profile["games_library_path"] = general_roms
+    profile["games_genesis_library_path"] = genesis_roms
+    profile = store.save_profile(profile)
+
+    games = RockboxGameService().list_games(profile)
+
+    assert {game["filename"] for game in games} == {
+        "Pokemon.gb", "Sonic The Hedgehog 3 (USA).md",
+    }
+    assert {game["platform"] for game in games} == {
+        "Game Boy", "Genesis / Mega Drive",
+    }
 
 
 def test_snes_rom_metadata_and_sync_bundle(tmp_dir):
@@ -161,6 +315,8 @@ def test_profiles_default_games_library_to_documents_gameboy(tmp_dir):
     expected = str(Path.home() / "Documents" / "Gameboy")
     assert config.get("games_library_path") == expected
     assert profile["games_library_path"] == expected
+    assert config.get("games_genesis_library_path") == ""
+    assert profile["games_genesis_library_path"] == ""
 
 
 def test_game_deploy_diff_and_repeat_apply_device(tmp_dir):
@@ -183,14 +339,16 @@ def test_game_deploy_diff_and_repeat_apply_device(tmp_dir):
     bundle = service.build_sync_bundle(profile, games, "device")
     diff = deploy.build_diff(deploy_profile, bundle)
 
-    assert diff["summary"]["add"] == 2
+    assert diff["summary"]["add"] == len(bundle["assets"])
+    assert any(item["destination_rel"].endswith(
+        ".rockbox/achievements/current") for item in bundle["assets"])
     assert diff["items"][0]["destination_abs"].startswith(os.path.join(device, "gameboy"))
 
     result = deploy.apply_diff(deploy_profile, diff)
     assert result["success"] is True
 
     diff2 = deploy.build_diff(deploy_profile, bundle)
-    assert diff2["summary"]["unchanged"] == 2
+    assert diff2["summary"]["unchanged"] == len(bundle["assets"])
     assert diff2["summary"]["add"] == 0
 
 

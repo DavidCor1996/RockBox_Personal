@@ -57,7 +57,7 @@ export SHARED_CFLAGS=-fPIC -fvisibility=hidden
 export LDOPTS=-lm -ldl -L/usr/lib -lSDL2 -lpthread
 export GLOBAL_LDOPTS= -Wl,-z,defs -Wl,--no-warn-rwx-segments
 export LDMAP_OPT=-Map
-export GCCVER=16.1.1
+export GCCVER=16
 export GCCNUM=1601
 export UNAME=Linux
 export MANUALDEV=ipodvideo
@@ -83,6 +83,6 @@ export PIPER_MODEL_DIR=
 
 
 
-CONFIGURE_OPTIONS=  --target=$(MODELNAME) --ram=$(MEMORYSIZE) --rbdir=$(RBDIR) --type=s
+CONFIGURE_OPTIONS=    --target=$(MODELNAME) --ram=$(MEMORYSIZE) --rbdir=$(RBDIR) --type=s
 
 include $(TOOLSDIR)/root.make

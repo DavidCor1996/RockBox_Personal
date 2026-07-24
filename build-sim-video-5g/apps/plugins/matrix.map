@@ -523,13 +523,13 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x1816d
+.debug_info     0x0000000000000000    0x18248
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x8207 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/matrix.o
- .debug_info    0x0000000000008207     0x7d95 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
- .debug_info    0x000000000000ff9c     0x7f4b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
- .debug_info    0x0000000000017ee7      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(matrix_bold.o)
- .debug_info    0x000000000001802a      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(matrix_normal.o)
+ .debug_info    0x0000000000000000     0x8250 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/matrix.o
+ .debug_info    0x0000000000008250     0x7dde /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+ .debug_info    0x000000000001002e     0x7f94 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
+ .debug_info    0x0000000000017fc2      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(matrix_bold.o)
+ .debug_info    0x0000000000018105      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(matrix_normal.o)
 
 .debug_abbrev   0x0000000000000000      0xd3e
  *(.debug_abbrev)
@@ -550,17 +550,17 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x6054
+.debug_str      0x0000000000000000     0x60ba
  *(.debug_str)
- .debug_str     0x0000000000000000     0x6054 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/matrix.o
-                                       0x64b1 (size before relaxing)
- .debug_str     0x0000000000006054        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
-                                       0x528e (size before relaxing)
- .debug_str     0x0000000000006054        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
-                                       0x63df (size before relaxing)
- .debug_str     0x0000000000006054        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(matrix_bold.o)
+ .debug_str     0x0000000000000000     0x60ba /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/matrix.o
+                                       0x6517 (size before relaxing)
+ .debug_str     0x00000000000060ba        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+                                       0x52f4 (size before relaxing)
+ .debug_str     0x00000000000060ba        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
+                                       0x6445 (size before relaxing)
+ .debug_str     0x00000000000060ba        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(matrix_bold.o)
                                         0x16a (size before relaxing)
- .debug_str     0x0000000000006054        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(matrix_normal.o)
+ .debug_str     0x00000000000060ba        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(matrix_normal.o)
                                         0x16e (size before relaxing)
 
 .debug_loc

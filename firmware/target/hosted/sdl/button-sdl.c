@@ -83,7 +83,23 @@ int sdl_app_has_input_focus = 1;
 
 #ifdef HAS_BUTTON_HOLD
 bool hold_button_state = false;
-bool button_hold(void) {
+bool button_hold(void)
+{
+#ifdef SIMULATOR
+    const char *hold_gate = getenv("ROCKPOD_SIM_HOLD_GATE");
+
+    if (hold_gate && *hold_gate)
+    {
+        FILE *gate = fopen(hold_gate, "rb");
+
+        if (gate)
+        {
+            fclose(gate);
+            return true;
+        }
+        return false;
+    }
+#endif
     return hold_button_state;
 }
 #endif
@@ -119,6 +135,7 @@ static void touchscreen_event(int x, int y)
 static void scrollwheel_event(int x, int y)
 {
     int new_btn = 0;
+    intptr_t data = 1 << 24;
     if (y > 0)
         new_btn = BUTTON_SCROLL_BACK;
     else if (y < 0)
@@ -133,8 +150,30 @@ static void scrollwheel_event(int x, int y)
     buttonlight_on();
 #endif
     reset_poweroff_timer();
+#ifdef SIMULATOR
+    {
+        const char *velocity_text = getenv("ROCKPOD_SIM_WHEEL_VELOCITY");
+        const char *gate_path =
+            getenv("ROCKPOD_SIM_WHEEL_VELOCITY_GATE");
+        FILE *gate = NULL;
+
+        if (velocity_text && *velocity_text && gate_path && *gate_path)
+            gate = fopen(gate_path, "rb");
+        if (velocity_text && *velocity_text &&
+            (!gate_path || !*gate_path || gate))
+        {
+            char *end;
+            unsigned long velocity = strtoul(velocity_text, &end, 10);
+
+            if (*end == '\0' && velocity > 0 && velocity <= 0xffffff)
+                data |= (intptr_t)(1u << 31) | (intptr_t)velocity;
+        }
+        if (gate)
+            fclose(gate);
+    }
+#endif
     if (new_btn && !button_queue_full())
-        button_queue_post(new_btn, 1<<24);
+        button_queue_post(new_btn, data);
 
     (void)x;
 }
@@ -730,6 +769,75 @@ int button_read_device(void)
     if (hold_button)
         return BUTTON_NONE;
     else
+#endif
+
+#if defined(SIMULATOR)
+    {
+        int gated_buttons = 0;
+        const char *gate_path;
+        static int previous_gated_buttons;
+        static long gated_button_started;
+        static bool gated_button_repeated;
+#define ROCKPOD_SIM_BUTTON_GATE(env_name, button_code) \
+        do { \
+            gate_path = getenv(env_name); \
+            if (gate_path && *gate_path) \
+            { \
+                FILE *gate = fopen(gate_path, "rb"); \
+                if (gate) \
+                { \
+                    fclose(gate); \
+                    gated_buttons |= button_code; \
+                } \
+            } \
+        } while (0)
+#ifdef BUTTON_SELECT
+        ROCKPOD_SIM_BUTTON_GATE("ROCKPOD_SIM_SELECT_GATE", BUTTON_SELECT);
+#endif
+#ifdef BUTTON_MENU
+        ROCKPOD_SIM_BUTTON_GATE("ROCKPOD_SIM_MENU_GATE", BUTTON_MENU);
+#endif
+#ifdef BUTTON_PLAY
+        gate_path = getenv("ROCKPOD_SIM_PLAY_HOLD_GATE");
+        if (gate_path && *gate_path)
+        {
+            FILE *play_gate = fopen(gate_path, "rb");
+            if (play_gate)
+            {
+                fclose(play_gate);
+                return btn | BUTTON_PLAY;
+            }
+        }
+        ROCKPOD_SIM_BUTTON_GATE("ROCKPOD_SIM_PLAY_ACTION_GATE", BUTTON_PLAY);
+#endif
+#ifdef BUTTON_SCROLL_FWD
+        ROCKPOD_SIM_BUTTON_GATE("ROCKPOD_SIM_SCROLL_FWD_GATE",
+                                BUTTON_SCROLL_FWD);
+#endif
+#ifdef BUTTON_SCROLL_BACK
+        ROCKPOD_SIM_BUTTON_GATE("ROCKPOD_SIM_SCROLL_BACK_GATE",
+                                BUTTON_SCROLL_BACK);
+#endif
+#undef ROCKPOD_SIM_BUTTON_GATE
+        if (gated_buttons != previous_gated_buttons)
+        {
+            if (previous_gated_buttons)
+                button_queue_post(BUTTON_REL | previous_gated_buttons, 0);
+            if (gated_buttons)
+            {
+                button_queue_post(gated_buttons, 0);
+                gated_button_started = current_tick;
+                gated_button_repeated = false;
+            }
+            previous_gated_buttons = gated_buttons;
+        }
+        else if (gated_buttons && !gated_button_repeated &&
+                 TIME_AFTER(current_tick, gated_button_started + HZ / 3))
+        {
+            button_queue_post(BUTTON_REPEAT | gated_buttons, 0);
+            gated_button_repeated = true;
+        }
+    }
 #endif
 
     return btn;

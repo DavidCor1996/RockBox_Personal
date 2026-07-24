@@ -9,7 +9,9 @@
 
 #include "string-extra.h"
 #include "albumlist_art.h"
+#include "button.h"
 #include "file.h"
+#include "font.h"
 #include "icons.h"
 #include "lcd.h"
 #include "misc.h"
@@ -20,6 +22,9 @@
 #include "tree.h"
 #include "viewport.h"
 #include "recorder/bmp.h"
+#ifdef HAVE_IPODJS_UI
+#include "ipodjs_ui.h"
+#endif
 
 #define ALBUMLIST_INDEX ROCKBOX_DIR "/albumlist/index.tsv"
 #define ALBUMLIST_ROOT ROCKBOX_DIR "/albumlist"
@@ -30,6 +35,7 @@
 #define ALBUMLIST_ROW_HEIGHT 44
 #define ALBUMLIST_LOOKUP_CACHE 16
 #define ALBUMLIST_BITMAP_CACHE 32
+#define ALBUMLIST_PENDING_MAX 8
 #define ALBUMLIST_MANIFEST_CACHE_MAX 384
 #define ALBUMLIST_MANIFEST_RELOAD_DELAY (HZ * 300)
 #define ALBUMLIST_ALBUM_LEN 96
@@ -62,6 +68,18 @@ static struct albumlist_lookup_slot lookup_cache[ALBUMLIST_LOOKUP_CACHE];
 static int lookup_victim;
 static struct albumlist_bitmap_slot bitmap_cache[ALBUMLIST_BITMAP_CACHE];
 static unsigned long bitmap_tick;
+
+struct albumlist_pending_item {
+    struct tree_context *tc;
+    int line;
+    int size;
+    char album[ALBUMLIST_ALBUM_LEN];
+    char artist[ALBUMLIST_ARTIST_LEN];
+    char path[ALBUMLIST_PATH_LEN];
+};
+
+static struct albumlist_pending_item pending_items[ALBUMLIST_PENDING_MAX];
+static int pending_count;
 
 static void trim_line(char *line);
 static int split_tsv(char *line, char *fields[], int max_fields);
@@ -119,6 +137,39 @@ static bool albumlist_cover_path_for_dir(const char *dirs, char *path,
     for (size_t i = 0; i < ARRAYLEN(cover_names); i++)
     {
         snprintf(path, path_size, "/%s/%s", dir, cover_names[i]);
+        if (albumlist_path_exists(path))
+            return true;
+    }
+
+    return false;
+}
+
+static bool albumlist_cover_path_for_track(const char *track_path, char *path,
+                                           size_t path_size)
+{
+    static const char * const cover_names[] = {
+        "cover.240x240.bmp",
+        "cover.160x160.bmp",
+        "cover.138x138.bmp",
+        "cover.bmp",
+        "folder.bmp",
+        "albumart.bmp",
+    };
+    char dir[ALBUMLIST_PATH_LEN];
+    char *slash;
+
+    if (!track_path || !track_path[0])
+        return false;
+
+    strmemccpy(dir, track_path, sizeof(dir));
+    slash = strrchr(dir, '/');
+    if (!slash)
+        return false;
+    *slash = '\0';
+
+    for (size_t i = 0; i < ARRAYLEN(cover_names); i++)
+    {
+        snprintf(path, path_size, "%s/%s", dir, cover_names[i]);
         if (albumlist_path_exists(path))
             return true;
     }
@@ -282,6 +333,7 @@ static struct albumlist_slideshow_slot slideshow_slots[3];
 static struct albumlist_slideshow_failure
     slideshow_failures[ALBUMLIST_SLIDESHOW_FAILURE_CACHE];
 static int slideshow_slot_victim;
+static int slideshow_last_drawn_index = -1;
 static int slideshow_order_count;
 static int slideshow_order_base;
 static int slideshow_order_step;
@@ -563,6 +615,18 @@ static struct albumlist_slideshow_slot *albumlist_get_slideshow_slot(
     return albumlist_load_slideshow_slot(slot, index) ? slot : NULL;
 }
 
+static struct albumlist_slideshow_slot *albumlist_find_slideshow_slot(int index)
+{
+    for (int i = 0; i < (int)ARRAYLEN(slideshow_slots); i++)
+    {
+        if (slideshow_slots[i].valid &&
+            slideshow_slots[i].manifest_index == index)
+            return &slideshow_slots[i];
+    }
+
+    return NULL;
+}
+
 static void albumlist_prefetch_slideshow_slot(int index, int protected_index)
 {
     (void)albumlist_get_slideshow_slot(index, protected_index);
@@ -592,83 +656,167 @@ static void albumlist_draw_slideshow_shadow(struct screen *display, int x, int y
     }
 }
 
+static bool albumlist_draw_slideshow_slot(
+    struct screen *display, struct albumlist_slideshow_slot *slot,
+    long cycle, long phase, int x, int y, int width, int height)
+{
+    if (!display || !slot)
+        return false;
+
+    long pan_phase = MIN(phase, ALBUMLIST_SLIDESHOW_PAN_DURATION);
+    long pan_pos = pan_phase * ALBUMLIST_SLIDESHOW_PAN_SCALE /
+                   ALBUMLIST_SLIDESHOW_PAN_DURATION;
+    int pan_range_x = MAX(0, slot->bm.width - width);
+    int pan_range_y = MAX(0, slot->bm.height - height);
+    int pan_mode = (int)(cycle % 6);
+    long rev_pan_pos = ALBUMLIST_SLIDESHOW_PAN_SCALE - pan_pos;
+    int pan_x = pan_range_x * pan_pos / ALBUMLIST_SLIDESHOW_PAN_SCALE;
+    int pan_x_rev = pan_range_x * rev_pan_pos /
+                    ALBUMLIST_SLIDESHOW_PAN_SCALE;
+    int pan_y = pan_range_y * pan_pos / ALBUMLIST_SLIDESHOW_PAN_SCALE;
+    int pan_y_rev = pan_range_y * rev_pan_pos /
+                    ALBUMLIST_SLIDESHOW_PAN_SCALE;
+    int src_x = pan_range_x / 2;
+    int src_y = pan_range_y / 2;
+
+    switch (pan_mode)
+    {
+        case 0: /* left to right */
+            src_x = pan_x;
+            break;
+        case 1: /* right to left */
+            src_x = pan_x_rev;
+            break;
+        case 2: /* top to bottom */
+            src_y = pan_y;
+            break;
+        case 3: /* bottom to top */
+            src_y = pan_y_rev;
+            break;
+        case 4: /* upper-left to lower-right */
+            src_x = pan_x;
+            src_y = pan_y;
+            break;
+        default: /* upper-right to lower-left */
+            src_x = pan_x_rev;
+            src_y = pan_y;
+            break;
+    }
+    int draw_y = y + MAX(0, (height - slot->bm.height) / 2);
+    int draw_w = MIN(width, slot->bm.width - src_x);
+    int draw_h = MIN(height, slot->bm.height - src_y);
+
+    if (draw_w > 0 && draw_h > 0)
+    {
+        if (draw_w < width || draw_h < height || draw_y > y)
+        {
+            display->set_background(LCD_RGBPACK(104, 110, 122));
+            display->fillrect(x, y, width, height);
+        }
+        display->bmp_part(&slot->bm, src_x, src_y, x, draw_y,
+                          draw_w, draw_h);
+    }
+    albumlist_draw_slideshow_shadow(display, x, y, width, height);
+    slideshow_last_drawn_index = slot->manifest_index;
+    return true;
+}
+
+static bool albumlist_slideshow_frame(int entry_count, long *cycle,
+                                      long *phase, int *wanted,
+                                      int *next_wanted)
+{
+    if (entry_count <= 0)
+        return false;
+
+    long tick = albumlist_slideshow_tick();
+    *cycle = tick / ALBUMLIST_SLIDESHOW_PERIOD;
+    *phase = tick % ALBUMLIST_SLIDESHOW_PERIOD;
+    *wanted = albumlist_random_manifest_index(*cycle, entry_count);
+    *next_wanted = albumlist_random_manifest_index(*cycle + 1, entry_count);
+    return true;
+}
+
+bool albumlist_slideshow_service(void)
+{
+    long cycle, phase;
+    int wanted, next_wanted;
+
+    /* Artwork I/O is optional. Never contend with queued navigation or a
+     * database transition; the cached frame remains available to the UI. */
+    if (!button_queue_empty() || !tagcache_is_usable() ||
+        tagcache_commit_active())
+        return false;
+
+    int entry_count = albumlist_manifest_count();
+    if (!albumlist_slideshow_frame(entry_count, &cycle, &phase,
+                                   &wanted, &next_wanted))
+        return false;
+
+    if (!albumlist_find_slideshow_slot(wanted))
+        return albumlist_get_slideshow_slot(wanted, -1) != NULL;
+
+    if (phase >= ALBUMLIST_SLIDESHOW_PREFETCH_PHASE &&
+        !albumlist_find_slideshow_slot(next_wanted))
+        albumlist_prefetch_slideshow_slot(next_wanted, wanted);
+
+    return false;
+}
+
+bool albumlist_slideshow_frame_changed(void)
+{
+    long cycle, phase;
+    int wanted, next_wanted;
+    struct albumlist_slideshow_slot *slot;
+
+    if (!manifest_cache_loaded ||
+        !albumlist_slideshow_frame(manifest_cache_count, &cycle, &phase,
+                                   &wanted, &next_wanted))
+        return false;
+
+    slot = albumlist_find_slideshow_slot(wanted);
+    return slot && slot->manifest_index != slideshow_last_drawn_index;
+}
+
+bool albumlist_draw_slideshow_cached(struct screen *display, int x, int y,
+                                     int width, int height)
+{
+    long cycle, phase;
+    int wanted, next_wanted;
+    struct albumlist_slideshow_slot *slot;
+
+    /* Do not reload the manifest here: this function is intentionally safe
+     * to call from a navigation redraw. */
+    if (!display || !manifest_cache_loaded ||
+        !albumlist_slideshow_frame(manifest_cache_count, &cycle, &phase,
+                                   &wanted, &next_wanted))
+        return false;
+
+    slot = albumlist_find_slideshow_slot(wanted);
+    if (!slot && slideshow_last_drawn_index >= 0)
+        slot = albumlist_find_slideshow_slot(slideshow_last_drawn_index);
+
+    return albumlist_draw_slideshow_slot(display, slot, cycle, phase,
+                                         x, y, width, height);
+}
+
 bool albumlist_draw_slideshow(struct screen *display, int x, int y,
                               int width, int height)
 {
+    long cycle, phase;
+    int wanted, next_wanted;
+
     if (!display)
         return false;
 
     int entry_count = albumlist_manifest_count();
-    if (entry_count <= 0)
+    if (!albumlist_slideshow_frame(entry_count, &cycle, &phase,
+                                   &wanted, &next_wanted))
         return false;
 
-    long slideshow_tick = albumlist_slideshow_tick();
-    long cycle = slideshow_tick / ALBUMLIST_SLIDESHOW_PERIOD;
-    long phase = slideshow_tick % ALBUMLIST_SLIDESHOW_PERIOD;
-    int wanted = albumlist_random_manifest_index(cycle, entry_count);
-    int next_wanted = albumlist_random_manifest_index(cycle + 1, entry_count);
-    long pan_phase = MIN(phase, ALBUMLIST_SLIDESHOW_PAN_DURATION);
-    long pan_pos = pan_phase * ALBUMLIST_SLIDESHOW_PAN_SCALE /
-                   ALBUMLIST_SLIDESHOW_PAN_DURATION;
-
-    bool drew = false;
     struct albumlist_slideshow_slot *slot =
         albumlist_get_slideshow_slot(wanted, -1);
-    if (slot)
-    {
-        int pan_range_x = MAX(0, slot->bm.width - width);
-        int pan_range_y = MAX(0, slot->bm.height - height);
-        int pan_mode = (int)(cycle % 6);
-        long rev_pan_pos = ALBUMLIST_SLIDESHOW_PAN_SCALE - pan_pos;
-        int pan_x = pan_range_x * pan_pos / ALBUMLIST_SLIDESHOW_PAN_SCALE;
-        int pan_x_rev = pan_range_x * rev_pan_pos /
-                        ALBUMLIST_SLIDESHOW_PAN_SCALE;
-        int pan_y = pan_range_y * pan_pos / ALBUMLIST_SLIDESHOW_PAN_SCALE;
-        int pan_y_rev = pan_range_y * rev_pan_pos /
-                        ALBUMLIST_SLIDESHOW_PAN_SCALE;
-        int src_x = pan_range_x / 2;
-        int src_y = pan_range_y / 2;
-
-        switch (pan_mode)
-        {
-            case 0: /* left to right */
-                src_x = pan_x;
-                break;
-            case 1: /* right to left */
-                src_x = pan_x_rev;
-                break;
-            case 2: /* top to bottom */
-                src_y = pan_y;
-                break;
-            case 3: /* bottom to top */
-                src_y = pan_y_rev;
-                break;
-            case 4: /* upper-left to lower-right */
-                src_x = pan_x;
-                src_y = pan_y;
-                break;
-            default: /* upper-right to lower-left */
-                src_x = pan_x_rev;
-                src_y = pan_y;
-                break;
-        }
-        int draw_y = y + MAX(0, (height - slot->bm.height) / 2);
-        int draw_w = MIN(width, slot->bm.width - src_x);
-        int draw_h = MIN(height, slot->bm.height - src_y);
-
-        if (draw_w > 0 && draw_h > 0)
-        {
-            if (draw_w < width || draw_h < height || draw_y > y)
-            {
-                display->set_background(LCD_RGBPACK(104, 110, 122));
-                display->fillrect(x, y, width, height);
-            }
-            display->bmp_part(&slot->bm, src_x, src_y, x, draw_y,
-                              draw_w, draw_h);
-        }
-        albumlist_draw_slideshow_shadow(display, x, y, width, height);
-        drew = true;
-    }
+    bool drew = albumlist_draw_slideshow_slot(display, slot, cycle, phase,
+                                              x, y, width, height);
 
     if (phase >= ALBUMLIST_SLIDESHOW_PREFETCH_PHASE)
         albumlist_prefetch_slideshow_slot(next_wanted, wanted);
@@ -680,6 +828,27 @@ bool albumlist_draw_slideshow(struct screen *display, int x, int y,
 void albumlist_slideshow_set_paused(bool paused)
 {
     (void)paused;
+}
+
+bool albumlist_slideshow_service(void)
+{
+    return false;
+}
+
+bool albumlist_slideshow_frame_changed(void)
+{
+    return false;
+}
+
+bool albumlist_draw_slideshow_cached(struct screen *display, int x, int y,
+                                     int width, int height)
+{
+    (void)display;
+    (void)x;
+    (void)y;
+    (void)width;
+    (void)height;
+    return false;
 }
 
 bool albumlist_draw_slideshow(struct screen *display, int x, int y,
@@ -891,6 +1060,35 @@ static bool lookup_thumb_path(const char *album, const char *artist,
     return slot->found;
 }
 
+static void cache_thumb_path(const char *album, const char *artist,
+                             const char *path)
+{
+    struct albumlist_lookup_slot *slot = NULL;
+
+    for (int i = 0; i < ALBUMLIST_LOOKUP_CACHE; i++)
+    {
+        if (lookup_cache[i].valid &&
+            ascii_casecmp(lookup_cache[i].album, album) == 0 &&
+            ascii_casecmp(lookup_cache[i].artist, artist) == 0)
+        {
+            slot = &lookup_cache[i];
+            break;
+        }
+    }
+
+    if (!slot)
+    {
+        slot = &lookup_cache[lookup_victim];
+        lookup_victim = (lookup_victim + 1) % ALBUMLIST_LOOKUP_CACHE;
+        slot->valid = true;
+        strmemccpy(slot->album, album, sizeof(slot->album));
+        strmemccpy(slot->artist, artist, sizeof(slot->artist));
+    }
+
+    slot->found = true;
+    strmemccpy(slot->path, path, sizeof(slot->path));
+}
+
 static struct albumlist_bitmap_slot *bitmap_cache_victim(void)
 {
     int victim = 0;
@@ -955,6 +1153,82 @@ static struct bitmap *load_thumb_bitmap(const char *path, int size)
     return &slot->bm;
 }
 
+static struct bitmap *find_thumb_bitmap(const char *path, int size)
+{
+    size = MIN(size, ALBUMLIST_THUMB_SIZE);
+    for (int i = 0; i < ALBUMLIST_BITMAP_CACHE; i++)
+    {
+        struct albumlist_bitmap_slot *slot = &bitmap_cache[i];
+        if (slot->valid && slot->size == size &&
+            strcmp(slot->path, path) == 0)
+        {
+            slot->last_used = ++bitmap_tick;
+            return &slot->bm;
+        }
+    }
+
+    return NULL;
+}
+
+static void albumlist_queue_pending(struct tree_context *tc, int line,
+                                    const char *album, const char *artist,
+                                    const char *path, int size)
+{
+    for (int i = 0; i < pending_count; i++)
+    {
+        if (pending_items[i].tc == tc && pending_items[i].line == line &&
+            pending_items[i].size == size)
+            return;
+    }
+
+    if (pending_count >= ALBUMLIST_PENDING_MAX)
+        return;
+
+    struct albumlist_pending_item *item = &pending_items[pending_count++];
+    item->tc = tc;
+    item->line = line;
+    item->size = size;
+    strmemccpy(item->album, album, sizeof(item->album));
+    strmemccpy(item->artist, artist, sizeof(item->artist));
+    if (path)
+        strmemccpy(item->path, path, sizeof(item->path));
+    else
+        item->path[0] = '\0';
+}
+
+bool albumlist_art_service_pending(void)
+{
+    static char track_path[MAX_PATH];
+    static char cover_path[ALBUMLIST_PATH_LEN];
+    bool changed = false;
+    int count = pending_count;
+
+    pending_count = 0;
+    for (int i = 0; i < count; i++)
+    {
+        struct albumlist_pending_item *item = &pending_items[i];
+        const char *path = item->path;
+
+        if (!path[0])
+        {
+            if (!tagtree_get_album_art_path(item->tc, item->line,
+                                            track_path,
+                                            sizeof(track_path)) ||
+                !albumlist_cover_path_for_track(track_path, cover_path,
+                                                sizeof(cover_path)))
+                continue;
+
+            cache_thumb_path(item->album, item->artist, cover_path);
+            path = cover_path;
+        }
+
+        if (load_thumb_bitmap(path, item->size))
+            changed = true;
+    }
+
+    return changed;
+}
+
 struct bitmap *albumlist_art_get_thumb(const char *album, const char *artist,
                                        int size)
 {
@@ -970,6 +1244,62 @@ struct bitmap *albumlist_art_get_thumb(const char *album, const char *artist,
 
     return load_thumb_bitmap(path, size);
 }
+
+#ifdef HAVE_IPODJS_UI
+static void albumlist_draw_item_ipodjs(struct list_putlineinfo_t *list_info,
+                                       int thumb_size, int text_pad)
+{
+    static char album[ALBUMLIST_ALBUM_LEN];
+    static char artist[ALBUMLIST_ARTIST_LEN];
+    static char path[ALBUMLIST_PATH_LEN];
+    struct bitmap *bm = NULL;
+
+    if (!list_info || list_info->is_title)
+    {
+        gui_list_draw_item_default(list_info);
+        return;
+    }
+
+    struct tree_context *tc = (struct tree_context *)list_info->list->data;
+    if (albumlist_get_album_row(tc, list_info->line,
+                                album, sizeof(album),
+                                artist, sizeof(artist)))
+    {
+        thumb_size = MIN(thumb_size, list_info->linedes->height - 2);
+        if (lookup_thumb_path(album, artist, path, sizeof(path)))
+        {
+            bm = find_thumb_bitmap(path, thumb_size);
+            if (!bm)
+                albumlist_queue_pending(tc, list_info->line, album, artist,
+                                        path, thumb_size);
+        }
+        else
+        {
+            albumlist_queue_pending(tc, list_info->line, album, artist,
+                                    NULL, thumb_size);
+        }
+    }
+
+    int font_h = font_get(ipodjs_ui_font())->height;
+    int text_x = list_info->item_indent;
+    int text_y = list_info->y +
+        MAX(0, (list_info->linedes->height - font_h) / 2);
+
+    if (bm)
+        text_x += bm->width + text_pad;
+    ipodjs_ui_puts_fit(list_info->display, text_x, text_y,
+                       list_info->display->lcdwidth - text_x - 28,
+                       list_info->dsp_text, false);
+    if (bm)
+    {
+        int art_x = list_info->item_indent + 1;
+        int art_y = list_info->y +
+            MAX(0, (list_info->linedes->height - bm->height) / 2);
+        list_info->display->bmp_part(bm, 0, 0, art_x, art_y,
+                                     bm->width, bm->height);
+    }
+}
+#endif
 
 static void albumlist_draw_item_with_art(struct list_putlineinfo_t *list_info,
                                          int thumb_size, int text_pad)
@@ -996,6 +1326,7 @@ static void albumlist_draw_item_with_art(struct list_putlineinfo_t *list_info,
 
     thumb_size = MIN(thumb_size, list_info->linedes->height - 2);
     struct bitmap *bm = load_thumb_bitmap(path, thumb_size);
+
     if (!bm)
     {
         gui_list_draw_item_default(list_info);
@@ -1048,12 +1379,34 @@ void albumlist_setup_list(struct gui_synclist *list)
 
     list->show_icons = global_settings.show_icons;
     list->callback_draw_item = NULL;
+    pending_count = 0;
     gui_synclist_set_fullscreen_albumlist(list, false);
 
     if (!albumlist_has_album_rows(list))
         return;
 
     list->scroll_paginated = false;
+
+#ifdef HAVE_IPODJS_UI
+    /* The stock 6G album browser keeps a cover thumbnail on every album row.
+     * Retain iPodJS' own full-width header/list renderer, but give it the
+     * stock-sized art callback instead of falling back to text-only rows. */
+    if (global_settings.ui_engine == UI_ENGINE_IPODJS)
+    {
+        /* Load the manifest before the draw callback is on the stack. */
+        albumlist_load_manifest_cache();
+        list->callback_draw_item = albumlist_art_draw_item;
+        list->callback_get_item_icon = NULL;
+        list->show_icons = false;
+        FOR_NB_SCREENS(i)
+        {
+            if (screens[i].lcdwidth == 320 && screens[i].lcdheight == 240)
+                list->line_height[i] = MAX(list->line_height[i],
+                                           ALBUMLIST_ROW_HEIGHT);
+        }
+        return;
+    }
+#endif
 
     if (global_settings.album_list_layout == ALBUM_LIST_LAYOUT_COMPACT)
     {
@@ -1084,6 +1437,14 @@ void albumlist_setup_list(struct gui_synclist *list)
 
 void albumlist_art_draw_item(struct list_putlineinfo_t *list_info)
 {
+#ifdef HAVE_IPODJS_UI
+    if (global_settings.ui_engine == UI_ENGINE_IPODJS)
+    {
+        albumlist_draw_item_ipodjs(list_info, ALBUMLIST_THUMB_SIZE,
+                                   ALBUMLIST_TEXT_PAD);
+        return;
+    }
+#endif
     albumlist_draw_item_with_art(list_info, ALBUMLIST_THUMB_SIZE,
                                  ALBUMLIST_TEXT_PAD);
 }

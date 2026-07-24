@@ -149,9 +149,13 @@ $(BUILDDIR)/apps/plugins/wav2wv.rock: $(RBCODEC_BLD)/codecs/libwavpack.a $(PLUGI
 
 # Do not use '-ffunction-sections' and '-fdata-sections' when compiling sdl-sim
 ifeq ($(findstring sdl-sim, $(APP_TYPE)), sdl-sim)
-    PLUGINLIBFLAGS = $(PLUGINFLAGS)
+    PLUGINLIBFLAGS = $(PLUGINFLAGS) \
+        -I$(ROOTDIR)/lib/rcheevos/include \
+        -I$(ROOTDIR)/lib/rcheevos/src
 else
-    PLUGINLIBFLAGS = $(PLUGINFLAGS) -ffunction-sections -fdata-sections
+    PLUGINLIBFLAGS = $(PLUGINFLAGS) -ffunction-sections -fdata-sections \
+        -I$(ROOTDIR)/lib/rcheevos/include \
+        -I$(ROOTDIR)/lib/rcheevos/src
 endif
 
 ROOT_PLUGINSLIB_DIR := $(ROOTDIR)/apps/plugins/lib

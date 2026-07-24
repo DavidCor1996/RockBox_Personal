@@ -1,0 +1,62 @@
+seq	tick	kind	name	update	x	y	w	h	selected	first	items	audio	playlist_index	playlist_count	elapsed_ms	duration_ms	art	art_w	art_h	path
+1	132	screen	Home	full	0	0	320	240	0	0	7	0	1	0	0	0	0	0	0	
+2	153	screen	Home	full	0	0	320	240	0	0	7	0	1	0	0	0	0	0	0	
+3	191	screen	Home	rows	0	24	160	48	1	0	7	0	1	0	0	0	0	0	0	
+4	230	screen	Transition	forward	0	0	320	240	0	0	10	0	1	0	0	0	0	0	0	
+5	232	screen	Transition	forward	0	0	320	240	10	1	10	0	1	0	0	0	0	0	0	
+6	234	screen	Transition	forward	0	0	320	240	40	2	10	0	1	0	0	0	0	0	0	
+7	236	screen	Transition	forward	0	0	320	240	82	3	10	0	1	0	0	0	0	0	0	
+8	238	screen	Transition	forward	0	0	320	240	133	4	10	0	1	0	0	0	0	0	0	
+9	240	screen	Transition	forward	0	0	320	240	186	5	10	0	1	0	0	0	0	0	0	
+10	242	screen	Transition	forward	0	0	320	240	237	6	10	0	1	0	0	0	0	0	0	
+11	244	screen	Transition	forward	0	0	320	240	279	7	10	0	1	0	0	0	0	0	0	
+12	246	screen	Transition	forward	0	0	320	240	309	8	10	0	1	0	0	0	0	0	0	
+13	248	screen	Transition	forward	0	0	320	240	320	9	10	0	1	0	0	0	0	0	0	
+14	282	list	Music	full	0	0	320	240	0	0	15	0	1	0	0	0	0	0	0	
+15	311	list	Music	row-old	0	24	320	24	1	0	15	0	1	0	0	0	0	0	0	
+16	313	list	Music	row-new	0	48	320	24	1	0	15	0	1	0	0	0	0	0	0	
+17	330	list	Music	full	0	0	320	240	2	0	15	0	1	0	0	0	0	0	0	
+18	346	list	Music	row-old	0	72	320	24	3	0	15	0	1	0	0	0	0	0	0	
+19	348	list	Music	row-new	0	96	320	24	3	0	15	0	1	0	0	0	0	0	0	
+20	363	list	Music	row-old	0	96	320	24	4	0	15	0	1	0	0	0	0	0	0	
+21	364	list	Music	row-new	0	120	320	24	4	0	15	0	1	0	0	0	0	0	0	
+22	379	list	Music	row-old	0	120	320	24	5	0	15	0	1	0	0	0	0	0	0	
+23	381	list	Music	row-new	0	144	320	24	5	0	15	0	1	0	0	0	0	0	0	
+24	398	list	Music	row-old	0	144	320	24	6	0	15	0	1	0	0	0	0	0	0	
+25	399	list	Music	row-new	0	168	320	24	6	0	15	0	1	0	0	0	0	0	0	
+26	414	list	Music	row-old	0	168	320	24	7	0	15	0	1	0	0	0	0	0	0	
+27	416	list	Music	row-new	0	192	320	24	7	0	15	0	1	0	0	0	0	0	0	
+28	431	list	Music	full	0	0	320	240	8	1	15	0	1	0	0	0	0	0	0	
+29	447	list	Music	full	0	0	320	240	9	2	15	0	1	0	0	0	0	0	0	
+30	481	screen	Search	input	0	0	320	240	0	0	0	0	1	0	0	0	0	0	0	
+31	558	screen	Search	input	0	0	320	240	0	0	0	0	1	0	0	0	0	0	0	
+32	576	screen	Search	input	0	0	320	240	0	0	0	0	1	0	0	0	0	0	0	
+33	595	screen	Search	input	0	0	320	240	0	0	0	0	1	0	0	0	0	0	0	
+34	627	screen	Search	input	0	0	320	240	0	0	4	0	1	0	0	0	0	0	0	
+35	728	screen	Lockscreen	full	0	0	320	240	0	0	0	0	1	0	0	0	0	0	0	
+36	728	screen	Search	input	0	0	320	240	0	0	4	0	1	0	0	0	0	0	0	
+37	733	screen	Lockscreen	full	0	0	320	240	0	0	0	0	1	0	0	0	0	0	0	
+38	733	screen	Search	input	0	0	320	240	0	0	4	0	1	0	0	0	0	0	0	
+39	788	screen	Search	input	0	0	320	240	0	0	4	0	1	0	0	0	0	0	0	
+40	833	screen	Search	results	0	0	320	240	0	0	4	0	1	0	0	0	0	0	0	
+41	914	screen	Search	results	0	0	320	240	1	0	4	0	1	0	0	0	0	0	0	
+42	934	screen	Search	results	0	0	320	240	2	0	4	0	1	0	0	0	0	0	0	
+43	976	origin	push screen=1 origin=1 depth=1	state	0	0	0	0	-1	-1	-1	1	24	26	0	154248	0	0	0	/Music/Fast Scroll/Xylosma/24.mp3
+44	978	wps	Now Playing	full	0	0	320	240	-1	-1	-1	1	24	26	0	154248	55c4e3615a00	128	128	/Music/Fast Scroll/Xylosma/24.mp3
+45	998	wps	Now Playing	full	0	0	320	240	-1	-1	-1	1	24	26	120	154248	55c4e3bb4970	128	128	/Music/Fast Scroll/Xylosma/24.mp3
+46	1038	wps	Now Playing	header	0	0	320	44	-1	-1	-1	1	24	26	384	154248	55c4e3bb4970	128	128	/Music/Fast Scroll/Xylosma/24.mp3
+47	1138	wps	Now Playing	header	0	0	320	44	-1	-1	-1	1	24	26	1056	154248	55c4e3bb4970	128	128	/Music/Fast Scroll/Xylosma/24.mp3
+48	1138	wps	Now Playing	bottom	0	196	320	28	-1	-1	-1	1	24	26	1056	154248	55c4e3bb4970	128	128	/Music/Fast Scroll/Xylosma/24.mp3
+49	1140	screen	Shutdown CRT	band	0	0	320	240	0	0	6	1	24	26	1104	154248	0	0	0	/Music/Fast Scroll/Xylosma/24.mp3
+50	1144	screen	Shutdown CRT	band	0	0	320	240	1	0	6	1	24	26	1104	154248	0	0	0	/Music/Fast Scroll/Xylosma/24.mp3
+51	1148	screen	Shutdown CRT	band	0	0	320	240	2	0	6	1	24	26	1152	154248	0	0	0	/Music/Fast Scroll/Xylosma/24.mp3
+52	1152	screen	Shutdown CRT	band	0	0	320	240	3	0	6	1	24	26	1152	154248	0	0	0	/Music/Fast Scroll/Xylosma/24.mp3
+53	1156	screen	Shutdown CRT	band	0	0	320	240	4	0	6	1	24	26	1176	154248	0	0	0	/Music/Fast Scroll/Xylosma/24.mp3
+54	1160	screen	Shutdown CRT	band	0	0	320	240	5	0	6	1	24	26	1224	154248	0	0	0	/Music/Fast Scroll/Xylosma/24.mp3
+55	1164	screen	Shutdown CRT	line	0	0	320	240	0	0	5	1	24	26	1224	154248	0	0	0	/Music/Fast Scroll/Xylosma/24.mp3
+56	1168	screen	Shutdown CRT	line	0	0	320	240	1	0	5	1	24	26	1272	154248	0	0	0	/Music/Fast Scroll/Xylosma/24.mp3
+57	1172	screen	Shutdown CRT	line	0	0	320	240	2	0	5	1	24	26	1320	154248	0	0	0	/Music/Fast Scroll/Xylosma/24.mp3
+58	1176	screen	Shutdown CRT	line	0	0	320	240	3	0	5	1	24	26	1320	154248	0	0	0	/Music/Fast Scroll/Xylosma/24.mp3
+59	1180	screen	Shutdown CRT	line	0	0	320	240	4	0	5	1	24	26	1368	154248	0	0	0	/Music/Fast Scroll/Xylosma/24.mp3
+60	1184	screen	Shutdown CRT	dot	0	0	320	240	0	0	1	1	24	26	1392	154248	0	0	0	/Music/Fast Scroll/Xylosma/24.mp3
+61	1191	screen	Shutdown CRT	black	0	0	320	240	0	0	1	1	24	26	1440	154248	0	0	0	/Music/Fast Scroll/Xylosma/24.mp3

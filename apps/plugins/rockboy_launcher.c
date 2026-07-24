@@ -29,6 +29,9 @@
 #include "pluginbitmaps/game_system_tamagotchi.h"
 #include "rockboy/settings.h"
 #include <ctype.h>
+#ifdef SIMULATOR
+#include <stdlib.h>
+#endif
 
 #define ROCKBOY_LAUNCHER_DIR  PLUGIN_GAMES_DATA_DIR "/rockboy_launcher"
 #define ROCKBOY_INDEX_PATH    ROCKBOY_LAUNCHER_DIR "/games.tsv"
@@ -41,17 +44,20 @@
 #define GAME_LIBRARY_CONFIG_PATH GAME_LIBRARY_DIR "/config.cfg"
 #define GAME_LIBRARY_SYSTEMS_PATH GAME_LIBRARY_DIR "/systems.tsv"
 #define GAME_LIBRARY_STATE_PATH GAME_LIBRARY_CACHE_DIR "/state.dat"
+#define IPODGAMES_COVERFLOW_SIM_LOG ROCKBOX_DIR "/games/ipodgames/coverflow-sim.log"
 #define ROCKBOY_PLUGIN_PATH   VIEWERS_DIR "/rockboy.rock"
 #define INFONES_PLUGIN_PATH   VIEWERS_DIR "/infones.rock"
 #define FLASHPLAYER_PLUGIN_PATH VIEWERS_DIR "/flashplayer.rock"
 #define SMSGG_PLUGIN_PATH     PLUGIN_GAMES_DIR "/smsgg.rock"
 #define SNES_LITE_PLUGIN_PATH PLUGIN_GAMES_DIR "/snes_lite.rock"
+#define PICODRIVE_PLUGIN_PATH PLUGIN_GAMES_DIR "/picodrive.rock"
 #define OPENLARA_PLUGIN_PATH  PLUGIN_GAMES_DIR "/openlara.rock"
 #define SM64_PLUGIN_PATH      PLUGIN_GAMES_DIR "/sm64.rock"
 #define ARDUBOY_PLUGIN_PATH   PLUGIN_GAMES_DIR "/arduboy.rock"
 #define POKEMINI_PLUGIN_PATH  VIEWERS_DIR "/pokemini.rock"
 #define TAMAGOTCHI_PLUGIN_PATH PLUGIN_APPS_DIR "/tamagotchi.rock"
 #define GWATCH_PLUGIN_PATH   PLUGIN_GAMES_DIR "/gwatch.rock"
+#define IPODGAMES_PLUGIN_PATH PLUGIN_GAMES_DIR "/ipodgames.rock"
 #define STICKRPG_SWF_PATH     ROCKBOX_DIR "/flash/stickrpg/stickrpg.swf"
 #define STICKRPG_COVER_BMP    ROCKBOX_DIR "/ipodjs/stickrpg/covers/Stick RPG.bmp"
 #define CLUBPENGUIN_PLUGIN_PATH PLUGIN_GAMES_DIR "/clubpenguin.rock"
@@ -72,6 +78,9 @@
 #define SMSGG_ROM_DIR         ROCKBOX_DIR "/games/smsgg/roms"
 #define SNES_LITE_ROM_DIR     ROCKBOX_DIR "/roms/snes"
 #define SNES_LITE_SAVE_DIR    ROCKBOX_DIR "/saves/snes"
+#define GENESIS_ROM_DIR       ROCKBOX_DIR "/games/genesis/roms"
+#define GENESIS_SAVE_DIR      ROCKBOX_DIR "/games/genesis/saves"
+#define GENESIS_STATE_DIR     ROCKBOX_DIR "/games/genesis/states"
 #define PS1_ROM_DIR           ROCKBOX_DIR "/games/ps1"
 #define N64_ROM_DIR           ROCKBOX_DIR "/games/n64"
 #define ARDUBOY_ROM_DIR       ROCKBOX_DIR "/games/arduboy/roms"
@@ -83,6 +92,7 @@
 #define TAMAGOTCHI_APP_ROM_DIR ROCKBOX_DIR "/apps/tamagotchi/roms"
 #define TAMAGOTCHI_APP_ROM_PATH TAMAGOTCHI_APP_ROM_DIR "/tama.b"
 #define GWATCH_ROM_DIR        ROCKBOX_DIR "/games/gwatch/roms"
+#define IPODGAMES_ROM_DIR     ROCKBOX_DIR "/ipodgames/games"
 #define DOOM_WAD_DIR          ROCKBOX_DIR "/games/doom/wads"
 #define NATIVE_GAMES_DIR      PLUGIN_GAMES_DIR
 #define ROCKBOY_LOADING_BACKGROUND_BMP ROCKBOY_LAUNCHER_DIR "/loading_bg.bmp"
@@ -420,6 +430,45 @@ static bool is_plugin_entry(const char *path)
     return ext && !rb->strcasecmp(ext, ".rock");
 }
 
+static bool is_valid_genesis_cartridge(const char *path)
+{
+    const char *extension = rb->strrchr(path, '.');
+    unsigned char header[0x200];
+    uint32_t reset_vector;
+    off_t size;
+    int fd;
+
+    if (!extension)
+        return false;
+    if (!rb->strcasecmp(extension, ".smd"))
+    {
+        fd = rb->open(path, O_RDONLY);
+        if (fd < 0)
+            return false;
+        size = rb->filesize(fd);
+        rb->close(fd);
+        return size >= 512 + 16384 && ((size - 512) % 16384) == 0;
+    }
+
+    fd = rb->open(path, O_RDONLY);
+    if (fd < 0)
+        return false;
+    size = rb->filesize(fd);
+    if (size < (off_t)sizeof(header) ||
+        rb->read(fd, header, sizeof(header)) != (ssize_t)sizeof(header))
+    {
+        rb->close(fd);
+        return false;
+    }
+    rb->close(fd);
+    reset_vector = ((uint32_t)header[4] << 24) |
+                   ((uint32_t)header[5] << 16) |
+                   ((uint32_t)header[6] << 8) | header[7];
+    return !rb->strncmp((const char *)&header[0x100], "SEGA", 4) &&
+           reset_vector >= 0x100 && reset_vector < (uint32_t)size &&
+           !(reset_vector & 1);
+}
+
 static bool is_doom_entry(const char *path)
 {
     return !rb->strcmp(path, DOOM_PLAY_PLUGIN_PATH);
@@ -462,6 +511,8 @@ static char *trim_whitespace(char *text)
 
     while (*text && isspace((unsigned char)*text))
         text++;
+    if (*text == '\0')
+        return text;
 
     end = text + rb->strlen(text);
     while (end > text && isspace((unsigned char)end[-1]))
@@ -599,6 +650,7 @@ static bool ensure_library_dirs(void)
     mkdir_if_needed(GAME_LIBRARY_COVERS_DIR "/systems");
     mkdir_if_needed(GAME_LIBRARY_COVERS_DIR "/smsgg");
     mkdir_if_needed(GAME_LIBRARY_COVERS_DIR "/snes");
+    mkdir_if_needed(GAME_LIBRARY_COVERS_DIR "/genesis");
     mkdir_if_needed(GAME_LIBRARY_COVERS_DIR "/n64");
     mkdir_if_needed(GAME_LIBRARY_COVERS_DIR "/ps1");
     mkdir_if_needed(GAME_LIBRARY_COVERS_DIR "/arduboy");
@@ -612,6 +664,10 @@ static bool ensure_library_dirs(void)
     mkdir_if_needed(SNES_LITE_ROM_DIR);
     mkdir_if_needed(ROCKBOX_DIR "/saves");
     mkdir_if_needed(SNES_LITE_SAVE_DIR);
+    mkdir_if_needed(ROCKBOX_DIR "/games/genesis");
+    mkdir_if_needed(GENESIS_ROM_DIR);
+    mkdir_if_needed(GENESIS_SAVE_DIR);
+    mkdir_if_needed(GENESIS_STATE_DIR);
     mkdir_if_needed(PS1_ROM_DIR);
     mkdir_if_needed(N64_ROM_DIR);
     mkdir_if_needed(ROCKBOX_DIR "/games/n64/saves");
@@ -625,6 +681,9 @@ static bool ensure_library_dirs(void)
     mkdir_if_needed(TAMAGOTCHI_ROM_DIR);
     mkdir_if_needed(ROCKBOX_DIR "/games/gwatch");
     mkdir_if_needed(GWATCH_ROM_DIR);
+    mkdir_if_needed(ROCKBOX_DIR "/ipodgames");
+    mkdir_if_needed(IPODGAMES_ROM_DIR);
+    mkdir_if_needed(ROCKBOX_DIR "/games/ipodgames");
     mkdir_if_needed(ROCKBOX_DIR "/games/doom");
     mkdir_if_needed(DOOM_WAD_DIR);
     mkdir_if_needed(ROCKBOX_DIR "/games/native");
@@ -659,6 +718,9 @@ static bool write_default_system_manifest(void)
     rb->fdprintf(fd, "snes\tSuper Nintendo\tSNES Lite experimental\t%s\t%s\t%s\t1\t12\n",
                  SNES_LITE_PLUGIN_PATH, SNES_LITE_ROM_DIR,
                  GAME_LIBRARY_COVERS_DIR "/systems/snes.bmp");
+    rb->fdprintf(fd, "genesis\tGenesis / Mega Drive\tPicoDrive\t%s\t%s\t%s\t1\t13\n",
+                 PICODRIVE_PLUGIN_PATH, GENESIS_ROM_DIR,
+                 GAME_LIBRARY_COVERS_DIR "/systems/genesis.bmp");
     rb->fdprintf(fd, "n64\tNintendo 64\tSuper Mario 64 native port\t%s\t%s\t%s\t1\t13\n",
                  SM64_PLUGIN_PATH, N64_ROM_DIR,
                  GAME_LIBRARY_COVERS_DIR "/systems/n64.bmp");
@@ -677,6 +739,9 @@ static bool write_default_system_manifest(void)
     rb->fdprintf(fd, "gwatch\tGame & Watch\tLCD handhelds\t%s\t%s\t%s\t1\t50\n",
                  GWATCH_PLUGIN_PATH, GWATCH_ROM_DIR,
                  GAME_LIBRARY_COVERS_DIR "/systems/gwatch.bmp");
+    rb->fdprintf(fd, "ipodgames\tiPod Games\tApple Click Wheel games\t%s\t%s\t%s\t1\t52\n",
+                 IPODGAMES_PLUGIN_PATH, IPODGAMES_ROM_DIR,
+                 GAME_LIBRARY_COVERS_DIR "/systems/native.bmp");
     rb->fdprintf(fd, "flash\tFlash\tSWF games\t%s\t%s\t%s\t1\t55\n",
                  FLASHPLAYER_PLUGIN_PATH, FLASH_ROM_DIR,
                  FLASH_SYSTEM_COVER_BMP);
@@ -703,6 +768,9 @@ static void set_system_extensions(struct system_entry *system)
         rb->strlcpy(system->extensions, ".sms,.gg", sizeof(system->extensions));
     else if (!rb->strcmp(system->id, "snes"))
         rb->strlcpy(system->extensions, ".sfc,.smc", sizeof(system->extensions));
+    else if (!rb->strcmp(system->id, "genesis"))
+        rb->strlcpy(system->extensions, ".md,.gen,.bin,.smd",
+                    sizeof(system->extensions));
     else if (!rb->strcmp(system->id, "n64"))
         rb->strlcpy(system->extensions, ".z64,.n64,.v64",
                     sizeof(system->extensions));
@@ -715,6 +783,9 @@ static void set_system_extensions(struct system_entry *system)
         rb->strlcpy(system->extensions, ".min", sizeof(system->extensions));
     else if (!rb->strcmp(system->id, "gwatch"))
         rb->strlcpy(system->extensions, ".mgw,.gw,.gwz",
+                    sizeof(system->extensions));
+    else if (!rb->strcmp(system->id, "ipodgames"))
+        rb->strlcpy(system->extensions, ".igame",
                     sizeof(system->extensions));
     else if (!rb->strcmp(system->id, "doom"))
         rb->strlcpy(system->extensions, ".wad", sizeof(system->extensions));
@@ -741,6 +812,10 @@ static void set_system_setup_message(struct system_entry *system)
         rb->strlcpy(system->setup_message,
                     "SNES Lite plugin missing or no .sfc/.smc games in .rockbox/roms/snes/",
                     sizeof(system->setup_message));
+    else if (!rb->strcmp(system->id, "genesis"))
+        rb->strlcpy(system->setup_message,
+                    "PicoDrive plugin missing or no .md/.gen/.bin/.smd games in .rockbox/games/genesis/roms/",
+                    sizeof(system->setup_message));
     else if (!rb->strcmp(system->id, "n64"))
         rb->strlcpy(system->setup_message,
                     "Super Mario 64 needs your legally owned US v1.0 ROM in .rockbox/games/n64/",
@@ -756,6 +831,10 @@ static void set_system_setup_message(struct system_entry *system)
     else if (!rb->strcmp(system->id, "gwatch"))
         rb->strlcpy(system->setup_message,
                     "No Game & Watch packages found. Put .mgw files in .rockbox/games/gwatch/roms/",
+                    sizeof(system->setup_message));
+    else if (!rb->strcmp(system->id, "ipodgames"))
+        rb->strlcpy(system->setup_message,
+                    "No iPod games imported. Run tools/ipodgames/ipg_import.py first.",
                     sizeof(system->setup_message));
     else if (!rb->strcmp(system->id, "pokemini"))
         rb->strlcpy(system->setup_message,
@@ -785,10 +864,22 @@ static void set_system_controls(struct system_entry *system)
                     "Wheel or click buttons move, Select A, Play/Pause B, Menu emulator menu",
                     sizeof(system->controls));
     }
+    else if (!rb->strcmp(system->id, "ipodgames"))
+    {
+        rb->strlcpy(system->controls,
+                    "Wheel browses, Select opens, Menu goes back",
+                    sizeof(system->controls));
+    }
     else if (!rb->strcmp(system->id, "snes"))
     {
         rb->strlcpy(system->controls,
                     "Wheel moves, Select A, Play B, Left Y, Right X, long Menu options",
+                    sizeof(system->controls));
+    }
+    else if (!rb->strcmp(system->id, "genesis"))
+    {
+        rb->strlcpy(system->controls,
+                    "Wheel moves, Select B, Play C, Left A, short Menu Start, long Menu options",
                     sizeof(system->controls));
     }
     else if (!rb->strcmp(system->id, "n64"))
@@ -864,6 +955,9 @@ static void load_default_systems(void)
     add_system_entry("snes", "Super Nintendo", "SNES Lite experimental",
                      SNES_LITE_PLUGIN_PATH, SNES_LITE_ROM_DIR,
                      GAME_LIBRARY_COVERS_DIR "/systems/snes.bmp", true, 12);
+    add_system_entry("genesis", "Genesis / Mega Drive", "PicoDrive",
+                     PICODRIVE_PLUGIN_PATH, GENESIS_ROM_DIR,
+                     GAME_LIBRARY_COVERS_DIR "/systems/genesis.bmp", true, 13);
     add_system_entry("n64", "Nintendo 64", "Super Mario 64 native port",
                      SM64_PLUGIN_PATH, N64_ROM_DIR,
                      GAME_LIBRARY_COVERS_DIR "/systems/n64.bmp", true, 13);
@@ -882,6 +976,9 @@ static void load_default_systems(void)
     add_system_entry("gwatch", "Game & Watch", "LCD handhelds",
                      GWATCH_PLUGIN_PATH, GWATCH_ROM_DIR,
                      GAME_LIBRARY_COVERS_DIR "/systems/gwatch.bmp", true, 50);
+    add_system_entry("ipodgames", "iPod Games", "Apple Click Wheel games",
+                     IPODGAMES_PLUGIN_PATH, IPODGAMES_ROM_DIR,
+                     GAME_LIBRARY_COVERS_DIR "/systems/native.bmp", true, 52);
     add_system_entry("flash", "Flash", "SWF games",
                      FLASHPLAYER_PLUGIN_PATH, FLASH_ROM_DIR,
                      FLASH_SYSTEM_COVER_BMP, true, 55);
@@ -993,6 +1090,21 @@ static void apply_builtin_system_defaults(struct system_entry *system)
         system->enabled = true;
         system->sort = 13;
     }
+    else if (!rb->strcmp(system->id, "ipodgames"))
+    {
+        rb->strlcpy(system->title, "iPod Games", sizeof(system->title));
+        rb->strlcpy(system->subtitle, "Apple Click Wheel games",
+                    sizeof(system->subtitle));
+        rb->strlcpy(system->plugin_path, IPODGAMES_PLUGIN_PATH,
+                    sizeof(system->plugin_path));
+        rb->strlcpy(system->rom_path, IPODGAMES_ROM_DIR,
+                    sizeof(system->rom_path));
+        rb->strlcpy(system->cover_path,
+                    GAME_LIBRARY_COVERS_DIR "/systems/native.bmp",
+                    sizeof(system->cover_path));
+        system->enabled = true;
+        system->sort = 52;
+    }
 
     set_system_extensions(system);
     set_system_setup_message(system);
@@ -1004,6 +1116,7 @@ static void add_missing_builtin_systems(void)
     apply_builtin_system_defaults(find_system_entry("gwatch"));
     apply_builtin_system_defaults(find_system_entry("flash"));
     apply_builtin_system_defaults(find_system_entry("n64"));
+    apply_builtin_system_defaults(find_system_entry("ipodgames"));
 
     if (!system_entry_exists("gameboy"))
         add_system_entry("gameboy", "Game Boy", "Rockboy library",
@@ -1025,6 +1138,11 @@ static void add_missing_builtin_systems(void)
                          SNES_LITE_PLUGIN_PATH, SNES_LITE_ROM_DIR,
                          GAME_LIBRARY_COVERS_DIR "/systems/snes.bmp",
                          true, 12);
+    if (!system_entry_exists("genesis"))
+        add_system_entry("genesis", "Genesis / Mega Drive", "PicoDrive",
+                         PICODRIVE_PLUGIN_PATH, GENESIS_ROM_DIR,
+                         GAME_LIBRARY_COVERS_DIR "/systems/genesis.bmp",
+                         true, 13);
     if (!system_entry_exists("n64"))
         add_system_entry("n64", "Nintendo 64", "Super Mario 64 native port",
                          SM64_PLUGIN_PATH, N64_ROM_DIR,
@@ -1055,6 +1173,11 @@ static void add_missing_builtin_systems(void)
                          GWATCH_PLUGIN_PATH, GWATCH_ROM_DIR,
                          GAME_LIBRARY_COVERS_DIR "/systems/gwatch.bmp",
                          true, 50);
+    if (!system_entry_exists("ipodgames"))
+        add_system_entry("ipodgames", "iPod Games", "Apple Click Wheel games",
+                         IPODGAMES_PLUGIN_PATH, IPODGAMES_ROM_DIR,
+                         GAME_LIBRARY_COVERS_DIR "/systems/native.bmp",
+                         true, 52);
     if (!system_entry_exists("flash"))
         add_system_entry("flash", "Flash", "SWF games",
                          FLASHPLAYER_PLUGIN_PATH, FLASH_ROM_DIR,
@@ -1696,6 +1819,61 @@ static bool game_has_local_save(struct game_entry *entry)
     char save_base[MAX_SAVE_BASENAME];
     char path[MAX_PATH];
 
+    if (!rb->strcmp(entry->system_id, "genesis"))
+    {
+        const char *rom_path = entry->plugin_param[0] ?
+                               entry->plugin_param : entry->rom_path;
+        const char *name = rb->strrchr(rom_path, '/');
+        DIR *dir;
+        struct dirent *directory_entry;
+        char prefix[MAX_ENTRY_TITLE];
+        char *extension;
+        int pass;
+        int index;
+
+        name = name ? name + 1 : rom_path;
+        rb->strlcpy(prefix, name, sizeof(prefix));
+        extension = rb->strrchr(prefix, '.');
+        if (extension)
+            *extension = '\0';
+        for (index = 0; prefix[index] != '\0'; index++)
+        {
+            char value = prefix[index];
+
+            if (!((value >= 'a' && value <= 'z') ||
+                  (value >= 'A' && value <= 'Z') ||
+                  (value >= '0' && value <= '9') || value == '-' ||
+                  value == '_' || value == ' '))
+                prefix[index] = '_';
+        }
+        rb->strlcat(prefix, "-", sizeof(prefix));
+
+        for (pass = 0; pass < 2; pass++)
+        {
+            const char *directory = pass ? GENESIS_STATE_DIR :
+                                           GENESIS_SAVE_DIR;
+
+            dir = rb->opendir(directory);
+            if (!dir)
+                continue;
+            while ((directory_entry = rb->readdir(dir)) != NULL)
+            {
+                const char *candidate = directory_entry->d_name;
+                const char *suffix = rb->strrchr(candidate, '.');
+
+                if (!rb->strncmp(candidate, prefix, rb->strlen(prefix)) &&
+                    suffix && (!rb->strcasecmp(suffix, ".srm") ||
+                               !rb->strcasecmp(suffix, ".state0")))
+                {
+                    rb->closedir(dir);
+                    return true;
+                }
+            }
+            rb->closedir(dir);
+        }
+        return entry->save_hint == SAVE_HINT_YES;
+    }
+
     if (is_plugin_entry(entry->rom_path))
         return entry->save_hint == SAVE_HINT_YES;
 
@@ -1929,6 +2107,12 @@ static bool cover_for_known_plugin(const char *path, const char *title,
                                     GAME_LIBRARY_COVERS_DIR "/systems/smsgg.bmp");
     }
 
+    if (!rb->strcasecmp(stem, "picodrive"))
+    {
+        return copy_cover_if_exists(cover_path, cover_path_size,
+                                    GAME_LIBRARY_COVERS_DIR "/systems/genesis.bmp");
+    }
+
     if (!rb->strcasecmp(stem, "pocketcatch"))
     {
         return copy_cover_if_exists(cover_path, cover_path_size,
@@ -2012,6 +2196,9 @@ static bool cover_for_system_id(const char *system_id,
     if (!rb->strcmp(system_id, "snes"))
         return copy_cover_if_exists(cover_path, cover_path_size,
                                     GAME_LIBRARY_COVERS_DIR "/systems/snes.bmp");
+    if (!rb->strcmp(system_id, "genesis"))
+        return copy_cover_if_exists(cover_path, cover_path_size,
+                                    GAME_LIBRARY_COVERS_DIR "/systems/genesis.bmp");
     if (!rb->strcmp(system_id, "n64"))
         return copy_cover_if_exists(cover_path, cover_path_size,
                                     GAME_LIBRARY_COVERS_DIR "/systems/n64.bmp");
@@ -2150,6 +2337,8 @@ static void scan_system_rom_dir(struct system_entry *system,
         }
 
         if (has_extension_in_list(entry->d_name, system->extensions) &&
+            (rb->strcmp(system->id, "genesis") ||
+             is_valid_genesis_cartridge(child)) &&
             !game_entry_path_exists(child))
         {
             char cover[MAX_PATH];
@@ -2183,7 +2372,9 @@ static int count_system_files_quick(struct system_entry *system,
 
         rb->snprintf(child, sizeof(child), "%s/%s", dir_path, entry->d_name);
         if ((rb->dir_get_info(dir, entry).attribute & ATTR_DIRECTORY) == 0 &&
-            has_extension_in_list(entry->d_name, system->extensions))
+            has_extension_in_list(entry->d_name, system->extensions) &&
+            (rb->strcmp(system->id, "genesis") ||
+             is_valid_genesis_cartridge(child)))
         {
             count++;
         }
@@ -2287,6 +2478,9 @@ static bool load_games_from_system_manifest(struct system_entry *system)
         make_path_absolute(index_dir, trim_whitespace(cover),
                            resolved_cover, sizeof(resolved_cover));
         if (!rb->file_exists(resolved_file))
+            continue;
+        if (!rb->strcmp(system->id, "genesis") &&
+            !is_valid_genesis_cartridge(resolved_file))
             continue;
         if (resolved_cover[0] != '\0' && !rb->file_exists(resolved_cover))
             resolved_cover[0] = '\0';
@@ -2570,8 +2764,7 @@ static void add_system_card(struct system_entry *system, int index)
     rb->strlcpy(entry->rom_path, system->rom_path, sizeof(entry->rom_path));
     rb->strlcpy(entry->plugin_path, system->plugin_path, sizeof(entry->plugin_path));
 
-    if (launcher.view_mode != VIEW_SYSTEMS &&
-        system->cover_path[0] != '\0' && rb->file_exists(system->cover_path))
+    if (system->cover_path[0] != '\0' && rb->file_exists(system->cover_path))
     {
         rb->strlcpy(entry->cover_path, system->cover_path, sizeof(entry->cover_path));
     }
@@ -2945,6 +3138,10 @@ static bool allocate_launcher_buffers(void)
         return false;
 
     slot_bytes = launcher.cache_cover_w * launcher.cache_cover_h * sizeof(fb_data);
+    /* RockPod's canonical 140x124 BMP needs a little decode workspace even
+     * when the displayed Cover Flow slot is narrower. */
+    if (slot_bytes < 140u * 140u * sizeof(fb_data))
+        slot_bytes = 140u * 140u * sizeof(fb_data);
     reflection_bytes = launcher.cache_cover_w * launcher.reflection_max_h * sizeof(fb_data);
     posed_bytes = slot_bytes;
     scratch_bytes = (LCD_WIDTH >= 320) ? (160 * 1024) : (96 * 1024);
@@ -3018,6 +3215,8 @@ static bool allocate_launcher_buffers(void)
 
 static bool load_game_library(void)
 {
+    int i;
+
     if (!launcher.entries && !allocate_launcher_buffers())
         return false;
 
@@ -3025,7 +3224,24 @@ static bool load_game_library(void)
     load_launcher_state();
     if (!load_system_library())
         return false;
-    return load_system_browser();
+    if (!load_system_browser())
+        return false;
+
+    if (launcher.start_view != START_SYSTEMS &&
+        launcher.state_system[0] != '\0')
+    {
+        for (i = 0; i < launcher.system_count; i++)
+        {
+            if (!rb->strcmp(launcher.systems[i].id,
+                            launcher.state_system))
+            {
+                if (launcher.start_view == START_LAST_SYSTEM)
+                    launcher.state_rom[0] = '\0';
+                return load_system_games(i);
+            }
+        }
+    }
+    return true;
 }
 
 static bool load_system_games(int system_index)
@@ -3245,9 +3461,13 @@ static bool decode_cover_bitmap(const char *path, struct bitmap *bitmap,
 
     if (is_bmp_cover(path))
     {
+        bitmap->width = launcher.cache_cover_w;
+        bitmap->height = launcher.cache_cover_h;
         bitmap->data = (unsigned char *)data;
         bitmap->format = FORMAT_NATIVE;
-        rc = rb->read_bmp_file(path, bitmap, (int)data_bytes, FORMAT_NATIVE, NULL);
+        rc = rb->read_bmp_file(path, bitmap, (int)data_bytes,
+                               FORMAT_NATIVE | FORMAT_RESIZE |
+                               FORMAT_KEEP_ASPECT | FORMAT_DITHER, NULL);
         if (rc > 0 && bitmap->width > 0 && bitmap->height > 0)
             return true;
     }
@@ -3667,6 +3887,8 @@ static void draw_system_badge(int x, int y, int w, int h,
 static void draw_system_row(int index, int y, int row_h)
 {
     struct game_entry *entry = &launcher.entries[index];
+    struct cover_slot *cover = NULL;
+    struct bitmap *cover_bitmap = NULL;
     bool selected = index == launcher.selected;
     char line[96];
     char title[MAX_ENTRY_TITLE];
@@ -3684,7 +3906,31 @@ static void draw_system_row(int index, int y, int row_h)
         rb->lcd_drawrect(4, y - 2, launcher.vp.width - 8, row_h);
     }
 
-    draw_system_badge(margin, y + 4, badge_w, row_h - 8, entry, selected);
+    if (entry->cover_path[0] != '\0')
+    {
+        int badge_h = row_h - 8;
+        int draw_w = badge_w - 4;
+        int draw_h = badge_h - 4;
+
+        cover = get_cover_slot(index);
+        if (cover && cover->loaded)
+        {
+            if (cover->bitmap.width * draw_h > cover->bitmap.height * draw_w)
+                draw_h = cover->bitmap.height * draw_w / cover->bitmap.width;
+            else
+                draw_w = cover->bitmap.width * draw_h / cover->bitmap.height;
+            cover_bitmap = prepare_cover_pose_bitmap(
+                cover, cover->bitmap.width, draw_w, draw_h);
+            if (cover_bitmap)
+                rb->lcd_bmp_part(cover_bitmap, 0, 0,
+                                 margin + (badge_w - draw_w) / 2,
+                                 y + 4 + (badge_h - draw_h) / 2,
+                                 draw_w, draw_h);
+        }
+    }
+    if (!cover_bitmap)
+        draw_system_badge(margin, y + 4, badge_w, row_h - 8,
+                          entry, selected);
 
     rb->lcd_set_foreground(selected ? launcher_selected_text_color() :
                            launcher_fg_color());
@@ -4595,6 +4841,56 @@ static enum plugin_status launcher_run(void)
     }
 }
 
+#ifdef SIMULATOR
+static enum plugin_status launcher_run_ipodgames_sim_gate(void)
+{
+    struct system_entry *system = find_system_entry("ipodgames");
+    bool tetris_found = false;
+    bool phase_found = false;
+    bool covers_present = true;
+    int system_index;
+    int fd;
+    int i;
+
+    if (!system)
+        return PLUGIN_ERROR;
+    system_index = (int)(system - launcher.systems);
+    if (!load_system_games(system_index))
+        return PLUGIN_ERROR;
+
+    fd = rb->open(IPODGAMES_COVERFLOW_SIM_LOG,
+                  O_WRONLY | O_CREAT | O_TRUNC, 0666);
+    if (fd < 0)
+        return PLUGIN_ERROR;
+    rb->fdprintf(fd, "IPODGAMES-COVERFLOW-SIM/1\n");
+    rb->fdprintf(fd, "system_id=%s\n", system->id);
+    rb->fdprintf(fd, "system_title=%s\n", system->title);
+    rb->fdprintf(fd, "plugin=%s\n", system->plugin_path);
+    rb->fdprintf(fd, "games=%d\n", launcher.entry_count);
+    for (i = 0; i < launcher.entry_count; ++i)
+    {
+        const struct game_entry *entry = &launcher.entries[i];
+
+        rb->fdprintf(fd, "game=%s|%s|%s|%s\n", entry->title,
+                     entry->rom_path, entry->plugin_path, entry->cover_path);
+        if (!rb->strcmp(entry->title, "Tetris"))
+            tetris_found = true;
+        if (!rb->strcmp(entry->title, "Phase"))
+            phase_found = true;
+        if (!entry->cover_path[0] || !rb->file_exists(entry->cover_path))
+            covers_present = false;
+    }
+    rb->fdprintf(fd, "status=%s\n",
+                 tetris_found && phase_found && covers_present &&
+                 !rb->strcmp(system->title, "iPod Games") &&
+                 !rb->strcmp(system->plugin_path, IPODGAMES_PLUGIN_PATH)
+                     ? "pass" : "fail");
+    rb->close(fd);
+    return tetris_found && phase_found && covers_present
+               ? PLUGIN_OK : PLUGIN_ERROR;
+}
+#endif
+
 enum plugin_status plugin_start(const void *parameter)
 {
     (void)parameter;
@@ -4608,6 +4904,10 @@ enum plugin_status plugin_start(const void *parameter)
     if (!load_game_library())
         return draw_empty_library();
 
+#ifdef SIMULATOR
+    if (getenv("ROCKBOY_LAUNCHER_TEST_IPODGAMES"))
+        return launcher_run_ipodgames_sim_gate();
+#endif
     if (launcher.view_mode != VIEW_SYSTEMS)
         load_selected_cover_quiet();
     return launcher_run();

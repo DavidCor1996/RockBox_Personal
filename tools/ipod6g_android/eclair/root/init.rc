@@ -1,0 +1,111 @@
+on init
+    sysclktz 0
+    loglevel 7
+
+    export PATH /system/bin
+    export LD_LIBRARY_PATH /system/lib
+    export ANDROID_ROOT /system
+    export ANDROID_DATA /data
+    export IPOD6G_ASHMEM_TMPDIR /dev/ashmem-fallback
+    export BOOTCLASSPATH /system/framework/core.jar:/system/framework/ext.jar:/system/framework/framework.jar:/system/framework/android.policy.jar:/system/framework/services.jar
+
+    mkdir /system 0755 root root
+    mkdir /data 0771 system system
+    mkdir /cache 0770 system cache
+    mkdir /metadata 0700 root root
+    mkdir /dev/ashmem-fallback 0777 root root
+
+    mount tmpfs tmpfs /data mode=0771,size=12m
+    mount tmpfs tmpfs /cache mode=0770,size=4m
+    mount tmpfs tmpfs /metadata mode=0700,size=1m
+
+    mkdir /data/property 0700 root root
+    mkdir /data/app 0771 system system
+    mkdir /data/app-private 0771 system system
+    mkdir /data/data 0771 system system
+    mkdir /data/dalvik-cache 0771 system system
+    mkdir /data/system 0775 system system
+    mkdir /data/system/usagestats 0775 system system
+    mkdir /data/local 0771 shell shell
+    mkdir /data/local/tmp 0771 shell shell
+
+    mount rootfs rootfs / ro remount
+
+on boot
+    setprop ro.build.version.release 2.0
+    setprop ro.build.version.sdk 5
+    setprop ro.build.version.codename REL
+    setprop ro.ipod6g.eclair_minimal 1
+    setprop ro.config.nocheckin yes
+    setprop ro.FOREGROUND_APP_ADJ 0
+    setprop ro.VISIBLE_APP_ADJ 1
+    setprop ro.SECONDARY_SERVER_ADJ 2
+    setprop ro.BACKUP_APP_ADJ 2
+    setprop ro.HOME_APP_ADJ 4
+    setprop ro.HIDDEN_APP_MIN_ADJ 7
+    setprop ro.CONTENT_PROVIDER_ADJ 14
+    setprop ro.EMPTY_APP_ADJ 15
+    setprop ro.FOREGROUND_APP_MEM 1536
+    setprop ro.VISIBLE_APP_MEM 2048
+    setprop ro.SECONDARY_SERVER_MEM 4096
+    setprop ro.BACKUP_APP_MEM 4096
+    setprop ro.HOME_APP_MEM 4096
+    setprop ro.HIDDEN_APP_MEM 5120
+    setprop ro.CONTENT_PROVIDER_MEM 5632
+    setprop ro.EMPTY_APP_MEM 6144
+
+    start installd
+    start servicemanager
+    start dexprobe
+    start zygotegate
+    start eclairprobe
+
+service dexprobe /system/xbin/dexdump -f /system/framework/ipod6g-dalvik-fixture.dex
+    user root
+    group root
+    console
+    disabled
+    oneshot
+
+service dalvikprobe /system/bin/dalvikvm -Xverify:none -Xdexopt:none -Xbootclasspath:/system/framework/core.jar -cp /system/framework/ipod6g-dalvik-fixture.jar dalvikExecTest.HelloWorld
+    user root
+    group root
+    console
+    disabled
+    oneshot
+
+service frameworkprobe /system/bin/dalvikvm -Xverify:none -Xdexopt:none -Xbootclasspath:/system/framework/core.jar:/system/framework/ext.jar:/system/framework/framework.jar -cp /system/framework/ipod6g-framework-fixture.jar:/system/framework/ipod6g-dalvik-fixture.jar ipod6g.frameworktest.FrameworkHello
+    user root
+    group root
+    console
+    disabled
+    oneshot
+
+service zygotegate /system/bin/ipod6g_eclair_zygote_gate
+    socket zygote stream 0666
+    user root
+    group root
+    console
+    disabled
+    oneshot
+
+service eclairprobe /system/bin/ipod6g_eclair_probe_dynamic
+    user root
+    group root
+    console
+    disabled
+    oneshot
+
+service servicemanager /system/bin/servicemanager
+    user system
+    group system
+    console
+    disabled
+    oneshot
+
+service installd /system/bin/installd
+    socket installd stream 600 system system
+    user root
+    group root
+    console
+    disabled

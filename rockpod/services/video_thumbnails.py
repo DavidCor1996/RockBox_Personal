@@ -9,6 +9,7 @@ from PIL import Image
 
 from services.command_runner import CommandRunner
 from services.file_safety import atomic_write_text
+from services.imdb_video_artwork import IMDbVideoArtworkCatalog
 
 
 _VIDEO_POSTER_FILENAMES = (
@@ -21,6 +22,9 @@ _VIDEO_POSTER_FILENAMES = (
 )
 _VIDEO_LIST_THUMB_SIZE = (32, 32)
 _VIDEO_LIST_PREVIEW_SIZE = (174, 240)
+_VIDEO_LIST_NETFLIX_POSTER_SIZE = (28, 42)
+_VIDEO_LIST_NETFLIX_LANDING_SIZE = (72, 108)
+_VIDEO_LIST_NETFLIX_DETAIL_SIZE = (96, 144)
 
 
 class VideoThumbnailService:
@@ -31,6 +35,7 @@ class VideoThumbnailService:
         self._video_list_dir = os.path.join(self._cache_dir, "list")
         self._config = config
         self._artwork = artwork_manager
+        self._imdb_artwork = IMDbVideoArtworkCatalog()
         self._command_runner = command_runner or CommandRunner(log_dir=os.path.join(self._cache_dir, "logs"))
         os.makedirs(self._cache_dir, exist_ok=True)
         os.makedirs(self._video_list_dir, exist_ok=True)
@@ -53,7 +58,23 @@ class VideoThumbnailService:
         duration = float((track or {}).get("duration") or 0.0)
         width = max(int(size), 96)
         height = int(width * 1.5)
-        local_poster = self._find_local_poster(track)
+        artwork_scope = str((track or {}).get("_video_artwork_scope") or "")
+        explicit_poster = str((track or {}).get("artwork_path") or "")
+        if not os.path.isfile(explicit_poster):
+            explicit_poster = ""
+        imdb_poster, _imdb_entry = self._imdb_artwork.resolve(
+            track, scope=artwork_scope
+        )
+        imdb_authoritative = (
+            artwork_scope in {"show", "season"}
+            or str((track or {}).get("metadata_source") or "").casefold()
+            == "imdb"
+        )
+        local_poster = (
+            (imdb_poster or explicit_poster)
+            if imdb_authoritative else
+            (explicit_poster or imdb_poster)
+        ) or self._find_local_poster(track)
         if local_poster:
             poster_mtime = os.stat(local_poster).st_mtime
         else:
@@ -118,6 +139,18 @@ class VideoThumbnailService:
         )
         return hashlib.sha1(identity.encode("utf-8", "replace")).hexdigest()[:24]
 
+    def video_hierarchy_art_id(self, track, scope):
+        track = dict(track or {})
+        scope = str(scope or "show").strip().casefold()
+        title = str(track.get("show_title") or track.get("title") or "video")
+        imdb_id = str(track.get("imdb_id") or "").strip().casefold()
+        identity = imdb_id or title.strip().casefold()
+        if scope == "season":
+            identity = f"{identity}|{int(track.get('season_number') or 0)}"
+        return hashlib.sha1(
+            f"{scope}|{identity}".encode("utf-8", "replace")
+        ).hexdigest()[:24]
+
     def export_video_list_thumbnail(self, track, force=False, size=None, allow_online=None):
         target_size = size or _VIDEO_LIST_THUMB_SIZE
         width = max(int(target_size[0]), 1)
@@ -162,11 +195,67 @@ class VideoThumbnailService:
             return "", "", "", video_id
         return cache_target, self._file_hash(cache_target), f"{video_id}.bmp", video_id
 
+    def export_video_list_netflix_poster(self, track, force=False,
+                                         detail=False, landing=False,
+                                         allow_online=None,
+                                         artwork_scope="", artwork_id=""):
+        if detail:
+            target_size = _VIDEO_LIST_NETFLIX_DETAIL_SIZE
+        elif landing:
+            target_size = _VIDEO_LIST_NETFLIX_LANDING_SIZE
+        else:
+            target_size = _VIDEO_LIST_NETFLIX_POSTER_SIZE
+        width, height = target_size
+        video_id = artwork_id or self.video_list_id(track)
+        if allow_online is None:
+            allow_online = self._config_value("enable_online_artwork_lookup", False)
+        scoped_track = dict(track or {})
+        if artwork_scope:
+            scoped_track["_video_artwork_scope"] = artwork_scope
+        source = self.thumbnail_path(
+            scoped_track, size=max(width, height) * 3,
+            allow_online=allow_online
+        )
+        if not source:
+            return "", "", "", video_id
+
+        source_hash = self._file_hash(source)[:12]
+        role = (
+            "netflix_detail" if detail else
+            "netflix_landing" if landing else
+            "netflix_list"
+        )
+        cache_target = os.path.join(
+            self._video_list_dir,
+            f"{video_id}_{width}x{height}_{role}_{source_hash}.bmp",
+        )
+        if not os.path.exists(cache_target) or force:
+            self._render_list_thumbnail(
+                source, cache_target, width, height
+            )
+        if not os.path.exists(cache_target):
+            return "", "", "", video_id
+        return cache_target, self._file_hash(cache_target), f"{video_id}.bmp", video_id
+
+    def export_video_list_hierarchy_poster(self, track, scope, force=False,
+                                           detail=False, landing=False,
+                                           allow_online=None):
+        artwork_id = self.video_hierarchy_art_id(track, scope)
+        return self.export_video_list_netflix_poster(
+            track,
+            force=force,
+            detail=detail,
+            landing=landing,
+            allow_online=allow_online,
+            artwork_scope=scope,
+            artwork_id=artwork_id,
+        )
+
     def export_video_list_manifest(self, entries):
         manifest_path = os.path.join(self._video_list_dir, "index.tsv")
         lines = [
-            "# rockpod videolist v2",
-            "video_id\tthumb\tpreview\ttitle\tkind\tgroup_key\tdevice_path\tshow\tseason\tepisode\tduration",
+            "# rockpod videolist v5",
+            "video_id\tthumb\tpreview\ttitle\tkind\tgroup_key\tdevice_path\tshow\tseason\tepisode\tduration\tlocked\tyear\tgenre\trating\tplot_short\tplot_long\tcontent_rating\tnetflix_poster\tnetflix_detail\tshow_art_id\tseason_art_id",
         ]
         def sort_key(item):
             return (
@@ -189,11 +278,30 @@ class VideoThumbnailService:
                         self._manifest_field(entry.get("season")),
                         self._manifest_field(entry.get("episode")),
                         self._manifest_field(entry.get("duration")),
+                        "1" if str(entry.get("locked") or "0").strip().lower() in {"1", "true", "yes"} else "0",
+                        self._manifest_field(entry.get("year")),
+                        self._manifest_field(entry.get("genre")),
+                        self._manifest_field(entry.get("rating")),
+                        self._manifest_field(entry.get("plot_short")),
+                        self._manifest_field(entry.get("plot_long")),
+                        self._manifest_field(entry.get("content_rating")),
+                        self._manifest_field(entry.get("netflix_poster")),
+                        self._manifest_field(entry.get("netflix_detail")),
+                        self._manifest_field(entry.get("show_art_id")),
+                        self._manifest_field(entry.get("season_art_id")),
                     ]
                 )
             )
         atomic_write_text(manifest_path, "\n".join(lines) + "\n")
         return manifest_path, self._file_hash(manifest_path)
+
+    def export_locked_video_pin(self, pin):
+        pin = str(pin or "").strip()
+        if len(pin) != 4 or not pin.isdigit():
+            raise ValueError("Locked Videos PIN must contain exactly 4 digits")
+        pin_path = os.path.join(self._video_list_dir, "locked.pin")
+        atomic_write_text(pin_path, pin + "\n")
+        return pin_path, self._file_hash(pin_path)
 
     @staticmethod
     def _video_info(track):
@@ -203,14 +311,29 @@ class VideoThumbnailService:
         video_kind = str(first.get("video_kind") or "movie")
         if video_kind == "show":
             album = str(first.get("show_title") or first.get("artist") or "Unknown Show")
-            artist = str(first.get("album") or (f"Season {first.get('season_number')}" if first.get("season_number") else ""))
-            scope = "show"
+            season_number = int(first.get("season_number") or 0)
+            artist = str(
+                f"Season {season_number}" if season_number else
+                first.get("album") or ""
+            )
+            scope = str(first.get("_video_artwork_scope") or (
+                "season" if season_number else "show"
+            ))
+            identity = str(first.get("imdb_id") or album).strip().casefold()
+            group_key = (
+                f"show:{identity}:season:{season_number}"
+                if scope == "season" and season_number
+                else f"show:{identity}"
+            )
         else:
             album = str(first.get("title") or first.get("album") or "Untitled Video")
             artist = str(first.get("artist") or first.get("album_artist") or "")
             scope = video_kind
+            group_key = str(
+                first.get("video_group_key") or first.get("file_path") or album
+            )
         return {
-            "group_key": str(first.get("video_group_key") or album or first.get("file_path")),
+            "group_key": group_key,
             "album": album,
             "artist": artist,
             "tracks": tracks,

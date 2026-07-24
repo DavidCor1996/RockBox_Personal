@@ -769,23 +769,23 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x3b4be
+.debug_info     0x0000000000000000    0x3b6bd
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0xa1e8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/brickmania.o
- .debug_info    0x000000000000a1e8     0x7d4a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
- .debug_info    0x0000000000011f32     0x7b42 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(helper.o)
- .debug_info    0x0000000000019a74     0x7d93 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(configfile.o)
- .debug_info    0x0000000000021807     0x9962 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
- .debug_info    0x000000000002b169     0x809a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(highscore.o)
- .debug_info    0x0000000000033203     0x78a9 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(display_text.o)
- .debug_info    0x000000000003aaac      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(brickmania_gameover.112x54x16.o)
- .debug_info    0x000000000003abef      0x141 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(brickmania_ball.5x5x16.o)
- .debug_info    0x000000000003ad30      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(brickmania_bricks.320x240x16.o)
- .debug_info    0x000000000003ae73      0x142 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(brickmania_pads.320x240x16.o)
- .debug_info    0x000000000003afb5      0x142 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(brickmania_short_pads.320x240x16.o)
- .debug_info    0x000000000003b0f7      0x142 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(brickmania_long_pads.320x240x16.o)
- .debug_info    0x000000000003b239      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(brickmania_break.320x240x16.o)
- .debug_info    0x000000000003b37c      0x142 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(brickmania_powerups.320x240x16.o)
+ .debug_info    0x0000000000000000     0xa231 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/brickmania.o
+ .debug_info    0x000000000000a231     0x7d93 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+ .debug_info    0x0000000000011fc4     0x7b8b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(helper.o)
+ .debug_info    0x0000000000019b4f     0x7ddc /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(configfile.o)
+ .debug_info    0x000000000002192b     0x99ab /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
+ .debug_info    0x000000000002b2d6     0x80e3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(highscore.o)
+ .debug_info    0x00000000000333b9     0x78f2 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(display_text.o)
+ .debug_info    0x000000000003acab      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(brickmania_gameover.112x54x16.o)
+ .debug_info    0x000000000003adee      0x141 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(brickmania_ball.5x5x16.o)
+ .debug_info    0x000000000003af2f      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(brickmania_bricks.320x240x16.o)
+ .debug_info    0x000000000003b072      0x142 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(brickmania_pads.320x240x16.o)
+ .debug_info    0x000000000003b1b4      0x142 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(brickmania_short_pads.320x240x16.o)
+ .debug_info    0x000000000003b2f6      0x142 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(brickmania_long_pads.320x240x16.o)
+ .debug_info    0x000000000003b438      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(brickmania_break.320x240x16.o)
+ .debug_info    0x000000000003b57b      0x142 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(brickmania_powerups.320x240x16.o)
 
 .debug_abbrev   0x0000000000000000     0x22d5
  *(.debug_abbrev)
@@ -826,37 +826,37 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0xb8e4
+.debug_str      0x0000000000000000     0xb94a
  *(.debug_str)
- .debug_str     0x0000000000000000     0xb8e4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/brickmania.o
-                                       0x6bae (size before relaxing)
- .debug_str     0x000000000000b8e4        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
-                                       0x5237 (size before relaxing)
- .debug_str     0x000000000000b8e4        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(helper.o)
-                                       0x522e (size before relaxing)
- .debug_str     0x000000000000b8e4        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(configfile.o)
-                                       0x49ad (size before relaxing)
- .debug_str     0x000000000000b8e4        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
-                                       0xa2a5 (size before relaxing)
- .debug_str     0x000000000000b8e4        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(highscore.o)
-                                       0x513e (size before relaxing)
- .debug_str     0x000000000000b8e4        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(display_text.o)
-                                       0x49c1 (size before relaxing)
- .debug_str     0x000000000000b8e4        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(brickmania_gameover.112x54x16.o)
+ .debug_str     0x0000000000000000     0xb94a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/brickmania.o
+                                       0x6c14 (size before relaxing)
+ .debug_str     0x000000000000b94a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+                                       0x529d (size before relaxing)
+ .debug_str     0x000000000000b94a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(helper.o)
+                                       0x5294 (size before relaxing)
+ .debug_str     0x000000000000b94a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(configfile.o)
+                                       0x4a13 (size before relaxing)
+ .debug_str     0x000000000000b94a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
+                                       0xa30b (size before relaxing)
+ .debug_str     0x000000000000b94a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(highscore.o)
+                                       0x51a4 (size before relaxing)
+ .debug_str     0x000000000000b94a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(display_text.o)
+                                       0x4a27 (size before relaxing)
+ .debug_str     0x000000000000b94a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(brickmania_gameover.112x54x16.o)
                                         0x17a (size before relaxing)
- .debug_str     0x000000000000b8e4        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(brickmania_ball.5x5x16.o)
+ .debug_str     0x000000000000b94a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(brickmania_ball.5x5x16.o)
                                         0x172 (size before relaxing)
- .debug_str     0x000000000000b8e4        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(brickmania_bricks.320x240x16.o)
+ .debug_str     0x000000000000b94a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(brickmania_bricks.320x240x16.o)
                                         0x176 (size before relaxing)
- .debug_str     0x000000000000b8e4        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(brickmania_pads.320x240x16.o)
+ .debug_str     0x000000000000b94a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(brickmania_pads.320x240x16.o)
                                         0x172 (size before relaxing)
- .debug_str     0x000000000000b8e4        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(brickmania_short_pads.320x240x16.o)
+ .debug_str     0x000000000000b94a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(brickmania_short_pads.320x240x16.o)
                                         0x17e (size before relaxing)
- .debug_str     0x000000000000b8e4        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(brickmania_long_pads.320x240x16.o)
+ .debug_str     0x000000000000b94a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(brickmania_long_pads.320x240x16.o)
                                         0x17c (size before relaxing)
- .debug_str     0x000000000000b8e4        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(brickmania_break.320x240x16.o)
+ .debug_str     0x000000000000b94a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(brickmania_break.320x240x16.o)
                                         0x174 (size before relaxing)
- .debug_str     0x000000000000b8e4        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(brickmania_powerups.320x240x16.o)
+ .debug_str     0x000000000000b94a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(brickmania_powerups.320x240x16.o)
                                         0x17a (size before relaxing)
 
 .debug_loc

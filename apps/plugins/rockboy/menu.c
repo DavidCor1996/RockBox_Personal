@@ -5,6 +5,7 @@
 /*********************************************************************/
 
 #include "lib/helper.h"
+#include "lib/rockachievements.h"
 #include "button.h"
 #include "rockmacros.h"
 #include "mem.h"
@@ -190,6 +191,12 @@ static void build_slot_path(char *buf, size_t bufsiz, int slot_id) {
 static bool do_file(char *path, char *desc, bool is_load) {
     char desc_buf[DESC_SIZE];
     int fd, file_mode;
+
+    if (is_load && rockachievements_any_hardcore_active())
+    {
+        rb->splash(HZ, "iPod Hardcore: state load blocked");
+        return false;
+    }
 
     /* set file mode */
     file_mode = is_load ? O_RDONLY : (O_WRONLY | O_CREAT);

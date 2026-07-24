@@ -161,9 +161,15 @@ class MetadataEditor(QDialog):
             self._video_kind_combo.addItem("", "")
             self._video_kind_combo.addItem("TV Show", "show")
             self._video_kind_combo.addItem("Movie", "movie")
+            self._video_kind_combo.addItem("Music Video", "music_video")
             self._video_kind_combo.addItem("Home Video", "home_video")
             current_kind = str(self._track.get("video_kind", "") or "")
-            index = max(self._video_kind_combo.findData(current_kind), 0)
+            index = self._video_kind_combo.findData(current_kind)
+            if index < 0 and current_kind:
+                self._video_kind_combo.addItem(
+                    current_kind.replace("_", " ").title(), current_kind
+                )
+                index = self._video_kind_combo.count() - 1
             self._video_kind_combo.setCurrentIndex(index)
             layout.addRow("Video Type:", self._video_kind_combo)
 

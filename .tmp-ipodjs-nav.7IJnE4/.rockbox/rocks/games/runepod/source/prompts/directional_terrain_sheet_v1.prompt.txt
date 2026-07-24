@@ -1,0 +1,32 @@
+Use case: stylized-concept
+
+Asset type: game asset reference sheet for a 320x240 iPod Classic Rockbox RPG
+plugin
+
+Primary request:
+Create an original fantasy RPG runtime asset sheet for RunePod with two rows:
+directional player sprites and terrain/background tiles. Row 1 should show the
+same player adventurer in four readable directions: facing south/front,
+east/right, north/back, west/left. Each direction should be a compact 2D
+low-poly-inspired painted sprite, consistent outfit and colors, feet aligned,
+readable at 32 px. Row 2 should show seamless top-down terrain/background tiles
+for grass, darker grass, dirt path, wood floor/plank, stone floor, shallow
+water, village wall/roof, and cave ground.
+
+Style:
+Match the existing RunePod low-poly-inspired 2D fantasy look: three-quarter
+top-down camera, compact silhouettes, hand-painted texture, muted natural
+palette, dark readable outline, upper-left lighting, no photorealism.
+
+Layout:
+Clean grid/contact sheet with generous padding, no labels and no text.
+
+Background:
+Perfectly flat solid #ff00ff chroma-key background for later removal. The
+background must be one uniform color with no shadows, gradients, texture, floor
+plane, lighting variation, or reflections. Do not use #ff00ff anywhere in the
+sprites or tiles.
+
+Constraints:
+No RuneScape, no OSRS, no copyrighted assets, no copied skill icons, no
+recognizable proprietary names or maps, no watermark, no text.

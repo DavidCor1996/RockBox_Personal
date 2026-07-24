@@ -10,27 +10,26 @@ def _read(rel_path):
     return (REPO_ROOT / rel_path).read_text(encoding="utf-8", errors="replace")
 
 
-def test_ipod6g_ipodjs_uses_stock_wps_with_matching_palette():
+def test_ipod6g_ipodjs_uses_stock_wps_with_verified_apple_chrome():
     engine = _read("apps/gui/skin_engine/skin_engine.c")
     wps = _read("wps/ipodjs-classic.wps")
     wpslist = _read("wps/WPSLIST")
 
     assert 'setting = "ipodjs-classic";' in engine
     assert "global_settings.ui_engine == UI_ENGINE_IPODJS" in engine
-    assert "%St(ui engine dark mode)" in wps
-    assert "%St(ui engine surface)" in wps
-    assert "%St(ui engine accent)" in wps
-    assert "%Cl(15,46,128,128,c,c,1)" in wps
-    assert "%pb(0,0,290,8,noborder)" in wps
+    assert "%Cl(15,34,128,128,c,c,1)" in wps
+    assert "status-header.apple.320x24x24.bmp" in wps
+    assert "status-battery.apple.26x65x24.bmp" in wps
+    assert "status-playback.apple.20x32x24.bmp" in wps
+    assert "progress-frame.apple.200x22x32.bmp" in wps
+    assert "progress-fill-cap.apple.16x16x24.bmp" in wps
+    assert "endcap,K,backdrop,F" in wps
     assert "Name: ipodjs-classic" in wpslist
     assert "wps.320x240x(16|24|32): ipodjs-classic.wps" in wpslist
     assert "font.320x240x(16|24|32): 14-Adobe-Helvetica-Bold.fnt" in wpslist
 
-    for color in (
-        "005CC0", "545A64", "B61823", "008084", "378E40",
-        "B88726", "D06820", "7152AA", "C34880",
-    ):
-        assert f"%Vf({color})" in wps
+    # Fixed stock chrome must not be remapped to an album-art palette.
+    assert "%St(ui engine accent)" not in wps
 
 
 def test_iponecustom_packages_the_ipodjs_stock_font():
@@ -45,9 +44,10 @@ def test_iponecustom_packages_the_ipodjs_stock_font():
 def test_album_rows_use_representative_albumartist_before_filtered_search():
     tagtree = _read("apps/tagtree.c")
     fast_path = tagtree.index(
-        "tagcache_retrieve(album_tcs, idx_id, tag_albumartist, buf, size)"
+        "tagcache_retrieve(&tcs, tcs.idx_id, tag_albumartist,"
     )
-    exhaustive_path = tagtree.index(
-        "tagtree_single_album_tag_value(tag_albumartist, album_seek, level,"
+    artist_fallback = tagtree.index(
+        "tagcache_retrieve(&tcs, tcs.idx_id, tag_artist,", fast_path
     )
-    assert fast_path < exhaustive_path
+    assert fast_path < artist_fallback
+    assert "opening nested filtered searches for every row" in tagtree

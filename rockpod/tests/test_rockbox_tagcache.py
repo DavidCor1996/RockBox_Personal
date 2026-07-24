@@ -178,6 +178,11 @@ def test_write_rockbox_tagcache_tracks_roundtrips_generated_database(tmp_dir):
     assert result["track_count"] == 1
     assert os.path.isfile(os.path.join(mount_path, ".rockbox", "database_idx.tcd"))
     assert os.path.isfile(os.path.join(mount_path, ".rockbox", "database_12.tcd"))
+    snapshot = Path(mount_path) / ".rockbox" / rockbox_tagcache.RECOVERY_BACKUP_DIR
+    for filename in rockbox_tagcache.HOST_TAGCACHE_FILES:
+        assert (snapshot / filename).read_bytes() == (
+            Path(mount_path) / ".rockbox" / filename
+        ).read_bytes()
     assert tracks[0]["device_path"] == "Music/Artist/Album/01 - Song.mp3"
     assert tracks[0]["title"] == "Song"
     assert tracks[0]["artist"] == "Artist"

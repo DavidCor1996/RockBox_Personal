@@ -33,6 +33,8 @@ void vid_init(void);
 void vid_begin(void);
 void die(char *message, ...);
 void doevents(void) ICODE_ATTR;
+void rockboy_achievements_frame(void);
+void rockboy_achievements_reset(void);
 void ev_poll(void);
 int do_user_menu(void);
 void setvidmode(void);

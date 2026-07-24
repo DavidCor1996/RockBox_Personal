@@ -638,7 +638,7 @@ static int parse_viewporttextstyle(struct skin_element *element,
     unsigned colour;
 
     static const char * const vp_options[] = { "invert", "color", "colour",
-                                 "clear", "gradient", NULL};
+                                 "clear", "gradient", "none", NULL};
 
     int vp_op = string_option(mode, vp_options, false);
 
@@ -672,6 +672,16 @@ static int parse_viewporttextstyle(struct skin_element *element,
     else if (vp_op == 3) /*clear*/
     {
         line->style = STYLE_DEFAULT;
+    }
+    else if (vp_op == 5) /*none*/
+    {
+        /* Draw glyphs over the viewport's existing pixels.  This is useful
+         * for text placed over bitmap chrome without painting a rectangular
+         * line background first. */
+        line->style = STYLE_NONE;
+#ifdef HAVE_LCD_COLOR
+        curr_vp->preserve_background = true;
+#endif
     }
     else
         return 1;
@@ -824,7 +834,13 @@ static int parse_viewportcolour(struct skin_element *element,
 #endif
     }
     token->value.data = PTRTOSKINOFFSET(skin_buffer, colour);
-    if (element->line == curr_viewport_element->line)
+    /* The parser advances the source line while finishing a %V element, so
+     * inline %Vf/%Vb tags can be reported on the immediately following
+     * parser line.  Capture either form as the viewport's initial colors;
+     * otherwise every refresh resets explicit skin backgrounds to the LCD
+     * defaults before the color token is rendered. */
+    if (element->line == curr_viewport_element->line ||
+        element->line == curr_viewport_element->line + 1)
     {
         if (token->type == SKIN_TOKEN_VIEWPORT_FGCOLOUR)
         {
@@ -1089,6 +1105,7 @@ static int parse_progressbar_tag(struct skin_element* element,
     pb->nobar = false;
     pb->image = PTRTOSKINOFFSET(skin_buffer, NULL);
     pb->slider = PTRTOSKINOFFSET(skin_buffer, NULL);
+    pb->endcap = PTRTOSKINOFFSET(skin_buffer, NULL);
     pb->backdrop = PTRTOSKINOFFSET(skin_buffer, NULL);
     pb->setting = NULL;
     pb->invert_fill_direction = false;
@@ -1170,14 +1187,15 @@ static int parse_progressbar_tag(struct skin_element* element,
 
     enum
     {
-        eINVERT = 0, eNOFILL, eNOBORDER, eNOBAR, eSLIDER, eIMAGE,
+        eINVERT = 0, eNOFILL, eNOBORDER, eNOBAR, eSLIDER, eENDCAP, eIMAGE,
         eBACKDROP, eVERTICAL, eHORIZONTAL, eNOTOUCH, eSETTING, eSETTING_OFFSET,
         e_PB_TAG_COUNT
     };
 
     static const char *pb_options[e_PB_TAG_COUNT + 1] = {[eINVERT] = "invert",
                  [eNOFILL] = "nofill", [eNOBORDER] = "noborder", [eNOBAR] = "nobar",
-                 [eSLIDER] = "slider", [eIMAGE] = "image", [eBACKDROP] = "backdrop",
+                 [eSLIDER] = "slider", [eENDCAP] = "endcap",
+                 [eIMAGE] = "image", [eBACKDROP] = "backdrop",
                  [eVERTICAL] = "vertical", [eHORIZONTAL] = "horizontal",
                  [eNOTOUCH] = "notouch", [eSETTING] = "setting", [eSETTING_OFFSET] = "soffset", [e_PB_TAG_COUNT] = NULL};
     int pb_op;
@@ -1205,6 +1223,19 @@ static int parse_progressbar_tag(struct skin_element* element,
                 param++;
                 text = SKINOFFSETTOPTR(skin_buffer, param->data.text);
                 pb->slider = PTRTOSKINOFFSET(skin_buffer,
+                        skin_find_item(text, SKIN_FIND_IMAGE, wps_data));
+            }
+            else /* option needs the next param */
+                return -1;
+        }
+        else if (pb_op == eENDCAP)
+        {
+            if (curr_param+1 < element->params_count)
+            {
+                curr_param++;
+                param++;
+                text = SKINOFFSETTOPTR(skin_buffer, param->data.text);
+                pb->endcap = PTRTOSKINOFFSET(skin_buffer,
                         skin_find_item(text, SKIN_FIND_IMAGE, wps_data));
             }
             else /* option needs the next param */
@@ -2441,6 +2472,7 @@ static int convert_viewport(struct wps_data *data, struct skin_element* element)
     skin_vp->start_gradient.end = global_settings.lse_color;
     skin_vp->start_gradient.text = global_settings.lst_color;
     skin_vp->fg_alpha = 0xff;
+    skin_vp->preserve_background = false;
 #ifdef HAVE_ALBUMART
     skin_vp->dc_orig_fg = skin_vp->vp.fg_pattern;
     skin_vp->dc_orig_bg = skin_vp->vp.bg_pattern;

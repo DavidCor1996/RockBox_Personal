@@ -10,7 +10,7 @@ from models.track import compute_metadata_hash
 
 logger = logging.getLogger(__name__)
 
-SCHEMA_VERSION = 11
+SCHEMA_VERSION = 12
 
 SCHEMA_SQL = """
 CREATE TABLE IF NOT EXISTS schema_version (
@@ -63,6 +63,8 @@ CREATE TABLE IF NOT EXISTS tracks (
     metadata_source TEXT DEFAULT '',
     metadata_confidence REAL DEFAULT 0.0,
     metadata_locked INTEGER DEFAULT 0,
+    video_hidden INTEGER DEFAULT 0,
+    video_locked INTEGER DEFAULT 0,
     plot_short TEXT DEFAULT '',
     plot_long TEXT DEFAULT ''
 );
@@ -466,6 +468,22 @@ class Database:
                 "WHERE local_track_id IS NOT NULL"
             )
 
+        if current_version < 12:
+            track_cols = {
+                row["name"] for row in conn.execute("PRAGMA table_info(tracks)")
+            }
+            additions = {
+                "video_hidden": "INTEGER DEFAULT 0",
+                "video_locked": "INTEGER DEFAULT 0",
+            }
+            for col, spec in additions.items():
+                if col not in track_cols:
+                    conn.execute(f"ALTER TABLE tracks ADD COLUMN {col} {spec}")
+            conn.execute(
+                "CREATE INDEX IF NOT EXISTS idx_tracks_video_privacy "
+                "ON tracks(media_type, video_hidden, video_locked)"
+            )
+
     @classmethod
     def _write_lock_for_path(cls, path):
         abs_path = os.path.abspath(path)
@@ -795,6 +813,8 @@ class Database:
             "metadata_source",
             "metadata_confidence",
             "metadata_locked",
+            "video_hidden",
+            "video_locked",
             "plot_short",
             "plot_long",
         }

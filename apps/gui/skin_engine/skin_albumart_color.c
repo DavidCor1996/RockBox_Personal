@@ -30,6 +30,7 @@
 #include "playback.h"
 #include "buffering.h"
 #include "appevents.h"
+#include "ipodjs_ui.h"
 #include "skin_albumart_color.h"
 
 #define AA_FADE_DURATION  (HZ / 4)   /* 250ms */
@@ -70,6 +71,12 @@ struct dynamic_colors_cache {
 static struct dynamic_colors_cache cache;
 static volatile bool needs_extraction;
 static uint16_t histogram[HISTOGRAM_BUCKETS];
+static bool ipodjs_wps_palette_active;
+
+void dynamic_colors_set_ipodjs_wps(bool active)
+{
+    ipodjs_wps_palette_active = active;
+}
 
 static int compute_luminance(int r8, int g8, int b8)
 {
@@ -508,6 +515,29 @@ static unsigned int resolve_mapped(unsigned int original,
 
 unsigned int dynamic_colors_resolve(unsigned int original)
 {
+    /* The iPodJS WPS uses a small neutral source palette as semantic color
+     * keys. Resolve those keys through the shell palette so Now Playing
+     * follows accent and light/dark settings without enabling album-art
+     * palette extraction or changing Rockbox's WPS ownership. */
+    if (ipodjs_wps_palette_active)
+    {
+        if (original == LCD_RGBPACK(42, 138, 221))
+            return ipodjs_ui_accent();
+        if (original == LCD_RGBPACK(247, 247, 247))
+            return ipodjs_ui_panel();
+        if (original == LCD_RGBPACK(230, 233, 236) ||
+            original == LCD_RGBPACK(221, 226, 231))
+            return ipodjs_ui_header_bg();
+        if (original == LCD_RGBPACK(8, 8, 8) ||
+            original == LCD_RGBPACK(28, 28, 29))
+            return ipodjs_ui_text();
+        if (original == LCD_RGBPACK(57, 57, 57) ||
+            original == LCD_RGBPACK(90, 90, 90) ||
+            original == LCD_RGBPACK(119, 119, 119))
+            return ipodjs_ui_muted_text();
+        return original;
+    }
+
     /* Fade-out continues even after setting is toggled off */
     if (cache.fading_out)
     {

@@ -8,6 +8,8 @@ Handles:
   - Cancellation and progress reporting
 """
 
+import csv
+import hashlib
 import logging
 import os
 import re
@@ -24,6 +26,7 @@ from app.database import Database
 from services.audio_transcode import AudioSyncTranscoder
 from services.rockbox_device import detect_rockbox_database_state
 from services.metadata_reader import read_metadata, compute_file_hash, CODEC_MAP, VIDEO_EXTENSIONS
+from services.path_safety import resolve_under_root
 from services.reconciliation import summarize_unmatched_tracks
 from services.smart_playlists import evaluate_playlist
 from services.track_matcher import TrackMatcher
@@ -44,6 +47,9 @@ ALBUM_LIST_SLIDE_DEVICE_DIR = os.path.join(ALBUM_LIST_DEVICE_DIR, "slides")
 VIDEO_LIST_DEVICE_DIR = os.path.join(".rockbox", "videolist")
 VIDEO_LIST_THUMB_DEVICE_DIR = os.path.join(VIDEO_LIST_DEVICE_DIR, "thumbs")
 VIDEO_LIST_PREVIEW_DEVICE_DIR = os.path.join(VIDEO_LIST_DEVICE_DIR, "previews")
+VIDEO_LIST_NETFLIX_POSTER_DEVICE_DIR = os.path.join(VIDEO_LIST_DEVICE_DIR, "netflix")
+VIDEO_LIST_NETFLIX_LANDING_DEVICE_DIR = os.path.join(VIDEO_LIST_DEVICE_DIR, "netflix-landing")
+VIDEO_LIST_NETFLIX_DETAIL_DEVICE_DIR = os.path.join(VIDEO_LIST_DEVICE_DIR, "netflix-detail")
 SYNC_TEMP_SUFFIX = ".rockpod_tmp"
 MAX_AUTO_DUPLICATE_DELETE_COUNT = 50
 AUDIO_TRANSCODE_CACHE_EXTENSIONS = {".mp3", ".m4a"}
@@ -51,6 +57,7 @@ VIDEO_SYNC_CACHE_EXTENSIONS = {".rvp", ".yuv", ".pcm", ".json", ".tmp"}
 MANIFEST_ARTWORK_RELPATHS = {
     os.path.join(ALBUM_LIST_DEVICE_DIR, "index.tsv"),
     os.path.join(VIDEO_LIST_DEVICE_DIR, "index.tsv"),
+    os.path.join(VIDEO_LIST_DEVICE_DIR, "locked.pin"),
 }
 
 
@@ -275,6 +282,8 @@ def _infer_video_episode_metadata(row):
 
 def _video_manifest_group_key(row):
     item = _normalize_video_show_fields(dict(row) if hasattr(row, "keys") else dict(row or {}))
+    if bool(item.get("video_locked")):
+        return "locked"
     kind = _normalize_video_kind_value(item.get("video_kind")) or "movie"
     if kind == "show":
         show = _clean_inferred_show_title(item.get("show_title"))
@@ -282,6 +291,8 @@ def _video_manifest_group_key(row):
             return "show:" + re.sub(r"[^a-z0-9]+", "-", show.casefold()).strip("-")
     if kind == "home_video":
         return "home_video"
+    if kind == "music_video":
+        return "music_video"
     title = _clean_inferred_show_title(item.get("title") or Path(str(item.get("file_path") or "")).stem)
     if title:
         return "movie:" + re.sub(r"[^a-z0-9]+", "-", title.casefold()).strip("-")
@@ -351,13 +362,21 @@ def build_device_path(track_row, dir_template, file_template):
     video_kind_label = {
         "movie": "Movies",
         "show": "TV Shows",
+        "music_video": "Music Videos",
         "home_video": "Home Videos",
     }.get(str(d.get("video_kind") or "movie"), "Movies")
     video_sync_category = str(d.get("video_sync_category") or "").strip()
-    if is_downloaded_video and not show_title:
+    if (
+        is_downloaded_video
+        and not show_title
+        and _normalize_video_kind_value(d.get("video_kind")) == "movie"
+    ):
         video_sync_category = video_sync_category or "Downloaded"
     if video_sync_category:
         video_kind_label = video_sync_category
+
+    if media_type == "video" and bool(d.get("video_locked")):
+        return os.path.join("Videos", ".Locked", f"{title}{ext}")
 
     if media_type == "video" and str(dir_template or "").startswith("Music/"):
         if _normalize_video_kind_value(d.get("video_kind")) == "show" and show_title:
@@ -446,6 +465,8 @@ def _normalize_video_kind_value(value):
         return "show"
     if re.search(r"\b(home video|home videos|home_video|homevideo|camcorder|family|personal)\b", text):
         return "home_video"
+    if re.search(r"\b(music video|music videos|musicvideo)\b", text):
+        return "music_video"
     if re.search(r"\b(movie|film)\b", text):
         return "movie"
     return text
@@ -864,6 +885,133 @@ def _clear_device_trash(device_mount):
         if not os.path.exists(full):
             removed.append(full)
     return removed
+
+
+def _read_existing_video_manifest_entries(device_mount):
+    """Return only manifest rows whose media marker is still on this device."""
+    try:
+        manifest_path = resolve_under_root(
+            device_mount, os.path.join(VIDEO_LIST_DEVICE_DIR, "index.tsv")
+        )
+        with open(manifest_path, "r", encoding="utf-8", newline="") as handle:
+            first_line = handle.readline()
+            if not first_line.startswith("# rockpod videolist"):
+                return []
+            reader = csv.DictReader(handle, delimiter="\t")
+            entries = []
+            for row in reader:
+                rel_path = str(row.get("device_path") or "").strip()
+                if not rel_path:
+                    continue
+                try:
+                    media_path = resolve_under_root(device_mount, rel_path)
+                except ValueError:
+                    continue
+                if os.path.isfile(media_path):
+                    entries.append(dict(row))
+            return entries
+    except (OSError, csv.Error):
+        return []
+
+
+def _physical_rvp_paths(device_mount):
+    try:
+        videos_root = resolve_under_root(device_mount, "Videos")
+    except ValueError:
+        return {}
+    if not os.path.isdir(videos_root):
+        return {}
+
+    paths = {}
+    for root, dirs, files in os.walk(videos_root):
+        dirs[:] = [
+            name for name in dirs
+            if not str(name).startswith(".Trash-")
+        ]
+        for name in files:
+            if not str(name).lower().endswith(".rvp"):
+                continue
+            full_path = os.path.join(root, name)
+            rel_path = _device_rel_path(device_mount, full_path)
+            paths[rel_path.casefold()] = rel_path
+    return paths
+
+
+def _fallback_video_manifest_entry(rel_path):
+    """Build enough metadata to keep an unlinked physical RVP discoverable."""
+    normalized = str(rel_path or "").replace("\\", "/").strip("/")
+    parts = normalized.split("/")
+    stem = Path(parts[-1] if parts else "Untitled Video").stem
+    title = re.sub(r"^S\d{1,2}E\d{1,3}\s*-\s*", "", stem).strip() or stem
+    video_id = hashlib.sha256(
+        normalized.casefold().encode("utf-8", errors="surrogateescape")
+    ).hexdigest()[:24]
+    entry = {
+        "video_id": video_id,
+        "title": title,
+        "kind": "movie",
+        "group_key": "movie:" + re.sub(
+            r"[^a-z0-9]+", "-", title.casefold()
+        ).strip("-"),
+        "device_path": normalized,
+        "locked": "0",
+    }
+
+    if len(parts) >= 2 and parts[1].casefold() == ".locked":
+        entry.update(kind="home_video", group_key="locked", locked="1")
+    elif len(parts) >= 5 and parts[1].casefold() == "tv shows":
+        show_title = parts[2]
+        season_match = re.search(r"(\d+)", parts[3])
+        episode_match = re.match(r"S(\d{1,2})E(\d{1,3})", stem, re.IGNORECASE)
+        entry.update(
+            kind="show",
+            group_key="show:" + re.sub(
+                r"[^a-z0-9]+", "-", show_title.casefold()
+            ).strip("-"),
+            show=show_title,
+            season=season_match.group(1) if season_match else "",
+            episode=episode_match.group(2) if episode_match else "",
+        )
+    elif len(parts) >= 2 and parts[1].casefold() == "music videos":
+        entry.update(kind="music_video", group_key="music_video")
+    elif len(parts) >= 2 and parts[1].casefold() == "home videos":
+        entry.update(kind="home_video", group_key="home_video")
+    return entry
+
+
+def _merge_existing_video_manifest_entries(entries, plan, device_mount):
+    """Preserve physically present videos if the device cache is incomplete."""
+    obsolete_paths = {
+        str(rel_path or "").strip()
+        for rel_path in getattr(plan, "to_delete", [])
+        if str(rel_path or "").strip()
+    }
+    for _row, old_rel_path, new_rel_path in getattr(plan, "to_resync", []):
+        old_rel_path = str(old_rel_path or "").strip()
+        new_rel_path = str(new_rel_path or "").strip()
+        if old_rel_path and old_rel_path != new_rel_path:
+            obsolete_paths.add(old_rel_path)
+
+    physical_paths = _physical_rvp_paths(device_mount)
+    obsolete_keys = {path.casefold() for path in obsolete_paths}
+    merged = {
+        str(entry.get("device_path") or "").strip().casefold(): entry
+        for entry in _read_existing_video_manifest_entries(device_mount)
+        if str(entry.get("device_path") or "").strip().casefold()
+        not in obsolete_keys
+    }
+    for entry in entries:
+        rel_path = str(entry.get("device_path") or "").strip()
+        if rel_path:
+            key = rel_path.casefold()
+            item = dict(entry)
+            item["device_path"] = physical_paths.get(key, rel_path)
+            merged[key] = item
+    for key, rel_path in physical_paths.items():
+        if key in obsolete_keys or key in merged:
+            continue
+        merged[key] = _fallback_video_manifest_entry(rel_path)
+    return list(merged.values())
 
 
 def _device_rel_path(device_mount, path):
@@ -2021,8 +2169,14 @@ class SyncEngine(QObject):
                     used_paths,
                     allow_existing=old_dev,
                 )
+                video_path_changed = (
+                    str(local.get("media_type") or "audio").lower() == "video"
+                    and bool(old_dev)
+                    and bool(expected)
+                    and old_dev != expected
+                )
                 if (
-                    id(result) in resync_ids
+                    (id(result) in resync_ids or video_path_changed)
                     and (old_dev or expected)
                 ):
                     if old_dev != expected:
@@ -2950,8 +3104,56 @@ class SyncEngine(QObject):
 
         manifest_entries = []
         seen = set()
+
+        def export_hierarchy_art(row, scope, artwork_key):
+            artwork_id = self._video_thumbnails.video_hierarchy_art_id(
+                row, scope
+            )
+            copied = False
+            variants = (
+                ({}, VIDEO_LIST_NETFLIX_POSTER_DEVICE_DIR),
+                ({"detail": True}, VIDEO_LIST_NETFLIX_DETAIL_DEVICE_DIR),
+                ({"landing": True}, VIDEO_LIST_NETFLIX_LANDING_DEVICE_DIR),
+            )
+            for options, device_dir in variants:
+                source, source_hash, device_name, _ = (
+                    self._video_thumbnails.export_video_list_hierarchy_poster(
+                        row, scope, **options
+                    )
+                )
+                if not source or not source_hash or not device_name:
+                    continue
+                rel_path = os.path.join(device_dir, device_name)
+                copied = True
+                if rel_path in seen:
+                    continue
+                seen.add(rel_path)
+                self._append_artwork_copy_if_changed(
+                    plan,
+                    source,
+                    rel_path,
+                    artwork_key,
+                    source_hash,
+                    device_mount,
+                    existing_hashes,
+                )
+            return artwork_id if copied else ""
+
         for key, target in sorted(video_targets.items(), key=lambda item: str(item[0]).casefold()):
             row = target["row"]
+            show_art_id = ""
+            season_art_id = ""
+            if (
+                str(row.get("video_kind") or "") == "show"
+                and not bool(row.get("video_locked"))
+            ):
+                show_art_id = export_hierarchy_art(
+                    row, "show", f"{key}:show-art"
+                )
+                if int(row.get("season_number") or 0):
+                    season_art_id = export_hierarchy_art(
+                        row, "season", f"{key}:season-art"
+                    )
             thumb_src, thumb_hash, device_name, video_id = self._video_thumbnails.export_video_list_thumbnail(row)
             thumb_rel = ""
             if thumb_src and thumb_hash and device_name:
@@ -2988,6 +3190,70 @@ class SyncEngine(QObject):
                         existing_hashes,
                     )
 
+            netflix_poster_src, netflix_poster_hash, netflix_poster_name, _ = (
+                self._video_thumbnails.export_video_list_netflix_poster(row)
+            )
+            netflix_poster_rel = ""
+            if netflix_poster_src and netflix_poster_hash and netflix_poster_name:
+                netflix_poster_rel = os.path.join(
+                    VIDEO_LIST_NETFLIX_POSTER_DEVICE_DIR, netflix_poster_name
+                )
+                if netflix_poster_rel not in seen:
+                    seen.add(netflix_poster_rel)
+                    self._append_artwork_copy_if_changed(
+                        plan,
+                        netflix_poster_src,
+                        netflix_poster_rel,
+                        key,
+                        netflix_poster_hash,
+                        device_mount,
+                        existing_hashes,
+                    )
+
+            netflix_detail_src, netflix_detail_hash, netflix_detail_name, _ = (
+                self._video_thumbnails.export_video_list_netflix_poster(
+                    row, detail=True
+                )
+            )
+            netflix_detail_rel = ""
+            if netflix_detail_src and netflix_detail_hash and netflix_detail_name:
+                netflix_detail_rel = os.path.join(
+                    VIDEO_LIST_NETFLIX_DETAIL_DEVICE_DIR, netflix_detail_name
+                )
+                if netflix_detail_rel not in seen:
+                    seen.add(netflix_detail_rel)
+                    self._append_artwork_copy_if_changed(
+                        plan,
+                        netflix_detail_src,
+                        netflix_detail_rel,
+                        key,
+                        netflix_detail_hash,
+                        device_mount,
+                        existing_hashes,
+                    )
+
+            netflix_landing_src, netflix_landing_hash, netflix_landing_name, _ = (
+                self._video_thumbnails.export_video_list_netflix_poster(
+                    row, landing=True
+                )
+            )
+            netflix_landing_rel = ""
+            if netflix_landing_src and netflix_landing_hash and netflix_landing_name:
+                netflix_landing_rel = os.path.join(
+                    VIDEO_LIST_NETFLIX_LANDING_DEVICE_DIR, netflix_landing_name
+                )
+                if netflix_landing_rel not in seen:
+                    seen.add(netflix_landing_rel)
+                    self._append_artwork_copy_if_changed(
+                        plan,
+                        netflix_landing_src,
+                        netflix_landing_rel,
+                        key,
+                        netflix_landing_hash,
+                        device_mount,
+                        existing_hashes,
+                    )
+
             title = str(row.get("title") or Path(str(row.get("file_path") or "")).stem or "Untitled Video")
             manifest_entries.append(
                 {
@@ -3001,10 +3267,26 @@ class SyncEngine(QObject):
                     "show": row.get("show_title") or "",
                     "season": str(row.get("season_number") or ""),
                     "episode": str(row.get("episode_number") or ""),
-                    "duration": str(int(row.get("duration") or 0))
+                    "duration": str(int(row.get("duration") or 0)),
+                    "locked": "1" if bool(row.get("video_locked")) else "0",
+                    "year": row.get("year") or "",
+                    "genre": str(row.get("genre") or "")[:48],
+                    "rating": row.get("rating") or "",
+                    "plot_short": str(row.get("plot_short") or "")[:120],
+                    "plot_long": str(row.get("plot_long") or "")[:180],
+                    "content_rating": str(row.get("content_rating") or "")[:15],
+                    "netflix_poster": os.path.join("netflix", netflix_poster_name)
+                    if netflix_poster_rel else "",
+                    "netflix_detail": os.path.join("netflix-detail", netflix_detail_name)
+                    if netflix_detail_rel else "",
+                    "show_art_id": show_art_id,
+                    "season_art_id": season_art_id,
                 }
             )
 
+        manifest_entries = _merge_existing_video_manifest_entries(
+            manifest_entries, plan, device_mount
+        )
         manifest_src, manifest_hash = self._video_thumbnails.export_video_list_manifest(manifest_entries)
         if manifest_src and manifest_hash:
             self._append_artwork_copy_if_changed(
@@ -3017,13 +3299,50 @@ class SyncEngine(QObject):
                 existing_hashes,
             )
 
+        if any(entry.get("locked") == "1" for entry in manifest_entries):
+            pin = str(self._config_value("video_locked_pin", "") or "").strip()
+            if len(pin) != 4 or not pin.isdigit():
+                existing_pin_path = os.path.join(
+                    device_mount, VIDEO_LIST_DEVICE_DIR, "locked.pin"
+                )
+                try:
+                    with open(existing_pin_path, "r", encoding="ascii") as handle:
+                        existing_pin = handle.read(16).strip()
+                except OSError:
+                    existing_pin = ""
+                if len(existing_pin) == 4 and existing_pin.isdigit():
+                    return
+                plan.errors.append(
+                    "Locked videos require a 4-digit PIN before they can be synced"
+                )
+                return
+            pin_src, pin_hash = self._video_thumbnails.export_locked_video_pin(pin)
+            self._append_artwork_copy_if_changed(
+                plan,
+                pin_src,
+                os.path.join(VIDEO_LIST_DEVICE_DIR, "locked.pin"),
+                "videolist_locked_pin",
+                pin_hash,
+                device_mount,
+                existing_hashes,
+            )
+
     def _append_artwork_copy_if_changed(self, plan, src, rel_path, album_key, expected_hash, device_mount, existing_hashes):
         device_path = os.path.join(device_mount, rel_path)
         if os.path.exists(device_path):
             cached_hash = existing_hashes.get(device_path)
             if cached_hash is None:
                 try:
-                    cached_hash = compute_file_hash(device_path)
+                    if len(str(expected_hash or "")) == 64:
+                        digest = hashlib.sha256()
+                        with open(device_path, "rb") as handle:
+                            for chunk in iter(
+                                lambda: handle.read(1024 * 1024), b""
+                            ):
+                                digest.update(chunk)
+                        cached_hash = digest.hexdigest()
+                    else:
+                        cached_hash = compute_file_hash(device_path)
                 except OSError:
                     cached_hash = ""
                 existing_hashes[device_path] = cached_hash
@@ -3127,6 +3446,13 @@ class SyncEngine(QObject):
             lt = dict(result.local_track) if hasattr(result.local_track, "keys") else result.local_track
             local_id = lt.get("id")
             if local_id:
+                linked_elsewhere = self._db.execute(
+                    "SELECT 1 FROM device_tracks "
+                    "WHERE local_track_id = ? AND present_on_device = 1 LIMIT 1",
+                    (local_id,),
+                ).fetchone()
+                if linked_elsewhere:
+                    continue
                 self._db.execute(
                     "UPDATE tracks SET synced_to_device = 0, device_path = NULL, "
                     "last_synced_metadata_hash = '', last_synced_file_hash = '' "

@@ -805,6 +805,44 @@ static void displaylcd_setup(int x, int y, int width, int height)
     }
 }
 
+/*
+ * Start one known full-screen GRAM transaction for the storage-free N25
+ * handoff trace. The loader and four Linux milestones each append exactly one
+ * 320x48 band. Keeping a single panel transaction avoids relying on GRAM
+ * wraparound after Rockbox's preceding DMA frame.
+ */
+void lcd_prepare_for_pio_trace(void) ICODE_ATTR;
+void lcd_prepare_for_pio_trace(void)
+{
+    int type = (PDAT6 & 0x30) >> 4;
+
+    /* Do not depend on lcd_info/lcd_*_mode globals in this final boundary. */
+    if (type >= 2)
+    {
+        s5l_lcd_write_config(LCD_MODE_P18);
+        s5l_lcd_write_reg(R_HORIZ_ADDR_START_POS, 0);
+        s5l_lcd_write_reg(R_HORIZ_ADDR_END_POS, LCD_WIDTH - 1);
+        s5l_lcd_write_reg(R_VERT_ADDR_START_POS, 0);
+        s5l_lcd_write_reg(R_VERT_ADDR_END_POS, LCD_HEIGHT - 1);
+        s5l_lcd_write_reg(R_HORIZ_GRAM_ADDR_SET, 0);
+        s5l_lcd_write_reg(R_VERT_GRAM_ADDR_SET, 0);
+        s5l_lcd_write_cmd(R_WRITE_DATA_TO_GRAM);
+    }
+    else
+    {
+        uint8_t col[] = { 0, 0, (LCD_WIDTH - 1) >> 8,
+                         (LCD_WIDTH - 1) & 0xff };
+        uint8_t row[] = { 0, 0, (LCD_HEIGHT - 1) >> 8,
+                         (LCD_HEIGHT - 1) & 0xff };
+
+        s5l_lcd_write_config(LCD_MODE_P8);
+        s5l_lcd_send_cmd8(R_COLUMN_ADDR_SET, sizeof(col), col);
+        s5l_lcd_send_cmd8(R_ROW_ADDR_SET, sizeof(row), row);
+        s5l_lcd_write_cmd(R_MEMORY_WRITE);
+    }
+    s5l_lcd_write_config(LCD_MODE_P16);
+}
+
 static void displaylcd_wait_dma(void) ICODE_ATTR;
 static void displaylcd_dma(int pixels) ICODE_ATTR;
 static void displaylcd_dma(int pixels)
@@ -844,6 +882,12 @@ static void displaylcd_wait_dma(void)
 {
     while (dmac_ch_running(&lcd_dma_ch))
         yield();
+}
+
+void lcd_wait_for_dma(void) ICODE_ATTR;
+void lcd_wait_for_dma(void)
+{
+    displaylcd_wait_dma();
 }
 
 /* Update a fraction of the display. */

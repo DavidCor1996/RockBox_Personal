@@ -64,6 +64,35 @@ def test_video_sync_panel_emits_remove_and_delete_for_selected_videos():
     assert deleted == [{1, 2}]
 
 
+def test_video_sync_panel_emits_hide_and_lock_and_shows_privacy_status():
+    QApplication.instance() or QApplication([])
+    panel = VideoSyncPanel()
+    panel.set_videos(
+        [
+            {
+                "id": 7,
+                "title": "Private",
+                "video_kind": "home_video",
+                "video_hidden": 1,
+                "video_locked": 1,
+            }
+        ]
+    )
+    panel.select_all()
+    hidden = []
+    locked = []
+    panel.hide_requested.connect(lambda ids: hidden.append(ids))
+    panel.lock_requested.connect(lambda ids: locked.append(ids))
+
+    assert panel._tree.topLevelItem(0).text(2).endswith("Hidden · Locked")
+    assert panel._hide_btn.text() == "Unhide Selected"
+    assert panel._lock_btn.text() == "Move to Normal iPod Folder"
+    panel._hide_btn.click()
+    panel._lock_btn.click()
+    assert hidden == [{7}]
+    assert locked == [{7}]
+
+
 def test_video_sync_panel_emits_repair_for_selected_videos():
     QApplication.instance() or QApplication([])
     panel = VideoSyncPanel()
@@ -112,6 +141,16 @@ def test_video_sync_screen_routes_from_sidebar(config, monkeypatch):
                 "video_kind": "movie",
             }
         )
+        window._db.upsert_track(
+            {
+                "file_path": f"{config.video_dir}/private.mpg",
+                "title": "Private Video",
+                "media_type": "video",
+                "video_kind": "home_video",
+                "video_hidden": 1,
+                "video_locked": 1,
+            }
+        )
         window._db.commit()
 
         window._on_sidebar_selection("library", "library_video_sync")
@@ -127,6 +166,16 @@ def test_video_sync_screen_routes_from_sidebar(config, monkeypatch):
             "Library Movie": "Movies",
             "downloaded": "Downloaded",
         }
+
+        window._show_hidden_wallpapers = True
+        window._refresh_video_sync_panel()
+        assert window._video_sync_panel._tree.topLevelItemCount() == 3
+        private_rows = [
+            window._video_sync_panel._tree.topLevelItem(index)
+            for index in range(window._video_sync_panel._tree.topLevelItemCount())
+            if window._video_sync_panel._tree.topLevelItem(index).text(0) == "Private Video"
+        ]
+        assert private_rows[0].text(2).endswith("Hidden · Locked")
     finally:
         window._device_storage_analyzer.shutdown()
         window.close()

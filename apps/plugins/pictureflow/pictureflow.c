@@ -702,6 +702,8 @@ static struct mutex buf_ctx_mutex;
 
 static int cover_animation_keyframe;
 static int extra_fade;
+static long scroll_animation_tick;
+static long cover_animation_tick;
 
 static struct pf_scroll_line_info scroll_line_info;
 static struct pf_scroll_line scroll_lines[PF_MAX_SCROLL_LINES];
@@ -3724,6 +3726,7 @@ static bool sort_albums(int new_sorting, bool from_settings)
 static void start_animation(void)
 {
     step = (target < center_slide.slide_index) ? -1 : 1;
+    scroll_animation_tick = *rb->current_tick;
     pf_state = pf_scrolling;
 }
 
@@ -3879,8 +3882,18 @@ static void render_all_slides(void)
 */
 static void update_scroll_animation(void)
 {
+    long now;
+    long elapsed;
+
     if (step == 0)
         return;
+
+    now = *rb->current_tick;
+    elapsed = now - scroll_animation_tick;
+    if (elapsed <= 0)
+        return;
+    scroll_animation_tick = now;
+    elapsed = MIN(elapsed, MAX(1, HZ / 10));
 
     int speed = 16384;
     int i;
@@ -3897,11 +3910,11 @@ static void update_scroll_animation(void)
 
         int ia = IANGLE_MAX * (fi - max / 2) / (max * 2);
         int accel = 16384 * (PFREAL_ONE + fsin(ia)) / PFREAL_ONE;
-        speed = 512 * pf_cfg.transition_speed / 100
-              + accel * pf_cfg.scroll_speed / 100;
+        speed = (512 * pf_cfg.transition_speed / 100
+              + accel * pf_cfg.scroll_speed / 100) / 10;
     }
 
-    slide_frame += speed * step;
+    slide_frame += speed * elapsed * step;
 
     int index = slide_frame >> 16;
     int pos = slide_frame & 0xffff;
@@ -4326,6 +4339,11 @@ static int main_menu(void)
  */
 static void update_cover_in_animation(void)
 {
+    long now = *rb->current_tick;
+
+    if (now == cover_animation_tick)
+        return;
+    cover_animation_tick = now;
     cover_animation_keyframe++;
 
     if(cover_animation_keyframe <= ZOOMIN_FRAME_COUNT)
@@ -4348,6 +4366,11 @@ static void update_cover_in_animation(void)
  */
 static void update_cover_out_animation(void)
 {
+    long now = *rb->current_tick;
+
+    if (now == cover_animation_tick)
+        return;
+    cover_animation_tick = now;
     cover_animation_keyframe++;
 
     if(cover_animation_keyframe <= ROTATE_FRAME_COUNT)
@@ -4397,6 +4420,7 @@ static void reverse_animation(void)
 {
     pf_state = pf_state == pf_cover_out ? pf_cover_in : pf_cover_out;
     cover_animation_keyframe = KEYFRAME_COUNT - cover_animation_keyframe;
+    cover_animation_tick = *rb->current_tick;
 }
 
 /**

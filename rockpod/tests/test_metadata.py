@@ -5,7 +5,17 @@ import sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from models.track import Track, compute_metadata_hash, compute_artwork_hash
-from services.metadata_reader import read_metadata_details, read_lyrics, _apply_video_path_fallback
+from services.metadata_reader import (
+    _apply_video_path_fallback,
+    _normalize_video_kind,
+    read_lyrics,
+    read_metadata_details,
+)
+
+
+def test_normalize_music_video_kind_from_text_and_mp4_stik():
+    assert _normalize_video_kind("Music Video") == "music_video"
+    assert _normalize_video_kind(6) == "music_video"
 
 
 class TestMetadataHash:

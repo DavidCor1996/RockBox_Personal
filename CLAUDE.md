@@ -134,6 +134,24 @@ Audio codecs live in `lib/rbcodec/` and are loaded as `.codec` files with their 
 - **core_alloc** — Core allocation interface built on buflib.
 - **TLSF** — Used for hosted/application builds (`lib/tlsf/`).
 
+### iPodJS UI Memory And Animation Steering
+
+Before changing iPodJS artwork, transitions, full-screen buffers, database-list
+decoration, or animation cadence, read
+`docs/ipodjs-ui-memory-animation-steering.md`.
+
+The core invariants are:
+
+- decorative UI must never make `core_alloc()` shrink playback's audio buffer;
+- render functions paint cached pixels only and never open, scan, decode, or
+  query tagcache data;
+- optional artwork work runs only from an idle service point with no queued
+  input and must yield to tagcache/database transitions;
+- navigation stress must be tested while audio is actively playing, with core
+  memory and file-descriptor counts held stable;
+- large stack frames and additive full-screen caches require an ARM stack/BSS
+  audit before a hardware build.
+
 ### Platform Types
 
 1. **Native** (`PLATFORM_NATIVE`) — bare-metal firmware on real hardware

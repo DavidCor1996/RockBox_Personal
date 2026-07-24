@@ -336,6 +336,135 @@ def test_video_tracks_are_linked_when_verifying_inventory(config, db):
     assert updated["device_path"] == rel_path
 
 
+def test_rvp_inventory_uses_videolist_manifest_and_links_episode(
+    config, db
+):
+    local = _insert_local_video_track(
+        db,
+        title="Pilot",
+        artist="My Name Is Earl",
+        album="Season 1",
+        metadata_hash="pilot-local",
+    )
+    db.update_track_metadata(
+        local["id"],
+        {
+            "video_kind": "show",
+            "show_title": "My Name Is Earl",
+            "season_number": 1,
+            "episode_number": 1,
+        },
+    )
+    db.commit()
+
+    device = _device(config.mock_device_path)
+    rel_path = os.path.join(
+        "Videos", "TV Shows", "My Name Is Earl", "Season 01",
+        "S01E01 - Pilot.rvp",
+    )
+    full_path = os.path.join(config.mock_device_path, rel_path)
+    os.makedirs(os.path.dirname(full_path), exist_ok=True)
+    with open(full_path, "w", encoding="utf-8") as handle:
+        handle.write("ROCKPOD_RAW_VIDEO_V1\nsegments=1\n")
+
+    manifest_dir = os.path.join(
+        config.mock_device_path, ".rockbox", "videolist"
+    )
+    os.makedirs(manifest_dir, exist_ok=True)
+    with open(
+        os.path.join(manifest_dir, "index.tsv"),
+        "w",
+        encoding="utf-8",
+    ) as handle:
+        handle.write("# rockpod videolist v5\n")
+        handle.write(
+            "title\tkind\tdevice_path\tshow\tseason\tepisode\tduration\n"
+        )
+        handle.write(
+            f"Pilot\tshow\t{rel_path}\tMy Name Is Earl\t1\t1\t1320\n"
+        )
+
+    summary = verify_device_inventory(
+        db,
+        device,
+        "file_hash_only",
+        file_hash_func=lambda _path: "marker-hash",
+    )
+
+    updated = db.get_track_by_id(local["id"])
+    device_rows = db.get_all_device_tracks(summary["device_key"])
+    assert updated["synced_to_device"] == 1
+    assert updated["device_path"] == rel_path
+    assert len(device_rows) == 1
+    assert device_rows[0]["local_track_id"] == local["id"]
+    assert device_rows[0]["codec"] == "RVP"
+
+
+def test_verifying_one_device_preserves_track_linked_to_another(config, db):
+    local = _insert_local_track(
+        db, title="Keep Me", artist="Artist", album="Album",
+        metadata_hash="keep-metadata",
+    )
+    first_device = _device(config.mock_device_path)
+    first_key = db.upsert_device(
+        device_record_from_info(first_device)
+    )["stable_device_key"]
+    first_rel_path = "Music/Artist/Album/01 - Keep Me.mp3"
+    db.upsert_device_track(
+        {
+            "device_id": first_key,
+            "device_path": first_rel_path,
+            "title": "Keep Me",
+            "artist": "Artist",
+            "album": "Album",
+            "album_artist": "Artist",
+            "duration": 120.0,
+            "file_size": 100,
+            "metadata_hash": "keep-metadata",
+            "local_track_id": local["id"],
+            "present_on_device": 1,
+        }
+    )
+    db.mark_synced_many(
+        [(local["id"], first_rel_path, "keep-metadata", "")]
+    )
+    db.commit()
+
+    second_path = os.path.join(
+        os.path.dirname(config.mock_device_path), "second_mock_ipod"
+    )
+    second_device = _device(second_path)
+    second_media = os.path.join(
+        second_path, "Music", "Other", "Other", "01 - Other.mp3"
+    )
+    os.makedirs(os.path.dirname(second_media), exist_ok=True)
+    with open(second_media, "wb") as handle:
+        handle.write(b"other")
+
+    def fake_read_metadata(path):
+        return Track(
+            file_path=path,
+            title="Other",
+            artist="Other",
+            album="Other",
+            album_artist="Other",
+            duration=60.0,
+            file_size=os.path.getsize(path),
+            metadata_hash="other-metadata",
+        )
+
+    verify_device_inventory(
+        db,
+        second_device,
+        "metadata_only",
+        metadata_reader_func=fake_read_metadata,
+    )
+
+    preserved = db.get_track_by_id(local["id"])
+    assert preserved["synced_to_device"] == 1
+    assert preserved["device_path"] == first_rel_path
+
+
 def test_noop_verification_skips_full_relink_when_cached_links_are_valid(config, db, monkeypatch):
     local = _insert_local_track(db, title="Song", artist="Artist", album="Album", metadata_hash="mh")
     device = _device(config.mock_device_path)

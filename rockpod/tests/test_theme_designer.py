@@ -9,10 +9,11 @@ from services.theme_designer import (
     DEFAULT_LOCKSCREEN_CLOCK,
     IPODJS_STOCK_FONT_LABEL,
     IPODJS_STOCK_FONT_REL,
+    RIGHT_PANE_VIDEO_MAX_FRAMES,
     ThemeDesignerService,
     WEATHER_LOCKSCREEN_ART_HEIGHT,
 )
-from ui.theme_designer import ThemeDesignerWidget, _EmbeddedSimulatorPreview
+from ui.theme_designer import ThemeDesignerWidget, _EmbeddedSimulatorPreview, _ScreenPreview
 
 
 def _temp_names(path):
@@ -29,6 +30,22 @@ def _write_bmp(path, width, height, color):
     os.makedirs(os.path.dirname(path), exist_ok=True)
     image = Image.new("RGB", (width, height), color)
     image.save(path, "BMP")
+
+
+def _write_rbvp(path, width, height, fps, frames):
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "wb") as handle:
+        handle.write(b"RBVP")
+        handle.write((1).to_bytes(2, "little"))
+        handle.write((32).to_bytes(2, "little"))
+        handle.write(width.to_bytes(2, "little"))
+        handle.write(height.to_bytes(2, "little"))
+        handle.write(fps.to_bytes(2, "little"))
+        handle.write(len(frames).to_bytes(2, "little"))
+        handle.write((2).to_bytes(2, "little"))
+        handle.write(bytes(14))
+        for frame in frames:
+            handle.write(frame)
 
 
 def _write_weather_forecast(device_root, condition_code="rain", condition_text="Rain", temp_min="5", temp_max="9"):
@@ -1088,6 +1105,221 @@ def test_x11_simulator_mode_uses_baked_in_preview_surface(tmp_dir, monkeypatch):
     widget.deleteLater()
 
 
+def test_designer_preview_loops_deployed_right_pane_framepack(tmp_dir):
+    app = QApplication.instance() or QApplication([])
+    shot = os.path.join(tmp_dir, "preview.bmp")
+    framepack = os.path.join(tmp_dir, "RightPaneVideo.rbvp")
+    _write_bmp(shot, 320, 240, "#000000")
+    red = (0xF800).to_bytes(2, "little")
+    green = (0x07E0).to_bytes(2, "little")
+    _write_rbvp(framepack, 2, 1, 12, [red * 2, green * 2])
+
+    preview = _ScreenPreview()
+    preview.set_preview(
+        {
+            "simulator_preview_path": shot,
+            "simulator_video_framepack_path": framepack,
+            "preview_screen": "sbs",
+        },
+        "simulator",
+    )
+
+    assert preview._video_frame_count == 2
+    assert preview._video_timer.isActive()
+    assert preview._video_frame.toImage().pixelColor(0, 0).red() > 240
+    preview._tick_video_frame()
+    assert preview._video_frame.toImage().pixelColor(0, 0).green() > 240
+    preview._tick_video_frame()
+    assert preview._video_frame_index == 0
+    preview.deleteLater()
+
+
+def test_designer_preview_keeps_video_off_non_sbs_screens(tmp_dir):
+    app = QApplication.instance() or QApplication([])
+    framepack = os.path.join(tmp_dir, "RightPaneVideo.rbvp")
+    _write_rbvp(framepack, 1, 1, 12, [(0xF800).to_bytes(2, "little")])
+
+    preview = _ScreenPreview()
+    preview.set_preview(
+        {
+            "simulator_video_framepack_path": framepack,
+            "preview_screen": "lockscreen",
+        },
+        "simulator",
+    )
+
+    assert preview._video_frame_count == 0
+    assert not preview._video_timer.isActive()
+    preview.deleteLater()
+
+
+def test_video_extraction_keeps_frames_beyond_old_two_second_limit(tmp_dir, monkeypatch):
+    commands = []
+
+    def fake_run(command, **_kwargs):
+        commands.append(command)
+        pattern = command[-1]
+        for index in range(1, 31):
+            _write_bmp(pattern.replace("%08d", f"{index:08d}"), 4, 4, "#112233")
+
+    monkeypatch.setattr("services.theme_designer.subprocess.run", fake_run)
+    service = ThemeDesignerService()
+    frames = service._extract_right_pane_video_frames(os.path.join(tmp_dir, "clip.mp4"))
+    try:
+        assert len(frames) == 30
+        assert commands[0][commands[0].index("-frames:v") + 1] == str(RIGHT_PANE_VIDEO_MAX_FRAMES)
+    finally:
+        for path in frames:
+            os.remove(path)
+        os.rmdir(os.path.dirname(frames[0]))
+
+
+def test_framepack_header_preserves_complete_frame_count(tmp_dir):
+    service = ThemeDesignerService()
+    frame_paths = []
+    for index, color in enumerate(("#FF0000", "#00FF00", "#0000FF")):
+        path = os.path.join(tmp_dir, f"frame-{index}.bmp")
+        _write_bmp(path, 2, 1, color)
+        frame_paths.append(path)
+    framepack = os.path.join(tmp_dir, "RightPaneVideo.rbvp")
+
+    service._write_right_pane_video_framepack(frame_paths, framepack)
+
+    with open(framepack, "rb") as handle:
+        header = handle.read(32)
+    assert int.from_bytes(header[14:16], "little") == 3
+    assert os.path.getsize(framepack) == 32 + 3 * 2 * 1 * 2
+
+
+def test_video_fallback_skips_black_lead_in_frame(tmp_dir):
+    black = os.path.join(tmp_dir, "black.bmp")
+    visible = os.path.join(tmp_dir, "visible.bmp")
+    _write_bmp(black, 156, 240, "#000000")
+    _write_bmp(visible, 156, 240, "#331122")
+
+    assert ThemeDesignerService._right_pane_video_fallback_index([black, visible]) == 1
+
+
+def test_video_source_selects_dedicated_right_pane_mode(tmp_dir):
+    repo_root = os.path.join(tmp_dir, "repo")
+    _make_repo(repo_root)
+    clip = os.path.join(tmp_dir, "clip.mp4")
+    _write_text(clip, "video")
+    service = ThemeDesignerService()
+    variant = service.new_variant(repo_root, _profile(repo_root), "Video Mode")
+    variant["right_pane_mode"] = "miniplayer"
+    variant["right_pane_video_source"] = clip
+
+    normalized = service._normalize_variant(variant, repo_root)
+
+    assert normalized["right_pane_mode"] == "video"
+
+
+def test_video_skin_keeps_clock_exclusive_to_miniplayer(tmp_dir):
+    sbs = os.path.join(tmp_dir, "video.sbs")
+    plain_playback = "%?mp<" + "|".join(["%Vd(normal)"] * 9) + ">"
+    miniplayer_playback = "%?mp<" + "|".join(
+        ["%Vd(SbsAlbumArt)%Vd(normal)"] * 7
+        + ["%Vd(radio)"] * 2
+    ) + ">"
+    _write_text(
+        sbs,
+        "%?if(%cs, =, 21)<|%?mh<|%?if(%St(ipone right pane), =, full art)<|%Vd(clock)>>>\n"
+        f"%?if(%St(ipone right pane), =, full art)<{plain_playback}|{miniplayer_playback}>\n",
+    )
+    service = ThemeDesignerService()
+
+    service._apply_right_pane_video_skin(sbs, {"right_pane_video_source": "clip.mp4"})
+
+    with open(sbs, "r", encoding="utf-8") as handle:
+        content = handle.read()
+    assert "%?if(%St(ipone right pane), =, miniplayer)<%Vd(clock)|>" in content
+    assert "%?if(%St(ipone right pane), =, full art)<|%Vd(clock)>" not in content
+    assert (
+        "%?if(%St(ipone right pane), =, miniplayer)<"
+        f"{miniplayer_playback}|{plain_playback}>"
+    ) in content
+    assert (
+        "%?if(%St(ipone right pane), =, full art)<"
+        f"{plain_playback}|{miniplayer_playback}>"
+    ) not in content
+
+
+def test_video_preserves_explicit_right_picture_for_miniplayer(tmp_dir, monkeypatch):
+    service = ThemeDesignerService()
+    frame_dir = os.path.join(tmp_dir, "frames")
+    os.makedirs(frame_dir)
+    source_frame = os.path.join(frame_dir, "source-frame.bmp")
+    _write_bmp(source_frame, 320, 240, "#112233")
+    fallback_renders = []
+
+    monkeypatch.setattr(service, "_extract_right_pane_video_frames", lambda _source: [source_frame])
+    monkeypatch.setattr(
+        service,
+        "_render_right_pane_video_frame",
+        lambda _source, destination, *_args: _write_bmp(destination, 156, 240, "#112233"),
+    )
+    monkeypatch.setattr(service, "_write_right_pane_video_framepack", lambda *_args: None)
+    monkeypatch.setattr(
+        service,
+        "_render_right_pane_image",
+        lambda *args: fallback_renders.append(args),
+    )
+
+    service._apply_right_pane_video_overrides(
+        tmp_dir,
+        {
+            "right_pane_video_source": source_frame,
+            "right_pane_wallpaper_source": os.path.join(tmp_dir, "wallpaper.bmp"),
+            "screen_resolution": "320x240",
+            "right_pane_fit_mode": "fill",
+            "colors": {"background": "000000"},
+        },
+        {"right_pane": ["RightPaneWallpaper.bmp"]},
+        {"iPone_bd.bmp"},
+    )
+
+    assert fallback_renders == []
+
+
+def test_video_without_right_picture_keeps_visible_frame_fallback(tmp_dir, monkeypatch):
+    service = ThemeDesignerService()
+    frame_dir = os.path.join(tmp_dir, "frames-fallback")
+    os.makedirs(frame_dir)
+    source_frame = os.path.join(frame_dir, "source-frame.bmp")
+    _write_bmp(source_frame, 320, 240, "#112233")
+    fallback_renders = []
+
+    monkeypatch.setattr(service, "_extract_right_pane_video_frames", lambda _source: [source_frame])
+    monkeypatch.setattr(
+        service,
+        "_render_right_pane_video_frame",
+        lambda _source, destination, *_args: _write_bmp(destination, 156, 240, "#112233"),
+    )
+    monkeypatch.setattr(service, "_write_right_pane_video_framepack", lambda *_args: None)
+    monkeypatch.setattr(
+        service,
+        "_render_right_pane_image",
+        lambda *args: fallback_renders.append(args),
+    )
+
+    service._apply_right_pane_video_overrides(
+        tmp_dir,
+        {
+            "right_pane_video_source": source_frame,
+            "right_pane_wallpaper_source": "",
+            "screen_resolution": "320x240",
+            "right_pane_fit_mode": "fill",
+            "colors": {"background": "000000"},
+        },
+        {"right_pane": ["RightPaneWallpaper.bmp"]},
+        {"iPone_bd.bmp"},
+    )
+
+    assert len(fallback_renders) == 2
+    assert all(args[0] == source_frame for args in fallback_renders)
+
+
 def test_simulator_mode_ignores_target_build_dir_fallback(tmp_dir, monkeypatch):
     app = QApplication.instance() or QApplication([])
     monkeypatch.setenv("XDG_SESSION_TYPE", "wayland")
@@ -1302,4 +1534,24 @@ def test_embedded_simulator_preview_delegates_xdotool_helpers(monkeypatch):
         ("search", 99, 1.0),
         ("key", "456", "F5"),
     ]
+    preview.deleteLater()
+
+
+def test_embedded_preview_finds_active_sbs_framepack(tmp_dir):
+    simdisk = os.path.join(tmp_dir, "simdisk")
+    config = os.path.join(simdisk, ".rockbox", "config.cfg")
+    framepack = os.path.join(
+        simdisk,
+        ".rockbox",
+        "wps",
+        "iPoneD-ipone_preview",
+        "RightPaneVideo.rbvp",
+    )
+    _write_text(config, "sbs: /.rockbox/wps/iPoneD-ipone_preview.sbs\n")
+    _write_rbvp(framepack, 1, 1, 12, [(0xF800).to_bytes(2, "little")])
+
+    preview = _EmbeddedSimulatorPreview()
+    preview._simdisk_path = simdisk
+
+    assert preview.video_framepack_path() == framepack
     preview.deleteLater()

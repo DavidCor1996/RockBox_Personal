@@ -220,6 +220,7 @@ bool warn_on_pl_erase(void)
 bool show_search_progress(bool init, int display_count, int current, int total)
 {
     static long last_tick, talked_tick;
+    const bool show_visual = !ipodjs_ui_enabled(SCREEN_MAIN);
 
     /* Don't show splashes for 1/2 second after starting search */
     if (init)
@@ -233,9 +234,14 @@ bool show_search_progress(bool init, int display_count, int current, int total)
     if (TIME_AFTER(current_tick, last_tick + HZ/10))
     {
         if (total != current)
-            /* (voiced) */
-            splash_progress(current, total, str(LANG_PLAYLIST_SEARCH_MSG),
-                            display_count, str(LANG_OFF_ABORT));
+        {
+            if (show_visual)
+            {
+                /* (voiced) */
+                splash_progress(current, total, str(LANG_PLAYLIST_SEARCH_MSG),
+                                display_count, str(LANG_OFF_ABORT));
+            }
+        }
         else
         {
             if (global_settings.talk_menu &&
@@ -245,9 +251,12 @@ bool show_search_progress(bool init, int display_count, int current, int total)
                 talk_number(display_count, false);
                 talk_id(LANG_PLAYLIST_SEARCH_MSG, true);
             }
-            /* (voiced above) */
-            splashf(0, str(LANG_PLAYLIST_SEARCH_MSG),
-                    display_count, str(LANG_OFF_ABORT));
+            if (show_visual)
+            {
+                /* (voiced above) */
+                splashf(0, str(LANG_PLAYLIST_SEARCH_MSG),
+                        display_count, str(LANG_OFF_ABORT));
+            }
         }
 
         if (action_userabort(TIMEOUT_NOBLOCK))
@@ -475,6 +484,10 @@ static bool clean_shutdown(enum shutdown_type sd_type,
                            void (*callback)(void *), void *parameter)
 {
     long msg_id = -1;
+    bool ipodjs_poweroff = false;
+#ifdef HAVE_TAGCACHE
+    bool tagcache_prepared = false;
+#endif
 
 #if defined(IPOD_VIDEO)
     if (sd_type == SHUTDOWN_POWER_OFF &&
@@ -501,8 +514,30 @@ static bool clean_shutdown(enum shutdown_type sd_type,
         int audio_stat = audio_status();
 #endif
 
+#ifdef HAVE_IPODJS_UI
+        ipodjs_poweroff = sd_type == SHUTDOWN_POWER_OFF &&
+                          ipodjs_ui_enabled(SCREEN_MAIN);
+#ifdef HAVE_TAGCACHE
+        /* Keep the current frame visible if shutdown must be cancelled. */
+        if (ipodjs_poweroff && batt_safe)
+        {
+            if (!tagcache_prepare_shutdown())
+            {
+                cancel_shutdown();
+                splash(HZ, ID2P(LANG_TAGCACHE_BUSY));
+                return false;
+            }
+            tagcache_prepared = true;
+        }
+#endif
+        if (ipodjs_poweroff)
+            ipodjs_ui_shutdown_animation();
+#endif
+
         FOR_NB_SCREENS(i)
         {
+            if (ipodjs_poweroff && i == SCREEN_MAIN)
+                continue;
             screens[i].clear_display();
             screens[i].update();
         }
@@ -511,7 +546,7 @@ static bool clean_shutdown(enum shutdown_type sd_type,
         {
             int level;
 #ifdef HAVE_TAGCACHE
-            if (!tagcache_prepare_shutdown())
+            if (!tagcache_prepared && !tagcache_prepare_shutdown())
             {
                 cancel_shutdown();
                 splash(HZ, ID2P(LANG_TAGCACHE_BUSY));
@@ -521,21 +556,24 @@ static bool clean_shutdown(enum shutdown_type sd_type,
             level = battery_level();
             if (level > 10 || level < 0)
             {
-                if (global_settings.show_shutdown_message)
+                if (global_settings.show_shutdown_message &&
+                    !ipodjs_poweroff)
                     splash(0, str(LANG_SHUTTINGDOWN));
             }
             else
             {
                 msg_id = LANG_WARNING_BATTERY_LOW;
-                splashf(0, "%s %s", str(LANG_WARNING_BATTERY_LOW),
-                                    str(LANG_SHUTTINGDOWN));
+                if (!ipodjs_poweroff)
+                    splashf(0, "%s %s", str(LANG_WARNING_BATTERY_LOW),
+                                        str(LANG_SHUTTINGDOWN));
             }
         }
         else
         {
             msg_id = LANG_WARNING_BATTERY_EMPTY;
-            splashf(0, "%s %s", str(LANG_WARNING_BATTERY_EMPTY),
-                                str(LANG_SHUTTINGDOWN));
+            if (!ipodjs_poweroff)
+                splashf(0, "%s %s", str(LANG_WARNING_BATTERY_EMPTY),
+                                    str(LANG_SHUTTINGDOWN));
         }
 
 #ifdef HAVE_DISK_STORAGE

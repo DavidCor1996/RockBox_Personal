@@ -39,6 +39,7 @@
 #include "action.h"
 #include "debug.h"
 #include "backlight.h"
+#include "gui/ipodjs_ui.h"
 
 #include "lang.h"
 
@@ -267,7 +268,9 @@ static void playlist_buffer_load_entries_screen(struct playlist_buffer * pb,
     playlist_buffer_load_entries(pb, start, direction);
 }
 
-static bool retrieve_id3_tags(const int index, const char* name, struct mp3entry *id3, int flags)
+static bool retrieve_id3_tags(const int index, const char* name,
+                              struct mp3entry *id3, int flags,
+                              bool allow_disk)
 {
     bool id3_retrieval_successful = false;
 
@@ -286,8 +289,12 @@ static bool retrieve_id3_tags(const int index, const char* name, struct mp3entry
         if (!id3_retrieval_successful)
 #endif
         {
-            /* Read from disk */
-            id3_retrieval_successful = get_metadata_ex(id3, -1, name, flags);
+            if (allow_disk)
+            {
+                /* Read from disk */
+                id3_retrieval_successful =
+                    get_metadata_ex(id3, -1, name, flags);
+            }
         }
     }
     return id3_retrieval_successful;
@@ -529,11 +536,16 @@ static void format_line(struct playlist_entry* track, char* str,
         skipped = "(ERR) ";
     if (!(track->attr & PLAYLIST_ATTR_RETRIEVE_ID3_ATTEMPTED))
     {
-        /* iPod Classic 6G custom: always retrieve title from tags/db */
+        bool allow_disk = !ipodjs_ui_enabled(SCREEN_MAIN);
+
+        /* iPodJS list callbacks may use RAM-cached metadata, but never open
+         * and parse track files while playback and navigation compete for
+         * storage. An uncached row falls back to its filename. */
         track->attr |= PLAYLIST_ATTR_RETRIEVE_ID3_ATTEMPTED;
         bool retrieve_success = retrieve_id3_tags(track->index, track->name,
                                                   viewer.id3,
-                                                  METADATA_EXCLUDE_ID3_PATH);
+                                                  METADATA_EXCLUDE_ID3_PATH,
+                                                  allow_disk);
         if (retrieve_success)
         {
             if (!id3viewc)
@@ -594,7 +606,7 @@ static enum pv_context_result show_track_info(const struct playlist_entry *curre
 {
     bool id3_retrieval_successful = retrieve_id3_tags(current_track->index,
                                                       current_track->name,
-                                                      viewer.id3, 0);
+                                                      viewer.id3, 0, true);
 
     return (id3_retrieval_successful &&
             browse_id3_ex(viewer.id3, viewer.playlist, current_track->display_index,

@@ -8,9 +8,11 @@ import os
 import re
 import shutil
 import subprocess
+import sys
 import tempfile
 import colorsys
 import hashlib
+from array import array
 from datetime import datetime
 from copy import deepcopy
 
@@ -43,12 +45,13 @@ DEFAULT_COLORS = {
     "sbs_clock": "E8DFF8",
 }
 
-RIGHT_PANE_MODES = ("miniplayer", "full art")
+RIGHT_PANE_MODES = ("miniplayer", "full art", "video")
 DEFAULT_RIGHT_PANE_MODE = "miniplayer"
 DEFAULT_WALLPAPER_CYCLE_ENABLED = False
 RIGHT_PANE_VIDEO_FRAME_COUNT = 24
 RIGHT_PANE_VIDEO_FPS = 12
 RIGHT_PANE_VIDEO_OVERLAY_X_OFFSET = 4
+RIGHT_PANE_VIDEO_MAX_FRAMES = 65535
 RENDER_BUDGET_CLOCK_LAYER_LIMIT = 6
 RENDER_BUDGET_TOTAL_VIEWPORT_LIMIT = 90
 RENDER_BUDGET_FULLSCREEN_BITMAP_LIMIT = 32
@@ -1130,6 +1133,8 @@ class ThemeDesignerService:
                 "",
                 base_default=base.get("right_pane_mode", DEFAULT_RIGHT_PANE_MODE),
             )
+        if raw_right_pane_video_source:
+            right_pane_mode = "video"
         base["right_pane_mode"] = right_pane_mode
         base["right_pane_offset_x"] = self._normalize_offset(item.get("right_pane_offset_x", base.get("right_pane_offset_x", 0)))
         base["right_pane_offset_y"] = self._normalize_offset(item.get("right_pane_offset_y", base.get("right_pane_offset_y", 0)))
@@ -2228,8 +2233,7 @@ class ThemeDesignerService:
             matte_hex = variant["colors"]["background"]
             offset_x = variant.get("right_pane_offset_x", 0)
             offset_y = variant.get("right_pane_offset_y", 0)
-            for index in range(RIGHT_PANE_VIDEO_FRAME_COUNT):
-                frame_path = frame_paths[index % len(frame_paths)]
+            for index, frame_path in enumerate(frame_paths):
                 rendered_frame_path = os.path.join(staged_wps_dir, f"RightPaneVideoFrame_{index:02d}.bmp")
                 self._render_right_pane_video_frame(
                     frame_path,
@@ -2246,35 +2250,40 @@ class ThemeDesignerService:
                 os.path.join(staged_wps_dir, "RightPaneVideo.rbvp"),
             )
 
-            first_frame = frame_paths[0]
-            sbs_right_pane_targets = [
-                name for name in sbs_solid_targets
-                if os.path.basename(name) != "iPone_bd_fullart.bmp"
-            ]
-            if not sbs_right_pane_targets:
-                sbs_right_pane_targets = targets.get("right_pane", [])
-            for name in sbs_right_pane_targets:
-                self._render_right_pane_image(
-                    first_frame,
-                    os.path.join(staged_wps_dir, name),
-                    resolution,
-                    fit_mode,
-                    matte_hex,
-                    os.path.join(staged_wps_dir, name),
-                    offset_x,
-                    offset_y,
-                )
-            for name in targets.get("right_pane", []):
-                self._render_right_pane_image(
-                    first_frame,
-                    os.path.join(staged_wps_dir, name),
-                    resolution,
-                    fit_mode,
-                    matte_hex,
-                    os.path.join(staged_wps_dir, "iPone_bd.bmp"),
-                    offset_x,
-                    offset_y,
-                )
+            # Preserve an explicitly configured right picture for Miniplayer.
+            # Without one, retain a visible video frame as the runtime loop's
+            # startup/read-failure fallback instead of exposing a black pane.
+            if not variant.get("right_pane_wallpaper_source"):
+                fallback_index = self._right_pane_video_fallback_index(rendered_frame_paths)
+                fallback_frame = frame_paths[fallback_index]
+                sbs_right_pane_targets = [
+                    name for name in sbs_solid_targets
+                    if os.path.basename(name) != "iPone_bd_fullart.bmp"
+                ]
+                if not sbs_right_pane_targets:
+                    sbs_right_pane_targets = targets.get("right_pane", [])
+                for name in sbs_right_pane_targets:
+                    self._render_right_pane_image(
+                        fallback_frame,
+                        os.path.join(staged_wps_dir, name),
+                        resolution,
+                        fit_mode,
+                        matte_hex,
+                        os.path.join(staged_wps_dir, name),
+                        offset_x,
+                        offset_y,
+                    )
+                for name in targets.get("right_pane", []):
+                    self._render_right_pane_image(
+                        fallback_frame,
+                        os.path.join(staged_wps_dir, name),
+                        resolution,
+                        fit_mode,
+                        matte_hex,
+                        os.path.join(staged_wps_dir, "iPone_bd.bmp"),
+                        offset_x,
+                        offset_y,
+                    )
         finally:
             for path in frame_paths:
                 try:
@@ -2286,44 +2295,55 @@ class ThemeDesignerService:
                     os.remove(path)
                 except OSError:
                     pass
+            if frame_paths:
+                shutil.rmtree(os.path.dirname(frame_paths[0]), ignore_errors=True)
+
+    @staticmethod
+    def _right_pane_video_fallback_index(rendered_frame_paths):
+        """Return the first frame that is visibly brighter than a black lead-in."""
+        for index, path in enumerate(rendered_frame_paths):
+            with Image.open(path) as image:
+                grayscale = image.convert("L")
+                if sum(grayscale.getdata()) / max(1, grayscale.width * grayscale.height) >= 3.0:
+                    return index
+        return 0
 
     def _extract_right_pane_video_frames(self, source_path):
-        with tempfile.TemporaryDirectory(prefix="ipone-video-") as temp_dir:
-            pattern = os.path.join(temp_dir, "frame_%03d.png")
-            command = [
-                "ffmpeg",
-                "-hide_banner",
-                "-loglevel",
-                "error",
-                "-y",
-                "-i",
-                source_path,
-                "-vf",
-                f"fps={RIGHT_PANE_VIDEO_FPS},scale=320:-2:flags=lanczos",
-                "-frames:v",
-                str(RIGHT_PANE_VIDEO_FRAME_COUNT),
-                pattern,
-            ]
-            try:
-                subprocess.run(command, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            except FileNotFoundError as exc:
-                raise ValueError("ffmpeg is required to process video wallpapers") from exc
-            except subprocess.CalledProcessError as exc:
-                detail = (exc.stderr or b"").decode("utf-8", errors="replace").strip()
-                message = f"Could not process right pane video wallpaper: {detail}" if detail else "Could not process right pane video wallpaper"
-                raise ValueError(message) from exc
+        temp_dir = tempfile.mkdtemp(prefix="ipone-video-")
+        pattern = os.path.join(temp_dir, "frame_%08d.png")
+        command = [
+            "ffmpeg",
+            "-hide_banner",
+            "-loglevel",
+            "error",
+            "-y",
+            "-i",
+            source_path,
+            "-vf",
+            f"fps={RIGHT_PANE_VIDEO_FPS},scale=320:-2:flags=lanczos",
+            "-frames:v",
+            str(RIGHT_PANE_VIDEO_MAX_FRAMES),
+            pattern,
+        ]
+        try:
+            subprocess.run(command, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        except FileNotFoundError as exc:
+            shutil.rmtree(temp_dir, ignore_errors=True)
+            raise ValueError("ffmpeg is required to process video wallpapers") from exc
+        except subprocess.CalledProcessError as exc:
+            shutil.rmtree(temp_dir, ignore_errors=True)
+            detail = (exc.stderr or b"").decode("utf-8", errors="replace").strip()
+            message = f"Could not process right pane video wallpaper: {detail}" if detail else "Could not process right pane video wallpaper"
+            raise ValueError(message) from exc
 
-            extracted = [
-                os.path.join(temp_dir, name)
-                for name in sorted(os.listdir(temp_dir))
-                if name.lower().endswith(".png")
-            ]
-            copied = []
-            for index, path in enumerate(extracted):
-                dest = os.path.join(tempfile.gettempdir(), f"ipone-video-frame-{os.getpid()}-{index:02d}.png")
-                shutil.copy2(path, dest)
-                copied.append(dest)
-            return copied
+        extracted = [
+            os.path.join(temp_dir, name)
+            for name in sorted(os.listdir(temp_dir))
+            if name.lower().endswith(".png")
+        ]
+        if not extracted:
+            shutil.rmtree(temp_dir, ignore_errors=True)
+        return extracted
 
     def _render_right_pane_video_frame(self, source_path, dest_path, resolution, fit_mode, matte_hex, offset_x=0, offset_y=0):
         width, height = _fit_size(resolution)
@@ -2371,6 +2391,11 @@ class ThemeDesignerService:
                 raise ValueError(f"Unreadable rendered video frame: {path}") from exc
         if not frames:
             return
+        if len(frames) > RIGHT_PANE_VIDEO_MAX_FRAMES:
+            raise ValueError(
+                f"Right pane video has too many frames ({len(frames)}); "
+                f"maximum is {RIGHT_PANE_VIDEO_MAX_FRAMES}"
+            )
         width, height = frames[0].size
         sheet = Image.new("RGB", (width, height * len(frames)))
         for index, frame in enumerate(frames):
@@ -2381,17 +2406,20 @@ class ThemeDesignerService:
         sheet.save(dest_path, "BMP")
 
     def _write_right_pane_video_framepack(self, frame_paths, dest_path):
-        frames = []
-        for path in frame_paths:
-            try:
-                with Image.open(path) as image:
-                    frames.append(image.convert("RGB"))
-            except (OSError, UnidentifiedImageError) as exc:
-                raise ValueError(f"Unreadable rendered video frame: {path}") from exc
-        if not frames:
+        if not frame_paths:
             return
+        if len(frame_paths) > RIGHT_PANE_VIDEO_MAX_FRAMES:
+            raise ValueError(
+                f"Right pane video has too many frames ({len(frame_paths)}); "
+                f"maximum is {RIGHT_PANE_VIDEO_MAX_FRAMES}"
+            )
 
-        width, height = frames[0].size
+        try:
+            with Image.open(frame_paths[0]) as image:
+                width, height = image.size
+        except (OSError, UnidentifiedImageError) as exc:
+            raise ValueError(f"Unreadable rendered video frame: {frame_paths[0]}") from exc
+
         os.makedirs(os.path.dirname(dest_path), exist_ok=True)
         with open(dest_path, "wb") as handle:
             handle.write(b"RBVP")
@@ -2400,19 +2428,32 @@ class ThemeDesignerService:
             handle.write(width.to_bytes(2, "little"))
             handle.write(height.to_bytes(2, "little"))
             handle.write(RIGHT_PANE_VIDEO_FPS.to_bytes(2, "little"))
-            handle.write(len(frames).to_bytes(2, "little"))
+            handle.write(len(frame_paths).to_bytes(2, "little"))
             handle.write((2).to_bytes(2, "little"))
             handle.write(bytes(14))
 
-            for frame in frames:
-                if frame.size != (width, height):
-                    frame = frame.resize((width, height), Image.Resampling.LANCZOS)
-                for red, green, blue in frame.getdata():
-                    rgb565 = ((red & 0xF8) << 8) | ((green & 0xFC) << 3) | (blue >> 3)
-                    handle.write(rgb565.to_bytes(2, "little"))
+            for path in frame_paths:
+                try:
+                    with Image.open(path) as image:
+                        frame = image.convert("RGB")
+                        if frame.size != (width, height):
+                            frame = frame.resize((width, height), Image.Resampling.LANCZOS)
+                        packed = array(
+                            "H",
+                            (
+                                ((red & 0xF8) << 8)
+                                | ((green & 0xFC) << 3)
+                                | (blue >> 3)
+                                for red, green, blue in frame.getdata()
+                            ),
+                        )
+                        if sys.byteorder != "little":
+                            packed.byteswap()
+                        handle.write(packed.tobytes())
+                except (OSError, UnidentifiedImageError) as exc:
+                    raise ValueError(f"Unreadable rendered video frame: {path}") from exc
 
     def _apply_right_pane_video_skin(self, sbs_path, variant):
-        return
         if not variant.get("right_pane_video_source") or not os.path.isfile(sbs_path):
             return
         try:
@@ -2420,31 +2461,30 @@ class ThemeDesignerService:
                 content = handle.read()
         except OSError:
             return
-        if "%xv(/.rockbox/wps/" in content:
-            return
 
-        width, height = _fit_size(variant.get("screen_resolution") or "320x240")
-        overlay_x = width // 2 + RIGHT_PANE_VIDEO_OVERLAY_X_OFFSET
-        pane_width = width - overlay_x
-        sbs_skin_name = self._sbs_skin_name(variant)
-        framepack = (
-            f"%xv(/.rockbox/wps/{sbs_skin_name}/RightPaneVideo.rbvp,"
-            f"0,0,{pane_width},{height},"
-            f"{RIGHT_PANE_VIDEO_FPS},{RIGHT_PANE_VIDEO_FRAME_COUNT})"
+        # The firmware owns RBVP drawing in Video mode.  Keep the SBS clock
+        # exclusive to Miniplayer so periodic skin refreshes cannot paint it
+        # over video frames.
+        content = content.replace(
+            "%?if(%St(ipone right pane), =, full art)<|%Vd(clock)>",
+            "%?if(%St(ipone right pane), =, miniplayer)<%Vd(clock)|>",
         )
-        animation_lines = [
-            f"%V({overlay_x},0,{pane_width},{height},-)",
-            f"%?if(%cs, =, 21)<|%?mh<|%?if(%St(ipone right pane), =, miniplayer)<{framepack}|>>>",
-            "%V(0,0,-,-,-)",
-        ]
-        lines = content.splitlines()
-        for index, line in enumerate(lines):
-            if line.strip() == "%V(0,0,-,-,4)%VB":
-                lines[index + 2:index + 2] = animation_lines
-                break
-        content = "\n".join(lines)
-        if content and not content.endswith("\n"):
-            content += "\n"
+        content = content.replace(
+            "%?if(%St(ipone right pane), !=, custom wallpaper)<|%Vd(clock)>",
+            "%?if(%St(ipone right pane), =, miniplayer)<%Vd(clock)|>",
+        )
+
+        plain_playback = "%?mp<" + "|".join(["%Vd(normal)"] * 9) + ">"
+        miniplayer_playback = "%?mp<" + "|".join(
+            ["%Vd(SbsAlbumArt)%Vd(normal)"] * 7
+            + ["%Vd(radio)"] * 2
+        ) + ">"
+        content = content.replace(
+            "%?if(%St(ipone right pane), =, full art)<"
+            f"{plain_playback}|{miniplayer_playback}>",
+            "%?if(%St(ipone right pane), =, miniplayer)<"
+            f"{miniplayer_playback}|{plain_playback}>",
+        )
         atomic_write_text(sbs_path, content)
 
     def _render_right_pane_image(self, source_path, dest_path, resolution, fit_mode, matte_hex, base_path, offset_x=0, offset_y=0):

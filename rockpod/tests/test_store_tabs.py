@@ -63,6 +63,9 @@ def test_store_contains_music_and_ipod_games_browser_tabs(config, monkeypatch):
         window._on_sidebar_selection("rockbox", "rockbox_game_sync")
         assert window._content_stack.currentWidget() is window._game_manager
 
+        window._on_sidebar_selection("rockbox", "rockbox_achievements_avatar")
+        assert window._content_stack.currentWidget() is window._avatar_editor
+
         window._on_sidebar_selection("rockbox", "rockbox_browser")
         window._store_page.setCurrentWidget(window._game_browser_panel)
         assert window._current_view == "rockbox_games"

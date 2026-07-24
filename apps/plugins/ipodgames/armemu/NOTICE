@@ -1,0 +1,15 @@
+iPodLinux armemu CPU core
+==========================
+
+The files armemu.h and execute.c are adapted from the archived iPodLinux
+armemu project:
+
+    https://github.com/iPodLinux/armemu
+
+That project states: "All files are licensed under GNU General Public License
+v2.0 unless otherwise specified." Rockbox is distributed under GPLv2; see the
+top-level COPYING file for the complete license.
+
+The adaptation removes the standalone debugger, disassembler, iPod MMIO shell,
+and process-exit behavior, and supplies memory and framework callbacks from the
+iPod Games plugin.

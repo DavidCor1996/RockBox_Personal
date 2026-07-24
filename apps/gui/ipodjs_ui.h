@@ -21,7 +21,13 @@
 #include <stdbool.h>
 #include "screen_access.h"
 
-#define IPODJS_UI_HEADER_HEIGHT 20
+#define IPODJS_UI_HEADER_HEIGHT 24
+
+enum ipodjs_ui_search_surface {
+    IPODJS_UI_SEARCH_PANEL = 0,
+    IPODJS_UI_SEARCH_FIELD,
+    IPODJS_UI_SEARCH_SELECTED,
+};
 
 #ifdef HAVE_IPODJS_UI
 bool ipodjs_ui_enabled(enum screen_type screen);
@@ -52,7 +58,33 @@ void ipodjs_ui_puts_fit(struct screen *display, int x, int y, int width,
                         const char *text, bool center);
 void ipodjs_ui_draw_arrow(struct screen *display, int x, int y,
                           unsigned color);
+void ipodjs_ui_draw_header_background(struct screen *display, int width);
+void ipodjs_ui_draw_playback_indicator(struct screen *display, int x, int y);
+void ipodjs_ui_draw_hold_indicator(struct screen *display, int x, int y);
+void ipodjs_ui_draw_repeat_indicator(struct screen *display, int x, int y,
+                                     int repeat_mode);
+void ipodjs_ui_draw_shuffle_indicator(struct screen *display, int x, int y);
+void ipodjs_ui_draw_header_battery(struct screen *display, int x, int y);
+bool ipodjs_ui_fast_scroll_available(void);
+/* Returns #/A-Z bucket 0..26, or -1 for an unsupported script. */
+int ipodjs_ui_fast_scroll_bucket(const char *text);
+void ipodjs_ui_fast_scroll_show(const char *label);
+void ipodjs_ui_fast_scroll_clear(void);
+bool ipodjs_ui_fast_scroll_active(void);
+bool ipodjs_ui_fast_scroll_take_expired(void);
+void ipodjs_ui_draw_fast_scroll(struct screen *display);
+bool ipodjs_ui_search_surfaces_available(void);
+bool ipodjs_ui_draw_search_surface(struct screen *display,
+                                   enum ipodjs_ui_search_surface surface,
+                                   int x, int y, int width, int height);
+void ipodjs_ui_transition_begin(int direction);
+bool ipodjs_ui_transition_present(struct screen *display);
+void ipodjs_ui_transition_cancel(void);
+bool ipodjs_ui_preview_fade_begin(struct screen *display,
+                                  int x, int y, int width, int height);
+bool ipodjs_ui_preview_fade_present(struct screen *display);
 void ipodjs_ui_prepare_native_frame(void);
+void ipodjs_ui_shutdown_animation(void);
 void ipodjs_ui_usb_prepare(void);
 void ipodjs_ui_draw_usb_connected(struct screen *display);
 void ipodjs_ui_charging_screen(bool classify_usb);
@@ -116,7 +148,90 @@ static inline void ipodjs_ui_draw_arrow(struct screen *display, int x, int y,
 {
     (void)display; (void)x; (void)y; (void)color;
 }
+static inline void ipodjs_ui_draw_playback_indicator(struct screen *display,
+                                                      int x, int y)
+{
+    (void)display; (void)x; (void)y;
+}
+static inline void ipodjs_ui_draw_header_background(struct screen *display,
+                                                     int width)
+{
+    (void)display; (void)width;
+}
+static inline void ipodjs_ui_draw_hold_indicator(struct screen *display,
+                                                  int x, int y)
+{
+    (void)display; (void)x; (void)y;
+}
+static inline void ipodjs_ui_draw_repeat_indicator(struct screen *display,
+                                                    int x, int y,
+                                                    int repeat_mode)
+{
+    (void)display; (void)x; (void)y; (void)repeat_mode;
+}
+static inline void ipodjs_ui_draw_shuffle_indicator(struct screen *display,
+                                                     int x, int y)
+{
+    (void)display; (void)x; (void)y;
+}
+static inline void ipodjs_ui_draw_header_battery(struct screen *display,
+                                                 int x, int y)
+{
+    (void)display; (void)x; (void)y;
+}
+static inline void ipodjs_ui_fast_scroll_show(const char *label)
+{
+    (void)label;
+}
+static inline bool ipodjs_ui_fast_scroll_available(void) { return false; }
+static inline int ipodjs_ui_fast_scroll_bucket(const char *text)
+{
+    (void)text;
+    return -1;
+}
+static inline void ipodjs_ui_fast_scroll_clear(void) { }
+static inline bool ipodjs_ui_fast_scroll_active(void) { return false; }
+static inline bool ipodjs_ui_fast_scroll_take_expired(void) { return false; }
+static inline void ipodjs_ui_draw_fast_scroll(struct screen *display)
+{
+    (void)display;
+}
+static inline bool ipodjs_ui_search_surfaces_available(void)
+{
+    return false;
+}
+static inline bool ipodjs_ui_draw_search_surface(
+    struct screen *display, enum ipodjs_ui_search_surface surface,
+    int x, int y, int width, int height)
+{
+    (void)display; (void)surface; (void)x; (void)y;
+    (void)width; (void)height;
+    return false;
+}
+static inline void ipodjs_ui_transition_begin(int direction)
+{
+    (void)direction;
+}
+static inline bool ipodjs_ui_transition_present(struct screen *display)
+{
+    (void)display;
+    return false;
+}
+static inline void ipodjs_ui_transition_cancel(void) { }
+static inline bool ipodjs_ui_preview_fade_begin(struct screen *display,
+                                                int x, int y,
+                                                int width, int height)
+{
+    (void)display; (void)x; (void)y; (void)width; (void)height;
+    return false;
+}
+static inline bool ipodjs_ui_preview_fade_present(struct screen *display)
+{
+    (void)display;
+    return false;
+}
 static inline void ipodjs_ui_prepare_native_frame(void) { }
+static inline void ipodjs_ui_shutdown_animation(void) { }
 static inline void ipodjs_ui_usb_prepare(void) { }
 static inline void ipodjs_ui_draw_usb_connected(struct screen *display)
 {

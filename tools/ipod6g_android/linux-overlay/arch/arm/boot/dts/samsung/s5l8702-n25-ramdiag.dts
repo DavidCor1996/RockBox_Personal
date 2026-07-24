@@ -1,0 +1,135 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Apple iPod classic (6th generation), N25.
+ * Volatile RAM diagnostic profile: persistent storage is not described.
+ */
+
+/dts-v1/;
+
+/ {
+	#address-cells = <1>;
+	#size-cells = <1>;
+	model = "Apple iPod classic (6th generation) RAM diagnostic";
+	compatible = "apple,n25", "samsung,s5l8702";
+	rockpod,safety-profile = "ram-only-no-storage";
+
+	aliases {
+		serial0 = &uart0;
+	};
+
+	chosen {
+		stdout-path = "serial0:57600n8";
+		bootargs = "console=ttySAC0,57600 earlycon=s5l,mmio32,0x3cc00000 rdinit=/init loglevel=8 panic=5";
+		/* Direct Rockbox handoff; the deterministic RAM root is 1280 bytes. */
+		linux,initrd-start = <0x09c00000>;
+		linux,initrd-end = <0x09c00500>;
+	};
+
+	clkref: clock-ref {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <12000000>;
+		clock-output-names = "clkref";
+	};
+
+	cpus {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		cpu@0 {
+			device_type = "cpu";
+			compatible = "arm,arm926ej-s";
+			reg = <0>;
+		};
+	};
+
+	memory@8000000 {
+		device_type = "memory";
+		reg = <0x08000000 0x04000000>;
+	};
+
+	watchdog-reset@3c800000 {
+		compatible = "apple,s5l8702-watchdog-reset";
+		reg = <0x3c800000 0x04>;
+		apple,test-timeout-seconds = <60>;
+	};
+
+	soc {
+		compatible = "simple-bus";
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges;
+
+		vic0: interrupt-controller@38e00000 {
+			compatible = "apple,s5l8702-vic";
+			interrupt-controller;
+			reg = <0x38e00000 0x1000>;
+			#interrupt-cells = <1>;
+		};
+
+		vic1: interrupt-controller@38e01000 {
+			compatible = "apple,s5l8702-vic";
+			interrupt-controller;
+			reg = <0x38e01000 0x1000>;
+			#interrupt-cells = <1>;
+		};
+
+		timer: timer@3c700000 {
+			compatible = "apple,n25-timer", "samsung,s5l8702-timer";
+			reg = <0x3c700000 0x20000>;
+			interrupt-parent = <&vic0>;
+			/* Timer B uses the proven Rockbox 16-bit timer IRQ. */
+			interrupts = <8>;
+		};
+
+		uart0: serial@3cc00000 {
+			compatible = "apple,s5l-uart";
+			reg = <0x3cc00000 0x4000>;
+			reg-io-width = <4>;
+			clocks = <&clkref>, <&clkref>;
+			clock-names = "uart", "clk_uart_baud0";
+			interrupt-parent = <&vic0>;
+			interrupts = <24>;
+			status = "okay";
+		};
+
+		usbphy: usbphy@3c400000 {
+			compatible = "apple,s5l8702-otgphy";
+			reg = <0x3c400000 0x200>;
+			status = "okay";
+			#phy-cells = <0>;
+		};
+
+		usbotg: usb@38400000 {
+			compatible = "apple,s5l87xx-usb";
+			reg = <0x38400000 0x40000>;
+			interrupt-parent = <&vic0>;
+			interrupts = <19>;
+			phys = <&usbphy>;
+			phy-names = "usb2-phy";
+			clocks = <&clkref>;
+			clock-names = "otg";
+			g-rx-fifo-size = <536>;
+			g-np-tx-fifo-size = <256>;
+			g-tx-fifo-size = <256 256 512 512 512 768 768>;
+			dr_mode = "peripheral";
+			status = "okay";
+		};
+
+		/*
+		 * Diagnostic-only framebuffer.  Rockbox has already powered and
+		 * initialized the Classic panel.  The Linux driver must preserve that
+		 * state, select the panel command width from the read-only strap, and
+		 * perform only a PIO framebuffer transfer.  No PMU/I2C node exists.
+		 */
+		lcd: lcd@38300000 {
+			compatible = "apple,n25-lcd";
+			reg = <0x38300000 0x100>, <0x3cf000c4 0x4>;
+			reg-names = "lcd", "panel-strap";
+			rockpod,preserve-display-handoff;
+			status = "okay";
+		};
+	};
+};
+
+/* No ATA, CE-ATA, MMC, NAND, NOR, SPI, I2C, or filesystem node is allowed. */

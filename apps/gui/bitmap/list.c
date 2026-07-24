@@ -27,9 +27,13 @@
 #include "font.h"
 #include "button.h"
 #include "string.h"
+#include "strmemccpy.h"
 #include "settings.h"
 #include "kernel.h"
 #include "file.h"
+#include "misc.h"
+#include "power.h"
+#include "powermgmt.h"
 
 #include "action.h"
 #include "screen_access.h"
@@ -44,6 +48,7 @@
 #include "line.h"
 #include "../skin_engine/skin_albumart_color.h"
 #include "../ipodjs_ui.h"
+#include "../ipodjs_trace.h"
 
 #define ICON_PADDING 1
 #define ICON_PADDING_S "1"
@@ -159,41 +164,46 @@ static bool list_ipodjs_main_menu_config(struct gui_synclist *list)
 static void list_ipodjs_header(struct screen *display, const char *title,
                                int title_width)
 {
-    unsigned top;
-    unsigned mid;
-    unsigned bottom;
     unsigned border;
 
     if (global_settings.ui_engine_dark_mode)
     {
-        top = LCD_RGBPACK(92, 98, 108);
-        mid = LCD_RGBPACK(50, 56, 66);
-        bottom = ipodjs_ui_header_bg();
         border = LCD_RGBPACK(11, 14, 19);
     }
     else
     {
-        top = IPODJS_LIST_HEADER_TOP;
-        mid = IPODJS_LIST_HEADER_MID;
-        bottom = IPODJS_LIST_HEADER_BOTTOM;
         border = IPODJS_LIST_HEADER_BORDER;
     }
 
-    ipodjs_ui_glass_gradient(display, 0, 0, display->lcdwidth,
-                             IPODJS_UI_HEADER_HEIGHT, top, mid, bottom);
-    display->set_foreground(border);
-    display->hline(0, display->lcdwidth - 1, IPODJS_UI_HEADER_HEIGHT - 1);
+    ipodjs_ui_draw_header_background(display, display->lcdwidth);
+    if (global_settings.ui_engine_dark_mode)
+    {
+        display->set_foreground(border);
+        display->hline(0, display->lcdwidth - 1,
+                       IPODJS_UI_HEADER_HEIGHT - 1);
+    }
 
     if (title && title[0])
     {
+        int fit_width = MAX(1, title_width - 84);
+
+        if (title_width == display->lcdwidth)
+            fit_width = MAX(1, fit_width - 24);
         display->setfont(list_ipodjs_font());
         display->set_foreground(ipodjs_ui_header_text());
         display->set_background(ipodjs_ui_header_bg());
-        ipodjs_ui_puts_fit(display, 18,
-                           3 + ipodjs_ui_text_y_offset(),
-                           title_width - 36,
+        ipodjs_ui_puts_fit(display, 42,
+                           5 + ipodjs_ui_text_y_offset(),
+                           fit_width,
                            title, true);
     }
+
+    if (button_hold())
+        ipodjs_ui_draw_hold_indicator(display, display->lcdwidth - 47, 4);
+    else
+        ipodjs_ui_draw_playback_indicator(display,
+                                          display->lcdwidth - 50, 4);
+    ipodjs_ui_draw_header_battery(display, display->lcdwidth - 31, 5);
 }
 
 static void list_ipodjs_draw_check(struct screen *display, int x, int y,
@@ -254,33 +264,249 @@ static void list_ipodjs_draw_arrow(struct screen *display, int x, int y)
     ipodjs_ui_draw_arrow(display, x, y, IPODJS_LIST_BG);
 }
 
+static const char *list_ipodjs_title(const char *title)
+{
+    if (title && !strcmp(title, "Database"))
+        return "Music";
+
+    return title;
+}
+
+struct list_ipodjs_render_cache {
+    bool valid;
+    struct gui_synclist *list;
+    void *data;
+    int start;
+    int selected;
+    int selected_size;
+    int nb_items;
+    int row_h;
+    int list_w;
+    int status;
+    int battery;
+    bool charging;
+    bool fast_scroll;
+    int dark;
+    int accent;
+    int font_scale;
+    int density;
+    char title[64];
+};
+
+static struct list_ipodjs_render_cache list_ipodjs_cache;
+
+static void list_ipodjs_draw_row(struct screen *display,
+                                 struct gui_synclist *list, int item,
+                                 int start, int row_h, int list_y,
+                                 int list_w, int font_h,
+                                 bool main_menu_config)
+{
+    const unsigned char *s;
+    unsigned char *entry_name;
+    extern char simplelist_buffer[SIMPLELIST_MAX_LINES *
+                                  SIMPLELIST_MAX_LINELENGTH];
+    int y = list_y + (item - start) * row_h;
+    bool selected = item >= list->selected_item &&
+                    item < list->selected_item + list->selected_size;
+    int text_y = y + (row_h > font_h ? (row_h - font_h) / 2 : 0);
+    bool enabled = false;
+    char config_name[96];
+    unsigned row_bg = list_ipodjs_row_bg();
+    unsigned text = list_ipodjs_text();
+    struct line_desc linedes = LINE_DESC_DEFINIT;
+
+    linedes.height = row_h;
+    linedes.nlines = list->selected_size;
+    s = list->callback_get_item_name(item, list->data, simplelist_buffer,
+                                     sizeof(simplelist_buffer));
+    if (P2ID((unsigned char *)s) > VOICEONLY_DELIMITER)
+        entry_name = (unsigned char *)"";
+    else
+        entry_name = P2STR(s);
+
+    while (*entry_name == '\t')
+        entry_name++;
+
+    if (main_menu_config)
+    {
+        char *suffix;
+        size_t name_len = strlen((const char *)entry_name);
+        enum themable_icons icon = list->callback_get_item_icon(item,
+                                                                 list->data);
+
+        enabled = icon != Icon_NOICON;
+        name_len = MIN(name_len, sizeof(config_name) - 1);
+        memcpy(config_name, entry_name, name_len);
+        config_name[name_len] = '\0';
+        suffix = strrchr(config_name, ':');
+        if (suffix)
+            *suffix = '\0';
+        entry_name = (unsigned char *)config_name;
+    }
+
+    if (selected)
+    {
+        unsigned selected_bg;
+        list_ipodjs_selected_gradient(display, 0, y, list_w,
+                                      row_h, &selected_bg);
+        display->set_foreground(IPODJS_LIST_BG);
+        display->set_background(selected_bg);
+    }
+    else
+    {
+        display->set_foreground(row_bg);
+        display->fillrect(0, y, list_w, row_h);
+        display->set_foreground(text);
+        display->set_background(row_bg);
+        if (y > list_y)
+        {
+            display->set_foreground(global_settings.ui_engine_dark_mode ?
+                LCD_RGBPACK(42, 47, 56) : IPODJS_LIST_SPLIT);
+            display->hline(8, list_w - 9, y);
+            display->set_foreground(text);
+        }
+    }
+
+    if (list->callback_draw_item && !main_menu_config)
+    {
+        enum themable_icons icon = list->callback_get_item_icon ?
+            list->callback_get_item_icon(item, list->data) : Icon_NOICON;
+        struct list_putlineinfo_t list_info = {
+            .x = 0, .y = y, .item_indent = 8, .item_offset = 0,
+            .line = item, .icon = icon, .icon_width = 0,
+            .display = display, .vp = NULL, .linedes = &linedes,
+            .list = list, .dsp_text = entry_name,
+            .is_selected = selected, .is_title = false,
+            .show_cursor = false,
+            .have_icons = list->callback_get_item_icon != NULL
+        };
+
+        list->callback_draw_item(&list_info);
+    }
+    else
+    {
+        list_ipodjs_puts_fit(display, 8, text_y,
+                             list_w - (main_menu_config ? 38 : 28),
+                             (const char *)entry_name);
+    }
+    if (main_menu_config && enabled)
+        list_ipodjs_draw_check(display, list_w - 18,
+                               y + (row_h - 7) / 2,
+                               selected ? IPODJS_LIST_BG : text);
+    else if (selected && !main_menu_config)
+        list_ipodjs_draw_arrow(display, list_w - 14,
+                               y + (row_h - 6) / 2);
+}
+
+static void list_ipodjs_cache_store(struct gui_synclist *list, int start,
+                                    int row_h, int list_w)
+{
+    const char *title = list_ipodjs_title(list->title);
+
+    memset(&list_ipodjs_cache, 0, sizeof(list_ipodjs_cache));
+    list_ipodjs_cache.valid = true;
+    list_ipodjs_cache.list = list;
+    list_ipodjs_cache.data = list->data;
+    list_ipodjs_cache.start = start;
+    list_ipodjs_cache.selected = list->selected_item;
+    list_ipodjs_cache.selected_size = list->selected_size;
+    list_ipodjs_cache.nb_items = list->nb_items;
+    list_ipodjs_cache.row_h = row_h;
+    list_ipodjs_cache.list_w = list_w;
+    list_ipodjs_cache.status = audio_status();
+    list_ipodjs_cache.battery = battery_level();
+    list_ipodjs_cache.charging = charger_inserted();
+    list_ipodjs_cache.fast_scroll = ipodjs_ui_fast_scroll_active();
+    list_ipodjs_cache.dark = global_settings.ui_engine_dark_mode;
+    list_ipodjs_cache.accent = global_settings.ui_engine_accent;
+    list_ipodjs_cache.font_scale = global_settings.ui_engine_font_scale;
+    list_ipodjs_cache.density = global_settings.ui_engine_density;
+    strmemccpy(list_ipodjs_cache.title, title ? title : "",
+               sizeof(list_ipodjs_cache.title));
+}
+
 static void list_ipodjs_draw(struct screen *display,
                              struct gui_synclist *list)
 {
-    int row_h = list->line_height[display->screen_type];
+    int row_h = MAX(1, list->line_height[display->screen_type]);
     int list_y = IPODJS_UI_HEADER_HEIGHT;
     int list_h = display->lcdheight - list_y;
-    int visible = MAX(1, list_h / MAX(1, row_h));
+    int visible = MAX(1, list_h / row_h);
+    int draw_rows = visible;
     int start = list->start_item[display->screen_type];
-    int end = MIN(list->nb_items, start + visible);
+    if ((list_h % row_h) != 0 && start + draw_rows < list->nb_items)
+        draw_rows++;
+    int end = MIN(list->nb_items, start + draw_rows);
     bool main_menu_config = list_ipodjs_main_menu_config(list);
     int list_w = main_menu_config ? display->lcdwidth / 2 : display->lcdwidth;
     unsigned bg = list_ipodjs_bg();
     unsigned row_bg = list_ipodjs_row_bg();
-    unsigned text = list_ipodjs_text();
     unsigned muted = list_ipodjs_muted();
-    struct line_desc linedes = LINE_DESC_DEFINIT;
     int font_h;
 
     display->set_viewport(NULL);
     display->set_drawmode(DRMODE_SOLID);
     display->setfont(list_ipodjs_font());
     font_h = font_get(list_ipodjs_font())->height;
+
+    /* A selection move within the same viewport only damages two rows.
+     * Custom-drawn rows and split/config screens retain the full fallback. */
+    if (list_ipodjs_cache.valid && list_ipodjs_cache.list == list &&
+        list_ipodjs_cache.data == list->data &&
+        list_ipodjs_cache.start == start &&
+        list_ipodjs_cache.nb_items == list->nb_items &&
+        list_ipodjs_cache.row_h == row_h &&
+        list_ipodjs_cache.list_w == list_w &&
+        list_ipodjs_cache.selected_size == 1 && list->selected_size == 1 &&
+        list_ipodjs_cache.selected != list->selected_item &&
+        list_ipodjs_cache.status == audio_status() &&
+        list_ipodjs_cache.battery == battery_level() &&
+        list_ipodjs_cache.charging == charger_inserted() &&
+        list_ipodjs_cache.fast_scroll == ipodjs_ui_fast_scroll_active() &&
+        !ipodjs_ui_fast_scroll_active() &&
+        list_ipodjs_cache.dark == global_settings.ui_engine_dark_mode &&
+        list_ipodjs_cache.accent == global_settings.ui_engine_accent &&
+        list_ipodjs_cache.font_scale == global_settings.ui_engine_font_scale &&
+        list_ipodjs_cache.density == global_settings.ui_engine_density &&
+        !strcmp(list_ipodjs_cache.title,
+                list_ipodjs_title(list->title) ?
+                    list_ipodjs_title(list->title) : "") &&
+        !main_menu_config && !list->callback_draw_item)
+    {
+        int old_item = list_ipodjs_cache.selected;
+        int new_item = list->selected_item;
+
+        if (old_item >= start && old_item < end)
+        {
+            list_ipodjs_draw_row(display, list, old_item, start, row_h,
+                                 list_y, list_w, font_h, false);
+            display->update_rect(0, list_y + (old_item - start) * row_h,
+                                 list_w, row_h);
+            ipodjs_trace_list(list, list_ipodjs_title(list->title),
+                              "row-old", 0,
+                              list_y + (old_item - start) * row_h,
+                              list_w, row_h);
+        }
+        if (new_item >= start && new_item < end)
+        {
+            list_ipodjs_draw_row(display, list, new_item, start, row_h,
+                                 list_y, list_w, font_h, false);
+            display->update_rect(0, list_y + (new_item - start) * row_h,
+                                 list_w, row_h);
+            ipodjs_trace_list(list, list_ipodjs_title(list->title),
+                              "row-new", 0,
+                              list_y + (new_item - start) * row_h,
+                              list_w, row_h);
+        }
+        list_ipodjs_cache_store(list, start, row_h, list_w);
+        return;
+    }
+
     display->set_background(bg);
     display->set_foreground(bg);
     display->clear_display();
 
-    list_ipodjs_header(display, list->title, list_w);
+    list_ipodjs_header(display, list_ipodjs_title(list->title), list_w);
     display->set_foreground(row_bg);
     display->fillrect(0, list_y, list_w, list_h);
     if (main_menu_config)
@@ -292,103 +518,9 @@ static void list_ipodjs_draw(struct screen *display,
             LCD_RGBPACK(45, 50, 58) : IPODJS_LIST_SPLIT);
         display->vline(list_w - 1, 0, display->lcdheight - 1);
     }
-    linedes.height = row_h;
-    linedes.nlines = list->selected_size;
-
     for (int i = start; i < end; i++)
-    {
-        const unsigned char *s;
-        unsigned char *entry_name;
-        extern char simplelist_buffer[SIMPLELIST_MAX_LINES *
-                                      SIMPLELIST_MAX_LINELENGTH];
-        int line = i - start;
-        int y = list_y + line * row_h;
-        bool selected = i >= list->selected_item &&
-                        i < list->selected_item + list->selected_size;
-        int text_y = y + (row_h > font_h ? (row_h - font_h) / 2 : 0);
-        bool enabled = false;
-        char config_name[96];
-
-        s = list->callback_get_item_name(i, list->data, simplelist_buffer,
-                                         sizeof(simplelist_buffer));
-        if (P2ID((unsigned char *)s) > VOICEONLY_DELIMITER)
-            entry_name = "";
-        else
-            entry_name = P2STR(s);
-
-        while (*entry_name == '\t')
-            entry_name++;
-
-        if (main_menu_config)
-        {
-            char *suffix;
-            size_t name_len = strlen((const char *)entry_name);
-            enum themable_icons icon = list->callback_get_item_icon(i,
-                                                                     list->data);
-
-            enabled = icon != Icon_NOICON;
-            name_len = MIN(name_len, sizeof(config_name) - 1);
-            memcpy(config_name, entry_name, name_len);
-            config_name[name_len] = '\0';
-            suffix = strrchr(config_name, ':');
-            if (suffix)
-                *suffix = '\0';
-            entry_name = (unsigned char *)config_name;
-        }
-
-        if (selected)
-        {
-            unsigned selected_bg;
-            list_ipodjs_selected_gradient(display, 0, y, list_w,
-                                          row_h, &selected_bg);
-            display->set_foreground(IPODJS_LIST_BG);
-            display->set_background(selected_bg);
-        }
-        else
-        {
-            display->set_foreground(row_bg);
-            display->fillrect(0, y, list_w, row_h);
-            display->set_foreground(text);
-            display->set_background(row_bg);
-            if (y > list_y)
-            {
-                display->set_foreground(global_settings.ui_engine_dark_mode ?
-                    LCD_RGBPACK(42, 47, 56) : IPODJS_LIST_SPLIT);
-                display->hline(8, list_w - 9, y);
-                display->set_foreground(text);
-            }
-        }
-
-        if (list->callback_draw_item && !main_menu_config)
-        {
-            enum themable_icons icon = list->callback_get_item_icon ?
-                list->callback_get_item_icon(i, list->data) : Icon_NOICON;
-            struct list_putlineinfo_t list_info = {
-                .x = 0, .y = y, .item_indent = 8, .item_offset = 0,
-                .line = i, .icon = icon, .icon_width = 0,
-                .display = display, .vp = NULL, .linedes = &linedes,
-                .list = list, .dsp_text = entry_name,
-                .is_selected = selected, .is_title = false,
-                .show_cursor = false,
-                .have_icons = list->callback_get_item_icon != NULL
-            };
-
-            list->callback_draw_item(&list_info);
-        }
-        else
-        {
-            list_ipodjs_puts_fit(display, 8, text_y,
-                                 list_w - (main_menu_config ? 38 : 28),
-                                 (const char *)entry_name);
-        }
-        if (main_menu_config && enabled)
-            list_ipodjs_draw_check(display, list_w - 18,
-                                   y + (row_h - 7) / 2,
-                                   selected ? IPODJS_LIST_BG : text);
-        else if (selected && !main_menu_config)
-            list_ipodjs_draw_arrow(display, list_w - 14,
-                                   y + (row_h - 6) / 2);
-    }
+        list_ipodjs_draw_row(display, list, i, start, row_h, list_y,
+                             list_w, font_h, main_menu_config);
 
     if (list->nb_items > visible)
     {
@@ -400,7 +532,12 @@ static void list_ipodjs_draw(struct screen *display,
         display->fillrect(list_w - 4, bar_y, 2, bar_h);
     }
 
-    display->update();
+    ipodjs_ui_draw_fast_scroll(display);
+    if (!ipodjs_ui_transition_present(display))
+        display->update();
+    ipodjs_trace_list(list, list_ipodjs_title(list->title), "full",
+                      0, 0, display->lcdwidth, display->lcdheight);
+    list_ipodjs_cache_store(list, start, row_h, list_w);
 }
 #endif
 
@@ -603,6 +740,16 @@ void list_draw(struct screen *display, struct gui_synclist *list)
             end++;
 #else
     #define draw_offset 0
+
+    /* Full-size album rows rarely divide the screen height exactly. Draw
+     * the next row into the remainder and let the viewport clip it; paging
+     * still counts only complete rows, so selection behavior is unchanged. */
+    if (list->force_fullscreen_albumlist &&
+        (list_text_vp->height % linedes.height) != 0 &&
+        end < list->nb_items)
+    {
+        end++;
+    }
 #endif
 
     /* draw the scrollbar if its needed */

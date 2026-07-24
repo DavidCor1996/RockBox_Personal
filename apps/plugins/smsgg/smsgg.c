@@ -1,6 +1,7 @@
 #include "plugin.h"
 
 #include "lib/helper.h"
+#include "lib/rockachievements.h"
 #include "smsgg_audio.h"
 #include "smsgg_core.h"
 #include "smsgg_haptics.h"
@@ -16,6 +17,54 @@ static struct smsgg_settings settings;
 static char sram_path[MAX_PATH];
 static char state_path[MAX_PATH];
 static bool usb_connected;
+static struct rockachievements_runtime achievements;
+
+static uint32_t achievements_peek(uint32_t address, uint32_t num_bytes,
+                                  void *userdata)
+{
+    uint32_t value = 0;
+    uint32_t index;
+
+    (void)userdata;
+    if (num_bytes > 4)
+        num_bytes = 4;
+    for (index = 0; index < num_bytes; ++index)
+    {
+        uint32_t current = address + index;
+        uint8 byte = 0;
+
+        if (current < 0x2000)
+            byte = sms.wram[current];
+        else if (current < 0xa000 && cart.sram != NULL)
+            byte = cart.sram[current - 0x2000];
+        value |= (uint32_t)byte << (index * 8);
+    }
+    return value;
+}
+
+static void achievements_stop(void)
+{
+    rockachievements_shutdown(&achievements);
+}
+
+static void achievements_start(const char *rom_path)
+{
+    void *workspace;
+
+    if (!rockachievements_available(rom_path))
+        return;
+    workspace = smsgg_malloc(ROCKACHIEVEMENTS_WORKSPACE_TARGET);
+    if (workspace != NULL)
+        rockachievements_init(&achievements, rom_path, achievements_peek,
+                              NULL, workspace,
+                              ROCKACHIEVEMENTS_WORKSPACE_TARGET);
+}
+
+static void run_core_frame(bool skip)
+{
+    smsgg_core_run_frame(skip);
+    rockachievements_do_frame(&achievements);
+}
 
 static bool load_rom_path(const char *rom_path)
 {
@@ -26,6 +75,7 @@ static bool load_rom_path(const char *rom_path)
     rb->strlcpy(settings.last_rom, rom_path, sizeof(settings.last_rom));
     smsgg_settings_save(&settings);
 
+    achievements_stop();
     smsgg_platform_reset_temp();
     if (!smsgg_core_load(&core, settings.last_rom, settings.audio_enabled))
     {
@@ -38,8 +88,15 @@ static bool load_rom_path(const char *rom_path)
                                state_path, sizeof(state_path));
     smsgg_core_load_sram(&core, sram_path);
 
+    achievements_start(settings.last_rom);
+
     if (settings.auto_load_state && rb->file_exists(state_path))
-        smsgg_core_load_state(&core, state_path);
+    {
+        if (rockachievements_hardcore_active(&achievements))
+            rb->splash(HZ, "iPod Hardcore: state load blocked");
+        else
+            smsgg_core_load_state(&core, state_path);
+    }
 
     return true;
 }
@@ -91,6 +148,7 @@ static bool handle_menu(void)
             if (settings.auto_save_sram)
                 smsgg_core_save_sram(&core, sram_path);
             smsgg_audio_shutdown();
+            achievements_stop();
             smsgg_core_unload(&core);
             if (!choose_and_load_rom())
                 return false;
@@ -98,6 +156,7 @@ static bool handle_menu(void)
             return true;
         case SMSGG_MENU_RESET:
             smsgg_core_reset(&core);
+            rockachievements_reset(&achievements);
             return true;
         case SMSGG_MENU_SAVE_STATE:
             if (smsgg_core_save_state(&core, state_path))
@@ -109,8 +168,14 @@ static bool handle_menu(void)
                 rb->splash(HZ, "State save failed");
             return true;
         case SMSGG_MENU_LOAD_STATE:
+            if (rockachievements_hardcore_active(&achievements))
+            {
+                rb->splash(HZ, "iPod Hardcore: state load blocked");
+                return true;
+            }
             if (smsgg_core_load_state(&core, state_path))
             {
+                rockachievements_reset(&achievements);
                 smsgg_haptic_load();
                 rb->splash(HZ, "State loaded");
             }
@@ -119,11 +184,11 @@ static bool handle_menu(void)
             return true;
         case SMSGG_MENU_SEND_START:
             smsgg_core_set_buttons(0, INPUT_START);
-            smsgg_core_run_frame(false);
+            run_core_frame(false);
             return true;
         case SMSGG_MENU_SEND_PAUSE:
             smsgg_core_set_buttons(0, INPUT_PAUSE);
-            smsgg_core_run_frame(false);
+            run_core_frame(false);
             smsgg_haptic_pause();
             return true;
         case SMSGG_MENU_QUIT:
@@ -174,7 +239,7 @@ static void run_emulator(void)
             skip = (frames % (settings.frameskip + 1)) != 0;
 
         smsgg_core_set_buttons(istate.pad, istate.system);
-        smsgg_core_run_frame(skip);
+        run_core_frame(skip);
         smsgg_audio_submit_frame();
 
         if (!skip)
@@ -243,6 +308,7 @@ enum plugin_status plugin_start(const void *parameter)
         smsgg_core_save_sram(&core, sram_path);
 
     smsgg_audio_shutdown();
+    achievements_stop();
     smsgg_core_unload(&core);
     smsgg_input_shutdown();
     smsgg_settings_save(&settings);

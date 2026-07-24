@@ -29,6 +29,14 @@ def test_profile_persistence(tmp_dir):
     assert current["selected_theme"] == "iPone"
 
 
+def test_profile_preserves_all_authentic_avatar_motion_choices(tmp_dir):
+    _config, store = _make_store(tmp_dir)
+    for clip in ("jump", "throw", "faint", "sit-idle", "punch", "kick", "walk"):
+        profile = store.current_profile()
+        profile["xbox_avatar_favorite_clip"] = clip
+        assert store.save_profile(profile)["xbox_avatar_favorite_clip"] == clip
+
+
 def test_theme_filtering_by_resolution(tmp_dir):
     _config, store = _make_store(tmp_dir)
     service = RockboxThemeService()

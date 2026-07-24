@@ -100,6 +100,7 @@ from services.rockbox_tagcache import (
 from services.rockbox_simulator import RockboxSimulatorService
 from services.rockbox_themes import RockboxThemeService, THEME_DEFINITIONS
 from services.linux_payload import DEBIAN_LIVE_XFCE_ISO, LinuxPayloadService
+from services.android_installer import AndroidInstallerError, AndroidInstallerService
 from services.theme_designer import ThemeDesignerService
 from services.online_album_metadata import AlbumMetadataFetcher
 from services.youtube_import_metadata import (
@@ -123,9 +124,11 @@ from ui.track_adapter import normalize_track_for_ui, normalize_tracks_for_ui
 from ui.simulator_panel import SimulatorPanel
 from ui.plugin_manager import PluginManagerWidget
 from ui.game_manager import GameManagerWidget
+from ui.xbox_avatar_editor import XboxAvatarEditorWidget
 from ui.photo_manager import PhotoManagerWidget
 from ui.ipone_wallpaper_manager import IPoneWallpaperManagerWidget
 from ui.linux_manager import LinuxInstallProgressDialog, LinuxManagerWidget
+from ui.android_manager import AndroidManagerWidget
 from ui.web_browser import BrowserPanel, MovieStorePanel, MusicSharingPanel
 from ui.boot_manager import BootManagerWidget
 from ui.theme_hub import ThemeHubWidget
@@ -203,6 +206,7 @@ class MainWindow(QMainWindow):
         self._rockbox_plugins = RockboxPluginService()
         self._rockbox_simulator = RockboxSimulatorService()
         self._linux_payload = LinuxPayloadService()
+        self._android_installer = AndroidInstallerService(self._repo_root)
         self._album_metadata_fetcher = AlbumMetadataFetcher(self._config, self)
 
         self._current_view = "library_music"
@@ -397,8 +401,10 @@ class MainWindow(QMainWindow):
         self._boot_manager = BootManagerWidget()
         self._plugin_manager = PluginManagerWidget()
         self._game_manager = GameManagerWidget()
+        self._avatar_editor = XboxAvatarEditorWidget(self._repo_root)
         self._photo_manager = PhotoManagerWidget()
         self._linux_manager = LinuxManagerWidget()
+        self._android_manager = AndroidManagerWidget()
         self._browser_panel = BrowserPanel()
         self._music_sharing_panel = MusicSharingPanel()
         self._movie_store_panel = MovieStorePanel()
@@ -440,9 +446,11 @@ class MainWindow(QMainWindow):
         self._content_stack.addWidget(self._boot_manager)
         self._content_stack.addWidget(self._plugin_manager)
         self._content_stack.addWidget(self._game_manager)
+        self._content_stack.addWidget(self._avatar_editor)
         self._content_stack.addWidget(self._store_page)
         self._content_stack.addWidget(self._photo_manager)
         self._content_stack.addWidget(self._linux_manager)
+        self._content_stack.addWidget(self._android_manager)
         self._content_stack.addWidget(self._simulator_panel)
         self._content_stack.addWidget(self._website_sync_panel)
         content_layout.addWidget(self._content_stack)
@@ -491,7 +499,7 @@ class MainWindow(QMainWindow):
         self._browser_action.toggled.connect(self._toggle_column_browser)
         self._browser_action.setShortcut("Ctrl+B")
         view_menu.addAction(self._browser_action)
-        self._show_hidden_wallpapers_action = QAction("Show Hidden Wallpapers/Photos", self)
+        self._show_hidden_wallpapers_action = QAction("Show Hidden Wallpapers/Photos/Videos", self)
         self._show_hidden_wallpapers_action.setCheckable(True)
         self._show_hidden_wallpapers_action.setChecked(False)
         self._show_hidden_wallpapers_action.toggled.connect(self._toggle_hidden_wallpapers)
@@ -555,6 +563,8 @@ class MainWindow(QMainWindow):
         self._video_sync_panel.force_repair_requested.connect(self._force_repair_video_track_ids)
         self._video_sync_panel.remove_requested.connect(self._remove_video_track_ids_from_device)
         self._video_sync_panel.delete_requested.connect(self._delete_video_track_ids)
+        self._video_sync_panel.hide_requested.connect(self._toggle_video_hidden_ids)
+        self._video_sync_panel.lock_requested.connect(self._toggle_video_locked_ids)
         self._video_sync_panel.context_requested.connect(self._on_video_sync_context_menu)
 
         # Library browser views
@@ -608,6 +618,9 @@ class MainWindow(QMainWindow):
         self._game_manager.profile_selected.connect(self._on_game_profile_selected)
         self._game_manager.target_mode_selected.connect(self._on_game_target_mode_selected)
         self._game_manager.choose_library_requested.connect(self._choose_game_library)
+        self._game_manager.choose_genesis_library_requested.connect(
+            self._choose_genesis_game_library
+        )
         self._game_manager.refresh_requested.connect(self._refresh_game_manager)
         self._game_manager.selection_changed.connect(self._on_game_selection_changed)
         self._game_manager.dry_run_requested.connect(self._dry_run_game_sync)
@@ -622,6 +635,16 @@ class MainWindow(QMainWindow):
         self._game_manager.optimize_cover_requested.connect(self._optimize_selected_game_cover)
         self._game_manager.launch_simulator_requested.connect(self._launch_selected_game_in_simulator)
         self._game_manager.default_games_changed.connect(self._on_game_default_visibility_changed)
+        self._game_manager.achievements_settings_changed.connect(
+            self._on_achievement_settings_changed
+        )
+        self._game_manager.avatar_creator_requested.connect(
+            lambda: self._on_sidebar_selection(
+                "rockbox", "rockbox_achievements_avatar"
+            )
+        )
+        self._avatar_editor.profile_saved.connect(self._on_avatar_profile_saved)
+        self._avatar_editor.sync_requested.connect(self._sync_avatar_profile)
         self._photo_manager.profile_selected.connect(self._on_photo_profile_selected)
         self._photo_manager.target_mode_selected.connect(self._on_photo_target_mode_selected)
         self._photo_manager.choose_library_requested.connect(self._choose_photo_library)
@@ -663,6 +686,12 @@ class MainWindow(QMainWindow):
         self._linux_manager.start_requested.connect(self._start_linux_vm)
         self._linux_manager.provision_requested.connect(self._provision_linux_vm)
         self._linux_manager.uninstall_requested.connect(self._uninstall_linux_payload)
+        self._android_manager.dry_run_requested.connect(self._dry_run_android_image)
+        self._android_manager.fixture_requested.connect(self._create_android_fixture)
+        self._android_manager.commit_image_requested.connect(self._commit_android_image_layout)
+        self._android_manager.verify_image_requested.connect(self._verify_android_image_layout)
+        self._android_manager.rollback_image_requested.connect(self._rollback_android_image_layout)
+        self._android_manager.stage_boot_requested.connect(self._stage_android_ram_boot)
 
         # Device summary
         self._device_summary.sync_clicked.connect(self._start_sync)
@@ -971,6 +1000,8 @@ class MainWindow(QMainWindow):
             tracks = []
         elif self._current_view == "rockbox_game_sync":
             tracks = []
+        elif self._current_view == "rockbox_achievements_avatar":
+            tracks = []
         elif self._current_view == "rockbox_games":
             tracks = []
         elif self._current_view == "rockbox_photos":
@@ -1053,15 +1084,45 @@ class MainWindow(QMainWindow):
         al = self._current_filter_album
 
         if not g and not a and not al:
-            return self._db.get_all_tracks() if media_type == "audio" else self._db.get_tracks_by_media_type(media_type, order_by="artist, album, disc_number, track_number, title")
-        return self._db.get_tracks_for_browser_filters(media_type=media_type, genre=g, artist=a, album=al)
+            tracks = (
+                self._db.get_all_tracks()
+                if media_type == "audio"
+                else self._db.get_tracks_by_media_type(
+                    media_type,
+                    order_by="artist, album, disc_number, track_number, title",
+                )
+            )
+        else:
+            tracks = self._db.get_tracks_for_browser_filters(
+                media_type=media_type,
+                genre=g,
+                artist=a,
+                album=al,
+            )
+        if media_type == "video" and not self._show_hidden_wallpapers:
+            return [row for row in tracks if not bool(dict(row).get("video_hidden"))]
+        return tracks
 
     def _refresh_browser(self):
         """Update the column browser pane lists."""
         media_type = self._library_media_type() if self._current_view.startswith("library_") else "audio"
-        genres = self._db.get_distinct_genres(media_type=media_type)
-        artists = self._db.get_distinct_artists(media_type=media_type)
-        albums = self._db.get_distinct_albums(media_type=media_type)
+        if media_type == "video" and not self._show_hidden_wallpapers:
+            rows = [dict(row) for row in self._db.get_tracks_by_media_type("video")]
+            rows = [row for row in rows if not bool(row.get("video_hidden"))]
+            genres = sorted({str(row.get("genre") or "") for row in rows if row.get("genre")}, key=str.casefold)
+            artists = sorted(
+                {
+                    str(row.get("artist") or row.get("album_artist") or "")
+                    for row in rows
+                    if row.get("artist") or row.get("album_artist")
+                },
+                key=str.casefold,
+            )
+            albums = sorted({str(row.get("album") or "") for row in rows if row.get("album")}, key=str.casefold)
+        else:
+            genres = self._db.get_distinct_genres(media_type=media_type)
+            artists = self._db.get_distinct_artists(media_type=media_type)
+            albums = self._db.get_distinct_albums(media_type=media_type)
         self._column_browser.set_genres(genres)
         self._column_browser.set_artists(artists)
         self._column_browser.set_albums(albums)
@@ -1166,11 +1227,13 @@ class MainWindow(QMainWindow):
             "rockbox_boot": "Boot / Branding",
             "rockbox_plugins": "Plugins",
             "rockbox_game_sync": "Game Sync",
+            "rockbox_achievements_avatar": "Achievements & Avatar",
             "rockbox_games": "Store",
             "rockbox_movies": "Store",
             "rockbox_sharing": "Store",
             "rockbox_photos": "Photos",
             "rockbox_linux": "Linux",
+            "rockbox_android": "Android on iPod",
             "rockbox_browser": "Store",
             "rockbox_website_sync": "Website Sync",
             "rockbox_simulator": "Simulator",
@@ -1431,6 +1494,9 @@ class MainWindow(QMainWindow):
         elif self._current_view == "rockbox_game_sync":
             self._content_stack.setCurrentWidget(self._game_manager)
             self._refresh_game_manager()
+        elif self._current_view == "rockbox_achievements_avatar":
+            self._content_stack.setCurrentWidget(self._avatar_editor)
+            self._refresh_avatar_editor()
         elif self._current_view == "rockbox_games":
             self._content_stack.setCurrentWidget(self._store_page)
             self._store_page.setCurrentWidget(self._game_browser_panel)
@@ -1445,6 +1511,9 @@ class MainWindow(QMainWindow):
         elif self._current_view == "rockbox_linux":
             self._content_stack.setCurrentWidget(self._linux_manager)
             self._refresh_linux_manager()
+        elif self._current_view == "rockbox_android":
+            self._content_stack.setCurrentWidget(self._android_manager)
+            self._refresh_android_manager()
         elif self._current_view == "rockbox_browser":
             self._content_stack.setCurrentWidget(self._store_page)
             self._store_page.setCurrentWidget(self._browser_panel)
@@ -1703,7 +1772,6 @@ class MainWindow(QMainWindow):
         scanned = dict(scanned_track or {})
         for field in (
             "media_type",
-            "video_kind",
             "file_size",
             "last_modified",
             "title",
@@ -2059,6 +2127,15 @@ class MainWindow(QMainWindow):
 
         track_id = int(video.get("id") or 0)
         if track_id:
+            hidden_label = "Unhide This Video" if video.get("video_hidden") else "Hide This Video"
+            locked_label = (
+                "Move to Normal iPod Folder"
+                if video.get("video_locked")
+                else "Lock & Hide on iPod"
+            )
+            menu.addAction(hidden_label, lambda: self._toggle_video_hidden_ids({track_id}))
+            menu.addAction(locked_label, lambda: self._toggle_video_locked_ids({track_id}))
+            menu.addSeparator()
             menu.addAction("Sync This Video", lambda: self._sync_video_track_ids({track_id}))
             if video.get("synced_to_device"):
                 menu.addAction(
@@ -2110,6 +2187,22 @@ class MainWindow(QMainWindow):
                     "Inspect Poster",
                     lambda target=video_target: self._show_artwork_debug_for(target),
                 )
+                video_ids = {
+                    int(track.get("id") or 0)
+                    for track in tracks
+                    if int(track.get("id") or 0)
+                }
+                if video_ids:
+                    all_hidden = all(bool(track.get("video_hidden")) for track in tracks)
+                    all_locked = all(bool(track.get("video_locked")) for track in tracks)
+                    menu.addAction(
+                        "Unhide Video" if all_hidden else "Hide Video",
+                        lambda ids=video_ids: self._toggle_video_hidden_ids(ids),
+                    )
+                    menu.addAction(
+                        "Move to Normal iPod Folder" if all_locked else "Lock & Hide on iPod",
+                        lambda ids=video_ids: self._toggle_video_locked_ids(ids),
+                    )
                 menu.addSeparator()
 
         # Add to playlist submenu
@@ -2746,19 +2839,31 @@ class MainWindow(QMainWindow):
                     "video_scope": "show",
                 }
             )
-        for track in grouped["movie"]:
-            track = normalize_track_for_ui(track)
-            targets.append(
-                {
-                    "group_key": str(track.get("video_group_key") or track.get("file_path") or track.get("title") or "movie"),
-                    "album": str(track.get("title") or track.get("album") or "Untitled Movie"),
-                    "artist": str(track.get("artist") or track.get("album_artist") or ""),
-                    "tracks": [track],
-                    "media_type": "video",
-                    "video_kind": "movie",
-                    "video_scope": "movie",
-                }
-            )
+        for kind in ("movie", "music_video", "home_video"):
+            for track in grouped[kind]:
+                track = normalize_track_for_ui(track)
+                targets.append(
+                    {
+                        "group_key": str(
+                            track.get("video_group_key")
+                            or track.get("file_path")
+                            or track.get("title")
+                            or kind
+                        ),
+                        "album": str(
+                            track.get("title")
+                            or track.get("album")
+                            or "Untitled Video"
+                        ),
+                        "artist": str(
+                            track.get("artist") or track.get("album_artist") or ""
+                        ),
+                        "tracks": [track],
+                        "media_type": "video",
+                        "video_kind": kind,
+                        "video_scope": kind,
+                    }
+                )
         return targets
 
     def _regenerate_ipod_artwork(self):
@@ -3193,12 +3298,16 @@ class MainWindow(QMainWindow):
             self._refresh_plugin_manager()
         elif self._current_view == "rockbox_game_sync":
             self._refresh_game_manager()
+        elif self._current_view == "rockbox_achievements_avatar":
+            self._refresh_avatar_editor()
         elif self._current_view == "rockbox_games":
             self._refresh_game_browser_panel()
         elif self._current_view == "rockbox_photos":
             self._refresh_photo_manager()
         elif self._current_view == "rockbox_linux":
             self._refresh_linux_manager()
+        elif self._current_view == "rockbox_android":
+            self._refresh_android_manager()
         elif self._current_view == "rockbox_simulator":
             self._refresh_simulator_panel()
 
@@ -3733,12 +3842,13 @@ class MainWindow(QMainWindow):
         dialog.exec()
 
     def _refresh_video_sync_panel(self):
-        videos = self._video_sync_candidates(
-            self._db.get_tracks_by_media_type(
-                "video",
-                order_by="artist, album, disc_number, track_number, title",
-            )
+        rows = self._db.get_tracks_by_media_type(
+            "video",
+            order_by="artist, album, disc_number, track_number, title",
         )
+        if not self._show_hidden_wallpapers:
+            rows = [row for row in rows if not bool(dict(row).get("video_hidden"))]
+        videos = self._video_sync_candidates(rows)
         self._video_sync_panel.set_videos(videos)
         if not videos:
             self._video_sync_panel.set_status("No videos in the library. Add movies from the Store or scan your video folders.")
@@ -3779,6 +3889,7 @@ class MainWindow(QMainWindow):
             else:
                 item["video_sync_label"] = {
                     "show": "TV Shows",
+                    "music_video": "Music Videos",
                     "home_video": "Home Videos",
                     "movie": "Movies",
                 }.get(kind, "Videos")
@@ -3809,8 +3920,88 @@ class MainWindow(QMainWindow):
         return [
             dict(row)
             for row in self._db.get_tracks_by_ids(ids, media_type=None)
-            if str(row.get("media_type") or "") == "video"
+            if str(dict(row).get("media_type") or "") == "video"
         ]
+
+    def _toggle_video_hidden_ids(self, track_ids):
+        rows = self._video_rows_for_ids(track_ids)
+        if not rows:
+            return
+        hidden = not all(bool(row.get("video_hidden")) for row in rows)
+        for row in rows:
+            self._db.update_track_metadata(row["id"], {"video_hidden": int(hidden)})
+        self._db.commit()
+        self._refresh_view()
+        self._refresh_browser()
+        self._refresh_video_sync_panel()
+        action = "Hidden" if hidden else "Unhidden"
+        self._status_bar.set_left_text(
+            f"{action} {len(rows)} video{'s' if len(rows) != 1 else ''}"
+        )
+
+    def _toggle_video_locked_ids(self, track_ids):
+        rows = self._video_rows_for_ids(track_ids)
+        if not rows:
+            return
+        locked = not all(bool(row.get("video_locked")) for row in rows)
+        if locked and not self._ensure_video_locked_pin():
+            return
+        for row in rows:
+            updates = {"video_locked": int(locked)}
+            if locked:
+                updates["video_hidden"] = 1
+            self._db.update_track_metadata(row["id"], updates)
+        self._db.commit()
+        self._refresh_view()
+        self._refresh_browser()
+        self._refresh_video_sync_panel()
+        action = "Locked" if locked else "Moved to the normal iPod video folder"
+        self._status_bar.set_left_text(
+            f"{action} {len(rows)} video{'s' if len(rows) != 1 else ''}"
+        )
+
+    def _ensure_video_locked_pin(self):
+        configured = str(self._device_config_value("video_locked_pin", "") or "").strip()
+        if len(configured) == 4 and configured.isdigit():
+            return True
+
+        profile = self._rockbox_profiles.current_profile()
+        mount_path = str((profile or {}).get("device_mount_path") or "").strip()
+        photos_locks = os.path.join(mount_path, ".rockbox", "rocks", "apps", "photos.locks")
+        if mount_path and os.path.isfile(photos_locks):
+            try:
+                with open(photos_locks, "r", encoding="utf-8", errors="replace") as handle:
+                    for line in handle:
+                        candidate = line.rstrip("\r\n").rsplit("|", 1)[-1].strip()
+                        if len(candidate) == 4 and candidate.isdigit():
+                            self._set_device_scoped_setting("video_locked_pin", candidate)
+                            return True
+            except OSError:
+                logger.warning("Could not read the connected iPod photo lock file", exc_info=True)
+
+        pin, ok = QInputDialog.getText(
+            self,
+            "Set Locked Videos PIN",
+            "Enter a 4-digit PIN for Locked Videos on the iPod:",
+            QLineEdit.Password,
+        )
+        pin = str(pin or "").strip()
+        if not ok:
+            return False
+        if len(pin) != 4 or not pin.isdigit():
+            QMessageBox.warning(self, "Set Locked Videos PIN", "The PIN must contain exactly 4 digits.")
+            return False
+        confirm, ok = QInputDialog.getText(
+            self,
+            "Set Locked Videos PIN",
+            "Confirm the 4-digit PIN:",
+            QLineEdit.Password,
+        )
+        if not ok or pin != str(confirm or "").strip():
+            QMessageBox.warning(self, "Set Locked Videos PIN", "PINs do not match.")
+            return False
+        self._set_device_scoped_setting("video_locked_pin", pin)
+        return True
 
     def _remove_video_track_ids_from_device(self, track_ids):
         rows = self._video_rows_for_ids(track_ids)
@@ -5972,6 +6163,9 @@ class MainWindow(QMainWindow):
         self._show_hidden_wallpapers = checked
         self._refresh_ipone_wallpapers()
         self._refresh_photo_manager()
+        self._refresh_browser()
+        self._refresh_view()
+        self._refresh_video_sync_panel()
 
     def _ensure_hidden_wallpaper_password(self):
         stored_hash = str(self._config.get("hidden_wallpapers_password_hash", "") or "")
@@ -5979,7 +6173,7 @@ class MainWindow(QMainWindow):
             return self._set_hidden_wallpaper_password()
         password, ok = QInputDialog.getText(
             self,
-            "Show Hidden Wallpapers/Photos",
+            "Show Hidden Wallpapers/Photos/Videos",
             "Password:",
             QLineEdit.Password,
         )
@@ -5987,13 +6181,13 @@ class MainWindow(QMainWindow):
             return False
         if self._verify_hidden_wallpaper_password(password):
             return True
-        QMessageBox.warning(self, "Show Hidden Wallpapers/Photos", "Incorrect password.")
+        QMessageBox.warning(self, "Show Hidden Wallpapers/Photos/Videos", "Incorrect password.")
         return False
 
     def _set_hidden_wallpaper_password(self):
         password, ok = QInputDialog.getText(
             self,
-            "Set Hidden Wallpapers/Photos Password",
+            "Set Hidden Wallpapers/Photos/Videos Password",
             "Create password:",
             QLineEdit.Password,
         )
@@ -6001,18 +6195,18 @@ class MainWindow(QMainWindow):
             return False
         password = str(password or "")
         if not password:
-            QMessageBox.warning(self, "Set Hidden Wallpapers/Photos Password", "Password cannot be empty.")
+            QMessageBox.warning(self, "Set Hidden Wallpapers/Photos/Videos Password", "Password cannot be empty.")
             return False
         confirm, ok = QInputDialog.getText(
             self,
-            "Set Hidden Wallpapers/Photos Password",
+            "Set Hidden Wallpapers/Photos/Videos Password",
             "Confirm password:",
             QLineEdit.Password,
         )
         if not ok:
             return False
         if password != str(confirm or ""):
-            QMessageBox.warning(self, "Set Hidden Wallpapers/Photos Password", "Passwords do not match.")
+            QMessageBox.warning(self, "Set Hidden Wallpapers/Photos/Videos Password", "Passwords do not match.")
             return False
         salt = secrets.token_bytes(16)
         digest = hashlib.pbkdf2_hmac("sha256", password.encode("utf-8"), salt, 120_000)
@@ -7369,11 +7563,16 @@ class MainWindow(QMainWindow):
             f"{len(games)} games indexed · newest added first",
             self._rockbox_games.settings_guidance(profile),
             latest_backup_text,
+            profile.get("games_genesis_library_path", ""),
         )
         self._game_manager.set_default_game_visibility(
             profile.get("games_show_builtin_doom", True),
             profile.get("games_show_builtin_stickrpg", True),
             profile.get("games_show_builtin_runescape", True),
+        )
+        self._game_manager.set_achievement_settings(
+            profile.get("retroachievements_username", ""),
+            profile.get("retroachievements_web_api_key", ""),
         )
         selected_ids = [game["id"] for game in self._game_manager.selected_games()]
         self._game_manager.set_games(games, selected_ids)
@@ -7391,6 +7590,94 @@ class MainWindow(QMainWindow):
     def _on_game_target_mode_selected(self, target_mode):
         self._current_game_target_mode = target_mode or "device"
         self._refresh_game_manager()
+
+    def _on_achievement_settings_changed(self, username, api_key):
+        profile = self._rockbox_profiles.current_profile()
+        if not profile:
+            return
+        profile["retroachievements_username"] = username
+        profile["retroachievements_web_api_key"] = api_key
+        self._config.set("retroachievements_username", username)
+        self._config.set("retroachievements_web_api_key", api_key)
+        self._config.save()
+        self._rockbox_profiles.save_profile(profile)
+        self._status_bar.set_left_text(
+            "Achievement settings saved; the next game sync updates all sets"
+        )
+
+    def _refresh_avatar_editor(self):
+        profile = self._rockbox_profiles.current_profile()
+        if not profile:
+            self._avatar_editor.set_profile({})
+            self._avatar_editor.set_achievement_totals({})
+            return
+        self._avatar_editor.set_profile(profile)
+        sim_target = self._simulator_target_by_id(profile.get("simulator_target"))
+        mount_root = self._rockbox_games.mount_root(
+            profile, self._current_game_target_mode, sim_target
+        )
+        totals = (
+            self._rockbox_games.mounted_achievement_totals(mount_root)
+            if mount_root else {}
+        )
+        self._avatar_editor.set_achievement_totals(totals)
+
+    def _on_avatar_profile_saved(self, values):
+        profile = self._rockbox_profiles.current_profile()
+        if not profile:
+            return
+        profile.update(dict(values or {}))
+        for key in (
+            "xbox_avatar_display_name",
+            "xbox_avatar_body",
+            "xbox_avatar_favorite_clip",
+            "xbox_avatar_skin",
+            "xbox_avatar_hair",
+            "xbox_avatar_top",
+            "xbox_avatar_bottom",
+            "xbox_avatar_shoes",
+        ):
+            self._config.set(key, profile.get(key))
+        self._config.save()
+        self._rockbox_profiles.save_profile(profile)
+        self._status_bar.set_left_text("Xbox avatar profile saved")
+
+    def _sync_avatar_profile(self):
+        profile = self._rockbox_profiles.current_profile()
+        if not profile:
+            self._status_bar.set_left_text("No Rockbox profile is selected")
+            return
+        sim_target = self._simulator_target_by_id(profile.get("simulator_target"))
+        try:
+            deploy_profile = self._rockbox_games.deploy_profile(
+                profile, self._current_game_target_mode, sim_target
+            )
+            bundle = self._rockbox_games.build_avatar_bundle(
+                profile, self._current_game_target_mode, sim_target
+            )
+            diff = self._rockbox_deploy.build_diff(deploy_profile, bundle)
+            result = self._rockbox_deploy.apply_diff(deploy_profile, diff)
+        except (OSError, ValueError) as exc:
+            self._status_bar.set_left_text("Xbox avatar sync failed")
+            QMessageBox.warning(self, "Avatar Sync Failed", str(exc))
+            return
+        if result["success"]:
+            self._status_bar.set_left_text(
+                f"Xbox avatar synced: {result['copied_count']} files"
+            )
+            QMessageBox.information(
+                self,
+                "Avatar Synced",
+                f"Copied {result['copied_count']} files\n"
+                f"Generation: {bundle['coverage']['generation']}\n"
+                f"Backup: {result['backup_dir']}",
+            )
+        else:
+            self._status_bar.set_left_text("Xbox avatar sync failed")
+            QMessageBox.warning(
+                self, "Avatar Sync Failed", "\n".join(result["failures"])
+            )
+        self._refresh_avatar_editor()
 
     def _on_game_default_visibility_changed(self):
         profile = self._rockbox_profiles.current_profile()
@@ -7428,7 +7715,7 @@ class MainWindow(QMainWindow):
             return
         path = QFileDialog.getExistingDirectory(
             self,
-            "Choose Rockboy ROM Folder",
+            "Choose General ROM Folder",
             profile.get("games_library_path") or self._config.get("games_library_path", ""),
         )
         if not path:
@@ -7437,6 +7724,26 @@ class MainWindow(QMainWindow):
         self._rockbox_profiles.save_profile(profile)
         self._refresh_game_manager()
         self._refresh_game_browser_panel()
+
+    def _choose_genesis_game_library(self):
+        profile = self._rockbox_profiles.current_profile()
+        if not profile:
+            return
+        path = QFileDialog.getExistingDirectory(
+            self,
+            "Choose Genesis / Mega Drive ROM Folder",
+            profile.get("games_genesis_library_path")
+            or self._config.get("games_genesis_library_path", "")
+            or profile.get("games_library_path")
+            or os.path.expanduser("~"),
+        )
+        if not path:
+            return
+        profile["games_genesis_library_path"] = path
+        self._config.set("games_genesis_library_path", path)
+        self._config.save()
+        self._rockbox_profiles.save_profile(profile)
+        self._refresh_game_manager()
 
     def _on_game_selection_changed(self):
         profile = self._rockbox_profiles.current_profile()
@@ -7878,6 +8185,140 @@ class MainWindow(QMainWindow):
             self._linux_cache_dir(),
             DEBIAN_LIVE_XFCE_ISO.replace(".iso", "-vm-stage"),
         )
+
+    def _refresh_android_manager(self):
+        try:
+            self._android_manager.set_helper_status(self._android_installer.hello())
+        except AndroidInstallerError as error:
+            self._android_manager.set_error(str(error))
+        try:
+            self._android_manager.set_ramdiag_status(
+                self._android_installer.ramdiag_bundle_status()
+            )
+        except AndroidInstallerError as error:
+            self._android_manager.set_ramdiag_error(str(error))
+        try:
+            self._android_manager.set_eclair_native_status(
+                self._android_installer.eclair_native_bundle_status()
+            )
+        except AndroidInstallerError as error:
+            self._android_manager.set_eclair_native_error(str(error))
+
+    def _dry_run_android_image(self, image_path, android_size_mib, sector_size):
+        if not image_path:
+            self._android_manager.set_error("Choose a regular disk-image file first.")
+            return
+        try:
+            plan = self._android_installer.plan_image(
+                image_path,
+                android_size_mib=android_size_mib,
+                sector_size=sector_size,
+            )
+        except AndroidInstallerError as error:
+            self._android_manager.set_error(str(error))
+            self._status_bar.set_left_text("Android image dry run failed safely")
+            return
+        self._android_manager.set_plan(plan)
+        ready = plan["safety"]["ready_for_image_layout_commit"]
+        state = "passed" if ready else "stopped at a safety gate"
+        self._status_bar.set_left_text(f"Android image dry run {state}; hardware remains locked")
+
+    def _stage_android_ram_boot(self):
+        device = self._device_detector.current_device
+        mount_path = getattr(device, "mount_path", "") if device else ""
+        if not mount_path:
+            self._android_manager.set_error("Connect and mount a Rockbox iPod first.")
+            return
+        answer = QMessageBox.question(
+            self,
+            "Stage Android RAM Boot",
+            "Create three checksum-wrapped files under .rockbox/android on the connected "
+            "iPod? This does not replace Rockbox, resize the filesystem, alter partitions, "
+            "or write the bootloader/NOR.",
+            QMessageBox.Yes | QMessageBox.Cancel,
+            QMessageBox.Cancel,
+        )
+        if answer != QMessageBox.Yes:
+            return
+        try:
+            result = self._android_installer.install_eclair_boot_files(mount_path)
+        except AndroidInstallerError as error:
+            self._android_manager.set_error(str(error))
+            self._status_bar.set_left_text("Android RAM-boot staging stopped safely")
+            return
+        self._android_manager.set_stage_result(result)
+        self._status_bar.set_left_text(
+            "Android RAM-boot files staged; partition table, Rockbox, and NOR preserved"
+        )
+
+    def _create_android_fixture(
+        self,
+        image_path,
+        size_mib,
+        android_size_mib,
+        sector_size,
+        pre_shrunk,
+    ):
+        try:
+            event = self._android_installer.create_fixture(
+                image_path,
+                size_mib=size_mib,
+                android_size_mib=android_size_mib,
+                sector_size=sector_size,
+                pre_shrunk=pre_shrunk,
+            )
+        except AndroidInstallerError as error:
+            self._android_manager.set_error(str(error))
+            self._status_bar.set_left_text("Android test-image creation failed safely")
+            return
+        self._android_manager.set_fixture_created(event)
+        self._status_bar.set_left_text("Sparse Android qualification image created")
+
+    def _commit_android_image_layout(
+        self,
+        image_path,
+        expected_plan_digest,
+        android_size_mib,
+        sector_size,
+    ):
+        try:
+            event = self._android_installer.commit_image_layout(
+                image_path,
+                expected_plan_digest,
+                android_size_mib=android_size_mib,
+                sector_size=sector_size,
+            )
+            self._android_manager.set_transaction_result(event)
+            self._dry_run_android_image(image_path, android_size_mib, sector_size)
+        except AndroidInstallerError as error:
+            self._android_manager.set_error(str(error))
+            self._status_bar.set_left_text("Android test-image commit failed safely")
+
+    def _verify_android_image_layout(self, image_path, android_size_mib, sector_size):
+        try:
+            event = self._android_installer.verify_image_layout(
+                image_path,
+                android_size_mib=android_size_mib,
+                sector_size=sector_size,
+            )
+            self._android_manager.set_transaction_result(event)
+            self._dry_run_android_image(image_path, android_size_mib, sector_size)
+        except AndroidInstallerError as error:
+            self._android_manager.set_error(str(error))
+            self._status_bar.set_left_text("Android test-image verification failed safely")
+
+    def _rollback_android_image_layout(self, image_path, android_size_mib, sector_size):
+        try:
+            event = self._android_installer.rollback_image_layout(
+                image_path,
+                android_size_mib=android_size_mib,
+                sector_size=sector_size,
+            )
+            self._android_manager.set_transaction_result(event)
+            self._dry_run_android_image(image_path, android_size_mib, sector_size)
+        except AndroidInstallerError as error:
+            self._android_manager.set_error(str(error))
+            self._status_bar.set_left_text("Android test-image rollback failed safely")
 
     def _refresh_linux_manager(self):
         device = self._device_detector.current_device

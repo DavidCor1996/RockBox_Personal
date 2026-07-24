@@ -1,0 +1,57 @@
+/dts-v1/;
+
+/ {
+	description = "Rockpod N25 storage-free Android 2.0 native diagnostic";
+	#address-cells = <1>;
+
+	images {
+		kernel {
+			description = "ARMv5TE Linux with Binder and no block layer";
+			data = /incbin/("@KERNEL@");
+			type = "kernel";
+			arch = "arm";
+			os = "linux";
+			compression = "none";
+			load = <0x08008000>;
+			entry = <0x08008000>;
+			hash-1 {
+				algo = "sha256";
+			};
+		};
+
+		ramdisk {
+			description = "Android 2.0 Bionic native RAM-only root";
+			data = /incbin/("@INITRAMFS@");
+			type = "ramdisk";
+			arch = "arm";
+			os = "linux";
+			compression = "gzip";
+			load = <0x09c00000>;
+			hash-1 {
+				algo = "sha256";
+			};
+		};
+
+		fdt {
+			description = "Apple N25 Eclair native no-storage device tree";
+			data = /incbin/("@DTB@");
+			type = "flat_dt";
+			arch = "arm";
+			compression = "none";
+			load = <0x0ad00000>;
+			hash-1 {
+				algo = "sha256";
+			};
+		};
+	};
+
+	configurations {
+		default = "n25-eclair-native";
+		n25-eclair-native {
+			description = "N25 storage-free Android 2.0 native diagnostic";
+			kernel = "kernel";
+			ramdisk = "ramdisk";
+			fdt = "fdt";
+		};
+	};
+};

@@ -23,6 +23,7 @@ from services.sync_engine import (
     VIDEO_LIST_THUMB_DEVICE_DIR,
     _clear_device_trash,
     _looks_like_auto_duplicate_path,
+    _merge_existing_video_manifest_entries,
     build_device_path,
     _sanitize_filename,
     _SyncCancelled,
@@ -152,6 +153,67 @@ def test_video_device_path_uses_file_stem_when_title_is_youtube():
     )
 
     assert rel_path == os.path.join("Videos", "Downloaded", "Real Movie.mpg")
+
+
+def test_video_manifest_merge_preserves_present_uncached_device_rows(env):
+    existing_rel = os.path.join(
+        "Videos", "TV Shows", "Existing Show", "Season 01", "S01E01.rvp"
+    )
+    existing_path = os.path.join(env["device_path"], existing_rel)
+    os.makedirs(os.path.dirname(existing_path), exist_ok=True)
+    with open(existing_path, "w", encoding="utf-8") as handle:
+        handle.write("ROCKPOD_RVP_V1\n")
+
+    manifest_dir = os.path.join(
+        env["device_path"], VIDEO_LIST_DEVICE_DIR
+    )
+    os.makedirs(manifest_dir, exist_ok=True)
+    manifest_path = os.path.join(manifest_dir, "index.tsv")
+    with open(manifest_path, "w", encoding="utf-8") as handle:
+        handle.write("# rockpod videolist v5\n")
+        handle.write("video_id\ttitle\tdevice_path\n")
+        handle.write(f"existing-id\tExisting Episode\t{existing_rel}\n")
+
+    new_rel = os.path.join("Videos", "Movies", "New Movie.rvp")
+    plan = SyncPlan()
+    merged = _merge_existing_video_manifest_entries(
+        [
+            {
+                "video_id": "new-id",
+                "title": "New Movie",
+                "device_path": new_rel,
+            }
+        ],
+        plan,
+        env["device_path"],
+    )
+
+    assert {entry["device_path"] for entry in merged} == {
+        existing_rel,
+        new_rel,
+    }
+
+
+def test_video_manifest_merge_discovers_unindexed_physical_rvp(env):
+    existing_rel = os.path.join(
+        "Videos", "TV Shows", "Recess", "Season 03",
+        "S03E29 - Space Cadet.rvp",
+    )
+    existing_path = os.path.join(env["device_path"], existing_rel)
+    os.makedirs(os.path.dirname(existing_path), exist_ok=True)
+    with open(existing_path, "w", encoding="utf-8") as handle:
+        handle.write("ROCKPOD_RVP_V1\n")
+
+    merged = _merge_existing_video_manifest_entries(
+        [], SyncPlan(), env["device_path"]
+    )
+
+    assert len(merged) == 1
+    assert merged[0]["device_path"] == existing_rel
+    assert merged[0]["title"] == "Space Cadet"
+    assert merged[0]["show"] == "Recess"
+    assert merged[0]["season"] == "03"
+    assert merged[0]["episode"] == "29"
 
 
 # ===========================================================================
@@ -317,6 +379,54 @@ class TestBuildDevicePath:
             "{track_number:02d} - {title}{ext}",
         )
         assert result == os.path.join("Videos", "Home Videos", "Family Movie.mpg")
+
+    def test_music_video_rows_use_music_videos_folder(self):
+        row = {
+            "title": "Live Performance",
+            "artist": "The Band",
+            "file_path": "/videos/performance.m4v",
+            "media_type": "video",
+            "video_kind": "music_video",
+        }
+        result = build_device_path(
+            row,
+            "Music/{album_artist}/{album}",
+            "{track_number:02d} - {title}{ext}",
+        )
+        assert result == os.path.join(
+            "Videos", "Music Videos", "Live Performance.m4v"
+        )
+
+    def test_downloaded_music_video_type_overrides_source_folder(self):
+        row = {
+            "title": "Tree - Karma Police",
+            "file_path": "/videos/YouTube/Tree - Karma Police.mpg",
+            "media_type": "video",
+            "video_kind": "music_video",
+        }
+        result = build_device_path(
+            row,
+            "Music/{album_artist}/{album}",
+            "{track_number:02d} - {title}{ext}",
+        )
+        assert result == os.path.join(
+            "Videos", "Music Videos", "Tree - Karma Police.mpg"
+        )
+
+    def test_locked_video_rows_use_hidden_locked_folder(self):
+        row = {
+            "title": "Private Clip",
+            "file_path": "/videos/private.mpg",
+            "media_type": "video",
+            "video_kind": "home_video",
+            "video_locked": 1,
+        }
+        result = build_device_path(
+            row,
+            "Music/{album_artist}/{album}",
+            "{track_number:02d} - {title}{ext}",
+        )
+        assert result == os.path.join("Videos", ".Locked", "Private Clip.mpg")
 
     def test_downloaded_video_rows_use_downloaded_folder(self):
         row = {

@@ -95,6 +95,39 @@ def test_write_track_metadata_to_file_updates_mp4_shapes():
     assert "cpil" not in audio.tags
 
 
+def test_write_track_metadata_to_file_only_changes_requested_mp4_fields():
+    audio = _FakeAudio(
+        {
+            "\xa9nam": ["Custom Title"],
+            "\xa9ART": ["Artist"],
+            "\xa9alb": ["Album"],
+            "\xa9gen": ["Rock"],
+            "trkn": [(2, 8)],
+            "disk": [(1, 2)],
+            "tvsh": ["The Show"],
+            "tvsn": [1],
+            "tves": [2],
+        }
+    )
+
+    write_track_metadata_to_file(
+        "/videos/show.m4v",
+        {"comment": "Updated", "track_number": 3},
+        mutagen_file_func=lambda _path: audio,
+    )
+
+    assert audio.tags["\xa9cmt"] == ["Updated"]
+    assert audio.tags["\xa9nam"] == ["Custom Title"]
+    assert audio.tags["\xa9ART"] == ["Artist"]
+    assert audio.tags["\xa9alb"] == ["Album"]
+    assert audio.tags["\xa9gen"] == ["Rock"]
+    assert audio.tags["trkn"] == [(3, 8)]
+    assert audio.tags["disk"] == [(1, 2)]
+    assert audio.tags["tvsh"] == ["The Show"]
+    assert audio.tags["tvsn"] == [1]
+    assert audio.tags["tves"] == [2]
+
+
 def test_write_track_metadata_to_file_rejects_unsupported_container():
     try:
         write_track_metadata_to_file(

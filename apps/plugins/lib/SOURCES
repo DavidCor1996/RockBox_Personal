@@ -60,6 +60,24 @@ xlcd_draw.c
 xlcd_scroll.c
 pluginlib_bmp.c
 read_image.c
+rockachievements.c
+rockachievements_allocator.c
+ra_alloc.c
+ra_condition.c
+ra_condset.c
+ra_format.c
+ra_lboard.c
+ra_memref.c
+ra_operand.c
+ra_runtime.c
+ra_runtime_progress.c
+ra_richpresence.c
+ra_trigger.c
+ra_value.c
+ra_md5.c
+ra_compat.c
+ra_util.c
+rockachievements_math.c
 
 #ifdef HAVE_LCD_COLOR
 bmp_smooth_scale.c

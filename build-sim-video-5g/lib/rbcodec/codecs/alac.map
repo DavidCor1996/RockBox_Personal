@@ -581,19 +581,19 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x1ac3
+.debug_str      0x0000000000000000     0x1b95
  *(.debug_str)
- .debug_str     0x0000000000000000     0x1ac3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/alac.o
+ .debug_str     0x0000000000000000     0x1b95 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/alac.o
                                        0x12ce (size before relaxing)
- .debug_str     0x0000000000001ac3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/codec_crt0.o
+ .debug_str     0x0000000000001b95        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/codec_crt0.o
                                         0xcba (size before relaxing)
- .debug_str     0x0000000000001ac3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libalac.a(alac.o)
+ .debug_str     0x0000000000001b95        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libalac.a(alac.o)
                                         0xc79 (size before relaxing)
- .debug_str     0x0000000000001ac3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libm4a.a(m4a.o)
+ .debug_str     0x0000000000001b95        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libm4a.a(m4a.o)
                                         0xb3a (size before relaxing)
- .debug_str     0x0000000000001ac3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libm4a.a(demux.o)
+ .debug_str     0x0000000000001b95        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libm4a.a(demux.o)
                                         0xede (size before relaxing)
- .debug_str     0x0000000000001ac3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .debug_str     0x0000000000001b95        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
                                         0xed6 (size before relaxing)
 
 .debug_loc
@@ -624,26 +624,26 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
  *(.debug_addr)
 
 .debug_line_str
-                0x0000000000000000      0x518
+                0x0000000000000000      0x544
  *(.debug_line_str)
  .debug_line_str
-                0x0000000000000000      0x518 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/alac.o
-                                        0x3b2 (size before relaxing)
+                0x0000000000000000      0x544 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/alac.o
+                                        0x3ae (size before relaxing)
  .debug_line_str
-                0x0000000000000518        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/codec_crt0.o
+                0x0000000000000544        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/codec_crt0.o
                                         0x268 (size before relaxing)
  .debug_line_str
-                0x0000000000000518        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libalac.a(alac.o)
+                0x0000000000000544        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libalac.a(alac.o)
                                         0x267 (size before relaxing)
  .debug_line_str
-                0x0000000000000518        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libm4a.a(m4a.o)
-                                        0x2aa (size before relaxing)
+                0x0000000000000544        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libm4a.a(m4a.o)
+                                        0x2a6 (size before relaxing)
  .debug_line_str
-                0x0000000000000518        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libm4a.a(demux.o)
-                                        0x309 (size before relaxing)
+                0x0000000000000544        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libm4a.a(demux.o)
+                                        0x305 (size before relaxing)
  .debug_line_str
-                0x0000000000000518        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
-                                        0x330 (size before relaxing)
+                0x0000000000000544        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+                                        0x32c (size before relaxing)
 
 .debug_loclists
                 0x0000000000000000     0x2dc5

@@ -17,7 +17,13 @@ sys.path.insert(0, str(ROCKPOD_ROOT))
 from app.config import Config  # noqa: E402
 from app.database import Database  # noqa: E402
 from services.device_detector import DeviceDetector, DeviceInfo  # noqa: E402
-from services.sync_engine import SyncEngine, SyncWorker, _remove_media_with_sidecars  # noqa: E402
+from services.sync_engine import (  # noqa: E402
+    SyncEngine,
+    SyncPlan,
+    SyncWorker,
+    VIDEO_LIST_DEVICE_DIR,
+    _remove_media_with_sidecars,
+)
 
 
 def _default_mount(config: Config) -> str:
@@ -64,17 +70,33 @@ def _remove_replaced_device_files(mount: str, old_rows: list[dict], planned_path
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", default=str(Path.home() / ".rockpod" / "config.json"))
+    parser.add_argument("--db", default="", help="Override the RockPod library DB path.")
     parser.add_argument("--mount", default="")
     parser.add_argument("--ids", default="", help="Comma-separated video track IDs. Defaults to synced videos.")
+    parser.add_argument(
+        "--allow-online-artwork",
+        action="store_true",
+        help="Allow fresh online artwork lookups while rebuilding the device video manifest.",
+    )
+    parser.add_argument(
+        "--artwork-only",
+        action="store_true",
+        help="Refresh video posters, hierarchy art, manifest, and PIN without transcoding media.",
+    )
     args = parser.parse_args(argv)
 
     config = Config(args.config)
+    if not args.allow_online_artwork:
+        # A targeted repair/resync should not spend minutes refreshing artwork
+        # for unrelated videos. Existing local/cached artwork is still exported.
+        config.set("enable_online_artwork_lookup", False)
     mount = os.path.abspath(args.mount or _default_mount(config))
     if not mount or not os.path.isdir(mount):
         print(f"Mounted iPod path not found: {mount}", file=sys.stderr)
         return 2
 
-    db = Database(config.db_path)
+    db_path = os.path.abspath(args.db or config.db_path)
+    db = Database(db_path)
     ids, rows = _video_ids_to_replace(db)
     if args.ids.strip():
         ids = [int(part.strip()) for part in args.ids.split(",") if part.strip()]
@@ -100,11 +122,24 @@ def main(argv=None) -> int:
     engine = SyncEngine(db, config, detector)
     engine.set_current_device(device)
 
+    configured_pin = str(config.get("video_locked_pin", "") or "").strip()
+    existing_pin_path = os.path.join(
+        mount, VIDEO_LIST_DEVICE_DIR, "locked.pin"
+    )
+    if len(configured_pin) != 4 or not configured_pin.isdigit():
+        try:
+            with open(existing_pin_path, "r", encoding="ascii") as handle:
+                existing_pin = handle.read(16).strip()
+        except OSError:
+            existing_pin = ""
+        if len(existing_pin) == 4 and existing_pin.isdigit():
+            config.set("video_locked_pin", existing_pin)
+
     started = time.strftime("%Y-%m-%d %H:%M:%S")
     log_lines = [
         f"started={started}",
         f"mount={mount}",
-        f"db={config.db_path}",
+        f"db={db_path}",
         f"ids={','.join(str(track_id) for track_id in ids)}",
     ]
     for row in rows:
@@ -114,7 +149,20 @@ def main(argv=None) -> int:
     log_path = _write_device_log(mount, log_lines)
     print(f"Device log: {log_path}")
 
-    plan = engine.build_sync_plan(track_ids=set(ids), force_full=True, media_type="video")
+    if args.artwork_only:
+        plan = SyncPlan()
+        for row in db.get_tracks_by_media_type("video", order_by="id"):
+            item = dict(row)
+            rel_path = str(item.get("device_path") or "").strip()
+            if rel_path:
+                plan.preflight_linked.append((item, rel_path))
+        engine._populate_video_list_artwork_sync_plan(
+            plan, [], mount, {}
+        )
+    else:
+        plan = engine.build_sync_plan(
+            track_ids=set(ids), force_full=True, media_type="video"
+        )
     print(plan.summary())
     if plan.errors:
         for error in plan.errors:
@@ -124,7 +172,7 @@ def main(argv=None) -> int:
         return 3
 
     planned_paths = [path for _row, _old, path in plan.to_resync] + [path for _row, path in plan.to_copy]
-    worker = SyncWorker(plan, mount, config.db_path)
+    worker = SyncWorker(plan, mount, db_path)
     results = {}
     worker.finished.connect(lambda copied, failed, skipped: results.update(copied=copied, failed=failed, skipped=skipped))
     worker.file_error.connect(lambda path, message: print(f"ERROR: {path}: {message}", file=sys.stderr))
@@ -135,7 +183,13 @@ def main(argv=None) -> int:
     failed = int(results.get("failed", 0))
     skipped = int(results.get("skipped", 0))
     removed = []
-    if (plan.to_copy or plan.to_resync) and copied and not failed:
+    if (
+        not args.artwork_only
+        and (plan.to_copy or plan.to_resync)
+        and copied
+        and not failed
+    ):
+        engine.apply_successful_sync_to_cache(plan)
         removed = _remove_replaced_device_files(mount, rows, planned_paths)
     finished = time.strftime("%Y-%m-%d %H:%M:%S")
     _write_device_log(
