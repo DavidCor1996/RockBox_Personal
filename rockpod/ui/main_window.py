@@ -149,7 +149,7 @@ from ui.ipodjs_engine_designer import IPodJSEngineDesignerWidget
 from ui.video_library import VideoGridView, build_video_browser_groups, classify_video_track
 from ui.video_player import VideoPlayerWindow
 from ui.video_sync import VideoSyncPanel
-from ui.livetv_panel import LiveTvPanel
+from ui.livetv_panel import LiveTvPanel, LiveTvStorePanel
 from ui.website_sync import WebsiteSyncPanel
 from ui.android_workflows import summarize_android_import
 from ui.boot_workflows import BootProgressController
@@ -441,6 +441,8 @@ class MainWindow(QMainWindow):
         self._store_page.addTab(self._browser_panel, "Music")
         self._store_page.addTab(self._music_sharing_panel, "Sharing")
         self._store_page.addTab(self._movie_store_panel, "Movies")
+        self._livetv_store_panel = LiveTvStorePanel()
+        self._store_page.addTab(self._livetv_store_panel, "Live TV")
         self._store_page.addTab(self._game_browser_panel, "iPod Games")
         self._store_page.currentChanged.connect(self._on_store_tab_changed)
         self._simulator_panel = SimulatorPanel()
@@ -635,9 +637,20 @@ class MainWindow(QMainWindow):
         self._livetv_panel.autobuild_requested.connect(self._livetv_autobuild)
         self._livetv_panel.sync_requested.connect(self._livetv_sync)
         self._livetv_panel.assign_requested.connect(self._livetv_assign)
+        self._livetv_panel.unassign_requested.connect(self._livetv_unassign)
+        self._livetv_panel.add_channel_requested.connect(
+            self._livetv_add_channel)
+        self._livetv_panel.edit_channel_requested.connect(
+            self._livetv_edit_channel)
+        self._livetv_panel.remove_channel_requested.connect(
+            self._livetv_remove_channel)
         self._livetv_panel.logo_requested.connect(self._livetv_choose_logo)
         self._livetv_panel.favourite_toggled.connect(
             self._livetv_toggle_favourite)
+        self._livetv_store_panel.browse_requested.connect(
+            self._start_livetv_store_browse)
+        self._livetv_store_panel.import_requested.connect(
+            self._start_livetv_store_import)
         self._boot_manager.profile_selected.connect(self._on_boot_profile_selected)
         self._boot_manager.target_mode_selected.connect(self._on_boot_target_mode_selected)
         self._boot_manager.choose_image_requested.connect(self._choose_boot_image)
@@ -1639,6 +1652,9 @@ class MainWindow(QMainWindow):
             self._current_view = "rockbox_movies"
             self._refresh_movie_store_panel()
             self._status_bar.set_left_text("Store: Movies")
+        elif current is self._livetv_store_panel:
+            self._current_view = "rockbox_livetv_store"
+            self._status_bar.set_left_text("Store: Live TV")
         elif current is self._game_browser_panel:
             self._current_view = "rockbox_games"
             self._refresh_game_browser_panel()
@@ -7894,6 +7910,129 @@ class MainWindow(QMainWindow):
             f"Assigned {len(paths)} {noun} to {channel.number} "
             f"{channel.callsign}.")
 
+    def _livetv_channel_dialog(self, channel=None):
+        """Ask for a channel's number, call sign and name.
+
+        Returns a ``(number, callsign, name)`` tuple, or None if cancelled.
+        """
+        lineup = self._livetv_lineup()
+        used = {other.number for other in lineup.channels
+                if channel is None or other is not channel}
+
+        default_number = channel.number if channel else (
+            max((c.number for c in lineup.channels),
+                default=livetv.LIVETV_FIRST_CHANNEL - 1) + 1)
+        number, ok = QInputDialog.getInt(
+            self, "Channel Number", "Channel number:", default_number,
+            1, 9999)
+        if not ok:
+            return None
+        if number in used:
+            QMessageBox.warning(
+                self, "Channel Number",
+                f"Channel {number} is already in use.")
+            return None
+
+        callsign, ok = QInputDialog.getText(
+            self, "Call Sign", "Call sign (shown in the guide):",
+            QLineEdit.Normal, channel.callsign if channel else "")
+        if not ok:
+            return None
+        callsign = callsign.strip().upper()[:9]
+        if not callsign:
+            QMessageBox.warning(self, "Call Sign",
+                                "A channel needs a call sign.")
+            return None
+
+        name, ok = QInputDialog.getText(
+            self, "Channel Name", "Channel name:", QLineEdit.Normal,
+            channel.name if channel else callsign.title())
+        if not ok:
+            return None
+        name = name.strip()[:31] or callsign
+
+        return number, callsign, name
+
+    def _livetv_add_channel(self):
+        lineup = self._livetv_lineup()
+        if len(lineup.channels) >= livetv.LIVETV_MAX_CHANNELS:
+            QMessageBox.warning(
+                self, "Live TV",
+                f"An iPod holds at most {livetv.LIVETV_MAX_CHANNELS} "
+                "channels.")
+            return
+
+        details = self._livetv_channel_dialog()
+        if details is None:
+            return
+        number, callsign, name = details
+
+        lineup.channels.append(livetv.LiveTvChannel(
+            number=number, callsign=callsign, name=name))
+        lineup.channels.sort(key=lambda channel: channel.number)
+        lineup.save()
+        self._render_livetv_panel()
+        self._livetv_panel.select_channel(number)
+        self._livetv_panel.set_status(
+            f"Added channel {number} {callsign}. Assign shows to it from the "
+            "Shows tab, then generate the schedule.")
+
+    def _livetv_edit_channel(self, channel_number):
+        lineup = self._livetv_lineup()
+        channel = lineup.channel_by_number(channel_number)
+        if channel is None:
+            return
+
+        details = self._livetv_channel_dialog(channel)
+        if details is None:
+            return
+        channel.number, channel.callsign, channel.name = details
+
+        lineup.channels.sort(key=lambda item: item.number)
+        lineup.save()
+        self._render_livetv_panel()
+        self._livetv_panel.select_channel(channel.number)
+        self._livetv_panel.set_status(
+            f"Channel is now {channel.number} {channel.callsign} "
+            f"({channel.name}).")
+
+    def _livetv_remove_channel(self, channel_number):
+        lineup = self._livetv_lineup()
+        channel = lineup.channel_by_number(channel_number)
+        if channel is None:
+            return
+
+        answer = QMessageBox.question(
+            self, "Remove Channel",
+            f"Remove channel {channel.number} {channel.callsign}?\n\n"
+            "Its shows stay in your Live TV folder and can be assigned to "
+            "another channel.")
+        if answer != QMessageBox.Yes:
+            return
+
+        lineup.channels = [item for item in lineup.channels
+                           if item is not channel]
+        lineup.save()
+        self._render_livetv_panel()
+        self._livetv_panel.set_status(
+            f"Removed channel {channel.number} {channel.callsign}.")
+
+    def _livetv_unassign(self, kind, paths):
+        lineup = self._livetv_lineup()
+        removed = 0
+        for path in paths:
+            for channel in lineup.channels:
+                target = channel.shows if kind == "show" else channel.ads
+                if path in target:
+                    target.remove(path)
+                    removed += 1
+        lineup.save()
+        self._render_livetv_panel()
+        noun = "shows" if kind == "show" else "commercials"
+        self._livetv_panel.set_status(
+            f"Unassigned {removed} {noun}." if removed
+            else f"Those {noun} were not assigned to a channel.")
+
     def _livetv_toggle_favourite(self, channel_number):
         lineup = self._livetv_lineup()
         channel = lineup.channel_by_number(channel_number)
@@ -7977,6 +8116,165 @@ class MainWindow(QMainWindow):
 
         self._livetv_panel.set_status(" ".join(parts))
         self._render_livetv_panel()
+
+    # ── Live TV store ────────────────────────────────────────────────
+
+    def _livetv_store_importer(self, destination):
+        """A YouTube importer writing into the Live TV staging folder."""
+        staging = self._livetv_library().staging_dir()
+        if destination == "ad":
+            staging = os.path.join(staging, livetv.LIVETV_ADS_DIR_NAME)
+        os.makedirs(staging, exist_ok=True)
+        return self._youtube_movie_importer.with_output_dir(staging)
+
+    def _start_livetv_store_browse(self, query, destination):
+        if getattr(self, "_livetv_browse_process", None) is not None:
+            return
+        importer = self._livetv_store_importer(destination)
+        try:
+            request = importer.prepare_browse(query, limit=18)
+        except YoutubeMovieImportError as exc:
+            self._livetv_store_panel.set_status(str(exc), running=False)
+            return
+
+        process = self._create_child_process(
+            request,
+            importer.state_dir,
+            self._on_livetv_store_browse_output,
+            self._on_livetv_store_browse_finished,
+            self._on_livetv_store_browse_error,
+        )
+        self._livetv_browse_process = process
+        self._livetv_browse_output_path = request.output_path
+        self._livetv_browse_output = []
+        self._livetv_browse_query = str(query or "").strip()
+        self._livetv_store_panel.set_status(
+            f"Searching for {self._livetv_browse_query}...", running=True)
+        self._status_bar.set_left_text("Browsing Live TV")
+        process.start(request.command[0], request.command[1:])
+
+    def _on_livetv_store_browse_output(self):
+        process = getattr(self, "_livetv_browse_process", None)
+        if process is None:
+            return
+        text = compact_process_text(read_process_text(process))
+        if text:
+            self._livetv_browse_output.append(text)
+
+    def _on_livetv_store_browse_finished(self, exit_code, _exit_status):
+        process = getattr(self, "_livetv_browse_process", None)
+        self._livetv_browse_process = None
+        if process is not None:
+            text = compact_process_text(read_process_text(process))
+            if text:
+                self._livetv_browse_output.append(text)
+
+        output_path = self._livetv_browse_output_path
+        self._livetv_browse_output_path = ""
+        query = self._livetv_browse_query
+        self._livetv_browse_query = ""
+
+        if exit_code != 0:
+            detail = " ".join(self._livetv_browse_output).strip()
+            self._livetv_browse_output = []
+            self._livetv_store_panel.set_status(
+                f"Live TV search failed with exit code {exit_code}: "
+                f"{detail[-400:]}", running=False)
+            return
+
+        try:
+            with open(output_path, "r") as handle:
+                results = json.load(handle)
+        except (OSError, json.JSONDecodeError) as exc:
+            self._livetv_browse_output = []
+            self._livetv_store_panel.set_status(
+                f"Live TV search result could not be read: {exc}",
+                running=False)
+            return
+
+        self._livetv_browse_output = []
+        self._livetv_store_panel.set_results(results)
+        count = len(results)
+        self._livetv_store_panel.set_status(
+            f"Found {count} result{'s' if count != 1 else ''} for "
+            f"{query}. Double-click one to download it into Live TV.",
+            running=False)
+
+    def _on_livetv_store_browse_error(self, error):
+        self._livetv_browse_process = None
+        self._livetv_browse_output_path = ""
+        self._livetv_browse_output = []
+        self._livetv_browse_query = ""
+        self._livetv_store_panel.set_status(
+            f"Live TV search could not start: {error}", running=False)
+
+    def _start_livetv_store_import(self, url, destination):
+        if getattr(self, "_livetv_import_process", None) is not None:
+            return
+        importer = self._livetv_store_importer(destination)
+        try:
+            request = importer.prepare_import(url)
+        except YoutubeMovieImportError as exc:
+            self._livetv_store_panel.set_status(str(exc), running=False)
+            QMessageBox.warning(self, "Live TV Download", str(exc))
+            return
+
+        process = self._create_child_process(
+            request,
+            request.output_dir,
+            self._on_livetv_store_import_output,
+            self._on_livetv_store_import_finished,
+            self._on_livetv_store_import_error,
+        )
+        self._livetv_import_process = process
+        self._livetv_import_output = []
+        self._livetv_import_destination = destination
+        noun = "commercial" if destination == "ad" else "show"
+        self._livetv_store_panel.set_status(
+            f"Downloading and converting {noun}... Log: {request.log_path}",
+            running=True)
+        self._status_bar.set_left_text("Downloading Live TV content")
+        process.start(request.command[0], request.command[1:])
+
+    def _on_livetv_store_import_output(self):
+        process = getattr(self, "_livetv_import_process", None)
+        if process is None:
+            return
+        text = compact_process_text(read_process_text(process))
+        if text:
+            self._livetv_import_output.append(text)
+
+    def _on_livetv_store_import_finished(self, exit_code, _exit_status):
+        process = getattr(self, "_livetv_import_process", None)
+        self._livetv_import_process = None
+        if process is not None:
+            text = compact_process_text(read_process_text(process))
+            if text:
+                self._livetv_import_output.append(text)
+
+        destination = getattr(self, "_livetv_import_destination", "show")
+        detail = " ".join(self._livetv_import_output).strip()
+        self._livetv_import_output = []
+
+        if exit_code != 0:
+            self._livetv_store_panel.set_status(
+                f"Download failed with exit code {exit_code}: "
+                f"{detail[-400:]}", running=False)
+            return
+
+        noun = "Commercial" if destination == "ad" else "Show"
+        self._livetv_store_panel.set_status(
+            f"{noun} downloaded into the Live TV staging folder. It will be "
+            "converted on the next Live TV sync and removed from this "
+            "computer once the iPod copy is verified.", running=False)
+        # Pick the new file up straight away so it can be assigned.
+        self._refresh_livetv_panel(rescan=True)
+
+    def _on_livetv_store_import_error(self, error):
+        self._livetv_import_process = None
+        self._livetv_import_output = []
+        self._livetv_store_panel.set_status(
+            f"Download could not start: {error}", running=False)
 
     # ═══════════════════════════════════════════════════════════════
     # Rockbox photos

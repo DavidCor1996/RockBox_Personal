@@ -512,6 +512,11 @@ class LiveTvLineup:
             except (TypeError, ValueError):
                 continue
 
+        # Repair line-ups written before numbers were kept unique.
+        if self.ensure_unique_numbers():
+            logger.info("Repaired duplicate Live TV channel numbers")
+            self.save()
+
     def save(self):
         payload = {
             "ad_break_min": self.ad_break_min,
@@ -528,33 +533,78 @@ class LiveTvLineup:
     # -- automatic line-up ----------------------------------------------
 
     def autobuild(self, shows, ads=None):
-        """Build one channel per series, keeping any existing settings."""
-        existing = {channel.name: channel for channel in self.channels}
+        """Add a channel for each series that does not have one yet.
+
+        This is additive on purpose: channels the user added, renamed or
+        renumbered by hand are left exactly as they are, and shows already
+        assigned somewhere are not moved.
+        """
         grouped = {}
         for item in shows:
             grouped.setdefault(item.series or "Live TV", []).append(item.path)
 
-        channels = []
-        number = LIVETV_FIRST_CHANNEL
+        by_name = {channel.name: channel for channel in self.channels}
+        # Which channel already carries a given show. A renamed channel is
+        # still recognised by what is assigned to it, so rebuilding never
+        # resurrects a duplicate of a channel the user renamed.
+        owner = {}
+        for channel in self.channels:
+            for path in channel.shows:
+                owner[path] = channel
         for name in sorted(grouped):
-            if len(channels) >= LIVETV_MAX_CHANNELS:
-                break
-            previous = existing.get(name)
-            channels.append(LiveTvChannel(
-                number=previous.number if previous else number,
-                callsign=(previous.callsign if previous
-                          else _callsign_for(name, channels)),
-                name=name,
-                category=previous.category if previous else "Series",
-                logo=previous.logo if previous else "",
-                favourite=previous.favourite if previous else True,
-                shows=sorted(grouped[name]),
-                ads=list(previous.ads) if previous else [],
-            ))
-            number += 1
+            paths = sorted(grouped[name])
+            channel = next((owner[path] for path in paths if path in owner),
+                           None) or by_name.get(name)
 
-        self.channels = channels
+            if channel is None:
+                if len(self.channels) >= LIVETV_MAX_CHANNELS:
+                    break
+                channel = LiveTvChannel(
+                    number=self.next_free_number(),
+                    callsign=_callsign_for(name, self.channels),
+                    name=name,
+                )
+                self.channels.append(channel)
+                by_name[name] = channel
+
+            for path in paths:
+                if path not in owner:
+                    channel.shows.append(path)
+                    owner[path] = channel
+            channel.shows = sorted(set(channel.shows))
+
+        self.ensure_unique_numbers()
+        self.channels.sort(key=lambda channel: channel.number)
         return self.channels
+
+    def next_free_number(self) -> int:
+        """The lowest channel number not already in use."""
+        used = {channel.number for channel in self.channels}
+        number = LIVETV_FIRST_CHANNEL
+        while number in used:
+            number += 1
+        return number
+
+    def ensure_unique_numbers(self) -> bool:
+        """Give every channel its own number.
+
+        The device looks channels up by number and takes the first match, so
+        a duplicate would silently hide one channel's listings behind
+        another's. Returns True when something had to be repaired.
+        """
+        seen = set()
+        repaired = False
+        for channel in sorted(self.channels, key=lambda c: c.number):
+            if channel.number in seen or channel.number <= 0:
+                candidate = LIVETV_FIRST_CHANNEL
+                while candidate in seen:
+                    candidate += 1
+                channel.number = candidate
+                repaired = True
+            seen.add(channel.number)
+        if repaired:
+            self.channels.sort(key=lambda channel: channel.number)
+        return repaired
 
     def channel_by_number(self, number: int):
         for channel in self.channels:
@@ -781,8 +831,9 @@ def _tsv_clean(value: str) -> str:
     return re.sub(r"\s+", " ", str(value or "")).strip()
 
 
-def _write_text(path: str, content: str):
-    os.makedirs(os.path.dirname(path), exist_ok=True)
+def _write_text(path, content: str):
+    path = os.fspath(path)
+    os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
     tmp = path + ".tmp"
     with open(tmp, "w", encoding="utf-8") as handle:
         handle.write(content)
@@ -861,6 +912,9 @@ class LiveTvSync:
              progress=None, cancel=None):
         """Convert, copy and write the guide. Returns a summary dict."""
         by_path = {item.path: item for item in list(shows) + list(ads)}
+        # The device resolves channels by number, so never ship a duplicate.
+        if lineup.ensure_unique_numbers():
+            lineup.save()
         scheduler = LiveTvScheduler(lineup, shows, ads)
         slots = scheduler.build()
         if not slots:
@@ -1026,6 +1080,13 @@ else:
         progress = Signal(int, int, str)
         finished = Signal(dict)
 
+    def _emit(signal, *args):
+        """Emit unless the window has already gone away underneath us."""
+        try:
+            signal.emit(*args)
+        except RuntimeError:
+            pass
+
     class LiveTvScanJob(QRunnable):
         """Walk the Live folders and probe durations off the UI thread."""
 
@@ -1040,13 +1101,13 @@ else:
                 shows, ads = self._library.scan(
                     probe_durations=True,
                     progress=lambda done, total, label:
-                        self.signals.progress.emit(done, total, label),
+                        _emit(self.signals.progress, done, total, label),
                 )
                 result = {"success": True, "shows": shows, "ads": ads}
             except Exception as error:  # never strand the panel
                 logger.exception("Live TV scan failed")
                 result = {"success": False, "message": str(error)}
-            self.signals.finished.emit(result)
+            _emit(self.signals.finished, result)
 
     class LiveTvSyncJob(QRunnable):
         """Convert, copy and write the guide off the UI thread."""
@@ -1067,11 +1128,11 @@ else:
                 summary = self._sync.sync(
                     self._mount_path, self._lineup, self._shows, self._ads,
                     progress=lambda done, total, label:
-                        self.signals.progress.emit(done, total, label),
+                        _emit(self.signals.progress, done, total, label),
                 )
                 summary["success"] = True
                 result = summary
             except Exception as error:
                 logger.exception("Live TV sync failed")
                 result = {"success": False, "message": str(error)}
-            self.signals.finished.emit(result)
+            _emit(self.signals.finished, result)

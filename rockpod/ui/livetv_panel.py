@@ -18,6 +18,7 @@ from PySide6.QtWidgets import (
     QFrame,
     QHBoxLayout,
     QLabel,
+    QLineEdit,
     QProgressBar,
     QPushButton,
     QSizePolicy,
@@ -300,6 +301,10 @@ class LiveTvPanel(QWidget):
     autobuild_requested = Signal()
     sync_requested = Signal()
     assign_requested = Signal(str, list, int)   # kind, paths, channel number
+    unassign_requested = Signal(str, list)      # kind, paths
+    add_channel_requested = Signal()
+    edit_channel_requested = Signal(int)        # channel number
+    remove_channel_requested = Signal(int)      # channel number
     logo_requested = Signal(int)                # channel number
     favourite_toggled = Signal(int)             # channel number
     open_sources_requested = Signal()
@@ -375,15 +380,25 @@ class LiveTvPanel(QWidget):
         action_layout.setSpacing(6)
         self._refresh_btn = QPushButton("Rescan Live Folders")
         self._autobuild_btn = QPushButton("Build Channels")
+        self._add_btn = QPushButton("Add Channel")
+        self._edit_btn = QPushButton("Edit Channel")
+        self._remove_btn = QPushButton("Remove Channel")
         self._logo_btn = QPushButton("Set Channel Logo")
         self._favourite_btn = QPushButton("Toggle Favorite")
         self._assign_combo = QComboBox()
         self._assign_btn = QPushButton("Assign Selected")
-        self._sync_btn = QPushButton("Generate Schedule & Sync to iPod")
+        self._unassign_btn = QPushButton("Unassign")
+        self._sync_btn = QPushButton("Generate Schedule and Sync")
         self._sync_btn.setObjectName("store_buy_button")
-        for widget in (self._refresh_btn, self._autobuild_btn, self._logo_btn,
+        self._edit_btn.setToolTip(
+            "Change this channel's number, call sign and name. "
+            "Double-clicking a row does the same.")
+        self._assign_btn.setToolTip(
+            "Move the selected shows or commercials onto the chosen channel.")
+        for widget in (self._refresh_btn, self._autobuild_btn, self._add_btn,
+                       self._edit_btn, self._remove_btn, self._logo_btn,
                        self._favourite_btn, self._assign_combo,
-                       self._assign_btn):
+                       self._assign_btn, self._unassign_btn):
             action_layout.addWidget(widget)
         action_layout.addStretch(1)
         action_layout.addWidget(self._sync_btn)
@@ -392,9 +407,13 @@ class LiveTvPanel(QWidget):
         self._refresh_btn.clicked.connect(self.refresh_requested.emit)
         self._autobuild_btn.clicked.connect(self.autobuild_requested.emit)
         self._sync_btn.clicked.connect(self.sync_requested.emit)
+        self._add_btn.clicked.connect(self.add_channel_requested.emit)
+        self._edit_btn.clicked.connect(self._emit_edit)
+        self._remove_btn.clicked.connect(self._emit_remove)
         self._logo_btn.clicked.connect(self._emit_logo)
         self._favourite_btn.clicked.connect(self._emit_favourite)
         self._assign_btn.clicked.connect(self._emit_assign)
+        self._unassign_btn.clicked.connect(self._emit_unassign)
 
         self._stack = QStackedWidget()
         layout.addWidget(self._stack, 1)
@@ -415,6 +434,10 @@ class LiveTvPanel(QWidget):
 
         self._channel_tree.currentItemChanged.connect(
             self._on_channel_row_changed)
+        self._channel_tree.itemDoubleClicked.connect(
+            self._on_channel_activated)
+        self._show_tree.itemDoubleClicked.connect(self._on_media_activated)
+        self._ads_tree.itemDoubleClicked.connect(self._on_media_activated)
 
         self._progress = QProgressBar()
         self._progress.setVisible(False)
@@ -453,10 +476,14 @@ class LiveTvPanel(QWidget):
         self._stack.setCurrentIndex(keys.index(key))
 
         is_guide = key == "guide"
-        self._logo_btn.setVisible(key == "channels")
-        self._favourite_btn.setVisible(key == "channels")
-        self._assign_combo.setVisible(key in {"shows", "ads"})
-        self._assign_btn.setVisible(key in {"shows", "ads"})
+        on_channels = key == "channels"
+        on_media = key in {"shows", "ads"}
+        for widget in (self._add_btn, self._edit_btn, self._remove_btn,
+                       self._logo_btn, self._favourite_btn):
+            widget.setVisible(on_channels)
+        for widget in (self._assign_combo, self._assign_btn,
+                       self._unassign_btn):
+            widget.setVisible(on_media)
         self._autobuild_btn.setVisible(not is_guide)
 
     def current_tab(self):
@@ -553,7 +580,9 @@ class LiveTvPanel(QWidget):
 
     def set_busy(self, busy):
         for widget in (self._refresh_btn, self._autobuild_btn, self._sync_btn,
-                       self._assign_btn, self._logo_btn, self._favourite_btn):
+                       self._assign_btn, self._unassign_btn, self._add_btn,
+                       self._edit_btn, self._remove_btn, self._logo_btn,
+                       self._favourite_btn):
             widget.setEnabled(not busy)
 
     # -- selection helpers ---------------------------------------------------
@@ -604,3 +633,240 @@ class LiveTvPanel(QWidget):
         number = self._selected_channel_number()
         if number:
             self.favourite_toggled.emit(int(number))
+
+    def _emit_edit(self):
+        number = self._selected_channel_number()
+        if number:
+            self.edit_channel_requested.emit(int(number))
+
+    def _emit_remove(self):
+        number = self._selected_channel_number()
+        if number:
+            self.remove_channel_requested.emit(int(number))
+
+    def _emit_unassign(self):
+        if self._tab == "shows":
+            paths = self._selected_paths(self._show_tree)
+            if paths:
+                self.unassign_requested.emit("show", paths)
+        elif self._tab == "ads":
+            paths = self._selected_paths(self._ads_tree)
+            if paths:
+                self.unassign_requested.emit("ad", paths)
+
+    def _on_channel_activated(self, item, _column):
+        number = item.data(0, Qt.UserRole)
+        if number:
+            self.edit_channel_requested.emit(int(number))
+
+    def _on_media_activated(self, item, _column):
+        """Double-clicking a show or commercial assigns it straight away."""
+        path = item.data(0, Qt.UserRole)
+        number = self._assign_combo.currentData()
+        if not path or not number:
+            return
+        kind = "show" if self._tab == "shows" else "ad"
+        self.assign_requested.emit(kind, [path], int(number))
+
+
+class LiveTvStorePanel(QWidget):
+    """Store tab for downloading Live TV shows and commercials.
+
+    Downloads go to the Live TV staging folder rather than the video library,
+    and the sync removes them from there once they are verified on the iPod.
+    """
+
+    browse_requested = Signal(str, str)   # query, destination
+    import_requested = Signal(str, str)   # url, destination
+
+    BROWSE_TABS = (
+        ("shows", "Classic TV", "show",
+         "full episode 1980s television broadcast"),
+        ("gameshows", "Game Shows", "show",
+         "classic game show full episode"),
+        ("sports", "Sports", "show", "classic wrestling full broadcast"),
+        ("ads", "Commercials", "ad", "1980s tv commercial break"),
+        ("promos", "Promos and Bumpers", "ad", "1990s tv station promo bumper"),
+    )
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setObjectName("browser_panel")
+        self._tab_buttons = {}
+        self._results = []
+        self._destination = "show"
+
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(10, 8, 10, 10)
+        layout.setSpacing(7)
+
+        nav = QFrame()
+        nav.setObjectName("itunes_store_nav")
+        nav_layout = QHBoxLayout(nav)
+        nav_layout.setContentsMargins(9, 5, 9, 5)
+        title = QLabel("Live TV")
+        title.setObjectName("itunes_store_title")
+        nav_layout.addWidget(title)
+        nav_layout.addStretch(1)
+        layout.addWidget(nav)
+
+        tab_bar = QFrame()
+        tab_bar.setObjectName("itunes_store_tabs")
+        tab_layout = QHBoxLayout(tab_bar)
+        tab_layout.setContentsMargins(9, 4, 9, 4)
+        tab_layout.setSpacing(4)
+        for key, label, destination, query in self.BROWSE_TABS:
+            button = QPushButton(label)
+            button.setObjectName("store_nav_button")
+            button.setCheckable(True)
+            button.clicked.connect(
+                lambda _checked=False, tab=key, dest=destination, text=query:
+                self._select_tab(tab, dest, text))
+            tab_layout.addWidget(button)
+            self._tab_buttons[key] = button
+        tab_layout.addStretch(1)
+        layout.addWidget(tab_bar)
+
+        hero = QFrame()
+        hero.setObjectName("itunes_store_hero")
+        hero_layout = QVBoxLayout(hero)
+        hero_layout.setContentsMargins(14, 12, 14, 12)
+        kicker = QLabel("Live TV Store")
+        kicker.setObjectName("itunes_store_kicker")
+        headline = QLabel("Fill your channels with shows and commercials")
+        headline.setObjectName("itunes_store_headline")
+        subhead = QLabel(
+            "Downloads are staged locally, converted to iPod MPEG, then "
+            "removed from this computer once they are verified on the iPod. "
+            "Only download material you own or are permitted to download."
+        )
+        subhead.setObjectName("itunes_store_subhead")
+        subhead.setWordWrap(True)
+        hero_layout.addWidget(kicker)
+        hero_layout.addWidget(headline)
+        hero_layout.addWidget(subhead)
+        layout.addWidget(hero)
+
+        browse_bar = QFrame()
+        browse_bar.setObjectName("itunes_store_import_bar")
+        browse_layout = QHBoxLayout(browse_bar)
+        browse_layout.setContentsMargins(9, 6, 9, 6)
+        browse_layout.setSpacing(6)
+        browse_label = QLabel("Browse")
+        browse_label.setObjectName("itunes_store_small_title")
+        self._browse_edit = QLineEdit()
+        self._browse_edit.setObjectName("itunes_store_import_url")
+        self._browse_edit.setPlaceholderText("Search for shows or commercials")
+        self._browse_edit.returnPressed.connect(self._emit_browse)
+        self._destination_combo = QComboBox()
+        self._destination_combo.addItem("Add as Show", "show")
+        self._destination_combo.addItem("Add as Commercial", "ad")
+        self._destination_combo.currentIndexChanged.connect(
+            self._on_destination_changed)
+        self._browse_btn = QPushButton("Search")
+        self._browse_btn.setObjectName("store_buy_button")
+        self._browse_btn.clicked.connect(self._emit_browse)
+        browse_layout.addWidget(browse_label)
+        browse_layout.addWidget(self._browse_edit, 1)
+        browse_layout.addWidget(self._destination_combo)
+        browse_layout.addWidget(self._browse_btn)
+        layout.addWidget(browse_bar)
+
+        import_bar = QFrame()
+        import_bar.setObjectName("itunes_store_import_bar")
+        import_layout = QHBoxLayout(import_bar)
+        import_layout.setContentsMargins(9, 6, 9, 6)
+        import_layout.setSpacing(6)
+        url_label = QLabel("Video URL")
+        url_label.setObjectName("itunes_store_small_title")
+        self._url_edit = QLineEdit()
+        self._url_edit.setObjectName("itunes_store_import_url")
+        self._url_edit.setPlaceholderText(
+            "Paste a video URL to add to Live TV")
+        self._url_edit.returnPressed.connect(self._emit_import)
+        self._import_btn = QPushButton("Download to Live TV")
+        self._import_btn.setObjectName("store_buy_button")
+        self._import_btn.clicked.connect(self._emit_import)
+        import_layout.addWidget(url_label)
+        import_layout.addWidget(self._url_edit, 1)
+        import_layout.addWidget(self._import_btn)
+        layout.addWidget(import_bar)
+
+        self._results_tree = QTreeWidget()
+        self._results_tree.setObjectName("video_sync_tree")
+        self._results_tree.setHeaderLabels(
+            ["Title", "Channel", "Length", "URL"])
+        self._results_tree.setRootIsDecorated(False)
+        self._results_tree.setAlternatingRowColors(True)
+        self._results_tree.itemDoubleClicked.connect(self._on_result_activated)
+        layout.addWidget(self._results_tree, 1)
+
+        self._status = QLabel("")
+        self._status.setObjectName("theme_hub_status")
+        self._status.setWordWrap(True)
+        layout.addWidget(self._status)
+
+        self._select_tab("shows", "show", self.BROWSE_TABS[0][3], emit=False)
+
+    def _select_tab(self, key, destination, query, emit=True):
+        for name, button in self._tab_buttons.items():
+            button.setChecked(name == key)
+            button.setProperty("active", name == key)
+            button.style().unpolish(button)
+            button.style().polish(button)
+        self.set_destination(destination)
+        self._browse_edit.setText(query)
+        if emit:
+            self.browse_requested.emit(query, destination)
+
+    def set_destination(self, destination):
+        self._destination = "ad" if destination == "ad" else "show"
+        index = self._destination_combo.findData(self._destination)
+        if index >= 0:
+            self._destination_combo.blockSignals(True)
+            self._destination_combo.setCurrentIndex(index)
+            self._destination_combo.blockSignals(False)
+
+    def destination(self):
+        return self._destination
+
+    def _on_destination_changed(self, _index):
+        self._destination = self._destination_combo.currentData() or "show"
+
+    def _emit_browse(self):
+        query = self._browse_edit.text().strip()
+        if query:
+            self.browse_requested.emit(query, self._destination)
+
+    def _emit_import(self):
+        url = self._url_edit.text().strip()
+        if url:
+            self.import_requested.emit(url, self._destination)
+
+    def _on_result_activated(self, item, _column):
+        url = item.data(0, Qt.UserRole)
+        if url:
+            self._url_edit.setText(str(url))
+            self.import_requested.emit(str(url), self._destination)
+
+    def set_results(self, results):
+        self._results = [dict(result or {}) for result in results or []]
+        self._results_tree.clear()
+        for result in self._results:
+            duration = result.get("duration") or 0
+            row = QTreeWidgetItem([
+                str(result.get("title") or "Untitled"),
+                str(result.get("uploader") or ""),
+                _format_duration(duration),
+                str(result.get("url") or ""),
+            ])
+            row.setData(0, Qt.UserRole, result.get("url") or "")
+            self._results_tree.addTopLevelItem(row)
+        for column in range(self._results_tree.columnCount()):
+            self._results_tree.resizeColumnToContents(column)
+
+    def set_status(self, text, running=False):
+        self._status.setText(str(text or ""))
+        self._status.setVisible(bool(text))
+        self._browse_btn.setEnabled(not running)
+        self._import_btn.setEnabled(not running)

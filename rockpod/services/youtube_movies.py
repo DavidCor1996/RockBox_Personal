@@ -193,8 +193,14 @@ def parse_movie_import_progress(lines):
 
 
 class YoutubeMovieImporter:
-    def __init__(self, config):
+    def __init__(self, config, output_dir=None):
         self._config = config
+        # Live TV downloads land in its own staging folder rather than the
+        # video library, so they can be deleted once they are on the iPod.
+        self._output_override = (
+            os.path.abspath(os.path.expanduser(output_dir))
+            if output_dir else ""
+        )
 
     @property
     def video_dir(self):
@@ -224,7 +230,13 @@ class YoutubeMovieImporter:
 
     @property
     def output_dir(self):
+        if self._output_override:
+            return self._output_override
         return os.path.join(self.video_dir, "YouTube")
+
+    def with_output_dir(self, output_dir):
+        """A sibling importer that writes somewhere else."""
+        return YoutubeMovieImporter(self._config, output_dir=output_dir)
 
     def new_log_path(self):
         os.makedirs(self.log_dir, exist_ok=True)
