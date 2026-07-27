@@ -297,8 +297,23 @@ Two sections, exactly as requested:
 * **Commercials** — every discovered ad, its channel pool assignment (or
   *All channels*), duration and sync state.
 
-Plus channel management (add/rename/renumber a channel, pick a logo image),
-a "Generate Schedule" action, and Sync / Remove buttons.
+Plus channel management and a "Generate Schedule and Sync" action.
+
+**Channels** can be added, renamed, renumbered and removed. Double-clicking a
+row edits it. Shows and commercials are assigned to a channel from the Shows
+and Commercials tabs (double-clicking assigns to the channel in the picker),
+and can be unassigned again.
+
+Two rules keep hand editing safe:
+
+* **"Build Channels" is additive.** It only creates channels for series that
+  have none, and only assigns shows that are not assigned anywhere. A channel
+  is recognised by *what is assigned to it*, not by its name, so renaming one
+  does not resurrect a duplicate on the next rebuild.
+* **Channel numbers are unique**, enforced when a line-up is saved, loaded and
+  synced. The device resolves a channel by number and takes the first match,
+  so a duplicate would silently hide one channel's listings behind another's.
+  Line-ups written before this rule are repaired on load.
 
 ### 6.3 Transcode
 
