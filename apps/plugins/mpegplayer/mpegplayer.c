@@ -3982,20 +3982,6 @@ static int button_loop(void)
         case MPEG_RC_VOLUP|BUTTON_REPEAT:
 #endif
         {
-#ifdef HAVE_LCD_COLOR
-            if (mpegplayer_livetv_launch)
-            {
-                /* The wheel walks channels while watching, as CH+ does. */
-                int action = livetv_change_channel(-1);
-
-                if (action >= 0)
-                {
-                    osd_stop();
-                    next_action = action;
-                }
-                break;
-            }
-#endif
             if (feed.active)
             {
                 if (feed_skip_allowed())
@@ -4021,19 +4007,6 @@ static int button_loop(void)
         case MPEG_RC_VOLDOWN|BUTTON_REPEAT:
 #endif
         {
-#ifdef HAVE_LCD_COLOR
-            if (mpegplayer_livetv_launch)
-            {
-                int action = livetv_change_channel(1);
-
-                if (action >= 0)
-                {
-                    osd_stop();
-                    next_action = action;
-                }
-                break;
-            }
-#endif
             if (feed.active)
             {
                 if (feed_skip_allowed())
@@ -4299,6 +4272,22 @@ static int button_loop(void)
         {
             int old_button = button;
 
+#ifdef HAVE_LCD_COLOR
+            if (mpegplayer_livetv_launch)
+            {
+                /* Live television cannot be rewound, so the left key steps
+                 * down a channel instead. */
+                int action = livetv_change_channel(-1);
+
+                if (action >= 0)
+                {
+                    osd_stop();
+                    next_action = action;
+                }
+                break;
+            }
+#endif
+
             /* If button has been released: skip to next/previous file */
             button = mpeg_button_get(OSD_MIN_UPDATE_INTERVAL);
 
@@ -4337,6 +4326,22 @@ static int button_loop(void)
 #endif
         {
             int old_button = button;
+
+#ifdef HAVE_LCD_COLOR
+            if (mpegplayer_livetv_launch)
+            {
+                /* Live television cannot be fast forwarded, so the right
+                 * key steps up a channel instead. */
+                int action = livetv_change_channel(1);
+
+                if (action >= 0)
+                {
+                    osd_stop();
+                    next_action = action;
+                }
+                break;
+            }
+#endif
 
             if (settings.play_mode != 0)
                 button = mpeg_button_get(OSD_MIN_UPDATE_INTERVAL);

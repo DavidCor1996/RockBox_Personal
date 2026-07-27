@@ -269,10 +269,15 @@ hand-drawn imitation artwork.
 | Input | Action |
 |---|---|
 | MENU | back to the guide, channel keeps playing in the corner |
-| Wheel | channel up / down with the DIRECTV info banner |
+| Left / Right | previous / next channel, with the DIRECTV info banner |
+| Wheel | volume |
 | SELECT | show the info banner |
 | PLAY | mini guide |
-| MENU, long | leave Live TV |
+
+Live television cannot be seeked, so the keys that would fast forward and
+rewind change channel instead — which is also where a viewer's thumb expects
+channel up and down to be. The wheel keeps its ordinary meaning of volume.
+There is no pause: PLAY brings up the mini guide.
 
 ---
 

@@ -233,6 +233,19 @@ def motion(frame: Path, output: Path, prefix: str, crop: str,
     return max(changed_pixels(shots[0], other) for other in shots[1:])
 
 
+def tuned_channel(root: Path) -> int:
+    """The channel the plugin currently has tuned.
+
+    The plugin saves it whenever it changes, so this reports what is really
+    playing rather than guessing from pixels.
+    """
+    path = root / LIVETV_ROOT / ".livetv_state"
+    try:
+        return int(path.read_text(encoding="utf-8").strip().splitlines()[0])
+    except (OSError, ValueError, IndexError):
+        return -1
+
+
 def gold_pixels(frame: Path) -> int:
     """Count DIRECTV gold (#FEC425) pixels inside the grid area."""
     result = subprocess.run(
@@ -339,6 +352,27 @@ def main() -> int:
                 failures.append("SELECT did not tune the channel full screen")
             if motion(frame, args.output, "livetv-full", FULL_CROP) < 200:
                 failures.append("the tuned channel is not playing video")
+
+            # Live television cannot be seeked: left and right change
+            # channel, and the wheel is left alone for volume.
+            started_on = tuned_channel(root)
+            tap(process.pid, "Right")
+            time.sleep(2.5)
+            capture(frame, args.output / "livetv-channel-up.png")
+            stepped_up = tuned_channel(root)
+            if stepped_up != started_on + 1:
+                failures.append(
+                    f"Right did not step up a channel "
+                    f"({started_on} -> {stepped_up})")
+
+            tap(process.pid, "Left")
+            time.sleep(2.5)
+            capture(frame, args.output / "livetv-channel-down.png")
+            stepped_down = tuned_channel(root)
+            if stepped_down != started_on:
+                failures.append(
+                    f"Left did not step back a channel "
+                    f"({stepped_up} -> {stepped_down})")
 
             tap(process.pid, "KP_Decimal")
             time.sleep(2.5)
