@@ -26,11 +26,9 @@
 
 #include "iap-core.h"
 #include "iap-lingo.h"
-#include "kernel.h"
 #include "system.h"
 #include "button.h"
 #include "audio.h"
-#include "sound.h"
 #include "settings.h"
 #include "tuner.h"
 #if CONFIG_TUNER
@@ -60,27 +58,6 @@ static void cmd_ack(const unsigned char cmd, const unsigned char status)
 
 #define cmd_ok(cmd) cmd_ack((cmd), IAP_ACK_OK)
 
-#if defined(IPOD_VIDEO) && defined(HAVE_WM8758)
-static void remote_lineout_adjust_volume(int steps)
-{
-    int volume = global_status.volume + steps * sound_steps(SOUND_VOLUME);
-    int max_volume = global_settings.volume_limit;
-
-    if (max_volume > 0)
-        max_volume = 0;
-
-    if (volume < sound_min(SOUND_VOLUME))
-        volume = sound_min(SOUND_VOLUME);
-    else if (volume > max_volume)
-        volume = max_volume;
-
-    global_status.volume = volume;
-    global_status.last_volume_change = current_tick;
-
-    audiohw_set_remote_lineout_volume(volume);
-}
-#endif
-
 void iap_handlepkt_mode2(const unsigned int len, const unsigned char *buf)
 {
     static bool poweron_pressed = false;
@@ -95,8 +72,15 @@ void iap_handlepkt_mode2(const unsigned int len, const unsigned char *buf)
      */
     CHECKLEN(3);
 
-    /* Lingo 0x02 must have been negotiated */
-    if (!DEVICE_LINGO_SUPPORTED(0x02)) {
+    /* Lingo 0x02 must have been negotiated, except for
+     * ContextButtonStatus (0x00): simple remotes like the Apple A1018
+     * identify only once at power-up. If the remote was already
+     * powered before Rockbox started (e.g. plugged in at boot) that
+     * identification is never seen, and rejecting the button events
+     * would leave the remote dead until it is replugged. Per MFi
+     * spec Table 2-7, cmd 0x00 on UART does not require auth.
+     */
+    if ((cmd != 0x00) && !DEVICE_LINGO_SUPPORTED(0x02)) {
         cmd_ack(cmd, IAP_ACK_BAD_PARAM);
         return;
     }
@@ -140,27 +124,16 @@ void iap_handlepkt_mode2(const unsigned int len, const unsigned char *buf)
                     }
 #endif
                 }
-                if(buf[2] & 2) {
-#if defined(IPOD_VIDEO) && defined(HAVE_WM8758)
-                    remote_lineout_adjust_volume(1);
-#else
+                if(buf[2] & 2)
                     REMOTE_BUTTON(BUTTON_RC_VOL_UP);
-#endif
-                }
-                if(buf[2] & 4) {
-#if defined(IPOD_VIDEO) && defined(HAVE_WM8758)
-                    remote_lineout_adjust_volume(-1);
-#else
+                if(buf[2] & 4)
                     REMOTE_BUTTON(BUTTON_RC_VOL_DOWN);
-#endif
-                }
                 if(buf[2] & 8)
                     REMOTE_BUTTON(BUTTON_RC_RIGHT);
                 if(buf[2] & 16)
                     REMOTE_BUTTON(BUTTON_RC_LEFT);
             }
-
-            if(len >= 4 && buf[3] != 0)
+            else if(len >= 4 && buf[3] != 0)
             {
                 if(buf[3] & 1) /* play */
                 {
@@ -191,8 +164,7 @@ void iap_handlepkt_mode2(const unsigned int len, const unsigned char *buf)
                     }
                 }
             }
-
-            if(len >= 5 && buf[4] != 0)
+            else if(len >= 5 && buf[4] != 0)
             {
                 if(buf[4] & 1) /* repeat */
                 {
@@ -227,8 +199,7 @@ void iap_handlepkt_mode2(const unsigned int len, const unsigned char *buf)
                 if(buf[4] & 128) /* select */
                     REMOTE_BUTTON(BUTTON_RC_SELECT);
             }
-
-            if(len >= 6 && buf[5] != 0)
+            else if(len >= 6 && buf[5] != 0)
             {
                 if(buf[5] & 1) /* up */
                     REMOTE_BUTTON(BUTTON_RC_UP);

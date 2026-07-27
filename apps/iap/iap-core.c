@@ -45,6 +45,7 @@
 #include "usb.h"
 #ifdef USB_ENABLE_AUDIO
 #include "../usbstack/usb_audio.h"
+#include "pcm_mixer.h"
 #endif
 
 #include "tuner.h"
@@ -92,6 +93,10 @@ static bool iap_setupflag = false, iap_running = false;
  */
 static bool iap_shutdown = false;
 static struct timeout iap_task_tmo;
+#ifdef USB_ENABLE_AUDIO
+static unsigned long iap_audio_reported_frequency;
+static unsigned long iap_audio_pending_frequency;
+#endif
 
 unsigned long iap_remotebtn = 0;
 /* Used to make sure a button press is delivered to the processing
@@ -114,23 +119,6 @@ bool iap_btnrepeat = false, iap_btnshuffle = false;
 
 static long thread_stack[(DEFAULT_STACK_SIZE*6)/sizeof(long)];
 static struct event_queue iap_queue;
-
-#define IAP_TRACE_ENTRIES 16
-#define IAP_TRACE_DATA_LEN 16
-
-struct iap_trace_entry {
-    unsigned int seq;
-    long tick;
-    char dir;
-    uint16_t len;
-    unsigned char data[IAP_TRACE_DATA_LEN];
-};
-
-static struct iap_trace_entry iap_trace[IAP_TRACE_ENTRIES];
-static unsigned int iap_trace_head;
-static unsigned int iap_trace_count;
-static unsigned int iap_trace_seq;
-static bool iap_trace_paused;
 
 /* These are pointer used to manage a dynamically allocated buffer which
  * will hold both the RX and TX side of things.
@@ -280,73 +268,6 @@ uint16_t get_u16(const unsigned char *buf)
     return (buf[0] << 8) | buf[1];
 }
 
-static void iap_trace_packet(char dir, const unsigned char *data, int len)
-{
-    int level;
-    struct iap_trace_entry *entry;
-    int copylen = MIN(len, IAP_TRACE_DATA_LEN);
-
-    if (iap_trace_paused)
-        return;
-
-    level = disable_irq_save();
-
-    entry = &iap_trace[iap_trace_head];
-    entry->seq = ++iap_trace_seq;
-    entry->tick = current_tick;
-    entry->dir = dir;
-    entry->len = len;
-    if (copylen > 0)
-        memcpy(entry->data, data, copylen);
-    if (copylen < IAP_TRACE_DATA_LEN)
-        memset(entry->data + copylen, 0, IAP_TRACE_DATA_LEN - copylen);
-
-    iap_trace_head = (iap_trace_head + 1) % IAP_TRACE_ENTRIES;
-    if (iap_trace_count < IAP_TRACE_ENTRIES)
-        iap_trace_count++;
-
-    restore_irq(level);
-}
-
-static void iap_trace_clear(void)
-{
-    int level = disable_irq_save();
-
-    iap_trace_head = 0;
-    iap_trace_count = 0;
-    iap_trace_seq = 0;
-    memset(iap_trace, 0, sizeof(iap_trace));
-
-    restore_irq(level);
-}
-
-static void iap_trace_hex(char *buf, size_t bufsz,
-                          const struct iap_trace_entry *entry)
-{
-    static const char hex[] = "0123456789ABCDEF";
-    size_t i;
-    size_t out = 0;
-    size_t len = MIN(entry->len, IAP_TRACE_DATA_LEN);
-
-    for (i = 0; i < len && out + 3 < bufsz; i++)
-    {
-        if (i > 0)
-            buf[out++] = ' ';
-        buf[out++] = hex[(entry->data[i] >> 4) & 0x0f];
-        buf[out++] = hex[entry->data[i] & 0x0f];
-    }
-
-    if (entry->len > IAP_TRACE_DATA_LEN && out + 4 < bufsz)
-    {
-        buf[out++] = ' ';
-        buf[out++] = '.';
-        buf[out++] = '.';
-        buf[out++] = '.';
-    }
-
-    buf[out] = '\0';
-}
-
 #if defined(LOGF_ENABLE) && defined(ROCKBOX_HAS_LOGF)
 /* Convert a buffer into a printable string, perl style
  * buf contains the data to be converted, len is the length
@@ -441,6 +362,15 @@ void iap_reset_device(struct device_t* device)
     device->capabilities = 0;
     device->capabilities_queried = 0;
     device->audio_init_pending = false;
+    device->volume_notify_pending = false;
+    device->idps_lingoes = 0;
+    device->idps_options = 0;
+    device->idps_deviceid = 0;
+    device->ipod_trans_id = 1;
+#ifdef USB_ENABLE_AUDIO
+    iap_audio_reported_frequency = 0;
+    iap_audio_pending_frequency = 0;
+#endif
 }
 
 static int iap_task(struct timeout *tmo)
@@ -464,6 +394,7 @@ static int iap_task(struct timeout *tmo)
         && device.accinfo != ACCST_SENT
         && device.accinfo != ACCST_DATA
         && !device.audio_init_pending
+        && !device.volume_notify_pending
         && !device.do_notify
         && !iap_shutdown
         && iap_timeoutbtn == 0
@@ -477,6 +408,7 @@ static int iap_task(struct timeout *tmo)
 void iap_set_remote_volume(void)
 {
     IAP_TX_INIT(0x03, 0x0D);
+    IAP_TX_PUT_IPOD_TRANSID();
     IAP_TX_PUT(0x04);
     IAP_TX_PUT(0x00);
     IAP_TX_PUT(0xFF & (int)((global_status.volume + 90) * 2.65625));
@@ -537,10 +469,33 @@ static void iap_thread(void)
 }
 
 /* called by playback when the next track starts */
-static void iap_track_changed(unsigned short id, void *ignored)
+static void iap_track_changed(unsigned short id, void *param)
 {
     (void)id;
-    (void)ignored;
+
+#ifdef USB_ENABLE_AUDIO
+    struct track_event *te = param;
+    unsigned long frequency = mixer_get_frequency();
+
+    if (global_settings.play_frequency)
+        frequency = global_settings.play_frequency;
+    else if (te && te->id3 && te->id3->frequency)
+        frequency = (te->id3->frequency % 4000) ? SAMPR_44 : SAMPR_48;
+
+    if (DEVICE_LINGO_SUPPORTED(0x0A)
+        && iap_audio_reported_frequency != frequency)
+    {
+        iap_audio_pending_frequency = frequency;
+        if (!device.audio_init_pending)
+        {
+            device.audio_init_pending = true;
+            queue_post(&iap_queue, IAP_EV_TICK, 0);
+        }
+    }
+#else
+    (void)param;
+#endif
+
     if ((interface_state == IST_EXTENDED) && device.do_notify) {
         long playlist_pos = playlist_next(0);
         playlist_pos -= playlist_get_first_index(NULL);
@@ -703,7 +658,6 @@ void iap_send_tx(void)
 #if defined(LOGF_ENABLE) && defined(ROCKBOX_HAS_LOGF)
     logf("T: %s", hexstring(txstart+3, (iap_txnext - txstart)-3));
 #endif
-    iap_trace_packet('T', iap_txpayload, txlen);
     iap_transport_send(txstart, (iap_txnext - txstart) + 1);
 }
 
@@ -726,7 +680,7 @@ bool iap_getc(IF_IAP_MP(int port,) const unsigned char x)
     static long pkt_timeout;
 
     if (!iap_setupflag)
-        return false;
+        return true;
 
     /* Check the time since the last packet arrived. */
     if ((s->state != ST_SYNC) && TIME_AFTER(current_tick, pkt_timeout)) {
@@ -885,6 +839,7 @@ void iap_periodic(void)
         {
             /* Send out GetDevAuthenticationInfo */
             IAP_TX_INIT(0x00, 0x14);
+            IAP_TX_PUT_IPOD_TRANSID();
 
             iap_send_tx();
             device.auth.state = AUST_CERTREQ;
@@ -893,21 +848,11 @@ void iap_periodic(void)
 
         case AUST_CERTDONE:
         {
-            /* Send out GetDevAuthenticationSignature, with
-             * 20 bytes of challenge and a retry counter of 1.
-             * Since we do not really care about the content of the
-             * challenge we just use the first 20 bytes of whatever
-             * is in the RX buffer right now.
-             *
-             * In IDPS mode, include the transID saved from the last
-             * RetDevAuthenticationInfo (0x15). The Go daemon does the
-             * same via ipod.Respond which echoes the request's transID.
-             */
+            /* Send GetDevAuthenticationSignature with 20 bytes of
+             * challenge and retry counter 1.  We use whatever happens
+             * to be in the RX buffer as the challenge data. */
             IAP_TX_INIT(0x00, 0x17);
-            if (device.auth.idps) {
-                IAP_TX_PUT(device.auth.tid_hi);
-                IAP_TX_PUT(device.auth.tid_lo);
-            }
+            IAP_TX_PUT_IPOD_TRANSID();
             IAP_TX_PUT_DATA(iap_rxstart,
                         (device.auth.version == 0x100) ? 16 : 20);
             IAP_TX_PUT(0x01);
@@ -929,12 +874,15 @@ void iap_periodic(void)
         device.audio_init_pending = false;
 
         IAP_TX_INIT(0x0A, 0x02);
-        if (device.auth.idps) {
-            /* Generate outgoing transID (doesn't need to match anything) */
-            IAP_TX_PUT(0x00);
-            IAP_TX_PUT(0x01);
-        }
+        IAP_TX_PUT_IPOD_TRANSID();
         iap_send_tx();
+    }
+
+    /* Deferred volume notification after auth completes */
+    if (device.volume_notify_pending && DEVICE_AUTHENTICATED)
+    {
+        device.volume_notify_pending = false;
+        iap_set_remote_volume();
     }
 
     /* Time out button down events */
@@ -954,6 +902,7 @@ void iap_periodic(void)
     {
         /* NotifyiPodStateChange */
         IAP_TX_INIT(0x00, 0x23);
+        IAP_TX_PUT_IPOD_TRANSID();
         IAP_TX_PUT(0x01);
 
         iap_send_tx();
@@ -968,6 +917,7 @@ void iap_periodic(void)
     {
         /* GetAccessoryInfo */
         IAP_TX_INIT(0x00, 0x27);
+        IAP_TX_PUT_IPOD_TRANSID();
         IAP_TX_PUT(0x00);
 
         iap_send_tx();
@@ -1010,6 +960,7 @@ void iap_periodic(void)
                 case 0x09:
                 {
                     IAP_TX_INIT(0x00, 0x27);
+                    IAP_TX_PUT_IPOD_TRANSID();
                     IAP_TX_PUT(first_set);
 
                     iap_send_tx();
@@ -1020,6 +971,7 @@ void iap_periodic(void)
                 case 0x02:
                 {
                     IAP_TX_INIT(0x00, 0x27);
+                    IAP_TX_PUT_IPOD_TRANSID();
                     IAP_TX_PUT(2);
                     IAP_TX_PUT_U32(IAP_IPOD_MODEL);
                     IAP_TX_PUT(IAP_IPOD_FIRMWARE_MAJOR);
@@ -1034,6 +986,7 @@ void iap_periodic(void)
                 case 0x03:
                 {
                     IAP_TX_INIT(0x00, 0x27);
+                    IAP_TX_PUT_IPOD_TRANSID();
                     IAP_TX_PUT(3);
                     IAP_TX_PUT(0);
 
@@ -1464,13 +1417,25 @@ static void iap_handlepkt_mode10(const unsigned int len, const unsigned char *bu
         /* RetAccSampleRateCaps (0x03) — respond with TrackNewAudioAttributes */
         case 0x03:
         {
+#ifdef USB_ENABLE_AUDIO
+            unsigned long frequency;
+#endif
             (void)off;
             IAP_TX_INIT(0x0A, 0x04);
             if (device.auth.idps) {
                 IAP_TX_PUT(tid_hi);
                 IAP_TX_PUT(tid_lo);
             }
+#ifdef USB_ENABLE_AUDIO
+            frequency = iap_audio_pending_frequency ?
+                        iap_audio_pending_frequency : mixer_get_frequency();
+            usb_audio_set_source_sampling_frequency(frequency);
+            IAP_TX_PUT_U32(frequency);  /* sample rate */
+            iap_audio_reported_frequency = frequency;
+            iap_audio_pending_frequency = 0;
+#else
             IAP_TX_PUT_U32(44100);  /* sample rate */
+#endif
             IAP_TX_PUT_U32(0);      /* sound check value */
             IAP_TX_PUT_U32(0);      /* volume adjustment */
             iap_send_tx();
@@ -1503,7 +1468,6 @@ void iap_handlepkt(void)
 #if defined(LOGF_ENABLE) && defined(ROCKBOX_HAS_LOGF)
     logf("R: %s", hexstring(iap_rxstart+2, (length)));
 #endif
-    iap_trace_packet('R', iap_rxstart+2, length);
 
     if (length != 0) {
         unsigned char mode = *(iap_rxstart+2);
@@ -1658,66 +1622,23 @@ bool dbg_iap(void)
 
     while (1)
     {
-        int action = get_action(CONTEXT_STD, HZ/10);
-        int line = 0;
-        int max_lines = LCD_HEIGHT / font_get(FONT_SYSFIXED)->height;
-        unsigned int count;
-        unsigned int head;
-        unsigned int i;
-        bool paused;
-        int level;
-
-        switch (action)
-        {
-            case ACTION_STD_CANCEL:
-                lcd_setfont(FONT_UI);
-                return false;
-
-            case ACTION_STD_OK:
-                iap_trace_paused = !iap_trace_paused;
-                break;
-
-            case ACTION_STD_CONTEXT:
-                iap_trace_clear();
-                break;
-        }
+        if (action_userabort(HZ/10))
+            break;
 
         lcd_clear_display();
 
         /* show internal state of IAP subsystem */
-        lcd_putsf(0, line++, "auth:%d acc:%d if:%d",
-                  device.auth.state, device.accinfo, interface_state);
-        lcd_putsf(0, line++, "lin:%08x notif:%08x",
-                  device.lingoes, device.notifications);
-        lcd_putsf(0, line++, "cap:%08x/%08x",
-                  device.capabilities, device.capabilities_queried);
+        lcd_putsf(0, 0, "auth: %d acc: %d", device.auth.state, device.accinfo);
+        lcd_putsf(0, 1, "lin: %08x", device.lingoes);
+        lcd_putsf(0, 2, "notif: %08x", device.notifications);
+        lcd_putsf(0, 3, "cap: %08x/%08x", device.capabilities, device.capabilities_queried);
 
-        level = disable_irq_save();
-        count = iap_trace_count;
-        head = iap_trace_head;
-        paused = iap_trace_paused;
-        restore_irq(level);
-
-        if (line < max_lines)
-            lcd_putsf(0, line++, "trace:%s n:%u ok:hold ctx:clr",
-                      paused ? "hold" : "run", count);
-
-        for (i = 0; i < count && line < max_lines; i++)
-        {
-            struct iap_trace_entry entry;
-            char hexbuf[IAP_TRACE_DATA_LEN * 3 + 4];
-            unsigned int index = (head + IAP_TRACE_ENTRIES - 1 - i)
-                               % IAP_TRACE_ENTRIES;
-
-            level = disable_irq_save();
-            entry = iap_trace[index];
-            restore_irq(level);
-
-            iap_trace_hex(hexbuf, sizeof(hexbuf), &entry);
-            lcd_putsf(0, line++, "%03u %c %u %s",
-                      entry.seq, entry.dir, entry.len, hexbuf);
-        }
+        // frame_state.state
+        // serial state
 
         lcd_update();
     }
+
+    lcd_setfont(FONT_UI);
+    return false;
 }

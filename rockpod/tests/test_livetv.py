@@ -400,6 +400,44 @@ def test_a_show_is_never_assigned_to_two_channels(tmp_path):
     assert set(seen) == {item.path for item in shows}
 
 
+def test_videos_are_encoded_to_fill_the_ipod_screen():
+    """Letterboxing a 16:9 rip into 4:3 leaves a small, banded picture."""
+    video_filter = livetv.LiveTvSync.video_filter()
+
+    assert "scale=320:240:force_original_aspect_ratio=increase" in video_filter
+    assert "crop=320:240" in video_filter
+    assert "pad=" not in video_filter, "padding would reintroduce black bars"
+    # Anamorphic 720x480 rips must be squared before scaling.
+    assert video_filter.startswith("scale=iw*sar:ih")
+    assert "setsar=1" in video_filter
+    assert "fps=20" in video_filter
+
+
+def test_changing_the_encode_profile_invalidates_cached_clips(tmp_path):
+    class _Library:
+        def cache_dir(self):
+            return str(tmp_path)
+
+    sync = livetv.LiveTvSync(_Library())
+    item = _media("/live/show.mp4", "show", 100)
+    cached = sync.cached_mpeg_path(item)
+
+    assert livetv.LIVETV_MPEG_PROFILE in cached
+    assert cached.endswith(item.device_relative())
+
+    # A clip left behind by an older profile is cleared out.
+    stale = tmp_path / "mpeg2-320x240-old"
+    stale.mkdir()
+    (stale / "clip.mpg").write_bytes(b"0")
+    current = tmp_path / livetv.LIVETV_MPEG_PROFILE
+    current.mkdir()
+    (current / "keep.mpg").write_bytes(b"0")
+
+    assert sync.prune_stale_cache() == 1
+    assert not stale.exists()
+    assert (current / "keep.mpg").is_file()
+
+
 def test_ad_break_bounds_are_configurable_and_default_to_two_or_three():
     assert livetv.DEFAULT_AD_BREAK_MIN == 2
     assert livetv.DEFAULT_AD_BREAK_MAX == 3

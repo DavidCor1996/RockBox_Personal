@@ -49,6 +49,7 @@
 #define LIVETV_DOT_RED      LCD_RGBPACK(194, 42, 24)   /* #C22A18 */
 #define LIVETV_DOT_GREEN    LCD_RGBPACK(46, 161, 92)   /* #2EA15C */
 #define LIVETV_DOT_YELLOW   LCD_RGBPACK(249, 198, 60)  /* #F9C63C */
+#define LIVETV_WORDMARK     LCD_RGBPACK(124, 162, 193) /* #7CA2C1 */
 
 /* Layout ------------------------------------------------------------- */
 
@@ -1176,6 +1177,18 @@ static void livetv_draw_banner_area(void)
                        LIVETV_BANNER_TOP, "DIRECTV");
     }
 
+    /* "guide" wordmark, sitting just left of the video window as it does on
+     * the receiver. */
+    {
+        int wordmark_w = 0;
+
+        rb->lcd_getstringsize("guide", &wordmark_w, NULL);
+        livetv_text_at(desc_right - wordmark_w - 2,
+                       (LIVETV_BANNER_H - text_h) / 2, LIVETV_WORDMARK,
+                       LIVETV_BANNER_TOP, "guide");
+        desc_right -= wordmark_w + 8;
+    }
+
     /* Programme title, in DIRECTV blue on the pale banner */
     livetv_text_fit(72, (LIVETV_BANNER_H - text_h) / 2, desc_right - 76,
                     LIVETV_BRAND_BLUE, LIVETV_BANNER_BOT,
@@ -1233,21 +1246,20 @@ static void livetv_draw_banner_area(void)
     if (slot != NULL)
     {
         const char *desc = livetv_slot_desc(slot);
-        const char *chan_name = livetv_channel(chan)->name;
         int y = LIVETV_DESC_Y + 2;
         int line_h = text_h + 1;
+        int lines = MAX(1, (LIVETV_DESC_H - 4) / line_h);
 
-        livetv_text_fit(4, y, desc_right - 8, LIVETV_TEXT, LIVETV_DESC_BG,
-                        chan_name);
-        y += line_h;
+        if (desc[0] == '\0')
+            desc = livetv_channel(chan)->name;
 
-        if (desc[0] != '\0')
         {
-            /* Wrap the description over the two remaining lines. */
+            /* Wrap the synopsis over the block, exactly as the receiver
+             * prints it under the programme title. */
             char line[96];
             const char *p = desc;
 
-            for (int i = 0; i < 2 && *p != '\0'; i++)
+            for (int i = 0; i < lines && *p != '\0'; i++)
             {
                 int used = 0;
                 int width = 0;
@@ -1276,11 +1288,6 @@ static void livetv_draw_banner_area(void)
                 while (*p == ' ')
                     p++;
             }
-        }
-        else if (slot->kind == LIVETV_KIND_AD)
-        {
-            livetv_text_at(4, y, LIVETV_TEXT, LIVETV_DESC_BG,
-                           "Commercial break");
         }
     }
     else

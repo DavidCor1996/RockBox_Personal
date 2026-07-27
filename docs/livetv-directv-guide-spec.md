@@ -188,6 +188,13 @@ Colours were **sampled from the real DIRECTV receiver user guide artwork**
 (page 15 of the DIRECTV HD & SD Standard Receivers user guide, rendered at
 600 dpi and colour-picked), not chosen by eye:
 
+The DIRECTV wordmark is the real one used by the 2004-2011 receivers
+(Wikimedia Commons `File:DirecTV logo (2004-2011).svg`, public domain),
+fetched once and rendered to a 64x22 BMP whose padding is the banner colour
+so it disappears into the guide. When it is missing the guide draws the brand
+as text instead. Channel logos are optional 40x18 BMPs padded with the
+channel-column navy, falling back to the DIRECTV-correct call sign.
+
 | Element | Sampled | `LCD_RGBPACK` |
 |---|---|---|
 | Banner gradient top | `#DCEEF9` | 220, 238, 249 |
@@ -317,11 +324,28 @@ Two rules keep hand editing safe:
 
 ### 6.3 Transcode
 
-Reuses the existing MPEG path in `rockpod/services/video_rvp.py`
-(`_prepare_mpeg_track`, `_ensure_mpeg_file`, `_mpeg_command`): 320x240 MPEG-2
-program stream, the same profile the "Sync as MPEG" button already produces.
-Durations come from `ffprobe` at scan time and are cached in the Live TV
-database so scheduling never re-probes.
+320x240 MPEG-2 program stream, 20 fps, MP2 audio at 44.1 kHz — the profile
+mpegplayer expects. Durations come from `ffprobe` at scan time and are cached
+so scheduling never re-probes.
+
+**Framing fills the screen.** Live TV content is watched on a 4:3 screen, and
+fitting a 16:9 rip inside it would letterbox the picture into a small band —
+a 640x360 recording would occupy 320x180 of the 320x240 panel. A television
+of this era centre-cut widescreen instead, so the encode scales until the
+screen is covered and crops the overhang:
+
+```
+scale=iw*sar:ih,                                    square anamorphic pixels
+scale=320:240:force_original_aspect_ratio=increase, cover the screen
+crop=320:240,setsar=1,fps=20                        trim the overhang
+```
+
+The leading `scale=iw*sar:ih` matters for anamorphic 720x480 rips, which
+would otherwise come out horizontally squashed.
+
+The cache is keyed by `LIVETV_MPEG_PROFILE`, so changing the framing
+re-encodes rather than silently reusing clips built the old way, and stale
+profile directories are removed on the next sync.
 
 ### 6.4 Store Live TV tab
 

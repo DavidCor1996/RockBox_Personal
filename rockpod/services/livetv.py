@@ -51,13 +51,27 @@ SIDECAR_EXTENSIONS = {
 DEFAULT_AD_BREAK_MIN = 2
 DEFAULT_AD_BREAK_MAX = 3
 
-# Public domain / freely licensed wordmarks, tried in order. Failure is not
-# fatal: the guide falls back to drawing the brand text itself.
+# Sampled from the DIRECTV receiver artwork; these must match the
+# LIVETV_BANNER_TOP and LIVETV_CHAN_BG constants in livetv_guide.c so that
+# artwork padding disappears into the guide behind it.
+GUIDE_BANNER_BG = "0xDCEEF9"
+GUIDE_CHANNEL_BG = "0x122549"
+
+# Bump this whenever the encode changes so cached clips are rebuilt rather
+# than silently reused in the old framing.
+LIVETV_MPEG_PROFILE = "mpeg2-320x240-fill-v2"
+
+# The wordmark DIRECTV used in the 2004-2011 receivers, which is the era
+# this guide reproduces. Public domain (simple geometry, © The DirecTV
+# Group). Wikimedia rejects arbitrary thumbnail widths, so ask for one of
+# the standard sizes. Failure is not fatal: the guide falls back to drawing
+# the brand text itself.
 BRAND_LOGO_SOURCES = (
-    "https://upload.wikimedia.org/wikipedia/commons/thumb/9/94/"
-    "DirecTV_logo.svg/320px-DirecTV_logo.svg.png",
-    "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/"
-    "DirecTV-Logo.svg/320px-DirecTV-Logo.svg.png",
+    "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/"
+    "DirecTV_logo_%282004-2011%29.svg/330px-DirecTV_logo_%282004-2011%29"
+    ".svg.png",
+    "https://upload.wikimedia.org/wikipedia/commons/b/b6/"
+    "DirecTV_logo_%282004-2011%29.svg",
 )
 
 _YEAR_RE = re.compile(r"\b(19|20)\d{2}\b")
@@ -852,16 +866,58 @@ class LiveTvSync:
     # -- transcode -------------------------------------------------------
 
     def cached_mpeg_path(self, item: LiveTvMedia) -> str:
-        return os.path.join(self._library.cache_dir(), item.device_relative())
+        # The profile is part of the cache path, so changing how videos are
+        # framed re-converts everything instead of silently reusing clips
+        # encoded the old way.
+        return os.path.join(self._library.cache_dir(), LIVETV_MPEG_PROFILE,
+                            item.device_relative())
+
+    def prune_stale_cache(self) -> int:
+        """Delete clips encoded with a superseded profile.
+
+        Without this, changing how videos are framed would leave the old
+        letterboxed copies on disk forever.
+        """
+        cache = self._library.cache_dir()
+        removed = 0
+        try:
+            entries = sorted(os.listdir(cache))
+        except OSError:
+            return 0
+
+        for name in entries:
+            path = os.path.join(cache, name)
+            if not os.path.isdir(path) or name == LIVETV_MPEG_PROFILE:
+                continue
+            try:
+                shutil.rmtree(path)
+                removed += 1
+                logger.info("Removed stale Live TV encode cache: %s", name)
+            except OSError:
+                pass
+        return removed
+
+    @staticmethod
+    def video_filter() -> str:
+        """Fill the iPod's 320x240 screen, the way a 4:3 set did.
+
+        Fitting widescreen inside 4:3 leaves black bars and a small picture.
+        A television of this era centre-cut it instead, so scale until the
+        screen is covered and crop the overhang. ``scale=iw*sar:ih`` first
+        squares the pixels, which matters for anamorphic 720x480 rips.
+        """
+        return (
+            "scale=iw*sar:ih,"
+            "scale=320:240:force_original_aspect_ratio=increase,"
+            "crop=320:240,setsar=1,fps=20"
+        )
 
     def _mpeg_command(self, source: str, target: str):
         """320x240 MPEG-2 program stream, the profile mpegplayer expects."""
         return [
             self._library.ffmpeg_bin(), "-y", "-loglevel", "error",
             "-i", source,
-            "-vf",
-            "scale=320:240:force_original_aspect_ratio=decrease,"
-            "pad=320:240:(ow-iw)/2:(oh-ih)/2:black,fps=20",
+            "-vf", self.video_filter(),
             "-map", "0:v:0", "-map", "0:a:0?",
             "-c:v", "mpeg2video", "-pix_fmt", "yuv420p",
             "-bf", "0", "-g", "12", "-flags", "+low_delay",
@@ -925,6 +981,7 @@ class LiveTvSync:
 
         root = self.device_root(mount_path)
         os.makedirs(root, exist_ok=True)
+        self.prune_stale_cache()
 
         needed = {}
         for slot in slots:
@@ -1008,18 +1065,27 @@ class LiveTvSync:
                 continue
             target_name = f"{_safe_name(channel.callsign, 'chan')}.bmp"
             target = os.path.join(logo_dir, target_name)
-            if self._convert_bmp(source, target, 40, 18):
+            # The channel column is the DIRECTV navy, so pad to match.
+            if self._convert_bmp(source, target, 40, 18,
+                                 background=GUIDE_CHANNEL_BG):
                 channel.logo = f"logos/{target_name}"
         lineup.save()
 
     def _convert_bmp(self, source: str, target: str, width: int,
-                     height: int) -> bool:
+                     height: int, background: str = "black") -> bool:
+        """Render an image as a Rockbox-loadable 24-bit BMP.
+
+        Rockbox draws these opaque, so the padding has to be the colour of
+        whatever the guide puts behind them; black bars round a logo on the
+        pale banner would look nothing like the real receiver.
+        """
         command = [
             self._library.ffmpeg_bin(), "-y", "-loglevel", "error",
             "-i", source,
             "-vf",
             f"scale={width}:{height}:force_original_aspect_ratio=decrease,"
-            f"pad={width}:{height}:(ow-iw)/2:(oh-ih)/2:black",
+            f"pad={width}:{height}:(ow-iw)/2:(oh-ih)/2:{background},"
+            f"format=bgr24",
             "-pix_fmt", "bgr24", "-frames:v", "1",
             target,
         ]
@@ -1044,7 +1110,9 @@ class LiveTvSync:
         if not os.path.isfile(raw):
             return ""
 
-        if self._convert_bmp(raw, cached, 64, 22):
+        # The banner behind the wordmark is the pale DIRECTV blue.
+        if self._convert_bmp(raw, cached, 64, 22,
+                             background=GUIDE_BANNER_BG):
             return cached
         return ""
 

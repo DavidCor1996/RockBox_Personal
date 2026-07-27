@@ -232,6 +232,17 @@ void vo_draw_frame(uint8_t * const * buf)
          * away - copout */
         DEBUGF("vo hidden\n");
     }
+#ifdef HAVE_LCD_COLOR
+    else if (mpegplayer_livetv_launch && mpegplayer_livetv_pig &&
+             buf != NULL)
+    {
+        /* Picture in guide shows the whole picture shrunk into the corner
+         * window. The ordinary path blits one screen pixel per source
+         * pixel, which would show only the top left corner of the frame,
+         * so scale it the way the seek thumbnail does. */
+        vo_draw_frame_thumb(buf, &vo.rc_vid);
+    }
+#endif
     else if (buf == NULL)
     {
         /* No frame exists - draw black */

@@ -152,6 +152,14 @@ def prepare_root(repo: Path, build_dir: Path, root: Path) -> None:
     build_channels(livetv, channels)
     build_guide(livetv, channels, "shows/gate.mpg")
 
+    # Install the real DIRECTV wordmark when rockpod has already fetched it,
+    # so the gate exercises the artwork path rather than the text fallback.
+    brand = Path.home() / ".rockpod" / "livetv" / "directv.bmp"
+    if brand.is_file():
+        logos = livetv / "logos"
+        logos.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(brand, logos / "directv.bmp")
+
     entry = bytearray(OPEN_PLUGIN_ENTRY_SIZE)
     checksum = open_plugin_lang_checksum(build_dir)
     struct.pack_into("<IiI", entry, 0, START_SCREEN_HASH,
