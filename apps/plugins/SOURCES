@@ -1,3 +1,9 @@
+#ifdef DESKTOP_1080
+/* The 1080p Snow Leopard panel builds Desktop Mode alone: the other
+ * plugins are written against small iPod screens and several of them
+ * #error out on an unrecognised LCD size. */
+desktop_mode.c
+#else
 /* plugins common to all models */
 #if !defined(SIMULATOR) && (CONFIG_BATTERY_MEASURE != 0)
 battery_bench.c
@@ -11,6 +17,11 @@ credits.c
 #if defined(HAVE_LCD_COLOR) && (LCD_WIDTH >= 320)
 cdogs.c
 runepod.c
+sitekick.c
+/* Live TV needs mpegplayer, which is gated the same way in SUBDIRS */
+#if !defined(RB_PROFILE) && (MEMORYSIZE > 2)
+livetv.c
+#endif
 #endif
 cube.c
 clubpenguin.c
@@ -281,3 +292,5 @@ test_touchscreen.c
 test_usb.c
 test_viewports.c
 #endif /* HAVE_TEST_PLUGINS */
+
+#endif /* DESKTOP_1080 */

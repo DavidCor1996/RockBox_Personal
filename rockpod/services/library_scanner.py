@@ -10,6 +10,7 @@ from pathlib import Path
 from PySide6.QtCore import QObject, Signal, QThread, Slot, Qt
 
 from app.config import SUPPORTED_FORMATS, SUPPORTED_VIDEO_FORMATS
+from services.livetv import LIVETV_SOURCE_DIR_NAME
 from app.database import Database
 from services.metadata_reader import read_metadata, read_metadata_details, compute_file_hash
 
@@ -166,11 +167,20 @@ def collect_library_files(music_dir, video_dir=None, video_dirs=None,
             _record_issue(report["skipped_files"], base_dir, missing_reason)
             continue
 
+        # Live TV keeps its own library under <video dir>/Live and syncs it
+        # through the Live TV panel, so it must not appear in Video Sync.
+        livetv_root = (os.path.join(normalized, LIVETV_SOURCE_DIR_NAME)
+                       if root_type == "video" else None)
+
         for root, dirs, filenames in os.walk(base_dir, followlinks=True):
             if cancel_callback and cancel_callback():
                 dirs[:] = []
                 break
             dirs[:] = [d for d in dirs if not d.startswith(".")]
+            if livetv_root:
+                dirs[:] = [d for d in dirs
+                           if os.path.abspath(os.path.join(root, d)) !=
+                              livetv_root]
             for fn in sorted(filenames):
                 if cancel_callback and cancel_callback():
                     dirs[:] = []

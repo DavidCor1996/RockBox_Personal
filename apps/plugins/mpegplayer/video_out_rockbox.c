@@ -23,6 +23,7 @@
 #include "plugin.h"
 #include "mpegplayer.h"
 #include "mpeg_settings.h"
+#include "livetv.h"
 
 #define VO_NON_NULL_RECT 0x1
 #define VO_VISIBLE       0x2
@@ -551,6 +552,15 @@ no_thumb_exit:
 void vo_setup(const mpeg2_sequence_t * sequence)
 {
     int scaled_w, scaled_h;
+    bool youtube_embedded = mpegplayer_youtube_launch &&
+                            mpegplayer_youtube_embedded;
+#ifdef HAVE_LCD_COLOR
+    /* Live TV picture in guide: the channel keeps decoding into the small
+     * window in the corner of the guide, as on a DIRECTV receiver. */
+    bool livetv_pig = mpegplayer_livetv_launch && mpegplayer_livetv_pig;
+#else
+    const bool livetv_pig = false;
+#endif
 
     vo.image_width = sequence->width;
     vo.image_height = sequence->height;
@@ -562,7 +572,21 @@ void vo_setup(const mpeg2_sequence_t * sequence)
     vo.image_chroma_x = vo.image_width / sequence->chroma_width;
     vo.image_chroma_y = vo.image_height / sequence->chroma_height;
 
-    switch (settings.display_mode)
+    if (livetv_pig)
+    {
+        scaled_w = LIVETV_PIG_W;
+        scaled_h = LIVETV_PIG_H;
+        vo.src_x = 0;
+        vo.src_y = 0;
+    }
+    else if (youtube_embedded)
+    {
+        scaled_w = 210;
+        scaled_h = 158;
+        vo.src_x = 0;
+        vo.src_y = 0;
+    }
+    else switch (settings.display_mode)
     {
     default:
     case MPEG_VIDEO_DISPLAY_FIT:
@@ -687,8 +711,21 @@ void vo_setup(const mpeg2_sequence_t * sequence)
     scaled_w = MAX(scaled_w, 2);
     scaled_h = MAX(scaled_h, 2);
 
-    vo.rc_vid.l = (SCREEN_WIDTH - scaled_w) / 2;
-    vo.rc_vid.t = (SCREEN_HEIGHT - scaled_h) / 2;
+    if (livetv_pig)
+    {
+        vo.rc_vid.l = LIVETV_PIG_X;
+        vo.rc_vid.t = LIVETV_PIG_Y;
+    }
+    else if (youtube_embedded)
+    {
+        vo.rc_vid.l = 4;
+        vo.rc_vid.t = 62;
+    }
+    else
+    {
+        vo.rc_vid.l = (SCREEN_WIDTH - scaled_w) / 2;
+        vo.rc_vid.t = (SCREEN_HEIGHT - scaled_h) / 2;
+    }
 #ifdef HAVE_LCD_COLOR
     vo.rc_vid.l &= ~1;
     vo.rc_vid.t &= ~1;
