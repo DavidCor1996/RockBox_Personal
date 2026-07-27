@@ -264,6 +264,16 @@ def test_series_and_titles_are_readable_in_a_guide():
     assert clean_title("Show [1080p] x264") == "Show"
 
 
+def test_a_title_never_repeats_its_own_series():
+    """A file inside a folder of the same name printed the name twice."""
+    series = "SpongeBob SquarePants Goes Prehistoric"
+    title = program_title(
+        f"/live/{series}/SpongeBob SquarePants Goes Prehistoric VHS.mp4",
+        series)
+    assert title.lower().count("spongebob") == 1, title
+    assert len(title) <= 60
+
+
 def test_a_folder_under_live_becomes_the_series():
     assert series_name("/live/ALF/s01e01.mkv", "/live") == "ALF"
 
@@ -398,6 +408,70 @@ def test_a_show_is_never_assigned_to_two_channels(tmp_path):
     seen = [path for channel in lineup.channels for path in channel.shows]
     assert len(seen) == len(set(seen))
     assert set(seen) == {item.path for item in shows}
+
+
+def _library_over(tmp_path, monkeypatch, media_dir):
+    class _Config:
+        video_dirs = [str(media_dir)]
+        video_dir = str(media_dir)
+        ffmpeg_binary = ""
+
+    library = livetv.LiveTvLibrary(_Config())
+    monkeypatch.setattr(library, "state_dir", lambda: str(tmp_path))
+    library._overrides_path = str(tmp_path / "titles.json")
+    library._overrides = {}
+    return library
+
+
+def test_a_show_can_be_renamed_and_the_rename_survives_a_rescan(
+        tmp_path, monkeypatch):
+    """Filenames are often air dates, so guide titles must be editable."""
+    media = tmp_path / "media" / "Live"
+    media.mkdir(parents=True)
+    clip = media / "WWE_Monday_Night_Raw_2006_01_09_LQ.mp4"
+    clip.write_bytes(b"0" * 2048)
+
+    library = _library_over(tmp_path, monkeypatch, tmp_path / "media")
+    shows, _ads = library.scan(probe_durations=False)
+    assert len(shows) == 1
+    original = shows[0].title
+    assert not shows[0].renamed
+
+    library.set_title(str(clip), "Monday Night Raw",
+                      "Sports. WWE from January 2006.")
+
+    reloaded = _library_over(tmp_path, monkeypatch, tmp_path / "media")
+    reloaded._load_overrides()
+    shows, _ads = reloaded.scan(probe_durations=False)
+    assert shows[0].title == "Monday Night Raw"
+    assert shows[0].description == "Sports. WWE from January 2006."
+    assert shows[0].renamed is True
+
+    # Clearing the override goes back to the derived title.
+    reloaded.clear_title(str(clip))
+    again = _library_over(tmp_path, monkeypatch, tmp_path / "media")
+    again._load_overrides()
+    shows, _ads = again.scan(probe_durations=False)
+    assert shows[0].title == original
+    assert shows[0].renamed is False
+
+
+def test_a_renamed_title_reaches_the_generated_guide(tmp_path):
+    lineup, shows, ads = _fixture()
+    shows[0].title = "Monday Night Raw"
+    slots = LiveTvScheduler(lineup, shows, ads).build()
+
+    titles = {slot.title for slot in slots}
+    assert "Monday Night Raw" in titles
+    # Commercials inside that programme carry the renamed title too. A block
+    # is identified by its day as well as its start; the same second of the
+    # day belongs to a different programme on a different day.
+    show_blocks = {(slot.day, slot.block_start) for slot in slots
+                   if slot.title == "Monday Night Raw" and slot.kind == "S"}
+    ad_titles = {slot.title for slot in slots
+                 if slot.kind == "A"
+                 and (slot.day, slot.block_start) in show_blocks}
+    assert ad_titles == {"Monday Night Raw"}
 
 
 def test_videos_are_encoded_to_fill_the_ipod_screen():

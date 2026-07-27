@@ -307,9 +307,17 @@ Two sections, exactly as requested:
 Plus channel management and a "Generate Schedule and Sync" action.
 
 **Channels** can be added, renamed, renumbered and removed. Double-clicking a
-row edits it. Shows and commercials are assigned to a channel from the Shows
-and Commercials tabs (double-clicking assigns to the channel in the picker),
-and can be unassigned again.
+row edits it. Shows and commercials are assigned to a channel with *Assign
+Selected*, and can be unassigned again.
+
+**Shows and commercials can be renamed.** Titles are derived from filenames,
+which for broadcast rips are usually air dates rather than programme names,
+so the guide title (and, for a show, its synopsis) is editable — double-click
+a row or press *Rename*. Overrides are stored per source path in
+`~/.rockpod/livetv/titles.json`, survive rescans, and are shown in italics;
+clearing the title restores the derived one. Renamed titles reach the guide
+on the next schedule generation, and the commercials inside a programme
+inherit the renamed title just as they inherit the original.
 
 Two rules keep hand editing safe:
 

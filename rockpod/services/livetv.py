@@ -163,6 +163,11 @@ def program_title(path: str, series: str) -> str:
 
     if not remainder or remainder.lower() == series.lower():
         return series
+    # A file sitting in a folder of nearly the same name would otherwise be
+    # printed twice over, e.g. "SpongeBob VHS: SpongeBob VHS Goes...".
+    if series.lower() in remainder.lower():
+        return remainder if len(remainder) <= 60 \
+            else remainder[:57].rstrip() + "..."
     if len(remainder) > 40:
         remainder = remainder[:37].rstrip() + "..."
     return f"{series}: {remainder}"
@@ -236,6 +241,7 @@ class LiveTvMedia:
     duration: int = 0
     rating: str = ""
     description: str = ""
+    renamed: bool = False
 
     @property
     def key(self) -> str:
@@ -308,6 +314,9 @@ class LiveTvLibrary:
         self._duration_cache = {}
         self._cache_path = os.path.join(self.state_dir(), "durations.json")
         self._load_duration_cache()
+        self._overrides_path = os.path.join(self.state_dir(), "titles.json")
+        self._overrides = {}
+        self._load_overrides()
 
     # -- paths ---------------------------------------------------------
 
@@ -354,6 +363,72 @@ class LiveTvLibrary:
         return shutil.which("ffprobe") or "ffprobe"
 
     # -- duration cache -------------------------------------------------
+
+    # -- titles the user has edited ---------------------------------------
+
+    def _load_overrides(self):
+        try:
+            with open(self._overrides_path, "r", encoding="utf-8") as handle:
+                self._overrides = dict(json.load(handle) or {})
+        except (OSError, ValueError):
+            self._overrides = {}
+
+    def save_overrides(self):
+        try:
+            with open(self._overrides_path, "w", encoding="utf-8") as handle:
+                json.dump(self._overrides, handle, indent=1, sort_keys=True)
+        except OSError:
+            logger.warning("Could not write Live TV title overrides")
+
+    def override_for(self, path: str) -> dict:
+        return dict(self._overrides.get(str(path), {}))
+
+    def set_title(self, path: str, title: str, description: str = None):
+        """Rename a show or commercial as it appears in the guide.
+
+        Titles are derived from filenames, which are often air dates rather
+        than programme names, so the user needs to be able to correct them.
+        The override is keyed by path and survives rescans.
+        """
+        key = str(path)
+        entry = dict(self._overrides.get(key, {}))
+        title = str(title or "").strip()
+
+        if title:
+            entry["title"] = title
+        else:
+            entry.pop("title", None)
+
+        if description is not None:
+            description = str(description).strip()
+            if description:
+                entry["description"] = description
+            else:
+                entry.pop("description", None)
+
+        if entry:
+            self._overrides[key] = entry
+        else:
+            self._overrides.pop(key, None)
+        self.save_overrides()
+
+    def clear_title(self, path: str):
+        """Go back to the title derived from the filename."""
+        self._overrides.pop(str(path), None)
+        self.save_overrides()
+
+    def _apply_override(self, item: "LiveTvMedia"):
+        entry = self._overrides.get(item.path)
+        if not entry:
+            return item
+        if entry.get("title"):
+            item.title = entry["title"]
+            item.renamed = True
+        if entry.get("description"):
+            item.description = entry["description"]
+        if entry.get("series"):
+            item.series = entry["series"]
+        return item
 
     def _load_duration_cache(self):
         try:
@@ -458,6 +533,7 @@ class LiveTvLibrary:
                 rating="TV-PG",
                 description=program_description(path, series),
             )
+            self._apply_override(item)
             if probe_durations:
                 item.duration = self.duration_for(path)
             shows.append(item)
@@ -473,6 +549,7 @@ class LiveTvLibrary:
                 series="Commercials",
                 rating="",
             )
+            self._apply_override(item)
             if probe_durations:
                 item.duration = self.duration_for(path)
             ads.append(item)

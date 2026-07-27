@@ -8,6 +8,7 @@ is playing. See docs/livetv-directv-guide-spec.md.
 
 from __future__ import annotations
 
+import os
 import time
 
 from PySide6.QtCore import Qt, QTimer, Signal
@@ -302,6 +303,7 @@ class LiveTvPanel(QWidget):
     sync_requested = Signal()
     assign_requested = Signal(str, list, int)   # kind, paths, channel number
     unassign_requested = Signal(str, list)      # kind, paths
+    rename_requested = Signal(str, str)         # kind, path
     add_channel_requested = Signal()
     edit_channel_requested = Signal(int)        # channel number
     remove_channel_requested = Signal(int)      # channel number
@@ -388,6 +390,10 @@ class LiveTvPanel(QWidget):
         self._assign_combo = QComboBox()
         self._assign_btn = QPushButton("Assign Selected")
         self._unassign_btn = QPushButton("Unassign")
+        self._rename_btn = QPushButton("Rename")
+        self._rename_btn.setToolTip(
+            "Change the title this programme shows in the guide. "
+            "Double-clicking a row does the same.")
         self._sync_btn = QPushButton("Generate Schedule and Sync")
         self._sync_btn.setObjectName("store_buy_button")
         self._edit_btn.setToolTip(
@@ -398,7 +404,8 @@ class LiveTvPanel(QWidget):
         for widget in (self._refresh_btn, self._autobuild_btn, self._add_btn,
                        self._edit_btn, self._remove_btn, self._logo_btn,
                        self._favourite_btn, self._assign_combo,
-                       self._assign_btn, self._unassign_btn):
+                       self._assign_btn, self._unassign_btn,
+                       self._rename_btn):
             action_layout.addWidget(widget)
         action_layout.addStretch(1)
         action_layout.addWidget(self._sync_btn)
@@ -414,6 +421,7 @@ class LiveTvPanel(QWidget):
         self._favourite_btn.clicked.connect(self._emit_favourite)
         self._assign_btn.clicked.connect(self._emit_assign)
         self._unassign_btn.clicked.connect(self._emit_unassign)
+        self._rename_btn.clicked.connect(self._emit_rename)
 
         self._stack = QStackedWidget()
         layout.addWidget(self._stack, 1)
@@ -422,9 +430,9 @@ class LiveTvPanel(QWidget):
             ["Ch", "Call Sign", "Channel", "Category", "Shows", "Ads",
              "Favorite", "Logo"])
         self._show_tree = self._make_tree(
-            ["Show", "Series", "Length", "Channel", "On iPod As"])
+            ["Show (guide title)", "Series", "Length", "Channel", "File"])
         self._ads_tree = self._make_tree(
-            ["Commercial", "Length", "Plays On", "On iPod As"])
+            ["Commercial", "Length", "Plays On", "File"])
         self._guide = LiveTvGuideView()
 
         self._stack.addWidget(self._channel_tree)
@@ -482,7 +490,7 @@ class LiveTvPanel(QWidget):
                        self._logo_btn, self._favourite_btn):
             widget.setVisible(on_channels)
         for widget in (self._assign_combo, self._assign_btn,
-                       self._unassign_btn):
+                       self._unassign_btn, self._rename_btn):
             widget.setVisible(on_media)
         self._autobuild_btn.setVisible(not is_guide)
 
@@ -533,9 +541,14 @@ class LiveTvPanel(QWidget):
                 item.series,
                 _format_duration(item.duration),
                 str(mapping.get(item.path, "")) or "Unassigned",
-                item.device_relative(),
+                os.path.basename(item.path),
             ])
             row.setData(0, Qt.UserRole, item.path)
+            row.setToolTip(0, item.path)
+            if getattr(item, "renamed", False):
+                font = row.font(0)
+                font.setItalic(True)
+                row.setFont(0, font)
             self._show_tree.addTopLevelItem(row)
         for column in range(self._show_tree.columnCount()):
             self._show_tree.resizeColumnToContents(column)
@@ -548,9 +561,14 @@ class LiveTvPanel(QWidget):
                 item.title,
                 _format_duration(item.duration),
                 str(mapping.get(item.path, "")) or "All channels",
-                item.device_relative(),
+                os.path.basename(item.path),
             ])
             row.setData(0, Qt.UserRole, item.path)
+            row.setToolTip(0, item.path)
+            if getattr(item, "renamed", False):
+                font = row.font(0)
+                font.setItalic(True)
+                row.setFont(0, font)
             self._ads_tree.addTopLevelItem(row)
         for column in range(self._ads_tree.columnCount()):
             self._ads_tree.resizeColumnToContents(column)
@@ -582,7 +600,7 @@ class LiveTvPanel(QWidget):
         for widget in (self._refresh_btn, self._autobuild_btn, self._sync_btn,
                        self._assign_btn, self._unassign_btn, self._add_btn,
                        self._edit_btn, self._remove_btn, self._logo_btn,
-                       self._favourite_btn):
+                       self._favourite_btn, self._rename_btn):
             widget.setEnabled(not busy)
 
     # -- selection helpers ---------------------------------------------------
@@ -660,13 +678,21 @@ class LiveTvPanel(QWidget):
             self.edit_channel_requested.emit(int(number))
 
     def _on_media_activated(self, item, _column):
-        """Double-clicking a show or commercial assigns it straight away."""
+        """Double-clicking a show or commercial renames it.
+
+        This matches the Channels tab, where double-clicking edits the row.
+        """
         path = item.data(0, Qt.UserRole)
-        number = self._assign_combo.currentData()
-        if not path or not number:
-            return
-        kind = "show" if self._tab == "shows" else "ad"
-        self.assign_requested.emit(kind, [path], int(number))
+        if path:
+            self.rename_requested.emit(
+                "show" if self._tab == "shows" else "ad", str(path))
+
+    def _emit_rename(self):
+        tree = self._show_tree if self._tab == "shows" else self._ads_tree
+        paths = self._selected_paths(tree)
+        if paths:
+            self.rename_requested.emit(
+                "show" if self._tab == "shows" else "ad", str(paths[0]))
 
 
 class LiveTvStorePanel(QWidget):

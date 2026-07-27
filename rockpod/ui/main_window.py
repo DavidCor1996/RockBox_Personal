@@ -638,6 +638,7 @@ class MainWindow(QMainWindow):
         self._livetv_panel.sync_requested.connect(self._livetv_sync)
         self._livetv_panel.assign_requested.connect(self._livetv_assign)
         self._livetv_panel.unassign_requested.connect(self._livetv_unassign)
+        self._livetv_panel.rename_requested.connect(self._livetv_rename)
         self._livetv_panel.add_channel_requested.connect(
             self._livetv_add_channel)
         self._livetv_panel.edit_channel_requested.connect(
@@ -8032,6 +8033,58 @@ class MainWindow(QMainWindow):
         self._livetv_panel.set_status(
             f"Unassigned {removed} {noun}." if removed
             else f"Those {noun} were not assigned to a channel.")
+
+    def _livetv_rename(self, kind, path):
+        """Retitle a show or commercial as the guide will print it."""
+        shows, ads = self._livetv_media()
+        item = next((media for media in (shows if kind == "show" else ads)
+                     if media.path == path), None)
+        if item is None:
+            return
+
+        library = self._livetv_library()
+        current = library.override_for(path)
+        noun = "Show" if kind == "show" else "Commercial"
+
+        title, ok = QInputDialog.getText(
+            self, f"Rename {noun}",
+            f"Title shown in the guide for\n{os.path.basename(path)}:",
+            QLineEdit.Normal, item.title)
+        if not ok:
+            return
+        title = title.strip()
+
+        if not title:
+            library.clear_title(path)
+            item.renamed = False
+            stem = os.path.splitext(os.path.basename(path))[0]
+            item.title = livetv.program_title(path, item.series) \
+                if kind == "show" else livetv.clean_title(stem)
+            self._render_livetv_panel()
+            self._livetv_panel.set_status(
+                f"Restored the title from the filename: {item.title}")
+            return
+
+        description = current.get("description", "")
+        if kind == "show":
+            description, ok = QInputDialog.getText(
+                self, "Description",
+                "Synopsis shown under the title (leave blank to keep the "
+                "generated one):",
+                QLineEdit.Normal, description)
+            if not ok:
+                description = current.get("description", "")
+
+        library.set_title(path, title, description)
+        item.title = title
+        item.renamed = True
+        if description.strip():
+            item.description = description.strip()
+
+        self._render_livetv_panel()
+        self._livetv_panel.set_status(
+            f"{noun} renamed to “{title}”. Generate the schedule "
+            "to put it in the guide on your iPod.")
 
     def _livetv_toggle_favourite(self, channel_number):
         lineup = self._livetv_lineup()
