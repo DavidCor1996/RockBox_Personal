@@ -232,7 +232,13 @@ def _dedupe_internet_archive(paths):
 
 @dataclass
 class LiveTvMedia:
-    """One show or commercial available to the line-up."""
+    """One show or commercial available to the line-up.
+
+    A single recording can hold several programmes — an evening's tape, or a
+    show with the adverts still in it. ``segment`` names a piece of the file
+    to use: ``start``/``end`` bound it and ``cuts`` are ranges dropped from
+    inside it. When ``segment`` is empty the whole file is used.
+    """
 
     path: str
     kind: str            # "show" or "ad"
@@ -242,13 +248,58 @@ class LiveTvMedia:
     rating: str = ""
     description: str = ""
     renamed: bool = False
+    segment: str = ""
+    start: int = 0
+    end: int = 0         # 0 means "to the end of the file"
+    cuts: list = field(default_factory=list)   # [[start, end], ...]
 
     @property
     def key(self) -> str:
-        return self.path
+        """Identity of this programme, unique per segment of a file."""
+        return f"{self.path}#{self.segment}" if self.segment else self.path
+
+    @property
+    def is_segment(self) -> bool:
+        return bool(self.segment)
+
+    def keep_ranges(self):
+        """The portions of the source that survive editing, in order."""
+        start = max(0, int(self.start or 0))
+        end = int(self.end or 0)
+        if end <= start:
+            end = start + max(0, int(self.duration or 0)) + sum(
+                max(0, int(b) - int(a)) for a, b in self.cuts or [])
+        if end <= start:
+            return [(start, 0)]  # unbounded: to the end of the file
+
+        ranges = []
+        cursor = start
+        for cut_start, cut_end in sorted(
+                ([max(start, int(a)), min(end, int(b))]
+                 for a, b in (self.cuts or [])),
+                key=lambda pair: pair[0]):
+            if cut_end <= cursor:
+                continue
+            if cut_start > cursor:
+                ranges.append((cursor, min(cut_start, end)))
+            cursor = max(cursor, cut_end)
+        if cursor < end:
+            ranges.append((cursor, end))
+        return ranges or [(start, end)]
+
+    def edited_duration(self) -> int:
+        """Seconds of programme once the cuts are taken out."""
+        total = 0
+        for begin, finish in self.keep_ranges():
+            if finish <= begin:
+                return int(self.duration or 0)
+            total += finish - begin
+        return total
 
     def device_relative(self) -> str:
         stem = _safe_name(Path(self.path).stem, "clip")
+        if self.segment:
+            stem = f"{stem}-{_safe_name(self.segment, 'part')}"
         if self.kind == "ad":
             return f"ads/{stem}.mpg"
         return f"shows/{_safe_name(self.series, 'series')}/{stem}.mpg"
@@ -317,6 +368,9 @@ class LiveTvLibrary:
         self._overrides_path = os.path.join(self.state_dir(), "titles.json")
         self._overrides = {}
         self._load_overrides()
+        self._edits_path = os.path.join(self.state_dir(), "edits.json")
+        self._edits = {}
+        self._load_edits()
 
     # -- paths ---------------------------------------------------------
 
@@ -430,6 +484,106 @@ class LiveTvLibrary:
             item.series = entry["series"]
         return item
 
+    # -- splitting and cropping -------------------------------------------
+
+    def _load_edits(self):
+        try:
+            with open(self._edits_path, "r", encoding="utf-8") as handle:
+                self._edits = dict(json.load(handle) or {})
+        except (OSError, ValueError):
+            self._edits = {}
+
+    def save_edits(self):
+        try:
+            with open(self._edits_path, "w", encoding="utf-8") as handle:
+                json.dump(self._edits, handle, indent=1, sort_keys=True)
+        except OSError:
+            logger.warning("Could not write Live TV edits")
+
+    def edits_for(self, path: str) -> list:
+        """The episodes a recording has been split into, if any."""
+        return [dict(entry) for entry in self._edits.get(str(path), [])]
+
+    def set_edits(self, path: str, episodes):
+        """Define how a recording is split up and what is cut out.
+
+        Each episode is ``{"id", "title", "start", "end", "cuts"}`` in
+        seconds. An empty list restores the whole file as one programme.
+        """
+        key = str(path)
+        cleaned = []
+        for index, entry in enumerate(episodes or [], 1):
+            start = max(0, int(entry.get("start") or 0))
+            end = int(entry.get("end") or 0)
+            if end and end <= start:
+                continue
+            cuts = []
+            for cut in entry.get("cuts") or []:
+                try:
+                    cut_start, cut_end = int(cut[0]), int(cut[1])
+                except (TypeError, ValueError, IndexError):
+                    continue
+                if cut_end > cut_start:
+                    cuts.append([cut_start, cut_end])
+            cleaned.append({
+                "id": str(entry.get("id") or f"part{index}"),
+                "title": str(entry.get("title") or "").strip(),
+                "start": start,
+                "end": end,
+                "cuts": sorted(cuts),
+            })
+
+        if cleaned:
+            self._edits[key] = cleaned
+        else:
+            self._edits.pop(key, None)
+        self.save_edits()
+
+    def _finish_item(self, item: "LiveTvMedia"):
+        """Split a scanned recording and give each piece its real length."""
+        source_duration = int(item.duration or 0)
+        parts = self._expand_edits(item)
+
+        for part in parts:
+            if not part.is_segment:
+                continue
+            if not part.end and source_duration:
+                part.end = source_duration
+            part.duration = part.edited_duration()
+            # A per-episode title override wins over the one on the file.
+            entry = self._overrides.get(part.key)
+            if entry:
+                if entry.get("title"):
+                    part.title = entry["title"]
+                    part.renamed = True
+                if entry.get("description"):
+                    part.description = entry["description"]
+        return parts
+
+    def _expand_edits(self, item: "LiveTvMedia"):
+        """Turn one recording into the programmes it has been cut into."""
+        episodes = self._edits.get(item.path)
+        if not episodes:
+            return [item]
+
+        parts = []
+        for entry in episodes:
+            part = LiveTvMedia(
+                path=item.path,
+                kind=item.kind,
+                title=entry.get("title") or item.title,
+                series=item.series,
+                rating=item.rating,
+                description=item.description,
+                segment=str(entry.get("id") or "part"),
+                start=int(entry.get("start") or 0),
+                end=int(entry.get("end") or 0),
+                cuts=[list(cut) for cut in entry.get("cuts") or []],
+            )
+            part.renamed = bool(entry.get("title"))
+            parts.append(part)
+        return parts
+
     def _load_duration_cache(self):
         try:
             with open(self._cache_path, "r", encoding="utf-8") as handle:
@@ -536,7 +690,7 @@ class LiveTvLibrary:
             self._apply_override(item)
             if probe_durations:
                 item.duration = self.duration_for(path)
-            shows.append(item)
+            shows.extend(self._finish_item(item))
             done += 1
             if progress and total:
                 progress(done, total, item.title)
@@ -552,7 +706,7 @@ class LiveTvLibrary:
             self._apply_override(item)
             if probe_durations:
                 item.duration = self.duration_for(path)
-            ads.append(item)
+            ads.extend(self._finish_item(item))
             done += 1
             if progress and total:
                 progress(done, total, item.title)
@@ -632,7 +786,7 @@ class LiveTvLineup:
         """
         grouped = {}
         for item in shows:
-            grouped.setdefault(item.series or "Live TV", []).append(item.path)
+            grouped.setdefault(item.series or "Live TV", []).append(item.key)
 
         by_name = {channel.name: channel for channel in self.channels}
         # Which channel already carries a given show. A renamed channel is
@@ -727,7 +881,8 @@ class LiveTvScheduler:
 
     def __init__(self, lineup: LiveTvLineup, shows, ads):
         self._lineup = lineup
-        self._by_path = {item.path: item for item in list(shows) + list(ads)}
+        # Keyed by programme, not by file: one recording can hold several.
+        self._by_path = {item.key: item for item in list(shows) + list(ads)}
         self._ads = [item for item in ads if item.duration > 0]
 
     def _channel_ads(self, channel: LiveTvChannel):
@@ -989,8 +1144,51 @@ class LiveTvSync:
             "crop=320:240,setsar=1,fps=20"
         )
 
-    def _mpeg_command(self, source: str, target: str):
+    @classmethod
+    def edit_filter_complex(cls, ranges):
+        """Filter graph that keeps only the given ranges, in order.
+
+        Splitting a recording and cutting sections out of it are the same
+        operation: keep some ranges and drop the rest. Everything is
+        re-encoded anyway, so trimming in the filter graph costs nothing
+        extra and is frame accurate, unlike seeking with -ss on a copy.
+        """
+        parts = []
+        labels = []
+        for index, (begin, finish) in enumerate(ranges):
+            window = f"start={begin}"
+            if finish:
+                window += f":end={finish}"
+            parts.append(
+                f"[0:v]trim={window},setpts=PTS-STARTPTS[v{index}];"
+                f"[0:a]atrim={window},asetpts=PTS-STARTPTS[a{index}]")
+            labels.append(f"[v{index}][a{index}]")
+
+        graph = ";".join(parts)
+        graph += (f";{''.join(labels)}concat=n={len(ranges)}:v=1:a=1[vc][ac]"
+                  f";[vc]{cls.video_filter()}[vout]")
+        return graph
+
+    def _mpeg_command(self, source: str, target: str, item=None):
         """320x240 MPEG-2 program stream, the profile mpegplayer expects."""
+        ranges = item.keep_ranges() if item is not None and (
+            item.is_segment or item.cuts) else None
+
+        if ranges:
+            return [
+                self._library.ffmpeg_bin(), "-y", "-loglevel", "error",
+                "-i", source,
+                "-filter_complex", self.edit_filter_complex(ranges),
+                "-map", "[vout]", "-map", "[ac]",
+                "-c:v", "mpeg2video", "-pix_fmt", "yuv420p",
+                "-bf", "0", "-g", "12", "-flags", "+low_delay",
+                "-sc_threshold", "0", "-q:v", "2",
+                "-maxrate", "1600k", "-bufsize", "800k",
+                "-c:a", "mp2", "-ar", "44100", "-ac", "2", "-b:a", "112k",
+                "-packetsize", "2048", "-f", "mpeg",
+                target,
+            ]
+
         return [
             self._library.ffmpeg_bin(), "-y", "-loglevel", "error",
             "-i", source,
@@ -1024,7 +1222,7 @@ class LiveTvSync:
         except FileNotFoundError:
             pass
 
-        result = subprocess.run(self._mpeg_command(item.path, tmp),
+        result = subprocess.run(self._mpeg_command(item.path, tmp, item),
                                 capture_output=True, text=True, check=False)
         if result.returncode != 0 or not os.path.isfile(tmp) or \
                 os.path.getsize(tmp) <= 0:
@@ -1044,7 +1242,7 @@ class LiveTvSync:
     def sync(self, mount_path: str, lineup: LiveTvLineup, shows, ads,
              progress=None, cancel=None):
         """Convert, copy and write the guide. Returns a summary dict."""
-        by_path = {item.path: item for item in list(shows) + list(ads)}
+        by_path = {item.key: item for item in list(shows) + list(ads)}
         # The device resolves channels by number, so never ship a duplicate.
         if lineup.ensure_unique_numbers():
             lineup.save()
@@ -1106,7 +1304,9 @@ class LiveTvSync:
             # Auto-delete only applies to files the Store downloaded into the
             # staging area. The user's own ~/Videos/Live library is never
             # touched by a sync.
-            if item.path.startswith(staging + os.sep):
+            # A split recording feeds several programmes, so removing the
+            # source after the first would strand the rest.
+            if not item.is_segment and item.path.startswith(staging + os.sep):
                 if os.path.isfile(target) and \
                         os.path.getsize(target) == source_size:
                     try:

@@ -304,6 +304,7 @@ class LiveTvPanel(QWidget):
     assign_requested = Signal(str, list, int)   # kind, paths, channel number
     unassign_requested = Signal(str, list)      # kind, paths
     rename_requested = Signal(str, str)         # kind, path
+    edit_media_requested = Signal(str, str)     # kind, path
     add_channel_requested = Signal()
     edit_channel_requested = Signal(int)        # channel number
     remove_channel_requested = Signal(int)      # channel number
@@ -394,6 +395,10 @@ class LiveTvPanel(QWidget):
         self._rename_btn.setToolTip(
             "Change the title this programme shows in the guide. "
             "Double-clicking a row does the same.")
+        self._edit_media_btn = QPushButton("Split / Trim")
+        self._edit_media_btn.setToolTip(
+            "Cut sections out of a recording, or split a long one into "
+            "several programmes.")
         self._sync_btn = QPushButton("Generate Schedule and Sync")
         self._sync_btn.setObjectName("store_buy_button")
         self._edit_btn.setToolTip(
@@ -405,7 +410,7 @@ class LiveTvPanel(QWidget):
                        self._edit_btn, self._remove_btn, self._logo_btn,
                        self._favourite_btn, self._assign_combo,
                        self._assign_btn, self._unassign_btn,
-                       self._rename_btn):
+                       self._rename_btn, self._edit_media_btn):
             action_layout.addWidget(widget)
         action_layout.addStretch(1)
         action_layout.addWidget(self._sync_btn)
@@ -422,6 +427,7 @@ class LiveTvPanel(QWidget):
         self._assign_btn.clicked.connect(self._emit_assign)
         self._unassign_btn.clicked.connect(self._emit_unassign)
         self._rename_btn.clicked.connect(self._emit_rename)
+        self._edit_media_btn.clicked.connect(self._emit_edit_media)
 
         self._stack = QStackedWidget()
         layout.addWidget(self._stack, 1)
@@ -490,7 +496,8 @@ class LiveTvPanel(QWidget):
                        self._logo_btn, self._favourite_btn):
             widget.setVisible(on_channels)
         for widget in (self._assign_combo, self._assign_btn,
-                       self._unassign_btn, self._rename_btn):
+                       self._unassign_btn, self._rename_btn,
+                       self._edit_media_btn):
             widget.setVisible(on_media)
         self._autobuild_btn.setVisible(not is_guide)
 
@@ -600,7 +607,8 @@ class LiveTvPanel(QWidget):
         for widget in (self._refresh_btn, self._autobuild_btn, self._sync_btn,
                        self._assign_btn, self._unassign_btn, self._add_btn,
                        self._edit_btn, self._remove_btn, self._logo_btn,
-                       self._favourite_btn, self._rename_btn):
+                       self._favourite_btn, self._rename_btn,
+                       self._edit_media_btn):
             widget.setEnabled(not busy)
 
     # -- selection helpers ---------------------------------------------------
@@ -686,6 +694,13 @@ class LiveTvPanel(QWidget):
         if path:
             self.rename_requested.emit(
                 "show" if self._tab == "shows" else "ad", str(path))
+
+    def _emit_edit_media(self):
+        tree = self._show_tree if self._tab == "shows" else self._ads_tree
+        paths = self._selected_paths(tree)
+        if paths:
+            self.edit_media_requested.emit(
+                "show" if self._tab == "shows" else "ad", str(paths[0]))
 
     def _emit_rename(self):
         tree = self._show_tree if self._tab == "shows" else self._ads_tree

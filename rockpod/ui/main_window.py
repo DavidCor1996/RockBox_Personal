@@ -15,7 +15,7 @@ from datetime import datetime
 
 from PySide6.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QSplitter,
-    QApplication, QMessageBox, QInputDialog, QLineEdit, QMenu, QStackedWidget, QFileDialog,
+    QApplication, QDialog, QMessageBox, QInputDialog, QLineEdit, QMenu, QStackedWidget, QFileDialog,
     QProgressDialog, QTabWidget,
 )
 from PySide6.QtCore import QEventLoop, QItemSelectionModel, Qt, QTimer, Slot, QProcess, QThreadPool
@@ -150,6 +150,7 @@ from ui.video_library import VideoGridView, build_video_browser_groups, classify
 from ui.video_player import VideoPlayerWindow
 from ui.video_sync import VideoSyncPanel
 from ui.livetv_panel import LiveTvPanel, LiveTvStorePanel
+from ui.dialogs.livetv_editor import LiveTvEditorDialog
 from ui.website_sync import WebsiteSyncPanel
 from ui.android_workflows import summarize_android_import
 from ui.boot_workflows import BootProgressController
@@ -639,6 +640,8 @@ class MainWindow(QMainWindow):
         self._livetv_panel.assign_requested.connect(self._livetv_assign)
         self._livetv_panel.unassign_requested.connect(self._livetv_unassign)
         self._livetv_panel.rename_requested.connect(self._livetv_rename)
+        self._livetv_panel.edit_media_requested.connect(
+            self._livetv_edit_media)
         self._livetv_panel.add_channel_requested.connect(
             self._livetv_add_channel)
         self._livetv_panel.edit_channel_requested.connect(
@@ -7814,6 +7817,7 @@ class MainWindow(QMainWindow):
 
         self._livetv_shows = result.get("shows") or []
         self._livetv_ads = result.get("ads") or []
+        self._livetv_apply_pending_assignment()
 
         lineup = self._livetv_lineup()
         if not lineup.channels and self._livetv_shows:
@@ -8085,6 +8089,77 @@ class MainWindow(QMainWindow):
         self._livetv_panel.set_status(
             f"{noun} renamed to “{title}”. Generate the schedule "
             "to put it in the guide on your iPod.")
+
+    def _livetv_edit_media(self, kind, path):
+        """Split a recording into programmes and cut sections out of it."""
+        shows, ads = self._livetv_media()
+        pool = shows if kind == "show" else ads
+        parts = [media for media in pool if media.path == path]
+        if not parts:
+            return
+
+        library = self._livetv_library()
+        source_duration = library.duration_for(path)
+        if source_duration <= 0:
+            QMessageBox.warning(
+                self, "Split / Trim",
+                "The length of this recording could not be read, so it "
+                "cannot be split. Check that ffprobe is installed.")
+            return
+
+        existing = library.edits_for(path)
+        dialog = LiveTvEditorDialog(
+            path, source_duration, existing,
+            title=parts[0].title if len(parts) == 1 else "",
+            ffmpeg=library.ffmpeg_bin(), parent=self)
+        if dialog.exec() != QDialog.Accepted:
+            return
+
+        episodes = dialog.episodes()
+        old_keys = [media.key for media in parts]
+        library.set_edits(path, episodes)
+
+        # Keep the channel assignment: whichever channel held the old
+        # programmes takes the new ones, so a split does not silently
+        # unassign an evening's recording.
+        lineup = self._livetv_lineup()
+        owner = None
+        for channel in lineup.channels:
+            target = channel.shows if kind == "show" else channel.ads
+            for key in old_keys:
+                if key in target:
+                    owner = owner or channel
+                    target.remove(key)
+
+        self._refresh_livetv_panel(rescan=True)
+        self._livetv_pending_assignment = (kind, path, owner.number) \
+            if owner is not None else None
+
+        count = len(episodes) or 1
+        self._livetv_panel.set_status(
+            f"{os.path.basename(path)} is now {count} programme"
+            f"{'s' if count != 1 else ''}. Generate the schedule to put "
+            "the change on your iPod.")
+
+    def _livetv_apply_pending_assignment(self):
+        """Re-assign freshly split programmes to their old channel."""
+        pending = getattr(self, "_livetv_pending_assignment", None)
+        if not pending:
+            return
+        kind, path, number = pending
+        self._livetv_pending_assignment = None
+
+        lineup = self._livetv_lineup()
+        channel = lineup.channel_by_number(number)
+        if channel is None:
+            return
+        shows, ads = self._livetv_media()
+        target = channel.shows if kind == "show" else channel.ads
+        for media in (shows if kind == "show" else ads):
+            if media.path == path and media.key not in target:
+                target.append(media.key)
+        target.sort()
+        lineup.save()
 
     def _livetv_toggle_favourite(self, channel_number):
         lineup = self._livetv_lineup()

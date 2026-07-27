@@ -474,6 +474,98 @@ def test_a_renamed_title_reaches_the_generated_guide(tmp_path):
     assert ad_titles == {"Monday Night Raw"}
 
 
+def test_cutting_a_section_shortens_the_programme():
+    item = LiveTvMedia(path="/live/tape.mp4", kind="show", title="Tape",
+                       series="Tape", duration=1800, segment="part1",
+                       start=0, end=1800, cuts=[[600, 700]])
+    assert item.keep_ranges() == [(0, 600), (700, 1800)]
+    assert item.edited_duration() == 1700
+
+
+def test_overlapping_and_touching_cuts_are_merged():
+    item = LiveTvMedia(path="/live/tape.mp4", kind="show", title="Tape",
+                       series="Tape", segment="part1", start=0, end=1000,
+                       cuts=[[100, 300], [200, 400], [900, 1200]])
+    assert item.keep_ranges() == [(0, 100), (400, 900)]
+    assert item.edited_duration() == 600
+
+
+def test_splitting_gives_each_programme_its_own_device_file(tmp_path):
+    whole = LiveTvMedia(path="/live/Double Bill.mp4", kind="show",
+                        title="Double Bill", series="Double Bill",
+                        duration=3600)
+    first = LiveTvMedia(path=whole.path, kind="show", title="Part One",
+                        series=whole.series, segment="ep1", start=0, end=1800)
+    second = LiveTvMedia(path=whole.path, kind="show", title="Part Two",
+                         series=whole.series, segment="ep2", start=1800,
+                         end=3600)
+
+    assert first.key != second.key
+    assert first.device_relative() != second.device_relative()
+    for media in (first, second):
+        assert media.device_relative().endswith(".mpg")
+        assert ".." not in media.device_relative()
+    assert first.edited_duration() == 1800
+
+
+def test_edits_persist_and_expand_into_separate_programmes(
+        tmp_path, monkeypatch):
+    media = tmp_path / "media" / "Live"
+    media.mkdir(parents=True)
+    clip = media / "Evening Tape.mp4"
+    clip.write_bytes(b"0" * 4096)
+
+    library = _library_over(tmp_path, monkeypatch, tmp_path / "media")
+    library._edits_path = str(tmp_path / "edits.json")
+    library._edits = {}
+    monkeypatch.setattr(library, "duration_for", lambda path: 3600)
+
+    shows, _ads = library.scan(probe_durations=True)
+    assert len(shows) == 1 and not shows[0].is_segment
+
+    library.set_edits(str(clip), [
+        {"id": "ep1", "title": "First Show", "start": 0, "end": 1800,
+         "cuts": [[300, 360]]},
+        {"id": "ep2", "title": "Second Show", "start": 1800, "end": 3600,
+         "cuts": []},
+    ])
+
+    reloaded = _library_over(tmp_path, monkeypatch, tmp_path / "media")
+    reloaded._edits_path = str(tmp_path / "edits.json")
+    reloaded._load_edits()
+    monkeypatch.setattr(reloaded, "duration_for", lambda path: 3600)
+
+    shows, _ads = reloaded.scan(probe_durations=True)
+    assert [media.title for media in shows] == ["First Show", "Second Show"]
+    assert shows[0].duration == 1740, "the cut was not taken off the length"
+    assert shows[1].duration == 1800
+    assert len({media.key for media in shows}) == 2
+
+    # Clearing the edits restores the single recording.
+    reloaded.set_edits(str(clip), [])
+    shows, _ads = reloaded.scan(probe_durations=True)
+    assert len(shows) == 1 and not shows[0].is_segment
+
+
+def test_the_encode_trims_to_the_kept_ranges_only():
+    graph = livetv.LiveTvSync.edit_filter_complex([(0, 600), (700, 1800)])
+
+    assert "trim=start=0:end=600" in graph
+    assert "trim=start=700:end=1800" in graph
+    assert "atrim=start=0:end=600" in graph
+    assert "concat=n=2:v=1:a=1" in graph
+    # The screen-filling scale still runs after the pieces are joined.
+    assert livetv.LiveTvSync.video_filter() in graph
+    assert graph.endswith("[vout]")
+
+
+def test_a_split_recording_is_never_deleted_from_staging():
+    """Removing the source after the first part would strand the rest."""
+    source = (REPO / "rockpod" / "services" / "livetv.py").read_text(
+        encoding="utf-8")
+    assert "not item.is_segment and item.path.startswith(staging" in source
+
+
 def test_videos_are_encoded_to_fill_the_ipod_screen():
     """Letterboxing a 16:9 rip into 4:3 leaves a small, banded picture."""
     video_filter = livetv.LiveTvSync.video_filter()

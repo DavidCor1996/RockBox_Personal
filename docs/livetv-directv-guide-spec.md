@@ -302,6 +302,10 @@ Scanning rules:
 
 ### 6.2 Live TV Sync panel
 
+Live TV sits in the **Library** section of the sidebar alongside Videos and
+Video Sync, since it is a video library of its own rather than a device
+feature. Shows and commercials are kept in separate tabs.
+
 Two sections, exactly as requested:
 
 * **Shows** — every discovered show, its channel assignment, duration and
@@ -314,6 +318,25 @@ Plus channel management and a "Generate Schedule and Sync" action.
 **Channels** can be added, renamed, renumbered and removed. Double-clicking a
 row edits it. Shows and commercials are assigned to a channel with *Assign
 Selected*, and can be unassigned again.
+
+**Recordings can be split and trimmed.** One tape often holds several
+programmes, and a recording usually has adverts or a long lead-in that should
+not reach the iPod. Both are the same operation — keep some ranges, drop the
+rest — so *Split / Trim* edits a list of **episodes**, each with a start, an
+end, and any number of **cuts** inside it. Each episode becomes its own
+programme in the guide with its own device file.
+
+The editor shows a frame from the recording at the position being edited, so
+cut points can be chosen by eye, and reports how much of the recording
+survives. Edits are stored per source path in `~/.rockpod/livetv/edits.json`.
+Splitting keeps the channel assignment: the new episodes are assigned to
+whichever channel held the recording.
+
+Because everything is re-encoded anyway, the trim happens in the ffmpeg
+filter graph (`trim`/`atrim` + `concat`) rather than by seeking a stream
+copy, which makes the cuts frame accurate. A split recording is never
+auto-deleted from the Store staging folder — removing the source after the
+first episode would strand the rest.
 
 **Shows and commercials can be renamed.** Titles are derived from filenames,
 which for broadcast rips are usually air dates rather than programme names,

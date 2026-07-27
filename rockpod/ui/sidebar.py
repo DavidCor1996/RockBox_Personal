@@ -200,6 +200,8 @@ class Sidebar(QWidget):
                                           _make_icon("#4a90d9", "music"))
         self._videos_item = self._add_item(lib_header, "Videos", self.LIBRARY_VIDEOS,
                                            _make_icon("#7f8fb3", "device"))
+        self._livetv_item = self._add_item(lib_header, "Live TV", self.ROCKBOX_LIVETV,
+                                           _make_icon("#0f5689", "device"))
         self._video_sync_item = self._add_item(lib_header, "Video Sync", self.LIBRARY_VIDEO_SYNC,
                                                _make_icon("#6f8fb8", "playlist"))
         self._artists_item = self._add_item(lib_header, "Artists", self.LIBRARY_ARTISTS,
@@ -256,10 +258,6 @@ class Sidebar(QWidget):
         self._sitekick_item = self._add_item(
             self._rockbox_header, "Sitekick", self.ROCKBOX_SITEKICK,
             _make_icon("#7d289d", "device")
-        )
-        self._livetv_item = self._add_item(
-            self._rockbox_header, "Live TV", self.ROCKBOX_LIVETV,
-            _make_icon("#0f5689", "device")
         )
         self._photos_item = self._add_item(
             self._rockbox_header, "Photos", self.ROCKBOX_PHOTOS,
