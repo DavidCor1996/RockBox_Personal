@@ -12,6 +12,15 @@
 *~
 .cache
 
+# Local backups (never publish)
+**/.backups/
+**/.rockpod-backups/
+**/backups/
+*.bak
+*.backup
+*.backup-*
+*.previous
+
 # RockPod generated output
 /rockpod/.theme_designer/generated/
 /rockpod/generated/
