@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Force-resync RockPod video rows as RVP bundles for the mounted iPod."""
+"""Force-resync RockPod video rows in a device-safe playback format."""
 
 from __future__ import annotations
 
@@ -74,6 +74,12 @@ def main(argv=None) -> int:
     parser.add_argument("--mount", default="")
     parser.add_argument("--ids", default="", help="Comma-separated video track IDs. Defaults to synced videos.")
     parser.add_argument(
+        "--profile",
+        default="quality",
+        choices=("quality", "compact_raw", "native_raw", "raw"),
+        help="Video conversion profile. Defaults to seekable 320x240 MPEG-2 at 20 fps.",
+    )
+    parser.add_argument(
         "--allow-online-artwork",
         action="store_true",
         help="Allow fresh online artwork lookups while rebuilding the device video manifest.",
@@ -86,6 +92,11 @@ def main(argv=None) -> int:
     args = parser.parse_args(argv)
 
     config = Config(args.config)
+    if not args.artwork_only:
+        # Persist the explicit repair profile so later GUI syncs use the same
+        # device-safe conversion rather than passing source containers through.
+        config.set("video_sync_profile", args.profile)
+        config.save()
     if not args.allow_online_artwork:
         # A targeted repair/resync should not spend minutes refreshing artwork
         # for unrelated videos. Existing local/cached artwork is still exported.

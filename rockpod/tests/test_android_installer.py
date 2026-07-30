@@ -104,9 +104,16 @@ def _eclair_native_bundle(repo_root):
         "full_system_emulation_gate_passed": True,
         "persistent_storage_available": False,
         "hardware_actions_enabled": False,
-        "rockbox_menu_play_boot_packaged": True,
+        "rockbox_select_right_boot_packaged": True,
+        "rockbox_select_right_boot_binary_emulated": True,
+        "rockbox_to_linux_zimage_binary_emulated": True,
+        "rockbox_boot_image_sizes_binary_verified": True,
         "rockbox_boot_components_checksum_wrapped": True,
-        "rockbox_menu_play_bootloader_volatile_dfu": True,
+        "rockbox_select_right_bootloader_volatile_dfu": True,
+        "rockbox_forced_android_volatile_test_binary_emulated": True,
+        "rockbox_select_right_dualboot_nor_installer_packaged": True,
+        "rockbox_nor_installer_preserves_original_firmware": True,
+        "rockbox_dualboot_nor_uninstaller_packaged": True,
         "board": "apple-n25-ipod-classic-6g",
         "profile": "eclair-native-ram-only-no-storage",
         "aosp_tag": "android-2.0_r1",
@@ -170,18 +177,137 @@ def _eclair_native_bundle(repo_root):
         "hardware_actions_enabled": False,
         "cases": {str(index): True for index in range(8)},
     }
+    bootloader_bin = b"bootloader-bin"
+    bootloader_sum = (71 + sum(bootloader_bin)) & 0xFFFFFFFF
+    bootloader_wrapper = (
+        bootloader_sum.to_bytes(4, "big") + b"ip6g" + bootloader_bin
+    )
+    bootloader_sha256 = hashlib.sha256(bootloader_bin).hexdigest()
+    zimage_sha256 = hashlib.sha256(b"test-zimage").hexdigest()
+    linux_dtb_sha256 = hashlib.sha256(b"test-linux-dtb").hexdigest()
+    boot_chord_report = {
+        "schema": 1,
+        "scope": "ipod6g-rockbox-boot-chord-exact-binary-emulation",
+        "cpu": "ARM926EJ-S",
+        "button_patterns_tested": 128,
+        "android_chord": "Select+Right",
+        "android_button_bits": "0x09",
+        "usb_chord": "Menu+Play",
+        "usb_button_bits": "0x42",
+        "exact_chords_only": True,
+        "main_calls_qualified_functions": True,
+        "android_usb_overlap": False,
+        "gate_passed": True,
+        "bootloader_bin_sha256": bootloader_sha256,
+        "cases": {
+            f"0x{buttons:02x}": {
+                "android": buttons == 0x09,
+                "usb": buttons == 0x42,
+            }
+            for buttons in range(128)
+        },
+    }
+    forced_bootloader_bin = b"forced-volatile-bootloader"
+    forced_bootloader_sha256 = hashlib.sha256(forced_bootloader_bin).hexdigest()
+    volatile_force_report = {
+        **boot_chord_report,
+        "bootloader_bin_sha256": forced_bootloader_sha256,
+        "forced_android_volatile_test": True,
+        "forced_button_patterns_tested": 128,
+        "forced_main_calls_qualified_function": True,
+        "forced_cases": {
+            f"0x{buttons:02x}": True for buttons in range(128)
+        },
+    }
+    chain_report = {
+        "gate_passed": True,
+        "cpu": "ARM926EJ-S",
+        "image_format": "zImage",
+        "image_sha256": zimage_sha256,
+        "dtb_sha256": linux_dtb_sha256,
+        "initramfs_sha256": initramfs_sha256,
+        "rockbox_bootloader_sha256": bootloader_sha256,
+        "stop_at": "s5l_lcd_probe",
+        "model_n25_timer": True,
+        "verify_n25_irq": True,
+        "verify_n25_lcd": False,
+        "rockbox_handoff_executed": True,
+        "rockbox_linux_entry_state": {
+            "r0": 0,
+            "r1": 0xFFFFFFFF,
+            "r2": 0x0AD00000,
+            "cpsr": 0xD3,
+        },
+        "milestones": [
+            "stext",
+            "__lookup_processor_type",
+            "__turn_mmu_on",
+            "start_kernel",
+            "s5l8702_clkevt_set_periodic",
+            "s5l8702_timer_interrupt",
+            "of_platform_default_populate_init",
+            "s5l_lcd_driver_init",
+            "s5l_lcd_probe",
+        ],
+        "timer_e_reads": 10,
+        "timer_irq_injections": 2,
+        "timer_irq_acks": 2,
+        "vic_address_reads": 4,
+        "vic_address_completions": 4,
+    }
+    report["artifacts"] = {
+        "rockbox_bootloader_bin": {"sha256": bootloader_sha256},
+        "rockbox_volatile_test_bin": {"sha256": forced_bootloader_sha256},
+        "zimage": {"sha256": zimage_sha256},
+        "linux_dtb": {"sha256": linux_dtb_sha256},
+    }
+    forced_padded_size = (len(forced_bootloader_bin) + 15) & ~15
+    forced_dfu = bytearray(0x800 + forced_padded_size)
+    forced_dfu[:8] = b"87021.0\x02"
+    forced_dfu[12:16] = forced_padded_size.to_bytes(4, "little")
+    forced_dfu[16:20] = forced_padded_size.to_bytes(4, "little")
+    forced_dfu[20:24] = forced_padded_size.to_bytes(4, "little")
+    forced_dfu[0x800:0x800 + len(forced_bootloader_bin)] = (
+        forced_bootloader_bin
+    )
+    nor_info_offset = 0x30C + 5396 - 80
+    nor_payload_offset = nor_info_offset + 0x800
+    nor_padded_size = (len(bootloader_bin) + 15) & ~15
+    nor_installer = bytearray(nor_payload_offset + nor_padded_size)
+    nor_installer[:8] = b"87021.0\x03"
+    nor_installer[0x30C:nor_info_offset] = bytes([1]) * (
+        nor_info_offset - 0x30C
+    )
+    nor_installer[nor_info_offset:nor_info_offset + 8] = b"87021.0\x02"
+    nor_installer[nor_info_offset + 12:nor_info_offset + 16] = (
+        nor_padded_size.to_bytes(4, "little")
+    )
+    nor_installer[
+        nor_payload_offset:nor_payload_offset + len(bootloader_bin)
+    ] = bootloader_bin
+    nor_uninstaller = bytearray(5856)
+    nor_uninstaller[:8] = b"87021.0\x03"
+    nor_uninstaller[0x30C] = 1
     files = {
         "n25-eclair-native-initramfs.cpio.gz": b"initramfs",
         "eclair-root-qualification.json": json.dumps(root_report).encode(),
         "eclair-system-emulation.json": json.dumps(system_report).encode(),
         "n25-input-emulation.json": json.dumps(input_report).encode(),
+        "n25-boot-chord-emulation.json": json.dumps(boot_chord_report).encode(),
+        "n25-forced-volatile-boot-emulation.json": json.dumps(
+            volatile_force_report
+        ).encode(),
+        "n25-select-right-chain-emulation.json": json.dumps(chain_report).encode(),
         "n25-eclair-native.itb": b"fit",
         "n25-eclair-native-uboot.dfu": b"dfu",
         "n25-eclair-kernel.ipod": b"kernel-ipod",
         "n25-eclair-initramfs.ipod": b"initramfs-ipod",
         "n25-eclair-dtb.ipod": b"dtb-ipod",
-        "n25-eclair-menu-play-bootloader.ipod": b"bootloader-ipod",
-        "n25-eclair-menu-play-bootloader.dfu": b"bootloader-dfu",
+        "n25-eclair-select-right-bootloader.ipod": bootloader_wrapper,
+        "n25-eclair-select-right-bootloader.dfu": b"bootloader-dfu",
+        "n25-eclair-select-right-forced-volatile-test.dfu": bytes(forced_dfu),
+        "n25-eclair-select-right-nor-installer.dfu": bytes(nor_installer),
+        "n25-eclair-select-right-nor-uninstaller.dfu": bytes(nor_uninstaller),
         "qualification.json": json.dumps(report).encode(),
     }
     lines = []
@@ -301,10 +427,17 @@ def test_eclair_native_status_verifies_ram_only_native_bundle(tmp_path):
     assert status["physical_input_tested"] is False
     assert status["physical_reset_tested"] is False
     assert status["aosp_tag"] == "android-2.0_r1"
-    assert status["rockbox_menu_play_boot_packaged"] is True
+    assert status["rockbox_select_right_boot_packaged"] is True
+    assert status["rockbox_select_right_boot_binary_emulated"] is True
+    assert status["rockbox_to_linux_zimage_binary_emulated"] is True
+    assert status["rockbox_boot_image_sizes_binary_verified"] is True
     assert status["rockbox_boot_components_checksum_wrapped"] is True
-    assert status["rockbox_menu_play_bootloader_volatile_dfu"] is True
-    assert len(status["artifacts"]) == 12
+    assert status["rockbox_select_right_bootloader_volatile_dfu"] is True
+    assert status["rockbox_forced_android_volatile_test_binary_emulated"] is True
+    assert status["rockbox_select_right_dualboot_nor_installer_packaged"] is True
+    assert status["rockbox_nor_installer_preserves_original_firmware"] is True
+    assert status["rockbox_dualboot_nor_uninstaller_packaged"] is True
+    assert len(status["artifacts"]) == 18
 
 
 def test_eclair_boot_file_installer_preserves_rockbox_and_database(tmp_path):
@@ -320,7 +453,9 @@ def test_eclair_boot_file_installer_preserves_rockbox_and_database(tmp_path):
     result = AndroidInstallerService(repo_root=tmp_path).install_eclair_boot_files(device)
 
     assert result["installed"] is True
-    assert result["boot_combo"] == "MENU+PLAY"
+    assert result["boot_combo"] == "SELECT+RIGHT"
+    assert result["updated"] is False
+    assert result["already_current"] is False
     assert result["partition_table_written"] is False
     assert result["nor_written"] is False
     assert result["rockbox_firmware_written"] is False
@@ -334,7 +469,7 @@ def test_eclair_boot_file_installer_preserves_rockbox_and_database(tmp_path):
     }
 
 
-def test_eclair_boot_file_installer_refuses_overwrite(tmp_path):
+def test_eclair_boot_file_installer_refuses_unmanifested_overwrite(tmp_path):
     _eclair_native_bundle(tmp_path)
     device = tmp_path / "device"
     target = device / ".rockbox" / "android"
@@ -344,10 +479,133 @@ def test_eclair_boot_file_installer_refuses_overwrite(tmp_path):
     existing = target / "n25-eclair-kernel.ipod"
     existing.write_bytes(b"user-data")
 
-    with pytest.raises(AndroidInstallerError, match="Refusing to overwrite"):
+    with pytest.raises(AndroidInstallerError, match="Refusing partial"):
         AndroidInstallerService(repo_root=tmp_path).install_eclair_boot_files(device)
 
     assert existing.read_bytes() == b"user-data"
+
+
+def test_eclair_boot_file_installer_updates_manifest_owned_payloads(tmp_path):
+    bundle = _eclair_native_bundle(tmp_path)
+    device = tmp_path / "device"
+    target = device / ".rockbox" / "android"
+    target.mkdir(parents=True)
+    (device / "rockbox.ipod").write_bytes(b"existing-rockbox")
+    (device / ".rockbox" / "rockbox.ipod").write_bytes(b"existing-rockbox")
+    database = device / ".rockbox" / "database_0.tcd"
+    database.write_bytes(b"keep-database")
+    historical = target / "diagnostic-trace2"
+    historical.mkdir()
+    historical_file = historical / "n25-visible-kernel.ipod"
+    historical_file.write_bytes(b"keep-historical-diagnostic")
+
+    old_records = []
+    for name in (
+        "n25-eclair-kernel.ipod",
+        "n25-eclair-initramfs.ipod",
+        "n25-eclair-dtb.ipod",
+    ):
+        body = b"old-qualified-" + name.encode("ascii")
+        (target / name).write_bytes(body)
+        old_records.append((hashlib.sha256(body).hexdigest(), name))
+    (target / "SHA256SUMS").write_text(
+        "".join(f"{digest}  {name}\n" for digest, name in old_records),
+        encoding="ascii",
+    )
+
+    result = AndroidInstallerService(repo_root=tmp_path).install_eclair_boot_files(device)
+
+    assert result["updated"] is True
+    assert result["already_current"] is False
+    assert result["boot_combo"] == "SELECT+RIGHT"
+    assert database.read_bytes() == b"keep-database"
+    assert result["historical_diagnostic_directories_preserved"] == [
+        "diagnostic-trace2"
+    ]
+    assert historical_file.read_bytes() == b"keep-historical-diagnostic"
+    for name in (
+        "n25-eclair-kernel.ipod",
+        "n25-eclair-initramfs.ipod",
+        "n25-eclair-dtb.ipod",
+    ):
+        assert (target / name).read_bytes() == (bundle / name).read_bytes()
+    assert not any(path.name.startswith(".rockpod-android-") for path in target.iterdir())
+
+
+def test_eclair_boot_file_installer_rejects_unknown_android_directory(tmp_path):
+    _eclair_native_bundle(tmp_path)
+    device = tmp_path / "device"
+    target = device / ".rockbox" / "android"
+    target.mkdir(parents=True)
+    (device / "rockbox.ipod").write_bytes(b"existing-rockbox")
+    (device / ".rockbox" / "rockbox.ipod").write_bytes(b"existing-rockbox")
+    (target / "user-content").mkdir()
+
+    with pytest.raises(AndroidInstallerError, match="unrecognized"):
+        AndroidInstallerService(repo_root=tmp_path).install_eclair_boot_files(device)
+
+
+def test_eclair_boot_file_installer_is_idempotent(tmp_path):
+    _eclair_native_bundle(tmp_path)
+    device = tmp_path / "device"
+    rockbox = device / ".rockbox"
+    rockbox.mkdir(parents=True)
+    (device / "rockbox.ipod").write_bytes(b"existing-rockbox")
+    (rockbox / "rockbox.ipod").write_bytes(b"existing-rockbox")
+    service = AndroidInstallerService(repo_root=tmp_path)
+
+    service.install_eclair_boot_files(device)
+    result = service.install_eclair_boot_files(device)
+
+    assert result["updated"] is False
+    assert result["already_current"] is True
+
+
+def test_eclair_boot_file_installer_rolls_back_failed_update(
+    tmp_path, monkeypatch
+):
+    _eclair_native_bundle(tmp_path)
+    device = tmp_path / "device"
+    target = device / ".rockbox" / "android"
+    target.mkdir(parents=True)
+    (device / "rockbox.ipod").write_bytes(b"existing-rockbox")
+    (device / ".rockbox" / "rockbox.ipod").write_bytes(b"existing-rockbox")
+
+    old_bodies = {}
+    records = []
+    for name in (
+        "n25-eclair-kernel.ipod",
+        "n25-eclair-initramfs.ipod",
+        "n25-eclair-dtb.ipod",
+    ):
+        body = b"old-qualified-" + name.encode("ascii")
+        old_bodies[name] = body
+        (target / name).write_bytes(body)
+        records.append((hashlib.sha256(body).hexdigest(), name))
+    old_manifest = "".join(
+        f"{digest}  {name}\n" for digest, name in records
+    ).encode("ascii")
+    (target / "SHA256SUMS").write_bytes(old_manifest)
+
+    real_replace = os.replace
+    failed = False
+
+    def fail_second_payload(source, destination):
+        nonlocal failed
+        if not failed and os.fspath(source).endswith(".rockpod-android-new-1"):
+            failed = True
+            raise OSError("simulated FAT rename failure")
+        return real_replace(source, destination)
+
+    monkeypatch.setattr("services.android_installer.os.replace", fail_second_payload)
+
+    with pytest.raises(AndroidInstallerError, match="transactionally"):
+        AndroidInstallerService(repo_root=tmp_path).install_eclair_boot_files(device)
+
+    for name, body in old_bodies.items():
+        assert (target / name).read_bytes() == body
+    assert (target / "SHA256SUMS").read_bytes() == old_manifest
+    assert not any(path.name.startswith(".rockpod-android-") for path in target.iterdir())
 
 
 def test_eclair_native_status_rejects_storage_or_unproven_root(tmp_path):

@@ -141,6 +141,12 @@ enum ui_engine_games_appearance {
     UI_ENGINE_GAMES_STEAM = 1,
 };
 
+enum ui_engine_extras_pane {
+    UI_ENGINE_EXTRAS_CLOCK = 0,
+    UI_ENGINE_EXTRAS_AVATAR = 1,
+    UI_ENGINE_EXTRAS_SITEKICK = 2,
+};
+
 #ifdef HAVE_CROSSFADE
 enum {
     CROSSFADE_ENABLE_OFF = 0,
@@ -865,6 +871,7 @@ struct user_settings
 
 #ifdef IPOD_ACCESSORY_PROTOCOL
     int serial_bitrate; /* 0=auto 1=9600 2=19200 3=38400 4=57600 */
+    bool kokkia_pause_on_unplug;
 #endif
 #ifdef HAVE_ACCESSORY_SUPPLY
     bool accessory_supply; /* 0=off 1=on, accessory power supply for iPod */
@@ -1017,6 +1024,7 @@ struct user_settings
     bool ui_engine_lock_settings; /* shared privacy PIN gates Settings */
     int ui_engine_video_appearance; /* native Videos catalog style */
     int ui_engine_games_appearance; /* native Games library style */
+    int ui_engine_extras_pane; /* native Extras right-pane content */
 };
 
 /* global settings */

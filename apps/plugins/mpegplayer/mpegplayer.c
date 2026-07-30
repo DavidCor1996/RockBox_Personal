@@ -106,6 +106,120 @@
 #include "video_out.h"
 #include "stream_thread.h"
 #include "stream_mgr.h"
+#include "livetv.h"
+
+#define MPEGPLAYER_NETFLIX_PREFIX "netflix:"
+#define MPEGPLAYER_NETFLIX_PREFIX_LEN 8
+#define MPEGPLAYER_NETFLIX_RESTART_PREFIX "netflix-restart:"
+#define MPEGPLAYER_NETFLIX_RESTART_PREFIX_LEN 16
+
+bool mpegplayer_netflix_launch;
+bool mpegplayer_youtube_launch;
+bool mpegplayer_youtube_embedded;
+bool mpegplayer_livetv_launch;
+bool mpegplayer_livetv_pig;
+bool mpegplayer_livetv_desktop;
+bool mpegplayer_livetv_guide_active;
+bool mpegplayer_livetv_weather_hidden;
+static bool mpegplayer_livetv_weather_active;
+
+#if defined(HAVE_LCD_COLOR) && (LCD_WIDTH >= 320) && (LCD_HEIGHT >= 240)
+/* Desktop Mode and mpegplayer cannot remain loaded together. Preserve the
+ * framebuffer handed to us by desktop_mode so stream reopen/OSD teardown can
+ * restore the wallpaper and Dock without borrowing decoder or audio memory. */
+#define LIVETV_DESKTOP_UNDERLAY_FILE \
+    PLUGIN_APPS_DATA_DIR "/desktop_mode_livetv_underlay.raw"
+#define LIVETV_DESKTOP_UNDERLAY_MAGIC 0x44545631u /* "DTV1" */
+static fb_data livetv_desktop_underlay[LCD_WIDTH * LCD_HEIGHT];
+static bool livetv_desktop_underlay_valid;
+
+static bool livetv_desktop_read_all(int fd, void *data, size_t size)
+{
+    unsigned char *cursor = data;
+
+    while (size > 0)
+    {
+        ssize_t count = rb->read(fd, cursor, size);
+
+        if (count <= 0)
+            return false;
+        cursor += count;
+        size -= count;
+    }
+    return true;
+}
+
+static void livetv_desktop_capture_underlay(void)
+{
+    uint32_t header[3];
+    struct viewport *vp =
+        *(rb->screens[SCREEN_MAIN]->current_viewport);
+    const fb_data *fb;
+    int fd;
+    int y;
+
+    livetv_desktop_underlay_valid = false;
+
+    fd = rb->open(LIVETV_DESKTOP_UNDERLAY_FILE, O_RDONLY);
+    if (fd >= 0)
+    {
+        bool ok =
+            livetv_desktop_read_all(fd, header, sizeof(header)) &&
+            header[0] == LIVETV_DESKTOP_UNDERLAY_MAGIC &&
+            header[1] == LCD_WIDTH && header[2] == LCD_HEIGHT &&
+            livetv_desktop_read_all(
+                fd, livetv_desktop_underlay,
+                (size_t)LCD_WIDTH * LCD_HEIGHT * sizeof(fb_data));
+
+        rb->close(fd);
+        if (ok)
+        {
+            livetv_desktop_underlay_valid = true;
+            return;
+        }
+    }
+
+    /* Keep direct launch useful even if no Desktop handoff file exists. */
+    if (vp == NULL || vp->buffer == NULL || vp->buffer->fb_ptr == NULL)
+        return;
+
+    fb = vp->buffer->fb_ptr;
+    for (y = 0; y < LCD_HEIGHT; y++)
+    {
+        rb->memcpy(livetv_desktop_underlay + y * LCD_WIDTH,
+                   fb + y * vp->buffer->stride,
+                   LCD_WIDTH * sizeof(fb_data));
+    }
+    livetv_desktop_underlay_valid = true;
+}
+
+static void livetv_desktop_restore_underlay(void)
+{
+    if (!livetv_desktop_underlay_valid)
+        return;
+
+    rb->lcd_bitmap(livetv_desktop_underlay, 0, 0, LCD_WIDTH, LCD_HEIGHT);
+    rb->lcd_update();
+}
+#else
+#define livetv_desktop_capture_underlay() do { } while (0)
+#define livetv_desktop_restore_underlay() do { } while (0)
+#endif
+
+/* Join-in point for the programme Live TV is opening, in stream ticks. */
+static uint32_t livetv_resume;
+
+#if defined(HAVE_LCD_COLOR) && (LCD_WIDTH >= 320) && (LCD_HEIGHT >= 240)
+#define YOUTUBE_LOGO_PATH \
+    ROCKBOX_DIR "/offlineweb/assets/youtube-logo-2006.bmp"
+static unsigned char youtube_logo_data[128 * 52 * sizeof(fb_data)];
+static struct bitmap youtube_logo_bmp;
+static char youtube_title[64];
+static char youtube_uploader[40];
+static char youtube_added[24];
+static char youtube_views[32];
+static char youtube_duration[20];
+#endif
 
 #if defined(HAVE_LCD_COLOR) && (LCD_WIDTH >= 320) && (LCD_HEIGHT >= 240)
 #include "pluginbitmaps/ipodtiktok_header.h"
@@ -117,6 +231,94 @@
 #endif
 
 #define MPLOG(...) DEBUGF("mpegplayer: " __VA_ARGS__)
+
+#if defined(HAVE_LCD_COLOR) && (LCD_WIDTH >= 320) && (LCD_HEIGHT >= 240)
+static void youtube_load_metadata(const char *videofile)
+{
+    char path[MAX_PATH];
+    char line[128];
+    char *dot;
+    int fd;
+
+    youtube_title[0] = '\0';
+    youtube_uploader[0] = '\0';
+    youtube_added[0] = '\0';
+    youtube_views[0] = '\0';
+    youtube_duration[0] = '\0';
+    rb->strlcpy(path, videofile, sizeof(path));
+    dot = rb->strrchr(path, '.');
+    if (dot == NULL)
+        return;
+    rb->strlcpy(dot, ".ytm", sizeof(path) - (dot - path));
+    fd = rb->open(path, O_RDONLY);
+    if (fd < 0)
+        return;
+    while (rb->read_line(fd, line, sizeof(line)) > 0)
+    {
+        if (!rb->strncmp(line, "title=", 6))
+            rb->strlcpy(youtube_title, line + 6, sizeof(youtube_title));
+        else if (!rb->strncmp(line, "uploader=", 9))
+            rb->strlcpy(youtube_uploader, line + 9,
+                        sizeof(youtube_uploader));
+        else if (!rb->strncmp(line, "added=", 6))
+            rb->strlcpy(youtube_added, line + 6, sizeof(youtube_added));
+        else if (!rb->strncmp(line, "views=", 6))
+            rb->strlcpy(youtube_views, line + 6, sizeof(youtube_views));
+        else if (!rb->strncmp(line, "duration=", 9))
+            rb->strlcpy(youtube_duration, line + 9,
+                        sizeof(youtube_duration));
+    }
+    rb->close(fd);
+}
+
+static void youtube_draw_embedded_chrome(void)
+{
+    int oldfg = rb->lcd_get_foreground();
+    int oldbg = rb->lcd_get_background();
+
+    rb->lcd_set_background(LCD_WHITE);
+    rb->lcd_set_foreground(LCD_WHITE);
+    rb->lcd_clear_display();
+    youtube_logo_bmp.data = youtube_logo_data;
+    if (rb->read_bmp_file(YOUTUBE_LOGO_PATH, &youtube_logo_bmp,
+                          sizeof(youtube_logo_data),
+                          FORMAT_NATIVE, NULL) > 0)
+        rb->lcd_bitmap((const fb_data *)youtube_logo_bmp.data, 8, 0,
+                       youtube_logo_bmp.width, youtube_logo_bmp.height);
+    rb->lcd_set_foreground(LCD_RGBPACK(0x00, 0x33, 0xcc));
+    rb->lcd_putsxy(220, 5, "Videos");
+    rb->lcd_putsxy(220, 21, "Channels");
+    rb->lcd_set_foreground(LCD_BLACK);
+    rb->lcd_hline(0, LCD_WIDTH - 1, 43);
+    rb->lcd_putsxy(5, 46, youtube_title[0] ?
+                   youtube_title : "YouTube Video");
+    rb->lcd_set_foreground(LCD_RGBPACK(0xe6, 0xf1, 0xfa));
+    rb->lcd_fillrect(218, 62, LCD_WIDTH - 218, 158);
+    rb->lcd_set_foreground(LCD_BLACK);
+    rb->lcd_putsxy(223, 67, "From:");
+    rb->lcd_putsxy(223, 83, youtube_uploader);
+    if (youtube_added[0])
+    {
+        rb->lcd_putsxy(223, 104, "Added:");
+        rb->lcd_putsxy(223, 120, youtube_added);
+    }
+    rb->lcd_putsxy(223, 145, youtube_views);
+    if (youtube_duration[0])
+        rb->lcd_putsxy(223, 181, youtube_duration);
+    rb->lcd_set_foreground(LCD_RGBPACK(0x00, 0x33, 0xcc));
+    rb->lcd_fillrect(0, 220, LCD_WIDTH, 20);
+    rb->lcd_set_foreground(LCD_WHITE);
+    rb->lcd_set_drawmode(DRMODE_FG);
+    rb->lcd_putsxy(6, 224, "Select Full Screen");
+    rb->lcd_set_drawmode(DRMODE_SOLID);
+    rb->lcd_update();
+    rb->lcd_set_foreground(oldfg);
+    rb->lcd_set_background(oldbg);
+}
+#else
+#define youtube_load_metadata(videofile)
+#define youtube_draw_embedded_chrome()
+#endif
 
 
 /* button definitions */
@@ -553,6 +755,7 @@ CONFIG_KEYPAD == SANSA_M200_PAD
 #define FF_REWIND_MAX_PERCENT 3 /* cap ff/rewind step size at max % of file */
                                 /* 3% of 30min file == 54s step size */
 #define MIN_FF_REWIND_STEP (TS_SECOND/2)
+#define FF_REWIND_BUTTON_TIMEOUT (HZ/2)
 #define OSD_MIN_UPDATE_INTERVAL (HZ/2)
 #define FPS_UPDATE_INTERVAL (HZ) /* Get new FPS reading each second */
 
@@ -616,6 +819,33 @@ extern const unsigned char mpegplayer_status_icons_16x16x1[];
 #define OSD_BDR_R 4
 #define OSD_BDR_B 4
 
+#if defined(HAVE_LCD_COLOR) && LCD_WIDTH == 320 && LCD_HEIGHT == 240
+#define MPEG_STOCK_CONTROLS 1
+#define MPEG_STOCK_ASSET_DIR ROCKBOX_DIR "/ipodjs/apple"
+#define MPEG_STOCK_HEADER_H 24
+#define MPEG_STOCK_TITLE_SIZE 96
+#define MPEG_STOCK_PLAYBACK_W 20
+#define MPEG_STOCK_PLAYBACK_FRAME_H 16
+#define MPEG_STOCK_BATTERY_W 26
+#define MPEG_STOCK_BATTERY_FRAME_H 13
+#define MPEG_STOCK_BATTERY_FRAMES 5
+#define MPEG_STOCK_PROGRESS_W 200
+#define MPEG_STOCK_PROGRESS_H 22
+#define MPEG_STOCK_PROGRESS_CAP_W 16
+#define MPEG_STOCK_PROGRESS_CAP_H 16
+#define MPEG_VOLUME_CARD_W 180
+#define MPEG_VOLUME_CARD_H 45
+#define MPEG_VOLUME_ICON_W 24
+#define MPEG_VOLUME_ICON_H 21
+#define MPEG_VOLUME_ICON_FRAMES 4
+#define MPEG_VOLUME_SLIDER_W 117
+#define MPEG_VOLUME_SLIDER_H 5
+#define MPEG_VOLUME_SLIDER_END_W 3
+#define MPEG_NETFLIX_OVERLAY_H 64
+#else
+#define MPEG_STOCK_CONTROLS 0
+#endif
+
 struct osd
 {
     long hide_tick;
@@ -649,6 +879,8 @@ struct osd
     struct bitmap slider_knob_bmp;
     bool slider_bitmaps_loaded;
     bool use_wps_layout;
+    bool stock_layout;
+    bool netflix_layout;
 };
 
 struct fps
@@ -667,6 +899,71 @@ struct fps
 
 static struct osd osd;
 static struct fps fps NOCACHEBSS_ATTR; /* Accessed on other processor */
+static char mpeg_osd_path[MAX_PATH];
+static uint32_t netflix_overlay_duration;
+/* Set by every user-initiated stop, so the natural fall-through out of the
+ * button loop can be recognised as end of stream. */
+static bool mpeg_stop_requested;
+
+#if MPEG_STOCK_CONTROLS
+struct mpeg_stock_assets
+{
+    bool tried;
+    bool loaded;
+    struct bitmap header;
+    struct bitmap playback;
+    struct bitmap battery;
+    struct bitmap progress_frame;
+    struct bitmap progress_fill;
+    struct bitmap progress_fill_cap;
+};
+
+struct mpeg_volume_assets
+{
+    bool tried;
+    bool loaded;
+    struct bitmap backdrop;
+    struct bitmap icons;
+    struct bitmap slider_backdrop;
+    struct bitmap slider_fill;
+    struct bitmap slider_end;
+};
+
+static struct mpeg_stock_assets mpeg_stock_assets;
+static struct mpeg_volume_assets mpeg_volume_assets;
+static fb_data mpeg_stock_header_data[LCD_WIDTH * MPEG_STOCK_HEADER_H];
+static fb_data mpeg_stock_playback_data[MPEG_STOCK_PLAYBACK_W *
+                                        MPEG_STOCK_PLAYBACK_FRAME_H * 2];
+static fb_data mpeg_stock_battery_data[MPEG_STOCK_BATTERY_W *
+                                       MPEG_STOCK_BATTERY_FRAME_H *
+                                       MPEG_STOCK_BATTERY_FRAMES];
+static fb_data mpeg_stock_progress_frame_data[
+    MPEG_STOCK_PROGRESS_W * MPEG_STOCK_PROGRESS_H +
+    (MPEG_STOCK_PROGRESS_W * MPEG_STOCK_PROGRESS_H) / 4];
+static fb_data mpeg_stock_progress_fill_data[
+    MPEG_STOCK_PROGRESS_W * MPEG_STOCK_PROGRESS_H +
+    (MPEG_STOCK_PROGRESS_W * MPEG_STOCK_PROGRESS_H) / 4];
+static fb_data mpeg_stock_progress_fill_cap_data[
+    MPEG_STOCK_PROGRESS_CAP_W * MPEG_STOCK_PROGRESS_CAP_H];
+static fb_data mpeg_volume_backdrop_data[
+    MPEG_VOLUME_CARD_W * MPEG_VOLUME_CARD_H];
+static fb_data mpeg_volume_icons_data[
+    MPEG_VOLUME_ICON_W * MPEG_VOLUME_ICON_H * MPEG_VOLUME_ICON_FRAMES];
+static fb_data mpeg_volume_slider_backdrop_data[
+    MPEG_VOLUME_SLIDER_W * MPEG_VOLUME_SLIDER_H];
+static fb_data mpeg_volume_slider_fill_data[
+    MPEG_VOLUME_SLIDER_W * MPEG_VOLUME_SLIDER_H];
+static fb_data mpeg_volume_slider_end_data[
+    MPEG_VOLUME_SLIDER_END_W * MPEG_VOLUME_SLIDER_H];
+
+/* The stock volume card owns its own visibility, exactly as the Live TV
+ * overlays do. Routing it through osd_refresh() cannot work: a forced refresh
+ * issued while the OSD is hidden is promoted to OSD_REFRESH_ALL, which paints
+ * the header band and progress strip as well and then clears them again a few
+ * seconds later. That promotion is the volume flash. */
+#define MPEG_VOLUME_CARD_TIME (HZ * 2)
+static long mpeg_volume_card_until;
+#endif
 
 #define IPODTIKTOK_PARAM_PREFIX "-ipodtiktok:"
 #define FEED_MAX_ITEMS          64
@@ -699,10 +996,6 @@ struct feed_state
 };
 
 static struct feed_state feed;
-
-/* Bitmap data buffers for iPone WPS slider assets */
-static fb_data slider_bg_data[242 * 12];   /* SliderThinPurple12.bmp is ~242x12 */
-static fb_data slider_knob_data[12 * 12];  /* PlayerSliderThinPurple12.bmp is ~12x12 */
 
 static void osd_get_wps_slider_layout(uint32_t duration,
                                       int *time_w, int *bar_x,
@@ -752,6 +1045,14 @@ static void osd_show(unsigned show);
 static void osd_refresh(int hint);
 static void fps_update_post_frame_callback(void);
 static void feed_post_frame_callback(void);
+#ifdef HAVE_LCD_COLOR
+static void livetv_volume_show(void);
+static void livetv_volume_hide(void);
+#endif
+#if MPEG_STOCK_CONTROLS
+static void mpeg_volume_post_frame_callback(void);
+static bool mpeg_volume_card_visible(void);
+#endif
 
 static void feed_reset(void)
 {
@@ -1665,6 +1966,13 @@ static void fps_update_post_frame_callback(void)
     if (feed.active) {
         cb = feed_post_frame_callback;
     }
+#if MPEG_STOCK_CONTROLS
+    else if (mpeg_volume_card_visible()) {
+        /* The card outranks the FPS readout while it is up; both cannot own
+         * the single post-frame callback slot. */
+        cb = mpeg_volume_post_frame_callback;
+    }
+#endif
     else if (settings.showfps) {
         struct vo_rect cliprect;
 
@@ -1777,6 +2085,486 @@ static void osd_backlight_brightness_video_mode(bool video_on)
 #define osd_backlight_brightness_video_mode(video_on)
 #endif /* HAVE_BACKLIGHT_BRIGHTNESS */
 
+#if MPEG_STOCK_CONTROLS
+static bool mpeg_stock_load_bitmap(const char *name, struct bitmap *bm,
+                                   fb_data *pixels, size_t bytes,
+                                   int width, int height, bool transparent)
+{
+    char path[MAX_PATH];
+    int format = FORMAT_NATIVE;
+    int rc;
+
+    rb->snprintf(path, sizeof(path), MPEG_STOCK_ASSET_DIR "/%s", name);
+    rb->memset(bm, 0, sizeof(*bm));
+    bm->data = (char *)pixels;
+    if (transparent)
+        format |= FORMAT_TRANSPARENT;
+    rc = rb->read_bmp_file(path, bm, (int)bytes, format, NULL);
+    return rc > 0 && bm->width == width && bm->height == height;
+}
+
+static bool mpeg_stock_assets_loaded(void)
+{
+    if (mpeg_stock_assets.tried)
+        return mpeg_stock_assets.loaded;
+
+    mpeg_stock_assets.tried = true;
+    mpeg_stock_assets.loaded =
+        mpeg_stock_load_bitmap("status-header.apple.320x24x24.bmp",
+                               &mpeg_stock_assets.header,
+                               mpeg_stock_header_data,
+                               sizeof(mpeg_stock_header_data),
+                               LCD_WIDTH, MPEG_STOCK_HEADER_H, false) &&
+        mpeg_stock_load_bitmap("status-playback.apple.20x32x24.bmp",
+                               &mpeg_stock_assets.playback,
+                               mpeg_stock_playback_data,
+                               sizeof(mpeg_stock_playback_data),
+                               MPEG_STOCK_PLAYBACK_W,
+                               MPEG_STOCK_PLAYBACK_FRAME_H * 2, true) &&
+        mpeg_stock_load_bitmap("status-battery.apple.26x65x24.bmp",
+                               &mpeg_stock_assets.battery,
+                               mpeg_stock_battery_data,
+                               sizeof(mpeg_stock_battery_data),
+                               MPEG_STOCK_BATTERY_W,
+                               MPEG_STOCK_BATTERY_FRAME_H *
+                                   MPEG_STOCK_BATTERY_FRAMES, true) &&
+        mpeg_stock_load_bitmap("progress-frame.apple.200x22x32.bmp",
+                               &mpeg_stock_assets.progress_frame,
+                               mpeg_stock_progress_frame_data,
+                               sizeof(mpeg_stock_progress_frame_data),
+                               MPEG_STOCK_PROGRESS_W,
+                               MPEG_STOCK_PROGRESS_H, true) &&
+        mpeg_stock_load_bitmap("progress-fill.apple.200x22x32.bmp",
+                               &mpeg_stock_assets.progress_fill,
+                               mpeg_stock_progress_fill_data,
+                               sizeof(mpeg_stock_progress_fill_data),
+                               MPEG_STOCK_PROGRESS_W,
+                               MPEG_STOCK_PROGRESS_H, true) &&
+        mpeg_stock_load_bitmap("progress-fill-cap.apple.16x16x24.bmp",
+                               &mpeg_stock_assets.progress_fill_cap,
+                               mpeg_stock_progress_fill_cap_data,
+                               sizeof(mpeg_stock_progress_fill_cap_data),
+                               MPEG_STOCK_PROGRESS_CAP_W,
+                               MPEG_STOCK_PROGRESS_CAP_H, true);
+    return mpeg_stock_assets.loaded;
+}
+
+static bool mpeg_volume_load_bitmap(const char *path, struct bitmap *bm,
+                                    fb_data *pixels, size_t bytes,
+                                    int width, int height, bool transparent)
+{
+    int format = FORMAT_NATIVE;
+    int rc;
+
+    rb->memset(bm, 0, sizeof(*bm));
+    bm->data = (char *)pixels;
+    if (transparent)
+        format |= FORMAT_TRANSPARENT;
+    rc = rb->read_bmp_file(path, bm, (int)bytes, format, NULL);
+    return rc > 0 && bm->width == width && bm->height == height;
+}
+
+static void mpeg_volume_wps_asset_path(char *path, size_t size,
+                                       const char *asset, bool fallback)
+{
+    const char *wps;
+    const char *base;
+    const char *dot;
+    char theme[MAX_FILENAME + 1];
+    size_t len;
+
+    if (fallback || rb->global_settings == NULL ||
+        rb->global_settings->wps_file[0] == '\0')
+    {
+        rb->snprintf(path, size, ROCKBOX_DIR "/wps/iPone/%s", asset);
+        return;
+    }
+
+    wps = (const char *)rb->global_settings->wps_file;
+    base = rb->strrchr(wps, '/');
+    base = base != NULL ? base + 1 : wps;
+    dot = rb->strrchr(base, '.');
+    len = dot != NULL ? (size_t)(dot - base) : rb->strlen(base);
+    if (len == 0 || len >= sizeof(theme))
+    {
+        rb->snprintf(path, size, ROCKBOX_DIR "/wps/iPone/%s", asset);
+        return;
+    }
+
+    rb->memcpy(theme, base, len);
+    theme[len] = '\0';
+    rb->snprintf(path, size, ROCKBOX_DIR "/wps/%s/%s", theme, asset);
+}
+
+static bool mpeg_volume_try_load_set(bool fallback)
+{
+    char path[MAX_PATH];
+
+    mpeg_volume_wps_asset_path(path, sizeof(path), "VolumeBackdrop.bmp",
+                               fallback);
+    if (!mpeg_volume_load_bitmap(path, &mpeg_volume_assets.backdrop,
+                                 mpeg_volume_backdrop_data,
+                                 sizeof(mpeg_volume_backdrop_data),
+                                 MPEG_VOLUME_CARD_W, MPEG_VOLUME_CARD_H,
+                                 true))
+        return false;
+
+    mpeg_volume_wps_asset_path(path, sizeof(path), "VolumePromptIcons.bmp",
+                               fallback);
+    if (!mpeg_volume_load_bitmap(path, &mpeg_volume_assets.icons,
+                                 mpeg_volume_icons_data,
+                                 sizeof(mpeg_volume_icons_data),
+                                 MPEG_VOLUME_ICON_W,
+                                 MPEG_VOLUME_ICON_H *
+                                     MPEG_VOLUME_ICON_FRAMES, true))
+        return false;
+
+    mpeg_volume_wps_asset_path(path, sizeof(path),
+                               "VolumeSliderBackdropPurple.bmp", fallback);
+    if (!mpeg_volume_load_bitmap(path, &mpeg_volume_assets.slider_backdrop,
+                                 mpeg_volume_slider_backdrop_data,
+                                 sizeof(mpeg_volume_slider_backdrop_data),
+                                 MPEG_VOLUME_SLIDER_W, MPEG_VOLUME_SLIDER_H,
+                                 false))
+        return false;
+
+    mpeg_volume_wps_asset_path(path, sizeof(path),
+                               "VolumeSliderPurple.bmp", fallback);
+    if (!mpeg_volume_load_bitmap(path, &mpeg_volume_assets.slider_fill,
+                                 mpeg_volume_slider_fill_data,
+                                 sizeof(mpeg_volume_slider_fill_data),
+                                 MPEG_VOLUME_SLIDER_W, MPEG_VOLUME_SLIDER_H,
+                                 false))
+        return false;
+
+    mpeg_volume_wps_asset_path(path, sizeof(path),
+                               "VolumeSliderEndPurple.bmp", fallback);
+    return mpeg_volume_load_bitmap(path, &mpeg_volume_assets.slider_end,
+                                   mpeg_volume_slider_end_data,
+                                   sizeof(mpeg_volume_slider_end_data),
+                                   MPEG_VOLUME_SLIDER_END_W,
+                                   MPEG_VOLUME_SLIDER_H, true);
+}
+
+static bool mpeg_volume_assets_loaded(void)
+{
+    if (!mpeg_volume_assets.tried)
+    {
+        mpeg_volume_assets.tried = true;
+        mpeg_volume_assets.loaded = mpeg_volume_try_load_set(false) ||
+                                    mpeg_volume_try_load_set(true);
+    }
+
+    return mpeg_volume_assets.loaded;
+}
+
+static void mpeg_stock_format_time(uint32_t timestamp,
+                                   char *buf, size_t size)
+{
+    uint32_t seconds;
+    uint32_t hours;
+    uint32_t minutes;
+
+    if (buf == NULL || size == 0)
+        return;
+
+    seconds = timestamp / TS_SECOND;
+    hours = seconds / 3600;
+    seconds %= 3600;
+    minutes = seconds / 60;
+    seconds %= 60;
+
+    if (hours > 0)
+        rb->snprintf(buf, size, "%lu:%02lu:%02lu",
+                     (unsigned long)hours, (unsigned long)minutes,
+                     (unsigned long)seconds);
+    else
+        rb->snprintf(buf, size, "%lu:%02lu",
+                     (unsigned long)minutes, (unsigned long)seconds);
+}
+
+static void mpeg_stock_draw_text_shadow(int x, int y, const char *text)
+{
+    rb->lcd_set_foreground(LCD_BLACK);
+    rb->lcd_putsxy(x + 1, y + 1, text);
+    rb->lcd_set_foreground(LCD_WHITE);
+    rb->lcd_putsxy(x, y, text);
+}
+
+static void mpeg_stock_title(char *title, size_t size, int max_width)
+{
+    const char *base = mpeg_osd_path;
+    char *dot;
+    int width;
+    int chars;
+
+    if (base[0] == '\0')
+        base = "Video";
+    else if (rb->strrchr(base, '/') != NULL)
+        base = rb->strrchr(base, '/') + 1;
+
+    rb->strlcpy(title, base, size);
+    dot = rb->strrchr(title, '.');
+    if (dot != NULL)
+        *dot = '\0';
+    rb->lcd_getstringsize(title, &width, NULL);
+    if (width <= max_width)
+        return;
+
+    chars = rb->utf8length((const unsigned char *)title);
+    while (chars > 1)
+    {
+        int bytes = rb->utf8seek((const unsigned char *)title, --chars);
+        if (bytes < 0 || (size_t)bytes + 4 > size)
+            continue;
+        rb->memcpy(title + bytes, "...", 4);
+        rb->lcd_getstringsize(title, &width, NULL);
+        if (width <= max_width)
+            return;
+    }
+}
+
+static int mpeg_stock_battery_frame(void)
+{
+    int level = rb->battery_level();
+
+    if (level <= 20)
+        return 0;
+    if (level < 80)
+        return 1;
+    return 2;
+}
+
+static void mpeg_stock_draw_progress(void)
+{
+    char current[24];
+    char duration_text[24];
+    char title[MPEG_STOCK_TITLE_SIZE];
+    int dur_w = 0;
+    int title_w;
+    int title_h;
+    int fill_w;
+    int battery_frame;
+    int progress_x = (LCD_WIDTH - MPEG_STOCK_PROGRESS_W) / 2;
+    int progress_y = LCD_HEIGHT - MPEG_STOCK_PROGRESS_H - 20;
+    int text_y = progress_y + 3;
+    uint32_t current_time = osd.curr_time;
+    uint32_t total_time = stream_get_duration();
+
+    if (!mpeg_stock_assets_loaded())
+        return;
+
+    if (total_time == INVALID_TIMESTAMP || total_time == 0)
+        total_time = 1;
+    if (current_time > total_time)
+        current_time = total_time;
+
+    mpeg_stock_format_time(current_time, current, sizeof(current));
+    mpeg_stock_format_time(total_time, duration_text, sizeof(duration_text));
+    rb->lcd_getstringsize(duration_text, &dur_w, NULL);
+
+    rb->lcd_bitmap((const fb_data *)mpeg_stock_assets.header.data,
+                   0, 0, LCD_WIDTH, MPEG_STOCK_HEADER_H);
+
+    mpeg_stock_title(title, sizeof(title), LCD_WIDTH - 82);
+    rb->lcd_getstringsize(title, &title_w, &title_h);
+    rb->lcd_set_foreground(LCD_BLACK);
+    rb->lcd_putsxy((LCD_WIDTH - title_w) / 2,
+                   (MPEG_STOCK_HEADER_H - title_h) / 2, title);
+    rb->lcd_bitmap_transparent_part(
+        (const fb_data *)mpeg_stock_assets.playback.data,
+        0,
+        osd.status == OSD_STATUS_PAUSED ?
+            MPEG_STOCK_PLAYBACK_FRAME_H : 0,
+        MPEG_STOCK_PLAYBACK_W, 270, 4,
+        MPEG_STOCK_PLAYBACK_W, MPEG_STOCK_PLAYBACK_FRAME_H);
+    battery_frame = mpeg_stock_battery_frame();
+    rb->lcd_bitmap_transparent_part(
+        (const fb_data *)mpeg_stock_assets.battery.data,
+        0, battery_frame * MPEG_STOCK_BATTERY_FRAME_H,
+        MPEG_STOCK_BATTERY_W, 289, 5,
+        MPEG_STOCK_BATTERY_W, MPEG_STOCK_BATTERY_FRAME_H);
+
+    fill_w = (int)(((uint64_t)current_time *
+                    (MPEG_STOCK_PROGRESS_W - 6)) / total_time);
+    if (fill_w < 0)
+        fill_w = 0;
+    if (fill_w > MPEG_STOCK_PROGRESS_W - 6)
+        fill_w = MPEG_STOCK_PROGRESS_W - 6;
+
+    rb->lcd_bitmap_transparent(
+        (const fb_data *)mpeg_stock_assets.progress_frame.data,
+        progress_x, progress_y,
+        MPEG_STOCK_PROGRESS_W, MPEG_STOCK_PROGRESS_H);
+    if (fill_w > 0)
+    {
+        int draw_w = current_time >= total_time ?
+                     MPEG_STOCK_PROGRESS_W : fill_w + 3;
+
+        rb->lcd_bitmap_transparent_part(
+            (const fb_data *)mpeg_stock_assets.progress_fill.data,
+            0, 0, MPEG_STOCK_PROGRESS_W, progress_x, progress_y,
+            draw_w, MPEG_STOCK_PROGRESS_H);
+        if (draw_w >= MPEG_STOCK_PROGRESS_CAP_W)
+            rb->lcd_bitmap_transparent(
+                (const fb_data *)mpeg_stock_assets.progress_fill_cap.data,
+                progress_x + draw_w - MPEG_STOCK_PROGRESS_CAP_W,
+                progress_y + 3,
+                MPEG_STOCK_PROGRESS_CAP_W,
+                MPEG_STOCK_PROGRESS_CAP_H);
+    }
+    mpeg_stock_draw_text_shadow(8, text_y, current);
+    mpeg_stock_draw_text_shadow(
+        LCD_WIDTH - 8 - dur_w, text_y, duration_text);
+
+}
+
+static void mpeg_volume_card_rect(int *x, int *y)
+{
+    int card_x = (LCD_WIDTH - MPEG_VOLUME_CARD_W) / 2;
+    int card_y = (LCD_HEIGHT * 11) / 24;
+
+    if (card_x < 0)
+        card_x = 0;
+    if (card_y + MPEG_VOLUME_CARD_H > LCD_HEIGHT)
+        card_y = LCD_HEIGHT - MPEG_VOLUME_CARD_H;
+    if (card_y < 0)
+        card_y = 0;
+
+    *x = card_x;
+    *y = card_y;
+}
+
+static void mpeg_stock_draw_volume(void)
+{
+    int x;
+    int y;
+    int volume = rb->global_status != NULL ? rb->global_status->volume : 0;
+    int min_volume = rb->sound_min(SOUND_VOLUME);
+    int max_volume = rb->sound_max(SOUND_VOLUME);
+    int percent;
+    int fill_w;
+    int icon_frame;
+    int icon_x;
+    int icon_y;
+    int slider_x;
+    int slider_y;
+
+    if (!mpeg_volume_assets_loaded())
+        return;
+
+    mpeg_volume_card_rect(&x, &y);
+
+    if (volume <= min_volume)
+        percent = 0;
+    else if (volume >= max_volume)
+        percent = 100;
+    else
+        percent = ((volume - min_volume) * 100) /
+                  (max_volume - min_volume);
+    fill_w = (percent * MPEG_VOLUME_SLIDER_W) / 100;
+
+    if (volume <= min_volume)
+        icon_frame = 0;
+    else if (volume <= -60)
+        icon_frame = 1;
+    else if (volume <= -30)
+        icon_frame = 2;
+    else
+        icon_frame = 3;
+
+    icon_x = x + 14;
+    icon_y = y + 12;
+    slider_x = x + 46;
+    slider_y = y + 20;
+    /* The card is keyed on magenta for its rounded corners; drawing it
+     * opaque painted those corners over the video. */
+    rb->lcd_bitmap_transparent(
+        (const fb_data *)mpeg_volume_assets.backdrop.data,
+        x, y, MPEG_VOLUME_CARD_W, MPEG_VOLUME_CARD_H);
+    rb->lcd_bitmap_transparent_part(
+        (const fb_data *)mpeg_volume_assets.icons.data,
+        0, icon_frame * MPEG_VOLUME_ICON_H, MPEG_VOLUME_ICON_W,
+        icon_x, icon_y, MPEG_VOLUME_ICON_W, MPEG_VOLUME_ICON_H);
+    rb->lcd_bitmap(
+        (const fb_data *)mpeg_volume_assets.slider_backdrop.data,
+        slider_x, slider_y, MPEG_VOLUME_SLIDER_W,
+        MPEG_VOLUME_SLIDER_H);
+    if (fill_w > 0)
+    {
+        rb->lcd_bitmap_part(
+            (const fb_data *)mpeg_volume_assets.slider_fill.data,
+            0, 0, MPEG_VOLUME_SLIDER_W, slider_x, slider_y,
+            fill_w, MPEG_VOLUME_SLIDER_H);
+        rb->lcd_bitmap_transparent(
+            (const fb_data *)mpeg_volume_assets.slider_end.data,
+            slider_x + fill_w - MPEG_VOLUME_SLIDER_END_W, slider_y,
+            MPEG_VOLUME_SLIDER_END_W, MPEG_VOLUME_SLIDER_H);
+    }
+}
+
+static bool mpeg_volume_card_visible(void)
+{
+    return mpeg_volume_card_until != 0;
+}
+
+/* Repaint the card over each newly presented frame so it survives playing
+ * video. Runs on the video thread, like the other post-frame callbacks. */
+static void mpeg_volume_post_frame_callback(void)
+{
+    int x;
+    int y;
+
+    if (!mpeg_volume_card_visible())
+        return;
+
+    mpeg_volume_card_rect(&x, &y);
+
+    vo_lock();
+    mpeg_stock_draw_volume();
+    draw_update_rect(x, y, MPEG_VOLUME_CARD_W, MPEG_VOLUME_CARD_H);
+    vo_unlock();
+}
+
+/* Present the card and restart its timer, touching only its own rectangle. */
+static void mpeg_volume_card_show(void)
+{
+    int x;
+    int y;
+
+    if (!mpeg_volume_assets_loaded())
+        return;
+
+    mpeg_volume_card_until = *rb->current_tick + MPEG_VOLUME_CARD_TIME;
+    mpeg_volume_card_rect(&x, &y);
+
+    mpeg_stock_draw_volume();
+
+    vo_lock();
+    draw_update_rect(x, y, MPEG_VOLUME_CARD_W, MPEG_VOLUME_CARD_H);
+    vo_unlock();
+
+    fps_update_post_frame_callback();
+}
+
+/* Drop the card. A playing stream would paint over it on its own, but a
+ * paused one never would, so redraw the frame the way Live TV does. */
+static void mpeg_volume_card_hide(void)
+{
+    if (!mpeg_volume_card_visible())
+        return;
+
+    mpeg_volume_card_until = 0;
+    fps_update_post_frame_callback();
+    stream_draw_frame(false);
+}
+#else
+static bool mpeg_stock_assets_loaded(void)
+{
+    return false;
+}
+#endif
+
 static void osd_text_init(void)
 {
     struct hms hms;
@@ -1788,6 +2576,9 @@ static void osd_text_init(void)
     draw_setfont(FONT_UI);
 
     osd.use_wps_layout = false;
+    osd.netflix_layout = mpegplayer_netflix_launch && !feed.active;
+    osd.stock_layout = !osd.netflix_layout && !feed.active &&
+                       mpeg_stock_assets_loaded();
     osd.x = 0;
     osd.width = SCREEN_WIDTH;
 
@@ -1795,6 +2586,31 @@ static void osd_text_init(void)
     vo_rect_clear(&osd.stat_rect);
     vo_rect_clear(&osd.prog_rect);
     vo_rect_clear(&osd.vol_rect);
+
+#if MPEG_STOCK_CONTROLS
+    if (osd.netflix_layout)
+    {
+        netflix_overlay_duration = stream_get_duration();
+        osd.height = MPEG_NETFLIX_OVERLAY_H;
+        osd.y = SCREEN_HEIGHT - osd.height;
+        draw_setfont(FONT_SYSFIXED);
+        return;
+    }
+
+    if (osd.stock_layout)
+    {
+        int volume_x = (SCREEN_WIDTH - MPEG_VOLUME_CARD_W) / 2;
+        int volume_y = (SCREEN_HEIGHT * 11) / 24;
+
+        osd.use_wps_layout = true;
+        osd.height = SCREEN_HEIGHT;
+        osd.y = 0;
+        vo_rect_set_ext(&osd.vol_rect, volume_x, volume_y,
+                        MPEG_VOLUME_CARD_W, MPEG_VOLUME_CARD_H);
+        draw_setfont(FONT_SYSFIXED);
+        return;
+    }
+#endif
 
     duration = stream_get_duration();
     ts_to_hms(duration, &hms);
@@ -1948,44 +2764,14 @@ static void osd_init(void)
     osd.auto_refresh = OSD_REFRESH_TIME;
     osd.next_auto_refresh = *rb->current_tick;
     osd.use_wps_layout = false;
+    osd.stock_layout = false;
+    osd.netflix_layout = false;
     
-    /* Load iPone WPS slider bitmaps */
+    /* The iPone slider layout makes the OSD update rectangle full-screen.
+     * That is unsafe over YUV video: pause/seek/volume redraws can black out
+     * most of the framebuffer. Keep normal MPEG playback on the bounded stock
+     * OSD. Feed mode draws its own chrome independently. */
     osd.slider_bitmaps_loaded = false;
-    
-    /* Setup bitmap structures */
-    osd.slider_bg_bmp.data = (unsigned char *)slider_bg_data;
-    osd.slider_knob_bmp.data = (unsigned char *)slider_knob_data;
-    
-    /* Try to load the slider background bitmap */
-    int ret = rb->read_bmp_file(ROCKBOX_DIR "/wps/iPone/SliderThinPurple12.bmp",
-                                 &osd.slider_bg_bmp,
-                                 sizeof(slider_bg_data),
-                                 FORMAT_NATIVE, NULL);
-    
-    if (ret > 0)
-    {
-        /* Try to load the slider knob bitmap */
-        ret = rb->read_bmp_file(ROCKBOX_DIR "/wps/iPone/PlayerSliderThinPurple12.bmp",
-                                &osd.slider_knob_bmp,
-                                sizeof(slider_knob_data),
-                                FORMAT_NATIVE, NULL);
-        
-        if (ret > 0)
-        {
-            osd.slider_bitmaps_loaded = true;
-            MPLOG("iPone slider assets loaded: bg=%dx%d knob=%dx%d\n",
-                  osd.slider_bg_bmp.width, osd.slider_bg_bmp.height,
-                  osd.slider_knob_bmp.width, osd.slider_knob_bmp.height);
-        }
-        else
-        {
-            MPLOG("Failed to load slider knob (ret=%d)\n", ret);
-        }
-    }
-    else
-    {
-        MPLOG("Failed to load slider background (ret=%d)\n", ret);
-    }
     
     osd_text_init();
     fps_init();
@@ -2297,6 +3083,9 @@ static void osd_refresh_volume(void)
         return;
     }
 
+    if (vo_rect_empty(&osd.vol_rect))
+        return;
+
     int volume = rb->global_status->volume;
     rb->snprintf(buf, sizeof (buf), "%d%s",
                  rb->sound_val2phys(SOUND_VOLUME, volume),
@@ -2549,6 +3338,51 @@ static void osd_refresh(int hint)
 
     vo_rect_clear(&osd.update_rect);
 
+#if MPEG_STOCK_CONTROLS
+    if (osd.netflix_layout)
+    {
+        draw_setfont(FONT_SYSFIXED);
+        mylcd_set_foreground(oldfg);
+        mylcd_set_background(oldbg);
+        stream_draw_frame(false);
+        return;
+    }
+
+    if (osd.stock_layout && !feed.active)
+    {
+        bool progress_changed =
+            hint & (OSD_REFRESH_BACKGROUND |
+                    OSD_REFRESH_TIME |
+                    OSD_REFRESH_STATUS);
+        /* The volume card is not drawn from here. It owns its own timer and
+         * rectangle in mpeg_volume_card_show()/_hide(), which keeps a volume
+         * press from being promoted to OSD_REFRESH_ALL and flashing this
+         * chrome on and off. */
+
+        if (progress_changed)
+            mpeg_stock_draw_progress();
+
+        draw_setfont(FONT_SYSFIXED);
+        mylcd_set_foreground(oldfg);
+        mylcd_set_background(oldbg);
+        vo_lock();
+        /*
+         * Header and progress are disjoint. Updating their bounding union
+         * would present untouched black RGB framebuffer pixels over the YUV
+         * frame and recreate the full-screen black overlay.
+         */
+        if (progress_changed)
+        {
+            draw_update_rect(0, 0, LCD_WIDTH, MPEG_STOCK_HEADER_H);
+            draw_update_rect(
+                0, LCD_HEIGHT - MPEG_STOCK_PROGRESS_H - 20,
+                LCD_WIDTH, MPEG_STOCK_PROGRESS_H + 20);
+        }
+        vo_unlock();
+        return;
+    }
+#endif
+
     if (hint & OSD_REFRESH_BACKGROUND) {
         osd_refresh_background();
         hint |= OSD_REFRESH_ALL; /* Requires a redraw of everything */
@@ -2566,12 +3400,11 @@ static void osd_refresh(int hint)
         osd_refresh_status();
     }
 
-    /* Go back to defaults */
+    /* Update the dirty rectangle */
     draw_setfont(FONT_SYSFIXED);
     mylcd_set_foreground(oldfg);
     mylcd_set_background(oldbg);
 
-    /* Update the dirty rectangle */
     vo_lock();
 
     draw_update_rect(osd.update_rect.l,
@@ -2606,8 +3439,8 @@ static void osd_show(unsigned show)
                                   SCREEN_WIDTH,
                                   SCREEN_HEIGHT - FEED_SCRIM_HEIGHT };
             stream_vo_set_clip(&rc);
-        } else if (osd.use_wps_layout) {
-            /* WPS mode: video plays full-screen, OSD overlays on top - no clipping */
+        } else if (osd.netflix_layout || osd.use_wps_layout) {
+            /* YUV-composited and WPS overlays leave video full-screen. */
             stream_vo_set_clip(NULL);
         } else {
             /* Clip away the part of video that is covered by the OSD strip */
@@ -2621,22 +3454,19 @@ static void osd_show(unsigned show)
         /* Uncover clipped video area and redraw it */
         osd.flags &= ~OSD_SHOW;
 
-        if (!osd.use_wps_layout) {
+        if (!osd.netflix_layout && !osd.use_wps_layout) {
             /* Only draw clear background in non-WPS mode */
             draw_clear_area(0, 0, osd.width, osd.height);
         }
 
         if (!(show & OSD_NODRAW)) {
-            vo_lock();
-            if (osd.use_wps_layout) {
-                /* In WPS mode, only update specific areas that were drawn */
-                draw_update_rect(0, 0, osd.width, osd.height);
-            } else {
-                draw_update_rect(0, 0, osd.width, osd.height);
-            }
-            vo_unlock();
-
             stream_vo_set_clip(NULL);
+            if (!osd.netflix_layout)
+            {
+                vo_lock();
+                draw_update_rect(0, 0, osd.width, osd.height);
+                vo_unlock();
+            }
             stream_draw_frame(false);
         } else {
             stream_vo_set_clip(NULL);
@@ -2676,11 +3506,12 @@ static int osd_get_status(void)
  */
 static int osd_ff_rw(int btn, unsigned refresh, uint32_t *new_time)
 {
-    unsigned int step = TS_SECOND*rb->global_settings->ff_rewind_min_step;
     const long ff_rw_accel = (rb->global_settings->ff_rewind_accel + 3);
     uint32_t start;
     uint32_t time = stream_get_seek_time(&start);
     const uint32_t duration = stream_get_duration();
+    unsigned int step =
+        TS_SECOND * rb->global_settings->ff_rewind_min_step;
     unsigned int max_step = 0;
     uint32_t ff_rw_count = 0;
     unsigned status = osd.status;
@@ -2688,6 +3519,11 @@ static int osd_ff_rw(int btn, unsigned refresh, uint32_t *new_time)
 
     osd_cancel_refresh(OSD_REFRESH_VIDEO | OSD_REFRESH_RESUME |
                        OSD_REFRESH_TIME);
+
+    /* Scale the initial step for long videos. A one-second step makes a
+     * multi-hour stream appear frozen, especially during static intros. */
+    step = MAX(step, duration / 200);
+    step = MAX(step, MIN_FF_REWIND_STEP);
 
     time -= start; /* Absolute clock => stream-relative */
 
@@ -2756,10 +3592,11 @@ static int osd_ff_rw(int btn, unsigned refresh, uint32_t *new_time)
 
             osd_refresh(OSD_REFRESH_TIME);
 
-            new_btn = mpeg_button_get(TIMEOUT_BLOCK);
+            new_btn = mpeg_button_get(FF_REWIND_BUTTON_TIMEOUT);
         }
         else {
-            if (new_btn == (btn | BUTTON_REL)) {
+            if (new_btn == (btn | BUTTON_REL) ||
+                new_btn == BUTTON_NONE) {
                 if (osd.status == OSD_STATUS_FF)
                     time += ff_rw_count;
                 else if (osd.status == OSD_STATUS_RW)
@@ -2815,8 +3652,36 @@ static void osd_set_volume(int delta)
     if (vol != rb->global_status->volume)
         rb->sound_set(SOUND_VOLUME, vol);
 
-    /* Update the volume display */
-    osd_refresh(OSD_REFRESH_VOLUME);
+#ifdef HAVE_LCD_COLOR
+    if (mpegplayer_livetv_launch || mpegplayer_netflix_launch)
+    {
+        /* Desktop Mode owns a bounded video window whose clip must not be
+         * replaced by the full-screen receiver OSD. */
+        if (!mpegplayer_livetv_desktop)
+            livetv_volume_show();
+        return;
+    }
+#endif
+
+#if MPEG_STOCK_CONTROLS
+    /*
+     * The stock card presents itself. Routing it through osd_refresh() would
+     * promote a volume-only refresh to OSD_REFRESH_ALL whenever the OSD is
+     * hidden, dragging the header band and progress strip on screen and then
+     * clearing them again - the flash. Its own timer and update rectangle
+     * keep the card to its own pixels, so it can also be shown while the
+     * stream is playing.
+     */
+    if (osd.stock_layout && !feed.active)
+    {
+        mpeg_volume_card_show();
+        return;
+    }
+#endif
+
+    /* Some full-screen layouts intentionally omit the volume overlay. */
+    if (!vo_rect_empty(&osd.vol_rect))
+        osd_refresh(OSD_REFRESH_VOLUME);
 }
 
 /* Begin playback at the specified time */
@@ -2911,9 +3776,25 @@ static void osd_stop(void)
     uint32_t resume_time;
 
     osd_set_hp_pause_flag(false);
+    mpeg_stop_requested = true;
     osd_cancel_refresh(OSD_REFRESH_VIDEO | OSD_REFRESH_RESUME);
     osd_set_status(OSD_STATUS_STOPPED | OSD_NODRAW);
     osd_show(OSD_HIDE);
+
+#ifdef HAVE_LCD_COLOR
+    if (mpegplayer_livetv_launch)
+        livetv_volume_hide();
+#endif
+
+#if MPEG_STOCK_CONTROLS
+    /* Retire the card before the stream goes away; there will be no further
+     * frame to paint it over and nothing left to redraw underneath it. */
+    if (mpeg_volume_card_visible())
+    {
+        mpeg_volume_card_until = 0;
+        fps_update_post_frame_callback();
+    }
+#endif
 
     stream_stop();
 
@@ -3099,21 +3980,618 @@ static void osd_handle_phone_plug(bool inserted)
 }
 #endif
 
+#ifdef HAVE_LCD_COLOR
+/* The guide is Live TV's home screen: the app opens on it and MENU returns
+ * to it, with the channel still decoding into the corner window. */
+static bool livetv_show_guide = true;
+static bool livetv_banner_pending;
+/* Consecutive channels whose programme would not open. Bounded by the
+ * lineup size so a broken install cannot spin forever. */
+static int livetv_open_failures;
+
+/* Timed overlays over the full screen picture. The video is clipped away
+ * from the overlay strip so the decoder does not paint over it. */
+static long livetv_overlay_until;
+#define LIVETV_VOLUME_H 50
+#define LIVETV_VOLUME_TIME (HZ * 2)
+#define LIVETV_VOLUME_GREEN LCD_RGBPACK(32, 255, 80)
+#define LIVETV_VOLUME_DIM LCD_RGBPACK(12, 72, 28)
+#define LIVETV_VOLUME_SEGMENTS 16
+#define LIVETV_VOLUME_BAR_W 112
+static long livetv_volume_until;
+
+static unsigned char mpeg_yuv_clamp(int value)
+{
+    if (value < 0)
+        return 0;
+    if (value > 255)
+        return 255;
+    return value;
+}
+
+static void mpeg_yuv_color(int red, int green, int blue,
+                           unsigned char *y, unsigned char *u,
+                           unsigned char *v)
+{
+    *y = mpeg_yuv_clamp(
+        ((66 * red + 129 * green + 25 * blue + 128) >> 8) + 16);
+    *u = mpeg_yuv_clamp(
+        ((-38 * red - 74 * green + 112 * blue + 128) >> 8) + 128);
+    *v = mpeg_yuv_clamp(
+        ((112 * red - 94 * green - 18 * blue + 128) >> 8) + 128);
+}
+
+static void mpeg_yuv_pixel(uint8_t * const *planes, int width, int height,
+                           int x, int y, int red, int green, int blue)
+{
+    unsigned char py;
+    unsigned char pu;
+    unsigned char pv;
+
+    if (x < 0 || x >= width || y < 0 || y >= height)
+        return;
+
+    mpeg_yuv_color(red, green, blue, &py, &pu, &pv);
+    planes[0][y * width + x] = py;
+    planes[1][(y / 2) * (width / 2) + x / 2] = pu;
+    planes[2][(y / 2) * (width / 2) + x / 2] = pv;
+}
+
+static void mpeg_yuv_rect(uint8_t * const *planes, int width, int height,
+                          int x, int y, int rect_w, int rect_h,
+                          int red, int green, int blue)
+{
+    int row;
+    int col;
+
+    for (row = MAX(0, y); row < MIN(height, y + rect_h); row++)
+        for (col = MAX(0, x); col < MIN(width, x + rect_w); col++)
+            mpeg_yuv_pixel(planes, width, height, col, row,
+                           red, green, blue);
+}
+
+static int mpeg_yuv_text_width(const char *text)
+{
+    struct font *font = rb->font_get(FONT_SYSFIXED);
+    int width = 0;
+
+    while (*text != '\0')
+        width += rb->font_get_width(font, (unsigned char)*text++);
+    return width;
+}
+
+static void mpeg_yuv_text(uint8_t * const *planes, int width, int height,
+                          int x, int y, const char *text,
+                          int red, int green, int blue)
+{
+    struct font *font = rb->font_get(FONT_SYSFIXED);
+
+    if (font == NULL || font->depth != 0)
+        return;
+
+    while (*text != '\0' && x < width)
+    {
+        unsigned char ch = *text++;
+        int glyph_w = rb->font_get_width(font, ch);
+        const unsigned char *bits = rb->font_get_bits(font, ch);
+        int col;
+
+        for (col = 0; col < glyph_w; col++)
+        {
+            const unsigned char *src = bits + col;
+            int row;
+
+            for (row = 0; row < (int)font->height; row++)
+            {
+                if (src[(row >> 3) * glyph_w] & (1u << (row & 7)))
+                    mpeg_yuv_pixel(planes, width, height, x + col, y + row,
+                                   red, green, blue);
+            }
+        }
+        x += glyph_w;
+    }
+}
+
+static void mpeg_yuv_text_scaled(uint8_t * const *planes,
+                                 int width, int height,
+                                 int x, int y, const char *text, int scale,
+                                 int red, int green, int blue)
+{
+    struct font *font = rb->font_get(FONT_SYSFIXED);
+
+    if (font == NULL || font->depth != 0 || scale < 1)
+        return;
+
+    while (*text != '\0' && x < width)
+    {
+        unsigned char ch = *text++;
+        int glyph_w = rb->font_get_width(font, ch);
+        const unsigned char *bits = rb->font_get_bits(font, ch);
+        int col;
+
+        for (col = 0; col < glyph_w; col++)
+        {
+            const unsigned char *src = bits + col;
+            int row;
+
+            for (row = 0; row < (int)font->height; row++)
+            {
+                if (src[(row >> 3) * glyph_w] & (1u << (row & 7)))
+                    mpeg_yuv_rect(planes, width, height,
+                                  x + col * scale, y + row * scale,
+                                  scale, scale, red, green, blue);
+            }
+        }
+        x += glyph_w * scale;
+    }
+}
+
+static void mpeg_yuv_overlay_title(char *title, size_t size, int max_width)
+{
+    const char *base = mpeg_osd_path;
+    char *dot;
+
+    if (base[0] == '\0')
+        base = "Video";
+    else if (rb->strrchr(base, '/') != NULL)
+        base = rb->strrchr(base, '/') + 1;
+
+    rb->strlcpy(title, base, size);
+    dot = rb->strrchr(title, '.');
+    if (dot != NULL)
+        *dot = '\0';
+
+    while (title[0] != '\0' &&
+           mpeg_yuv_text_width(title) > max_width)
+    {
+        size_t length = rb->strlen(title);
+
+        if (length <= 3)
+            break;
+        title[length - 1] = '\0';
+    }
+}
+
+int mpegplayer_yuv_overlay_height(void)
+{
+    if ((mpegplayer_livetv_launch || mpegplayer_netflix_launch) &&
+        !mpegplayer_livetv_desktop && livetv_volume_until != 0)
+        return LIVETV_VOLUME_H;
+#if MPEG_STOCK_CONTROLS
+    if (osd.netflix_layout && (osd.flags & OSD_SHOW))
+        return MPEG_NETFLIX_OVERLAY_H;
+#endif
+    return 0;
+}
+
+int mpegplayer_yuv_overlay_y(void)
+{
+    if ((mpegplayer_livetv_launch || mpegplayer_netflix_launch) &&
+        !mpegplayer_livetv_desktop && livetv_volume_until != 0)
+        return LCD_HEIGHT - LIVETV_VOLUME_H;
+
+    return LCD_HEIGHT - mpegplayer_yuv_overlay_height();
+}
+
+void mpegplayer_yuv_overlay_draw(uint8_t * const *planes,
+                                 int width, int height)
+{
+    if ((mpegplayer_livetv_launch || mpegplayer_netflix_launch) &&
+        livetv_volume_until != 0)
+    {
+        struct font *font = rb->font_get(FONT_SYSFIXED);
+        int min_volume = rb->sound_min(SOUND_VOLUME);
+        int max_volume = rb->sound_max(SOUND_VOLUME);
+        int volume = rb->global_status != NULL ?
+                     rb->global_status->volume : min_volume;
+        int percent;
+        int lit;
+        int label_w = mpeg_yuv_text_width("VOLUME") * 2;
+        int gap = 12;
+        int bar_w = MIN(LIVETV_VOLUME_BAR_W,
+                        width - label_w - gap - 16);
+        int group_w = label_w + gap + bar_w;
+        int group_x = (width - group_w) / 2;
+        int bar_x = group_x + label_w + gap;
+        int segment_w =
+            MAX(3, bar_w / LIVETV_VOLUME_SEGMENTS - 2);
+        int bar_y = (height - 14) / 2;
+        int font_height = font != NULL ? font->height * 2 : 16;
+        int i;
+
+        if (rb->global_settings != NULL &&
+            rb->global_settings->volume_limit >= min_volume &&
+            rb->global_settings->volume_limit < max_volume)
+            max_volume = rb->global_settings->volume_limit;
+
+        if (volume <= min_volume)
+            percent = 0;
+        else if (volume >= max_volume)
+            percent = 100;
+        else
+            percent = ((volume - min_volume) * 100) /
+                      (max_volume - min_volume);
+        /*
+         * Reserve the final segment for the exact configured maximum.
+         * A simple ceil(percent * segments) makes the meter look full while
+         * the wheel still has several valid volume steps remaining.
+         */
+        lit = percent >= 100 ? LIVETV_VOLUME_SEGMENTS :
+              (percent * (LIVETV_VOLUME_SEGMENTS - 1) + 99) / 100;
+
+        mpeg_yuv_text_scaled(planes, width, height, group_x,
+                             (height - font_height) / 2,
+                             "VOLUME", 2, 32, 255, 80);
+        for (i = 0; i < LIVETV_VOLUME_SEGMENTS; i++)
+        {
+            int x = bar_x + (i * bar_w) / LIVETV_VOLUME_SEGMENTS;
+
+            if (i < lit)
+                mpeg_yuv_rect(planes, width, height, x, bar_y,
+                              segment_w, 14, 32, 255, 80);
+            else
+                mpeg_yuv_rect(planes, width, height, x, bar_y,
+                              segment_w, 14, 12, 72, 28);
+        }
+        return;
+    }
+
+#if MPEG_STOCK_CONTROLS
+    if (osd.netflix_layout && (osd.flags & OSD_SHOW))
+    {
+        char current[24];
+        char duration_text[24];
+        char title[MPEG_STOCK_TITLE_SIZE];
+        const char *status;
+        int duration_w;
+        int status_w;
+        int title_w;
+        int bar_w = width - 16;
+        int fill_w;
+        uint32_t current_time = osd.curr_time;
+        uint32_t total_time = netflix_overlay_duration;
+
+        if (total_time == INVALID_TIMESTAMP || total_time == 0)
+            total_time = 1;
+        if (current_time > total_time)
+            current_time = total_time;
+
+        mpeg_stock_format_time(current_time, current, sizeof(current));
+        mpeg_stock_format_time(total_time, duration_text,
+                               sizeof(duration_text));
+        mpeg_yuv_overlay_title(title, sizeof(title), width - 98);
+        status = osd.status == OSD_STATUS_PAUSED ? "PAUSED" :
+                 osd.status == OSD_STATUS_FF ? "FORWARD" :
+                 osd.status == OSD_STATUS_RW ? "REWIND" : "PLAYING";
+
+        mpeg_yuv_rect(planes, width, height, 0, 0, width, height,
+                      20, 20, 20);
+        mpeg_yuv_rect(planes, width, height, 0, 0, width, 3,
+                      180, 19, 29);
+        mpeg_yuv_text(planes, width, height, 7, 7, "NETFLIX",
+                      180, 19, 29);
+        title_w = mpeg_yuv_text_width(title);
+        mpeg_yuv_text(planes, width, height, width - 7 - title_w, 7,
+                      title, 255, 255, 255);
+
+        status_w = mpeg_yuv_text_width(status);
+        duration_w = mpeg_yuv_text_width(duration_text);
+        mpeg_yuv_text(planes, width, height, 8, 27, current,
+                      255, 255, 255);
+        mpeg_yuv_text(planes, width, height,
+                      (width - status_w) / 2, 27, status,
+                      180, 19, 29);
+        mpeg_yuv_text(planes, width, height,
+                      width - 8 - duration_w, 27, duration_text,
+                      255, 255, 255);
+
+        mpeg_yuv_rect(planes, width, height, 8, height - 12,
+                      bar_w, 5, 72, 72, 72);
+        fill_w = (int)(((uint64_t)current_time * bar_w) / total_time);
+        if (fill_w > 0)
+            mpeg_yuv_rect(planes, width, height, 8, height - 12,
+                          fill_w, 5, 180, 19, 29);
+        return;
+    }
+#endif
+
+}
+
+static void livetv_volume_show(void)
+{
+    /* If receiver information is up, clear that clipped banner once before
+     * handing the full picture back to the decoder. */
+    if (livetv_overlay_until != 0)
+    {
+        livetv_overlay_until = 0;
+        stream_vo_set_clip(NULL);
+    }
+
+    livetv_volume_until = *rb->current_tick + LIVETV_VOLUME_TIME;
+    /* The video output copies the real decoded band, composites the green
+     * phosphor pixels in YUV, and presents it in one blit. */
+    stream_draw_frame(false);
+}
+
+static void livetv_volume_hide(void)
+{
+    if (livetv_volume_until == 0)
+        return;
+
+    livetv_volume_until = 0;
+    stream_draw_frame(false);
+    if (mpegplayer_livetv_weather_hidden)
+        livetv_weather_draw();
+}
+
+static void livetv_overlay_show(bool mini)
+{
+    struct vo_rect rc;
+
+    if (livetv_volume_until != 0)
+        livetv_volume_until = 0;
+    rc.l = 0;
+    rc.t = 0;
+    rc.r = LCD_WIDTH;
+    rc.b = LCD_HEIGHT - (mini ? LIVETV_MINI_H : LIVETV_INFO_H);
+    stream_vo_set_clip(&rc);
+
+    if (mini)
+        livetv_draw_mini_guide(livetv_current_channel());
+    else
+        livetv_draw_info_banner(livetv_current_channel());
+
+    livetv_overlay_until = *rb->current_tick + HZ * 5;
+}
+
+static void livetv_overlay_hide(void)
+{
+    if (livetv_overlay_until == 0)
+        return;
+
+    livetv_overlay_until = 0;
+    stream_vo_set_clip(NULL);
+    stream_draw_frame(false);
+    /* The info banner/mini guide strip overlaps the bottom of the Weather
+     * channel's panels and ticker; stream_draw_frame() only repaints the
+     * (hidden, on this channel) video, so the chrome underneath the strip
+     * needs its own repaint once the strip is gone. */
+    if (mpegplayer_livetv_weather_hidden)
+        livetv_weather_draw();
+}
+
+/* Select between native forecast panels and the carrier's presenter/video
+ * inserts without stopping, seeking, reopening, or taking ownership of
+ * audio. Ad slots are intentionally never treated as forecast programming. */
+static void livetv_update_weather_view(uint32_t stream_seconds, bool entering)
+{
+    static int logged_phase = -1;
+    bool active = mpegplayer_livetv_launch &&
+                  !mpegplayer_livetv_desktop &&
+                  livetv_weather_program_active();
+    bool hidden = active && !livetv_weather_wants_video(stream_seconds);
+    bool changed = hidden != mpegplayer_livetv_weather_hidden;
+    int phase = (stream_seconds % 64) / 8;
+
+    if (entering || changed || phase != logged_phase)
+    {
+        MPLOG("weather view active=%d hidden=%d seconds=%lu phase=%d\n",
+              active, hidden, (unsigned long)stream_seconds, phase);
+        logged_phase = phase;
+    }
+
+    if (entering && active)
+        livetv_weather_enter(stream_seconds);
+
+    mpegplayer_livetv_weather_active = active;
+    if (changed)
+        mpegplayer_livetv_weather_hidden = hidden;
+
+    if (!entering && changed)
+    {
+        if (hidden)
+            livetv_weather_draw();
+        else if (active && changed)
+            stream_draw_frame(false);
+    }
+}
+
+/* Run the guide without disturbing playback. Returns a VIDEO_* action for
+ * the caller to hand back, or -1 to carry on watching full screen. */
+static int livetv_guide_session(void)
+{
+    struct viewport guide_vp;
+    struct viewport *previous_vp = NULL;
+    int result;
+
+    livetv_overlay_hide();
+    livetv_volume_hide();
+    mpegplayer_livetv_pig = true;
+    mpegplayer_livetv_guide_active = true;
+    if (mpegplayer_livetv_desktop)
+    {
+        livetv_desktop_restore_underlay();
+        livetv_desktop_draw_window();
+    }
+    /* Re-runs vo_setup(), which puts the video in the guide window. */
+    stream_vo_set_display_mode(settings.display_mode);
+    stream_vo_set_clip(NULL);
+    rb->lcd_set_background(LCD_BLACK);
+    rb->lcd_set_foreground(LCD_WHITE);
+    if (mpegplayer_livetv_desktop)
+    {
+        /* Install the viewport after vo_setup: decoder setup can reassert the
+         * default LCD viewport. The guide paints every content pixel itself,
+         * so clearing here would only destroy the Desktop outside the window. */
+        rb->memset(&guide_vp, 0, sizeof(guide_vp));
+        guide_vp.x = LIVETV_DM_WIN_X;
+        guide_vp.y = LIVETV_DM_WIN_Y + LIVETV_DM_TITLE_H;
+        guide_vp.width = LIVETV_DM_WIN_W;
+        guide_vp.height = LIVETV_DM_BODY_H;
+        guide_vp.font = FONT_UI;
+        guide_vp.drawmode = DRMODE_SOLID;
+        guide_vp.fg_pattern = LCD_WHITE;
+        guide_vp.bg_pattern = LCD_BLACK;
+        previous_vp = rb->lcd_set_viewport(&guide_vp);
+    }
+    else
+    {
+        rb->lcd_clear_display();
+        rb->lcd_update();
+    }
+    stream_draw_frame(false);
+
+    result = livetv_guide_run();
+
+    if (mpegplayer_livetv_desktop)
+        rb->lcd_set_viewport(previous_vp);
+    mpegplayer_livetv_guide_active = false;
+    mpegplayer_livetv_pig = mpegplayer_livetv_desktop;
+    /* mpegplayer_livetv_weather_hidden, untouched by the guide, still says
+     * whether the channel being returned to is the Weather channel; this
+     * re-run of vo_setup() hides its video again rather than going full
+     * screen, exactly as it already restores mpegplayer_livetv_pig's
+     * guide-window sizing for every other channel above. */
+    stream_vo_set_display_mode(settings.display_mode);
+    rb->lcd_set_background(LCD_BLACK);
+    if (mpegplayer_livetv_desktop)
+    {
+        livetv_desktop_restore_underlay();
+        livetv_desktop_draw_window();
+    }
+    else
+    {
+        rb->lcd_clear_display();
+        rb->lcd_update();
+    }
+
+    switch (result)
+    {
+    case LIVETV_GUIDE_TUNE:
+        /* Choosing a programme tunes it and leaves the guide, the way
+         * SELECT behaves on the receiver. */
+        livetv_show_guide = false;
+        livetv_banner_pending = true;
+        return VIDEO_NEXT;
+
+    case LIVETV_GUIDE_EXIT:
+        return VIDEO_STOP;
+
+    default:
+        livetv_show_guide = false;
+        stream_draw_frame(false);
+        if (mpegplayer_livetv_weather_hidden)
+            livetv_weather_draw();
+        return -1;
+    }
+}
+
+/* Channel up and down from the click wheel while watching full screen. */
+static int livetv_change_channel(int delta)
+{
+    /* livetv_step_channel() wraps at both ends and skips channels with
+     * nothing on the air, so holding channel-up walks the lineup round
+     * and round instead of stopping - or landing on a channel that
+     * cannot produce a file to play. */
+    if (!livetv_step_channel(delta))
+        return -1;
+
+    livetv_save_state();
+    livetv_banner_pending = true;
+    return VIDEO_NEXT;
+}
+#endif /* HAVE_LCD_COLOR */
+
+/* Netflix "watched" record.
+ *
+ * stream_on_ev_complete() zeroes stream_mgr.resume_time on end of stream
+ * ("Played to end - no resume"), so a finished title is indistinguishable
+ * from a never-played one in mpegplayer.cfg. Completion therefore needs its
+ * own record. This only opens, appends to and closes a small text file on the
+ * exit path - no PCM, mixer, playlist or shared-buffer API is involved, so
+ * docs/plugin-audio-lifecycle-steering.md is unaffected. */
+#define MPEG_NETFLIX_WATCHED_FILE ROCKBOX_DIR "/videolist/netflix-watched.tsv"
+#define MPEG_NETFLIX_WATCHED_MAX 512
+
+static bool mpeg_netflix_already_watched(const char *path)
+{
+    char line[MAX_PATH];
+    int fd = rb->open(MPEG_NETFLIX_WATCHED_FILE, O_RDONLY);
+    bool found = false;
+    int count = 0;
+
+    if (fd < 0)
+        return false;
+
+    while (!found && count < MPEG_NETFLIX_WATCHED_MAX &&
+           rb->read_line(fd, line, sizeof(line)) > 0)
+    {
+        count++;
+        if (!rb->strcmp(line, path))
+            found = true;
+    }
+
+    rb->close(fd);
+    return found;
+}
+
+static void mpeg_netflix_mark_watched(void)
+{
+    int fd;
+
+    if (!mpegplayer_netflix_launch || feed.active ||
+        mpeg_osd_path[0] != '/')
+        return;
+#ifdef HAVE_LCD_COLOR
+    if (mpegplayer_livetv_launch)
+        return;
+#endif
+
+    if (mpeg_netflix_already_watched(mpeg_osd_path))
+        return;
+
+    fd = rb->open(MPEG_NETFLIX_WATCHED_FILE,
+                  O_WRONLY | O_CREAT | O_APPEND, 0666);
+    if (fd < 0)
+        return;
+
+    rb->fdprintf(fd, "%s\n", mpeg_osd_path);
+    rb->close(fd);
+}
+
 static int button_loop(void)
 {
-    int next_action = feed.active ? VIDEO_NEXT :
+    int next_action = (feed.active || mpegplayer_livetv_launch) ? VIDEO_NEXT :
                       ((settings.play_mode == 0) ? VIDEO_STOP : VIDEO_NEXT);
     bool feed_menu_pending = false;
     bool feed_menu_long_done = false;
     long feed_menu_deadline = 0;
+    long youtube_zoom_ready = mpegplayer_youtube_launch ?
+                              *rb->current_tick + HZ / 2 : 0;
+    long livetv_desktop_tick = 0;
 
     rb->lcd_setfont(FONT_SYSFIXED);
 #ifdef HAVE_LCD_COLOR
     rb->lcd_set_foreground(LCD_WHITE);
     rb->lcd_set_background(LCD_BLACK);
 #endif
-    rb->lcd_clear_display();
-    rb->lcd_update();
+    if (mpegplayer_livetv_desktop && !livetv_show_guide)
+    {
+        /* stream_close()/osd_stop() may have cleared the LCD while changing
+         * channels. Reassert the desktop before painting the new window. */
+        livetv_desktop_restore_underlay();
+    }
+    else
+    {
+        rb->lcd_clear_display();
+        rb->lcd_update();
+    }
+
+    if (mpegplayer_youtube_launch && mpegplayer_youtube_embedded)
+    {
+        rb->button_clear_queue();
+        youtube_draw_embedded_chrome();
+    }
 
 #if defined(HAVE_LCD_MODES) && (HAVE_LCD_MODES & LCD_MODE_YUV)
     rb->lcd_set_mode(LCD_MODE_YUV);
@@ -3121,24 +4599,149 @@ static int button_loop(void)
 
     osd_init();
 
+#ifdef HAVE_LCD_COLOR
+    if (mpegplayer_livetv_launch)
+    {
+        /* The schedule says how long a programme runs, but the file backing
+         * it may be shorter, and a join-in point past the end would stop the
+         * stream dead. Wrap instead, so a short clip simply repeats for the
+         * rest of its slot and the channel still looks live. */
+        uint32_t duration = stream_get_duration();
+
+        if (duration > TS_SECOND && settings.resume_time >= duration)
+            settings.resume_time %= duration;
+        if (duration > TS_SECOND &&
+            settings.resume_time + TS_SECOND > duration)
+            settings.resume_time = 0;
+    }
+#endif
+
     /* Start playback at the specified starting time */
     if (osd_play(settings.resume_time) < STREAM_OK) {
         rb->splash(HZ*2, "Playback failed");
         return VIDEO_STOP;
     }
+    MPLOG("playback controls ready\n");
+
+#ifdef HAVE_LCD_COLOR
+    if (mpegplayer_livetv_launch && !mpegplayer_livetv_desktop)
+    {
+        /* Follow the audio-master stream timestamp, not a wall clock started
+         * before osd_play(). Opening/seek latency otherwise advances the
+         * Weather phase early and can hide a report while its audio plays. */
+        livetv_update_weather_view(stream_get_time() / TS_SECOND, false);
+        if (mpegplayer_livetv_weather_hidden)
+            livetv_weather_draw();
+        else if (mpegplayer_livetv_weather_active)
+            stream_draw_frame(false);
+    }
+
+    if (mpegplayer_livetv_desktop)
+    {
+        livetv_desktop_draw_window();
+        stream_draw_frame(false);
+        livetv_desktop_tick = *rb->current_tick + HZ;
+    }
+#endif
 
     if (feed.active && feed.ui_visible)
         osd_show(OSD_SHOW);
+
+#ifdef HAVE_LCD_COLOR
+    if (mpegplayer_livetv_launch)
+    {
+        if (livetv_show_guide)
+        {
+            int action = livetv_guide_session();
+
+            if (action >= 0)
+            {
+                osd_stop();
+                return action;
+            }
+        }
+        else if (livetv_banner_pending)
+        {
+            /* Show which channel we just landed on, as a receiver does. */
+            livetv_banner_pending = false;
+            if (mpegplayer_livetv_desktop)
+                livetv_desktop_draw_window();
+            else
+                livetv_overlay_show(false);
+        }
+
+        /* A plain channel up/down (MPEG_RW/MPEG_FF) reopens the stream
+         * without ever going through the guide or setting
+         * livetv_banner_pending, so on the Weather channel nothing above
+         * would otherwise repaint the panel chrome - it would stay on
+         * whatever osd_play()/stream_open() left on screen (typically
+         * black) until the next 8-second rotation tick. Every path that
+         * reaches here for the Weather channel needs the panel redrawn
+         * once, not just the guide-return and initial-launch cases above. */
+        if (mpegplayer_livetv_weather_hidden)
+            livetv_weather_draw();
+    }
+#endif
+
+    mpeg_stop_requested = false;
 
     /* Gently poll the video player for EOS and handle UI */
     while (stream_status() != STREAM_STOPPED)
     {
         int button = mpeg_button_get(OSD_MIN_UPDATE_INTERVAL/2);
+        if (button != BUTTON_NONE)
+            MPLOG("button=0x%x stream=%d osd=%d\n",
+                  button, stream_status(), osd_get_status());
+
+#ifdef HAVE_LCD_COLOR
+        /* Follow the audio-master playback timestamp on every iteration.
+         * Using a separate wall clock drifts across open/seek latency and
+         * can expose report speech before its decoded picture. */
+        if (mpegplayer_livetv_launch &&
+            mpegplayer_livetv_weather_active &&
+            !mpegplayer_livetv_desktop &&
+            livetv_overlay_until == 0 &&
+            livetv_volume_until == 0)
+        {
+            uint32_t seconds = stream_get_time() / TS_SECOND;
+            livetv_update_weather_view(seconds, false);
+            if (mpegplayer_livetv_weather_hidden)
+                livetv_weather_tick(seconds);
+        }
+#endif
 
         switch (button)
         {
         case BUTTON_NONE:
         {
+#if MPEG_STOCK_CONTROLS
+            if (mpeg_volume_card_visible() &&
+                !TIME_BEFORE(*rb->current_tick, mpeg_volume_card_until))
+                mpeg_volume_card_hide();
+#endif
+#ifdef HAVE_LCD_COLOR
+            if (livetv_volume_until != 0 &&
+                !TIME_BEFORE(*rb->current_tick, livetv_volume_until))
+                livetv_volume_hide();
+
+            if (mpegplayer_livetv_launch)
+            {
+                if (mpegplayer_livetv_desktop)
+                {
+                    if (!TIME_BEFORE(*rb->current_tick,
+                                     livetv_desktop_tick))
+                    {
+                        livetv_desktop_tick = *rb->current_tick + HZ;
+                        livetv_desktop_draw_window();
+                    }
+                    continue;
+                }
+                if (livetv_overlay_until != 0 &&
+                    !TIME_BEFORE(*rb->current_tick, livetv_overlay_until))
+                    livetv_overlay_hide();
+                continue;
+            }
+#endif
             if (feed.active && feed_menu_pending && !feed_menu_long_done &&
                 !TIME_BEFORE(*rb->current_tick, feed_menu_deadline))
             {
@@ -3218,6 +4821,30 @@ static int button_loop(void)
         case MPEG_RC_MENU:
 #endif
         {
+#ifdef HAVE_LCD_COLOR
+            if (mpegplayer_livetv_launch)
+            {
+                /* MENU returns to the guide with this channel still
+                 * playing in the corner, as on a DIRECTV receiver. */
+                int action;
+
+                if (button != MPEG_MENU)
+                    break;
+
+                action = livetv_guide_session();
+                if (action >= 0)
+                {
+                    next_action = action;
+                    osd_stop();
+                }
+                else if (livetv_banner_pending)
+                {
+                    livetv_banner_pending = false;
+                    livetv_overlay_show(false);
+                }
+                break;
+            }
+#endif
             if (feed.active)
             {
                 if (button == MPEG_MENU)
@@ -3258,6 +4885,14 @@ static int button_loop(void)
 #endif
                 break;
             }
+
+#if (CONFIG_KEYPAD == IPOD_4G_PAD) || \
+    (CONFIG_KEYPAD == IPOD_3G_PAD) || \
+    (CONFIG_KEYPAD == IPOD_1G2G_PAD)
+            next_action = VIDEO_STOP;
+            osd_stop();
+            break;
+#endif
 
             int state = osd_halt(); /* save previous state */
             int result;
@@ -3342,6 +4977,24 @@ static int button_loop(void)
         case MPEG_RC_PAUSE:
 #endif
         {
+#ifdef HAVE_LCD_COLOR
+            if (mpegplayer_livetv_launch)
+            {
+                if (mpegplayer_livetv_desktop)
+                {
+                    livetv_desktop_draw_window();
+                    stream_draw_frame(false);
+                    break;
+                }
+                /* Live television does not pause. PLAY brings up the
+                 * one line mini guide, as the BLUE key does. */
+                if (livetv_overlay_until != 0)
+                    livetv_overlay_hide();
+                else
+                    livetv_overlay_show(true);
+                break;
+            }
+#endif
             int status = osd_stream_status();
 
             if (status == STREAM_PLAYING) {
@@ -3359,6 +5012,43 @@ static int button_loop(void)
 #ifdef MPEG_ZOOM
         case MPEG_ZOOM:
         {
+#ifdef HAVE_LCD_COLOR
+            if (mpegplayer_livetv_launch)
+            {
+                if (mpegplayer_livetv_desktop)
+                {
+                    livetv_desktop_draw_window();
+                    stream_draw_frame(false);
+                    break;
+                }
+                /* SELECT shows the channel information banner. */
+                if (livetv_overlay_until != 0)
+                    livetv_overlay_hide();
+                else
+                    livetv_overlay_show(false);
+                break;
+            }
+#endif
+            if (mpegplayer_youtube_launch && mpegplayer_youtube_embedded)
+            {
+                if (TIME_BEFORE(*rb->current_tick, youtube_zoom_ready))
+                    break;
+                mpegplayer_youtube_embedded = false;
+#if defined(HAVE_LCD_MODES) && (HAVE_LCD_MODES & LCD_MODE_YUV)
+                rb->lcd_set_mode(LCD_MODE_RGB565);
+#endif
+                rb->lcd_set_background(LCD_BLACK);
+                rb->lcd_clear_display();
+                rb->lcd_update();
+#if defined(HAVE_LCD_MODES) && (HAVE_LCD_MODES & LCD_MODE_YUV)
+                rb->lcd_set_mode(LCD_MODE_YUV);
+#endif
+                settings.display_mode = MPEG_VIDEO_DISPLAY_FIT;
+                stream_vo_set_display_mode(settings.display_mode);
+                stream_vo_set_clip(NULL);
+                stream_draw_frame(false);
+                break;
+            }
             if (feed.active)
             {
                 feed_like_current();
@@ -3385,6 +5075,22 @@ static int button_loop(void)
         {
             int old_button = button;
 
+#ifdef HAVE_LCD_COLOR
+            if (mpegplayer_livetv_launch)
+            {
+                /* Live television cannot be rewound, so the left key steps
+                 * down a channel instead. */
+                int action = livetv_change_channel(-1);
+
+                if (action >= 0)
+                {
+                    osd_stop();
+                    next_action = action;
+                }
+                break;
+            }
+#endif
+
             /* If button has been released: skip to next/previous file */
             button = mpeg_button_get(OSD_MIN_UPDATE_INTERVAL);
 
@@ -3405,7 +5111,6 @@ static int button_loop(void)
             }
             else if ((button & ~BUTTON_REPEAT) == old_button) {
                 button = osd_seek_btn(old_button);
-                osd_refresh(OSD_REFRESH_TIME);
             }
 
             if (button == ACTION_STD_CANCEL)
@@ -3425,6 +5130,22 @@ static int button_loop(void)
         {
             int old_button = button;
 
+#ifdef HAVE_LCD_COLOR
+            if (mpegplayer_livetv_launch)
+            {
+                /* Live television cannot be fast forwarded, so the right
+                 * key steps up a channel instead. */
+                int action = livetv_change_channel(1);
+
+                if (action >= 0)
+                {
+                    osd_stop();
+                    next_action = action;
+                }
+                break;
+            }
+#endif
+
             if (settings.play_mode != 0)
                 button = mpeg_button_get(OSD_MIN_UPDATE_INTERVAL);
 
@@ -3435,7 +5156,6 @@ static int button_loop(void)
             }
             else if ((button & ~BUTTON_REPEAT) == old_button) {
                 button = osd_seek_btn(old_button);
-                osd_refresh(OSD_REFRESH_TIME);
             }
 
             if (button == ACTION_STD_CANCEL)
@@ -3465,6 +5185,11 @@ static int button_loop(void)
         rb->yield();
     } /* end while */
 
+    /* Reaching here without a requested stop means the stream ended on its
+     * own. Every in-loop user stop goes through osd_stop() first. */
+    if (!mpeg_stop_requested)
+        mpeg_netflix_mark_watched();
+
     osd_stop();
 
 #if defined(HAVE_LCD_ENABLE) || defined(HAVE_LCD_SLEEP)
@@ -3483,6 +5208,7 @@ enum plugin_status plugin_start(const void* parameter)
     static char videofile[MAX_PATH];
     int status = PLUGIN_OK; /* assume success */
     bool quit = false;
+    bool netflix_restart;
 
     MPLOG("plugin_start enter\n");
 
@@ -3493,6 +5219,14 @@ enum plugin_status plugin_start(const void* parameter)
         return PLUGIN_ERROR;
     }
 
+    mpegplayer_livetv_desktop =
+        !rb->strncmp((const char *)parameter, LIVETV_DM_PARAM_PREFIX,
+                     LIVETV_DM_PARAM_PREFIX_LEN);
+#if defined(HAVE_LCD_COLOR) && (LCD_WIDTH >= 320) && (LCD_HEIGHT >= 240)
+    livetv_desktop_underlay_valid = false;
+#endif
+    if (mpegplayer_livetv_desktop)
+        livetv_desktop_capture_underlay();
     feed_reset();
 
 #ifdef HAVE_LCD_COLOR
@@ -3501,10 +5235,75 @@ enum plugin_status plugin_start(const void* parameter)
     rb->lcd_set_background(LCD_BLACK);
 #endif
 
-    rb->lcd_clear_display();
-    rb->lcd_update();
+    if (!mpegplayer_livetv_desktop)
+    {
+        rb->lcd_clear_display();
+        rb->lcd_update();
+    }
 
-    if (!rb->strncmp((const char *)parameter, IPODTIKTOK_PARAM_PREFIX,
+    netflix_restart =
+        !rb->strncmp((const char *)parameter,
+                     MPEGPLAYER_NETFLIX_RESTART_PREFIX,
+                     MPEGPLAYER_NETFLIX_RESTART_PREFIX_LEN);
+    mpegplayer_netflix_launch = netflix_restart ||
+        !rb->strncmp((const char *)parameter,
+                     MPEGPLAYER_NETFLIX_PREFIX,
+                     MPEGPLAYER_NETFLIX_PREFIX_LEN);
+    mpegplayer_youtube_launch =
+        !rb->strncmp((const char *)parameter, "youtube:", 8);
+    mpegplayer_youtube_embedded = mpegplayer_youtube_launch;
+
+    if (mpegplayer_youtube_launch)
+    {
+        rb->strlcpy(videofile, (const char *)parameter + 8,
+                    sizeof(videofile));
+        youtube_load_metadata(videofile);
+    }
+    else if (netflix_restart)
+    {
+        rb->strlcpy(videofile,
+                    (const char *)parameter +
+                        MPEGPLAYER_NETFLIX_RESTART_PREFIX_LEN,
+                    sizeof(videofile));
+    }
+    else if (mpegplayer_netflix_launch)
+    {
+        rb->strlcpy(videofile,
+                    (const char *)parameter +
+                        MPEGPLAYER_NETFLIX_PREFIX_LEN,
+                    sizeof(videofile));
+    }
+#ifdef HAVE_LCD_COLOR
+    else if (mpegplayer_livetv_desktop ||
+             !rb->strncmp((const char *)parameter, LIVETV_PARAM_PREFIX,
+                          LIVETV_PARAM_PREFIX_LEN))
+    {
+        const char *root = (const char *)parameter +
+            (mpegplayer_livetv_desktop ? LIVETV_DM_PARAM_PREFIX_LEN :
+                                         LIVETV_PARAM_PREFIX_LEN);
+
+        if (!livetv_load(root))
+        {
+            rb->splash(HZ * 3, "Live TV schedule missing");
+            return PLUGIN_ERROR;
+        }
+
+        if (!livetv_tune(livetv_current_channel(), videofile,
+                         sizeof(videofile), &livetv_resume))
+        {
+            rb->splash(HZ * 3, "No Live TV programming");
+            return PLUGIN_ERROR;
+        }
+
+        mpegplayer_livetv_launch = true;
+        mpegplayer_livetv_pig = mpegplayer_livetv_desktop;
+        mpegplayer_livetv_guide_active = false;
+        livetv_show_guide = true;
+        if (mpegplayer_livetv_desktop)
+            livetv_desktop_prepare();
+    }
+#endif
+    else if (!rb->strncmp((const char *)parameter, IPODTIKTOK_PARAM_PREFIX,
                      sizeof(IPODTIKTOK_PARAM_PREFIX) - 1))
     {
         const char *feed_path = (const char *)parameter +
@@ -3524,7 +5323,10 @@ enum plugin_status plugin_start(const void* parameter)
     MPLOG("target file=%s\n", videofile);
 
     MPLOG("stream_init begin\n");
-    if (stream_init() < STREAM_OK) {
+    bool play_netflix_intro = mpegplayer_netflix_launch &&
+                              (netflix_restart ||
+                               !mpeg_resume_available(videofile));
+    if (stream_init(play_netflix_intro) < STREAM_OK) {
         /* Fatal because this should not fail */
         MPLOG("stream_init failed\n");
         DEBUGF("Could not initialize streams\n");
@@ -3537,7 +5339,28 @@ enum plugin_status plugin_start(const void* parameter)
         while (!quit)
         {
             init_settings(videofile);
+            rb->strlcpy(mpeg_osd_path, videofile, sizeof(mpeg_osd_path));
 
+#ifdef HAVE_LCD_COLOR
+            if (mpegplayer_livetv_launch)
+            {
+                /* Live TV always joins the broadcast already in progress,
+                 * so the resume point comes from the clock, not from a
+                 * stored bookmark. */
+                settings.display_mode = MPEG_VIDEO_DISPLAY_FIT;
+                settings.play_mode = 0;
+                settings.resume_options = MPEG_RESUME_ALWAYS;
+                settings.resume_time = livetv_resume;
+                stream_vo_set_display_mode(settings.display_mode);
+                /* Every reopen here is a (possibly new) channel, whether
+                 * from initial launch, the guide, or channel up/down, so
+                 * this is the one place that needs to notice a tune onto
+                 * or off of the Weather channel. */
+                livetv_update_weather_view(settings.resume_time / TS_SECOND,
+                                           true);
+            }
+            else
+#endif
             if (feed.active)
             {
                 settings.display_mode = MPEG_VIDEO_DISPLAY_FIT;
@@ -3546,6 +5369,19 @@ enum plugin_status plugin_start(const void* parameter)
                 settings.resume_time = 0;
                 stream_vo_set_display_mode(settings.display_mode);
                 feed_save_state();
+            }
+            else if (mpegplayer_youtube_launch)
+            {
+                settings.display_mode = MPEG_VIDEO_DISPLAY_FIT;
+                settings.play_mode = 0;
+                settings.resume_options = MPEG_RESUME_RESTART;
+                settings.resume_time = 0;
+                stream_vo_set_display_mode(settings.display_mode);
+            }
+            else if (netflix_restart)
+            {
+                settings.resume_options = MPEG_RESUME_RESTART;
+                settings.resume_time = 0;
             }
 
             MPLOG("init_settings done\n");
@@ -3556,7 +5392,13 @@ enum plugin_status plugin_start(const void* parameter)
             MPLOG("stream_open result=%d\n", result);
 
             if (result >= STREAM_OK) {
-                if (feed.active)
+#ifdef HAVE_LCD_COLOR
+                /* Something played, so the lineup is not broken after
+                 * all - let a later bad file get its own full retry. */
+                livetv_open_failures = 0;
+#endif
+                if (feed.active || mpegplayer_youtube_launch ||
+                    mpegplayer_livetv_launch)
                 {
                     result = MPEG_START_RESTART;
                 }
@@ -3582,8 +5424,11 @@ enum plugin_status plugin_start(const void* parameter)
                 stream_close();
                 MPLOG("stream_close done\n");
 
-                rb->lcd_clear_display();
-                rb->lcd_update();
+                if (!mpegplayer_livetv_desktop)
+                {
+                    rb->lcd_clear_display();
+                    rb->lcd_update();
+                }
 
                 if (!feed.active)
                     save_settings();
@@ -3595,6 +5440,40 @@ enum plugin_status plugin_start(const void* parameter)
 
                 DEBUGF("Could not open %s\n", videofile);
                 MPLOG("stream_open failed result=%d\n", result);
+
+#ifdef HAVE_LCD_COLOR
+                if (mpegplayer_livetv_launch)
+                {
+                    /* One unplayable programme must not take Live TV
+                     * down. Nothing here uses get_videofile(), and
+                     * livetv_advance() re-resolves the same instant on
+                     * the same channel, so retrying would reopen the
+                     * very same file forever and the guide would stay
+                     * unreachable. Move to the next channel instead,
+                     * and once the whole lineup has been tried, hand
+                     * control to the guide so the viewer can pick
+                     * something themselves. */
+                    livetv_open_failures++;
+
+                    if (livetv_open_failures < livetv_channel_count() &&
+                        livetv_change_channel(1) == VIDEO_NEXT &&
+                        livetv_advance(videofile, sizeof(videofile),
+                                       &livetv_resume))
+                    {
+                        rb->splash(HZ, "Channel unavailable");
+                        continue;   /* reopen on the new channel */
+                    }
+
+                    /* Every channel failed: this is a broken install
+                     * rather than one bad file, so say so and leave
+                     * instead of spinning. */
+                    livetv_open_failures = 0;
+                    rb->splash(HZ * 2, "No playable channel");
+                    next_action = VIDEO_STOP;
+                    quit = true;
+                    break;
+                }
+#endif
                 switch (result)
                 {
                 case STREAM_UNSUPPORTED:
@@ -3650,6 +5529,19 @@ enum plugin_status plugin_start(const void* parameter)
             {
             case VIDEO_NEXT:
             {
+#ifdef HAVE_LCD_COLOR
+                if (mpegplayer_livetv_launch)
+                {
+                    /* Whatever the clock says is on the air is what plays
+                     * next, whether we got here because a programme ended
+                     * or because the viewer changed channel. */
+                    get_videofile_says = livetv_advance(videofile,
+                                                        sizeof(videofile),
+                                                        &livetv_resume);
+                    quit = !get_videofile_says;
+                    break;
+                }
+#endif
                 get_videofile_says = feed.active ?
                     feed_get_next_file(VIDEO_NEXT, videofile, sizeof(videofile)) :
                     get_videofile(VIDEO_NEXT, videofile, sizeof(videofile));

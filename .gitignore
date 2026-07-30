@@ -12,6 +12,15 @@
 *~
 .cache
 
+# Local backups (never publish)
+**/.backups/
+**/.rockpod-backups/
+**/backups/
+*.bak
+*.backup
+*.backup-*
+*.previous
+
 # RockPod generated output
 /rockpod/.theme_designer/generated/
 /rockpod/generated/
@@ -53,6 +62,14 @@
 /assets/ipodjs/apple/
 /assets/ipodjs/rockbox/.rockbox/ipodjs/apple/
 /assets/rockpod/weather/apple-icons/
+
+# Personal-use Mac OS X Snow Leopard Desktop Mode assets
+/.rockbox/rocks.data/desktop_mode_snow_leopard/
+/.rockbox/rocks/apps/desktop_mode_snow_leopard/
+/assets/desktop_mode_snow_leopard/
+/rockpod/.snow_leopard_desktop/
+/rockpod/.desktop_mode/
+/.rockpod-private/
 
 __pycache__
 .DS_STORE
@@ -402,3 +419,12 @@ database_idx.tcd
 
 # User-installed iPod Hero source and converted commercial artwork
 /assets/ipodhero/local/
+
+# User-supplied Maker Lite ROMs, extracted commercial pixels, kits, and exports
+/rockpod/maker_lite_private/
+/rockpod/.maker_lite/
+/rockpod/maker_lite/
+/assets/maker_lite/private/
+*.mlp
+*.mla
+*.mlk

@@ -48,7 +48,7 @@ RBINFO = $(BUILDDIR)/rockbox-info.txt
 # list suffixes to be understood by $*
 .SUFFIXES: .rock .codec .map .elf .c .S .o .bmp .a
 
-.PHONY: all clean tags zip tools manual bin build info langs
+.PHONY: all clean tags zip macos-installer tools manual bin build info langs
 
 ifeq (,$(filter clean veryclean reconf tags voice voicetools manual manual-pdf manual-html manual-zhtml manual-txt manual-ztxt manual-zip manual-7zip help fontzip ,$(MAKECMDGOALS)))
 # none of the above
@@ -319,6 +319,22 @@ tags:
 	$(SILENT)etags -o $(BUILDDIR)/TAGS $(filter-out %.o,$(SRC) $(OTHER_SRC))
 
 zip: $(BUILDDIR)/rockbox.zip
+ifeq (ipod6g,$(MODELNAME))
+# Package the offline macOS installer around the package that was just built and
+# refresh the copy on the build host's Desktop. Only the plain "zip" target
+# qualifies: the -fonts and -full variants do not produce rockbox.zip. Packaging
+# failures are reported but never fail the firmware build.
+	$(SILENT)if [ -z "$(ZIPFILESUFFIX)" ]; then \
+	    $(TOOLSDIR)/build_macos_installer.sh --target $(MODELNAME) \
+	        --build-dir "$(BUILDDIR)" --desktop-copy \
+	    || echo "warning: macOS installer packaging failed; the firmware build is unaffected"; \
+	fi
+endif
+
+macos-installer:
+	$(SILENT)$(TOOLSDIR)/build_macos_installer.sh --target $(MODELNAME) \
+	    --build-dir "$(BUILDDIR)" --desktop-copy
+
 7zip: $(BUILDDIR)/rockbox.7z
 tar: $(BUILDDIR)/rockbox.tar
 

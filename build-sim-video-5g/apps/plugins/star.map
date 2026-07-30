@@ -548,13 +548,13 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x21968
+.debug_info     0x0000000000000000    0x219a4
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x85fd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/star.o
- .debug_info    0x00000000000085fd     0x7dde /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
- .debug_info    0x00000000000103db     0x9b0d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
- .debug_info    0x0000000000019ee8     0x793d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(display_text.o)
- .debug_info    0x0000000000021825      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(star_tiles.20x20.o)
+ .debug_info    0x0000000000000000     0x860c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/star.o
+ .debug_info    0x000000000000860c     0x7ded /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+ .debug_info    0x00000000000103f9     0x9b1c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
+ .debug_info    0x0000000000019f15     0x794c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(display_text.o)
+ .debug_info    0x0000000000021861      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(star_tiles.20x20.o)
 
 .debug_abbrev   0x0000000000000000     0x10de
  *(.debug_abbrev)
@@ -575,17 +575,17 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0xa51a
+.debug_str      0x0000000000000000     0xa530
  *(.debug_str)
- .debug_str     0x0000000000000000     0xa51a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/star.o
-                                       0x5533 (size before relaxing)
- .debug_str     0x000000000000a51a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
-                                       0x52f4 (size before relaxing)
- .debug_str     0x000000000000a51a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
-                                       0xa64b (size before relaxing)
- .debug_str     0x000000000000a51a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(display_text.o)
-                                       0x4a7e (size before relaxing)
- .debug_str     0x000000000000a51a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(star_tiles.20x20.o)
+ .debug_str     0x0000000000000000     0xa530 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/star.o
+                                       0x5549 (size before relaxing)
+ .debug_str     0x000000000000a530        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+                                       0x530a (size before relaxing)
+ .debug_str     0x000000000000a530        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
+                                       0xa661 (size before relaxing)
+ .debug_str     0x000000000000a530        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(display_text.o)
+                                       0x4a94 (size before relaxing)
+ .debug_str     0x000000000000a530        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(star_tiles.20x20.o)
                                         0x168 (size before relaxing)
 
 .debug_loc

@@ -1378,7 +1378,7 @@ Source pages and repositories are living upstreams. The commit hashes in
 Section 3.3, local artifact hashes, and the integration manifest—not a moving
 wiki page—must govern an implementation build.
 
-## 19. Implementation checkpoint (2026-07-21)
+## 19. Implementation checkpoint (2026-07-28)
 
 The Phase 0 image-only planner, reversible MBR transaction, Rockpod page, and
 host cross-build gates described in this specification are implemented. Exact
@@ -1423,14 +1423,30 @@ device-specific DPAD/BACK/media key layout. The smaller Linux diagnostic has a
 host-side exact-packet model passes wheel direction/wrap, button, Hold,
 fail-closed PMU-error, and reset-chord cases.
 
-The Classic Rockbox bootloader now reserves exact Menu+Play for a direct,
-fail-closed Linux handoff. It loads only three fixed ip6g model/checksum-wrapped
-files from `.rockbox/android` into qualified non-overlapping RAM ranges, checks
-their exact padded sizes, unmounts and sleeps storage, disables caches/MMU, and
-enters Linux with the DTB in `r2`. A qualified wInd3x wrapper runs this
-bootloader only from volatile DFU; the persistent `.ipod` form is packaged but
-not installed. Rockpod's narrow stager creates only the three component files,
-refuses overwrite, and verifies both Rockbox copies plus unchanged
+The Classic Rockbox bootloader now reserves exact Select+Right for a direct,
+fail-closed Linux handoff; exact Menu+Play retains bootloader USB mode. It loads
+only three fixed ip6g model/checksum-wrapped files from `.rockbox/android` into
+qualified non-overlapping RAM ranges, checks their exact padded sizes, unmounts
+and sleeps storage, disables caches/MMU, and enters Linux with the DTB in `r2`.
+An exact-binary ARM gate executes all 128 main-button patterns and proves that
+only `0x09` selects Android and only `0x42` selects USB. The component sizes are
+compiled into one linked bootloader contract and compared with the exact
+wrapped payload bodies. A second ARM926 gate executes the packaged compressed
+zImage from the complete linked Rockbox handoff through `start_kernel`, Timer
+B interrupt delivery, both PL192 VICADDRESS handshakes, platform population,
+and `s5l_lcd_probe`.
+
+A volatile DFU wrapper, a preservation-mode dual-boot NOR installer, and the
+matching dual-boot uninstaller are packaged. The installer embeds the exact
+qualified bootloader and leaves the single-boot flag clear, so mks5lboot's
+installer path preserves the original Apple firmware behind Rockbox. The
+uninstaller is regenerated during qualification and must match mks5lboot's
+exact iPod 6G recovery packet byte-for-byte. None has been executed on hardware.
+Rockpod stages only the three component files. It may transactionally replace
+an older set only when all canonical files match their own checksum manifest;
+it still rejects partial, modified, symlinked, or unexpected content. The six
+named historical diagnostic directories are checksum-snapshotted before and
+after and never modified. It verifies both Rockbox copies plus unchanged
 database/tagcache snapshots.
 
 Two independent source/build trees produced byte-identical Eclair and
@@ -1452,10 +1468,12 @@ Rockbox panel-prepare/quiesce/cache/jump path, models the exact 8- and 16-bit
 panel command sequences, progresses through Linux initcalls, and requires five
 persistent 320x48 bands to fill one 76,800-pixel GRAM transaction for all four
 N25 straps. TRACE2 nevertheless retained the physical Rockbox text and is
-disqualified. No further Rockbox-to-Linux packet is approved; the next gate is
-the storage-free volatile U-Boot `05ac:8007` enumeration test, with no FIT or
-Linux upload. Physical timer/VIC and LCD behavior remain unqualified.
-LCD/input/reset,
-battery/charging, controlled shutdown, persistent storage, audio, Froyo, dual
-boot, and partitioning all remain blocked. The prior payload staging did not
-modify Rockbox firmware, its database, the partition table, or NOR.
+disqualified. The rebuilt Select+Right production candidate is a different,
+freshly size-bound packet and is approved only for a first volatile direct-boot
+test. Persistent NOR installation remains blocked until that exact volatile
+candidate boots Android and passes physical LCD, input, reset, and normal
+Rockbox-recovery checks. Physical timer/VIC and LCD behavior remain
+unqualified. Battery/charging, controlled shutdown, persistent Android
+storage, audio, Froyo, partitioning, and the actual NOR install all remain
+blocked. The prior payload staging did not modify Rockbox firmware, its
+database, the partition table, or NOR.

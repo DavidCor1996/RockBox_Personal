@@ -10,6 +10,7 @@ import json
 from pathlib import Path
 import re
 import stat
+import struct
 import subprocess
 import tempfile
 
@@ -153,8 +154,35 @@ def check_rockbox_wrapper(wrapper: Path, payload: Path) -> None:
         raise QualificationError(f"{wrapper}: wrapped payload mismatch")
 
 
-def check_menu_play_bootloader(wrapper: Path, payload: Path, elf: Path,
-                               readelf: str, objdump: str, nm: str) -> None:
+def check_no_diagnostic_lcd_handoff(elf: Path, objdump: str) -> None:
+    """Reject the disqualified TRACE2 LCD transaction in real boot paths."""
+    handoff = run(
+        objdump, "-d", "--disassemble=n25_android_handoff", str(elf)
+    )
+    if "<lcd_prepare_for_pio_trace>" in handoff:
+        raise QualificationError(
+            f"{elf}: production handoff calls TRACE2 LCD preparation"
+        )
+
+    jump = run(
+        objdump, "-d", "--disassemble=n25_android_linux_jump", str(elf)
+    )
+    for marker in ("3830001c", "38300040", "0000f800", "00003c00"):
+        if marker in jump.lower():
+            raise QualificationError(
+                f"{elf}: production jump contains TRACE2 LCD marker {marker}"
+            )
+
+
+def check_select_right_bootloader(
+    wrapper: Path,
+    payload: Path,
+    elf: Path,
+    expected_sizes: tuple[int, int, int],
+    readelf: str,
+    objdump: str,
+    nm: str,
+) -> None:
     check_rockbox_wrapper(wrapper, payload)
     body = payload.read_bytes()
     for marker in (
@@ -162,14 +190,24 @@ def check_menu_play_bootloader(wrapper: Path, payload: Path, elf: Path,
         b"/.rockbox/android/n25-eclair-kernel.ipod",
         b"/.rockbox/android/n25-eclair-initramfs.ipod",
         b"/.rockbox/android/n25-eclair-dtb.ipod",
-        b"Menu+Play / no storage in Linux",
+        b"Select+Right / RAM-only Android",
     ):
         if marker not in body:
             raise QualificationError(
                 f"{wrapper}: bootloader marker missing: {marker.decode()}"
             )
     symbols = run(nm, str(elf))
-    for symbol in ("n25_android_boot", "n25_android_linux_jump"):
+    if "n25_android_force_volatile_test" in symbols:
+        raise QualificationError(
+            f"{elf}: persistent Select+Right bootloader contains volatile force"
+        )
+    for symbol in (
+        "n25_android_boot",
+        "n25_android_linux_jump",
+        "n25_android_boot_chord",
+        "n25_usb_mode_chord",
+        "n25_android_image_contract",
+    ):
         if symbol not in symbols:
             raise QualificationError(f"{elf}: missing {symbol}")
     sections = run(readelf, "-SW", str(elf))
@@ -190,6 +228,274 @@ def check_menu_play_bootloader(wrapper: Path, payload: Path, elf: Path,
     for opcode in ("msr", "mrc", "mcr", "bx"):
         if opcode not in jump.group("body"):
             raise QualificationError(f"{elf}: Linux jump lacks {opcode}")
+    check_no_diagnostic_lcd_handoff(elf, objdump)
+    main = run(objdump, "-d", "--disassemble=main", str(elf))
+    for symbol in ("n25_android_boot_chord", "n25_usb_mode_chord"):
+        if f"<{symbol}>" not in main:
+            raise QualificationError(f"{elf}: main does not call {symbol}")
+    compiled_sizes = read_android_image_contract(payload, elf, nm)
+    if compiled_sizes != expected_sizes:
+        raise QualificationError(
+            f"{elf}: compiled Android sizes {compiled_sizes} do not match "
+            f"wrapped payloads {expected_sizes}"
+        )
+
+
+def read_android_image_contract(
+    payload: Path,
+    elf: Path,
+    nm: str,
+) -> tuple[int, int, int]:
+    body = payload.read_bytes()
+    contract = re.search(
+        r"^([0-9a-fA-F]+)\s+([0-9a-fA-F]+)\s+\S\s+"
+        r"n25_android_image_contract$",
+        run(nm, "-S", "--defined-only", str(elf)),
+        re.MULTILINE,
+    )
+    if contract is None or int(contract.group(2), 16) != 12:
+        raise QualificationError(f"{elf}: Android image contract is missing")
+    contract_offset = int(contract.group(1), 16) - 0x22020800
+    if contract_offset < 0 or contract_offset + 12 > len(body):
+        raise QualificationError(f"{elf}: Android image contract is outside payload")
+    compiled_sizes = tuple(
+        int.from_bytes(body[contract_offset + offset:contract_offset + offset + 4],
+                       "little")
+        for offset in range(0, 12, 4)
+    )
+    return compiled_sizes
+
+
+def check_boot_chord_report(path: Path, bootloader: Path) -> dict:
+    report = json.loads(path.read_text(encoding="utf-8"))
+    required = {
+        "schema": 1,
+        "scope": "ipod6g-rockbox-boot-chord-exact-binary-emulation",
+        "cpu": "ARM926EJ-S",
+        "button_patterns_tested": 128,
+        "android_chord": "Select+Right",
+        "android_button_bits": "0x09",
+        "usb_chord": "Menu+Play",
+        "usb_button_bits": "0x42",
+        "exact_chords_only": True,
+        "main_calls_qualified_functions": True,
+        "android_usb_overlap": False,
+        "gate_passed": True,
+        "bootloader_bin_sha256": sha256(bootloader),
+    }
+    for name, expected in required.items():
+        if report.get(name) != expected:
+            raise QualificationError(f"{path}: boot-chord gate failed: {name}")
+    cases = report.get("cases", {})
+    if set(cases) != {f"0x{buttons:02x}" for buttons in range(128)}:
+        raise QualificationError(f"{path}: incomplete boot-chord cases")
+    for buttons in range(128):
+        case = cases[f"0x{buttons:02x}"]
+        expected_android = buttons == 0x09
+        expected_usb = buttons == 0x42
+        if case != {"android": expected_android, "usb": expected_usb}:
+            raise QualificationError(
+                f"{path}: wrong boot target for button bits 0x{buttons:02x}"
+            )
+    return report
+
+
+def check_forced_volatile_bootloader(
+    dfu: Path,
+    payload: Path,
+    elf: Path,
+    report_path: Path,
+    expected_sizes: tuple[int, int, int],
+    objdump: str,
+    nm: str,
+) -> dict:
+    check_dfu(dfu, payload)
+    body = payload.read_bytes()
+    for marker in (
+        b"Android 2.0 RAM boot",
+        b"DFU volatile test / forced Android",
+        b"/.rockbox/android/n25-eclair-kernel.ipod",
+        b"/.rockbox/android/n25-eclair-initramfs.ipod",
+        b"/.rockbox/android/n25-eclair-dtb.ipod",
+    ):
+        if marker not in body:
+            raise QualificationError(
+                f"{dfu}: forced volatile marker missing: {marker.decode()}"
+            )
+
+    linked_symbols = run(nm, str(elf))
+    for symbol in (
+        "n25_android_force_volatile_test",
+        "n25_android_boot",
+        "n25_android_linux_jump",
+        "n25_android_image_contract",
+    ):
+        if symbol not in linked_symbols:
+            raise QualificationError(f"{elf}: forced loader missing {symbol}")
+    main = run(objdump, "-d", "--disassemble=main", str(elf))
+    for symbol in ("n25_android_force_volatile_test", "n25_android_boot"):
+        if f"<{symbol}>" not in main:
+            raise QualificationError(f"{elf}: main does not call {symbol}")
+    check_no_diagnostic_lcd_handoff(elf, objdump)
+
+    compiled_sizes = read_android_image_contract(payload, elf, nm)
+    if compiled_sizes != expected_sizes:
+        raise QualificationError(
+            f"{elf}: forced loader sizes {compiled_sizes} do not match "
+            f"wrapped payloads {expected_sizes}"
+        )
+
+    report = check_boot_chord_report(report_path, payload)
+    required = {
+        "forced_android_volatile_test": True,
+        "forced_button_patterns_tested": 128,
+        "forced_main_calls_qualified_function": True,
+    }
+    for name, expected in required.items():
+        if report.get(name) != expected:
+            raise QualificationError(
+                f"{report_path}: forced volatile gate failed: {name}"
+            )
+    forced_cases = report.get("forced_cases", {})
+    expected_case_names = {f"0x{buttons:02x}" for buttons in range(128)}
+    if set(forced_cases) != expected_case_names or not all(
+        value is True for value in forced_cases.values()
+    ):
+        raise QualificationError(
+            f"{report_path}: forced Android is not true for all button patterns"
+        )
+    return report
+
+
+def check_select_right_chain_report(
+    path: Path,
+    zimage: Path,
+    dtb: Path,
+    initramfs: Path,
+    bootloader: Path,
+) -> dict:
+    report = json.loads(path.read_text(encoding="utf-8"))
+    required = {
+        "gate_passed": True,
+        "cpu": "ARM926EJ-S",
+        "image_format": "zImage",
+        "image_sha256": sha256(zimage),
+        "dtb_sha256": sha256(dtb),
+        "initramfs_sha256": sha256(initramfs),
+        "rockbox_bootloader_sha256": sha256(bootloader),
+        "stop_at": "s5l_lcd_probe",
+        "model_n25_timer": True,
+        "verify_n25_irq": True,
+        "verify_n25_lcd": False,
+        "rockbox_handoff_executed": True,
+    }
+    for name, expected in required.items():
+        if report.get(name) != expected:
+            raise QualificationError(
+                f"{path}: Select+Right chain gate failed: {name}"
+            )
+    entry = report.get("rockbox_linux_entry_state", {})
+    if (
+        entry.get("r0") != 0
+        or entry.get("r1") != 0xFFFFFFFF
+        or entry.get("r2") != 0x0AD00000
+        or entry.get("cpsr", 0) & 0xFF != 0xD3
+    ):
+        raise QualificationError(f"{path}: wrong Rockbox-to-Linux entry state")
+    required_milestones = {
+        "stext",
+        "__lookup_processor_type",
+        "__turn_mmu_on",
+        "start_kernel",
+        "s5l8702_clkevt_set_periodic",
+        "s5l8702_timer_interrupt",
+        "of_platform_default_populate_init",
+        "s5l_lcd_driver_init",
+        "s5l_lcd_probe",
+    }
+    if not required_milestones.issubset(report.get("milestones", [])):
+        raise QualificationError(f"{path}: incomplete production-chain milestones")
+    injections = report.get("timer_irq_injections", 0)
+    if (
+        report.get("instructions", 0) <= 0
+        or report.get("timer_e_reads", 0) <= 0
+        or injections <= 0
+        or report.get("timer_irq_acks") != injections
+        or report.get("vic_address_reads", 0) < injections * 2
+        or report.get("vic_address_completions", 0) < injections * 2
+    ):
+        raise QualificationError(
+            f"{path}: production-chain timer/interrupt gate failed"
+        )
+    return report
+
+
+def check_dualboot_nor_installer(path: Path, bootloader: Path) -> None:
+    data = path.read_bytes()
+    payload = bootloader.read_bytes()
+    bin_offset = 0x30C
+    installer_size = 5396
+    im3_info_size = 80
+    im3_header_size = 0x800
+    padded_size = (len(payload) + 15) & ~15
+    info_offset = bin_offset + installer_size - im3_info_size
+    payload_offset = info_offset + im3_header_size
+    expected_size = payload_offset + padded_size
+
+    if len(data) != expected_size or len(data) > 0x20000:
+        raise QualificationError(f"{path}: unexpected dual-boot installer size")
+    if data[:8] != b"87021.0\x03":
+        raise QualificationError(f"{path}: invalid outer S5L8702 installer header")
+    if not any(data[bin_offset:info_offset]):
+        raise QualificationError(f"{path}: dual-boot installer code is empty")
+
+    inner = struct.unpack(
+        "<4s3sBII48s16s", data[info_offset:info_offset + im3_info_size]
+    )
+    ident, version, encryption, entry, body_size, _, info_sign = inner
+    if (ident, version, encryption) != (b"8702", b"1.0", 2):
+        raise QualificationError(f"{path}: invalid embedded bootloader header")
+    if entry != 0 or body_size != padded_size:
+        raise QualificationError(f"{path}: wrong embedded bootloader bounds")
+    if any(info_sign):
+        raise QualificationError(
+            f"{path}: single-boot flag/signature is set; Apple boot preservation "
+            "is required"
+        )
+    embedded = data[payload_offset:payload_offset + padded_size]
+    if embedded[:len(payload)] != payload or any(embedded[len(payload):]):
+        raise QualificationError(
+            f"{path}: installer embeds a different Rockbox bootloader"
+        )
+
+
+def check_dualboot_nor_uninstaller(path: Path, mks5lboot: Path) -> None:
+    data = path.read_bytes()
+    if (
+        len(data) >= 0x20000
+        or data[:8] != b"87021.0\x03"
+        or not any(data[0x30C:])
+    ):
+        raise QualificationError(f"{path}: invalid S5L8702 NOR uninstaller")
+    with tempfile.TemporaryDirectory(prefix="n25-uninstaller-reference-") as work:
+        reference = Path(work) / "ipod6g-uninstaller.dfu"
+        subprocess.run(
+            [
+                str(mks5lboot),
+                "--mkdfu-uninst",
+                "ipod6g",
+                str(reference),
+            ],
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+        )
+        if data != reference.read_bytes():
+            raise QualificationError(
+                f"{path}: does not match mks5lboot's exact iPod 6G "
+                "dual-boot uninstaller"
+            )
 
 
 def check_android_elf(body: bytes, name: str, readelf: str) -> None:
@@ -467,6 +773,9 @@ def main(argv=None) -> int:
     parser.add_argument("--root-report", required=True)
     parser.add_argument("--system-report", required=True)
     parser.add_argument("--input-report", required=True)
+    parser.add_argument("--boot-chord-report", required=True)
+    parser.add_argument("--volatile-force-report", required=True)
+    parser.add_argument("--select-right-chain-report", required=True)
     parser.add_argument("--fit", required=True)
     parser.add_argument("--dfu", required=True)
     parser.add_argument("--kernel-ipod", required=True)
@@ -474,8 +783,14 @@ def main(argv=None) -> int:
     parser.add_argument("--dtb-ipod", required=True)
     parser.add_argument("--rockbox-bootloader", required=True)
     parser.add_argument("--rockbox-bootloader-dfu", required=True)
+    parser.add_argument("--rockbox-volatile-test-dfu", required=True)
+    parser.add_argument("--rockbox-volatile-test-bin", required=True)
+    parser.add_argument("--rockbox-volatile-test-elf", required=True)
+    parser.add_argument("--rockbox-nor-installer", required=True)
+    parser.add_argument("--rockbox-nor-uninstaller", required=True)
     parser.add_argument("--rockbox-bootloader-bin", required=True)
     parser.add_argument("--rockbox-bootloader-elf", required=True)
+    parser.add_argument("--mks5lboot", required=True)
     parser.add_argument("--dtc", default="dtc")
     parser.add_argument("--readelf", default="arm-none-eabi-readelf")
     parser.add_argument("--objdump", default="arm-none-eabi-objdump")
@@ -499,6 +814,9 @@ def main(argv=None) -> int:
         "root_report": regular(args.root_report),
         "system_report": regular(args.system_report),
         "input_report": regular(args.input_report),
+        "boot_chord_report": regular(args.boot_chord_report),
+        "volatile_force_report": regular(args.volatile_force_report),
+        "select_right_chain_report": regular(args.select_right_chain_report),
         "fit": regular(args.fit),
         "dfu": regular(args.dfu),
         "kernel_ipod": regular(args.kernel_ipod),
@@ -506,6 +824,11 @@ def main(argv=None) -> int:
         "dtb_ipod": regular(args.dtb_ipod),
         "rockbox_bootloader": regular(args.rockbox_bootloader),
         "rockbox_bootloader_dfu": regular(args.rockbox_bootloader_dfu),
+        "rockbox_volatile_test_dfu": regular(args.rockbox_volatile_test_dfu),
+        "rockbox_volatile_test_bin": regular(args.rockbox_volatile_test_bin),
+        "rockbox_volatile_test_elf": regular(args.rockbox_volatile_test_elf),
+        "rockbox_nor_installer": regular(args.rockbox_nor_installer),
+        "rockbox_nor_uninstaller": regular(args.rockbox_nor_uninstaller),
         "rockbox_bootloader_bin": regular(args.rockbox_bootloader_bin),
         "rockbox_bootloader_elf": regular(args.rockbox_bootloader_elf),
     }
@@ -531,17 +854,56 @@ def main(argv=None) -> int:
     )
     check_system_report(artifacts["system_report"], artifacts["initramfs"])
     check_input_report(artifacts["input_report"])
+    check_boot_chord_report(
+        artifacts["boot_chord_report"], artifacts["rockbox_bootloader_bin"]
+    )
+    check_select_right_chain_report(
+        artifacts["select_right_chain_report"],
+        artifacts["zimage"],
+        artifacts["linux_dtb"],
+        artifacts["initramfs"],
+        artifacts["rockbox_bootloader_bin"],
+    )
     check_eclair_fit(artifacts["fit"], mkimage)
     check_dfu(artifacts["dfu"], artifacts["uboot_bin"])
     check_rockbox_wrapper(artifacts["kernel_ipod"], artifacts["zimage"])
     check_rockbox_wrapper(artifacts["initramfs_ipod"], artifacts["initramfs"])
     check_rockbox_wrapper(artifacts["dtb_ipod"], artifacts["linux_dtb"])
-    check_menu_play_bootloader(
+    check_select_right_bootloader(
         artifacts["rockbox_bootloader"], artifacts["rockbox_bootloader_bin"],
-        artifacts["rockbox_bootloader_elf"], args.readelf, args.objdump, args.nm
+        artifacts["rockbox_bootloader_elf"],
+        (
+            artifacts["kernel_ipod"].stat().st_size - 8,
+            artifacts["initramfs_ipod"].stat().st_size - 8,
+            artifacts["dtb_ipod"].stat().st_size - 8,
+        ),
+        args.readelf,
+        args.objdump,
+        args.nm,
     )
     check_dfu(artifacts["rockbox_bootloader_dfu"],
               artifacts["rockbox_bootloader_bin"])
+    check_forced_volatile_bootloader(
+        artifacts["rockbox_volatile_test_dfu"],
+        artifacts["rockbox_volatile_test_bin"],
+        artifacts["rockbox_volatile_test_elf"],
+        artifacts["volatile_force_report"],
+        (
+            artifacts["kernel_ipod"].stat().st_size - 8,
+            artifacts["initramfs_ipod"].stat().st_size - 8,
+            artifacts["dtb_ipod"].stat().st_size - 8,
+        ),
+        args.objdump,
+        args.nm,
+    )
+    check_dualboot_nor_installer(
+        artifacts["rockbox_nor_installer"],
+        artifacts["rockbox_bootloader_bin"],
+    )
+    check_dualboot_nor_uninstaller(
+        artifacts["rockbox_nor_uninstaller"],
+        regular(args.mks5lboot),
+    )
     check_memory_layout(
         artifacts["fit"], artifacts["zimage"], artifacts["linux_image"],
         artifacts["initramfs"], artifacts["linux_dtb"],
@@ -591,9 +953,16 @@ def main(argv=None) -> int:
         "full_system_emulation_gate_passed": True,
         "persistent_storage_available": False,
         "hardware_actions_enabled": False,
-        "rockbox_menu_play_boot_packaged": True,
+        "rockbox_select_right_boot_packaged": True,
+        "rockbox_select_right_boot_binary_emulated": True,
+        "rockbox_to_linux_zimage_binary_emulated": True,
+        "rockbox_boot_image_sizes_binary_verified": True,
         "rockbox_boot_components_checksum_wrapped": True,
-        "rockbox_menu_play_bootloader_volatile_dfu": True,
+        "rockbox_select_right_bootloader_volatile_dfu": True,
+        "rockbox_forced_android_volatile_test_binary_emulated": True,
+        "rockbox_select_right_dualboot_nor_installer_packaged": True,
+        "rockbox_nor_installer_preserves_original_firmware": True,
+        "rockbox_dualboot_nor_uninstaller_packaged": True,
         "artifacts": {
             name: {
                 "path": path.name,

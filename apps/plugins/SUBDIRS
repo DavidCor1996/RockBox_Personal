@@ -1,3 +1,8 @@
+#ifdef DESKTOP_1080
+/* iTunes video playback on the host panel uses Rockbox's registered MPEG
+ * viewer, just as the 320x240 device build does. */
+mpegplayer
+#else
 /* For all targets */
 shortcuts
 text_viewer
@@ -59,6 +64,11 @@ ipodhero
     && (LCD_WIDTH >= 320) && (LCD_HEIGHT >= 240)
 ipodgames
 #endif
+#if (defined(IPOD_6G) || defined(SIMULATOR)) && defined(HAVE_LCD_COLOR) \
+    && (LCD_WIDTH >= 320) && (LCD_HEIGHT >= 240) \
+    && (PLUGIN_BUFFER_SIZE >= 0x300000)
+maker_lite
+#endif
 frotz
 
 #ifndef OLYMPUS_MROBE_500
@@ -86,6 +96,7 @@ flashplayer
     && (PLUGIN_BUFFER_SIZE >= 0x100000)
 smsgg
 picodrive
+cps1
 arduboy
 tamagotchi
 gwatch
@@ -94,6 +105,7 @@ snes_lite
 openlara
 #if defined(IPOD_6G) || defined(SIMULATOR)
 sm64
+diablo
 #endif
 #endif
 #endif
@@ -144,3 +156,5 @@ picross
 #if (LCD_DEPTH > 1)
 xrick
 #endif
+
+#endif /* DESKTOP_1080 */

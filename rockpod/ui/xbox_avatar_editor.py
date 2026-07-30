@@ -3,10 +3,11 @@
 from __future__ import annotations
 
 import os
+import random
 from pathlib import Path
 
 from PIL import Image
-from PySide6.QtCore import Qt, QTimer, QUrl, Signal
+from PySide6.QtCore import Qt, QTimer, Signal
 from PySide6.QtGui import QColor, QFont, QImage, QLinearGradient, QPainter, QPixmap
 from PySide6.QtWidgets import (
     QComboBox,
@@ -20,16 +21,25 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
-from PySide6.QtQuickWidgets import QQuickWidget
 
 from services.xbox_avatar import (
+    ACCENT_PALETTE,
     APPEARANCE_FIELDS,
-    APPEARANCE_PALETTES,
+    AvatarProfile,
+    COLOUR_FIELDS,
+    COLOUR_PALETTES,
+    DESIGN_SLOTS,
     EMOTE_CLIPS,
+    SCALE_LABELS,
+    STYLE_LABELS,
+    STYLE_SLOTS,
     XboxAvatarService,
     decode_rav1,
     encode_rav1,
 )
+from services.xbox_avatar_designs import DESIGN_LABELS
+from services.xbox_avatar_render import MARKETPLACE_KINDS, MarketplacePack
+from services.xbox_avatar_render import DECAL_LABELS
 
 
 BODY_LABELS = {
@@ -48,47 +58,125 @@ CLIP_LABELS = {
 }
 
 
-MODEL_QML = {
-    "xna-boy": "xna-boy/Xna_boy.qml",
-    "xna-girl": "xna-girl/Xna_girl.qml",
-    "xna-girl-heels": "xna-girl-heels/Xna_girl_heels.qml",
+FIELD_LABELS = {
+    "hair_style": "Hair style",
+    "top_style": "Top",
+    "bottom_style": "Bottom",
+    "shoes_style": "Shoes",
+    "skin_colour": "Skin tone",
+    "hair_colour": "Hair colour",
+    "top_colour": "Top colour",
+    "bottom_colour": "Bottom colour",
+    "shoes_colour": "Shoe colour",
+    "eye_colour": "Eye colour",
+    "brow_colour": "Eyebrow colour",
+    "lip_colour": "Lip colour",
+    "decal": "Chest print",
+    "accent_colour": "Pattern accent",
+    "top_design": "Top pattern",
+    "top_design_scale": "Top pattern size",
+    "bottom_design": "Bottom pattern",
+    "bottom_design_scale": "Bottom pattern size",
+    "shoes_design": "Shoe pattern",
+    "shoes_design_scale": "Shoe pattern size",
+    "costume": "Marketplace costume",
+    "marketplace_top": "Marketplace top",
+    "headwear": "Headwear",
+    "prop": "Held prop",
 }
+TURNTABLE_ANGLE_STEP = 15.0
 
 
-def _palette_color(field, value):
-    for key, _label, color in APPEARANCE_PALETTES[field]:
-        if key == value:
-            return QColor(color or "#ffffff")
-    return QColor("#ffffff")
-
-
-class _Avatar3DView(QQuickWidget):
-    """Hardware-accelerated viewport for the authentic XNA model mesh."""
+class _AvatarTurntable(QWidget):
+    """Drag-to-rotate view rendered by the same code that builds the export."""
 
     def __init__(self, repo_root, parent=None):
         super().__init__(parent)
-        self._repo_root = Path(repo_root)
-        self.setResizeMode(QQuickWidget.SizeRootObjectToView)
+        self._repo_root = repo_root
+        self._profile = {}
+        self._angle_index = 0
+        self._cache = {}
+        self._drag_origin = None
+        self._drag_start_index = 0
         self.setMinimumSize(280, 360)
-        self.setSource(QUrl.fromLocalFile(str(
-            self._repo_root / "rockpod" / "ui" / "qml" /
-            "xbox_avatar_viewer.qml"
-        )))
+        self.setCursor(Qt.OpenHandCursor)
+
+    def _refresh_style_choices(self):
+        """Offer only the real garments Microsoft fitted to the chosen body."""
+        profile = AvatarProfile.from_mapping({
+            "body": str(self._body.currentData() or "xna-boy")
+        })
+        allowed = profile.styles_for_body()
+        for slot in STYLE_SLOTS:
+            picker = self._appearance[f"{slot}_style"]
+            previous = picker.currentData()
+            picker.blockSignals(True)
+            picker.clear()
+            for choice in allowed[slot]:
+                picker.addItem(STYLE_LABELS.get(choice, choice), choice)
+            index = picker.findData(previous)
+            picker.setCurrentIndex(max(0, index))
+            picker.blockSignals(False)
+
+    def _body_changed(self):
+        self._refresh_style_choices()
+        self._reload_animation()
 
     def set_profile(self, profile):
-        root = self.rootObject()
-        if root is None:
-            return
-        body = profile.get("body", "xna-boy")
-        relative = MODEL_QML.get(body, MODEL_QML["xna-boy"])
-        model = self._repo_root / "rockpod" / "ui" / "qml" / \
-            "xbox_avatar_models" / relative
-        root.setProperty("modelSource", QUrl.fromLocalFile(str(model)))
-        for field in APPEARANCE_FIELDS:
-            root.setProperty(
-                f"{field}Tint",
-                _palette_color(field, profile.get(field, "original")),
+        if profile != self._profile:
+            self._profile = dict(profile)
+            self._cache.clear()
+        self.update()
+
+    def _frame(self):
+        if self._angle_index in self._cache:
+            return self._cache[self._angle_index]
+        try:
+            service = XboxAvatarService(self._repo_root, self._profile)
+            frames = service.frames_at_angles(
+                [self._angle_index * TURNTABLE_ANGLE_STEP],
+                size=(self.width() or 280, self.height() or 360),
             )
+        except (OSError, ValueError):
+            return None
+        self._cache[self._angle_index] = frames[0]
+        return frames[0]
+
+    def mousePressEvent(self, event):
+        self._drag_origin = event.position().x()
+        self._drag_start_index = self._angle_index
+        self.setCursor(Qt.ClosedHandCursor)
+
+    def mouseMoveEvent(self, event):
+        if self._drag_origin is None:
+            return
+        delta = event.position().x() - self._drag_origin
+        steps = int(delta / 12.0)
+        index = (self._drag_start_index - steps) % 24
+        if index != self._angle_index:
+            self._angle_index = index
+            self.update()
+
+    def mouseReleaseEvent(self, _event):
+        self._drag_origin = None
+        self.setCursor(Qt.OpenHandCursor)
+
+    def paintEvent(self, _event):
+        painter = QPainter(self)
+        gradient = QLinearGradient(0, 0, 0, self.height())
+        gradient.setColorAt(0.0, QColor("#f7f8f9"))
+        gradient.setColorAt(1.0, QColor("#b8bcc0"))
+        painter.fillRect(self.rect(), gradient)
+        frame = self._frame()
+        if frame is not None:
+            image = _qimage(frame)
+            painter.drawImage(
+                (self.width() - image.width()) // 2,
+                (self.height() - image.height()) // 2,
+                image,
+            )
+        painter.setPen(QColor("#4a4f55"))
+        painter.drawText(8, self.height() - 8, "Drag to rotate 360°")
 
 
 def _qimage(image):
@@ -269,7 +357,7 @@ class XboxAvatarEditorWidget(QWidget):
         self._body = QComboBox()
         for body, label in BODY_LABELS.items():
             self._body.addItem(label, body)
-        self._body.currentIndexChanged.connect(self._reload_animation)
+        self._body.currentIndexChanged.connect(self._body_changed)
         self._clip = QComboBox()
         for clip in EMOTE_CLIPS:
             self._clip.addItem(CLIP_LABELS[clip], clip)
@@ -278,28 +366,78 @@ class XboxAvatarEditorWidget(QWidget):
         form.addRow("Body", self._body)
         form.addRow("Animation", self._clip)
         self._appearance = {}
-        appearance_labels = {
-            "skin": "Skin && face",
-            "hair": "Hair",
-            "top": "Top",
-            "bottom": "Bottom",
-            "shoes": "Shoes",
-        }
-        for field in APPEARANCE_FIELDS:
+        for slot in STYLE_SLOTS:
+            field = f"{slot}_style"
             picker = QComboBox()
-            for value, label, color in APPEARANCE_PALETTES[field]:
+            picker.currentIndexChanged.connect(self._reload_animation)
+            self._appearance[field] = picker
+            form.addRow(FIELD_LABELS[field], picker)
+        for field in COLOUR_FIELDS:
+            picker = QComboBox()
+            for value, label, colour in COLOUR_PALETTES[field]:
                 picker.addItem(label, value)
-                if color:
+                if colour:
                     picker.setItemData(
-                        picker.count() - 1, QColor(color), Qt.DecorationRole
+                        picker.count() - 1, QColor(colour), Qt.DecorationRole
                     )
             picker.currentIndexChanged.connect(self._reload_animation)
             self._appearance[field] = picker
-            form.addRow(appearance_labels[field], picker)
+            form.addRow(FIELD_LABELS[field], picker)
+        for slot in DESIGN_SLOTS:
+            design = QComboBox()
+            design.addItem("No pattern", "none")
+            for value, label in DESIGN_LABELS.items():
+                design.addItem(label, value)
+            design.currentIndexChanged.connect(self._reload_animation)
+            self._appearance[f"{slot}_design"] = design
+            form.addRow(FIELD_LABELS[f"{slot}_design"], design)
+
+            scale = QComboBox()
+            for value, label in SCALE_LABELS.items():
+                scale.addItem(label, value)
+            scale.setCurrentIndex(max(0, scale.findData("medium")))
+            scale.currentIndexChanged.connect(self._reload_animation)
+            self._appearance[f"{slot}_design_scale"] = scale
+            form.addRow(FIELD_LABELS[f"{slot}_design_scale"], scale)
+
+        accent = QComboBox()
+        for value, label, colour in ACCENT_PALETTE:
+            accent.addItem(label, value)
+            accent.setItemData(accent.count() - 1, QColor(colour),
+                               Qt.DecorationRole)
+        accent.setCurrentIndex(max(0, accent.findData("black")))
+        accent.currentIndexChanged.connect(self._reload_animation)
+        self._appearance["accent_colour"] = accent
+        form.addRow(FIELD_LABELS["accent_colour"], accent)
+
+        decal = QComboBox()
+        for value, label in DECAL_LABELS.items():
+            decal.addItem(label, value)
+        decal.currentIndexChanged.connect(self._reload_animation)
+        self._appearance["decal"] = decal
+        form.addRow(FIELD_LABELS["decal"], decal)
+
+        # Archived Xbox 360 Marketplace items, listed from the installed pack.
+        pack = MarketplacePack(self._repo_root)
+        catalogue = pack.items() if pack.available() else {}
+        for field, kind in MARKETPLACE_KINDS.items():
+            picker = QComboBox()
+            picker.addItem("None", "none")
+            for name, record in sorted(
+                catalogue.items(), key=lambda item: item[1]["title"]
+            ):
+                if record["slot"] == kind:
+                    picker.addItem(record["title"], name)
+            picker.currentIndexChanged.connect(self._reload_animation)
+            self._appearance[field] = picker
+            form.addRow(FIELD_LABELS[field], picker)
+        self._refresh_style_choices()
         left_layout.addLayout(form)
         fixed = QLabel(
-            "Original XNA face rig and garment meshes stay intact. "
-            "Headwear and accessories require an authenticated owned import."
+            "Every part is a real mesh from Microsoft's XNA Avatar pack and "
+            "every colour tints an original texture. Chest prints use real "
+            "Rockbox and stock iPod artwork already in this tree. Headwear "
+            "and accessories need an authenticated owned import."
         )
         fixed.setWordWrap(True)
         fixed.setObjectName("theme_hub_status")
@@ -311,14 +449,14 @@ class XboxAvatarEditorWidget(QWidget):
         center.setObjectName("theme_hub_header")
         center_layout = QVBoxLayout(center)
         center_header = QHBoxLayout()
-        center_header.addWidget(QLabel("LIVE XNA 3D MODEL"))
+        center_header.addWidget(QLabel("LIVE XNA MODEL — 360°"))
         center_header.addStretch(1)
         self._view_toggle = QPushButton("Show Motion")
         self._view_toggle.clicked.connect(self._toggle_center_view)
         center_header.addWidget(self._view_toggle)
         center_layout.addLayout(center_header)
         self._center_stack = QStackedWidget()
-        self._model_view = _Avatar3DView(self._repo_root)
+        self._model_view = _AvatarTurntable(self._repo_root)
         self._stage = _AvatarStage()
         self._center_stack.addWidget(self._model_view)
         self._center_stack.addWidget(self._stage)
@@ -377,6 +515,27 @@ class XboxAvatarEditorWidget(QWidget):
         self._timer.start()
         self.set_profile({})
 
+    def _refresh_style_choices(self):
+        """Offer only the real garments Microsoft fitted to the chosen body."""
+        profile = AvatarProfile.from_mapping({
+            "body": str(self._body.currentData() or "xna-boy")
+        })
+        allowed = profile.styles_for_body()
+        for slot in STYLE_SLOTS:
+            picker = self._appearance[f"{slot}_style"]
+            previous = picker.currentData()
+            picker.blockSignals(True)
+            picker.clear()
+            for choice in allowed[slot]:
+                picker.addItem(STYLE_LABELS.get(choice, choice), choice)
+            index = picker.findData(previous)
+            picker.setCurrentIndex(max(0, index))
+            picker.blockSignals(False)
+
+    def _body_changed(self):
+        self._refresh_style_choices()
+        self._reload_animation()
+
     def set_profile(self, profile):
         self._name.blockSignals(True)
         self._body.blockSignals(True)
@@ -392,9 +551,12 @@ class XboxAvatarEditorWidget(QWidget):
             "xbox_avatar_favorite_clip", "jump"
         ))
         self._clip.setCurrentIndex(max(0, clip_index))
+        self._refresh_style_choices()
+        defaults = AvatarProfile()
         for field, picker in self._appearance.items():
             index = picker.findData(profile.get(
-                f"xbox_avatar_{field}", "original"
+                f"xbox_avatar_{field}",
+                getattr(defaults, field, "original"),
             ))
             picker.setCurrentIndex(max(0, index))
         self._name.blockSignals(False)
@@ -418,9 +580,7 @@ class XboxAvatarEditorWidget(QWidget):
                 self._clip.currentData() or "jump"
             ),
             **{
-                f"xbox_avatar_{field}": str(
-                    picker.currentData() or "original"
-                )
+                f"xbox_avatar_{field}": str(picker.currentData() or "")
                 for field, picker in self._appearance.items()
             },
         }
@@ -437,14 +597,7 @@ class XboxAvatarEditorWidget(QWidget):
             },
         }
 
-    def _asset_path(self):
-        profile = self._service_profile()
-        return Path(self._repo_root) / "assets" / "ipodjs" / "sources" / \
-            "xbox360" / "avatar" / "master" / profile["body"] / \
-            f"{profile['favorite_clip']}.rgba.png"
-
     def _reload_animation(self):
-        path = self._asset_path()
         self._model_view.set_profile(self._service_profile())
         try:
             service = XboxAvatarService(self._repo_root, self._service_profile())
@@ -467,8 +620,8 @@ class XboxAvatarEditorWidget(QWidget):
         self._timer.setInterval(frame_ms)
         self._frame_index = 0
         self._asset_status.setText(
-            f"Real 3D XNA mesh · full 360° rotation · {len(self._frames)} "
-            f"model-rendered motion frames · exact RAV2 iPod export "
+            f"Real XNA meshes · full 360° rotation · {len(self._frames)} "
+            f"rig-rendered motion frames · exact RAV2 iPod export "
             f"{encoded_bytes // 1024} KiB"
         )
         self._show_frame()
@@ -516,16 +669,15 @@ class XboxAvatarEditorWidget(QWidget):
         )
 
     def _randomize_profile(self):
-        pickers = [self._body, self._clip, *self._appearance.values()]
+        self._body.blockSignals(True)
+        self._body.setCurrentIndex(random.randrange(self._body.count()))
+        self._body.blockSignals(False)
+        self._refresh_style_choices()
+        pickers = [self._clip, *self._appearance.values()]
         for picker in pickers:
             picker.blockSignals(True)
-        self._body.setCurrentIndex((self._body.currentIndex() + 1) % self._body.count())
-        self._clip.setCurrentIndex((self._clip.currentIndex() + 1) % self._clip.count())
-        for offset, picker in enumerate(self._appearance.values(), 1):
-            picker.setCurrentIndex(
-                (picker.currentIndex() + offset) % picker.count()
-            )
-        for picker in pickers:
+            if picker.count():
+                picker.setCurrentIndex(random.randrange(picker.count()))
             picker.blockSignals(False)
         self._reload_animation()
 
@@ -536,9 +688,15 @@ class XboxAvatarEditorWidget(QWidget):
         self._name.setText("OFFLINE PLAYER")
         self._body.setCurrentIndex(self._body.findData("xna-boy"))
         self._clip.setCurrentIndex(self._clip.findData("jump"))
-        for picker in self._appearance.values():
-            picker.setCurrentIndex(picker.findData("original"))
         for picker in pickers:
+            picker.blockSignals(False)
+        self._refresh_style_choices()
+        defaults = AvatarProfile()
+        for field, picker in self._appearance.items():
+            picker.blockSignals(True)
+            picker.setCurrentIndex(
+                max(0, picker.findData(getattr(defaults, field, "original")))
+            )
             picker.blockSignals(False)
         self._reload_animation()
 

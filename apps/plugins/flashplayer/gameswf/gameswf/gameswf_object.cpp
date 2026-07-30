@@ -269,12 +269,21 @@ namespace gameswf
 			// is the member read-only ?
 			if (it->second.is_readonly() == false)
 			{
+				/*
+				 * Property attributes belong to the destination member,
+				 * not to the value copied into it.  Carrying DONT_ENUM
+				 * from a built-in source variable made ordinary array
+				 * assignments invisible to Array.length, iteration, and
+				 * SharedObject serialization.
+				 */
+				val.set_flags(it->second.get_flags());
 				m_members.set(name, val);
 			}
 		}
 		else
 		{
 			// create a new members
+			val.set_flags(0);
 			m_members.set(name, val);
 		}
 		return true;
@@ -297,6 +306,36 @@ namespace gameswf
 
 		if (m_members.get(name, val) == false)
 		{
+			bool found_exact = false;
+
+			/*
+			 * Plain ActionScript objects can become large enough for this
+			 * compact hash implementation to miss an existing key.  Recover
+			 * only byte-identical own-property names.  Character instances
+			 * deliberately retain their separate timeline/display-list
+			 * lookup semantics.
+			 */
+			if (!is(AS_CHARACTER))
+			{
+				for (stringi_hash<as_value>::const_iterator it =
+						m_members.begin(); it != m_members.end(); ++it)
+				{
+					if (strcmp(it->first.c_str(), name.c_str()) == 0)
+					{
+						*val = it->second;
+						found_exact = true;
+						break;
+					}
+				}
+			}
+
+			if (found_exact)
+			{
+				if (val->is_property())
+					val->set_property_target(this);
+				return true;
+			}
+
 			as_object* proto = get_proto();
 			if (proto == NULL)
 			{

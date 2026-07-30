@@ -146,6 +146,29 @@ def test_read_rockbox_tagcache_tracks_parses_audio_rows(tmp_dir):
     assert tracks[1]["codec"] == "FLAC"
 
 
+def test_read_rockbox_tagcache_skips_deleted_rows_before_tag_offsets(tmp_dir):
+    mount_path = os.path.join(tmp_dir, "ipod")
+    _write_mock_tagcache(
+        mount_path,
+        [
+            {TAG_TITLE: "Deleted", TAG_FILENAME: "/Music/Deleted.mp3"},
+            {TAG_TITLE: "Live", TAG_FILENAME: "/Music/Live.mp3"},
+        ],
+    )
+    master_path = Path(mount_path) / ".rockbox" / "database_idx.tcd"
+    master = bytearray(master_path.read_bytes())
+    row = list(struct.unpack_from(f"<{TAG_COUNT + 1}i", master, 24))
+    for tag in STRING_TAGS:
+        row[tag] = -123456789
+    row[-1] = rockbox_tagcache.FLAG_DELETED
+    struct.pack_into(f"<{TAG_COUNT + 1}i", master, 24, *row)
+    master_path.write_bytes(master)
+
+    tracks = read_rockbox_tagcache_tracks(mount_path)
+
+    assert [track["title"] for track in tracks] == ["Live"]
+
+
 def test_write_rockbox_tagcache_tracks_roundtrips_generated_database(tmp_dir):
     mount_path = os.path.join(tmp_dir, "ipod")
     audio_dir = os.path.join(mount_path, "Music", "Artist", "Album")

@@ -24,6 +24,7 @@ from services.sync_engine import (
     _clear_device_trash,
     _looks_like_auto_duplicate_path,
     _merge_existing_video_manifest_entries,
+    _video_bundle_file_is_current,
     build_device_path,
     _sanitize_filename,
     _SyncCancelled,
@@ -34,6 +35,47 @@ from services.video_rvp import VideoRvpTranscoder
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
+
+def test_compact_video_bundle_is_current(tmp_dir):
+    marker = os.path.join(tmp_dir, "Compact Movie.rvp")
+    yuv = os.path.splitext(marker)[0] + ".yuv"
+    pcm = os.path.splitext(marker)[0] + ".pcm"
+    with open(marker, "w", encoding="utf-8") as handle:
+        handle.write(
+            VideoRvpTranscoder.marker_text(
+                os.path.basename(marker),
+                width=320,
+                height=240,
+                fps=10,
+                sample_rate=44100,
+            )
+        )
+    with open(yuv, "wb") as handle:
+        handle.write(b"video")
+    with open(pcm, "wb") as handle:
+        handle.write(b"audio")
+
+    row = {
+        "media_type": "video",
+        "sync_output_ext": ".rvp",
+        "sync_video_bundle_paths": {
+            "rvp": marker,
+            "yuv": yuv,
+            "pcm": pcm,
+        },
+        "sync_video_width": 320,
+        "sync_video_height": 240,
+        "sync_video_fps": 10,
+        "sync_video_sample_rate": 44100,
+        "sync_video_bundle_sizes": {
+            "rvp": os.path.getsize(marker),
+            "yuv": os.path.getsize(yuv),
+            "pcm": os.path.getsize(pcm),
+        },
+    }
+
+    assert _video_bundle_file_is_current(row, marker)
 
 def _insert_track(db, title, artist, album, **kw):
     """Insert a track into the DB and return its row dict."""
@@ -614,6 +656,29 @@ class TestBuildDevicePath:
         assert normalized["episode_number"] == 3
         assert normalized["track_number"] == 3
 
+    @pytest.mark.parametrize(
+        ("title", "season", "episode"),
+        [
+            ("Randall's Friends", 4, 12),
+            ("Space Cadet", 3, 7),
+            ("Dodgeball City", 3, 3),
+            ("Lord of the Nerds", 3, 10),
+        ],
+    )
+    def test_recess_episode_overrides_use_aired_order(self, title, season, episode):
+        row = {
+            "media_type": "video",
+            "file_path": f"/videos/Disney's Recess - {title}.mpg",
+            "title": title,
+            "video_kind": "show",
+        }
+
+        normalized = SyncEngine._normalize_video_row_for_sync(row)
+
+        assert normalized["show_title"] == "Recess"
+        assert normalized["season_number"] == season
+        assert normalized["episode_number"] == episode
+
     def test_show_rows_inferred_from_dash_use_season_01(self):
         row = {
             "title": "Kenny vs Spenny - Who Can Stay Homeless The Longest",
@@ -919,6 +984,139 @@ class TestSyncWorkerRun:
         assert "audio=Clip.pcm" in marker_text
         with open(os.path.splitext(dest)[0] + ".yuv", "rb") as handle:
             assert handle.read() == b"yuv-data"
+
+    def test_rvp_bundle_resume_skips_matching_sidecars(self, env, monkeypatch):
+        source_video = _make_source_file(env, "Videos", "Src", "Resume", ext=".mp4", size=128)
+        cache_dir = os.path.join(env["tmp"], "cache", "device_video_rvp", "resume")
+        os.makedirs(cache_dir, exist_ok=True)
+        marker = os.path.join(cache_dir, "resume.rvp")
+        segment_yuv = os.path.join(cache_dir, "resume.seg01.yuv")
+        segment_pcm = os.path.join(cache_dir, "resume.seg01.pcm")
+        with open(marker, "w", encoding="utf-8") as handle:
+            handle.write("RVP1\n")
+        with open(segment_yuv, "wb") as handle:
+            handle.write(b"matching-video")
+        with open(segment_pcm, "wb") as handle:
+            handle.write(b"matching-audio")
+
+        rel_path = os.path.join("Videos", "Downloaded", "Resume.rvp")
+        dest = os.path.join(env["device_path"], rel_path)
+        dest_base = os.path.splitext(dest)[0]
+        os.makedirs(os.path.dirname(dest), exist_ok=True)
+        shutil.copyfile(segment_yuv, dest_base + ".seg01.yuv")
+        shutil.copyfile(segment_pcm, dest_base + ".seg01.pcm")
+        row = {
+            "id": 304,
+            "file_path": source_video,
+            "sync_source_path": marker,
+            "sync_output_ext": ".rvp",
+            "sync_video_bundle_paths": {"rvp": marker},
+            "sync_video_segments": [{"yuv": segment_yuv, "pcm": segment_pcm}],
+            "sync_video_width": 160,
+            "sync_video_height": 120,
+            "sync_video_fps": 20,
+            "sync_video_sample_rate": 22050,
+            "title": "Resume",
+            "media_type": "video",
+        }
+
+        worker = SyncWorker(SyncPlan(), env["device_path"], env["config"].db_path)
+        original_copy = worker._copy_file
+        copied_sources = []
+
+        def record_copy(src, copy_dest, created_dirs=None):
+            copied_sources.append(src)
+            return original_copy(src, copy_dest, created_dirs)
+
+        monkeypatch.setattr(worker, "_copy_file", record_copy)
+        ok, _stats = worker._copy_track_media(row, marker, dest)
+
+        assert ok is True
+        assert copied_sources == []
+        assert os.path.isfile(dest)
+
+    def test_rvp_bundle_failure_preserves_completed_sidecars_without_marker(
+        self, env, monkeypatch
+    ):
+        source_video = _make_source_file(env, "Videos", "Src", "Interrupted", ext=".mp4", size=128)
+        cache_dir = os.path.join(env["tmp"], "cache", "device_video_rvp", "interrupted")
+        os.makedirs(cache_dir, exist_ok=True)
+        marker = os.path.join(cache_dir, "interrupted.rvp")
+        first_yuv = os.path.join(cache_dir, "interrupted.seg01.yuv")
+        first_pcm = os.path.join(cache_dir, "interrupted.seg01.pcm")
+        second_yuv = os.path.join(cache_dir, "interrupted.seg02.yuv")
+        second_pcm = os.path.join(cache_dir, "interrupted.seg02.pcm")
+        with open(marker, "w", encoding="utf-8") as handle:
+            handle.write("RVP1\n")
+        for path, content in (
+            (first_yuv, b"first-video"),
+            (first_pcm, b"first-audio"),
+            (second_yuv, b"second-video"),
+            (second_pcm, b"second-audio"),
+        ):
+            with open(path, "wb") as handle:
+                handle.write(content)
+
+        dest = os.path.join(env["device_path"], "Videos", "Downloaded", "Interrupted.rvp")
+        row = {
+            "file_path": source_video,
+            "sync_output_ext": ".rvp",
+            "sync_video_bundle_paths": {"rvp": marker},
+            "sync_video_segments": [
+                {"yuv": first_yuv, "pcm": first_pcm},
+                {"yuv": second_yuv, "pcm": second_pcm},
+            ],
+            "media_type": "video",
+        }
+        worker = SyncWorker(SyncPlan(), env["device_path"], env["config"].db_path)
+        original_copy = worker._copy_file
+
+        def fail_second_segment(src, copy_dest, created_dirs=None):
+            if src == second_yuv:
+                return False, worker._empty_copy_stats()
+            return original_copy(src, copy_dest, created_dirs)
+
+        monkeypatch.setattr(worker, "_copy_file", fail_second_segment)
+        ok, _stats = worker._copy_track_media(row, marker, dest)
+        dest_base = os.path.splitext(dest)[0]
+
+        assert ok is False
+        assert not os.path.exists(dest)
+        assert open(dest_base + ".seg01.yuv", "rb").read() == b"first-video"
+        assert open(dest_base + ".seg01.pcm", "rb").read() == b"first-audio"
+
+    def test_rvp_bundle_resume_replaces_same_size_mismatch(self, env):
+        source_video = _make_source_file(env, "Videos", "Src", "Mismatch", ext=".mp4", size=128)
+        cache_dir = os.path.join(env["tmp"], "cache", "device_video_rvp", "mismatch")
+        os.makedirs(cache_dir, exist_ok=True)
+        marker = os.path.join(cache_dir, "mismatch.rvp")
+        segment_yuv = os.path.join(cache_dir, "mismatch.seg01.yuv")
+        segment_pcm = os.path.join(cache_dir, "mismatch.seg01.pcm")
+        with open(marker, "w", encoding="utf-8") as handle:
+            handle.write("RVP1\n")
+        with open(segment_yuv, "wb") as handle:
+            handle.write(b"new!")
+        with open(segment_pcm, "wb") as handle:
+            handle.write(b"audio")
+
+        dest = os.path.join(env["device_path"], "Videos", "Downloaded", "Mismatch.rvp")
+        dest_base = os.path.splitext(dest)[0]
+        os.makedirs(os.path.dirname(dest), exist_ok=True)
+        with open(dest_base + ".seg01.yuv", "wb") as handle:
+            handle.write(b"old!")
+        row = {
+            "file_path": source_video,
+            "sync_output_ext": ".rvp",
+            "sync_video_bundle_paths": {"rvp": marker},
+            "sync_video_segments": [{"yuv": segment_yuv, "pcm": segment_pcm}],
+            "media_type": "video",
+        }
+
+        worker = SyncWorker(SyncPlan(), env["device_path"], env["config"].db_path)
+        ok, _stats = worker._copy_track_media(row, marker, dest)
+
+        assert ok is True
+        assert open(dest_base + ".seg01.yuv", "rb").read() == b"new!"
 
     def test_resync_replaces_old_file(self, env):
         src = _make_source_file(env, "Art", "Alb", "Updated", size=4096)
@@ -2057,6 +2255,95 @@ class TestSyncEnginePlan:
         assert len(paths) == 2
         assert len(set(paths)) == 2
 
+    def test_global_plan_prefers_regular_flac_over_managed_playlist_duplicate(self, env):
+        managed = _make_source_file(
+            env, "Playlists/RockPod Media", "Imports", "Same", ext=".m4a"
+        )
+        regular = _make_source_file(env, "Art", "Alb", "Same", ext=".flac")
+        _insert_track(
+            env["db"],
+            "Same",
+            "Art",
+            "Alb",
+            file_path=managed,
+            metadata_hash="aac_hash",
+            codec="AAC",
+        )
+        _insert_track(
+            env["db"],
+            "Same",
+            "Art",
+            "Alb",
+            file_path=regular,
+            metadata_hash="flac_hash",
+            codec="FLAC",
+        )
+
+        engine = self._make_engine(env)
+        plan = engine.build_sync_plan()
+
+        assert len(plan.to_copy) == 1
+        row, rel_path = plan.to_copy[0]
+        assert dict(row)["file_path"] == regular
+        assert rel_path.endswith(".flac")
+
+    def test_global_plan_repairs_crosslinked_managed_duplicate_without_suffix(self, env):
+        managed = _make_source_file(
+            env, "Playlists/RockPod Media", "Imports", "Same", ext=".m4a"
+        )
+        regular = _make_source_file(env, "Art", "Alb", "Same", ext=".flac")
+        managed_row = _insert_track(
+            env["db"],
+            "Same",
+            "Art",
+            "Alb",
+            file_path=managed,
+            metadata_hash="aac_hash",
+            codec="AAC",
+        )
+        regular_row = _insert_track(
+            env["db"],
+            "Same",
+            "Art",
+            "Alb",
+            file_path=regular,
+            metadata_hash="flac_hash",
+            codec="FLAC",
+        )
+
+        engine = self._make_engine(env)
+        device_key = engine.set_current_device(engine._device_detector.current_device)
+        _insert_device_track(
+            env["db"],
+            "Same",
+            "Art",
+            "Alb",
+            "Music/Art/Alb/01 - Same.flac",
+            device_id=device_key,
+            metadata_hash="flac_hash",
+            local_track_id=managed_row["id"],
+            codec="FLAC",
+        )
+        _insert_device_track(
+            env["db"],
+            "Same",
+            "Art",
+            "Alb",
+            "Music/Art/Alb/01 - Same.m4a",
+            device_id=device_key,
+            metadata_hash="aac_hash",
+            local_track_id=regular_row["id"],
+            codec="M4A",
+        )
+        engine.load_cached_device_inventory(device_key)
+
+        plan = engine.build_sync_plan()
+
+        assert plan.copy_count == 0
+        assert plan.resync_count == 0
+        assert plan.up_to_date_count == 1
+        assert plan.to_delete == ["Music/Art/Alb/01 - Same.m4a"]
+
     def test_plan_replaces_unlinked_device_file_at_same_target_path(self, env):
         src = _make_source_file(env, "Art", "Alb", "Existing")
         _insert_track(
@@ -2420,6 +2707,26 @@ class TestScanDevice:
         assert plan.plan_profile["device_fetch_seconds"] >= 0.0
         assert plan.plan_profile["artwork_generation_seconds"] >= 0.0
 
+    def test_video_profile_override_is_per_sync_action(self, env, monkeypatch):
+        env["config"].set("video_sync_profile", "native_raw")
+        engine = self._make_engine(env)
+        selected_profiles = []
+        monkeypatch.setattr(
+            engine._video_transcoder,
+            "set_profile",
+            lambda profile: selected_profiles.append(profile),
+        )
+
+        prepared, errors, count = engine._prepare_tracks_for_sync(
+            [], video_profile="quality"
+        )
+
+        assert prepared == []
+        assert errors == []
+        assert count == 0
+        assert selected_profiles == ["quality"]
+        assert env["config"].get("video_sync_profile") == "native_raw"
+
 
 class TestSyncCacheCleanup:
     def _make_engine(self, env):
@@ -2436,6 +2743,7 @@ class TestSyncCacheCleanup:
 
     def test_cleanup_local_sync_cache_keeps_current_device_cache(self, env, monkeypatch):
         config = env["config"]
+        config.set("video_sync_profile", "raw")
         config.set("convert_audio_for_device", True)
         config.set("audio_conversion_codec", "mp3")
         config.set("audio_conversion_mode", "unsupported_or_lossless")
@@ -2549,6 +2857,7 @@ class TestSyncCacheCleanup:
         assert set(result["removed"]) == {stale_audio, stale_video}
 
     def test_cleanup_segmented_video_cache_keeps_only_needed_segments(self, env):
+        env["config"].set("video_sync_profile", "raw")
         engine = self._make_engine(env)
 
         video_src = _make_source_file(env, "Artist V", "Album V", "Segment Video", ext=".mp4", size=128)

@@ -11,944 +11,2685 @@
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY OF ANY
- * KIND, either express or implied.
+ * of the license, or (at your option) any later version.
  *
  ****************************************************************************/
 
 #include "plugin.h"
+#include "fixedpoint.h"
+#include "lib/pluginlib_bmp.h"
+
+#define DM_ASSET_DIR \
+    PLUGIN_APPS_DATA_DIR "/desktop_mode_snow_leopard"
+#define DM_CONFIG_FILE PLUGIN_APPS_DATA_DIR "/desktop_mode.cfg"
+#define DM_MANIFEST_FILE DM_ASSET_DIR "/manifest.json"
+#define DM_LIVETV_UNDERLAY_FILE \
+    PLUGIN_APPS_DATA_DIR "/desktop_mode_livetv_underlay.raw"
+#define DM_LIVETV_UNDERLAY_MAGIC 0x44545631u /* "DTV1" */
+#define DM_SITEKICK_UNDERLAY_FILE \
+    PLUGIN_APPS_DATA_DIR "/desktop_mode_sitekick_underlay.raw"
+#define DM_SITEKICK_UNDERLAY_MAGIC 0x44534b31u /* "DSK1" */
+#define DM_NETFLIX_UNDERLAY_FILE \
+    PLUGIN_APPS_DATA_DIR "/desktop_mode_netflix_underlay.raw"
+#define DM_NETFLIX_UNDERLAY_MAGIC 0x444e4631u /* "DNF1" */
 
 #define DM_MAX_FILES 96
-#define DM_FILE_ROWS 7
-#define DM_CONFIG_FILE PLUGIN_APPS_DATA_DIR "/desktop_mode.cfg"
-#define DM_XP_ASSET_DIR PLUGIN_APPS_DATA_DIR "/desktop_mode_xp"
-#define DM_XP_WALLPAPER_BMP DM_XP_ASSET_DIR "/bliss.320x212.bmp"
-#define DM_SCALE_SCRATCH_EXTRA(width) ((width) * (int)sizeof(uint32_t) * 4)
-#define DM_SCALED_BYTES(width, height) \
-    (BM_SCALED_SIZE(width, height, FORMAT_NATIVE, false) + \
-     DM_SCALE_SCRATCH_EXTRA(width))
+#define DM_ASCII_FIRST 32
+#define DM_ASCII_LAST 126
+#define DM_ASCII_COUNT (DM_ASCII_LAST - DM_ASCII_FIRST + 1)
+#define DM_FONT_COLUMNS 16
+#define DM_FONT_ROWS ((DM_ASCII_COUNT + DM_FONT_COLUMNS - 1) / DM_FONT_COLUMNS)
 
-#define DM_TASKBAR_H 28
-#define DM_WALLPAPER_H (LCD_HEIGHT - DM_TASKBAR_H)
-#define DM_START_W 66
-#define DM_ICON_W 56
-#define DM_ICON_H 50
-#define DM_START_MENU_W 224
-#define DM_START_MENU_H 178
-#define DM_CURSOR_STEP 8
-#define DM_CURSOR_FAST_STEP 15
+/* Every number below is measured from the real Snow Leopard artwork the
+ * importer cuts the pack from; see docs/desktop-mode-snow-leopard-spec.md.
+ * The chrome is used at Apple's own 1:1 scale, so the layout has to follow
+ * the artwork rather than the other way round.
+ */
+#define DM_APPLE_W 22
 
-#ifdef HAVE_LCD_COLOR
-#define DM_RGB(r, g, b) LCD_RGBPACK(r, g, b)
-#define DM_SKY_TOP DM_RGB(23, 116, 209)
-#define DM_SKY_BOTTOM DM_RGB(137, 199, 255)
-#define DM_HILL_A DM_RGB(65, 156, 45)
-#define DM_HILL_B DM_RGB(31, 113, 31)
-#define DM_HILL_C DM_RGB(134, 194, 61)
-#define DM_TASKBAR_TOP DM_RGB(47, 123, 237)
-#define DM_TASKBAR_BOTTOM DM_RGB(21, 68, 174)
-#define DM_TASKBAR_EDGE DM_RGB(15, 48, 142)
-#define DM_START_TOP DM_RGB(124, 212, 86)
-#define DM_START_BOTTOM DM_RGB(26, 135, 29)
-#define DM_START_EDGE DM_RGB(11, 89, 21)
-#define DM_PANEL DM_RGB(236, 233, 216)
-#define DM_PANEL_LIGHT DM_RGB(255, 255, 255)
-#define DM_PANEL_DARK DM_RGB(128, 128, 128)
-#define DM_TITLE_TOP DM_RGB(12, 89, 214)
-#define DM_TITLE_BOTTOM DM_RGB(3, 56, 180)
-#define DM_TITLE_INACTIVE DM_RGB(122, 150, 210)
-#define DM_MENU_LEFT DM_RGB(255, 255, 255)
-#define DM_MENU_RIGHT DM_RGB(211, 229, 250)
-#define DM_SELECT_TOP DM_RGB(49, 106, 197)
-#define DM_SELECT_BOTTOM DM_RGB(25, 74, 175)
-#define DM_SHADOW DM_RGB(56, 74, 108)
-#define DM_TEXT DM_RGB(0, 0, 0)
-#define DM_MUTED DM_RGB(78, 78, 78)
-#define DM_WHITE DM_RGB(255, 255, 255)
-#define DM_RED DM_RGB(218, 42, 34)
-#define DM_YELLOW DM_RGB(255, 215, 64)
-#define DM_FOLDER DM_RGB(248, 209, 69)
-#define DM_CURSOR_EDGE DM_RGB(0, 0, 0)
+#if LCD_WIDTH >= 1920
+#define DM_DOCK_SLOTS 10
 #else
-#define DM_SKY_TOP LCD_DEFAULT_BG
-#define DM_SKY_BOTTOM LCD_DEFAULT_BG
-#define DM_HILL_A LCD_DEFAULT_BG
-#define DM_HILL_B LCD_DEFAULT_BG
-#define DM_HILL_C LCD_DEFAULT_BG
-#define DM_TASKBAR_TOP LCD_DEFAULT_FG
-#define DM_TASKBAR_BOTTOM LCD_DEFAULT_FG
-#define DM_TASKBAR_EDGE LCD_DEFAULT_FG
-#define DM_START_TOP LCD_DEFAULT_BG
-#define DM_START_BOTTOM LCD_DEFAULT_BG
-#define DM_START_EDGE LCD_DEFAULT_FG
-#define DM_PANEL LCD_DEFAULT_BG
-#define DM_PANEL_LIGHT LCD_DEFAULT_BG
-#define DM_PANEL_DARK LCD_DEFAULT_FG
-#define DM_TITLE_TOP LCD_DEFAULT_FG
-#define DM_TITLE_BOTTOM LCD_DEFAULT_FG
-#define DM_TITLE_INACTIVE LCD_DEFAULT_FG
-#define DM_MENU_LEFT LCD_DEFAULT_BG
-#define DM_MENU_RIGHT LCD_DEFAULT_BG
-#define DM_SELECT_TOP LCD_DEFAULT_FG
-#define DM_SELECT_BOTTOM LCD_DEFAULT_FG
-#define DM_SHADOW LCD_DEFAULT_FG
-#define DM_TEXT LCD_DEFAULT_FG
-#define DM_MUTED LCD_DEFAULT_FG
-#define DM_WHITE LCD_DEFAULT_BG
-#define DM_RED LCD_DEFAULT_FG
-#define DM_YELLOW LCD_DEFAULT_FG
-#define DM_FOLDER LCD_DEFAULT_FG
-#define DM_CURSOR_EDGE LCD_DEFAULT_FG
+#define DM_DOCK_SLOTS 9
+#endif
+/* Window chrome bands are the same 1:1 heights on either panel: they are the
+ * same real Finder window, used whole at 1080p and in fragments at 320x240. */
+#define DM_WIN_TITLE_H 24
+#define DM_WIN_TOOLBAR_H 29
+#define DM_WIN_STATUS_H 24
+#define DM_BODY_Y (DM_WIN_Y + DM_WIN_TITLE_H + DM_WIN_TOOLBAR_H)
+#define DM_BODY_H \
+    (DM_WIN_H - DM_WIN_TITLE_H - DM_WIN_TOOLBAR_H - DM_WIN_STATUS_H)
+#define DM_STATUS_Y (DM_BODY_Y + DM_BODY_H)
+#define DM_LIST_X (DM_WIN_X + DM_WIN_SIDEBAR_W + 1)
+#define DM_LIST_W (DM_WIN_W - DM_WIN_SIDEBAR_W - 1)
+#define DM_FILE_ROWS (DM_BODY_H / DM_ROW_H)
+#define DM_SCROLLER_W 16
+#define DM_SCROLLER_X (DM_WIN_X + DM_WIN_W - DM_SCROLLER_W - 1)
+
+/* Panel profile: filenames and geometry are generated from the same table
+ * the importer uses, so a pack and the shell can never disagree about a
+ * size.  At 320x240 the 1:1 artwork is used in fragments; at 1920x1080 it
+ * is used at the size Apple drew it.
+ */
+#if LCD_WIDTH >= 1920
+#define DM_F_BOOT_BACKGROUND DM_ASSET_DIR "/1920x1080/boot/background.1920x1080x16.bmp"
+#define DM_F_AURORA DM_ASSET_DIR "/1920x1080/desktop/aurora.1920x1080x16.bmp"
+#define DM_F_MENUBAR DM_ASSET_DIR "/1920x1080/desktop/menubar.1920x22x16.bmp"
+#define DM_F_APPLE_HL DM_ASSET_DIR "/1920x1080/desktop/apple-highlight.22x22x16.bmp"
+#define DM_F_DOCK_SHELF DM_ASSET_DIR "/1920x1080/desktop/dock-shelf.608x52x16.bmp"
+#define DM_F_WIN_SIDEBAR DM_ASSET_DIR "/1920x1080/chrome/window-sidebar.897x671x16.bmp"
+#define DM_F_WIN_PLAIN DM_ASSET_DIR "/1920x1080/chrome/window-plain.897x671x16.bmp"
+#define DM_F_ITUNES_WIN DM_ASSET_DIR "/1920x1080/chrome/itunes-window.1081x655x16.bmp"
+#define DM_F_ITUNES_SEL DM_ASSET_DIR "/1920x1080/chrome/itunes-selection.1081x17x16.bmp"
+#define DM_F_LIST_SEL DM_ASSET_DIR "/1920x1080/chrome/list-selection.761x19x16.bmp"
+#define DM_F_SIDEBAR_SEL DM_ASSET_DIR "/1920x1080/chrome/sidebar-selection.135x19x16.bmp"
+#define DM_F_MENU_PANEL DM_ASSET_DIR "/1920x1080/chrome/menu-panel.226x279x16.bmp"
+#define DM_F_MENU_SEL DM_ASSET_DIR "/1920x1080/chrome/menu-selection.224x19x16.bmp"
+#define DM_F_CONTEXT DM_ASSET_DIR "/1920x1080/chrome/context-panel.200x90x16.bmp"
+#define DM_F_SHEET DM_ASSET_DIR "/1920x1080/chrome/sheet.520x260x16.bmp"
+#define DM_F_TOOLTIP DM_ASSET_DIR "/1920x1080/chrome/tooltip.180x22x16.bmp"
+#define DM_F_SCROLL_TRACK DM_ASSET_DIR "/1920x1080/chrome/scroller-track.16x430x16.bmp"
+#define DM_F_SCROLL_THUMB DM_ASSET_DIR "/1920x1080/chrome/scroller-thumb.16x80x16.bmp"
+#define DM_F_ICON_FINDER DM_ASSET_DIR "/1920x1080/icons/finder.64x64.rga"
+#define DM_F_ICON_ITUNES DM_ASSET_DIR "/1920x1080/icons/itunes.64x64.rga"
+#define DM_F_ICON_PREVIEW DM_ASSET_DIR "/1920x1080/icons/preview.64x64.rga"
+#define DM_F_ICON_TEXTEDIT DM_ASSET_DIR "/1920x1080/icons/textedit.64x64.rga"
+#define DM_F_ICON_CALCULATOR DM_ASSET_DIR "/1920x1080/icons/calculator.64x64.rga"
+#define DM_F_ICON_DIRECTV DM_ASSET_DIR "/1920x1080/icons/directv.64x64.rga"
+#define DM_F_ICON_SITEKICK ROCKBOX_DIR "/sitekick/desktop/icon.64x64.rga"
+#define DM_F_ICON_NETFLIX \
+    ROCKBOX_DIR "/ipodjs/netflix/desktop/icon.64x64.rga"
+#define DM_F_ICON_SYSTEM_PREFERENCES DM_ASSET_DIR "/1920x1080/icons/system-preferences.64x64.rga"
+#define DM_F_ICON_DASHBOARD DM_ASSET_DIR "/1920x1080/icons/dashboard.64x64.rga"
+#define DM_F_ICON_DISK DM_ASSET_DIR "/1920x1080/icons/disk.64x64.rga"
+#define DM_F_ICON_TRASH_EMPTY DM_ASSET_DIR "/1920x1080/icons/trash-empty.64x64.rga"
+#define DM_F_ICON_FOLDER_DESKTOP DM_ASSET_DIR "/1920x1080/icons/folder-desktop.64x64.rga"
+#define DM_F_ICON_FOLDER DM_ASSET_DIR "/1920x1080/icons/folder.16x16.rga"
+#define DM_F_ICON_DOCUMENT DM_ASSET_DIR "/1920x1080/icons/document.16x16.rga"
+#define DM_F_DOCK_FINDER_A DM_ASSET_DIR "/1920x1080/icons/finder-dock-66.66x66.rga"
+#define DM_F_DOCK_FINDER_B DM_ASSET_DIR "/1920x1080/icons/finder-dock-70.70x70.rga"
+#define DM_F_DOCK_ITUNES_A DM_ASSET_DIR "/1920x1080/icons/itunes-dock-66.66x66.rga"
+#define DM_F_DOCK_ITUNES_B DM_ASSET_DIR "/1920x1080/icons/itunes-dock-70.70x70.rga"
+#define DM_F_DOCK_PREVIEW_A DM_ASSET_DIR "/1920x1080/icons/preview-dock-66.66x66.rga"
+#define DM_F_DOCK_PREVIEW_B DM_ASSET_DIR "/1920x1080/icons/preview-dock-70.70x70.rga"
+#define DM_F_DOCK_TEXTEDIT_A DM_ASSET_DIR "/1920x1080/icons/textedit-dock-66.66x66.rga"
+#define DM_F_DOCK_TEXTEDIT_B DM_ASSET_DIR "/1920x1080/icons/textedit-dock-70.70x70.rga"
+#define DM_F_DOCK_CALCULATOR_A DM_ASSET_DIR "/1920x1080/icons/calculator-dock-66.66x66.rga"
+#define DM_F_DOCK_CALCULATOR_B DM_ASSET_DIR "/1920x1080/icons/calculator-dock-70.70x70.rga"
+#define DM_F_DOCK_DIRECTV_A DM_ASSET_DIR "/1920x1080/icons/directv-dock-66.66x66.rga"
+#define DM_F_DOCK_DIRECTV_B DM_ASSET_DIR "/1920x1080/icons/directv-dock-70.70x70.rga"
+#define DM_F_DOCK_SITEKICK_A ROCKBOX_DIR "/sitekick/desktop/icon-dock-66.66x66.rga"
+#define DM_F_DOCK_SITEKICK_B ROCKBOX_DIR "/sitekick/desktop/icon-dock-70.70x70.rga"
+#define DM_F_DOCK_NETFLIX_A \
+    ROCKBOX_DIR "/ipodjs/netflix/desktop/icon-dock-66.66x66.rga"
+#define DM_F_DOCK_NETFLIX_B \
+    ROCKBOX_DIR "/ipodjs/netflix/desktop/icon-dock-70.70x70.rga"
+#define DM_F_DOCK_SYSTEM_PREFERENCES_A DM_ASSET_DIR "/1920x1080/icons/system-preferences-dock-66.66x66.rga"
+#define DM_F_DOCK_SYSTEM_PREFERENCES_B DM_ASSET_DIR "/1920x1080/icons/system-preferences-dock-70.70x70.rga"
+#define DM_F_DOCK_TRASH_EMPTY_A DM_ASSET_DIR "/1920x1080/icons/trash-empty-dock-66.66x66.rga"
+#define DM_F_DOCK_TRASH_EMPTY_B DM_ASSET_DIR "/1920x1080/icons/trash-empty-dock-70.70x70.rga"
+#define DM_MENUBAR_H 22
+#define DM_DOCK_SHELF_W 608
+#define DM_DOCK_SHELF_H 52
+#define DM_DOCK_ICON 64
+#define DM_DOCK_STEP 60
+#define DM_DOCK_MAG_A 66
+#define DM_DOCK_MAG_B 70
+#define DM_WIN_W 897
+#define DM_WIN_H 671
+#define DM_WIN_SIDEBAR_W 135
+#define DM_ITUNES_W 1081
+#define DM_ITUNES_H 655
+#define DM_ITUNES_ASSET_H 655
+#define DM_ITUNES_SOURCE_W 206
+#define DM_LIST_SEL_W 761
+#define DM_ROW_H 19
+#define DM_MENU_W 226
+#define DM_MENU_H 279
+#define DM_CONTEXT_W 200
+#define DM_CONTEXT_H 90
+#define DM_SHEET_W 520
+#define DM_SHEET_H 260
+#define DM_TOOLTIP_W 180
+#define DM_TOOLTIP_H 22
+#define DM_SCROLLER_H_ASSET 430
+#define DM_SCROLLER_THUMB_H 80
+#define DM_ICON_SMALL 16
+#else
+#define DM_F_BOOT_BACKGROUND DM_ASSET_DIR "/320x240/boot/background.320x240x16.bmp"
+#define DM_F_AURORA DM_ASSET_DIR "/320x240/desktop/aurora.320x240x16.bmp"
+#define DM_F_MENUBAR DM_ASSET_DIR "/320x240/desktop/menubar.320x21x16.bmp"
+#define DM_F_APPLE_HL DM_ASSET_DIR "/320x240/desktop/apple-highlight.22x21x16.bmp"
+#define DM_F_DOCK_SHELF DM_ASSET_DIR "/320x240/desktop/dock-shelf.288x26x16.bmp"
+#define DM_F_WIN_SIDEBAR DM_ASSET_DIR "/320x240/chrome/window-sidebar.304x174x16.bmp"
+#define DM_F_WIN_PLAIN DM_ASSET_DIR "/320x240/chrome/window-plain.304x174x16.bmp"
+#define DM_F_ITUNES_WIN DM_ASSET_DIR "/320x240/chrome/itunes-window.304x174x16.bmp"
+#define DM_F_ITUNES_SEL DM_ASSET_DIR "/320x240/chrome/itunes-selection.304x17x16.bmp"
+#define DM_F_LIST_SEL DM_ASSET_DIR "/320x240/chrome/list-selection.217x19x16.bmp"
+#define DM_F_SIDEBAR_SEL DM_ASSET_DIR "/320x240/chrome/sidebar-selection.86x19x16.bmp"
+#define DM_F_MENU_PANEL DM_ASSET_DIR "/320x240/chrome/menu-panel.152x124x16.bmp"
+#define DM_F_MENU_SEL DM_ASSET_DIR "/320x240/chrome/menu-selection.150x19x16.bmp"
+#define DM_F_CONTEXT DM_ASSET_DIR "/320x240/chrome/context-panel.124x71x16.bmp"
+#define DM_F_SHEET DM_ASSET_DIR "/320x240/chrome/sheet.240x112x16.bmp"
+#define DM_F_TOOLTIP DM_ASSET_DIR "/320x240/chrome/tooltip.104x18x16.bmp"
+#define DM_F_SCROLL_TRACK DM_ASSET_DIR "/320x240/chrome/scroller-track.16x97x16.bmp"
+#define DM_F_SCROLL_THUMB DM_ASSET_DIR "/320x240/chrome/scroller-thumb.16x36x16.bmp"
+#define DM_F_ICON_FINDER DM_ASSET_DIR "/320x240/icons/finder.32x32.rga"
+#define DM_F_ICON_ITUNES DM_ASSET_DIR "/320x240/icons/itunes.32x32.rga"
+#define DM_F_ICON_PREVIEW DM_ASSET_DIR "/320x240/icons/preview.32x32.rga"
+#define DM_F_ICON_TEXTEDIT DM_ASSET_DIR "/320x240/icons/textedit.32x32.rga"
+#define DM_F_ICON_CALCULATOR DM_ASSET_DIR "/320x240/icons/calculator.32x32.rga"
+#define DM_F_ICON_DIRECTV DM_ASSET_DIR "/320x240/icons/directv.32x32.rga"
+#define DM_F_ICON_SITEKICK ROCKBOX_DIR "/sitekick/desktop/icon.32x32.rga"
+#define DM_F_ICON_SYSTEM_PREFERENCES DM_ASSET_DIR "/320x240/icons/system-preferences.32x32.rga"
+#define DM_F_ICON_DASHBOARD DM_ASSET_DIR "/320x240/icons/dashboard.32x32.rga"
+#define DM_F_ICON_DISK DM_ASSET_DIR "/320x240/icons/disk.32x32.rga"
+#define DM_F_ICON_TRASH_EMPTY DM_ASSET_DIR "/320x240/icons/trash-empty.32x32.rga"
+#define DM_F_ICON_FOLDER_DESKTOP DM_ASSET_DIR "/320x240/icons/folder-desktop.32x32.rga"
+#define DM_F_ICON_FOLDER DM_ASSET_DIR "/320x240/icons/folder.16x16.rga"
+#define DM_F_ICON_DOCUMENT DM_ASSET_DIR "/320x240/icons/document.16x16.rga"
+#define DM_F_DOCK_FINDER_A DM_ASSET_DIR "/320x240/icons/finder-dock-34.34x34.rga"
+#define DM_F_DOCK_FINDER_B DM_ASSET_DIR "/320x240/icons/finder-dock-38.38x38.rga"
+#define DM_F_DOCK_ITUNES_A DM_ASSET_DIR "/320x240/icons/itunes-dock-34.34x34.rga"
+#define DM_F_DOCK_ITUNES_B DM_ASSET_DIR "/320x240/icons/itunes-dock-38.38x38.rga"
+#define DM_F_DOCK_PREVIEW_A DM_ASSET_DIR "/320x240/icons/preview-dock-34.34x34.rga"
+#define DM_F_DOCK_PREVIEW_B DM_ASSET_DIR "/320x240/icons/preview-dock-38.38x38.rga"
+#define DM_F_DOCK_TEXTEDIT_A DM_ASSET_DIR "/320x240/icons/textedit-dock-34.34x34.rga"
+#define DM_F_DOCK_TEXTEDIT_B DM_ASSET_DIR "/320x240/icons/textedit-dock-38.38x38.rga"
+#define DM_F_DOCK_CALCULATOR_A DM_ASSET_DIR "/320x240/icons/calculator-dock-34.34x34.rga"
+#define DM_F_DOCK_CALCULATOR_B DM_ASSET_DIR "/320x240/icons/calculator-dock-38.38x38.rga"
+#define DM_F_DOCK_DIRECTV_A DM_ASSET_DIR "/320x240/icons/directv-dock-34.34x34.rga"
+#define DM_F_DOCK_DIRECTV_B DM_ASSET_DIR "/320x240/icons/directv-dock-38.38x38.rga"
+#define DM_F_DOCK_SITEKICK_A ROCKBOX_DIR "/sitekick/desktop/icon-dock-34.34x34.rga"
+#define DM_F_DOCK_SITEKICK_B ROCKBOX_DIR "/sitekick/desktop/icon-dock-38.38x38.rga"
+#define DM_F_DOCK_SYSTEM_PREFERENCES_A DM_ASSET_DIR "/320x240/icons/system-preferences-dock-34.34x34.rga"
+#define DM_F_DOCK_SYSTEM_PREFERENCES_B DM_ASSET_DIR "/320x240/icons/system-preferences-dock-38.38x38.rga"
+#define DM_F_DOCK_TRASH_EMPTY_A DM_ASSET_DIR "/320x240/icons/trash-empty-dock-34.34x34.rga"
+#define DM_F_DOCK_TRASH_EMPTY_B DM_ASSET_DIR "/320x240/icons/trash-empty-dock-38.38x38.rga"
+#define DM_MENUBAR_H 21
+#define DM_DOCK_SHELF_W 288
+#define DM_DOCK_SHELF_H 26
+#define DM_DOCK_ICON 32
+#define DM_DOCK_STEP 34
+#define DM_DOCK_MAG_A 34
+#define DM_DOCK_MAG_B 38
+#define DM_WIN_W 304
+#define DM_WIN_H 174
+#define DM_WIN_SIDEBAR_W 86
+#define DM_ITUNES_W 304
+/* iTunes is the foreground media application on the iPod.  Give it the
+ * complete work area below the menu bar instead of reserving nearly a quarter
+ * of the LCD for a Dock that is still available after closing/minimising it.
+ * The shorter captured window is extended at draw time using only its native
+ * striped body rows; no Apple pixels are scaled. */
+#define DM_ITUNES_H (LCD_HEIGHT - DM_MENUBAR_H)
+#define DM_ITUNES_ASSET_H 174
+#define DM_ITUNES_SOURCE_W 86
+#define DM_LIST_SEL_W 217
+#define DM_ROW_H 19
+#define DM_MENU_W 152
+#define DM_MENU_H 124
+#define DM_CONTEXT_W 124
+#define DM_CONTEXT_H 71
+#define DM_SHEET_W 240
+#define DM_SHEET_H 112
+#define DM_TOOLTIP_W 104
+#define DM_TOOLTIP_H 18
+#define DM_SCROLLER_H_ASSET 97
+#define DM_SCROLLER_THUMB_H 36
+#define DM_ICON_SMALL 16
 #endif
 
-enum dm_mode
+#define DM_APPLE_X 4
+#define DM_MENU_X 3
+#define DM_MENU_Y DM_MENUBAR_H
+#define DM_MENU_ROW_H 19
+#define DM_MENU_TOP 7
+#define DM_APPLE_MENU_ROWS 6
+#define DM_CONTEXT_ROWS 3
+#define DM_CONTEXT_X 96
+#define DM_CONTEXT_Y 84
+#define DM_SHEET_X ((LCD_WIDTH - DM_SHEET_W) / 2)
+#define DM_SHEET_Y 56
+#define DM_TOOLTIP_Y (DM_DOCK_ICON_Y - DM_TOOLTIP_H - 4)
+#define DM_TOOLTIP_CAP 4
+#define DM_PREF_ROW_H 16
+#define DM_PREF_ROWS (DM_BODY_H / DM_PREF_ROW_H)
+
+
+/* Placements derived from the panel: the window is centred in the work area,
+ * the Dock sits on the bottom edge with its real shelf, and the desktop icons
+ * run down the right margin the way Finder arranges them.
+ */
+#define DM_WIN_X ((LCD_WIDTH - DM_WIN_W) / 2)
+#define DM_WIN_Y (DM_MENUBAR_H + (LCD_HEIGHT - DM_MENUBAR_H - \
+                                  DM_DOCK_BAND - DM_WIN_H) / 2)
+#define DM_DOCK_BAND (DM_DOCK_ICON + DM_DOCK_SHELF_H / 2)
+#define DM_DOCK_SHELF_X ((LCD_WIDTH - DM_DOCK_SHELF_W) / 2)
+#define DM_DOCK_SHELF_Y (LCD_HEIGHT - DM_DOCK_SHELF_H)
+#define DM_DOCK_ICON_Y (DM_DOCK_SHELF_Y - DM_DOCK_ICON / 2)
+#define DM_DOCK_LEFT \
+    ((LCD_WIDTH - DM_DOCK_SLOTS * DM_DOCK_STEP) / 2 + \
+     (DM_DOCK_STEP - DM_DOCK_ICON) / 2)
+#define DM_SCROLLER_H DM_BODY_H
+#define DM_DESKTOP_ICON_X (LCD_WIDTH - DM_DOCK_ICON - 10)
+#define DM_DESKTOP_DISK_Y (DM_MENUBAR_H + 9)
+#define DM_DESKTOP_DOCS_Y (DM_DESKTOP_DISK_Y + DM_DOCK_ICON + 26)
+#define DM_DESKTOP_MUSIC_Y (DM_DESKTOP_DOCS_Y + DM_DOCK_ICON + 26)
+
+/* Title-bar traffic lights, in the real 1:1 positions Apple drew them. */
+#define DM_TRAFFIC_RECT \
+    ((struct dm_rect){ DM_WIN_X + 8, DM_WIN_Y + 5, 62, 15 })
+#define DM_CLOSE_RECT \
+    ((struct dm_rect){ DM_WIN_X + 8, DM_WIN_Y + 5, 16, 15 })
+#define DM_MINIMISE_RECT \
+    ((struct dm_rect){ DM_WIN_X + 29, DM_WIN_Y + 5, 16, 15 })
+#define DM_ZOOM_RECT \
+    ((struct dm_rect){ DM_WIN_X + 50, DM_WIN_Y + 5, 16, 15 })
+#define DM_BACK_RECT \
+    ((struct dm_rect){ DM_WIN_X + 8, DM_WIN_Y + 26, 27, 21 })
+#define DM_FORWARD_RECT \
+    ((struct dm_rect){ DM_WIN_X + 35, DM_WIN_Y + 26, 27, 21 })
+
+/* Real Snow Leopard label colours, sampled from the same captures. */
+#define DM_INK LCD_RGBPACK(0, 0, 0)
+#define DM_INK_WHITE LCD_RGBPACK(255, 255, 255)
+#define DM_INK_TITLE LCD_RGBPACK(60, 60, 60)
+#define DM_INK_STATUS LCD_RGBPACK(70, 70, 70)
+#define DM_INK_SIDEBAR LCD_RGBPACK(40, 44, 50)
+#define DM_INK_SIDEBAR_HEAD LCD_RGBPACK(110, 120, 133)
+
+#define DM_DOUBLE_CLICK_TICKS (HZ * 35 / 100)
+#define DM_WHEEL_JITTER_COUNTS 2
+/* pointer movement carries sixteenths of a pixel between samples */
+#define DM_WHEEL_SUBPIXEL 16
+#define DM_ANIMATION_FRAMES 6
+#define DM_ANIMATION_TICKS (HZ * 3 / 10)
+#define DM_BOOT_FRAME_COUNT 12
+#define DM_BOOT_FRAME_TICKS MAX(1, HZ / 12)
+#define DM_BOOT_SPINNER_SIZE 24
+#define DM_BOOT_SPINNER_X ((LCD_WIDTH - DM_BOOT_SPINNER_SIZE) / 2)
+#define DM_BOOT_SPINNER_Y 151
+#define DM_INPUT_POLL_TICKS MAX(1, HZ / 50)
+#define DM_ABS(value) ((value) < 0 ? -(value) : (value))
+#define DM_APP_BIT(app) (1u << (unsigned int)(app))
+
+#if LCD_DEPTH < 16 || \
+    !((LCD_WIDTH == 320 && LCD_HEIGHT == 240) || \
+      (LCD_WIDTH == 1920 && LCD_HEIGHT == 1080))
+#define DM_UNSUPPORTED_TARGET
+#endif
+
+/* Opaque chrome arrives as RGB565 BMP; anything with a soft edge arrives as
+ * RGB565 plus Apple's own 8-bit coverage, because Desktop Mode composites it
+ * over real chrome rather than keying it out.
+ */
+enum dm_asset_id
 {
-    DM_MODE_DESKTOP = 0,
-    DM_MODE_EXPLORER,
-    DM_MODE_SETTINGS,
+    DM_ASSET_AURORA = 0,
+    DM_ASSET_MENUBAR,
+    DM_ASSET_APPLE_HIGHLIGHT,
+    DM_ASSET_DOCK_SHELF,
+    DM_ASSET_WINDOW_SIDEBAR,
+    DM_ASSET_WINDOW_PLAIN,
+    DM_ASSET_ITUNES_WINDOW,
+    DM_ASSET_ITUNES_SELECTION,
+    DM_ASSET_LIST_SELECTION,
+    DM_ASSET_SIDEBAR_SELECTION,
+    DM_ASSET_MENU_PANEL,
+    DM_ASSET_MENU_SELECTION,
+    DM_ASSET_CONTEXT_PANEL,
+    DM_ASSET_SHEET,
+    DM_ASSET_TOOLTIP,
+    DM_ASSET_SCROLLER_TRACK,
+    DM_ASSET_SCROLLER_THUMB,
+    DM_ASSET_BMP_COUNT,
+
+    DM_ASSET_DOCK_INDICATOR = DM_ASSET_BMP_COUNT,
+    DM_ASSET_CURSOR_ARROW,
+    DM_ASSET_CURSOR_HAND,
+    DM_ASSET_ICON_FINDER,
+    DM_ASSET_ICON_ITUNES,
+    DM_ASSET_ICON_PREVIEW,
+    DM_ASSET_ICON_TEXTEDIT,
+    DM_ASSET_ICON_CALCULATOR,
+    DM_ASSET_ICON_DIRECTV,
+    DM_ASSET_ICON_SITEKICK,
+#if LCD_WIDTH >= 1920
+    DM_ASSET_ICON_NETFLIX,
+#endif
+    DM_ASSET_ICON_PREFERENCES,
+    DM_ASSET_ICON_DASHBOARD,
+    DM_ASSET_ICON_DISK,
+    DM_ASSET_ICON_TRASH_EMPTY,
+    DM_ASSET_ICON_FOLDER_DESKTOP,
+    DM_ASSET_ICON_FOLDER,
+    DM_ASSET_ICON_DOCUMENT,
+    DM_ASSET_DOCK_FINDER_34,
+    DM_ASSET_DOCK_FINDER_38,
+    DM_ASSET_DOCK_ITUNES_34,
+    DM_ASSET_DOCK_ITUNES_38,
+    DM_ASSET_DOCK_PREVIEW_34,
+    DM_ASSET_DOCK_PREVIEW_38,
+    DM_ASSET_DOCK_TEXTEDIT_34,
+    DM_ASSET_DOCK_TEXTEDIT_38,
+    DM_ASSET_DOCK_CALCULATOR_34,
+    DM_ASSET_DOCK_CALCULATOR_38,
+    DM_ASSET_DOCK_DIRECTV_34,
+    DM_ASSET_DOCK_DIRECTV_38,
+    DM_ASSET_DOCK_SITEKICK_34,
+    DM_ASSET_DOCK_SITEKICK_38,
+#if LCD_WIDTH >= 1920
+    DM_ASSET_DOCK_NETFLIX_34,
+    DM_ASSET_DOCK_NETFLIX_38,
+#endif
+    DM_ASSET_DOCK_PREFERENCES_34,
+    DM_ASSET_DOCK_PREFERENCES_38,
+    DM_ASSET_DOCK_TRASH_34,
+    DM_ASSET_DOCK_TRASH_38,
+    DM_ASSET_COUNT
 };
 
-enum dm_start_item
+enum dm_font_id
 {
-    DM_START_APP_BASE = 0,
-    DM_START_FINDER = 100,
-    DM_START_SETTINGS,
-    DM_START_REFRESH,
-    DM_START_EXIT,
+    DM_FONT_REGULAR = 0,
+    DM_FONT_BOLD,
+    DM_FONT_SMALL,
+    DM_FONT_COUNT
 };
 
-enum dm_setting_item
+enum dm_app
 {
-    DM_SETTING_NOW_PLAYING = 0,
-    DM_SETTING_START_VIEW,
-    DM_SETTING_RETURN,
-    DM_SETTING_COUNT,
+    DM_APP_DESKTOP = 0,
+    DM_APP_FINDER,
+    DM_APP_ITUNES,
+    DM_APP_PHOTOS,
+    DM_APP_PREVIEW,
+    DM_APP_TEXTEDIT,
+    DM_APP_CALCULATOR,
+    DM_APP_DIRECTV,
+    DM_APP_SITEKICK,
+    DM_APP_NETFLIX,
+    DM_APP_PREFERENCES,
+    DM_APP_DASHBOARD,
+    DM_APP_TRASH,
 };
 
-struct dm_app
+enum dm_overlay
 {
-    const char *name;
-    const char *subtitle;
+    DM_OVERLAY_NONE = 0,
+    DM_OVERLAY_APPLE_MENU,
+    DM_OVERLAY_FINDER_CONTEXT,
+    DM_OVERLAY_GET_INFO,
+    DM_OVERLAY_RETURN_CONFIRM,
+    DM_OVERLAY_RESTART_CONFIRM,
+    DM_OVERLAY_DELETE_CONFIRM,
+    DM_OVERLAY_NEW_FOLDER_CONFIRM,
+};
+
+enum dm_boot_result
+{
+    DM_BOOT_ERROR = -1,
+    DM_BOOT_DONE = 0,
+    DM_BOOT_USB_CONNECTED = 1,
+};
+
+struct dm_asset_def
+{
     const char *path;
-    const char *param;
-    int glyph;
+    short width;
+    short height;
+};
+
+/* Opaque assets keep a plain RGB565 plane; coverage assets keep Apple's
+ * 8-bit alpha beside it so the compositor can blend real soft edges.
+ */
+struct dm_asset
+{
+    fb_data *pixels;
+    unsigned char *coverage;
+    short width;
+    short height;
+    bool loaded;
+};
+
+struct dm_font_def
+{
+    const char *coverage;
+    const char *metrics;
+};
+
+struct dm_font
+{
+    unsigned char *coverage;
+    unsigned char advance[DM_ASCII_COUNT];
+    unsigned char cell_w;
+    unsigned char cell_h;
+    unsigned char ascent;
+    bool loaded;
 };
 
 struct dm_file
 {
     char name[MAX_PATH];
     bool is_dir;
-};
-
-struct dm_settings
-{
-    bool show_now_playing;
-    bool start_in_finder;
+    off_t size;
+    time_t mtime;
 };
 
 struct dm_rect
 {
     int x;
     int y;
-    int w;
-    int h;
+    int width;
+    int height;
 };
 
+struct dm_settings
+{
+    int pointer_speed;
+    bool reverse_wheel;
+    bool show_desktop_folders;
+    bool drag_lock;
+    bool restore_session;
+    enum dm_app start_app;
+};
+
+struct dm_animation
+{
+    bool active;
+    bool minimizing;
+    enum dm_app app;
+    long started;
+    int last_frame;
+    struct dm_rect current;
+    struct dm_rect from;
+    struct dm_rect to;
+};
+
+struct dm_state
+{
+    enum dm_app app;
+    enum dm_overlay overlay;
+    int cursor_x;
+    int cursor_y;
+    int hover_dock;
+    int hover_row;
+    int menu_row;
+    int preference_row;
+    int last_wheel;
+    int wheel_velocity;
+    int wheel_direction;
+    long last_wheel_tick;
+    long last_status_tick;
+    enum dm_app minimized_app;
+    unsigned int running_apps;
+    struct dm_animation animation;
+    bool mouse_down;
+    bool dragged;
+    long mouse_down_tick;
+    long last_click_tick;
+    int last_click_x;
+    int last_click_y;
+    bool running;
+    bool redraw;
+    /* Absolute-wheel targets steer the pointer directly.  Anything that never
+     * reports a wheel contact - the simulator, or a future target without
+     * HAVE_WHEEL_POSITION - falls back to four-direction pointer motion.
+     */
+    bool wheel_available;
+    long hint_until;
+    /* Rockpod parity session: the host's own mouse drives the pointer. */
+    bool host_pointer;
+    bool host_secondary;
+    bool host_context;
+    int host_click;
+    long host_poll_tick;
+    /* Held-touch pointer glide, in sixteenths of a pixel. */
+    long glide_since;
+    long glide_tick;
+    long glide_emit;
+    long contact_tick;
+    int glide_x;
+    int glide_y;
+    int frac_x;
+    int frac_y;
+    /* Continuous motion for a currently-held direction button (four-way
+     * fallback, or the one-pixel nudge alongside an available wheel).  The
+     * button driver's own press/repeat/release cadence is too coarse to
+     * glide from directly - repeats arrive in bursts, with a long initial
+     * gap - so a hold is timed here instead and advanced every loop tick,
+     * the same way a wheel drag glides in dm_glide_wheel().
+     */
+    int held_dir_x;
+    int held_dir_y;
+    long held_seen_tick;
+    long held_emit_tick;
+};
+
+static const struct dm_asset_def dm_asset_defs[DM_ASSET_COUNT] =
+{
+    [DM_ASSET_AURORA] = { DM_F_AURORA, LCD_WIDTH, LCD_HEIGHT },
+    [DM_ASSET_MENUBAR] = { DM_F_MENUBAR, LCD_WIDTH, DM_MENUBAR_H },
+    [DM_ASSET_APPLE_HIGHLIGHT] = { DM_F_APPLE_HL, 22, DM_MENUBAR_H },
+    [DM_ASSET_DOCK_SHELF] =
+        { DM_F_DOCK_SHELF, DM_DOCK_SHELF_W, DM_DOCK_SHELF_H },
+    [DM_ASSET_WINDOW_SIDEBAR] = { DM_F_WIN_SIDEBAR, DM_WIN_W, DM_WIN_H },
+    [DM_ASSET_WINDOW_PLAIN] = { DM_F_WIN_PLAIN, DM_WIN_W, DM_WIN_H },
+    [DM_ASSET_ITUNES_WINDOW] =
+        { DM_F_ITUNES_WIN, DM_ITUNES_W, DM_ITUNES_ASSET_H },
+    [DM_ASSET_ITUNES_SELECTION] = { DM_F_ITUNES_SEL, DM_ITUNES_W, 17 },
+    [DM_ASSET_LIST_SELECTION] = { DM_F_LIST_SEL, DM_LIST_SEL_W, 19 },
+    [DM_ASSET_SIDEBAR_SELECTION] =
+        { DM_F_SIDEBAR_SEL, DM_WIN_SIDEBAR_W, 19 },
+    [DM_ASSET_MENU_PANEL] = { DM_F_MENU_PANEL, DM_MENU_W, DM_MENU_H },
+    [DM_ASSET_MENU_SELECTION] = { DM_F_MENU_SEL, DM_MENU_W - 2, 19 },
+    [DM_ASSET_CONTEXT_PANEL] = { DM_F_CONTEXT, DM_CONTEXT_W, DM_CONTEXT_H },
+    [DM_ASSET_SHEET] = { DM_F_SHEET, DM_SHEET_W, DM_SHEET_H },
+    [DM_ASSET_TOOLTIP] = { DM_F_TOOLTIP, DM_TOOLTIP_W, DM_TOOLTIP_H },
+    [DM_ASSET_SCROLLER_TRACK] =
+        { DM_F_SCROLL_TRACK, 16, DM_SCROLLER_H_ASSET },
+    [DM_ASSET_SCROLLER_THUMB] =
+        { DM_F_SCROLL_THUMB, 16, DM_SCROLLER_THUMB_H },
+    [DM_ASSET_DOCK_INDICATOR] =
+        { DM_ASSET_DIR "/desktop/dock-indicator.14x8.rga", 14, 8 },
+    [DM_ASSET_CURSOR_ARROW] =
+        { DM_ASSET_DIR "/cursor/arrow.14x20.rga", 14, 20 },
+    [DM_ASSET_CURSOR_HAND] =
+        { DM_ASSET_DIR "/cursor/pointing-hand.16x18.rga", 16, 18 },
+    [DM_ASSET_ICON_FINDER] = { DM_F_ICON_FINDER, DM_DOCK_ICON, DM_DOCK_ICON },
+    [DM_ASSET_ICON_ITUNES] = { DM_F_ICON_ITUNES, DM_DOCK_ICON, DM_DOCK_ICON },
+    [DM_ASSET_ICON_PREVIEW] =
+        { DM_F_ICON_PREVIEW, DM_DOCK_ICON, DM_DOCK_ICON },
+    [DM_ASSET_ICON_TEXTEDIT] =
+        { DM_F_ICON_TEXTEDIT, DM_DOCK_ICON, DM_DOCK_ICON },
+    [DM_ASSET_ICON_CALCULATOR] =
+        { DM_F_ICON_CALCULATOR, DM_DOCK_ICON, DM_DOCK_ICON },
+    [DM_ASSET_ICON_DIRECTV] =
+        { DM_F_ICON_DIRECTV, DM_DOCK_ICON, DM_DOCK_ICON },
+    [DM_ASSET_ICON_SITEKICK] =
+        { DM_F_ICON_SITEKICK, DM_DOCK_ICON, DM_DOCK_ICON },
+#if LCD_WIDTH >= 1920
+    [DM_ASSET_ICON_NETFLIX] =
+        { DM_F_ICON_NETFLIX, DM_DOCK_ICON, DM_DOCK_ICON },
+#endif
+    [DM_ASSET_ICON_PREFERENCES] =
+        { DM_F_ICON_SYSTEM_PREFERENCES, DM_DOCK_ICON, DM_DOCK_ICON },
+    [DM_ASSET_ICON_DASHBOARD] =
+        { DM_F_ICON_DASHBOARD, DM_DOCK_ICON, DM_DOCK_ICON },
+    [DM_ASSET_ICON_DISK] = { DM_F_ICON_DISK, DM_DOCK_ICON, DM_DOCK_ICON },
+    [DM_ASSET_ICON_TRASH_EMPTY] =
+        { DM_F_ICON_TRASH_EMPTY, DM_DOCK_ICON, DM_DOCK_ICON },
+    [DM_ASSET_ICON_FOLDER_DESKTOP] =
+        { DM_F_ICON_FOLDER_DESKTOP, DM_DOCK_ICON, DM_DOCK_ICON },
+    [DM_ASSET_ICON_FOLDER] =
+        { DM_F_ICON_FOLDER, DM_ICON_SMALL, DM_ICON_SMALL },
+    [DM_ASSET_ICON_DOCUMENT] =
+        { DM_F_ICON_DOCUMENT, DM_ICON_SMALL, DM_ICON_SMALL },
+    [DM_ASSET_DOCK_FINDER_34] =
+        { DM_F_DOCK_FINDER_A, DM_DOCK_MAG_A, DM_DOCK_MAG_A },
+    [DM_ASSET_DOCK_FINDER_38] =
+        { DM_F_DOCK_FINDER_B, DM_DOCK_MAG_B, DM_DOCK_MAG_B },
+    [DM_ASSET_DOCK_ITUNES_34] =
+        { DM_F_DOCK_ITUNES_A, DM_DOCK_MAG_A, DM_DOCK_MAG_A },
+    [DM_ASSET_DOCK_ITUNES_38] =
+        { DM_F_DOCK_ITUNES_B, DM_DOCK_MAG_B, DM_DOCK_MAG_B },
+    [DM_ASSET_DOCK_PREVIEW_34] =
+        { DM_F_DOCK_PREVIEW_A, DM_DOCK_MAG_A, DM_DOCK_MAG_A },
+    [DM_ASSET_DOCK_PREVIEW_38] =
+        { DM_F_DOCK_PREVIEW_B, DM_DOCK_MAG_B, DM_DOCK_MAG_B },
+    [DM_ASSET_DOCK_TEXTEDIT_34] =
+        { DM_F_DOCK_TEXTEDIT_A, DM_DOCK_MAG_A, DM_DOCK_MAG_A },
+    [DM_ASSET_DOCK_TEXTEDIT_38] =
+        { DM_F_DOCK_TEXTEDIT_B, DM_DOCK_MAG_B, DM_DOCK_MAG_B },
+    [DM_ASSET_DOCK_CALCULATOR_34] =
+        { DM_F_DOCK_CALCULATOR_A, DM_DOCK_MAG_A, DM_DOCK_MAG_A },
+    [DM_ASSET_DOCK_CALCULATOR_38] =
+        { DM_F_DOCK_CALCULATOR_B, DM_DOCK_MAG_B, DM_DOCK_MAG_B },
+    [DM_ASSET_DOCK_DIRECTV_34] =
+        { DM_F_DOCK_DIRECTV_A, DM_DOCK_MAG_A, DM_DOCK_MAG_A },
+    [DM_ASSET_DOCK_DIRECTV_38] =
+        { DM_F_DOCK_DIRECTV_B, DM_DOCK_MAG_B, DM_DOCK_MAG_B },
+    [DM_ASSET_DOCK_SITEKICK_34] =
+        { DM_F_DOCK_SITEKICK_A, DM_DOCK_MAG_A, DM_DOCK_MAG_A },
+    [DM_ASSET_DOCK_SITEKICK_38] =
+        { DM_F_DOCK_SITEKICK_B, DM_DOCK_MAG_B, DM_DOCK_MAG_B },
+#if LCD_WIDTH >= 1920
+    [DM_ASSET_DOCK_NETFLIX_34] =
+        { DM_F_DOCK_NETFLIX_A, DM_DOCK_MAG_A, DM_DOCK_MAG_A },
+    [DM_ASSET_DOCK_NETFLIX_38] =
+        { DM_F_DOCK_NETFLIX_B, DM_DOCK_MAG_B, DM_DOCK_MAG_B },
+#endif
+    [DM_ASSET_DOCK_PREFERENCES_34] =
+        { DM_F_DOCK_SYSTEM_PREFERENCES_A, DM_DOCK_MAG_A, DM_DOCK_MAG_A },
+    [DM_ASSET_DOCK_PREFERENCES_38] =
+        { DM_F_DOCK_SYSTEM_PREFERENCES_B, DM_DOCK_MAG_B, DM_DOCK_MAG_B },
+    [DM_ASSET_DOCK_TRASH_34] =
+        { DM_F_DOCK_TRASH_EMPTY_A, DM_DOCK_MAG_A, DM_DOCK_MAG_A },
+    [DM_ASSET_DOCK_TRASH_38] =
+        { DM_F_DOCK_TRASH_EMPTY_B, DM_DOCK_MAG_B, DM_DOCK_MAG_B },
+};
+
+static const struct dm_font_def dm_font_defs[DM_FONT_COUNT] =
+{
+    [DM_FONT_REGULAR] =
+        { DM_ASSET_DIR "/fonts/lucida-grande-11.alpha",
+          DM_ASSET_DIR "/fonts/lucida-grande-11.metrics" },
+    [DM_FONT_BOLD] =
+        { DM_ASSET_DIR "/fonts/lucida-grande-bold-11.alpha",
+          DM_ASSET_DIR "/fonts/lucida-grande-bold-11.metrics" },
+    [DM_FONT_SMALL] =
+        { DM_ASSET_DIR "/fonts/lucida-grande-9.alpha",
+          DM_ASSET_DIR "/fonts/lucida-grande-9.metrics" },
+};
+
+static const char dm_boot_background_path[] = DM_F_BOOT_BACKGROUND;
+
+static const char * const dm_boot_spinner_paths[DM_BOOT_FRAME_COUNT] =
+{
+    DM_ASSET_DIR "/boot/spinner-00.24x24x16.bmp",
+    DM_ASSET_DIR "/boot/spinner-01.24x24x16.bmp",
+    DM_ASSET_DIR "/boot/spinner-02.24x24x16.bmp",
+    DM_ASSET_DIR "/boot/spinner-03.24x24x16.bmp",
+    DM_ASSET_DIR "/boot/spinner-04.24x24x16.bmp",
+    DM_ASSET_DIR "/boot/spinner-05.24x24x16.bmp",
+    DM_ASSET_DIR "/boot/spinner-06.24x24x16.bmp",
+    DM_ASSET_DIR "/boot/spinner-07.24x24x16.bmp",
+    DM_ASSET_DIR "/boot/spinner-08.24x24x16.bmp",
+    DM_ASSET_DIR "/boot/spinner-09.24x24x16.bmp",
+    DM_ASSET_DIR "/boot/spinner-10.24x24x16.bmp",
+    DM_ASSET_DIR "/boot/spinner-11.24x24x16.bmp",
+};
+
+/* OS icons come from the owned Snow Leopard source. DIRECTV comes from the
+ * user's Live TV artwork. Sitekick's icon ships with its GPL asset pack so
+ * the desktop shell and the ordinary iPod plugin use the same robot art. */
+static const enum dm_asset_id dm_dock_assets[DM_DOCK_SLOTS] =
+{
+    DM_ASSET_ICON_FINDER,
+    DM_ASSET_ICON_ITUNES,
+    DM_ASSET_ICON_PREVIEW,
+    DM_ASSET_ICON_TEXTEDIT,
+    DM_ASSET_ICON_CALCULATOR,
+    DM_ASSET_ICON_DIRECTV,
+    DM_ASSET_ICON_SITEKICK,
+#if LCD_WIDTH >= 1920
+    DM_ASSET_ICON_NETFLIX,
+#endif
+    DM_ASSET_ICON_PREFERENCES,
+    DM_ASSET_ICON_TRASH_EMPTY,
+};
+
+static const enum dm_asset_id dm_dock_assets_34[DM_DOCK_SLOTS] =
+{
+    DM_ASSET_DOCK_FINDER_34,
+    DM_ASSET_DOCK_ITUNES_34,
+    DM_ASSET_DOCK_PREVIEW_34,
+    DM_ASSET_DOCK_TEXTEDIT_34,
+    DM_ASSET_DOCK_CALCULATOR_34,
+    DM_ASSET_DOCK_DIRECTV_34,
+    DM_ASSET_DOCK_SITEKICK_34,
+#if LCD_WIDTH >= 1920
+    DM_ASSET_DOCK_NETFLIX_34,
+#endif
+    DM_ASSET_DOCK_PREFERENCES_34,
+    DM_ASSET_DOCK_TRASH_34,
+};
+
+static const enum dm_asset_id dm_dock_assets_38[DM_DOCK_SLOTS] =
+{
+    DM_ASSET_DOCK_FINDER_38,
+    DM_ASSET_DOCK_ITUNES_38,
+    DM_ASSET_DOCK_PREVIEW_38,
+    DM_ASSET_DOCK_TEXTEDIT_38,
+    DM_ASSET_DOCK_CALCULATOR_38,
+    DM_ASSET_DOCK_DIRECTV_38,
+    DM_ASSET_DOCK_SITEKICK_38,
+#if LCD_WIDTH >= 1920
+    DM_ASSET_DOCK_NETFLIX_38,
+#endif
+    DM_ASSET_DOCK_PREFERENCES_38,
+    DM_ASSET_DOCK_TRASH_38,
+};
+
+static const enum dm_app dm_dock_apps[DM_DOCK_SLOTS] =
+{
+    DM_APP_FINDER,
+    DM_APP_ITUNES,
+    DM_APP_PREVIEW,
+    DM_APP_TEXTEDIT,
+    DM_APP_CALCULATOR,
+    DM_APP_DIRECTV,
+    DM_APP_SITEKICK,
+#if LCD_WIDTH >= 1920
+    DM_APP_NETFLIX,
+#endif
+    DM_APP_PREFERENCES,
+    DM_APP_TRASH,
+};
+
+static const char * const dm_dock_labels[DM_DOCK_SLOTS] =
+{
+    "Finder", "iTunes", "Preview", "TextEdit", "Calculator", "DIRECTV",
+    "Sitekick",
+#if LCD_WIDTH >= 1920
+    "Netflix",
+#endif
+    "System Preferences", "Trash"
+};
+
+static const char * const dm_apple_menu_labels[DM_APPLE_MENU_ROWS] =
+{
+    "About This iPod",
+    "System Preferences...",
+    "Recent Items",
+    "Sleep Display",
+    "Restart Rockbox...",
+    "Return to iPod..."
+};
+
+static const char * const dm_context_labels[DM_CONTEXT_ROWS] =
+{
+    "Get Info",
+    "New Folder...",
+    "Delete..."
+};
+
+static struct dm_asset dm_assets[DM_ASSET_COUNT];
+static struct dm_font dm_fonts[DM_FONT_COUNT];
+static fb_data *dm_canvas;
 static struct dm_settings dm_settings =
 {
-    true,
-    false,
+    .pointer_speed = 2,
+    .reverse_wheel = false,
+    .show_desktop_folders = true,
+    .drag_lock = false,
+    .restore_session = true,
+    .start_app = DM_APP_DESKTOP,
 };
-
-static const struct dm_app dm_apps[] =
-{
-    { "My Files", "Browse the disk", NULL, NULL, 0 },
-    { "Notepad", "Text editor", PLUGIN_APPS_DIR "/text_editor.rock", NULL, 1 },
-    { "Calendar", "Month view", PLUGIN_APPS_DIR "/calendar.rock", NULL, 2 },
-    { "Calculator", "Desk accessory", PLUGIN_APPS_DIR "/calculator.rock",
-      NULL, 3 },
-    { "My Pictures", "Photo library", PLUGIN_APPS_DIR "/photos.rock",
-      NULL, 4 },
-    { "Game Boy", "Rockboy launcher", PLUGIN_GAMES_DIR "/rockboy_launcher.rock",
-      NULL, 5 },
-    { "PokeMini", "Tiny console", PLUGIN_GAMES_DIR "/pokemini_launcher.rock",
-      NULL, 6 },
-    { "Plugins", "All programs", VIEWERS_DIR "/open_plugins.rock", NULL, 7 },
-    { "System Info", "About this iPod", PLUGIN_DEMOS_DIR "/rb_info.rock",
-      NULL, 8 },
-};
-
 static struct dm_file dm_files[DM_MAX_FILES];
 static int dm_file_count;
-static int dm_file_sel;
+static int dm_file_selected;
 static int dm_file_top;
-static char dm_cwd[MAX_PATH] = "/";
-static enum dm_mode dm_settings_return_mode = DM_MODE_DESKTOP;
-static int dm_cursor_x = LCD_WIDTH / 2;
-static int dm_cursor_y = LCD_HEIGHT / 2;
-static int dm_selected_app;
-static int dm_setting_sel;
-static int dm_start_sel = DM_START_FINDER;
-static struct bitmap dm_wallpaper_bmp;
-static unsigned char *dm_wallpaper_data;
-static size_t dm_wallpaper_data_size;
-static bool dm_wallpaper_loaded;
 
-static bool dm_config_bool(const char *value)
+enum dm_itunes_source
 {
-    return !rb->strcasecmp(value, "1") ||
-           !rb->strcasecmp(value, "on") ||
-           !rb->strcasecmp(value, "yes") ||
-           !rb->strcasecmp(value, "true");
+    DM_ITUNES_ALBUMS = 0,
+    DM_ITUNES_ARTISTS,
+    DM_ITUNES_SONGS,
+    DM_ITUNES_VIDEOS,
+    DM_ITUNES_SOURCE_COUNT
+};
+
+#define DM_ITUNES_PAGE_MAX 32
+#define DM_ITUNES_TITLE_MAX 96
+#define DM_ITUNES_DETAIL_MAX 64
+#define DM_ITUNES_VIDEO_INDEX ROCKBOX_DIR "/videolist/index.tsv"
+
+struct dm_itunes_row
+{
+    char title[DM_ITUNES_TITLE_MAX];
+    char artist[DM_ITUNES_DETAIL_MAX];
+    char album[DM_ITUNES_DETAIL_MAX];
+    char path[MAX_PATH];
+    unsigned long duration;
+    int idxid;
+    int32_t seek;
+};
+
+static struct dm_itunes_row dm_itunes_rows[DM_ITUNES_PAGE_MAX];
+static enum dm_itunes_source dm_itunes_source = DM_ITUNES_SONGS;
+static int dm_itunes_count;
+static int dm_itunes_total;
+static int dm_itunes_page_top;
+static bool dm_itunes_database_pending;
+static bool dm_itunes_has_more;
+static bool dm_itunes_total_known;
+#ifdef HAVE_TAGCACHE
+static uint32_t dm_itunes_uniqbuf[2048];
+#endif
+static char dm_cwd[MAX_PATH] = "/";
+#define DM_HISTORY_COUNT 8
+static char dm_history[DM_HISTORY_COUNT][MAX_PATH];
+static int dm_history_count;
+static int dm_history_index;
+static enum dm_app dm_saved_app = DM_APP_DESKTOP;
+static int dm_saved_cursor_x = LCD_WIDTH / 2;
+static int dm_saved_cursor_y = LCD_HEIGHT / 2;
+static unsigned char *dm_arena;
+static size_t dm_arena_left;
+
+static bool dm_point_in_rect(int x, int y, struct dm_rect rect)
+{
+    return x >= rect.x && x < rect.x + rect.width &&
+           y >= rect.y && y < rect.y + rect.height;
 }
 
-static void dm_load_settings(void)
+static void *dm_alloc(size_t bytes)
 {
-    char line[64];
-    int fd = rb->open(DM_CONFIG_FILE, O_RDONLY);
+    size_t aligned = ALIGN_UP(bytes, 4);
+    void *result;
 
-    if (fd < 0)
-        return;
+    if (!dm_arena || aligned > dm_arena_left)
+        return NULL;
+    result = dm_arena;
+    dm_arena += aligned;
+    dm_arena_left -= aligned;
+    return result;
+}
 
-    while (rb->read_line(fd, line, sizeof(line)) > 0)
+static bool dm_asset_files_present(void)
+{
+    int id;
+    int frame;
+
+    if (!rb->file_exists(DM_MANIFEST_FILE))
     {
-        char *name = NULL;
-        char *value = NULL;
+        DEBUGF("desktop mode: missing %s\n", DM_MANIFEST_FILE);
+        return false;
+    }
+    for (id = 0; id < DM_ASSET_COUNT; id++)
+    {
+        if (!rb->file_exists(dm_asset_defs[id].path))
+        {
+            DEBUGF("desktop mode: missing asset %d %s\n",
+                   id, dm_asset_defs[id].path);
+            return false;
+        }
+    }
+    if (!rb->file_exists(dm_boot_background_path))
+        return false;
+    for (frame = 0; frame < DM_BOOT_FRAME_COUNT; frame++)
+    {
+        if (!rb->file_exists(dm_boot_spinner_paths[frame]))
+            return false;
+    }
+    for (id = 0; id < DM_FONT_COUNT; id++)
+    {
+        if (!rb->file_exists(dm_font_defs[id].coverage) ||
+            !rb->file_exists(dm_font_defs[id].metrics))
+            return false;
+    }
+    return true;
+}
 
-        if (!rb->settings_parseline(line, &name, &value))
-            continue;
-        if (!name || !value)
-            continue;
+static enum dm_boot_result dm_show_boot_animation(void)
+{
+    struct bitmap background;
+    struct bitmap spinners[DM_BOOT_FRAME_COUNT];
+    unsigned char *arena;
+    size_t buffer_size;
+    size_t background_bytes =
+        BM_SIZE(LCD_WIDTH, LCD_HEIGHT, FORMAT_NATIVE, false);
+    size_t spinner_bytes =
+        BM_SIZE(DM_BOOT_SPINNER_SIZE, DM_BOOT_SPINNER_SIZE,
+                FORMAT_NATIVE, false);
+    int frame;
 
-        if (!rb->strcmp(name, "show now playing"))
-            dm_settings.show_now_playing = dm_config_bool(value);
-        else if (!rb->strcmp(name, "start in finder"))
-            dm_settings.start_in_finder = dm_config_bool(value);
+    if (!dm_asset_files_present())
+        return DM_BOOT_ERROR;
+    arena = rb->plugin_get_buffer(&buffer_size);
+    if (!arena ||
+        buffer_size < background_bytes +
+                      spinner_bytes * DM_BOOT_FRAME_COUNT)
+        return DM_BOOT_ERROR;
+
+    rb->memset(&background, 0, sizeof(background));
+    background.width = LCD_WIDTH;
+    background.height = LCD_HEIGHT;
+    background.format = FORMAT_NATIVE;
+    background.data = arena;
+    arena += ALIGN_UP(background_bytes, 4);
+    if (rb->read_bmp_file(
+            dm_boot_background_path, &background, background_bytes,
+            FORMAT_NATIVE, NULL) <= 0 ||
+        background.width != LCD_WIDTH ||
+        background.height != LCD_HEIGHT)
+        return DM_BOOT_ERROR;
+
+    for (frame = 0; frame < DM_BOOT_FRAME_COUNT; frame++)
+    {
+        struct bitmap *spinner = &spinners[frame];
+
+        rb->memset(spinner, 0, sizeof(*spinner));
+        spinner->width = DM_BOOT_SPINNER_SIZE;
+        spinner->height = DM_BOOT_SPINNER_SIZE;
+        spinner->format = FORMAT_NATIVE;
+        spinner->data = arena;
+        arena += ALIGN_UP(spinner_bytes, 4);
+        if (rb->read_bmp_file(
+                dm_boot_spinner_paths[frame], spinner, spinner_bytes,
+                FORMAT_NATIVE, NULL) <= 0 ||
+            spinner->width != DM_BOOT_SPINNER_SIZE ||
+            spinner->height != DM_BOOT_SPINNER_SIZE)
+            return DM_BOOT_ERROR;
     }
 
-    rb->close(fd);
+    while (true)
+    {
+        long button = rb->button_get(false);
+
+        if (button == BUTTON_NONE)
+            break;
+        if (rb->default_event_handler(button) == SYS_USB_CONNECTED)
+            return DM_BOOT_USB_CONNECTED;
+    }
+
+    for (frame = 0; frame < DM_BOOT_FRAME_COUNT; frame++)
+    {
+        long deadline;
+
+        rb->lcd_bitmap(
+            (const fb_data *)background.data,
+            0, 0, LCD_WIDTH, LCD_HEIGHT);
+        rb->lcd_bitmap(
+            (const fb_data *)spinners[frame].data,
+            DM_BOOT_SPINNER_X, DM_BOOT_SPINNER_Y,
+            DM_BOOT_SPINNER_SIZE, DM_BOOT_SPINNER_SIZE);
+        rb->lcd_update();
+        deadline = *rb->current_tick + DM_BOOT_FRAME_TICKS;
+        while (TIME_BEFORE(*rb->current_tick, deadline))
+        {
+            long button = rb->button_get_w_tmo(
+                MAX(1, deadline - *rb->current_tick));
+
+            if (button != BUTTON_NONE)
+            {
+                if (rb->default_event_handler(button) == SYS_USB_CONNECTED)
+                    return DM_BOOT_USB_CONNECTED;
+                rb->button_clear_queue();
+                return DM_BOOT_DONE;
+            }
+            if (rb->button_hold())
+                return DM_BOOT_DONE;
+        }
+    }
+    rb->button_clear_queue();
+    return DM_BOOT_DONE;
 }
 
-static void dm_save_settings(void)
+static bool dm_read_exact(const char *path, void *buffer, size_t bytes)
 {
-    char buf[96];
-    int len;
+    int fd = rb->open(path, O_RDONLY);
+    ssize_t read_bytes;
+
+    if (fd < 0)
+        return false;
+    read_bytes = rb->read(fd, buffer, bytes);
+    rb->close(fd);
+    return read_bytes == (ssize_t)bytes;
+}
+
+static bool dm_load_bmp_asset(enum dm_asset_id id)
+{
+    const struct dm_asset_def *def = &dm_asset_defs[id];
+    struct dm_asset *asset = &dm_assets[id];
+    struct bitmap bitmap;
+    size_t bytes = BM_SIZE(def->width, def->height, FORMAT_NATIVE, false);
+    void *data = dm_alloc(bytes);
+
+    if (!data)
+        return false;
+    rb->memset(&bitmap, 0, sizeof(bitmap));
+    bitmap.width = def->width;
+    bitmap.height = def->height;
+    bitmap.format = FORMAT_NATIVE;
+    bitmap.data = data;
+    if (rb->read_bmp_file(def->path, &bitmap, bytes, FORMAT_NATIVE, NULL) <= 0 ||
+        bitmap.width != def->width || bitmap.height != def->height)
+        return false;
+    asset->pixels = (fb_data *)data;
+    asset->coverage = NULL;
+    asset->width = def->width;
+    asset->height = def->height;
+    asset->loaded = true;
+    return true;
+}
+
+/* RGA1: "RGA1", uint16 width, uint16 height, then width*height triples of
+ * little-endian RGB565 plus Apple's 8-bit coverage.
+ */
+static bool dm_load_rga_asset(enum dm_asset_id id)
+{
+    const struct dm_asset_def *def = &dm_asset_defs[id];
+    struct dm_asset *asset = &dm_assets[id];
+    int count = def->width * def->height;
+    unsigned char header[8];
+    unsigned char triple[3];
+    fb_data *pixels = dm_alloc((size_t)count * sizeof(fb_data));
+    unsigned char *coverage = dm_alloc((size_t)count);
     int fd;
+    int index;
+
+    if (!pixels || !coverage)
+        return false;
+    fd = rb->open(def->path, O_RDONLY);
+    if (fd < 0)
+        return false;
+    if (rb->read(fd, header, sizeof(header)) != (ssize_t)sizeof(header) ||
+        header[0] != 'R' || header[1] != 'G' || header[2] != 'A' ||
+        header[3] != '1' ||
+        (header[4] | (header[5] << 8)) != def->width ||
+        (header[6] | (header[7] << 8)) != def->height)
+    {
+        rb->close(fd);
+        return false;
+    }
+    for (index = 0; index < count; index++)
+    {
+        if (rb->read(fd, triple, sizeof(triple)) != (ssize_t)sizeof(triple))
+        {
+            rb->close(fd);
+            return false;
+        }
+        pixels[index] = (fb_data)(triple[0] | (triple[1] << 8));
+        coverage[index] = triple[2];
+    }
+    rb->close(fd);
+    asset->pixels = pixels;
+    asset->coverage = coverage;
+    asset->width = def->width;
+    asset->height = def->height;
+    asset->loaded = true;
+    return true;
+}
+
+/* DMF1: "DMF1", cell width, cell height, ascent, glyph count, then one
+ * advance per glyph.  Every glyph shares the same baseline inside its cell
+ * and starts at the pen position, so drawing is a blit at the pen and a step
+ * by the advance.
+ */
+static bool dm_load_font(enum dm_font_id id)
+{
+    const struct dm_font_def *def = &dm_font_defs[id];
+    struct dm_font *font = &dm_fonts[id];
+    unsigned char metrics[8 + DM_ASCII_COUNT];
+    size_t bytes;
+
+    if (!dm_read_exact(def->metrics, metrics, sizeof(metrics)))
+        return false;
+    if (metrics[0] != 'D' || metrics[1] != 'M' || metrics[2] != 'F' ||
+        metrics[3] != '1' || metrics[7] != DM_ASCII_COUNT)
+        return false;
+    font->cell_w = metrics[4];
+    font->cell_h = metrics[5];
+    font->ascent = metrics[6];
+    if (font->cell_w == 0 || font->cell_h == 0)
+        return false;
+    rb->memcpy(font->advance, metrics + 8, DM_ASCII_COUNT);
+    bytes = (size_t)font->cell_w * DM_FONT_COLUMNS *
+            (size_t)font->cell_h * DM_FONT_ROWS;
+    font->coverage = dm_alloc(bytes);
+    if (!font->coverage || !dm_read_exact(def->coverage, font->coverage, bytes))
+        return false;
+    font->loaded = true;
+    return true;
+}
+
+static bool dm_load_assets(void)
+{
+    int id;
+    size_t size;
+
+    if (!dm_asset_files_present())
+        return false;
+    dm_arena = rb->plugin_get_buffer(&size);
+    dm_arena_left = size;
+    if (!dm_arena)
+        return false;
+
+    dm_canvas = dm_alloc((size_t)LCD_WIDTH * LCD_HEIGHT * sizeof(fb_data));
+    if (!dm_canvas)
+        return false;
+    for (id = 0; id < DM_ASSET_COUNT; id++)
+    {
+        bool ok = id < DM_ASSET_BMP_COUNT ?
+                      dm_load_bmp_asset((enum dm_asset_id)id) :
+                      dm_load_rga_asset((enum dm_asset_id)id);
+
+        if (!ok)
+            return false;
+    }
+    for (id = 0; id < DM_FONT_COUNT; id++)
+    {
+        if (!dm_load_font((enum dm_font_id)id))
+            return false;
+    }
+    return true;
+}
+
+/* ------------------------------------------------------------------ */
+/* Compositor                                                          */
+/*                                                                     */
+/* Every frame is assembled in one off-screen RGB565 plane and handed  */
+/* to the LCD once.  The plugin API exposes no framebuffer, and real   */
+/* Snow Leopard chrome is full of soft edges and antialiased Lucida    */
+/* Grande, so the shell needs somewhere it can read back what it has   */
+/* already drawn in order to blend over it.                            */
+/* ------------------------------------------------------------------ */
+
+static inline fb_data dm_blend(fb_data destination, fb_data source,
+                               unsigned int coverage)
+{
+    unsigned int alpha = coverage + (coverage >> 7);
+    unsigned int inverse = 256 - alpha;
+    unsigned int red =
+        ((source >> 11) * alpha + (destination >> 11) * inverse) >> 8;
+    unsigned int green =
+        (((source >> 5) & 0x3f) * alpha +
+         ((destination >> 5) & 0x3f) * inverse) >> 8;
+    unsigned int blue =
+        ((source & 0x1f) * alpha + (destination & 0x1f) * inverse) >> 8;
+
+    return (fb_data)((red << 11) | (green << 5) | blue);
+}
+
+static void dm_blit(enum dm_asset_id id, int x, int y)
+{
+    const struct dm_asset *asset = &dm_assets[id];
+    int row;
+    int width;
+    int height;
+
+    if (!asset->loaded)
+        return;
+    width = MIN(asset->width, LCD_WIDTH - x);
+    height = MIN(asset->height, LCD_HEIGHT - y);
+    if (x < 0 || y < 0 || width <= 0 || height <= 0)
+        return;
+    for (row = 0; row < height; row++)
+        rb->memcpy(dm_canvas + (y + row) * LCD_WIDTH + x,
+                   asset->pixels + row * asset->width,
+                   (size_t)width * sizeof(fb_data));
+}
+
+static void dm_blit_part(enum dm_asset_id id, int x, int y, int width)
+{
+    const struct dm_asset *asset = &dm_assets[id];
+    int row;
+    int height;
+
+    if (!asset->loaded)
+        return;
+    width = MIN(MIN(width, asset->width), LCD_WIDTH - x);
+    height = MIN(asset->height, LCD_HEIGHT - y);
+    if (x < 0 || y < 0 || width <= 0 || height <= 0)
+        return;
+    for (row = 0; row < height; row++)
+        rb->memcpy(dm_canvas + (y + row) * LCD_WIDTH + x,
+                   asset->pixels + row * asset->width,
+                   (size_t)width * sizeof(fb_data));
+}
+
+#if LCD_WIDTH < 1920
+static void dm_blit_region(enum dm_asset_id id, int source_x, int source_y,
+                           int x, int y, int width, int height)
+{
+    const struct dm_asset *asset = &dm_assets[id];
+    int row;
+
+    if (!asset->loaded || source_x < 0 || source_y < 0 ||
+        source_x >= asset->width || source_y >= asset->height ||
+        x < 0 || y < 0)
+        return;
+    width = MIN(width, asset->width - source_x);
+    width = MIN(width, LCD_WIDTH - x);
+    height = MIN(height, asset->height - source_y);
+    height = MIN(height, LCD_HEIGHT - y);
+    if (width <= 0 || height <= 0)
+        return;
+    for (row = 0; row < height; row++)
+        rb->memcpy(dm_canvas + (y + row) * LCD_WIDTH + x,
+                   asset->pixels + (source_y + row) * asset->width +
+                       source_x,
+                   (size_t)width * sizeof(fb_data));
+}
+#endif
+
+/* Panels are horizontally uniform between their end caps, so any width can be
+ * drawn from the real artwork: real left cap, real repeated middle column,
+ * real right cap.  Used for tooltips, which hug their label the way Snow
+ * Leopard's do.
+ */
+static void dm_blit_panel(enum dm_asset_id id, int x, int y, int width,
+                          int cap)
+{
+    const struct dm_asset *asset = &dm_assets[id];
+    int row;
+    int column;
+
+    if (!asset->loaded || width < cap * 2 || x < 0 ||
+        x + width > LCD_WIDTH || y < 0 || y + asset->height > LCD_HEIGHT)
+        return;
+    for (row = 0; row < asset->height; row++)
+    {
+        const fb_data *source = asset->pixels + row * asset->width;
+        fb_data *target = dm_canvas + (y + row) * LCD_WIDTH + x;
+
+        rb->memcpy(target, source, (size_t)cap * sizeof(fb_data));
+        for (column = cap; column < width - cap; column++)
+            target[column] = source[cap];
+        rb->memcpy(target + width - cap, source + asset->width - cap,
+                   (size_t)cap * sizeof(fb_data));
+    }
+}
+
+static void dm_compose(enum dm_asset_id id, int x, int y)
+{
+    const struct dm_asset *asset = &dm_assets[id];
+    int row;
+    int column;
+
+    if (!asset->loaded || !asset->coverage)
+        return;
+    for (row = 0; row < asset->height; row++)
+    {
+        int target_y = y + row;
+        const fb_data *source;
+        const unsigned char *alpha;
+        fb_data *target;
+
+        if (target_y < 0 || target_y >= LCD_HEIGHT)
+            continue;
+        source = asset->pixels + row * asset->width;
+        alpha = asset->coverage + row * asset->width;
+        target = dm_canvas + target_y * LCD_WIDTH;
+        for (column = 0; column < asset->width; column++)
+        {
+            int target_x = x + column;
+            unsigned int value = alpha[column];
+
+            if (target_x < 0 || target_x >= LCD_WIDTH || value == 0)
+                continue;
+            target[target_x] = value == 255 ?
+                source[column] :
+                dm_blend(target[target_x], source[column], value);
+        }
+    }
+}
+
+static int dm_text_width(const struct dm_font *font, const char *text)
+{
+    int width = 0;
+
+    while (*text)
+    {
+        unsigned char ch = *text++;
+
+        if (ch < DM_ASCII_FIRST || ch > DM_ASCII_LAST)
+            ch = '?';
+        width += font->advance[ch - DM_ASCII_FIRST];
+    }
+    return width;
+}
+
+static void dm_draw_text(const struct dm_font *font, int x, int y,
+                         int max_width, fb_data ink, const char *text)
+{
+    int atlas_width;
+
+    if (!font->loaded)
+        return;
+    atlas_width = font->cell_w * DM_FONT_COLUMNS;
+    while (*text && max_width > 0)
+    {
+        unsigned char ch = *text++;
+        int index;
+        int advance;
+        int row;
+
+        if (ch < DM_ASCII_FIRST || ch > DM_ASCII_LAST)
+            ch = '?';
+        index = ch - DM_ASCII_FIRST;
+        advance = font->advance[index];
+        if (advance > max_width)
+            break;
+        for (row = 0; row < font->cell_h; row++)
+        {
+            const unsigned char *alpha;
+            fb_data *target;
+            int column;
+            int target_y = y + row;
+
+            if (target_y < 0 || target_y >= LCD_HEIGHT)
+                continue;
+            alpha = font->coverage +
+                    ((index / DM_FONT_COLUMNS) * font->cell_h + row) *
+                        atlas_width +
+                    (index % DM_FONT_COLUMNS) * font->cell_w;
+            target = dm_canvas + target_y * LCD_WIDTH;
+            for (column = 0; column < font->cell_w; column++)
+            {
+                int target_x = x + column;
+                unsigned int value = alpha[column];
+
+                if (target_x < 0 || target_x >= LCD_WIDTH || value == 0)
+                    continue;
+                target[target_x] = value == 255 ?
+                    ink : dm_blend(target[target_x], ink, value);
+            }
+        }
+        x += advance;
+        max_width -= advance;
+    }
+}
+
+static void dm_draw_text_centered(const struct dm_font *font, int x, int y,
+                                  int width, fb_data ink, const char *text)
+{
+    int text_width = dm_text_width(font, text);
+
+    dm_draw_text(font, x + MAX(0, (width - text_width) / 2), y, width,
+                 ink, text);
+}
+
+static void dm_draw_text_right(const struct dm_font *font, int right, int y,
+                               int max_width, fb_data ink, const char *text)
+{
+    dm_draw_text(font, right - MIN(max_width, dm_text_width(font, text)), y,
+                 max_width, ink, text);
+}
+
+/* Desktop labels are white with the same one-pixel shadow Finder uses, which
+ * is what keeps them legible over the bright parts of the Aurora picture.
+ */
+static void dm_draw_desktop_label(int x, int y, int width, const char *text)
+{
+    dm_draw_text_centered(&dm_fonts[DM_FONT_SMALL], x + 1, y + 1, width,
+                          DM_INK, text);
+    dm_draw_text_centered(&dm_fonts[DM_FONT_SMALL], x, y, width,
+                          DM_INK_WHITE, text);
+}
+
+static void dm_present(void)
+{
+    rb->lcd_bitmap(dm_canvas, 0, 0, LCD_WIDTH, LCD_HEIGHT);
+    rb->lcd_update();
+}
+
+static bool dm_write_all(int fd, const void *data, size_t size)
+{
+    const unsigned char *cursor = data;
+
+    while (size > 0)
+    {
+        ssize_t written = rb->write(fd, cursor, size);
+
+        if (written <= 0)
+            return false;
+        cursor += written;
+        size -= written;
+    }
+    return true;
+}
+
+/* A plugin launch replaces desktop_mode's memory image, so the framebuffer
+ * cannot be passed by pointer. Save the exact rendered desktop immediately
+ * before launching Live TV; mpegplayer reads it before stream_init() and
+ * keeps its copy entirely outside the decoder/audio buffers. */
+static bool dm_save_underlay(const char *path, uint32_t magic)
+{
+    const uint32_t header[] =
+    {
+        magic,
+        LCD_WIDTH,
+        LCD_HEIGHT,
+    };
+    int fd;
+    bool ok;
 
     rb->mkdir(PLUGIN_APPS_DATA_DIR);
-    fd = rb->open(DM_CONFIG_FILE, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+    fd = rb->open(path, O_WRONLY | O_CREAT | O_TRUNC, 0666);
     if (fd < 0)
-        return;
+        return false;
 
-    len = rb->snprintf(buf, sizeof(buf),
-                       "show now playing: %s\nstart in finder: %s\n",
-                       dm_settings.show_now_playing ? "on" : "off",
-                       dm_settings.start_in_finder ? "on" : "off");
-    rb->write(fd, buf, len);
+    ok = dm_write_all(fd, header, sizeof(header)) &&
+         dm_write_all(fd, dm_canvas,
+                      (size_t)LCD_WIDTH * LCD_HEIGHT * sizeof(fb_data));
     rb->close(fd);
+    if (!ok)
+        rb->remove(path);
+    return ok;
 }
 
-static void dm_set_colors(unsigned fg, unsigned bg)
+static bool dm_save_livetv_underlay(void)
 {
-#ifdef HAVE_LCD_COLOR
-    rb->lcd_set_foreground(fg);
-    rb->lcd_set_background(bg);
-#else
-    (void)fg;
-    (void)bg;
-#endif
+    return dm_save_underlay(DM_LIVETV_UNDERLAY_FILE,
+                            DM_LIVETV_UNDERLAY_MAGIC);
 }
 
-static void dm_fillrect_c(int x, int y, int w, int h, unsigned color)
+static const char *dm_app_name(enum dm_app app)
 {
-    if (w <= 0 || h <= 0)
-        return;
-
-    dm_set_colors(color, DM_WHITE);
-    rb->lcd_fillrect(x, y, w, h);
-}
-
-static void dm_drawrect_c(int x, int y, int w, int h, unsigned color)
-{
-    if (w <= 0 || h <= 0)
-        return;
-
-    dm_set_colors(color, DM_WHITE);
-    rb->lcd_drawrect(x, y, w, h);
-}
-
-static void dm_text_c(int x, int y, int width, const char *text,
-                      unsigned color, bool center)
-{
-    int tw;
-    int th;
-    int tx = x;
-
-    dm_set_colors(color, DM_WHITE);
-    rb->lcd_getstringsize((const unsigned char *)text, &tw, &th);
-    if (center && tw < width)
-        tx = x + (width - tw) / 2;
-    rb->lcd_putsxy(tx, y, (const unsigned char *)text);
-}
-
-static void dm_text_fit(int x, int y, int width, const char *text,
-                        unsigned color, bool center)
-{
-    char buf[64];
-    int tw;
-    int th;
-    int len;
-
-    if (width <= 0)
-        return;
-
-    rb->strlcpy(buf, text, sizeof(buf));
-    rb->lcd_getstringsize((const unsigned char *)buf, &tw, &th);
-    len = rb->strlen(buf);
-    while (len > 3 && tw > width)
+    switch (app)
     {
-        buf[--len] = '\0';
-        buf[len - 1] = '.';
-        buf[len - 2] = '.';
-        rb->lcd_getstringsize((const unsigned char *)buf, &tw, &th);
-    }
-    dm_text_c(x, y, width, buf, color, center);
-}
-
-static void dm_gradient_rect(int x, int y, int w, int h,
-                             unsigned top, unsigned bottom)
-{
-#ifdef HAVE_LCD_COLOR
-    int i;
-    int tr = RGB_UNPACK_RED(top);
-    int tg = RGB_UNPACK_GREEN(top);
-    int tb = RGB_UNPACK_BLUE(top);
-    int br = RGB_UNPACK_RED(bottom);
-    int bg = RGB_UNPACK_GREEN(bottom);
-    int bb = RGB_UNPACK_BLUE(bottom);
-
-    for (i = 0; i < h; i++)
-    {
-        int r = tr + ((br - tr) * i) / MAX(1, h - 1);
-        int g = tg + ((bg - tg) * i) / MAX(1, h - 1);
-        int b = tb + ((bb - tb) * i) / MAX(1, h - 1);
-        dm_fillrect_c(x, y + i, w, 1, DM_RGB(r, g, b));
-    }
-#else
-    (void)top;
-    (void)bottom;
-    dm_fillrect_c(x, y, w, h, DM_WHITE);
-#endif
-}
-
-static bool dm_pt_in_rect(int px, int py, struct dm_rect r)
-{
-    return px >= r.x && px < r.x + r.w && py >= r.y && py < r.y + r.h;
-}
-
-static void dm_clock_text(char *buf, size_t size)
-{
-    struct tm *tm = rb->get_time();
-    int hour = tm ? tm->tm_hour : 0;
-    int min = tm ? tm->tm_min : 0;
-
-    rb->snprintf(buf, size, "%d:%02d", hour, min);
-}
-
-static int dm_taskbar_y(void)
-{
-    return LCD_HEIGHT - DM_TASKBAR_H;
-}
-
-static void dm_load_wallpaper(void)
-{
-#ifdef HAVE_LCD_COLOR
-    int needed = DM_SCALED_BYTES(LCD_WIDTH, DM_WALLPAPER_H);
-
-    if (dm_wallpaper_loaded)
-        return;
-    if (!rb->file_exists(DM_XP_WALLPAPER_BMP))
-        return;
-
-    if (!dm_wallpaper_data)
-        dm_wallpaper_data =
-            (unsigned char *)rb->plugin_get_buffer(&dm_wallpaper_data_size);
-    if (!dm_wallpaper_data || dm_wallpaper_data_size < (size_t)needed)
-        return;
-
-    rb->memset(&dm_wallpaper_bmp, 0, sizeof(dm_wallpaper_bmp));
-    dm_wallpaper_bmp.width = LCD_WIDTH;
-    dm_wallpaper_bmp.height = DM_WALLPAPER_H;
-    dm_wallpaper_bmp.format = FORMAT_NATIVE;
-    dm_wallpaper_bmp.data = dm_wallpaper_data;
-
-    dm_wallpaper_loaded =
-        rb->read_bmp_file(DM_XP_WALLPAPER_BMP, &dm_wallpaper_bmp,
-                          needed, FORMAT_NATIVE | FORMAT_RESIZE |
-                          FORMAT_DITHER, NULL) > 0;
-#endif
-}
-
-static struct dm_rect dm_start_button_rect(void)
-{
-    struct dm_rect r = { 4, dm_taskbar_y() + 3, DM_START_W, 22 };
-
-    return r;
-}
-
-static struct dm_rect dm_icon_rect(int app)
-{
-    int cols = LCD_WIDTH >= 300 ? 3 : 2;
-    int col = app % cols;
-    int row = app / cols;
-    int left = 8 + col * ((LCD_WIDTH - 16) / cols);
-    int top = 18 + row * 57;
-    struct dm_rect r = { left, top, DM_ICON_W, DM_ICON_H };
-
-    return r;
-}
-
-static struct dm_rect dm_start_menu_rect(void)
-{
-    struct dm_rect r =
-    {
-        4,
-        dm_taskbar_y() - DM_START_MENU_H + 1,
-        DM_START_MENU_W,
-        DM_START_MENU_H
-    };
-
-    if (r.y < 0)
-        r.y = 0;
-    return r;
-}
-
-static void dm_draw_cloud(int x, int y, int w, int h)
-{
-    dm_fillrect_c(x + w / 5, y + h / 2, w * 3 / 5, h / 3, DM_WHITE);
-    dm_fillrect_c(x + w / 3, y + h / 3, w / 3, h / 2, DM_WHITE);
-    dm_fillrect_c(x, y + h * 2 / 3, w, h / 4, DM_WHITE);
-}
-
-static void dm_draw_wallpaper(void)
-{
-    int task_y = dm_taskbar_y();
-    int hill_y = task_y - 56;
-    int x;
-
-    if (dm_wallpaper_loaded)
-    {
-        rb->lcd_bmp_part(&dm_wallpaper_bmp, 0, 0, 0, 0,
-                         LCD_WIDTH, task_y);
-        return;
-    }
-
-    dm_gradient_rect(0, 0, LCD_WIDTH, task_y, DM_SKY_TOP, DM_SKY_BOTTOM);
-    dm_draw_cloud(LCD_WIDTH / 5, 25, 58, 22);
-    dm_draw_cloud(LCD_WIDTH - 92, 38, 68, 24);
-    dm_draw_cloud(LCD_WIDTH / 2 - 24, 73, 50, 18);
-
-    for (x = 0; x < LCD_WIDTH; x++)
-    {
-        int wave = ((x * x) / MAX(1, LCD_WIDTH)) % 36;
-        int y = hill_y + wave / 2 - x / 10;
-        int y2 = hill_y + 24 + x / 14;
-
-        if (y < 92)
-            y = 92;
-        dm_fillrect_c(x, y, 1, task_y - y, x & 1 ? DM_HILL_A : DM_HILL_C);
-        if (y2 < task_y)
-            dm_fillrect_c(x, y2, 1, task_y - y2, DM_HILL_B);
-    }
-}
-
-static void dm_draw_xp_icon(int x, int y, int glyph, bool selected)
-{
-    unsigned frame = selected ? DM_SELECT_BOTTOM : DM_PANEL_DARK;
-
-    if (selected)
-    {
-        dm_gradient_rect(x - 4, y - 3, 40, 34, DM_SELECT_TOP,
-                         DM_SELECT_BOTTOM);
-        dm_drawrect_c(x - 4, y - 3, 40, 34, DM_WHITE);
-    }
-
-    switch (glyph)
-    {
-        case 0:
-            dm_fillrect_c(x + 2, y + 10, 29, 17, DM_FOLDER);
-            dm_fillrect_c(x + 5, y + 6, 12, 6, DM_FOLDER);
-            dm_drawrect_c(x + 2, y + 10, 29, 17, frame);
-            dm_drawrect_c(x + 5, y + 6, 12, 7, frame);
-            break;
-
-        case 1:
-            dm_fillrect_c(x + 6, y + 3, 21, 27, DM_WHITE);
-            dm_drawrect_c(x + 6, y + 3, 21, 27, frame);
-            dm_fillrect_c(x + 10, y + 10, 13, 2, DM_TITLE_TOP);
-            dm_fillrect_c(x + 10, y + 16, 13, 2, DM_TITLE_TOP);
-            dm_fillrect_c(x + 10, y + 22, 10, 2, DM_TITLE_TOP);
-            break;
-
-        case 2:
-            dm_fillrect_c(x + 4, y + 6, 27, 23, DM_WHITE);
-            dm_drawrect_c(x + 4, y + 6, 27, 23, frame);
-            dm_fillrect_c(x + 4, y + 12, 27, 3, DM_TITLE_TOP);
-            dm_fillrect_c(x + 10, y + 18, 7, 6, DM_RED);
-            dm_fillrect_c(x + 21, y + 18, 5, 6, DM_YELLOW);
-            break;
-
-        case 3:
-            dm_fillrect_c(x + 6, y + 5, 22, 26, DM_PANEL_LIGHT);
-            dm_drawrect_c(x + 6, y + 5, 22, 26, frame);
-            dm_fillrect_c(x + 10, y + 10, 14, 5, DM_MENU_RIGHT);
-            dm_fillrect_c(x + 10, y + 20, 14, 2, DM_TITLE_TOP);
-            dm_fillrect_c(x + 16, y + 14, 2, 14, DM_TITLE_TOP);
-            break;
-
-        case 4:
-            dm_fillrect_c(x + 4, y + 9, 27, 19, DM_PANEL_LIGHT);
-            dm_drawrect_c(x + 4, y + 9, 27, 19, frame);
-            dm_fillrect_c(x + 8, y + 14, 9, 7, DM_HILL_A);
-            dm_fillrect_c(x + 18, y + 14, 8, 7, DM_SKY_TOP);
-            break;
-
-        case 5:
-        case 6:
-            dm_fillrect_c(x + 7, y + 12, 20, 12, DM_PANEL_LIGHT);
-            dm_drawrect_c(x + 7, y + 12, 20, 12, frame);
-            dm_fillrect_c(x + 12, y + 17, 10, 2, DM_TITLE_TOP);
-            dm_fillrect_c(x + 16, y + 13, 2, 10, DM_TITLE_TOP);
-            dm_fillrect_c(x + 10, y + 8, 5, 5, DM_RED);
-            dm_fillrect_c(x + 22, y + 8, 5, 5, DM_YELLOW);
-            break;
-
-        case 7:
-            dm_fillrect_c(x + 5, y + 5, 24, 25, DM_MENU_RIGHT);
-            dm_drawrect_c(x + 5, y + 5, 24, 25, frame);
-            dm_fillrect_c(x + 9, y + 10, 16, 3, DM_TITLE_TOP);
-            dm_fillrect_c(x + 9, y + 17, 16, 3, DM_HILL_A);
-            dm_fillrect_c(x + 9, y + 24, 16, 3, DM_RED);
-            break;
-
+        case DM_APP_FINDER:
+            return "Finder";
+        case DM_APP_ITUNES:
+            return "iTunes";
+        case DM_APP_PREVIEW:
+            return "Preview";
+        case DM_APP_TEXTEDIT:
+            return "TextEdit";
+        case DM_APP_CALCULATOR:
+            return "Calculator";
+        case DM_APP_DIRECTV:
+            return "DIRECTV";
+        case DM_APP_SITEKICK:
+            return "Sitekick";
+        case DM_APP_NETFLIX:
+            return "Netflix";
+        case DM_APP_PREFERENCES:
+            return "System Preferences";
+        case DM_APP_TRASH:
+            return "Trash";
         default:
-            dm_fillrect_c(x + 8, y + 5, 19, 25, DM_PANEL_LIGHT);
-            dm_drawrect_c(x + 8, y + 5, 19, 25, frame);
-            dm_fillrect_c(x + 14, y + 11, 7, 7, DM_TITLE_TOP);
-            dm_fillrect_c(x + 16, y + 21, 3, 5, DM_TITLE_TOP);
-            break;
+            return "Finder";
     }
 }
 
-static void dm_draw_taskbar(bool start_open, enum dm_mode mode)
+static const char *dm_short_app_name(enum dm_app app)
 {
-    struct dm_rect start = dm_start_button_rect();
-    char clock[16];
-    int x = start.x + start.w + 6;
-    int task_y = dm_taskbar_y();
+    if (app == DM_APP_PREFERENCES)
+        return "Preferences";
+    return dm_app_name(app);
+}
+
+/* The menu bar names the Finder even with no window open, the way Mac OS X
+ * does, but the "Start application" setting has to name the desktop itself.
+ */
+static const char *dm_start_app_name(enum dm_app app)
+{
+    if (app == DM_APP_DESKTOP)
+        return "Desktop";
+    return dm_short_app_name(app);
+}
+
+static void dm_draw_menu_bar(const struct dm_state *state)
+{
+    static const char * const weekdays[] =
+        { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
+    static const char * const menus[] = { "File", "Edit", "View", "Go" };
+    const struct dm_font *regular = &dm_fonts[DM_FONT_REGULAR];
+    const struct dm_font *bold = &dm_fonts[DM_FONT_BOLD];
+    char clock[32];
+    struct tm *now = rb->get_time();
+    const char *name = dm_short_app_name(state->app);
+    int hour = now ? now->tm_hour : 0;
+    int x;
     int i;
 
-    dm_gradient_rect(0, task_y, LCD_WIDTH, DM_TASKBAR_H, DM_TASKBAR_TOP,
-                     DM_TASKBAR_BOTTOM);
-    dm_fillrect_c(0, task_y, LCD_WIDTH, 1, DM_TASKBAR_EDGE);
-    dm_gradient_rect(start.x, start.y, start.w, start.h,
-                     start_open ? DM_START_BOTTOM : DM_START_TOP,
-                     start_open ? DM_START_TOP : DM_START_BOTTOM);
-    dm_drawrect_c(start.x, start.y, start.w, start.h, DM_START_EDGE);
-    dm_text_c(start.x + 20, start.y + 5, start.w - 22, "start", DM_WHITE,
-              false);
-    dm_fillrect_c(start.x + 7, start.y + 6, 5, 5, DM_RED);
-    dm_fillrect_c(start.x + 13, start.y + 6, 5, 5, DM_HILL_A);
-    dm_fillrect_c(start.x + 7, start.y + 12, 5, 5, DM_SKY_BOTTOM);
-    dm_fillrect_c(start.x + 13, start.y + 12, 5, 5, DM_YELLOW);
-
-    for (i = 0; i < 3 && x + 58 < LCD_WIDTH - 52; i++)
+    dm_blit(DM_ASSET_MENUBAR, 0, 0);
+    if (state->overlay == DM_OVERLAY_APPLE_MENU)
+        dm_blit(DM_ASSET_APPLE_HIGHLIGHT, DM_APPLE_X, 0);
+    x = DM_APPLE_X + DM_APPLE_W + 4;
+    dm_draw_text(bold, x, 4, 96, DM_INK, name);
+    x += dm_text_width(bold, name) + 12;
+    if (state->app != DM_APP_DESKTOP)
     {
-        int app = i;
-        bool active = (mode == DM_MODE_EXPLORER && i == 0) ||
-                      (mode == DM_MODE_SETTINGS && i == 1);
-
-        dm_gradient_rect(x, task_y + 4, 58, 20,
-                         active ? DM_TITLE_BOTTOM : DM_TASKBAR_TOP,
-                         active ? DM_TITLE_TOP : DM_TASKBAR_BOTTOM);
-        dm_drawrect_c(x, task_y + 4, 58, 20, DM_TASKBAR_EDGE);
-        dm_text_fit(x + 5, task_y + 8, 48, i == 0 ? "Explorer" :
-                    app == 1 ? "Settings" : "Desktop", DM_WHITE, false);
-        x += 62;
+        for (i = 0; i < (int)ARRAYLEN(menus); i++)
+        {
+            if (x + dm_text_width(regular, menus[i]) > 210)
+                break;
+            dm_draw_text(regular, x, 4, 40, DM_INK, menus[i]);
+            x += dm_text_width(regular, menus[i]) + 12;
+        }
     }
-
-    dm_fillrect_c(LCD_WIDTH - 49, task_y + 4, 45, 20, DM_TITLE_TOP);
-    dm_drawrect_c(LCD_WIDTH - 49, task_y + 4, 45, 20, DM_TASKBAR_EDGE);
-    dm_clock_text(clock, sizeof(clock));
-    dm_text_c(LCD_WIDTH - 45, task_y + 8, 37, clock, DM_WHITE, true);
+    rb->snprintf(clock, sizeof(clock), "%s %d:%02d %s",
+                 now && now->tm_wday >= 0 && now->tm_wday < 7 ?
+                    weekdays[now->tm_wday] : "Sun",
+                 hour % 12 ? hour % 12 : 12,
+                 now ? now->tm_min : 0,
+                 hour >= 12 ? "PM" : "AM");
+    dm_draw_text_right(regular, LCD_WIDTH - 6, 4, 96, DM_INK, clock);
 }
 
 static void dm_draw_desktop_icons(void)
 {
-    int i;
+    const int label_width = DM_DOCK_ICON + 32;
+    const int label_x = DM_DESKTOP_ICON_X - 16;
+    const int label_gap = 2;
 
-    for (i = 0; i < (int)ARRAYLEN(dm_apps); i++)
-    {
-        struct dm_rect r = dm_icon_rect(i);
-        int icon_x = r.x + (r.w - 32) / 2;
-        bool selected = i == dm_selected_app;
-
-        if (r.y + r.h > dm_taskbar_y() - 2)
-            break;
-
-        dm_draw_xp_icon(icon_x, r.y, dm_apps[i].glyph, selected);
-        if (selected)
-            dm_gradient_rect(r.x, r.y + 34, r.w, 14, DM_SELECT_TOP,
-                             DM_SELECT_BOTTOM);
-        dm_text_fit(r.x + 1, r.y + 36, r.w - 2, dm_apps[i].name,
-                    DM_WHITE, true);
-    }
-}
-
-static void dm_draw_window_frame(int x, int y, int w, int h,
-                                 const char *title, bool active)
-{
-    dm_fillrect_c(x + 4, y + 5, w, h, DM_SHADOW);
-    dm_fillrect_c(x, y, w, h, DM_PANEL);
-    dm_drawrect_c(x, y, w, h, DM_PANEL_DARK);
-    dm_gradient_rect(x + 2, y + 2, w - 4, 20,
-                     active ? DM_TITLE_TOP : DM_TITLE_INACTIVE,
-                     active ? DM_TITLE_BOTTOM : DM_TITLE_INACTIVE);
-    dm_text_fit(x + 8, y + 6, w - 58, title, DM_WHITE, false);
-
-    dm_fillrect_c(x + w - 48, y + 5, 12, 12, DM_TITLE_TOP);
-    dm_drawrect_c(x + w - 48, y + 5, 12, 12, DM_WHITE);
-    dm_text_c(x + w - 45, y + 7, 6, "_", DM_WHITE, true);
-
-    dm_fillrect_c(x + w - 32, y + 5, 12, 12, DM_TITLE_TOP);
-    dm_drawrect_c(x + w - 32, y + 5, 12, 12, DM_WHITE);
-    dm_drawrect_c(x + w - 29, y + 8, 6, 5, DM_WHITE);
-
-    dm_fillrect_c(x + w - 16, y + 5, 12, 12, DM_RED);
-    dm_drawrect_c(x + w - 16, y + 5, 12, 12, DM_WHITE);
-    dm_text_c(x + w - 14, y + 6, 8, "x", DM_WHITE, true);
-}
-
-static void dm_draw_desktop(bool start_open)
-{
-    dm_draw_wallpaper();
-    dm_draw_desktop_icons();
-    dm_draw_taskbar(start_open, DM_MODE_DESKTOP);
-}
-
-static void dm_draw_file_badge(int x, int y, bool is_dir, bool selected)
-{
-    unsigned fg = selected ? DM_WHITE : is_dir ? DM_FOLDER : DM_TITLE_TOP;
-    unsigned bg = selected ? DM_SELECT_TOP : DM_PANEL_LIGHT;
-
-    if (is_dir)
-    {
-        dm_fillrect_c(x + 1, y + 6, 17, 12, fg);
-        dm_fillrect_c(x + 4, y + 3, 8, 5, fg);
-        dm_drawrect_c(x + 1, y + 6, 17, 12, DM_PANEL_DARK);
-    }
-    else
-    {
-        dm_fillrect_c(x + 4, y + 2, 13, 17, bg);
-        dm_drawrect_c(x + 4, y + 2, 13, 17, fg);
-        dm_fillrect_c(x + 7, y + 7, 7, 2, fg);
-        dm_fillrect_c(x + 7, y + 12, 7, 2, fg);
-    }
-}
-
-static void dm_draw_scrollbar(int x, int y, int h, int count, int top, int rows)
-{
-    int thumb_h;
-    int thumb_y;
-
-    if (count <= rows || h <= 8)
+    if (!dm_settings.show_desktop_folders)
         return;
-
-    thumb_h = MAX(9, (h * rows) / count);
-    thumb_y = y + ((h - thumb_h) * top) / MAX(1, count - rows);
-
-    dm_fillrect_c(x, y, 10, h, DM_PANEL);
-    dm_drawrect_c(x, y, 10, h, DM_PANEL_DARK);
-    dm_gradient_rect(x + 2, thumb_y, 6, thumb_h, DM_TITLE_TOP,
-                     DM_TITLE_BOTTOM);
+    dm_compose(DM_ASSET_ICON_DISK, DM_DESKTOP_ICON_X, DM_DESKTOP_DISK_Y);
+    dm_draw_desktop_label(label_x,
+                          DM_DESKTOP_DISK_Y + DM_DOCK_ICON + label_gap,
+                          label_width, "iPod");
+    dm_compose(DM_ASSET_ICON_FOLDER_DESKTOP, DM_DESKTOP_ICON_X,
+               DM_DESKTOP_DOCS_Y);
+    dm_draw_desktop_label(label_x,
+                          DM_DESKTOP_DOCS_Y + DM_DOCK_ICON + label_gap,
+                          label_width, "Documents");
+    dm_compose(DM_ASSET_ICON_FOLDER_DESKTOP, DM_DESKTOP_ICON_X,
+               DM_DESKTOP_MUSIC_Y);
+    dm_draw_desktop_label(label_x,
+                          DM_DESKTOP_MUSIC_Y + DM_DOCK_ICON + label_gap,
+                          label_width, "Music");
 }
 
-static void dm_draw_explorer(void)
+static struct dm_rect dm_dock_rect(int index)
 {
-    int x = 7;
-    int y = 13;
-    int w = LCD_WIDTH - 14;
-    int h = dm_taskbar_y() - 20;
-    int list_x = x + 8;
-    int list_y = y + 49;
-    int list_w = w - 16;
-    int row_h = MAX(18, (h - 63) / DM_FILE_ROWS);
-    int i;
-    char status[48];
-    struct mp3entry *id3 = dm_settings.show_now_playing ?
-                            rb->audio_current_track() : NULL;
-
-    dm_draw_wallpaper();
-    dm_draw_window_frame(x, y, w, h, dm_cwd, true);
-
-    dm_fillrect_c(x + 4, y + 24, w - 8, 20, DM_PANEL);
-    dm_drawrect_c(x + 4, y + 24, w - 8, 20, DM_PANEL_DARK);
-    dm_text_c(x + 11, y + 29, 36, "Back", DM_MUTED, false);
-    dm_text_c(x + 53, y + 29, 54, "Folders", DM_MUTED, false);
-    dm_text_fit(x + 116, y + 29, w - 130, dm_cwd, DM_TEXT, false);
-
-    dm_fillrect_c(list_x, list_y, list_w, row_h * DM_FILE_ROWS + 1,
-                  DM_PANEL_LIGHT);
-    dm_drawrect_c(list_x, list_y, list_w, row_h * DM_FILE_ROWS + 1,
-                  DM_PANEL_DARK);
-
-    if (dm_file_count == 0)
-        dm_text_fit(list_x + 8, list_y + 50, list_w - 16, "Folder is empty",
-                    DM_MUTED, true);
-
-    for (i = 0; i < DM_FILE_ROWS; i++)
+    struct dm_rect rect =
     {
-        int idx = dm_file_top + i;
-        int row_y = list_y + 1 + i * row_h;
-        bool selected = idx == dm_file_sel;
-
-        if (idx >= dm_file_count)
-            break;
-
-        if (selected)
-            dm_gradient_rect(list_x + 1, row_y, list_w - 12, row_h - 1,
-                             DM_SELECT_TOP, DM_SELECT_BOTTOM);
-        else if (i & 1)
-            dm_fillrect_c(list_x + 1, row_y, list_w - 12, row_h - 1,
-                          DM_PANEL);
-
-        dm_draw_file_badge(list_x + 6, row_y + 1, dm_files[idx].is_dir,
-                           selected);
-        dm_text_fit(list_x + 29, row_y + 4, list_w - 49,
-                    dm_files[idx].name,
-                    selected ? DM_WHITE : DM_TEXT, false);
-    }
-
-    dm_draw_scrollbar(list_x + list_w - 10, list_y + 1,
-                      row_h * DM_FILE_ROWS - 1, dm_file_count, dm_file_top,
-                      DM_FILE_ROWS);
-    rb->snprintf(status, sizeof(status), "%d item%s", dm_file_count,
-                 dm_file_count == 1 ? "" : "s");
-    dm_text_fit(x + 8, y + h - 15, 70, status, DM_MUTED, false);
-    if (id3 && id3->title)
-        dm_text_fit(x + 84, y + h - 15, w - 96, id3->title, DM_MUTED, false);
-
-    dm_draw_taskbar(false, DM_MODE_EXPLORER);
+        DM_DOCK_LEFT + index * DM_DOCK_STEP,
+        DM_DOCK_ICON_Y,
+        DM_DOCK_ICON,
+        DM_DOCK_ICON
+    };
+    return rect;
 }
 
-static void dm_draw_settings(void)
+static int dm_dock_index(enum dm_app app)
 {
-    int w = MIN(LCD_WIDTH - 28, 252);
-    int h = 116;
-    int x = (LCD_WIDTH - w) / 2;
-    int y = 52;
     int i;
 
-    dm_draw_wallpaper();
-    dm_draw_window_frame(x, y, w, h, "Desktop Mode Settings", true);
-
-    for (i = 0; i < DM_SETTING_COUNT; i++)
+    for (i = 0; i < DM_DOCK_SLOTS; i++)
     {
-        int row_y = y + 31 + i * 24;
-        const char *name;
-        const char *value;
-
-        if (i == DM_SETTING_NOW_PLAYING)
-        {
-            name = "Show now playing";
-            value = dm_settings.show_now_playing ? "On" : "Off";
-        }
-        else if (i == DM_SETTING_START_VIEW)
-        {
-            name = "Start view";
-            value = dm_settings.start_in_finder ? "Explorer" : "Desktop";
-        }
-        else
-        {
-            name = "OK";
-            value = "Close";
-        }
-
-        if (i == dm_setting_sel)
-            dm_gradient_rect(x + 8, row_y, w - 16, 20, DM_SELECT_TOP,
-                             DM_SELECT_BOTTOM);
-        dm_text_fit(x + 15, row_y + 4, w - 92, name,
-                    i == dm_setting_sel ? DM_WHITE : DM_TEXT, false);
-        dm_text_fit(x + w - 76, row_y + 4, 54, value,
-                    i == dm_setting_sel ? DM_WHITE : DM_MUTED, true);
+        if (dm_dock_apps[i] == app)
+            return i;
     }
-
-    dm_draw_taskbar(false, DM_MODE_SETTINGS);
-}
-
-static int dm_start_item_at(int px, int py)
-{
-    struct dm_rect m = dm_start_menu_rect();
-    int row_h = 20;
-    int app_rows = MIN(7, (int)ARRAYLEN(dm_apps));
-    int i;
-
-    if (!dm_pt_in_rect(px, py, m))
-        return -1;
-    if (py < m.y + 30)
-        return -1;
-
-    for (i = 0; i < app_rows; i++)
-    {
-        struct dm_rect r = { m.x + 6, m.y + 34 + i * row_h,
-                             116, row_h };
-        if (dm_pt_in_rect(px, py, r))
-            return DM_START_APP_BASE + i;
-    }
-
-    for (i = 0; i < 4; i++)
-    {
-        struct dm_rect r = { m.x + 130, m.y + 40 + i * 25,
-                             m.w - 138, 22 };
-        if (dm_pt_in_rect(px, py, r))
-            return DM_START_FINDER + i;
-    }
-
     return -1;
 }
 
-static void dm_draw_start_row(struct dm_rect r, int id, const char *label,
-                              const char *sub)
+static enum dm_asset_id dm_window_asset(enum dm_app app)
 {
-    bool selected = id == dm_start_sel;
-
-    if (selected)
-        dm_gradient_rect(r.x, r.y, r.w, r.h, DM_SELECT_TOP,
-                         DM_SELECT_BOTTOM);
-    dm_text_fit(r.x + 24, r.y + 4, r.w - 28, label,
-                selected ? DM_WHITE : DM_TEXT, false);
-    if (sub)
-        dm_text_fit(r.x + 24, r.y + 13, r.w - 28, sub,
-                    selected ? DM_WHITE : DM_MUTED, false);
+    if (app == DM_APP_FINDER)
+        return DM_ASSET_WINDOW_SIDEBAR;
+    if (app == DM_APP_ITUNES)
+        return DM_ASSET_ITUNES_WINDOW;
+    return DM_ASSET_WINDOW_PLAIN;
 }
 
-static void dm_draw_start_menu(void)
+static struct dm_rect dm_app_window_rect(enum dm_app app)
 {
-    struct dm_rect m = dm_start_menu_rect();
-    int row_h = 20;
-    int app_rows = MIN(7, (int)ARRAYLEN(dm_apps));
+    if (app == DM_APP_ITUNES)
+        return (struct dm_rect)
+        {
+            (LCD_WIDTH - DM_ITUNES_W) / 2,
+#if LCD_WIDTH >= 1920
+            DM_MENUBAR_H + (LCD_HEIGHT - DM_MENUBAR_H -
+                            DM_DOCK_BAND - DM_ITUNES_H) / 2,
+#else
+            DM_MENUBAR_H,
+#endif
+            DM_ITUNES_W,
+            DM_ITUNES_H
+        };
+    return (struct dm_rect){ DM_WIN_X, DM_WIN_Y, DM_WIN_W, DM_WIN_H };
+}
+
+/* Minimise and restore scale the window's own chrome straight into the
+ * compose buffer, so no second full-size scratch bitmap is needed.
+ */
+static void dm_prepare_animation_frame(struct dm_state *state, int frame)
+{
+    struct dm_animation *animation = &state->animation;
+
+    animation->current.x =
+        animation->from.x +
+        (animation->to.x - animation->from.x) * frame /
+            (DM_ANIMATION_FRAMES - 1);
+    animation->current.y =
+        animation->from.y +
+        (animation->to.y - animation->from.y) * frame /
+            (DM_ANIMATION_FRAMES - 1);
+    animation->current.width =
+        animation->from.width +
+        (animation->to.width - animation->from.width) * frame /
+            (DM_ANIMATION_FRAMES - 1);
+    animation->current.height =
+        animation->from.height +
+        (animation->to.height - animation->from.height) * frame /
+            (DM_ANIMATION_FRAMES - 1);
+    animation->last_frame = frame;
+}
+
+static void dm_finish_animation(struct dm_state *state)
+{
+    struct dm_animation *animation = &state->animation;
+
+    if (!animation->active)
+        return;
+    if (animation->minimizing)
+    {
+        state->minimized_app = animation->app;
+        state->app = DM_APP_DESKTOP;
+    }
+    else
+    {
+        state->minimized_app = DM_APP_DESKTOP;
+        state->app = animation->app;
+    }
+    animation->active = false;
+    state->redraw = true;
+}
+
+static void dm_start_animation(struct dm_state *state, enum dm_app app,
+                               bool minimizing)
+{
+    int index = dm_dock_index(app);
+    struct dm_rect window = dm_app_window_rect(app);
+    struct dm_rect icon;
+
+    if (index < 0)
+    {
+        state->app = minimizing ? DM_APP_DESKTOP : app;
+        state->redraw = true;
+        return;
+    }
+    icon = dm_dock_rect(index);
+    state->animation.active = true;
+    state->animation.minimizing = minimizing;
+    state->animation.app = app;
+    state->animation.started = *rb->current_tick;
+    state->animation.last_frame = -1;
+    state->animation.from = minimizing ? window : icon;
+    state->animation.to = minimizing ? icon : window;
+    dm_prepare_animation_frame(state, 0);
+    state->redraw = true;
+}
+
+static bool dm_update_animation(struct dm_state *state)
+{
+    struct dm_animation *animation = &state->animation;
+    long elapsed;
+    int frame;
+
+    if (!animation->active)
+        return false;
+    elapsed = *rb->current_tick - animation->started;
+    frame = MIN(
+        DM_ANIMATION_FRAMES - 1,
+        (int)(elapsed * DM_ANIMATION_FRAMES /
+              MAX(1, DM_ANIMATION_TICKS)));
+    if (frame >= DM_ANIMATION_FRAMES - 1)
+    {
+        dm_finish_animation(state);
+        return true;
+    }
+    if (frame != animation->last_frame)
+    {
+        dm_prepare_animation_frame(state, frame);
+        state->redraw = true;
+        return true;
+    }
+    return false;
+}
+
+static void dm_draw_animation(const struct dm_state *state)
+{
+    const struct dm_animation *animation = &state->animation;
+    const struct dm_asset *asset = &dm_assets[dm_window_asset(animation->app)];
+    int width = animation->current.width;
+    int height = animation->current.height;
+    int row;
+    int column;
+
+    if (!asset->loaded || width <= 0 || height <= 0)
+        return;
+    for (row = 0; row < height; row++)
+    {
+        int target_y = animation->current.y + row;
+        const fb_data *source;
+        fb_data *target;
+
+        if (target_y < 0 || target_y >= LCD_HEIGHT)
+            continue;
+        source = asset->pixels + (row * asset->height / height) * asset->width;
+        target = dm_canvas + target_y * LCD_WIDTH;
+        for (column = 0; column < width; column++)
+        {
+            int target_x = animation->current.x + column;
+
+            if (target_x < 0 || target_x >= LCD_WIDTH)
+                continue;
+            target[target_x] = source[column * asset->width / width];
+        }
+    }
+}
+
+static void dm_draw_dock(const struct dm_state *state)
+{
     int i;
 
-    dm_fillrect_c(m.x + 4, m.y + 5, m.w, m.h, DM_SHADOW);
-    dm_fillrect_c(m.x, m.y, m.w, m.h, DM_PANEL_LIGHT);
-    dm_drawrect_c(m.x, m.y, m.w, m.h, DM_TASKBAR_EDGE);
-    dm_gradient_rect(m.x + 1, m.y + 1, m.w - 2, 28, DM_TITLE_TOP,
-                     DM_TITLE_BOTTOM);
-    dm_text_c(m.x + 34, m.y + 8, 136, "Rockbox XP", DM_WHITE, false);
-    dm_fillrect_c(m.x + 9, m.y + 6, 18, 18, DM_PANEL_LIGHT);
-    dm_drawrect_c(m.x + 9, m.y + 6, 18, 18, DM_WHITE);
-    dm_fillrect_c(m.x + 13, m.y + 10, 5, 5, DM_RED);
-    dm_fillrect_c(m.x + 19, m.y + 10, 5, 5, DM_HILL_A);
-    dm_fillrect_c(m.x + 13, m.y + 16, 5, 5, DM_SKY_BOTTOM);
-    dm_fillrect_c(m.x + 19, m.y + 16, 5, 5, DM_YELLOW);
-
-    dm_fillrect_c(m.x + 1, m.y + 30, 126, m.h - 58, DM_MENU_LEFT);
-    dm_fillrect_c(m.x + 128, m.y + 30, m.w - 129, m.h - 58,
-                  DM_MENU_RIGHT);
-
-    for (i = 0; i < app_rows; i++)
+    dm_blit(DM_ASSET_DOCK_SHELF, DM_DOCK_SHELF_X, DM_DOCK_SHELF_Y);
+    for (i = 0; i < DM_DOCK_SLOTS; i++)
     {
-        struct dm_rect r = { m.x + 6, m.y + 34 + i * row_h, 116, row_h };
+        struct dm_rect rect = dm_dock_rect(i);
+        enum dm_asset_id asset = dm_dock_assets[i];
+        int x = rect.x;
+        int y = rect.y;
 
-        dm_draw_xp_icon(r.x + 2, r.y + 1, dm_apps[i].glyph, false);
-        dm_draw_start_row(r, DM_START_APP_BASE + i, dm_apps[i].name,
-                          NULL);
+        if (state->hover_dock == i)
+        {
+            asset = dm_dock_assets_38[i];
+            x -= 3;
+            y -= 6;
+        }
+        else if (state->hover_dock >= 0 &&
+                 DM_ABS(state->hover_dock - i) == 1)
+        {
+            asset = dm_dock_assets_34[i];
+            x -= 1;
+            y -= 2;
+        }
+        dm_compose(asset, x, y);
+        if ((state->running_apps & DM_APP_BIT(dm_dock_apps[i])) != 0)
+            dm_compose(DM_ASSET_DOCK_INDICATOR, rect.x + 9,
+                       DM_DOCK_ICON_Y + DM_DOCK_ICON + 2);
     }
-
-    for (i = 0; i < 4; i++)
+    if (state->hover_dock >= 0)
     {
-        static const char *labels[] =
-        {
-            "My Files", "Control Panel", "Refresh", "Shut Down"
-        };
-        static const char *subs[] =
-        {
-            "Explorer", "Settings", "Redraw", "Exit"
-        };
-        struct dm_rect r = { m.x + 130, m.y + 40 + i * 25,
-                             m.w - 138, 22 };
+        const char *label = dm_dock_labels[state->hover_dock];
+        int width = MIN(DM_TOOLTIP_W,
+                        dm_text_width(&dm_fonts[DM_FONT_SMALL], label) + 16);
+        int x = dm_dock_rect(state->hover_dock).x + DM_DOCK_ICON / 2 -
+                width / 2;
 
-        dm_draw_start_row(r, DM_START_FINDER + i, labels[i], subs[i]);
+        x = MAX(2, MIN(x, LCD_WIDTH - width - 2));
+        dm_blit_panel(DM_ASSET_TOOLTIP, x, DM_TOOLTIP_Y, width,
+                      DM_TOOLTIP_CAP);
+        dm_draw_text_centered(&dm_fonts[DM_FONT_SMALL], x, DM_TOOLTIP_Y + 4,
+                              width, DM_INK, label);
     }
-
-    dm_gradient_rect(m.x + 1, m.y + m.h - 26, m.w - 2, 25,
-                     DM_TITLE_BOTTOM, DM_TITLE_TOP);
-    dm_text_fit(m.x + 10, m.y + m.h - 18, m.w - 20,
-                "Personal asset pack: " DM_XP_ASSET_DIR,
-                DM_WHITE, false);
 }
 
-static void dm_draw_cursor(void)
+/* Sidebar rows, measured against the real source-list metrics. */
+struct dm_sidebar_row
 {
-    int x = dm_cursor_x;
-    int y = dm_cursor_y;
+    const char *label;
+    const char *path;
+    short y;
+    short height;
+    bool header;
+};
+
+static const struct dm_sidebar_row dm_sidebar_rows[] =
+{
+    { "DEVICES", NULL, DM_BODY_Y + 2, 14, true },
+    { "iPod", "/", DM_BODY_Y + 16, 16, false },
+    { "PLACES", NULL, DM_BODY_Y + 34, 14, true },
+    { "Applications", PLUGIN_APPS_DIR, DM_BODY_Y + 48, 16, false },
+    { "Music", "/Music", DM_BODY_Y + 64, 16, false },
+    { "Videos", "/Videos", DM_BODY_Y + 80, 16, false },
+};
+
+/* Finder titles the window after the folder, not the whole path. */
+static const char *dm_window_title(void)
+{
+    const char *slash = rb->strrchr(dm_cwd, '/');
+
+    if (!slash || !slash[1])
+        return "iPod";
+    return slash + 1;
+}
+
+static void dm_draw_finder(const struct dm_state *state)
+{
+    const struct dm_font *regular = &dm_fonts[DM_FONT_REGULAR];
+    const struct dm_font *small = &dm_fonts[DM_FONT_SMALL];
+    char status[48];
     int i;
 
-    for (i = 0; i < 14; i++)
-        dm_fillrect_c(x + i / 2, y + i, MAX(1, 8 - i / 2), 1, DM_WHITE);
-    for (i = 0; i < 15; i++)
-        dm_fillrect_c(x, y + i, 1, 1, DM_CURSOR_EDGE);
-    for (i = 0; i < 8; i++)
-        dm_fillrect_c(x + i, y + i * 2, 1, 1, DM_CURSOR_EDGE);
-    dm_fillrect_c(x + 5, y + 12, 6, 2, DM_CURSOR_EDGE);
-    dm_fillrect_c(x + 7, y + 14, 2, 5, DM_CURSOR_EDGE);
+    dm_blit(DM_ASSET_WINDOW_SIDEBAR, DM_WIN_X, DM_WIN_Y);
+    dm_draw_text_centered(&dm_fonts[DM_FONT_BOLD], DM_WIN_X, DM_WIN_Y + 5,
+                          DM_WIN_W, DM_INK_TITLE, dm_window_title());
+
+    for (i = 0; i < (int)ARRAYLEN(dm_sidebar_rows); i++)
+    {
+        const struct dm_sidebar_row *row = &dm_sidebar_rows[i];
+
+        if (row->header)
+        {
+            dm_draw_text(small, DM_WIN_X + 6, row->y + 2, 74,
+                         DM_INK_SIDEBAR_HEAD, row->label);
+            continue;
+        }
+        if (!rb->strcmp(dm_cwd, row->path))
+        {
+            dm_blit(DM_ASSET_SIDEBAR_SELECTION, DM_WIN_X, row->y);
+            dm_draw_text(small, DM_WIN_X + 18, row->y + 3, 62,
+                         DM_INK_WHITE, row->label);
+        }
+        else
+            dm_draw_text(small, DM_WIN_X + 18, row->y + 3, 62,
+                         DM_INK_SIDEBAR, row->label);
+    }
+
+    for (i = 0; i < DM_FILE_ROWS; i++)
+    {
+        int index = dm_file_top + i;
+        int y = DM_BODY_Y + i * DM_ROW_H;
+        fb_data ink = DM_INK;
+
+        if (index >= dm_file_count)
+            break;
+        if (index == dm_file_selected)
+        {
+            dm_blit(DM_ASSET_LIST_SELECTION, DM_LIST_X, y);
+            ink = DM_INK_WHITE;
+        }
+        dm_compose(dm_files[index].is_dir ? DM_ASSET_ICON_FOLDER :
+                                            DM_ASSET_ICON_DOCUMENT,
+                   DM_LIST_X + 4, y + 2);
+        dm_draw_text(regular, DM_LIST_X + 24, y + 3,
+                     DM_LIST_W - 30 -
+                        (dm_file_count > DM_FILE_ROWS ? DM_SCROLLER_W : 0),
+                     ink, dm_files[index].name);
+    }
+    if (dm_file_count > DM_FILE_ROWS)
+    {
+        int maximum = dm_file_count - DM_FILE_ROWS;
+        int travel = DM_SCROLLER_H - DM_SCROLLER_THUMB_H;
+
+        dm_blit(DM_ASSET_SCROLLER_TRACK, DM_SCROLLER_X, DM_BODY_Y);
+        dm_blit(DM_ASSET_SCROLLER_THUMB, DM_SCROLLER_X,
+                DM_BODY_Y + dm_file_top * travel / maximum);
+    }
+    rb->snprintf(status, sizeof(status), "%d item%s", dm_file_count,
+                 dm_file_count == 1 ? "" : "s");
+    dm_draw_text_centered(small, DM_WIN_X, DM_STATUS_Y + 7, DM_WIN_W,
+                          DM_INK_STATUS, status);
+    (void)state;
 }
+
+static void dm_scan_directory(void);
+
+/* Photos and iTunes are windows over the same bounded snapshot Finder uses,
+ * so neither needs its own scan, list or paint code.
+ */
+enum dm_media_kind
+{
+    DM_MEDIA_PICTURES = 0,
+    DM_MEDIA_MUSIC,
+};
+
+static enum dm_media_kind dm_media_kind;
+static char dm_media_root[MAX_PATH];
+
+static bool dm_name_has_suffix(const char *name, const char *suffix)
+{
+    int name_length = rb->strlen(name);
+    int suffix_length = rb->strlen(suffix);
+
+    return name_length > suffix_length &&
+           !rb->strcasecmp(name + name_length - suffix_length, suffix);
+}
+
+static bool dm_media_match(enum dm_media_kind kind, const char *name)
+{
+    static const char * const pictures[] =
+        { ".bmp", ".jpg", ".jpeg", ".png", ".gif", ".ppm" };
+    const char * const *suffixes = pictures;
+    int count = (int)ARRAYLEN(pictures);
+    int i;
+
+    if (kind == DM_MEDIA_MUSIC)
+        return (rb->filetype_get_attr(name) & FILE_ATTR_MASK) ==
+               FILE_ATTR_AUDIO;
+
+    for (i = 0; i < count; i++)
+    {
+        if (dm_name_has_suffix(name, suffixes[i]))
+            return true;
+    }
+    return false;
+}
+
+static void dm_scan_media(enum dm_media_kind kind)
+{
+    static const char * const roots[] = { "/Pictures", "/Music" };
+    const char *root = roots[kind];
+    int keep = 0;
+    int i;
+
+    dm_media_kind = kind;
+    if (!rb->dir_exists(root))
+        root = "/";
+    rb->strlcpy(dm_media_root, root, sizeof(dm_media_root));
+    rb->strlcpy(dm_cwd, root, sizeof(dm_cwd));
+    dm_scan_directory();
+    /* Keep folders so the window can be browsed, and only the media this
+     * application can actually open. */
+    for (i = 0; i < dm_file_count; i++)
+    {
+        if (dm_files[i].is_dir || dm_media_match(kind, dm_files[i].name))
+        {
+            if (keep != i)
+                dm_files[keep] = dm_files[i];
+            keep++;
+        }
+    }
+    dm_file_count = keep;
+    dm_file_selected = 0;
+    dm_file_top = 0;
+}
+
+/* Shared list body for the windowed media applications. */
+static void dm_draw_media_window(const char *title, enum dm_asset_id icon,
+                                 const char *status_text)
+{
+    const struct dm_font *regular = &dm_fonts[DM_FONT_REGULAR];
+    const struct dm_font *small = &dm_fonts[DM_FONT_SMALL];
+    char status[48];
+    int i;
+
+    dm_blit(DM_ASSET_WINDOW_PLAIN, DM_WIN_X, DM_WIN_Y);
+    dm_draw_text_centered(&dm_fonts[DM_FONT_BOLD], DM_WIN_X, DM_WIN_Y + 5,
+                          DM_WIN_W, DM_INK_TITLE, title);
+    for (i = 0; i < DM_FILE_ROWS; i++)
+    {
+        int index = dm_file_top + i;
+        int y = DM_BODY_Y + i * DM_ROW_H;
+        fb_data ink = DM_INK;
+
+        if (index >= dm_file_count)
+            break;
+        if (index == dm_file_selected)
+        {
+            dm_blit_part(DM_ASSET_LIST_SELECTION, DM_WIN_X + 1, y,
+                         DM_WIN_W - 2);
+            ink = DM_INK_WHITE;
+        }
+        dm_compose(dm_files[index].is_dir ? DM_ASSET_ICON_FOLDER : icon,
+                   DM_WIN_X + 8, y + 2);
+        dm_draw_text(regular, DM_WIN_X + 28, y + 3, DM_WIN_W - 40, ink,
+                     dm_files[index].name);
+    }
+    if (dm_file_count > DM_FILE_ROWS)
+    {
+        int maximum = dm_file_count - DM_FILE_ROWS;
+        int travel = DM_SCROLLER_H - DM_SCROLLER_THUMB_H;
+
+        dm_blit(DM_ASSET_SCROLLER_TRACK, DM_SCROLLER_X, DM_BODY_Y);
+        dm_blit(DM_ASSET_SCROLLER_THUMB, DM_SCROLLER_X,
+                DM_BODY_Y + dm_file_top * travel / maximum);
+    }
+    if (dm_file_count == 0)
+        dm_draw_text_centered(regular, DM_WIN_X, DM_BODY_Y + 30, DM_WIN_W,
+                              DM_INK_STATUS, "Nothing here");
+    if (!status_text)
+    {
+        rb->snprintf(status, sizeof(status), "%d item%s", dm_file_count,
+                     dm_file_count == 1 ? "" : "s");
+        status_text = status;
+    }
+    dm_draw_text_centered(small, DM_WIN_X, DM_STATUS_Y + 7, DM_WIN_W,
+                          DM_INK_STATUS, status_text);
+}
+
+static void dm_draw_photos(void)
+{
+    dm_draw_media_window("Photos", DM_ASSET_ICON_PREVIEW, NULL);
+}
+
+#define DM_ITUNES_X ((LCD_WIDTH - DM_ITUNES_W) / 2)
+#if LCD_WIDTH >= 1920
+#define DM_ITUNES_Y (DM_MENUBAR_H + (LCD_HEIGHT - DM_MENUBAR_H - \
+                     DM_DOCK_BAND - DM_ITUNES_H) / 2)
+#else
+#define DM_ITUNES_Y DM_MENUBAR_H
+#endif
+#define DM_ITUNES_BODY_LOCAL_Y (22 + 41 + 17)
+#define DM_ITUNES_BODY_Y (DM_ITUNES_Y + DM_ITUNES_BODY_LOCAL_Y)
+#define DM_ITUNES_ROW_H 17
+#define DM_ITUNES_BOTTOM_H 24
+#define DM_ITUNES_ROWS ((DM_ITUNES_H - 22 - 41 - 17 - \
+                         DM_ITUNES_BOTTOM_H) / DM_ITUNES_ROW_H)
+#define DM_ITUNES_LIST_X (DM_ITUNES_X + DM_ITUNES_SOURCE_W + 1)
+#define DM_ITUNES_LIST_W (DM_ITUNES_W - DM_ITUNES_SOURCE_W - 2)
+
+static const char * const dm_itunes_source_names[DM_ITUNES_SOURCE_COUNT] =
+{
+    "Albums", "Artists", "Songs", "Videos"
+};
+
+static int dm_itunes_split_tabs(char *line, char **fields, int maximum)
+{
+    int count = 0;
+    char *cursor = line;
+
+    while (count < maximum)
+    {
+        char *tab;
+
+        fields[count++] = cursor;
+        tab = rb->strchr(cursor, '\t');
+        if (!tab)
+            break;
+        *tab = '\0';
+        cursor = tab + 1;
+    }
+    return count;
+}
+
+static bool dm_itunes_live_video(const char *path)
+{
+    return rb->strstr(path, "/Videos/Live/") != NULL ||
+           rb->strstr(path, "/Live/") != NULL;
+}
+
+static void dm_itunes_commit_rows(void)
+{
+    int i;
+
+    dm_file_count = dm_itunes_count;
+    dm_file_selected = dm_itunes_count > 0 ? 0 : -1;
+    dm_file_top = 0;
+    rb->strlcpy(dm_cwd, "/", sizeof(dm_cwd));
+    for (i = 0; i < dm_itunes_count; i++)
+    {
+        rb->strlcpy(dm_files[i].name, dm_itunes_rows[i].path[0] ?
+                    dm_itunes_rows[i].path : dm_itunes_rows[i].title,
+                    sizeof(dm_files[i].name));
+        dm_files[i].is_dir = false;
+    }
+}
+
+static void dm_itunes_load_videos(void)
+{
+    char line[1024];
+    int fd;
+    int absolute = 0;
+
+    dm_itunes_count = 0;
+    dm_itunes_total = 0;
+    dm_itunes_database_pending = false;
+    dm_itunes_has_more = false;
+    dm_itunes_total_known = true;
+    fd = rb->open(DM_ITUNES_VIDEO_INDEX, O_RDONLY);
+    if (fd < 0)
+    {
+        dm_itunes_commit_rows();
+        return;
+    }
+    while (rb->read_line(fd, line, sizeof(line)) > 0)
+    {
+        char *fields[12];
+        int field_count;
+        struct dm_itunes_row *row;
+
+        if (line[0] == '\0' || line[0] == '#' ||
+            !rb->strncmp(line, "video_id\t", 9))
+            continue;
+        field_count = dm_itunes_split_tabs(line, fields, ARRAYLEN(fields));
+        if (field_count < 12 || fields[6][0] == '\0' ||
+            rb->atoi(fields[11]) != 0 || dm_itunes_live_video(fields[6]))
+            continue;
+        if (absolute >= dm_itunes_page_top &&
+            dm_itunes_count < MIN(DM_ITUNES_PAGE_MAX, DM_ITUNES_ROWS))
+        {
+            row = &dm_itunes_rows[dm_itunes_count++];
+            rb->memset(row, 0, sizeof(*row));
+            rb->strlcpy(row->title, fields[3][0] ? fields[3] : fields[6],
+                        sizeof(row->title));
+            rb->strlcpy(row->artist, fields[4], sizeof(row->artist));
+            rb->strlcpy(row->album, fields[7], sizeof(row->album));
+            rb->strlcpy(row->path, fields[6], sizeof(row->path));
+            row->duration = rb->atoi(fields[10]);
+        }
+        absolute++;
+    }
+    rb->close(fd);
+    dm_itunes_total = absolute;
+    dm_itunes_commit_rows();
+}
+
+#ifdef HAVE_TAGCACHE
+static void dm_itunes_load_tagcache(void)
+{
+    const struct tagcache_stat *stat = rb->tagcache_get_stat();
+    struct tagcache_search search;
+    char value[MAX_PATH];
+    int tag = dm_itunes_source == DM_ITUNES_ALBUMS ? tag_album :
+              dm_itunes_source == DM_ITUNES_ARTISTS ? tag_artist : tag_title;
+    int page_size = MIN(DM_ITUNES_PAGE_MAX, DM_ITUNES_ROWS);
+    int absolute = 0;
+
+    dm_itunes_count = 0;
+    dm_itunes_total = 0;
+    dm_itunes_has_more = false;
+    dm_itunes_total_known = false;
+    if (!stat || !stat->readyvalid || !stat->ready)
+    {
+        dm_itunes_database_pending = true;
+        dm_itunes_commit_rows();
+        return;
+    }
+    dm_itunes_database_pending = false;
+    if (!rb->tagcache_search(&search, tag))
+    {
+        dm_itunes_commit_rows();
+        return;
+    }
+    if (tag != tag_title)
+        rb->tagcache_search_set_uniqbuf(&search, dm_itunes_uniqbuf,
+                                       sizeof(dm_itunes_uniqbuf));
+    while (rb->tagcache_get_next(&search, value, sizeof(value)))
+    {
+        struct dm_itunes_row *row;
+
+        if (absolute >= dm_itunes_page_top)
+        {
+            if (dm_itunes_count >= page_size)
+            {
+                dm_itunes_has_more = true;
+                break;
+            }
+            row = &dm_itunes_rows[dm_itunes_count++];
+            rb->memset(row, 0, sizeof(*row));
+            rb->strlcpy(row->title, value, sizeof(row->title));
+            row->idxid = search.idx_id;
+            row->seek = search.result_seek;
+            if (tag == tag_title)
+            {
+                rb->tagcache_retrieve(&search, search.idx_id, tag_filename,
+                                      row->path, sizeof(row->path));
+                rb->tagcache_retrieve(&search, search.idx_id, tag_artist,
+                                      row->artist, sizeof(row->artist));
+                rb->tagcache_retrieve(&search, search.idx_id, tag_album,
+                                      row->album, sizeof(row->album));
+            }
+        }
+        absolute++;
+    }
+    rb->tagcache_search_finish(&search);
+    dm_itunes_total_known = !dm_itunes_has_more;
+    if (tag == tag_title)
+    {
+        dm_itunes_total = stat->total_entries;
+        dm_itunes_total_known = true;
+    }
+    else
+        dm_itunes_total = absolute + (dm_itunes_has_more ? 1 : 0);
+    dm_itunes_commit_rows();
+}
+#endif
+
+static void dm_itunes_load(void)
+{
+    if (dm_itunes_source == DM_ITUNES_VIDEOS)
+        dm_itunes_load_videos();
+    else
+    {
+#ifdef HAVE_TAGCACHE
+        dm_itunes_load_tagcache();
+#else
+        dm_itunes_count = 0;
+        dm_itunes_total = 0;
+        dm_itunes_database_pending = false;
+        dm_itunes_has_more = false;
+        dm_itunes_total_known = true;
+        dm_itunes_commit_rows();
+#endif
+    }
+}
+
+static void dm_itunes_change_page(int direction)
+{
+    int page_size = MIN(DM_ITUNES_PAGE_MAX, DM_ITUNES_ROWS);
+    int next = dm_itunes_page_top + direction * page_size;
+
+    if (direction > 0 && !dm_itunes_has_more)
+        return;
+    next = MAX(0, next);
+    if (dm_itunes_total_known && next >= dm_itunes_total)
+        return;
+    dm_itunes_page_top = next;
+    dm_itunes_load();
+}
+
+static void dm_draw_itunes_chrome(void)
+{
+#if LCD_WIDTH >= 1920
+    dm_blit(DM_ASSET_ITUNES_WINDOW, DM_ITUNES_X, DM_ITUNES_Y);
+#else
+    const int captured_body_h = DM_ITUNES_ROW_H * 2;
+    const int body_h = DM_ITUNES_H - DM_ITUNES_BODY_LOCAL_Y -
+                       DM_ITUNES_BOTTOM_H;
+    int offset = 0;
+
+    dm_blit_region(DM_ASSET_ITUNES_WINDOW, 0, 0,
+                   DM_ITUNES_X, DM_ITUNES_Y,
+                   DM_ITUNES_W, DM_ITUNES_BODY_LOCAL_Y);
+    while (offset < body_h)
+    {
+        int height = MIN(captured_body_h, body_h - offset);
+
+        dm_blit_region(DM_ASSET_ITUNES_WINDOW, 0,
+                       DM_ITUNES_BODY_LOCAL_Y,
+                       DM_ITUNES_X, DM_ITUNES_BODY_Y + offset,
+                       DM_ITUNES_W, height);
+        offset += height;
+    }
+    dm_blit_region(DM_ASSET_ITUNES_WINDOW, 0,
+                   DM_ITUNES_ASSET_H - DM_ITUNES_BOTTOM_H,
+                   DM_ITUNES_X,
+                   DM_ITUNES_Y + DM_ITUNES_H - DM_ITUNES_BOTTOM_H,
+                   DM_ITUNES_W, DM_ITUNES_BOTTOM_H);
+#endif
+}
+
+static void dm_draw_itunes(void)
+{
+    const struct mp3entry *track = rb->audio_current_track();
+    const struct dm_font *regular = &dm_fonts[DM_FONT_REGULAR];
+    const struct dm_font *small = &dm_fonts[DM_FONT_SMALL];
+    char status[64];
+    char footer[64];
+    int list_width = DM_ITUNES_LIST_W;
+    int name_width = list_width * 45 / 100;
+    int artist_width = list_width * 25 / 100;
+    int album_width = list_width - name_width - artist_width;
+    int i;
+
+    /* The furniture is sampled from the owned iTunes capture. Runtime drawing
+     * is limited to library data, labels, and the native selection gradients. */
+    dm_draw_itunes_chrome();
+    dm_draw_text_centered(small, DM_ITUNES_X, DM_ITUNES_Y + 6, DM_ITUNES_W,
+                          DM_INK_TITLE, "iTunes");
+    dm_draw_text(small, DM_ITUNES_X + 7, DM_ITUNES_BODY_Y - 14,
+                 DM_ITUNES_SOURCE_W - 12,
+                 DM_INK_SIDEBAR_HEAD, "LIBRARY");
+    for (i = 0; i < DM_ITUNES_SOURCE_COUNT; i++)
+    {
+        int y = DM_ITUNES_BODY_Y + i * DM_ITUNES_ROW_H;
+        fb_data ink = DM_INK_SIDEBAR;
+
+        if (i == (int)dm_itunes_source)
+        {
+            dm_blit_panel(DM_ASSET_SIDEBAR_SELECTION, DM_ITUNES_X + 1, y,
+                          DM_ITUNES_SOURCE_W - 2, 2);
+            ink = DM_INK_WHITE;
+        }
+        dm_draw_text(small, DM_ITUNES_X + 14, y + 2,
+                     DM_ITUNES_SOURCE_W - 20, ink,
+                     dm_itunes_source_names[i]);
+    }
+    dm_draw_text(small, DM_ITUNES_LIST_X + 6, DM_ITUNES_BODY_Y - 14,
+                 name_width - 8, DM_INK, "Name");
+    if (LCD_WIDTH > 320)
+    {
+        dm_draw_text(small, DM_ITUNES_LIST_X + name_width + 5,
+                     DM_ITUNES_BODY_Y - 14, artist_width - 8,
+                     DM_INK, "Artist");
+        dm_draw_text(small, DM_ITUNES_LIST_X + name_width + artist_width + 5,
+                     DM_ITUNES_BODY_Y - 14, album_width - 8,
+                     DM_INK, "Album");
+    }
+    for (i = 0; i < DM_ITUNES_ROWS; i++)
+    {
+        int y = DM_ITUNES_BODY_Y + i * DM_ITUNES_ROW_H;
+        fb_data ink = DM_INK;
+
+        if (i >= dm_itunes_count)
+            break;
+        if (i == dm_file_selected)
+        {
+            dm_blit_part(DM_ASSET_ITUNES_SELECTION, DM_ITUNES_LIST_X, y,
+                         DM_ITUNES_LIST_W);
+            ink = DM_INK_WHITE;
+        }
+        dm_draw_text(regular, DM_ITUNES_LIST_X + 6, y + 1,
+                     (LCD_WIDTH > 320 ? name_width : list_width) - 8, ink,
+                     dm_itunes_rows[i].title);
+        if (LCD_WIDTH > 320)
+        {
+            dm_draw_text(regular, DM_ITUNES_LIST_X + name_width + 5, y + 1,
+                         artist_width - 8, ink, dm_itunes_rows[i].artist);
+            dm_draw_text(regular,
+                         DM_ITUNES_LIST_X + name_width + artist_width + 5,
+                         y + 1, album_width - 8, ink,
+                         dm_itunes_rows[i].album);
+        }
+    }
+    if (track)
+        rb->snprintf(status, sizeof(status), "%s  %d:%02d",
+                     track->title ? track->title : track->path,
+                     (int)(track->elapsed / 60000),
+                     (int)((track->elapsed / 1000) % 60));
+    else if (dm_itunes_database_pending)
+        rb->strlcpy(status, "Loading database...", sizeof(status));
+    else
+        rb->strlcpy(status, dm_itunes_source_names[dm_itunes_source],
+                    sizeof(status));
+    dm_draw_text_centered(small, DM_ITUNES_X + 150,
+                          DM_ITUNES_Y + 22 + 14,
+                          DM_ITUNES_W - 185, DM_INK, status);
+    if (dm_itunes_total_known)
+        rb->snprintf(footer, sizeof(footer), "%d-%d of %d %s",
+                     dm_itunes_total ? dm_itunes_page_top + 1 : 0,
+                     dm_itunes_page_top + dm_itunes_count, dm_itunes_total,
+                     dm_itunes_source_names[dm_itunes_source]);
+    else
+        rb->snprintf(footer, sizeof(footer), "%d-%d %s",
+                     dm_itunes_page_top + 1,
+                     dm_itunes_page_top + dm_itunes_count,
+                     dm_itunes_source_names[dm_itunes_source]);
+    dm_draw_text_centered(small, DM_ITUNES_LIST_X,
+                          DM_ITUNES_Y + DM_ITUNES_H - 18,
+                          DM_ITUNES_LIST_W - 38, DM_INK, footer);
+    dm_draw_text_centered(small, DM_ITUNES_X + DM_ITUNES_W - 38,
+                          DM_ITUNES_Y + DM_ITUNES_H - 18, 18,
+                          DM_INK, "<");
+    dm_draw_text_centered(small, DM_ITUNES_X + DM_ITUNES_W - 20,
+                          DM_ITUNES_Y + DM_ITUNES_H - 18, 18,
+                          DM_INK, ">");
+}
+
+static void dm_draw_preferences(const struct dm_state *state)
+{
+    static const char * const labels[] =
+    {
+        "Mouse speed",
+        "Reverse wheel direction",
+        "Drag lock",
+        "Show desktop folders",
+        "Start application",
+        "Restore last session"
+    };
+    const struct dm_font *regular = &dm_fonts[DM_FONT_REGULAR];
+    char value[24];
+    int i;
+
+    dm_blit(DM_ASSET_WINDOW_PLAIN, DM_WIN_X, DM_WIN_Y);
+    dm_draw_text_centered(&dm_fonts[DM_FONT_BOLD], DM_WIN_X, DM_WIN_Y + 5,
+                          DM_WIN_W, DM_INK_TITLE, "System Preferences");
+    for (i = 0; i < (int)ARRAYLEN(labels); i++)
+    {
+        int y = DM_BODY_Y + i * DM_PREF_ROW_H;
+        fb_data ink = DM_INK;
+
+        if (i >= DM_PREF_ROWS)
+            break;
+        if (state->preference_row == i)
+        {
+            dm_blit_part(DM_ASSET_LIST_SELECTION, DM_WIN_X + 6, y,
+                         DM_WIN_W - 12);
+            ink = DM_INK_WHITE;
+        }
+        dm_draw_text(regular, DM_WIN_X + 14, y + 2, 190, ink, labels[i]);
+        if (i == 0)
+            rb->snprintf(value, sizeof(value), "%d",
+                         dm_settings.pointer_speed);
+        else if (i == 1)
+            rb->strlcpy(value, dm_settings.reverse_wheel ? "On" : "Off",
+                        sizeof(value));
+        else if (i == 2)
+            rb->strlcpy(value, dm_settings.drag_lock ? "On" : "Off",
+                        sizeof(value));
+        else if (i == 3)
+            rb->strlcpy(value,
+                        dm_settings.show_desktop_folders ? "On" : "Off",
+                        sizeof(value));
+        else if (i == 4)
+            rb->strlcpy(value, dm_start_app_name(dm_settings.start_app),
+                        sizeof(value));
+        else
+            rb->strlcpy(value, dm_settings.restore_session ? "On" : "Off",
+                        sizeof(value));
+        dm_draw_text_right(regular, DM_WIN_X + DM_WIN_W - 16, y + 2, 80,
+                           ink, value);
+    }
+}
+
+static void dm_draw_apple_menu(const struct dm_state *state)
+{
+    int i;
+
+    dm_blit(DM_ASSET_MENU_PANEL, DM_MENU_X, DM_MENU_Y);
+    for (i = 0; i < DM_APPLE_MENU_ROWS; i++)
+    {
+        int y = DM_MENU_Y + DM_MENU_TOP + i * DM_MENU_ROW_H;
+        fb_data ink = DM_INK;
+
+        if (state->menu_row == i)
+        {
+            dm_blit(DM_ASSET_MENU_SELECTION, DM_MENU_X + 1, y);
+            ink = DM_INK_WHITE;
+        }
+        dm_draw_text(&dm_fonts[DM_FONT_REGULAR], DM_MENU_X + 10, y + 3,
+                     DM_MENU_W - 20, ink, dm_apple_menu_labels[i]);
+    }
+}
+
+static void dm_draw_finder_context_menu(const struct dm_state *state)
+{
+    int i;
+
+    dm_blit(DM_ASSET_CONTEXT_PANEL, DM_CONTEXT_X, DM_CONTEXT_Y);
+    for (i = 0; i < DM_CONTEXT_ROWS; i++)
+    {
+        int y = DM_CONTEXT_Y + DM_MENU_TOP + i * DM_MENU_ROW_H;
+        fb_data ink = DM_INK;
+
+        if (state->menu_row == i)
+        {
+            dm_blit_part(DM_ASSET_MENU_SELECTION, DM_CONTEXT_X + 1, y,
+                         DM_CONTEXT_W - 2);
+            ink = DM_INK_WHITE;
+        }
+        dm_draw_text(&dm_fonts[DM_FONT_REGULAR], DM_CONTEXT_X + 10, y + 3,
+                     DM_CONTEXT_W - 20, ink, dm_context_labels[i]);
+    }
+}
+
+static void dm_draw_sheet_row(int row, const char *label, const char *value)
+{
+    int y = DM_SHEET_Y + 34 + row * 16;
+
+    dm_draw_text(&dm_fonts[DM_FONT_SMALL], DM_SHEET_X + 16, y, 66,
+                 DM_INK_STATUS, label);
+    dm_draw_text(&dm_fonts[DM_FONT_SMALL], DM_SHEET_X + 84, y,
+                 DM_SHEET_W - 100, DM_INK, value);
+}
+
+static void dm_draw_get_info(void)
+{
+    const char *name = "No selection";
+    char size[32] = "--";
+    char modified[32] = "--";
+    struct tm tm;
+    bool is_dir = false;
+
+    if (dm_file_selected >= 0 && dm_file_selected < dm_file_count)
+    {
+        name = dm_files[dm_file_selected].name;
+        is_dir = dm_files[dm_file_selected].is_dir;
+        if (!is_dir)
+            rb->snprintf(size, sizeof(size), "%ld bytes",
+                         (long)dm_files[dm_file_selected].size);
+        if (rb->gmtime_r(&dm_files[dm_file_selected].mtime, &tm))
+            rb->snprintf(modified, sizeof(modified), "%04d-%02d-%02d",
+                         tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday);
+    }
+    dm_blit(DM_ASSET_SHEET, DM_SHEET_X, DM_SHEET_Y);
+    dm_compose(is_dir ? DM_ASSET_ICON_FOLDER_DESKTOP : DM_ASSET_ICON_DOCUMENT,
+               DM_SHEET_X + 12, DM_SHEET_Y + 8);
+    dm_draw_text(&dm_fonts[DM_FONT_BOLD], DM_SHEET_X + 52, DM_SHEET_Y + 12,
+                 DM_SHEET_W - 64, DM_INK, name);
+    dm_draw_sheet_row(0, "Kind:", is_dir ? "Folder" : "Document");
+    dm_draw_sheet_row(1, "Size:", size);
+    dm_draw_sheet_row(2, "Modified:", modified);
+    dm_draw_sheet_row(3, "Where:", dm_cwd);
+}
+
+static void dm_draw_confirm(const struct dm_state *state)
+{
+    const char *title = "Return to the iPod menu?";
+
+    if (state->overlay == DM_OVERLAY_RESTART_CONFIRM)
+        title = "Restart Rockbox now?";
+    else if (state->overlay == DM_OVERLAY_DELETE_CONFIRM)
+        title = "Delete the selected item?";
+    else if (state->overlay == DM_OVERLAY_NEW_FOLDER_CONFIRM)
+        title = "Create an untitled folder?";
+    dm_blit(DM_ASSET_SHEET, DM_SHEET_X, DM_SHEET_Y);
+    dm_draw_text_centered(&dm_fonts[DM_FONT_BOLD], DM_SHEET_X,
+                          DM_SHEET_Y + 34, DM_SHEET_W, DM_INK, title);
+    dm_draw_text_centered(&dm_fonts[DM_FONT_SMALL], DM_SHEET_X,
+                          DM_SHEET_Y + 62, DM_SHEET_W, DM_INK_STATUS,
+                          "Select confirms.  Menu cancels.");
+}
+
+static bool dm_pointer_is_hand(const struct dm_state *state)
+{
+    return state->hover_dock >= 0 ||
+           dm_point_in_rect(state->cursor_x, state->cursor_y,
+                            (struct dm_rect){ 0, 0, DM_APPLE_X + DM_APPLE_W,
+                                              DM_MENUBAR_H }) ||
+           (state->app != DM_APP_DESKTOP &&
+            dm_point_in_rect(state->cursor_x, state->cursor_y,
+                             DM_TRAFFIC_RECT)) ||
+           (state->overlay != DM_OVERLAY_NONE && state->menu_row >= 0);
+}
+
+static void dm_draw_cursor(const struct dm_state *state)
+{
+    dm_compose(dm_pointer_is_hand(state) ? DM_ASSET_CURSOR_HAND :
+                                           DM_ASSET_CURSOR_ARROW,
+               state->cursor_x, state->cursor_y);
+}
+
+static void dm_draw(const struct dm_state *state)
+{
+    dm_blit(DM_ASSET_AURORA, 0, 0);
+    dm_draw_desktop_icons();
+    if (state->animation.active)
+        dm_draw_animation(state);
+    else if (state->app == DM_APP_FINDER)
+        dm_draw_finder(state);
+    else if (state->app == DM_APP_ITUNES)
+        dm_draw_itunes();
+    else if (state->app == DM_APP_PREVIEW)
+        dm_draw_photos();
+    else if (state->app == DM_APP_PREFERENCES)
+        dm_draw_preferences(state);
+    dm_draw_menu_bar(state);
+    /* The 320x240 iTunes window uses the whole work area.  Reveal the Dock
+     * during its genie transition and everywhere else, but do not lay it over
+     * the media list once iTunes has settled. */
+    if (LCD_WIDTH > 320 || state->app != DM_APP_ITUNES ||
+        state->animation.active)
+        dm_draw_dock(state);
+    if (!state->animation.active)
+    {
+        if (state->overlay == DM_OVERLAY_APPLE_MENU)
+            dm_draw_apple_menu(state);
+        else if (state->overlay == DM_OVERLAY_FINDER_CONTEXT)
+            dm_draw_finder_context_menu(state);
+        else if (state->overlay == DM_OVERLAY_GET_INFO)
+            dm_draw_get_info();
+        else if (state->overlay == DM_OVERLAY_RETURN_CONFIRM ||
+                 state->overlay == DM_OVERLAY_RESTART_CONFIRM ||
+                 state->overlay == DM_OVERLAY_DELETE_CONFIRM ||
+                 state->overlay == DM_OVERLAY_NEW_FOLDER_CONFIRM)
+            dm_draw_confirm(state);
+    }
+    if (!state->wheel_available && !state->host_pointer &&
+        TIME_BEFORE(*rb->current_tick, state->hint_until))
+    {
+        static const char hint[] = "Wheel up/down, Prev/Next left/right";
+        int width = MIN(LCD_WIDTH - 8,
+                        dm_text_width(&dm_fonts[DM_FONT_SMALL], hint) + 16);
+        int x = (LCD_WIDTH - width) / 2;
+
+        dm_blit_panel(DM_ASSET_TOOLTIP, x, DM_MENUBAR_H + 6, width,
+                      DM_TOOLTIP_CAP);
+        dm_draw_text_centered(&dm_fonts[DM_FONT_SMALL], x,
+                              DM_MENUBAR_H + 10, width, DM_INK, hint);
+    }
+    dm_draw_cursor(state);
+    dm_present();
+}
+
+static void dm_scan_directory(void);
 
 static void dm_parent_dir(char *path)
 {
-    char *p;
-    int len = rb->strlen(path);
+    char *slash;
+    int length = rb->strlen(path);
 
-    if (len <= 1)
+    if (length <= 1)
     {
         rb->strcpy(path, "/");
         return;
     }
-
-    if (path[len - 1] == '/')
-        path[len - 1] = '\0';
-    p = rb->strrchr(path, '/');
-    if (!p || p == path)
+    if (path[length - 1] == '/')
+        path[--length] = '\0';
+    slash = rb->strrchr(path, '/');
+    if (!slash || slash == path)
         rb->strcpy(path, "/");
     else
-        *p = '\0';
+        *slash = '\0';
 }
 
-static void dm_join_path(char *out, size_t out_size, const char *dir,
+static void dm_join_path(char *output, size_t size, const char *directory,
                          const char *name)
 {
-    if (!rb->strcmp(dir, "/"))
-        rb->snprintf(out, out_size, "/%s", name);
+    if (!rb->strcmp(directory, "/"))
+        rb->snprintf(output, size, "/%s", name);
     else
-        rb->snprintf(out, out_size, "%s/%s", dir, name);
+        rb->snprintf(output, size, "%s/%s", directory, name);
 }
 
-static void dm_file_swap(int a, int b)
+static void dm_history_reset(void)
 {
-    struct dm_file tmp = dm_files[a];
-
-    dm_files[a] = dm_files[b];
-    dm_files[b] = tmp;
+    dm_history_count = 1;
+    dm_history_index = 0;
+    rb->strlcpy(dm_history[0], dm_cwd, sizeof(dm_history[0]));
 }
 
-static int dm_file_compare(const struct dm_file *a, const struct dm_file *b)
+static void dm_history_push(const char *path)
 {
-    if (a->is_dir != b->is_dir)
-        return a->is_dir ? -1 : 1;
+    int i;
 
-    return rb->strcasecmp(a->name, b->name);
+    if (!rb->strcmp(path, dm_cwd))
+        return;
+    dm_history_count = dm_history_index + 1;
+    if (dm_history_count == DM_HISTORY_COUNT)
+    {
+        for (i = 1; i < dm_history_count; i++)
+            rb->strlcpy(dm_history[i - 1], dm_history[i],
+                        sizeof(dm_history[i - 1]));
+        dm_history_count--;
+        dm_history_index--;
+    }
+    rb->strlcpy(dm_history[dm_history_count], path,
+                sizeof(dm_history[dm_history_count]));
+    dm_history_index = dm_history_count;
+    dm_history_count++;
+}
+
+static bool dm_navigate(const char *path)
+{
+    if (!rb->dir_exists(path))
+        return false;
+    dm_history_push(path);
+    rb->strlcpy(dm_cwd, path, sizeof(dm_cwd));
+    dm_scan_directory();
+    return true;
+}
+
+static bool dm_history_move(int direction)
+{
+    int next = dm_history_index + direction;
+
+    if (next < 0 || next >= dm_history_count)
+        return false;
+    dm_history_index = next;
+    rb->strlcpy(dm_cwd, dm_history[dm_history_index], sizeof(dm_cwd));
+    dm_scan_directory();
+    return true;
+}
+
+static int dm_file_compare(const struct dm_file *left,
+                           const struct dm_file *right)
+{
+    if (left->is_dir != right->is_dir)
+        return left->is_dir ? -1 : 1;
+    return rb->strcasecmp(left->name, right->name);
 }
 
 static void dm_sort_files(void)
@@ -959,576 +2700,1749 @@ static void dm_sort_files(void)
     {
         int j = i;
 
-        while (j > 0 && dm_file_compare(&dm_files[j], &dm_files[j - 1]) < 0)
+        while (j > 0 &&
+               dm_file_compare(&dm_files[j], &dm_files[j - 1]) < 0)
         {
-            dm_file_swap(j, j - 1);
+            struct dm_file temporary = dm_files[j];
+
+            dm_files[j] = dm_files[j - 1];
+            dm_files[j - 1] = temporary;
             j--;
         }
     }
 }
 
-static void dm_scan_dir(void)
+static void dm_scan_directory(void)
 {
-    DIR *dir;
+    DIR *directory;
     struct dirent *entry;
 
     dm_file_count = 0;
-    dm_file_sel = 0;
+    dm_file_selected = 0;
     dm_file_top = 0;
-
-    dir = rb->opendir(dm_cwd);
-    if (!dir)
+    directory = rb->opendir(dm_cwd);
+    if (!directory)
         return;
-
-    while ((entry = rb->readdir(dir)) && dm_file_count < DM_MAX_FILES)
+    while ((entry = rb->readdir(directory)) != NULL &&
+           dm_file_count < DM_MAX_FILES)
     {
         struct dirinfo info;
 
-        if (!rb->strcmp(entry->d_name, ".") || !rb->strcmp(entry->d_name, ".."))
+        if (!rb->strcmp(entry->d_name, ".") ||
+            !rb->strcmp(entry->d_name, ".."))
             continue;
-
-        info = rb->dir_get_info(dir, entry);
+        info = rb->dir_get_info(directory, entry);
         rb->strlcpy(dm_files[dm_file_count].name, entry->d_name,
                     sizeof(dm_files[dm_file_count].name));
-        dm_files[dm_file_count].is_dir = (info.attribute & ATTR_DIRECTORY) != 0;
+        dm_files[dm_file_count].is_dir =
+            (info.attribute & ATTR_DIRECTORY) != 0;
+        dm_files[dm_file_count].size = info.size;
+        dm_files[dm_file_count].mtime = info.mtime;
         dm_file_count++;
     }
-    rb->closedir(dir);
+    rb->closedir(directory);
     dm_sort_files();
+}
+
+/* Play a track chosen in the iTunes window.
+ *
+ * This is the one place Desktop Mode builds a playlist, and it does so only
+ * because the user asked for this track by name: it is the whole point of a
+ * music application.  Everything else in the shell still leaves the user's
+ * playlist alone - iTunes reports playback rather than commanding it, and
+ * nothing here runs unless a track was double-clicked.
+ */
+static int dm_play_selected_track(void)
+{
+    char path[MAX_PATH];
+    int index = 0;
+    int count = 0;
+    int i;
+
+    if (dm_file_selected < 0 || dm_file_selected >= dm_file_count ||
+        dm_files[dm_file_selected].is_dir)
+        return PLUGIN_OK;
+
+    if (rb->playlist_create(dm_cwd, NULL) < 0)
+    {
+        rb->splash(HZ, "Could not start playback");
+        return PLUGIN_OK;
+    }
+    /* Queue the whole folder so the album keeps playing, and begin at the
+     * track that was chosen. */
+    for (i = 0; i < dm_file_count; i++)
+    {
+        if (dm_files[i].is_dir || !dm_media_match(DM_MEDIA_MUSIC,
+                                                  dm_files[i].name))
+            continue;
+        dm_join_path(path, sizeof(path), dm_cwd, dm_files[i].name);
+        if (rb->playlist_insert_track(NULL, path, PLAYLIST_INSERT_LAST,
+                                      false, true) < 0)
+            break;
+        if (i == dm_file_selected)
+            index = count;
+        count++;
+    }
+    if (count == 0)
+    {
+        rb->splash(HZ, "No playable music");
+        return PLUGIN_OK;
+    }
+    rb->playlist_start(index, 0, 0);
+    return PLUGIN_OK;
 }
 
 static int dm_open_selected_file(void)
 {
     char path[MAX_PATH];
     char plugin[MAX_PATH];
-    int attr;
-    int len;
+    int attribute;
+    int length;
+    int result = PLUGIN_OK;
 
-    if (dm_file_sel < 0 || dm_file_sel >= dm_file_count)
+    if (dm_file_selected < 0 || dm_file_selected >= dm_file_count)
         return PLUGIN_OK;
-
-    dm_join_path(path, sizeof(path), dm_cwd, dm_files[dm_file_sel].name);
-    if (dm_files[dm_file_sel].is_dir)
+    if (dm_files[dm_file_selected].name[0] == '/')
+        rb->strlcpy(path, dm_files[dm_file_selected].name, sizeof(path));
+    else
+        dm_join_path(path, sizeof(path), dm_cwd,
+                     dm_files[dm_file_selected].name);
+    if (dm_files[dm_file_selected].is_dir)
     {
-        rb->strlcpy(dm_cwd, path, sizeof(dm_cwd));
-        dm_scan_dir();
+        dm_navigate(path);
         return PLUGIN_OK;
     }
 
-    len = rb->strlen(path);
-    if (len > 5 && !rb->strcasecmp(path + len - 5, ".rock"))
-        return rb->plugin_open(path, NULL);
+    attribute = rb->filetype_get_attr(path);
+    if ((attribute & FILE_ATTR_MASK) == FILE_ATTR_AUDIO)
+        return dm_play_selected_track();
 
-    attr = rb->filetype_get_attr(path);
-    if (rb->filetype_get_plugin(attr, plugin, sizeof(plugin)))
-        return rb->plugin_open(plugin, path);
-
-    rb->splash(HZ, "No viewer");
-    return PLUGIN_OK;
-}
-
-static int dm_launch_app(int selected, enum dm_mode *mode)
-{
-    const struct dm_app *app = &dm_apps[selected];
-
-    if (selected == 0)
+    length = rb->strlen(path);
+#ifdef HAVE_WHEEL_POSITION
+    rb->wheel_send_events(true);
+#endif
+    if (length > 5 && !rb->strcasecmp(path + length - 5, ".rock"))
     {
-        rb->strcpy(dm_cwd, "/");
-        dm_scan_dir();
-        *mode = DM_MODE_EXPLORER;
-        return PLUGIN_OK;
+        const char *parameter =
+            !rb->strcasecmp(dm_files[dm_file_selected].name, "livetv.rock") ?
+                "-desktop" : NULL;
+
+        result = rb->plugin_open(path, parameter);
     }
-
-    if (!app->path || !rb->file_exists(app->path))
-    {
-        rb->splash(HZ, "Not installed");
-        return PLUGIN_OK;
-    }
-
-    return rb->plugin_open(app->path, app->param);
-}
-
-static void dm_finder_parent(enum dm_mode *mode)
-{
-    if (!rb->strcmp(dm_cwd, "/"))
-        *mode = DM_MODE_DESKTOP;
     else
     {
-        dm_parent_dir(dm_cwd);
-        dm_scan_dir();
+        if (rb->filetype_get_plugin(attribute, plugin, sizeof(plugin)))
+            result = rb->plugin_open(plugin, path);
+        else
+            rb->splash(HZ, "No viewer");
     }
+#ifdef HAVE_WHEEL_POSITION
+    rb->wheel_send_events(false);
+#endif
+    return result;
 }
 
-static int dm_handle_start_item(int item, enum dm_mode *mode)
+/* Start the actual files represented by the current iTunes library row.
+ * Songs queue the on-device library and start at the chosen track. Albums
+ * and Artists use the tagcache seek captured with the visible row, then queue
+ * only matching files. Videos hand their absolute device path to Rockbox's
+ * registered MPEG/OpenH264 viewer.
+ */
+static int dm_open_itunes_selection(void)
 {
-    if (item >= 0 && item < (int)ARRAYLEN(dm_apps))
-        return dm_launch_app(item, mode);
-
-    switch (item)
-    {
-        case DM_START_FINDER:
-            rb->strcpy(dm_cwd, "/");
-            dm_scan_dir();
-            *mode = DM_MODE_EXPLORER;
-            break;
-
-        case DM_START_SETTINGS:
-            dm_settings_return_mode = *mode;
-            *mode = DM_MODE_SETTINGS;
-            break;
-
-        case DM_START_REFRESH:
-            if (*mode == DM_MODE_EXPLORER)
-                dm_scan_dir();
-            break;
-
-        case DM_START_EXIT:
-            return PLUGIN_OK + 1;
-    }
-
-    return PLUGIN_OK;
-}
-
-static int dm_file_hit_row(int px, int py)
-{
-    int x = 7;
-    int y = 13;
-    int w = LCD_WIDTH - 14;
-    int h = dm_taskbar_y() - 20;
-    int list_x = x + 8;
-    int list_y = y + 49;
-    int list_w = w - 16;
-    int row_h = MAX(18, (h - 63) / DM_FILE_ROWS);
-    int i;
-
-    if (px < list_x || px >= list_x + list_w || py < list_y)
-        return -1;
-
-    for (i = 0; i < DM_FILE_ROWS; i++)
-    {
-        int idx = dm_file_top + i;
-        struct dm_rect r = { list_x, list_y + 1 + i * row_h,
-                             list_w - 12, row_h - 1 };
-
-        if (idx < dm_file_count && dm_pt_in_rect(px, py, r))
-            return idx;
-    }
-
-    return -1;
-}
-
-static int dm_settings_hit_row(int px, int py)
-{
-    int w = MIN(LCD_WIDTH - 28, 252);
-    int x = (LCD_WIDTH - w) / 2;
-    int y = 52;
-    int i;
-
-    for (i = 0; i < DM_SETTING_COUNT; i++)
-    {
-        struct dm_rect r = { x + 8, y + 31 + i * 24, w - 16, 20 };
-
-        if (dm_pt_in_rect(px, py, r))
-            return i;
-    }
-
-    return -1;
-}
-
-static void dm_toggle_setting(int setting)
-{
-    switch (setting)
-    {
-        case DM_SETTING_NOW_PLAYING:
-            dm_settings.show_now_playing = !dm_settings.show_now_playing;
-            dm_save_settings();
-            break;
-
-        case DM_SETTING_START_VIEW:
-            dm_settings.start_in_finder = !dm_settings.start_in_finder;
-            dm_save_settings();
-            break;
-
-        case DM_SETTING_RETURN:
-            break;
-    }
-}
-
-static int dm_click(enum dm_mode *mode, bool *start_open)
-{
-    struct dm_rect start = dm_start_button_rect();
-    int i;
-
-    if (*start_open)
-    {
-        int item = dm_start_item_at(dm_cursor_x, dm_cursor_y);
-
-        if (item >= 0)
-        {
-            *start_open = false;
-            return dm_handle_start_item(item, mode);
-        }
-        if (!dm_pt_in_rect(dm_cursor_x, dm_cursor_y, dm_start_menu_rect()))
-            *start_open = false;
+    if (dm_file_selected < 0 || dm_file_selected >= dm_itunes_count)
         return PLUGIN_OK;
-    }
+    if (dm_itunes_source == DM_ITUNES_VIDEOS)
+        return dm_open_selected_file();
 
-    if (dm_pt_in_rect(dm_cursor_x, dm_cursor_y, start))
+#ifdef HAVE_TAGCACHE
     {
-        *start_open = true;
-        return PLUGIN_OK;
-    }
+        const struct dm_itunes_row *selected =
+            &dm_itunes_rows[dm_file_selected];
+        struct tagcache_search search;
+        char title[DM_ITUNES_TITLE_MAX];
+        char path[MAX_PATH];
+        int filter_tag = dm_itunes_source == DM_ITUNES_ALBUMS ? tag_album :
+                         dm_itunes_source == DM_ITUNES_ARTISTS ? tag_artist :
+                         -1;
+        int start_index = 0;
+        int count = 0;
+        int i;
 
-    if (*mode == DM_MODE_DESKTOP)
-    {
-        for (i = 0; i < (int)ARRAYLEN(dm_apps); i++)
+        /* A song double-click should begin immediately on the iPod.  Building
+         * a 2,000+ item playlist synchronously made the whole desktop appear
+         * frozen.  Queue the visible iTunes page instead; Album and Artist
+         * selections still query their complete, much smaller result set. */
+        if (dm_itunes_source == DM_ITUNES_SONGS)
         {
-            if (dm_pt_in_rect(dm_cursor_x, dm_cursor_y, dm_icon_rect(i)))
+            if (!selected->path[0] || !rb->file_exists(selected->path))
             {
-                dm_selected_app = i;
-                return dm_launch_app(i, mode);
+                rb->splash(HZ, "Music file is missing");
+                return PLUGIN_OK;
             }
-        }
-    }
-    else if (*mode == DM_MODE_EXPLORER)
-    {
-        int row = dm_file_hit_row(dm_cursor_x, dm_cursor_y);
+            if (rb->playlist_create(NULL, NULL) < 0)
+            {
+                rb->splash(HZ, "Could not start playback");
+                return PLUGIN_OK;
+            }
+            for (i = 0; i < dm_itunes_count; i++)
+            {
+                const char *song = dm_itunes_rows[i].path;
 
-        if (row >= 0)
+                if (!song[0] || !rb->file_exists(song))
+                    continue;
+                if (i == dm_file_selected)
+                    start_index = count;
+                if (rb->playlist_insert_track(NULL, song,
+                                              PLAYLIST_INSERT_LAST,
+                                              false, true) < 0)
+                    break;
+                count++;
+            }
+            if (count == 0)
+            {
+                rb->splash(HZ, "No playable music");
+                return PLUGIN_OK;
+            }
+            rb->playlist_start(start_index, 0, 0);
+            return PLUGIN_OK;
+        }
+
+        if (!rb->tagcache_search(&search, tag_title))
         {
-            dm_file_sel = row;
-            return dm_open_selected_file();
+            rb->splash(HZ, "Music database unavailable");
+            return PLUGIN_OK;
         }
-    }
-    else if (*mode == DM_MODE_SETTINGS)
-    {
-        int row = dm_settings_hit_row(dm_cursor_x, dm_cursor_y);
-
-        if (row >= 0)
+        if (filter_tag >= 0 &&
+            !rb->tagcache_search_add_filter(&search, filter_tag,
+                                            selected->seek))
         {
-            dm_setting_sel = row;
-            if (row == DM_SETTING_RETURN)
-                *mode = dm_settings_return_mode;
-            else
-                dm_toggle_setting(row);
+            rb->tagcache_search_finish(&search);
+            rb->splash(HZ, "Music selection unavailable");
+            return PLUGIN_OK;
         }
-    }
+        if (rb->playlist_create(NULL, NULL) < 0)
+        {
+            rb->tagcache_search_finish(&search);
+            rb->splash(HZ, "Could not start playback");
+            return PLUGIN_OK;
+        }
+        while (rb->tagcache_get_next(&search, title, sizeof(title)))
+        {
+            int idxid = search.idx_id;
 
+            if (!rb->tagcache_retrieve(&search, idxid, tag_filename,
+                                       path, sizeof(path)))
+                continue;
+            if (!rb->file_exists(path))
+                continue;
+            if (rb->playlist_insert_track(NULL, path, PLAYLIST_INSERT_LAST,
+                                          false, true) < 0)
+                break;
+            if (filter_tag < 0 && idxid == selected->idxid)
+                start_index = count;
+            count++;
+            if ((count & 0xf) == 0)
+                rb->yield();
+        }
+        rb->tagcache_search_finish(&search);
+        if (count == 0)
+        {
+            rb->splash(HZ, "No playable music");
+            return PLUGIN_OK;
+        }
+        rb->playlist_start(start_index, 0, 0);
+    }
+#else
+    rb->splash(HZ, "Music database unavailable");
+#endif
     return PLUGIN_OK;
 }
 
-static void dm_move_cursor(int dx, int dy)
+static void dm_load_settings(void)
 {
-    dm_cursor_x += dx;
-    dm_cursor_y += dy;
+    char line[96];
+    int fd = rb->open(DM_CONFIG_FILE, O_RDONLY);
 
-    if (dm_cursor_x < 0)
-        dm_cursor_x = 0;
-    if (dm_cursor_y < 0)
-        dm_cursor_y = 0;
-    if (dm_cursor_x > LCD_WIDTH - 2)
-        dm_cursor_x = LCD_WIDTH - 2;
-    if (dm_cursor_y > LCD_HEIGHT - 2)
-        dm_cursor_y = LCD_HEIGHT - 2;
-}
-
-static void dm_update_hover(enum dm_mode mode, bool start_open)
-{
-    int i;
-
-    if (start_open)
-    {
-        int item = dm_start_item_at(dm_cursor_x, dm_cursor_y);
-
-        if (item >= 0)
-            dm_start_sel = item;
+    if (fd < 0)
         return;
-    }
-
-    if (mode == DM_MODE_DESKTOP)
+    while (rb->read_line(fd, line, sizeof(line)) > 0)
     {
-        for (i = 0; i < (int)ARRAYLEN(dm_apps); i++)
+        char *name = NULL;
+        char *value = NULL;
+
+        if (!rb->settings_parseline(line, &name, &value) ||
+            !name || !value)
+            continue;
+        if (!rb->strcmp(name, "snow pointer speed"))
+            dm_settings.pointer_speed =
+                MAX(1, MIN(4, rb->atoi(value)));
+        else if (!rb->strcmp(name, "snow reverse wheel"))
+            dm_settings.reverse_wheel = !rb->strcasecmp(value, "on");
+        else if (!rb->strcmp(name, "snow desktop folders"))
+            dm_settings.show_desktop_folders =
+                !rb->strcasecmp(value, "on");
+        else if (!rb->strcmp(name, "snow drag lock"))
+            dm_settings.drag_lock = !rb->strcasecmp(value, "on");
+        else if (!rb->strcmp(name, "snow restore session"))
+            dm_settings.restore_session = !rb->strcasecmp(value, "on");
+        else if (!rb->strcmp(name, "snow start app"))
         {
-            if (dm_pt_in_rect(dm_cursor_x, dm_cursor_y, dm_icon_rect(i)))
+            if (!rb->strcasecmp(value, "finder"))
+                dm_settings.start_app = DM_APP_FINDER;
+            else if (!rb->strcasecmp(value, "itunes"))
+                dm_settings.start_app = DM_APP_ITUNES;
+            else
+                dm_settings.start_app = DM_APP_DESKTOP;
+        }
+        else if (!rb->strcmp(name, "snow last app"))
+        {
+            if (!rb->strcasecmp(value, "finder"))
+                dm_saved_app = DM_APP_FINDER;
+            else if (!rb->strcasecmp(value, "itunes"))
+                dm_saved_app = DM_APP_ITUNES;
+            else
+                dm_saved_app = DM_APP_DESKTOP;
+        }
+        else if (!rb->strcmp(name, "snow cursor x"))
+            dm_saved_cursor_x = MAX(0, MIN(LCD_WIDTH - 2, rb->atoi(value)));
+        else if (!rb->strcmp(name, "snow cursor y"))
+            dm_saved_cursor_y = MAX(0, MIN(LCD_HEIGHT - 2, rb->atoi(value)));
+        else if (!rb->strcmp(name, "snow finder path") && value[0] == '/')
+            rb->strlcpy(dm_cwd, value, sizeof(dm_cwd));
+    }
+    rb->close(fd);
+}
+
+static void dm_save_settings(void)
+{
+    char buffer[512];
+    int fd;
+    int length;
+
+    rb->mkdir(PLUGIN_APPS_DATA_DIR);
+    fd = rb->open(DM_CONFIG_FILE, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+    if (fd < 0)
+        return;
+    length = rb->snprintf(
+        buffer, sizeof(buffer),
+        "snow pointer speed: %d\n"
+        "snow reverse wheel: %s\n"
+        "snow drag lock: %s\n"
+        "snow desktop folders: %s\n"
+        "snow restore session: %s\n"
+        "snow start app: %s\n"
+        "snow last app: %s\n"
+        "snow cursor x: %d\n"
+        "snow cursor y: %d\n"
+        "snow finder path: %s\n",
+        dm_settings.pointer_speed,
+        dm_settings.reverse_wheel ? "on" : "off",
+        dm_settings.drag_lock ? "on" : "off",
+        dm_settings.show_desktop_folders ? "on" : "off",
+        dm_settings.restore_session ? "on" : "off",
+        dm_settings.start_app == DM_APP_FINDER ? "finder" :
+        dm_settings.start_app == DM_APP_ITUNES ? "itunes" : "desktop",
+        dm_saved_app == DM_APP_FINDER ? "finder" :
+        dm_saved_app == DM_APP_ITUNES ? "itunes" : "desktop",
+        dm_saved_cursor_x,
+        dm_saved_cursor_y,
+        dm_cwd);
+    rb->write(fd, buffer, length);
+    rb->close(fd);
+}
+
+static void dm_update_hover(struct dm_state *state)
+{
+    int i;
+
+    state->hover_dock = -1;
+    state->hover_row = -1;
+    state->menu_row = -1;
+    for (i = 0; i < (int)ARRAYLEN(dm_dock_apps); i++)
+    {
+        if (dm_point_in_rect(state->cursor_x, state->cursor_y,
+                             dm_dock_rect(i)))
+        {
+            state->hover_dock = i;
+            break;
+        }
+    }
+    if (state->overlay == DM_OVERLAY_APPLE_MENU)
+    {
+        for (i = 0; i < DM_APPLE_MENU_ROWS; i++)
+        {
+            struct dm_rect row =
             {
-                dm_selected_app = i;
-                return;
+                DM_MENU_X + 1, DM_MENU_Y + DM_MENU_TOP + i * DM_MENU_ROW_H,
+                DM_MENU_W - 2, DM_MENU_ROW_H
+            };
+
+            if (dm_point_in_rect(state->cursor_x, state->cursor_y, row))
+            {
+                state->menu_row = i;
+                break;
             }
         }
     }
-    else if (mode == DM_MODE_EXPLORER)
+    else if (state->overlay == DM_OVERLAY_FINDER_CONTEXT)
     {
-        int row = dm_file_hit_row(dm_cursor_x, dm_cursor_y);
+        for (i = 0; i < DM_CONTEXT_ROWS; i++)
+        {
+            struct dm_rect row =
+            {
+                DM_CONTEXT_X + 1,
+                DM_CONTEXT_Y + DM_MENU_TOP + i * DM_MENU_ROW_H,
+                DM_CONTEXT_W - 2, DM_MENU_ROW_H
+            };
 
-        if (row >= 0)
-            dm_file_sel = row;
+            if (dm_point_in_rect(state->cursor_x, state->cursor_y, row))
+            {
+                state->menu_row = i;
+                break;
+            }
+        }
     }
-    else if (mode == DM_MODE_SETTINGS)
+    else if (state->app == DM_APP_ITUNES)
     {
-        int row = dm_settings_hit_row(dm_cursor_x, dm_cursor_y);
+        for (i = 0; i < DM_ITUNES_ROWS; i++)
+        {
+            struct dm_rect row =
+            {
+                DM_ITUNES_LIST_X,
+                DM_ITUNES_BODY_Y + i * DM_ITUNES_ROW_H,
+                DM_ITUNES_LIST_W, DM_ITUNES_ROW_H
+            };
 
-        if (row >= 0)
-            dm_setting_sel = row;
+            if (dm_point_in_rect(state->cursor_x, state->cursor_y, row) &&
+                i < dm_itunes_count)
+            {
+                state->hover_row = i;
+                dm_file_selected = i;
+                break;
+            }
+        }
+    }
+    else if (state->app == DM_APP_FINDER || state->app == DM_APP_PREVIEW)
+    {
+        bool finder = state->app == DM_APP_FINDER;
+
+        for (i = 0; i < DM_FILE_ROWS; i++)
+        {
+            struct dm_rect row =
+            {
+                finder ? DM_LIST_X : DM_WIN_X + 1,
+                DM_BODY_Y + i * DM_ROW_H,
+                finder ? DM_LIST_W : DM_WIN_W - 2, DM_ROW_H
+            };
+
+            if (dm_point_in_rect(state->cursor_x, state->cursor_y, row) &&
+                dm_file_top + i < dm_file_count)
+            {
+                state->hover_row = dm_file_top + i;
+                dm_file_selected = state->hover_row;
+                break;
+            }
+        }
+    }
+    else if (state->app == DM_APP_PREFERENCES)
+    {
+        state->preference_row = -1;
+        for (i = 0; i < DM_PREF_ROWS && i < 6; i++)
+        {
+            struct dm_rect row =
+            {
+                DM_WIN_X + 6, DM_BODY_Y + i * DM_PREF_ROW_H,
+                DM_WIN_W - 12, DM_PREF_ROW_H
+            };
+
+            if (dm_point_in_rect(state->cursor_x, state->cursor_y, row))
+            {
+                state->preference_row = i;
+                break;
+            }
+        }
     }
 }
 
-static void dm_scroll_selection(enum dm_mode mode, bool start_open, int delta)
+/* Four-direction fallback step, in the same 1-6 pixel band the absolute
+ * wheel produces at ordinary speeds.
+ */
+static int dm_fallback_step(const struct dm_state *state)
 {
-    if (start_open)
+    (void)state;
+    return MAX(1, MIN(6, dm_settings.pointer_speed * 2));
+}
+
+/* Cadence of held-direction glide steps, matching the wheel glide's own
+ * interaction refresh rate (dm_glide_wheel()). */
+#define DM_HELD_DIR_STEP_TICKS (HZ / 20)
+/* If a direction button's release event is ever missed - or the target has
+ * no release detection at all - this bounds how long the pointer can keep
+ * drifting on stale contact. */
+#define DM_HELD_DIR_TIMEOUT_TICKS (HZ / 3)
+
+static void dm_held_dir_touch(struct dm_state *state, int dx, int dy,
+                              long now)
+{
+    if (dx)
+        state->held_dir_x = dx;
+    if (dy)
+        state->held_dir_y = dy;
+    state->held_seen_tick = now;
+}
+
+static void dm_held_dir_release_x(struct dm_state *state, int dx)
+{
+    if (state->held_dir_x == dx)
+        state->held_dir_x = 0;
+}
+
+static void dm_held_dir_release_y(struct dm_state *state, int dy)
+{
+    if (state->held_dir_y == dy)
+        state->held_dir_y = 0;
+}
+
+/* Advances the pointer for a held direction button every loop tick rather
+ * than waiting on the button driver's own press/repeat cadence, which is
+ * what made holding a direction move in stop-start bursts instead of
+ * smoothly.  Mirrors the wheel-available nudge (1px) or four-direction
+ * fallback step (1-6px) that the caller used to apply per button event.
+ */
+static bool dm_advance_held_direction(struct dm_state *state, long now)
+{
+    int old_x = state->cursor_x;
+    int old_y = state->cursor_y;
+    int step;
+
+    if (state->held_dir_x == 0 && state->held_dir_y == 0)
+        return false;
+    if (!TIME_BEFORE(now, state->held_seen_tick + DM_HELD_DIR_TIMEOUT_TICKS))
     {
-        if (dm_start_sel >= 0 && dm_start_sel < (int)ARRAYLEN(dm_apps))
+        state->held_dir_x = 0;
+        state->held_dir_y = 0;
+        return false;
+    }
+    if (TIME_BEFORE(now, state->held_emit_tick + DM_HELD_DIR_STEP_TICKS))
+        return false;
+    state->held_emit_tick = now;
+    step = state->wheel_available ? 1 : dm_fallback_step(state);
+    if (state->held_dir_x)
+        state->cursor_x = MAX(0, MIN(LCD_WIDTH - 2,
+                              state->cursor_x + state->held_dir_x * step));
+    if (state->held_dir_y)
+        state->cursor_y = MAX(0, MIN(LCD_HEIGHT - 2,
+                              state->cursor_y + state->held_dir_y * step));
+    if (state->cursor_x == old_x && state->cursor_y == old_y)
+        return false;
+    if (state->mouse_down)
+        state->dragged = true;
+    dm_update_hover(state);
+    return true;
+}
+
+#ifdef SIMULATOR
+/* Host pointer, for Rockpod's "Display this iPod on this computer".
+ *
+ * Somebody sitting at a computer has a real mouse; making them steer the
+ * pointer with a simulated click wheel would be absurd.  The simulator
+ * publishes the host pointer in panel coordinates and this reads it, so the
+ * mouse moves the Snow Leopard pointer directly and its buttons are the
+ * primary and secondary click.  Simulator-only: the record does not exist on
+ * hardware, where the wheel is the pointer.
+ */
+/* "%04d %04d %02u\n": four, four and two fixed-width fields */
+#define DM_HOST_POINTER_RECORD 13
+#define DM_HOST_POINTER_POLL_TICKS MAX(1, HZ / 50)
+/* The plugin reads through the simulated filesystem, where an absolute host
+ * path would be resolved under the simulator root and never found, so the
+ * record lives at a fixed location inside that filesystem. */
+#define DM_HOST_POINTER_FILE ROCKBOX_DIR "/host-pointer"
+
+static bool dm_poll_host_pointer(struct dm_state *state)
+{
+    char record[DM_HOST_POINTER_RECORD + 1];
+    int fd;
+    int x;
+    int y;
+    unsigned int buttons;
+    bool moved = false;
+    bool down;
+    long now = *rb->current_tick;
+
+    if (TIME_BEFORE(now,
+                    state->host_poll_tick + DM_HOST_POINTER_POLL_TICKS))
+        return false;
+    state->host_poll_tick = now;
+
+    fd = rb->open(DM_HOST_POINTER_FILE, O_RDONLY);
+    if (fd < 0)
+        return false;
+    if (rb->read(fd, record, DM_HOST_POINTER_RECORD) != DM_HOST_POINTER_RECORD)
+    {
+        rb->close(fd);
+        return false;
+    }
+    rb->close(fd);
+    if (record[4] != ' ' || record[9] != ' ')
+        return false;
+    record[4] = '\0';
+    record[9] = '\0';
+    record[12] = '\0';
+    x = rb->atoi(record);
+    y = rb->atoi(record + 5);
+    buttons = (unsigned int)rb->atoi(record + 10);
+    if (x < 0 || y < 0)
+        return false;
+
+    state->host_pointer = true;
+    x = MAX(0, MIN(LCD_WIDTH - 2, x));
+    y = MAX(0, MIN(LCD_HEIGHT - 2, y));
+    if (x != state->cursor_x || y != state->cursor_y)
+    {
+        state->cursor_x = x;
+        state->cursor_y = y;
+        if (state->mouse_down)
+            state->dragged = true;
+        dm_update_hover(state);
+        moved = true;
+    }
+
+    down = (buttons & 1u) != 0;
+    if (down != state->mouse_down)
+    {
+        if (down)
         {
-            dm_start_sel += delta;
-            if (dm_start_sel < 0)
-                dm_start_sel = DM_START_EXIT;
-            else if (dm_start_sel >= (int)MIN(7, (int)ARRAYLEN(dm_apps)))
-                dm_start_sel = DM_START_FINDER;
+            state->mouse_down = true;
+            state->dragged = false;
+            state->mouse_down_tick = *rb->current_tick;
         }
         else
         {
-            dm_start_sel += delta;
-            if (dm_start_sel < DM_START_FINDER)
-                dm_start_sel = MIN(7, (int)ARRAYLEN(dm_apps)) - 1;
-            else if (dm_start_sel > DM_START_EXIT)
-                dm_start_sel = 0;
+            bool double_click =
+                TIME_BEFORE(now, state->last_click_tick +
+                                 DM_DOUBLE_CLICK_TICKS) &&
+                DM_ABS(state->cursor_x - state->last_click_x) <= 5 &&
+                DM_ABS(state->cursor_y - state->last_click_y) <= 5;
+
+            state->mouse_down = false;
+            if (!state->dragged)
+                state->host_click = double_click ? 2 : 1;
+            state->last_click_tick = now;
+            state->last_click_x = state->cursor_x;
+            state->last_click_y = state->cursor_y;
+            state->dragged = false;
+        }
+        moved = true;
+    }
+    if (((buttons & 2u) != 0) != state->host_secondary)
+    {
+        state->host_secondary = (buttons & 2u) != 0;
+        if (state->host_secondary)
+            state->host_context = true;
+        moved = true;
+    }
+    return moved;
+}
+#endif /* SIMULATOR */
+
+#ifdef HAVE_WHEEL_POSITION
+/* Resting a finger on the wheel keeps the pointer travelling.
+ *
+ * Tangential motion alone means crossing the screen takes repeated strokes,
+ * and reaching a corner is tedious.  Holding a finger still on the ring -
+ * touching, not clicking - glides the pointer the way that point of the ring
+ * faces: the top of the wheel is up, the right is right, and so on.  The
+ * glide starts after a short delay so an ordinary stroke that happens to
+ * pause mid-way does not drift, and it accelerates to a cap the longer it is
+ * held.
+ *
+ * Movement accumulates in sixteenths of a pixel so slow glides stay smooth
+ * instead of stepping a whole pixel per sample.
+ */
+/* A packet gap longer than this is a real lift rather than the ordinary
+ * silence between clickwheel packets. */
+#define DM_WHEEL_LIFT_TICKS (HZ / 5)
+#define DM_GLIDE_DELAY 0
+#define DM_GLIDE_RAMP (HZ / 2)
+#define DM_GLIDE_SUBPIXEL 16
+/* sixteenths of a pixel per tick: about 6 to 40 pixels a second */
+#define DM_GLIDE_MIN_RATE 4
+#define DM_GLIDE_MAX_RATE 13
+
+/* Every button on the ring is also a position on it, so a finger pressing
+ * Menu is a finger resting at the top of the wheel.  Gliding then would drag
+ * the pointer around while the Apple menu or the return sheet is being
+ * raised, so a held button suppresses the glide entirely.
+ */
+static bool dm_ring_button_down(void)
+{
+    long status = rb->button_status();
+
+    return (status & (BUTTON_MENU | BUTTON_PLAY | BUTTON_LEFT |
+                      BUTTON_RIGHT)) != 0;
+}
+
+static void dm_glide_reset(struct dm_state *state, long now)
+{
+    state->glide_since = now;
+    state->glide_tick = now;
+    state->glide_emit = now;
+    state->glide_x = 0;
+    state->glide_y = 0;
+}
+
+static void dm_wheel_reset(struct dm_state *state)
+{
+    state->last_wheel = -1;
+    state->wheel_velocity = 0;
+    state->wheel_direction = 0;
+    state->last_wheel_tick = 0;
+    state->contact_tick = 0;
+    state->glide_since = 0;
+    state->glide_tick = 0;
+    state->glide_emit = 0;
+    state->glide_x = 0;
+    state->glide_y = 0;
+    state->frac_x = 0;
+    state->frac_y = 0;
+}
+
+static bool dm_glide_wheel(struct dm_state *state, int wheel, long now)
+{
+    long held;
+    long ticks;
+    int old_x;
+    int old_y;
+    int angle;
+    int rate;
+    int moved_x;
+    int moved_y;
+
+    if (state->glide_since == 0)
+    {
+        dm_glide_reset(state, now);
+        return false;
+    }
+    if (dm_ring_button_down())
+    {
+        state->glide_tick = now;
+        return false;
+    }
+    held = now - state->glide_since;
+    if (held < DM_GLIDE_DELAY)
+    {
+        state->glide_tick = now;
+        return false;
+    }
+    /* Displacement follows elapsed ticks, not how often this happens to be
+     * polled, so the pointer travels at the same speed on a 6G and a 5G and
+     * whether or not a window is being composed. */
+    ticks = now - state->glide_tick;
+    if (ticks <= 0)
+        return false;
+    state->glide_tick = now;
+
+    rate = DM_GLIDE_MIN_RATE +
+           (int)((held - DM_GLIDE_DELAY) * (DM_GLIDE_MAX_RATE -
+                                            DM_GLIDE_MIN_RATE) /
+                 MAX(1, DM_GLIDE_RAMP));
+    rate = MIN(DM_GLIDE_MAX_RATE, rate) * MAX(1, dm_settings.pointer_speed) / 2;
+    rate = (int)MIN((long)rate * ticks, (long)DM_GLIDE_MAX_RATE * HZ);
+
+    /* wheel position 0 is the top of the ring; the pointer follows the
+     * direction that point faces, so the ring reads like a compass. */
+    angle = wheel * 360 / 96 - 90;
+    state->glide_x += fp14_cos(angle) * rate / 16384;
+    state->glide_y += fp14_sin(angle) * rate / 16384;
+    if (dm_settings.reverse_wheel)
+    {
+        state->glide_x = -state->glide_x;
+        state->glide_y = -state->glide_y;
+    }
+    /* Displacement integrates every poll, but a frame is only committed at
+     * the interaction refresh rate: a glide must not drive the compositor
+     * faster than ordinary interaction does. */
+    if (TIME_BEFORE(now, state->glide_emit + HZ / 20))
+        return false;
+    moved_x = state->glide_x / DM_GLIDE_SUBPIXEL;
+    moved_y = state->glide_y / DM_GLIDE_SUBPIXEL;
+    if (moved_x == 0 && moved_y == 0)
+        return false;
+    state->glide_emit = now;
+    state->glide_x -= moved_x * DM_GLIDE_SUBPIXEL;
+    state->glide_y -= moved_y * DM_GLIDE_SUBPIXEL;
+    old_x = state->cursor_x;
+    old_y = state->cursor_y;
+    state->cursor_x = MAX(0, MIN(LCD_WIDTH - 2, state->cursor_x + moved_x));
+    state->cursor_y = MAX(0, MIN(LCD_HEIGHT - 2, state->cursor_y + moved_y));
+    if (state->cursor_x == old_x && state->cursor_y == old_y)
+        return false;
+    if (state->mouse_down)
+        state->dragged = true;
+    dm_update_hover(state);
+    return true;
+}
+#endif /* HAVE_WHEEL_POSITION */
+
+static bool dm_poll_wheel(struct dm_state *state)
+{
+#ifdef HAVE_WHEEL_POSITION
+    int wheel = rb->wheel_status();
+    int old;
+    int angle_old;
+    int angle_new;
+    int dx;
+    int dy;
+    int scale;
+    int delta;
+    int direction;
+    int old_x;
+    int old_y;
+    long now = *rb->current_tick;
+    long elapsed;
+
+    /* The driver publishes a position only on the polls that carried a new
+     * clickwheel packet and reports -1 on every other one, so a single -1 is
+     * not a lift - a motionless finger produces a long run of them.  Contact
+     * is treated as held until the gap exceeds the lift timeout, which is
+     * what makes a resting finger distinguishable from a lifted one.
+     */
+    if (wheel < 0)
+    {
+        if (state->last_wheel >= 0 &&
+            TIME_BEFORE(now, state->contact_tick + DM_WHEEL_LIFT_TICKS))
+            return dm_glide_wheel(state, state->last_wheel, now);
+        dm_wheel_reset(state);
+        return false;
+    }
+    state->wheel_available = true;
+    state->contact_tick = now;
+    if (state->last_wheel < 0)
+    {
+        state->last_wheel = wheel;
+        state->last_wheel_tick = now;
+        dm_glide_reset(state, now);
+        return false;
+    }
+    old = state->last_wheel;
+    if (old == wheel)
+        return dm_glide_wheel(state, wheel, now);
+    dm_glide_reset(state, now);
+    delta = wheel - old;
+    if (delta > 48)
+        delta -= 96;
+    else if (delta < -48)
+        delta += 96;
+    /* Hold the anchor while the movement is below the jitter threshold, so a
+     * slow stroke accumulates across samples until it clears it rather than
+     * being discarded a count at a time. */
+    if (DM_ABS(delta) <= DM_WHEEL_JITTER_COUNTS)
+        return false;
+    direction = delta < 0 ? -1 : 1;
+    elapsed = now - state->last_wheel_tick;
+    if (state->wheel_direction != 0 &&
+        direction != state->wheel_direction)
+        state->wheel_velocity = 0;
+    if (elapsed > HZ / 4)
+        state->wheel_velocity = 0;
+    state->wheel_direction = direction;
+    state->last_wheel = wheel;
+    state->last_wheel_tick = now;
+    angle_old = old * 360 / 96 - 90;
+    angle_new = wheel * 360 / 96 - 90;
+    dx = fp14_cos(angle_new) - fp14_cos(angle_old);
+    dy = fp14_sin(angle_new) - fp14_sin(angle_old);
+    if (dm_settings.reverse_wheel)
+    {
+        dx = -dx;
+        dy = -dy;
+    }
+    if (elapsed <= 0)
+        elapsed = 1;
+    state->wheel_velocity = MIN(
+        4, (state->wheel_velocity * 2 +
+            MIN(4, DM_ABS(delta) * HZ / elapsed / 12)) / 3);
+    scale = dm_settings.pointer_speed + state->wheel_velocity - 1;
+    /* Carry the fraction of a pixel each sample leaves behind.  Truncating it
+     * away made every small movement round to nothing, which is what made
+     * fine positioning feel dead; keeping it means the pointer travels in
+     * proportion to the finger however slowly it moves. */
+    state->frac_x += dx * scale / 128;
+    state->frac_y += dy * scale / 128;
+    dx = state->frac_x / DM_WHEEL_SUBPIXEL;
+    dy = state->frac_y / DM_WHEEL_SUBPIXEL;
+    dx = MAX(-14, MIN(14, dx));
+    dy = MAX(-14, MIN(14, dy));
+    if (dx == 0 && dy == 0)
+        return false;
+    state->frac_x -= dx * DM_WHEEL_SUBPIXEL;
+    state->frac_y -= dy * DM_WHEEL_SUBPIXEL;
+    old_x = state->cursor_x;
+    old_y = state->cursor_y;
+    state->cursor_x = MAX(0, MIN(LCD_WIDTH - 2, state->cursor_x + dx));
+    state->cursor_y = MAX(0, MIN(LCD_HEIGHT - 2, state->cursor_y + dy));
+    if (state->cursor_x == old_x && state->cursor_y == old_y)
+        return false;
+    if (state->mouse_down)
+        state->dragged = true;
+    dm_update_hover(state);
+    return true;
+#else
+    (void)state;
+    return false;
+#endif
+}
+
+static int dm_launch_external(const char *path, const char *parameter)
+{
+    int result;
+
+    if (!rb->file_exists(path))
+    {
+        rb->splash(HZ, "Application is not installed");
+        return PLUGIN_OK;
+    }
+#ifdef HAVE_WHEEL_POSITION
+    rb->wheel_send_events(true);
+#endif
+    result = rb->plugin_open(path, parameter);
+#ifdef HAVE_WHEEL_POSITION
+    rb->wheel_send_events(false);
+#endif
+    return result;
+}
+
+static int dm_activate_app(struct dm_state *state, enum dm_app app)
+{
+    int result;
+
+    state->overlay = DM_OVERLAY_NONE;
+    if (app != DM_APP_DESKTOP && app != DM_APP_TRASH)
+        state->running_apps |= DM_APP_BIT(app);
+    if (state->minimized_app == app)
+    {
+        dm_start_animation(state, app, false);
+        return PLUGIN_OK;
+    }
+    switch (app)
+    {
+        case DM_APP_FINDER:
+            if (state->app != DM_APP_FINDER)
+                dm_scan_directory();
+            state->app = app;
+            break;
+        case DM_APP_ITUNES:
+            dm_itunes_page_top = 0;
+            dm_itunes_load();
+            state->app = app;
+            break;
+        case DM_APP_PREFERENCES:
+            state->app = app;
+            break;
+        case DM_APP_PHOTOS:
+            state->app = DM_APP_DESKTOP;
+            result = dm_launch_external(PLUGIN_APPS_DIR "/photos.rock", NULL);
+            state->running_apps &= ~DM_APP_BIT(app);
+            return result;
+        case DM_APP_PREVIEW:
+            /* Photos is a window, not a takeover: the shell lists the
+             * pictures folder itself and only hands a chosen image to the
+             * real viewer, which is the one thing that has to own the LCD. */
+            dm_scan_media(DM_MEDIA_PICTURES);
+            state->app = app;
+            break;
+        case DM_APP_TEXTEDIT:
+            state->app = DM_APP_DESKTOP;
+            result = dm_launch_external(PLUGIN_APPS_DIR "/text_editor.rock",
+                                        NULL);
+            state->running_apps &= ~DM_APP_BIT(app);
+            return result;
+        case DM_APP_CALCULATOR:
+            state->app = DM_APP_DESKTOP;
+            result = dm_launch_external(PLUGIN_APPS_DIR "/calculator.rock",
+                                        NULL);
+            state->running_apps &= ~DM_APP_BIT(app);
+            return result;
+        case DM_APP_DIRECTV:
+            /* The decoder, mixer channel and window chrome live in one
+             * mpegplayer instance. Commit the idle desktop first so that
+             * instance can preserve it behind its Aqua window. */
+            state->app = DM_APP_DESKTOP;
+            dm_draw(state);
+            dm_present();
+            if (!dm_save_livetv_underlay())
+            {
+                rb->splash(HZ * 2, "Could not prepare TV window");
+                state->running_apps &= ~DM_APP_BIT(app);
+                return PLUGIN_ERROR;
+            }
+            result = dm_launch_external(PLUGIN_APPS_DIR "/livetv.rock",
+                                        "-desktop");
+            state->running_apps &= ~DM_APP_BIT(app);
+            return result;
+        case DM_APP_SITEKICK:
+            /* Like Live TV, Sitekick replaces the shell plugin image while
+             * it runs. Hand it the exact committed Desktop so its Aqua
+             * window can remain genuinely windowed. */
+            state->app = DM_APP_DESKTOP;
+            dm_draw(state);
+            dm_present();
+            if (!dm_save_underlay(DM_SITEKICK_UNDERLAY_FILE,
+                                  DM_SITEKICK_UNDERLAY_MAGIC))
+            {
+                rb->splash(HZ * 2, "Could not prepare Sitekick window");
+                state->running_apps &= ~DM_APP_BIT(app);
+                return PLUGIN_ERROR;
+            }
+            result = dm_launch_external(PLUGIN_APPS_DIR "/sitekick.rock",
+                                        "-desktop");
+            state->running_apps &= ~DM_APP_BIT(app);
+            return result;
+#if LCD_WIDTH >= 1920
+        case DM_APP_NETFLIX:
+            /* Netflix is a desktop-only catalogue window. It receives the
+             * committed Desktop and reads only Video Sync's videolist. */
+            state->app = DM_APP_DESKTOP;
+            dm_draw(state);
+            dm_present();
+            if (!dm_save_underlay(DM_NETFLIX_UNDERLAY_FILE,
+                                  DM_NETFLIX_UNDERLAY_MAGIC))
+            {
+                rb->splash(HZ * 2, "Could not prepare Netflix window");
+                state->running_apps &= ~DM_APP_BIT(app);
+                return PLUGIN_ERROR;
+            }
+            result = dm_launch_external(
+                PLUGIN_APPS_DIR "/netflix_desktop.rock", "-desktop");
+            state->running_apps &= ~DM_APP_BIT(app);
+            return result;
+#endif
+        case DM_APP_DASHBOARD:
+            state->app = DM_APP_DESKTOP;
+            result = dm_launch_external(PLUGIN_APPS_DIR "/clock.rock", NULL);
+            state->running_apps &= ~DM_APP_BIT(app);
+            return result;
+        case DM_APP_TRASH:
+            rb->splash(HZ, "Trash is empty");
+            break;
+        default:
+            state->app = DM_APP_DESKTOP;
+            break;
+    }
+    return PLUGIN_OK;
+}
+
+static int dm_handle_apple_menu(struct dm_state *state)
+{
+    switch (state->menu_row)
+    {
+        case 0:
+            rb->splash(HZ * 2, "Snow Leopard Desktop Mode");
+            break;
+        case 1:
+            state->app = DM_APP_PREFERENCES;
+            state->overlay = DM_OVERLAY_NONE;
+            break;
+        case 2:
+            rb->splash(HZ, "No recent items");
+            break;
+        case 3:
+            rb->backlight_off();
+            state->overlay = DM_OVERLAY_NONE;
+            break;
+        case 4:
+            state->overlay = DM_OVERLAY_RESTART_CONFIRM;
+            break;
+        case 5:
+            state->overlay = DM_OVERLAY_RETURN_CONFIRM;
+            break;
+    }
+    return PLUGIN_OK;
+}
+
+static void dm_selected_path(char *path, size_t size)
+{
+    if (dm_file_selected < 0 || dm_file_selected >= dm_file_count)
+    {
+        path[0] = '\0';
+        return;
+    }
+    dm_join_path(path, size, dm_cwd, dm_files[dm_file_selected].name);
+}
+
+static void dm_delete_selected(void)
+{
+    char path[MAX_PATH];
+    int result;
+
+    dm_selected_path(path, sizeof(path));
+    if (!path[0])
+        return;
+    if (dm_files[dm_file_selected].is_dir)
+        result = rb->rmdir(path);
+    else
+        result = rb->remove(path);
+    rb->splash(HZ, result == 0 ? "Item deleted" :
+                                      "Could not remove item");
+    dm_scan_directory();
+}
+
+static void dm_create_new_folder(void)
+{
+    char path[MAX_PATH];
+    char name[40] = "untitled folder";
+    int number = 2;
+
+    dm_join_path(path, sizeof(path), dm_cwd, name);
+    while (rb->dir_exists(path) && number < 100)
+    {
+        rb->snprintf(name, sizeof(name), "untitled folder %d", number++);
+        dm_join_path(path, sizeof(path), dm_cwd, name);
+    }
+    if (rb->mkdir(path) < 0)
+        rb->splash(HZ, "Could not create folder");
+    dm_scan_directory();
+}
+
+static int dm_handle_finder_context(struct dm_state *state)
+{
+    switch (state->menu_row)
+    {
+        case 0:
+            state->overlay = DM_OVERLAY_GET_INFO;
+            break;
+        case 1:
+            state->overlay = DM_OVERLAY_NEW_FOLDER_CONFIRM;
+            break;
+        case 2:
+            if (dm_file_selected >= 0 &&
+                dm_file_selected < dm_file_count)
+                state->overlay = DM_OVERLAY_DELETE_CONFIRM;
+            else
+                state->overlay = DM_OVERLAY_NONE;
+            break;
+        default:
+            state->overlay = DM_OVERLAY_NONE;
+            break;
+    }
+    return PLUGIN_OK;
+}
+
+static int dm_click_itunes(struct dm_state *state)
+{
+    int status = rb->audio_status();
+    int i;
+
+    if (dm_point_in_rect(state->cursor_x, state->cursor_y,
+                         (struct dm_rect)
+                         { DM_ITUNES_X + 30, DM_ITUNES_Y + 24, 31, 35 }))
+        rb->audio_prev();
+    else if (dm_point_in_rect(state->cursor_x, state->cursor_y,
+                              (struct dm_rect)
+                              { DM_ITUNES_X + 66, DM_ITUNES_Y + 23, 38, 38 }))
+    {
+        if ((status & AUDIO_STATUS_PAUSE) != 0)
+            rb->audio_resume();
+        else if ((status & AUDIO_STATUS_PLAY) != 0)
+            rb->audio_pause();
+    }
+    else if (dm_point_in_rect(state->cursor_x, state->cursor_y,
+                              (struct dm_rect)
+                              { DM_ITUNES_X + 106, DM_ITUNES_Y + 24, 33, 35 }))
+        rb->audio_next();
+    else if (dm_point_in_rect(state->cursor_x, state->cursor_y,
+                              (struct dm_rect)
+                              { DM_ITUNES_X + 159, DM_ITUNES_Y + 22,
+                                DM_ITUNES_W - 200, 41 }))
+        return PLUGIN_GOTO_WPS;
+    else if (dm_point_in_rect(state->cursor_x, state->cursor_y,
+                              (struct dm_rect)
+                              { DM_ITUNES_X + DM_ITUNES_W - 38,
+                                DM_ITUNES_Y + DM_ITUNES_H - 20, 18, 18 }))
+        dm_itunes_change_page(-1);
+    else if (dm_point_in_rect(state->cursor_x, state->cursor_y,
+                              (struct dm_rect)
+                              { DM_ITUNES_X + DM_ITUNES_W - 20,
+                                DM_ITUNES_Y + DM_ITUNES_H - 20, 18, 18 }))
+        dm_itunes_change_page(1);
+    else
+    {
+        for (i = 0; i < DM_ITUNES_SOURCE_COUNT; i++)
+        {
+            struct dm_rect source =
+            {
+                DM_ITUNES_X + 1,
+                DM_ITUNES_BODY_Y + i * DM_ITUNES_ROW_H,
+                DM_ITUNES_SOURCE_W - 2, DM_ITUNES_ROW_H
+            };
+
+            if (dm_point_in_rect(state->cursor_x, state->cursor_y, source))
+            {
+                dm_itunes_source = i;
+                dm_itunes_page_top = 0;
+                dm_itunes_load();
+                break;
+            }
         }
     }
-    else if (mode == DM_MODE_EXPLORER && dm_file_count > 0)
+    return PLUGIN_OK;
+}
+
+static int dm_click(struct dm_state *state, bool double_click)
+{
+    int i;
+
+    if (state->overlay == DM_OVERLAY_RETURN_CONFIRM)
     {
-        dm_file_sel += delta;
-        if (dm_file_sel < 0)
-            dm_file_sel = dm_file_count - 1;
-        if (dm_file_sel >= dm_file_count)
-            dm_file_sel = 0;
-        if (dm_file_sel < dm_file_top)
-            dm_file_top = dm_file_sel;
-        if (dm_file_sel >= dm_file_top + DM_FILE_ROWS)
-            dm_file_top = dm_file_sel - DM_FILE_ROWS + 1;
+        state->running = false;
+        return PLUGIN_OK;
     }
-    else if (mode == DM_MODE_SETTINGS)
+    if (state->overlay == DM_OVERLAY_RESTART_CONFIRM)
     {
-        dm_setting_sel += delta;
-        if (dm_setting_sel < 0)
-            dm_setting_sel = DM_SETTING_COUNT - 1;
-        if (dm_setting_sel >= DM_SETTING_COUNT)
-            dm_setting_sel = 0;
+        dm_save_settings();
+        rb->sys_reboot();
+        return PLUGIN_OK;
     }
-    else if (mode == DM_MODE_DESKTOP)
+    if (state->overlay == DM_OVERLAY_DELETE_CONFIRM)
     {
-        dm_selected_app += delta;
-        if (dm_selected_app < 0)
-            dm_selected_app = ARRAYLEN(dm_apps) - 1;
-        if (dm_selected_app >= (int)ARRAYLEN(dm_apps))
-            dm_selected_app = 0;
+        state->overlay = DM_OVERLAY_NONE;
+        dm_delete_selected();
+        return PLUGIN_OK;
     }
+    if (state->overlay == DM_OVERLAY_NEW_FOLDER_CONFIRM)
+    {
+        state->overlay = DM_OVERLAY_NONE;
+        dm_create_new_folder();
+        return PLUGIN_OK;
+    }
+    if (state->overlay == DM_OVERLAY_GET_INFO)
+    {
+        state->overlay = DM_OVERLAY_NONE;
+        return PLUGIN_OK;
+    }
+    if (state->overlay == DM_OVERLAY_APPLE_MENU)
+    {
+        if (state->menu_row >= 0)
+            return dm_handle_apple_menu(state);
+        state->overlay = DM_OVERLAY_NONE;
+        return PLUGIN_OK;
+    }
+    if (state->overlay == DM_OVERLAY_FINDER_CONTEXT)
+        return dm_handle_finder_context(state);
+    if (dm_point_in_rect(state->cursor_x, state->cursor_y,
+                         (struct dm_rect){ 0, 0, DM_APPLE_X + DM_APPLE_W,
+                                           DM_MENUBAR_H }))
+    {
+        state->overlay = DM_OVERLAY_APPLE_MENU;
+        return PLUGIN_OK;
+    }
+    for (i = 0; i < DM_DOCK_SLOTS; i++)
+    {
+        if (dm_point_in_rect(state->cursor_x, state->cursor_y,
+                             dm_dock_rect(i)))
+            return dm_activate_app(state, dm_dock_apps[i]);
+    }
+    if (state->app != DM_APP_DESKTOP &&
+        dm_point_in_rect(state->cursor_x, state->cursor_y, DM_CLOSE_RECT))
+    {
+        if (state->app != DM_APP_FINDER)
+            state->running_apps &= ~DM_APP_BIT(state->app);
+        state->app = DM_APP_DESKTOP;
+        return PLUGIN_OK;
+    }
+    if (state->app != DM_APP_DESKTOP &&
+        dm_point_in_rect(state->cursor_x, state->cursor_y, DM_MINIMISE_RECT))
+    {
+        dm_start_animation(state, state->app, true);
+        return PLUGIN_OK;
+    }
+    if (state->app == DM_APP_FINDER &&
+        dm_file_count > DM_FILE_ROWS &&
+        dm_point_in_rect(state->cursor_x, state->cursor_y,
+                         (struct dm_rect){ DM_SCROLLER_X, DM_BODY_Y,
+                                           DM_SCROLLER_W, DM_SCROLLER_H }))
+    {
+        int maximum = dm_file_count - DM_FILE_ROWS;
+        int travel = MAX(1, DM_SCROLLER_H - DM_SCROLLER_THUMB_H);
+
+        dm_file_top = MAX(
+            0, MIN(maximum,
+                   (state->cursor_y - DM_BODY_Y - DM_SCROLLER_THUMB_H / 2) *
+                       maximum / travel));
+        dm_file_selected = MAX(
+            dm_file_top,
+            MIN(dm_file_selected, dm_file_top + DM_FILE_ROWS - 1));
+        return PLUGIN_OK;
+    }
+    if ((state->app == DM_APP_FINDER || state->app == DM_APP_ITUNES ||
+         state->app == DM_APP_PREVIEW) && state->hover_row >= 0)
+    {
+        dm_file_selected = state->hover_row;
+        if (double_click)
+        {
+            if (state->app == DM_APP_ITUNES &&
+                !dm_files[dm_file_selected].is_dir)
+                return dm_open_itunes_selection();
+            return dm_open_selected_file();
+        }
+    }
+    else if (state->app == DM_APP_FINDER &&
+             dm_point_in_rect(state->cursor_x, state->cursor_y,
+                              DM_BACK_RECT))
+        dm_history_move(-1);
+    else if (state->app == DM_APP_FINDER &&
+             dm_point_in_rect(state->cursor_x, state->cursor_y,
+                              DM_FORWARD_RECT))
+        dm_history_move(1);
+    else if (state->app == DM_APP_FINDER &&
+             state->cursor_x >= DM_WIN_X &&
+             state->cursor_x < DM_WIN_X + DM_WIN_SIDEBAR_W)
+    {
+        for (i = 0; i < (int)ARRAYLEN(dm_sidebar_rows); i++)
+        {
+            const struct dm_sidebar_row *row = &dm_sidebar_rows[i];
+            struct dm_rect bounds =
+                { DM_WIN_X, row->y, DM_WIN_SIDEBAR_W, row->height };
+
+            if (!row->header &&
+                dm_point_in_rect(state->cursor_x, state->cursor_y, bounds))
+            {
+                dm_navigate(row->path);
+                break;
+            }
+        }
+    }
+    else if (state->app == DM_APP_ITUNES)
+        return dm_click_itunes(state);
+    else if (state->app == DM_APP_PREFERENCES &&
+             state->preference_row >= 0)
+    {
+        switch (state->preference_row)
+        {
+            case 0:
+                dm_settings.pointer_speed =
+                    dm_settings.pointer_speed % 4 + 1;
+                break;
+            case 1:
+                dm_settings.reverse_wheel =
+                    !dm_settings.reverse_wheel;
+                break;
+            case 2:
+                dm_settings.drag_lock = !dm_settings.drag_lock;
+                break;
+            case 3:
+                dm_settings.show_desktop_folders =
+                    !dm_settings.show_desktop_folders;
+                break;
+            case 4:
+                if (dm_settings.start_app == DM_APP_DESKTOP)
+                    dm_settings.start_app = DM_APP_FINDER;
+                else if (dm_settings.start_app == DM_APP_FINDER)
+                    dm_settings.start_app = DM_APP_ITUNES;
+                else
+                    dm_settings.start_app = DM_APP_DESKTOP;
+                break;
+            case 5:
+                dm_settings.restore_session =
+                    !dm_settings.restore_session;
+                break;
+        }
+        dm_save_settings();
+    }
+    else if (state->app == DM_APP_DESKTOP && double_click)
+    {
+        if (dm_point_in_rect(state->cursor_x, state->cursor_y,
+                             (struct dm_rect){ DM_DESKTOP_ICON_X - 16,
+                                               DM_DESKTOP_DISK_Y, 64, 48 }))
+            dm_navigate("/");
+        else if (dm_point_in_rect(state->cursor_x, state->cursor_y,
+                                  (struct dm_rect){ DM_DESKTOP_ICON_X - 16,
+                                                    DM_DESKTOP_DOCS_Y,
+                                                    64, 48 }))
+            dm_navigate("/Documents");
+        else if (dm_point_in_rect(state->cursor_x, state->cursor_y,
+                                  (struct dm_rect){ DM_DESKTOP_ICON_X - 16,
+                                                    DM_DESKTOP_MUSIC_Y,
+                                                    64, 48 }))
+            dm_navigate("/Music");
+        else
+            return PLUGIN_OK;
+        state->running_apps |= DM_APP_BIT(DM_APP_FINDER);
+        state->app = DM_APP_FINDER;
+    }
+    return PLUGIN_OK;
 }
 
-static bool dm_button_has(long button, long mask)
+static void dm_secondary_click(struct dm_state *state)
 {
-    return mask != 0 && (button & mask) == mask;
+    if (state->app == DM_APP_FINDER)
+        state->overlay = DM_OVERLAY_FINDER_CONTEXT;
 }
 
-static bool dm_button_repeat(long button)
+static void dm_menu_action(struct dm_state *state)
 {
-#ifdef BUTTON_REPEAT
-    return (button & BUTTON_REPEAT) != 0;
-#else
-    (void)button;
-    return false;
-#endif
+    if (state->overlay != DM_OVERLAY_NONE)
+    {
+        state->overlay = DM_OVERLAY_NONE;
+        return;
+    }
+    if (state->app == DM_APP_FINDER && rb->strcmp(dm_cwd, "/"))
+    {
+        char parent[MAX_PATH];
+
+        if (dm_history_move(-1))
+            return;
+        rb->strlcpy(parent, dm_cwd, sizeof(parent));
+        dm_parent_dir(parent);
+        dm_navigate(parent);
+        return;
+    }
+    if (state->app != DM_APP_DESKTOP)
+    {
+        state->app = DM_APP_DESKTOP;
+        return;
+    }
+    state->overlay = DM_OVERLAY_RETURN_CONFIRM;
 }
 
-static bool dm_button_left(long button)
+static bool dm_button(long button, long mask)
 {
-#ifdef BUTTON_LEFT
-    if (dm_button_has(button, BUTTON_LEFT))
-        return true;
-#endif
-    (void)button;
-    return false;
+    return (button & mask) == mask;
 }
 
-static bool dm_button_right(long button)
+static void dm_missing_assets_screen(void)
 {
-#ifdef BUTTON_RIGHT
-    if (dm_button_has(button, BUTTON_RIGHT))
-        return true;
+    rb->lcd_setfont(FONT_UI);
+#ifdef HAVE_LCD_COLOR
+    rb->lcd_set_background(LCD_RGBPACK(245, 245, 245));
+    rb->lcd_set_foreground(LCD_RGBPACK(20, 20, 20));
 #endif
-    (void)button;
-    return false;
-}
+    rb->lcd_clear_display();
+    rb->lcd_putsxy(8, 10,
+                   (const unsigned char *)"Snow Leopard assets required");
+    rb->lcd_putsxy(8, 38,
+                   (const unsigned char *)"Open Rockpod > Device >");
+    rb->lcd_putsxy(8, 56,
+                   (const unsigned char *)"Desktop Mode, import an owned");
+    rb->lcd_putsxy(8, 74,
+                   (const unsigned char *)"Mac OS X 10.6 source, then");
+    rb->lcd_putsxy(8, 92,
+                   (const unsigned char *)"install the verified pack.");
+    rb->lcd_putsxy(8, 126,
+                   (const unsigned char *)"Expected under .rockbox/rocks/");
+    rb->lcd_putsxy(8, 144,
+                   (const unsigned char *)"apps/ (iPod) or rocks.data/ (host)");
+    rb->lcd_putsxy(8, 176,
+                   (const unsigned char *)"Menu: Return to iPod");
+    rb->lcd_update();
+    while (1)
+    {
+        long button = rb->button_get(true);
 
-static bool dm_button_up(long button)
-{
-#ifdef BUTTON_UP
-    if (dm_button_has(button, BUTTON_UP))
-        return true;
-#endif
-#ifdef BUTTON_SCROLL_BACK
-    if (dm_button_has(button, BUTTON_SCROLL_BACK))
-        return true;
-#endif
-    (void)button;
-    return false;
-}
-
-static bool dm_button_down(long button)
-{
-#ifdef BUTTON_DOWN
-    if (dm_button_has(button, BUTTON_DOWN))
-        return true;
-#endif
-#ifdef BUTTON_SCROLL_FWD
-    if (dm_button_has(button, BUTTON_SCROLL_FWD))
-        return true;
-#endif
-    (void)button;
-    return false;
-}
-
-static bool dm_button_select_rel(long button)
-{
-#if defined(BUTTON_SELECT) && defined(BUTTON_REL)
-    return dm_button_has(button, BUTTON_SELECT | BUTTON_REL);
-#else
-    (void)button;
-    return false;
-#endif
-}
-
-static bool dm_button_select_repeat(long button)
-{
-#if defined(BUTTON_SELECT) && defined(BUTTON_REPEAT)
-    return dm_button_has(button, BUTTON_SELECT | BUTTON_REPEAT);
-#else
-    (void)button;
-    return false;
-#endif
-}
-
-static bool dm_button_menu(long button)
-{
+        if (rb->default_event_handler(button) == SYS_USB_CONNECTED)
+            break;
 #ifdef BUTTON_MENU
-    if (dm_button_has(button, BUTTON_MENU))
-        return true;
+        if (button & BUTTON_MENU)
+            break;
 #endif
-    (void)button;
-    return false;
-}
-
-static bool dm_button_play_exit(long button)
-{
-#if defined(BUTTON_PLAY) && defined(BUTTON_REPEAT)
-    return dm_button_has(button, BUTTON_PLAY | BUTTON_REPEAT);
-#else
-    (void)button;
-    return false;
+#ifdef BUTTON_PLAY
+        if (button & BUTTON_PLAY)
+            break;
 #endif
+    }
 }
 
 enum plugin_status plugin_start(const void *parameter)
 {
-    enum dm_mode mode = DM_MODE_DESKTOP;
-    int ret = PLUGIN_OK;
-    bool redraw = true;
-    bool start_open = false;
+#ifdef DM_UNSUPPORTED_TARGET
+    (void)parameter;
+    rb->splash(HZ * 2, "Desktop needs a 320x240 color target");
+    return PLUGIN_OK;
+#else
+    struct dm_state state =
+    {
+        .app = DM_APP_DESKTOP,
+        .overlay = DM_OVERLAY_NONE,
+        .cursor_x = LCD_WIDTH / 2,
+        .cursor_y = LCD_HEIGHT / 2,
+        .hover_dock = -1,
+        .hover_row = -1,
+        .menu_row = -1,
+        .preference_row = -1,
+        .last_wheel = -1,
+        .running_apps = DM_APP_BIT(DM_APP_FINDER),
+        .running = true,
+        .redraw = true,
+    };
+    int result = PLUGIN_OK;
+    enum dm_boot_result boot_result;
 
     (void)parameter;
     rb->lcd_setfont(FONT_UI);
-    dm_load_wallpaper();
-    dm_load_settings();
-    if (dm_settings.start_in_finder)
+    boot_result = dm_show_boot_animation();
+    if (boot_result == DM_BOOT_USB_CONNECTED)
+        return PLUGIN_USB_CONNECTED;
+    if (boot_result == DM_BOOT_ERROR)
     {
-        rb->strcpy(dm_cwd, "/");
-        dm_scan_dir();
-        mode = DM_MODE_EXPLORER;
+        dm_missing_assets_screen();
+        return PLUGIN_OK;
     }
-
-    while (ret == PLUGIN_OK)
+    if (!dm_load_assets())
+    {
+        dm_missing_assets_screen();
+        return PLUGIN_OK;
+    }
+    dm_load_settings();
+    state.hint_until = *rb->current_tick + HZ * 4;
+    if (!rb->dir_exists(dm_cwd))
+        rb->strcpy(dm_cwd, "/");
+    dm_history_reset();
+    state.app = dm_settings.restore_session ?
+                dm_saved_app : dm_settings.start_app;
+    if (dm_settings.restore_session)
+    {
+        state.cursor_x = dm_saved_cursor_x;
+        state.cursor_y = dm_saved_cursor_y;
+    }
+    if (state.app != DM_APP_DESKTOP)
+        state.running_apps |= DM_APP_BIT(state.app);
+    if (state.app == DM_APP_FINDER)
+        dm_scan_directory();
+    else if (state.app == DM_APP_ITUNES)
+    {
+        dm_itunes_page_top = 0;
+        dm_itunes_load();
+    }
+#ifdef HAVE_WHEEL_POSITION
+    rb->wheel_send_events(false);
+#endif
+    while (state.running && result == PLUGIN_OK)
     {
         long button;
 
-        if (redraw)
+#ifdef HAVE_TAGCACHE
+        if (state.app == DM_APP_ITUNES && dm_itunes_database_pending)
         {
-            if (mode == DM_MODE_DESKTOP)
-                dm_draw_desktop(start_open);
-            else if (mode == DM_MODE_EXPLORER)
-                dm_draw_explorer();
-            else
-                dm_draw_settings();
-            if (start_open)
-                dm_draw_start_menu();
-            dm_draw_cursor();
-            rb->lcd_update();
-            redraw = false;
-        }
+            const struct tagcache_stat *stat = rb->tagcache_get_stat();
 
-        button = rb->button_get_w_tmo(HZ / 20);
+            if (stat && stat->readyvalid && stat->ready)
+            {
+                dm_itunes_load();
+                state.redraw = true;
+            }
+        }
+#endif
+        dm_update_animation(&state);
+        if (state.redraw)
+        {
+            dm_draw(&state);
+            state.redraw = false;
+        }
+        button = rb->button_get_w_tmo(DM_INPUT_POLL_TICKS);
+        if (TIME_AFTER(*rb->current_tick, state.last_status_tick + HZ))
+        {
+            state.last_status_tick = *rb->current_tick;
+            state.redraw = true;
+        }
+        if (rb->button_hold())
+        {
+            if (state.animation.active)
+                dm_finish_animation(&state);
+            state.last_wheel = -1;
+            state.wheel_velocity = 0;
+            state.wheel_direction = 0;
+            state.mouse_down = false;
+            state.held_dir_x = 0;
+            state.held_dir_y = 0;
+            continue;
+        }
+        if (dm_poll_wheel(&state))
+        {
+            if (state.animation.active)
+                dm_finish_animation(&state);
+            state.redraw = true;
+        }
+        if (dm_advance_held_direction(&state, *rb->current_tick))
+        {
+            if (state.animation.active)
+                dm_finish_animation(&state);
+            state.redraw = true;
+        }
+#ifdef SIMULATOR
+        if (dm_poll_host_pointer(&state))
+        {
+            if (state.animation.active)
+                dm_finish_animation(&state);
+            state.redraw = true;
+        }
+        if (state.host_click)
+        {
+            bool double_click = state.host_click == 2;
+
+            state.host_click = 0;
+            result = dm_click(&state, double_click);
+            state.redraw = true;
+            if (result != PLUGIN_OK)
+                break;
+        }
+        if (state.host_context)
+        {
+            state.host_context = false;
+            dm_secondary_click(&state);
+            state.redraw = true;
+        }
+#endif
         if (button == BUTTON_NONE)
             continue;
-
+        if (state.animation.active)
+            dm_finish_animation(&state);
         if (rb->default_event_handler(button) == SYS_USB_CONNECTED)
-            return PLUGIN_USB_CONNECTED;
-
-        if (dm_button_play_exit(button))
-            ret = PLUGIN_OK + 1;
-        else if (dm_button_select_repeat(button))
         {
-            start_open = true;
-            redraw = true;
+            result = PLUGIN_USB_CONNECTED;
+            break;
         }
-        else if (dm_button_select_rel(button))
+#ifdef BUTTON_SELECT
+        if (button == BUTTON_SELECT)
         {
-            ret = dm_click(&mode, &start_open);
-            redraw = true;
-        }
-        else if (dm_button_menu(button))
-        {
-            if (start_open)
-                start_open = false;
-            else if (mode == DM_MODE_SETTINGS)
+            if (dm_settings.drag_lock && state.mouse_down)
             {
-                dm_save_settings();
-                mode = dm_settings_return_mode;
+                state.mouse_down = false;
+                state.dragged = false;
+                state.redraw = true;
+                continue;
             }
-            else if (mode == DM_MODE_EXPLORER)
-                dm_finder_parent(&mode);
-            else
-                ret = PLUGIN_OK + 1;
-            redraw = true;
+            state.mouse_down = true;
+            state.dragged = false;
+            state.mouse_down_tick = *rb->current_tick;
+            state.redraw = true;
+            continue;
         }
-        else if (dm_button_left(button))
+#ifdef BUTTON_REL
+        if (dm_button(button, BUTTON_SELECT | BUTTON_REL))
         {
-            dm_move_cursor(dm_button_repeat(button) ?
-                           -DM_CURSOR_FAST_STEP : -DM_CURSOR_STEP, 0);
-            dm_update_hover(mode, start_open);
-            redraw = true;
-        }
-        else if (dm_button_right(button))
-        {
-            dm_move_cursor(dm_button_repeat(button) ?
-                           DM_CURSOR_FAST_STEP : DM_CURSOR_STEP, 0);
-            dm_update_hover(mode, start_open);
-            redraw = true;
-        }
-        else if (dm_button_up(button))
-        {
-            dm_move_cursor(0, dm_button_repeat(button) ?
-                           -DM_CURSOR_FAST_STEP : -DM_CURSOR_STEP);
-            dm_scroll_selection(mode, start_open, -1);
-            dm_update_hover(mode, start_open);
-            redraw = true;
-        }
-        else if (dm_button_down(button))
-        {
-            dm_move_cursor(0, dm_button_repeat(button) ?
-                           DM_CURSOR_FAST_STEP : DM_CURSOR_STEP);
-            dm_scroll_selection(mode, start_open, 1);
-            dm_update_hover(mode, start_open);
-            redraw = true;
-        }
-    }
+            long now = *rb->current_tick;
+            bool double_click =
+                TIME_BEFORE(now, state.last_click_tick +
+                                 DM_DOUBLE_CLICK_TICKS) &&
+                DM_ABS(state.cursor_x - state.last_click_x) <= 5 &&
+                DM_ABS(state.cursor_y - state.last_click_y) <= 5;
 
+            state.mouse_down = state.dragged && dm_settings.drag_lock;
+            if (!state.dragged)
+                result = dm_click(&state, double_click);
+            state.last_click_tick = now;
+            state.last_click_x = state.cursor_x;
+            state.last_click_y = state.cursor_y;
+            state.redraw = true;
+            continue;
+        }
+#endif
+#endif
+#if defined(BUTTON_PLAY) && defined(BUTTON_REL)
+        if (dm_button(button, BUTTON_PLAY | BUTTON_REL))
+        {
+            dm_secondary_click(&state);
+            state.redraw = true;
+            continue;
+        }
+#endif
+#if defined(BUTTON_PLAY) && defined(BUTTON_REPEAT)
+        if (dm_button(button, BUTTON_PLAY | BUTTON_REPEAT))
+        {
+            state.overlay = DM_OVERLAY_RETURN_CONFIRM;
+            state.redraw = true;
+            continue;
+        }
+#endif
+#ifdef BUTTON_MENU
+#ifdef BUTTON_REPEAT
+        if (dm_button(button, BUTTON_MENU | BUTTON_REPEAT))
+        {
+            state.overlay = DM_OVERLAY_APPLE_MENU;
+            state.redraw = true;
+            continue;
+        }
+#endif
+#ifdef BUTTON_REL
+        if (dm_button(button, BUTTON_MENU | BUTTON_REL))
+#else
+        if (button & BUTTON_MENU)
+#endif
+        {
+            dm_menu_action(&state);
+            state.redraw = true;
+            continue;
+        }
+#endif
+#if defined(BUTTON_SCROLL_FWD) && defined(BUTTON_SCROLL_BACK)
+#ifdef BUTTON_REL
+        if (dm_button(button, BUTTON_SCROLL_FWD | BUTTON_REL))
+        {
+            dm_held_dir_release_y(&state, 1);
+            continue;
+        }
+        if (dm_button(button, BUTTON_SCROLL_BACK | BUTTON_REL))
+        {
+            dm_held_dir_release_y(&state, -1);
+            continue;
+        }
+#endif
+        if (!state.wheel_available &&
+            (button & (BUTTON_SCROLL_FWD | BUTTON_SCROLL_BACK)))
+        {
+            dm_held_dir_touch(&state, 0,
+                              button & BUTTON_SCROLL_FWD ? 1 : -1,
+                              *rb->current_tick);
+            continue;
+        }
+#endif
+#ifdef BUTTON_LEFT
+#ifdef BUTTON_REL
+        if (dm_button(button, BUTTON_LEFT | BUTTON_REL))
+        {
+            dm_held_dir_release_x(&state, -1);
+            continue;
+        }
+#endif
+        if (button & BUTTON_LEFT)
+        {
+            if (state.wheel_available && state.app == DM_APP_FINDER)
+                dm_history_move(-1);
+            else
+                dm_held_dir_touch(&state, -1, 0, *rb->current_tick);
+            state.redraw = true;
+            continue;
+        }
+#endif
+#ifdef BUTTON_RIGHT
+#ifdef BUTTON_REL
+        if (dm_button(button, BUTTON_RIGHT | BUTTON_REL))
+        {
+            dm_held_dir_release_x(&state, 1);
+            continue;
+        }
+#endif
+        if (button & BUTTON_RIGHT)
+        {
+            if (state.wheel_available && state.app == DM_APP_FINDER)
+                dm_history_move(1);
+            else
+                dm_held_dir_touch(&state, 1, 0, *rb->current_tick);
+            state.redraw = true;
+            continue;
+        }
+#endif
+    }
+#ifdef HAVE_WHEEL_POSITION
+    rb->wheel_send_events(true);
+#endif
+    dm_saved_app = state.app;
+    dm_saved_cursor_x = state.cursor_x;
+    dm_saved_cursor_y = state.cursor_y;
+    dm_save_settings();
     rb->lcd_setfont(FONT_UI);
-    return ret == PLUGIN_OK + 1 ? PLUGIN_OK : ret;
+    return result;
+#endif
 }

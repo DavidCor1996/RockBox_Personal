@@ -1212,415 +1212,420 @@ main:
 	/* "struct user_settings", "ui_engine_games_appearance" = $1964, $4, "i", $0; */
 
 # 0 "" 2
-	.loc 1 273 1 view .LVU243
-	.loc 1 274 5 view .LVU244
-# 274 "<stdin>" 1
-	/* "struct replaygain_settings", "noclip" = $0, $1, "b", $0; */
+	.loc 1 273 5 view .LVU243
+# 273 "<stdin>" 1
+	/* "struct user_settings", "ui_engine_extras_pane" = $1968, $4, "i", $0; */
 
 # 0 "" 2
+	.loc 1 274 1 view .LVU244
 	.loc 1 275 5 view .LVU245
 # 275 "<stdin>" 1
-	/* "struct replaygain_settings", "type" = $4, $4, "i", $0; */
+	/* "struct replaygain_settings", "noclip" = $0, $1, "b", $0; */
 
 # 0 "" 2
 	.loc 1 276 5 view .LVU246
 # 276 "<stdin>" 1
+	/* "struct replaygain_settings", "type" = $4, $4, "i", $0; */
+
+# 0 "" 2
+	.loc 1 277 5 view .LVU247
+# 277 "<stdin>" 1
 	/* "struct replaygain_settings", "preamp" = $8, $4, "i", $0; */
 
 # 0 "" 2
-	.loc 1 277 1 view .LVU247
-	.loc 1 278 5 view .LVU248
-# 278 "<stdin>" 1
-	/* "struct eq_band_setting", "cutoff" = $0, $4, "i", $0; */
-
-# 0 "" 2
+	.loc 1 278 1 view .LVU248
 	.loc 1 279 5 view .LVU249
 # 279 "<stdin>" 1
-	/* "struct eq_band_setting", "q" = $4, $4, "i", $0; */
+	/* "struct eq_band_setting", "cutoff" = $0, $4, "i", $0; */
 
 # 0 "" 2
 	.loc 1 280 5 view .LVU250
 # 280 "<stdin>" 1
+	/* "struct eq_band_setting", "q" = $4, $4, "i", $0; */
+
+# 0 "" 2
+	.loc 1 281 5 view .LVU251
+# 281 "<stdin>" 1
 	/* "struct eq_band_setting", "gain" = $8, $4, "i", $0; */
 
 # 0 "" 2
-	.loc 1 281 1 view .LVU251
-	.loc 1 282 5 view .LVU252
-# 282 "<stdin>" 1
-	/* "struct compressor_settings", "threshold" = $0, $4, "i", $0; */
-
-# 0 "" 2
+	.loc 1 282 1 view .LVU252
 	.loc 1 283 5 view .LVU253
 # 283 "<stdin>" 1
-	/* "struct compressor_settings", "makeup_gain" = $4, $4, "i", $0; */
+	/* "struct compressor_settings", "threshold" = $0, $4, "i", $0; */
 
 # 0 "" 2
 	.loc 1 284 5 view .LVU254
 # 284 "<stdin>" 1
-	/* "struct compressor_settings", "ratio" = $8, $4, "i", $0; */
+	/* "struct compressor_settings", "makeup_gain" = $4, $4, "i", $0; */
 
 # 0 "" 2
 	.loc 1 285 5 view .LVU255
 # 285 "<stdin>" 1
-	/* "struct compressor_settings", "knee" = $12, $4, "i", $0; */
+	/* "struct compressor_settings", "ratio" = $8, $4, "i", $0; */
 
 # 0 "" 2
 	.loc 1 286 5 view .LVU256
 # 286 "<stdin>" 1
-	/* "struct compressor_settings", "release_time" = $16, $4, "i", $0; */
+	/* "struct compressor_settings", "knee" = $12, $4, "i", $0; */
 
 # 0 "" 2
 	.loc 1 287 5 view .LVU257
 # 287 "<stdin>" 1
+	/* "struct compressor_settings", "release_time" = $16, $4, "i", $0; */
+
+# 0 "" 2
+	.loc 1 288 5 view .LVU258
+# 288 "<stdin>" 1
 	/* "struct compressor_settings", "attack_time" = $20, $4, "i", $0; */
 
 # 0 "" 2
-	.loc 1 288 1 view .LVU258
-	.loc 1 289 5 view .LVU259
-# 289 "<stdin>" 1
+	.loc 1 289 1 view .LVU259
+	.loc 1 290 5 view .LVU260
+# 290 "<stdin>" 1
 	/* "struct mp3_enc_config", "bitrate" = $0, $8, "u_l", $0; */
 
 # 0 "" 2
-	.loc 1 290 1 view .LVU260
-	.loc 1 291 5 view .LVU261
-# 291 "<stdin>" 1
-	/* "struct mp3entry", "path" = $0, $260, "str", $0; */
-
-# 0 "" 2
+	.loc 1 291 1 view .LVU261
 	.loc 1 292 5 view .LVU262
 # 292 "<stdin>" 1
-	/* "struct mp3entry", "title" = $264, $8, "ptr_char", $0; */
+	/* "struct mp3entry", "path" = $0, $260, "str", $0; */
 
 # 0 "" 2
 	.loc 1 293 5 view .LVU263
 # 293 "<stdin>" 1
-	/* "struct mp3entry", "artist" = $272, $8, "ptr_char", $0; */
+	/* "struct mp3entry", "title" = $264, $8, "ptr_char", $0; */
 
 # 0 "" 2
 	.loc 1 294 5 view .LVU264
 # 294 "<stdin>" 1
-	/* "struct mp3entry", "album" = $280, $8, "ptr_char", $0; */
+	/* "struct mp3entry", "artist" = $272, $8, "ptr_char", $0; */
 
 # 0 "" 2
 	.loc 1 295 5 view .LVU265
 # 295 "<stdin>" 1
-	/* "struct mp3entry", "genre_string" = $288, $8, "ptr_char", $0; */
+	/* "struct mp3entry", "album" = $280, $8, "ptr_char", $0; */
 
 # 0 "" 2
 	.loc 1 296 5 view .LVU266
 # 296 "<stdin>" 1
-	/* "struct mp3entry", "disc_string" = $296, $8, "ptr_char", $0; */
+	/* "struct mp3entry", "genre_string" = $288, $8, "ptr_char", $0; */
 
 # 0 "" 2
 	.loc 1 297 5 view .LVU267
 # 297 "<stdin>" 1
-	/* "struct mp3entry", "track_string" = $304, $8, "ptr_char", $0; */
+	/* "struct mp3entry", "disc_string" = $296, $8, "ptr_char", $0; */
 
 # 0 "" 2
 	.loc 1 298 5 view .LVU268
 # 298 "<stdin>" 1
-	/* "struct mp3entry", "year_string" = $312, $8, "ptr_char", $0; */
+	/* "struct mp3entry", "track_string" = $304, $8, "ptr_char", $0; */
 
 # 0 "" 2
 	.loc 1 299 5 view .LVU269
 # 299 "<stdin>" 1
-	/* "struct mp3entry", "composer" = $320, $8, "ptr_char", $0; */
+	/* "struct mp3entry", "year_string" = $312, $8, "ptr_char", $0; */
 
 # 0 "" 2
 	.loc 1 300 5 view .LVU270
 # 300 "<stdin>" 1
-	/* "struct mp3entry", "comment" = $328, $8, "ptr_char", $0; */
+	/* "struct mp3entry", "composer" = $320, $8, "ptr_char", $0; */
 
 # 0 "" 2
 	.loc 1 301 5 view .LVU271
 # 301 "<stdin>" 1
-	/* "struct mp3entry", "albumartist" = $336, $8, "ptr_char", $0; */
+	/* "struct mp3entry", "comment" = $328, $8, "ptr_char", $0; */
 
 # 0 "" 2
 	.loc 1 302 5 view .LVU272
 # 302 "<stdin>" 1
-	/* "struct mp3entry", "grouping" = $344, $8, "ptr_char", $0; */
+	/* "struct mp3entry", "albumartist" = $336, $8, "ptr_char", $0; */
 
 # 0 "" 2
 	.loc 1 303 5 view .LVU273
 # 303 "<stdin>" 1
-	/* "struct mp3entry", "discnum" = $352, $4, "i", $0; */
+	/* "struct mp3entry", "grouping" = $344, $8, "ptr_char", $0; */
 
 # 0 "" 2
 	.loc 1 304 5 view .LVU274
 # 304 "<stdin>" 1
-	/* "struct mp3entry", "tracknum" = $356, $4, "i", $0; */
+	/* "struct mp3entry", "discnum" = $352, $4, "i", $0; */
 
 # 0 "" 2
 	.loc 1 305 5 view .LVU275
 # 305 "<stdin>" 1
-	/* "struct mp3entry", "layer" = $360, $4, "i", $0; */
+	/* "struct mp3entry", "tracknum" = $356, $4, "i", $0; */
 
 # 0 "" 2
 	.loc 1 306 5 view .LVU276
 # 306 "<stdin>" 1
-	/* "struct mp3entry", "year" = $364, $4, "i", $0; */
+	/* "struct mp3entry", "layer" = $360, $4, "i", $0; */
 
 # 0 "" 2
 	.loc 1 307 5 view .LVU277
 # 307 "<stdin>" 1
-	/* "struct mp3entry", "id3version" = $368, $1, "u_c", $0; */
+	/* "struct mp3entry", "year" = $364, $4, "i", $0; */
 
 # 0 "" 2
 	.loc 1 308 5 view .LVU278
 # 308 "<stdin>" 1
-	/* "struct mp3entry", "codectype" = $372, $4, "u_i", $0; */
+	/* "struct mp3entry", "id3version" = $368, $1, "u_c", $0; */
 
 # 0 "" 2
 	.loc 1 309 5 view .LVU279
 # 309 "<stdin>" 1
-	/* "struct mp3entry", "bitrate" = $376, $4, "u_i", $0; */
+	/* "struct mp3entry", "codectype" = $372, $4, "u_i", $0; */
 
 # 0 "" 2
 	.loc 1 310 5 view .LVU280
 # 310 "<stdin>" 1
-	/* "struct mp3entry", "frequency" = $384, $8, "u_l", $0; */
+	/* "struct mp3entry", "bitrate" = $376, $4, "u_i", $0; */
 
 # 0 "" 2
 	.loc 1 311 5 view .LVU281
 # 311 "<stdin>" 1
-	/* "struct mp3entry", "id3v2len" = $392, $8, "u_l", $0; */
+	/* "struct mp3entry", "frequency" = $384, $8, "u_l", $0; */
 
 # 0 "" 2
 	.loc 1 312 5 view .LVU282
 # 312 "<stdin>" 1
-	/* "struct mp3entry", "id3v1len" = $400, $8, "u_l", $0; */
+	/* "struct mp3entry", "id3v2len" = $392, $8, "u_l", $0; */
 
 # 0 "" 2
 	.loc 1 313 5 view .LVU283
 # 313 "<stdin>" 1
-	/* "struct mp3entry", "first_frame_offset" = $408, $8, "u_l", $0; */
+	/* "struct mp3entry", "id3v1len" = $400, $8, "u_l", $0; */
 
 # 0 "" 2
 	.loc 1 314 5 view .LVU284
 # 314 "<stdin>" 1
-	/* "struct mp3entry", "sim_filesize" = $416, $8, "u_l", $0; */
+	/* "struct mp3entry", "first_frame_offset" = $408, $8, "u_l", $0; */
 
 # 0 "" 2
 	.loc 1 315 5 view .LVU285
 # 315 "<stdin>" 1
-	/* "struct mp3entry", "length" = $424, $8, "u_l", $0; */
+	/* "struct mp3entry", "sim_filesize" = $416, $8, "u_l", $0; */
 
 # 0 "" 2
 	.loc 1 316 5 view .LVU286
 # 316 "<stdin>" 1
-	/* "struct mp3entry", "elapsed" = $432, $8, "u_l", $0; */
+	/* "struct mp3entry", "length" = $424, $8, "u_l", $0; */
 
 # 0 "" 2
 	.loc 1 317 5 view .LVU287
 # 317 "<stdin>" 1
-	/* "struct mp3entry", "lead_trim" = $440, $4, "i", $0; */
+	/* "struct mp3entry", "elapsed" = $432, $8, "u_l", $0; */
 
 # 0 "" 2
 	.loc 1 318 5 view .LVU288
 # 318 "<stdin>" 1
-	/* "struct mp3entry", "tail_trim" = $444, $4, "i", $0; */
+	/* "struct mp3entry", "lead_trim" = $440, $4, "i", $0; */
 
 # 0 "" 2
 	.loc 1 319 5 view .LVU289
 # 319 "<stdin>" 1
-	/* "struct mp3entry", "samples" = $448, $8, "u_i", $0; */
+	/* "struct mp3entry", "tail_trim" = $444, $4, "i", $0; */
 
 # 0 "" 2
 	.loc 1 320 5 view .LVU290
 # 320 "<stdin>" 1
-	/* "struct mp3entry", "frame_count" = $456, $8, "u_l", $0; */
+	/* "struct mp3entry", "samples" = $448, $8, "u_i", $0; */
 
 # 0 "" 2
 	.loc 1 321 5 view .LVU291
 # 321 "<stdin>" 1
-	/* "struct mp3entry", "bytesperframe" = $464, $8, "u_l", $0; */
+	/* "struct mp3entry", "frame_count" = $456, $8, "u_l", $0; */
 
 # 0 "" 2
 	.loc 1 322 5 view .LVU292
 # 322 "<stdin>" 1
-	/* "struct mp3entry", "vbr" = $472, $1, "b", $0; */
+	/* "struct mp3entry", "bytesperframe" = $464, $8, "u_l", $0; */
 
 # 0 "" 2
 	.loc 1 323 5 view .LVU293
 # 323 "<stdin>" 1
-	/* "struct mp3entry", "has_toc" = $473, $1, "b", $0; */
+	/* "struct mp3entry", "vbr" = $472, $1, "b", $0; */
 
 # 0 "" 2
 	.loc 1 324 5 view .LVU294
 # 324 "<stdin>" 1
-	/* "struct mp3entry", "toc" = $474, $100, "str", $0; */
+	/* "struct mp3entry", "has_toc" = $473, $1, "b", $0; */
 
 # 0 "" 2
 	.loc 1 325 5 view .LVU295
 # 325 "<stdin>" 1
-	/* "struct mp3entry", "needs_upsampling_correction" = $574, $1, "b", $0; */
+	/* "struct mp3entry", "toc" = $474, $100, "str", $0; */
 
 # 0 "" 2
 	.loc 1 326 5 view .LVU296
 # 326 "<stdin>" 1
-	/* "struct mp3entry", "id3v2buf" = $575, $1800, "str", $0; */
+	/* "struct mp3entry", "needs_upsampling_correction" = $574, $1, "b", $0; */
 
 # 0 "" 2
 	.loc 1 327 5 view .LVU297
 # 327 "<stdin>" 1
-	/* "struct mp3entry", "id3v1buf" = $2375, $368, "str", $0; */
+	/* "struct mp3entry", "id3v2buf" = $575, $1800, "str", $0; */
 
 # 0 "" 2
 	.loc 1 328 5 view .LVU298
 # 328 "<stdin>" 1
-	/* "struct mp3entry", "offset" = $2744, $8, "u_l", $0; */
+	/* "struct mp3entry", "id3v1buf" = $2375, $368, "str", $0; */
 
 # 0 "" 2
 	.loc 1 329 5 view .LVU299
 # 329 "<stdin>" 1
-	/* "struct mp3entry", "index" = $2752, $4, "i", $0; */
+	/* "struct mp3entry", "offset" = $2744, $8, "u_l", $0; */
 
 # 0 "" 2
 	.loc 1 330 5 view .LVU300
 # 330 "<stdin>" 1
-	/* "struct mp3entry", "skip_resume_adjustments" = $2756, $1, "b", $0; */
+	/* "struct mp3entry", "index" = $2752, $4, "i", $0; */
 
 # 0 "" 2
 	.loc 1 331 5 view .LVU301
 # 331 "<stdin>" 1
-	/* "struct mp3entry", "autoresumable" = $2757, $1, "u_c", $0; */
+	/* "struct mp3entry", "skip_resume_adjustments" = $2756, $1, "b", $0; */
 
 # 0 "" 2
 	.loc 1 332 5 view .LVU302
 # 332 "<stdin>" 1
-	/* "struct mp3entry", "tagcache_idx" = $2760, $8, "l", $0; */
+	/* "struct mp3entry", "autoresumable" = $2757, $1, "u_c", $0; */
 
 # 0 "" 2
 	.loc 1 333 5 view .LVU303
 # 333 "<stdin>" 1
-	/* "struct mp3entry", "rating" = $2768, $4, "i", $0; */
+	/* "struct mp3entry", "tagcache_idx" = $2760, $8, "l", $0; */
 
 # 0 "" 2
 	.loc 1 334 5 view .LVU304
 # 334 "<stdin>" 1
-	/* "struct mp3entry", "score" = $2772, $4, "i", $0; */
+	/* "struct mp3entry", "rating" = $2768, $4, "i", $0; */
 
 # 0 "" 2
 	.loc 1 335 5 view .LVU305
 # 335 "<stdin>" 1
-	/* "struct mp3entry", "playcount" = $2776, $8, "l", $0; */
+	/* "struct mp3entry", "score" = $2772, $4, "i", $0; */
 
 # 0 "" 2
 	.loc 1 336 5 view .LVU306
 # 336 "<stdin>" 1
-	/* "struct mp3entry", "lastplayed" = $2784, $8, "l", $0; */
+	/* "struct mp3entry", "playcount" = $2776, $8, "l", $0; */
 
 # 0 "" 2
 	.loc 1 337 5 view .LVU307
 # 337 "<stdin>" 1
-	/* "struct mp3entry", "playtime" = $2792, $8, "l", $0; */
+	/* "struct mp3entry", "lastplayed" = $2784, $8, "l", $0; */
 
 # 0 "" 2
 	.loc 1 338 5 view .LVU308
 # 338 "<stdin>" 1
-	/* "struct mp3entry", "track_level" = $2800, $8, "l", $0; */
+	/* "struct mp3entry", "playtime" = $2792, $8, "l", $0; */
 
 # 0 "" 2
 	.loc 1 339 5 view .LVU309
 # 339 "<stdin>" 1
-	/* "struct mp3entry", "album_level" = $2808, $8, "l", $0; */
+	/* "struct mp3entry", "track_level" = $2800, $8, "l", $0; */
 
 # 0 "" 2
 	.loc 1 340 5 view .LVU310
 # 340 "<stdin>" 1
-	/* "struct mp3entry", "track_gain" = $2816, $8, "l", $0; */
+	/* "struct mp3entry", "album_level" = $2808, $8, "l", $0; */
 
 # 0 "" 2
 	.loc 1 341 5 view .LVU311
 # 341 "<stdin>" 1
-	/* "struct mp3entry", "album_gain" = $2824, $8, "l", $0; */
+	/* "struct mp3entry", "track_gain" = $2816, $8, "l", $0; */
 
 # 0 "" 2
 	.loc 1 342 5 view .LVU312
 # 342 "<stdin>" 1
-	/* "struct mp3entry", "track_peak" = $2832, $8, "l", $0; */
+	/* "struct mp3entry", "album_gain" = $2824, $8, "l", $0; */
 
 # 0 "" 2
 	.loc 1 343 5 view .LVU313
 # 343 "<stdin>" 1
-	/* "struct mp3entry", "album_peak" = $2840, $8, "l", $0; */
+	/* "struct mp3entry", "track_peak" = $2832, $8, "l", $0; */
 
 # 0 "" 2
 	.loc 1 344 5 view .LVU314
 # 344 "<stdin>" 1
-	/* "struct mp3entry", "has_embedded_albumart" = $2848, $1, "b", $0; */
+	/* "struct mp3entry", "album_peak" = $2840, $8, "l", $0; */
 
 # 0 "" 2
 	.loc 1 345 5 view .LVU315
 # 345 "<stdin>" 1
-	/* "struct mp3entry", "albumart" = $2856, $16, "s_mp3_albumart", $0; */
+	/* "struct mp3entry", "has_embedded_albumart" = $2848, $1, "b", $0; */
 
 # 0 "" 2
 	.loc 1 346 5 view .LVU316
 # 346 "<stdin>" 1
-	/* "struct mp3entry", "has_embedded_cuesheet" = $2872, $1, "b", $0; */
+	/* "struct mp3entry", "albumart" = $2856, $16, "s_mp3_albumart", $0; */
 
 # 0 "" 2
 	.loc 1 347 5 view .LVU317
 # 347 "<stdin>" 1
-	/* "struct mp3entry", "embedded_cuesheet" = $2880, $24, "s_embedded_cuesheet", $0; */
+	/* "struct mp3entry", "has_embedded_cuesheet" = $2872, $1, "b", $0; */
 
 # 0 "" 2
 	.loc 1 348 5 view .LVU318
 # 348 "<stdin>" 1
-	/* "struct mp3entry", "cuesheet" = $2904, $8, "ptr_s_cuesheet", $0; */
+	/* "struct mp3entry", "embedded_cuesheet" = $2880, $24, "s_embedded_cuesheet", $0; */
 
 # 0 "" 2
 	.loc 1 349 5 view .LVU319
 # 349 "<stdin>" 1
-	/* "struct mp3entry", "mb_track_id" = $2912, $8, "ptr_char", $0; */
+	/* "struct mp3entry", "cuesheet" = $2904, $8, "ptr_s_cuesheet", $0; */
 
 # 0 "" 2
 	.loc 1 350 5 view .LVU320
 # 350 "<stdin>" 1
-	/* "struct mp3entry", "is_asf_stream" = $2920, $1, "b", $0; */
+	/* "struct mp3entry", "mb_track_id" = $2912, $8, "ptr_char", $0; */
 
 # 0 "" 2
 	.loc 1 351 5 view .LVU321
 # 351 "<stdin>" 1
+	/* "struct mp3entry", "is_asf_stream" = $2920, $1, "b", $0; */
+
+# 0 "" 2
+	.loc 1 352 5 view .LVU322
+# 352 "<stdin>" 1
 	/* "struct mp3entry", "has_video" = $2921, $1, "b", $0; */
 
 # 0 "" 2
-	.loc 1 352 1 view .LVU322
-	.loc 1 353 5 view .LVU323
-# 353 "<stdin>" 1
-	/* "struct mp3_albumart", "type" = $0, $4, "e_mp3_aa_type", $0; */
-
-# 0 "" 2
+	.loc 1 353 1 view .LVU323
 	.loc 1 354 5 view .LVU324
 # 354 "<stdin>" 1
-	/* "struct mp3_albumart", "size" = $4, $4, "i", $0; */
+	/* "struct mp3_albumart", "type" = $0, $4, "e_mp3_aa_type", $0; */
 
 # 0 "" 2
 	.loc 1 355 5 view .LVU325
 # 355 "<stdin>" 1
+	/* "struct mp3_albumart", "size" = $4, $4, "i", $0; */
+
+# 0 "" 2
+	.loc 1 356 5 view .LVU326
+# 356 "<stdin>" 1
 	/* "struct mp3_albumart", "pos" = $8, $8, "off_t", $0; */
 
 # 0 "" 2
-	.loc 1 356 1 view .LVU326
-	.loc 1 357 5 view .LVU327
-# 357 "<stdin>" 1
-	/* "struct embedded_cuesheet", "size" = $0, $4, "i", $0; */
-
-# 0 "" 2
+	.loc 1 357 1 view .LVU327
 	.loc 1 358 5 view .LVU328
 # 358 "<stdin>" 1
-	/* "struct embedded_cuesheet", "pos" = $8, $8, "off_t", $0; */
+	/* "struct embedded_cuesheet", "size" = $0, $4, "i", $0; */
 
 # 0 "" 2
 	.loc 1 359 5 view .LVU329
 # 359 "<stdin>" 1
+	/* "struct embedded_cuesheet", "pos" = $8, $8, "off_t", $0; */
+
+# 0 "" 2
+	.loc 1 360 5 view .LVU330
+# 360 "<stdin>" 1
 	/* "struct embedded_cuesheet", "encoding" = $16, $4, "e_character_encoding", $0; */
 
 # 0 "" 2
-	.loc 1 361 5 view .LVU330
-	.loc 1 362 1 is_stmt 0 view .LVU331
+	.loc 1 362 5 view .LVU331
+	.loc 1 363 1 is_stmt 0 view .LVU332
 #NO_APP
 	xorl	%eax, %eax
 	ret
@@ -1643,13 +1648,13 @@ main:
 	.file 13 "/home/david/Documents/RockBox_Personal-master/apps/settings_list.h"
 	.section	.debug_info,"",@progbits
 .Ldebug_info0:
-	.long	0x19b0
+	.long	0x19bf
 	.value	0x5
 	.byte	0x1
 	.byte	0x8
 	.long	.Ldebug_abbrev0
 	.uleb128 0x19
-	.long	.LASF403
+	.long	.LASF404
 	.byte	0xc
 	.long	.LASF0
 	.long	.LASF1
@@ -2486,90 +2491,90 @@ main:
 	.long	.LASF117
 	.byte	0x38
 	.byte	0xc
-	.value	0x18e
+	.value	0x194
 	.byte	0x8
 	.long	0x78f
 	.uleb128 0x3
 	.long	.LASF118
-	.value	0x190
+	.value	0x196
 	.byte	0x9
 	.long	0x71
 	.byte	0
 	.uleb128 0x3
 	.long	.LASF119
-	.value	0x191
+	.value	0x197
 	.byte	0x9
 	.long	0x71
 	.byte	0x4
 	.uleb128 0x3
 	.long	.LASF120
-	.value	0x192
+	.value	0x198
 	.byte	0xe
 	.long	0xd3
 	.byte	0x8
 	.uleb128 0x3
 	.long	.LASF121
-	.value	0x193
+	.value	0x199
 	.byte	0xe
 	.long	0xd3
 	.byte	0xc
 	.uleb128 0x3
 	.long	.LASF122
-	.value	0x194
+	.value	0x19a
 	.byte	0xe
 	.long	0xd3
 	.byte	0x10
 	.uleb128 0x3
 	.long	.LASF123
-	.value	0x196
+	.value	0x19c
 	.byte	0xd
 	.long	0xc7
 	.byte	0x14
 	.uleb128 0x3
 	.long	.LASF124
-	.value	0x197
+	.value	0x19d
 	.byte	0xd
 	.long	0xc7
 	.byte	0x18
 	.uleb128 0x3
 	.long	.LASF125
-	.value	0x199
+	.value	0x19f
 	.byte	0x9
 	.long	0x71
 	.byte	0x1c
 	.uleb128 0x3
 	.long	.LASF126
-	.value	0x19a
+	.value	0x1a0
 	.byte	0x9
 	.long	0x71
 	.byte	0x20
 	.uleb128 0x3
 	.long	.LASF127
-	.value	0x1a2
+	.value	0x1a8
 	.byte	0x11
 	.long	0x4b
 	.byte	0x24
 	.uleb128 0x3
 	.long	.LASF128
-	.value	0x1a3
+	.value	0x1a9
 	.byte	0xa
 	.long	0x71
 	.byte	0x28
 	.uleb128 0x3
 	.long	.LASF129
-	.value	0x1a4
+	.value	0x1aa
 	.byte	0x9
 	.long	0x71
 	.byte	0x2c
 	.uleb128 0x3
 	.long	.LASF130
-	.value	0x1a5
+	.value	0x1ab
 	.byte	0x9
 	.long	0x78f
 	.byte	0x30
 	.uleb128 0x3
 	.long	.LASF131
-	.value	0x1a7
+	.value	0x1ad
 	.byte	0xa
 	.long	0x121
 	.byte	0x34
@@ -2583,1710 +2588,1717 @@ main:
 	.byte	0
 	.uleb128 0x21
 	.long	.LASF132
-	.value	0x7b0
+	.value	0x7b8
 	.byte	0xc
-	.value	0x1aa
+	.value	0x1b0
 	.byte	0x8
-	.long	0x149e
+	.long	0x14ad
 	.uleb128 0x3
 	.long	.LASF133
-	.value	0x1ad
+	.value	0x1b3
 	.byte	0x9
 	.long	0x71
 	.byte	0
 	.uleb128 0x3
 	.long	.LASF134
-	.value	0x1ae
+	.value	0x1b4
 	.byte	0x9
 	.long	0x71
 	.byte	0x4
 	.uleb128 0x3
 	.long	.LASF135
-	.value	0x1af
+	.value	0x1b5
 	.byte	0x9
 	.long	0x71
 	.byte	0x8
 	.uleb128 0x3
 	.long	.LASF136
-	.value	0x1b0
+	.value	0x1b6
 	.byte	0x9
 	.long	0x71
 	.byte	0xc
 	.uleb128 0x3
 	.long	.LASF137
-	.value	0x1b1
+	.value	0x1b7
 	.byte	0x9
 	.long	0x71
 	.byte	0x10
 	.uleb128 0x3
 	.long	.LASF138
-	.value	0x1b4
+	.value	0x1ba
 	.byte	0x9
 	.long	0x71
 	.byte	0x14
 	.uleb128 0x3
 	.long	.LASF139
-	.value	0x1b7
+	.value	0x1bd
 	.byte	0x9
 	.long	0x71
 	.byte	0x18
 	.uleb128 0x3
 	.long	.LASF140
-	.value	0x1bc
+	.value	0x1c2
 	.byte	0x9
 	.long	0x71
 	.byte	0x1c
 	.uleb128 0x3
 	.long	.LASF141
-	.value	0x1be
+	.value	0x1c4
 	.byte	0x9
 	.long	0x71
 	.byte	0x20
 	.uleb128 0x3
 	.long	.LASF142
-	.value	0x1bf
+	.value	0x1c5
 	.byte	0x9
 	.long	0x71
 	.byte	0x24
 	.uleb128 0x3
 	.long	.LASF143
-	.value	0x1c0
+	.value	0x1c6
 	.byte	0x9
 	.long	0x71
 	.byte	0x28
 	.uleb128 0x3
 	.long	.LASF144
-	.value	0x1c1
+	.value	0x1c7
 	.byte	0x9
 	.long	0x71
 	.byte	0x2c
 	.uleb128 0x3
 	.long	.LASF145
-	.value	0x1c2
+	.value	0x1c8
 	.byte	0x9
 	.long	0x71
 	.byte	0x30
 	.uleb128 0x3
 	.long	.LASF111
-	.value	0x1c6
+	.value	0x1cc
 	.byte	0x20
 	.long	0x664
 	.byte	0x34
 	.uleb128 0x3
 	.long	.LASF146
-	.value	0x1c9
+	.value	0x1cf
 	.byte	0x9
 	.long	0x71
 	.byte	0x40
 	.uleb128 0x3
 	.long	.LASF147
-	.value	0x1ca
+	.value	0x1d0
 	.byte	0x12
 	.long	0x3d
 	.byte	0x44
 	.uleb128 0x3
 	.long	.LASF148
-	.value	0x1cb
+	.value	0x1d1
 	.byte	0x12
 	.long	0x3d
 	.byte	0x48
 	.uleb128 0x3
 	.long	.LASF149
-	.value	0x1cc
+	.value	0x1d2
 	.byte	0x12
 	.long	0x3d
 	.byte	0x4c
 	.uleb128 0x3
 	.long	.LASF150
-	.value	0x1cd
+	.value	0x1d3
 	.byte	0x12
 	.long	0x3d
 	.byte	0x50
 	.uleb128 0x3
 	.long	.LASF151
-	.value	0x1d0
+	.value	0x1d6
 	.byte	0xa
 	.long	0x121
 	.byte	0x54
 	.uleb128 0x3
 	.long	.LASF152
-	.value	0x1d1
+	.value	0x1d7
 	.byte	0x12
 	.long	0x3d
 	.byte	0x58
 	.uleb128 0x3
 	.long	.LASF153
-	.value	0x1d2
+	.value	0x1d8
 	.byte	0x1c
-	.long	0x149e
+	.long	0x14ad
 	.byte	0x5c
 	.uleb128 0x3
 	.long	.LASF154
-	.value	0x1d5
+	.value	0x1db
 	.byte	0xa
 	.long	0x71
 	.byte	0xd4
 	.uleb128 0x3
 	.long	.LASF155
-	.value	0x1d6
+	.value	0x1dc
 	.byte	0xa
 	.long	0x71
 	.byte	0xd8
 	.uleb128 0x3
 	.long	.LASF156
-	.value	0x1d7
+	.value	0x1dd
 	.byte	0xa
 	.long	0x71
 	.byte	0xdc
 	.uleb128 0x3
 	.long	.LASF157
-	.value	0x1d8
+	.value	0x1de
 	.byte	0xa
 	.long	0x121
 	.byte	0xe0
 	.uleb128 0x3
 	.long	.LASF158
-	.value	0x1da
+	.value	0x1e0
 	.byte	0xa
 	.long	0x121
 	.byte	0xe1
 	.uleb128 0x3
 	.long	.LASF159
-	.value	0x1de
+	.value	0x1e4
 	.byte	0x9
 	.long	0x71
 	.byte	0xe4
 	.uleb128 0x3
 	.long	.LASF160
-	.value	0x1df
+	.value	0x1e5
 	.byte	0x9
 	.long	0x71
 	.byte	0xe8
 	.uleb128 0x3
 	.long	.LASF103
-	.value	0x1e2
+	.value	0x1e8
 	.byte	0x1f
 	.long	0x5ef
 	.byte	0xf0
 	.uleb128 0x3
 	.long	.LASF161
-	.value	0x1eb
+	.value	0x1f1
 	.byte	0x9
 	.long	0x71
 	.byte	0xf8
 	.uleb128 0x3
 	.long	.LASF162
-	.value	0x1ec
+	.value	0x1f2
 	.byte	0x9
 	.long	0x71
 	.byte	0xfc
 	.uleb128 0x1
 	.long	.LASF163
 	.byte	0xc
-	.value	0x1f2
+	.value	0x1f8
 	.byte	0x9
 	.long	0x71
 	.value	0x100
 	.uleb128 0x1
 	.long	.LASF164
 	.byte	0xc
-	.value	0x1f4
+	.value	0x1fa
 	.byte	0x9
 	.long	0x71
 	.value	0x104
 	.uleb128 0x1
 	.long	.LASF165
 	.byte	0xc
-	.value	0x1f5
+	.value	0x1fb
 	.byte	0x9
 	.long	0x71
 	.value	0x108
 	.uleb128 0x1
 	.long	.LASF166
 	.byte	0xc
-	.value	0x1f6
+	.value	0x1fc
 	.byte	0x9
 	.long	0x71
 	.value	0x10c
 	.uleb128 0x1
 	.long	.LASF167
 	.byte	0xc
-	.value	0x1f7
+	.value	0x1fd
 	.byte	0xa
 	.long	0x121
 	.value	0x110
 	.uleb128 0x1
 	.long	.LASF168
 	.byte	0xc
-	.value	0x1f8
+	.value	0x1fe
 	.byte	0xa
 	.long	0x121
 	.value	0x111
 	.uleb128 0x1
 	.long	.LASF169
 	.byte	0xc
-	.value	0x1fb
+	.value	0x201
 	.byte	0x9
 	.long	0x71
 	.value	0x114
 	.uleb128 0x1
 	.long	.LASF170
 	.byte	0xc
-	.value	0x1fc
+	.value	0x202
 	.byte	0x9
 	.long	0x71
 	.value	0x118
 	.uleb128 0x1
 	.long	.LASF171
 	.byte	0xc
-	.value	0x201
+	.value	0x207
 	.byte	0x9
 	.long	0x71
 	.value	0x11c
 	.uleb128 0x1
 	.long	.LASF172
 	.byte	0xc
-	.value	0x202
+	.value	0x208
 	.byte	0x9
 	.long	0x71
 	.value	0x120
 	.uleb128 0x1
 	.long	.LASF173
 	.byte	0xc
-	.value	0x204
+	.value	0x20a
 	.byte	0x9
 	.long	0x71
 	.value	0x124
 	.uleb128 0x1
 	.long	.LASF174
 	.byte	0xc
-	.value	0x205
+	.value	0x20b
 	.byte	0xa
-	.long	0x14ae
+	.long	0x14bd
 	.value	0x128
 	.uleb128 0x1
 	.long	.LASF175
 	.byte	0xc
-	.value	0x206
+	.value	0x20c
 	.byte	0x9
 	.long	0x71
 	.value	0x17c
 	.uleb128 0x1
 	.long	.LASF176
 	.byte	0xc
-	.value	0x20b
+	.value	0x211
 	.byte	0x9
 	.long	0x71
 	.value	0x180
 	.uleb128 0x1
 	.long	.LASF177
 	.byte	0xc
-	.value	0x20c
+	.value	0x212
 	.byte	0x9
 	.long	0x71
 	.value	0x184
 	.uleb128 0x1
 	.long	.LASF178
 	.byte	0xc
-	.value	0x20d
+	.value	0x213
 	.byte	0x9
 	.long	0x71
 	.value	0x188
 	.uleb128 0x1
 	.long	.LASF179
 	.byte	0xc
-	.value	0x20e
+	.value	0x214
 	.byte	0x9
 	.long	0x71
 	.value	0x18c
 	.uleb128 0x1
 	.long	.LASF180
 	.byte	0xc
-	.value	0x20f
+	.value	0x215
 	.byte	0x9
 	.long	0x71
 	.value	0x190
 	.uleb128 0x1
 	.long	.LASF181
 	.byte	0xc
-	.value	0x210
+	.value	0x216
 	.byte	0x9
 	.long	0x71
 	.value	0x194
 	.uleb128 0x1
 	.long	.LASF182
 	.byte	0xc
-	.value	0x211
+	.value	0x217
 	.byte	0x9
 	.long	0x71
 	.value	0x198
 	.uleb128 0x1
 	.long	.LASF183
 	.byte	0xc
-	.value	0x212
+	.value	0x218
 	.byte	0x9
 	.long	0x71
 	.value	0x19c
 	.uleb128 0x1
 	.long	.LASF184
 	.byte	0xc
-	.value	0x213
+	.value	0x219
 	.byte	0x9
 	.long	0x71
 	.value	0x1a0
 	.uleb128 0x1
 	.long	.LASF185
 	.byte	0xc
-	.value	0x248
+	.value	0x24e
 	.byte	0xa
 	.long	0x71
 	.value	0x1a4
 	.uleb128 0x1
 	.long	.LASF186
 	.byte	0xc
-	.value	0x24a
+	.value	0x250
 	.byte	0xa
 	.long	0x71
 	.value	0x1a8
 	.uleb128 0x1
 	.long	.LASF187
 	.byte	0xc
-	.value	0x24b
+	.value	0x251
 	.byte	0xa
 	.long	0x121
 	.value	0x1ac
 	.uleb128 0x1
 	.long	.LASF188
 	.byte	0xc
-	.value	0x24f
+	.value	0x255
 	.byte	0x21
-	.long	0x14be
+	.long	0x14cd
 	.value	0x1b0
 	.uleb128 0x1
 	.long	.LASF189
 	.byte	0xc
-	.value	0x252
+	.value	0x258
 	.byte	0x9
 	.long	0x71
 	.value	0x1d0
 	.uleb128 0x1
 	.long	.LASF190
 	.byte	0xc
-	.value	0x255
+	.value	0x25b
 	.byte	0x9
 	.long	0x71
 	.value	0x1d4
 	.uleb128 0x1
 	.long	.LASF191
 	.byte	0xc
-	.value	0x256
+	.value	0x25c
 	.byte	0x9
 	.long	0x71
 	.value	0x1d8
 	.uleb128 0x1
 	.long	.LASF192
 	.byte	0xc
-	.value	0x257
+	.value	0x25d
 	.byte	0x9
 	.long	0x71
 	.value	0x1dc
 	.uleb128 0x1
 	.long	.LASF193
 	.byte	0xc
-	.value	0x25a
+	.value	0x260
 	.byte	0x9
 	.long	0x71
 	.value	0x1e0
 	.uleb128 0x1
 	.long	.LASF194
 	.byte	0xc
-	.value	0x25c
+	.value	0x262
 	.byte	0x9
 	.long	0x71
 	.value	0x1e4
 	.uleb128 0x1
 	.long	.LASF195
 	.byte	0xc
-	.value	0x25e
+	.value	0x264
 	.byte	0x9
 	.long	0x71
 	.value	0x1e8
 	.uleb128 0x1
 	.long	.LASF196
 	.byte	0xc
-	.value	0x25f
+	.value	0x265
 	.byte	0xa
 	.long	0x121
 	.value	0x1ec
 	.uleb128 0x1
 	.long	.LASF197
 	.byte	0xc
-	.value	0x260
+	.value	0x266
 	.byte	0xa
 	.long	0x121
 	.value	0x1ed
 	.uleb128 0x1
 	.long	.LASF198
 	.byte	0xc
-	.value	0x261
+	.value	0x267
 	.byte	0x9
 	.long	0x71
 	.value	0x1f0
 	.uleb128 0x1
 	.long	.LASF199
 	.byte	0xc
-	.value	0x263
+	.value	0x269
 	.byte	0xa
 	.long	0x121
 	.value	0x1f4
 	.uleb128 0x1
 	.long	.LASF82
 	.byte	0xc
-	.value	0x264
+	.value	0x26a
 	.byte	0xa
 	.long	0x121
 	.value	0x1f5
 	.uleb128 0x1
 	.long	.LASF200
 	.byte	0xc
-	.value	0x265
+	.value	0x26b
 	.byte	0xa
 	.long	0x121
 	.value	0x1f6
 	.uleb128 0x1
 	.long	.LASF201
 	.byte	0xc
-	.value	0x266
+	.value	0x26c
 	.byte	0x9
 	.long	0x71
 	.value	0x1f8
 	.uleb128 0x1
 	.long	.LASF202
 	.byte	0xc
-	.value	0x267
+	.value	0x26d
 	.byte	0x9
 	.long	0x71
 	.value	0x1fc
 	.uleb128 0x1
 	.long	.LASF203
 	.byte	0xc
-	.value	0x268
+	.value	0x26e
 	.byte	0x9
 	.long	0x71
 	.value	0x200
 	.uleb128 0x1
 	.long	.LASF204
 	.byte	0xc
-	.value	0x26d
+	.value	0x273
 	.byte	0x9
 	.long	0x71
 	.value	0x204
 	.uleb128 0x1
 	.long	.LASF205
 	.byte	0xc
-	.value	0x26e
+	.value	0x274
 	.byte	0x9
 	.long	0x71
 	.value	0x208
 	.uleb128 0x1
 	.long	.LASF206
 	.byte	0xc
-	.value	0x270
+	.value	0x276
 	.byte	0x9
 	.long	0x71
 	.value	0x20c
 	.uleb128 0x1
 	.long	.LASF207
 	.byte	0xc
-	.value	0x271
+	.value	0x277
 	.byte	0x9
 	.long	0x71
 	.value	0x210
 	.uleb128 0x1
 	.long	.LASF208
 	.byte	0xc
-	.value	0x272
+	.value	0x278
 	.byte	0x9
 	.long	0x71
 	.value	0x214
 	.uleb128 0x1
 	.long	.LASF209
 	.byte	0xc
-	.value	0x273
+	.value	0x279
 	.byte	0xa
 	.long	0x121
 	.value	0x218
 	.uleb128 0x1
 	.long	.LASF210
 	.byte	0xc
-	.value	0x274
+	.value	0x27a
 	.byte	0x9
 	.long	0x71
 	.value	0x21c
 	.uleb128 0x1
 	.long	.LASF211
 	.byte	0xc
-	.value	0x275
+	.value	0x27b
 	.byte	0x9
 	.long	0x71
 	.value	0x220
 	.uleb128 0x1
 	.long	.LASF212
 	.byte	0xc
-	.value	0x277
+	.value	0x27d
 	.byte	0x13
-	.long	0x152c
+	.long	0x153b
 	.value	0x224
 	.uleb128 0x1
 	.long	.LASF213
 	.byte	0xc
-	.value	0x278
+	.value	0x27e
 	.byte	0x13
-	.long	0x152c
+	.long	0x153b
 	.value	0x245
 	.uleb128 0x1
 	.long	.LASF214
 	.byte	0xc
-	.value	0x27d
+	.value	0x283
 	.byte	0x13
-	.long	0x152c
+	.long	0x153b
 	.value	0x266
 	.uleb128 0x1
 	.long	.LASF215
 	.byte	0xc
-	.value	0x27e
+	.value	0x284
 	.byte	0x13
-	.long	0x153c
+	.long	0x154b
 	.value	0x287
 	.uleb128 0x1
 	.long	.LASF216
 	.byte	0xc
-	.value	0x27f
+	.value	0x285
 	.byte	0x9
 	.long	0x71
 	.value	0x2d8
 	.uleb128 0x1
 	.long	.LASF217
 	.byte	0xc
-	.value	0x280
+	.value	0x286
 	.byte	0x9
 	.long	0x71
 	.value	0x2dc
 	.uleb128 0x1
 	.long	.LASF218
 	.byte	0xc
-	.value	0x281
+	.value	0x287
 	.byte	0x9
 	.long	0x71
 	.value	0x2e0
 	.uleb128 0x1
 	.long	.LASF219
 	.byte	0xc
-	.value	0x282
+	.value	0x288
 	.byte	0x9
 	.long	0x71
 	.value	0x2e4
 	.uleb128 0x1
 	.long	.LASF220
 	.byte	0xc
-	.value	0x283
+	.value	0x289
 	.byte	0x9
 	.long	0x71
 	.value	0x2e8
 	.uleb128 0x1
 	.long	.LASF221
 	.byte	0xc
-	.value	0x284
+	.value	0x28a
 	.byte	0xa
 	.long	0x121
 	.value	0x2ec
 	.uleb128 0x1
 	.long	.LASF222
 	.byte	0xc
-	.value	0x285
+	.value	0x28b
 	.byte	0x9
 	.long	0x71
 	.value	0x2f0
 	.uleb128 0x1
 	.long	.LASF223
 	.byte	0xc
-	.value	0x28a
+	.value	0x290
 	.byte	0x9
 	.long	0x71
 	.value	0x2f4
 	.uleb128 0x1
 	.long	.LASF224
 	.byte	0xc
-	.value	0x28b
+	.value	0x291
 	.byte	0x9
 	.long	0x71
 	.value	0x2f8
 	.uleb128 0x1
 	.long	.LASF225
 	.byte	0xc
-	.value	0x291
+	.value	0x297
 	.byte	0x9
 	.long	0x71
 	.value	0x2fc
 	.uleb128 0x1
 	.long	.LASF226
 	.byte	0xc
-	.value	0x292
+	.value	0x298
 	.byte	0x9
 	.long	0x71
 	.value	0x300
 	.uleb128 0x1
 	.long	.LASF227
 	.byte	0xc
-	.value	0x295
+	.value	0x29b
 	.byte	0xa
 	.long	0x121
 	.value	0x304
 	.uleb128 0x1
 	.long	.LASF228
 	.byte	0xc
-	.value	0x297
+	.value	0x29d
 	.byte	0xa
 	.long	0x121
 	.value	0x305
 	.uleb128 0x1
 	.long	.LASF229
 	.byte	0xc
-	.value	0x298
+	.value	0x29e
 	.byte	0xa
 	.long	0x121
 	.value	0x306
 	.uleb128 0x1
 	.long	.LASF230
 	.byte	0xc
-	.value	0x299
+	.value	0x29f
 	.byte	0xa
 	.long	0x71
 	.value	0x308
 	.uleb128 0x1
 	.long	.LASF231
 	.byte	0xc
-	.value	0x29a
+	.value	0x2a0
 	.byte	0xa
 	.long	0x71
 	.value	0x30c
 	.uleb128 0x1
 	.long	.LASF232
 	.byte	0xc
-	.value	0x29b
+	.value	0x2a1
 	.byte	0xa
 	.long	0x71
 	.value	0x310
 	.uleb128 0x1
 	.long	.LASF233
 	.byte	0xc
-	.value	0x29c
+	.value	0x2a2
 	.byte	0xa
 	.long	0x71
 	.value	0x314
 	.uleb128 0x1
 	.long	.LASF234
 	.byte	0xc
-	.value	0x29d
+	.value	0x2a3
 	.byte	0xa
 	.long	0x71
 	.value	0x318
 	.uleb128 0x1
 	.long	.LASF235
 	.byte	0xc
-	.value	0x2a0
+	.value	0x2a6
 	.byte	0x9
 	.long	0x71
 	.value	0x31c
 	.uleb128 0x1
 	.long	.LASF236
 	.byte	0xc
-	.value	0x2a1
+	.value	0x2a7
 	.byte	0x9
 	.long	0x71
 	.value	0x320
 	.uleb128 0x1
 	.long	.LASF237
 	.byte	0xc
-	.value	0x2a2
+	.value	0x2a8
 	.byte	0xa
 	.long	0x121
 	.value	0x324
 	.uleb128 0x1
 	.long	.LASF238
 	.byte	0xc
-	.value	0x2a3
+	.value	0x2a9
 	.byte	0x9
 	.long	0x71
 	.value	0x328
 	.uleb128 0x1
 	.long	.LASF239
 	.byte	0xc
-	.value	0x2ab
+	.value	0x2b1
 	.byte	0x9
 	.long	0x71
 	.value	0x32c
 	.uleb128 0x1
 	.long	.LASF240
 	.byte	0xc
-	.value	0x2ad
+	.value	0x2b3
 	.byte	0xa
 	.long	0x121
 	.value	0x330
 	.uleb128 0x1
 	.long	.LASF241
 	.byte	0xc
-	.value	0x2ae
+	.value	0x2b4
 	.byte	0xa
 	.long	0x121
 	.value	0x331
 	.uleb128 0x1
 	.long	.LASF242
 	.byte	0xc
-	.value	0x2af
+	.value	0x2b5
 	.byte	0x9
 	.long	0x71
 	.value	0x334
 	.uleb128 0x1
 	.long	.LASF243
 	.byte	0xc
-	.value	0x2b1
+	.value	0x2b7
 	.byte	0x13
-	.long	0x154c
+	.long	0x155b
 	.value	0x338
 	.uleb128 0x1
 	.long	.LASF244
 	.byte	0xc
-	.value	0x2b2
+	.value	0x2b8
 	.byte	0xa
 	.long	0x121
 	.value	0x3d9
 	.uleb128 0x1
 	.long	.LASF245
 	.byte	0xc
-	.value	0x2b3
+	.value	0x2b9
 	.byte	0x13
-	.long	0x154c
+	.long	0x155b
 	.value	0x3da
 	.uleb128 0x1
 	.long	.LASF246
 	.byte	0xc
-	.value	0x2b4
+	.value	0x2ba
 	.byte	0x13
-	.long	0x153c
+	.long	0x154b
 	.value	0x47b
 	.uleb128 0x1
 	.long	.LASF247
 	.byte	0xc
-	.value	0x2b8
+	.value	0x2be
 	.byte	0x13
-	.long	0x153c
+	.long	0x154b
 	.value	0x4cc
 	.uleb128 0x1
 	.long	.LASF248
 	.byte	0xc
-	.value	0x2bc
+	.value	0x2c2
 	.byte	0x9
 	.long	0x71
 	.value	0x520
 	.uleb128 0x1
 	.long	.LASF249
 	.byte	0xc
-	.value	0x2bd
+	.value	0x2c3
 	.byte	0x9
 	.long	0x71
 	.value	0x524
 	.uleb128 0x1
 	.long	.LASF250
 	.byte	0xc
-	.value	0x2be
+	.value	0x2c4
 	.byte	0x9
 	.long	0x71
 	.value	0x528
 	.uleb128 0x1
 	.long	.LASF251
 	.byte	0xc
-	.value	0x2bf
+	.value	0x2c5
 	.byte	0x9
 	.long	0x71
 	.value	0x52c
 	.uleb128 0x1
 	.long	.LASF252
 	.byte	0xc
-	.value	0x2c0
+	.value	0x2c6
 	.byte	0x9
 	.long	0x71
 	.value	0x530
 	.uleb128 0x1
 	.long	.LASF253
 	.byte	0xc
-	.value	0x2c1
+	.value	0x2c7
 	.byte	0x13
-	.long	0x152c
+	.long	0x153b
 	.value	0x534
 	.uleb128 0x1
 	.long	.LASF254
 	.byte	0xc
-	.value	0x2c3
+	.value	0x2c9
 	.byte	0xa
 	.long	0x121
 	.value	0x555
 	.uleb128 0x1
 	.long	.LASF255
 	.byte	0xc
-	.value	0x2c7
+	.value	0x2cd
 	.byte	0x9
 	.long	0x71
 	.value	0x558
 	.uleb128 0x1
 	.long	.LASF256
 	.byte	0xc
-	.value	0x2c8
+	.value	0x2ce
 	.byte	0x9
 	.long	0x71
 	.value	0x55c
 	.uleb128 0x1
 	.long	.LASF257
 	.byte	0xc
-	.value	0x2c9
+	.value	0x2cf
 	.byte	0x9
 	.long	0x71
 	.value	0x560
 	.uleb128 0x1
 	.long	.LASF258
 	.byte	0xc
-	.value	0x2ca
+	.value	0x2d0
 	.byte	0x9
 	.long	0x71
 	.value	0x564
 	.uleb128 0x1
 	.long	.LASF259
 	.byte	0xc
-	.value	0x2cb
+	.value	0x2d1
 	.byte	0x9
 	.long	0x71
 	.value	0x568
 	.uleb128 0x1
 	.long	.LASF260
 	.byte	0xc
-	.value	0x2cc
+	.value	0x2d2
 	.byte	0x9
 	.long	0x71
 	.value	0x56c
 	.uleb128 0x1
 	.long	.LASF261
 	.byte	0xc
-	.value	0x2cd
+	.value	0x2d3
 	.byte	0x9
 	.long	0x71
 	.value	0x570
 	.uleb128 0x1
 	.long	.LASF262
 	.byte	0xc
-	.value	0x2ce
+	.value	0x2d4
 	.byte	0x9
 	.long	0x71
 	.value	0x574
 	.uleb128 0x1
 	.long	.LASF263
 	.byte	0xc
-	.value	0x2cf
+	.value	0x2d5
 	.byte	0x9
 	.long	0x71
 	.value	0x578
 	.uleb128 0x1
 	.long	.LASF264
 	.byte	0xc
-	.value	0x2d0
+	.value	0x2d6
 	.byte	0xa
 	.long	0x121
 	.value	0x57c
 	.uleb128 0x1
 	.long	.LASF265
 	.byte	0xc
-	.value	0x2d1
+	.value	0x2d7
 	.byte	0x9
 	.long	0x71
 	.value	0x580
 	.uleb128 0x1
 	.long	.LASF266
 	.byte	0xc
-	.value	0x2d3
+	.value	0x2d9
 	.byte	0x9
 	.long	0x71
 	.value	0x584
 	.uleb128 0x1
 	.long	.LASF267
 	.byte	0xc
-	.value	0x2d6
+	.value	0x2dc
 	.byte	0xa
 	.long	0x71
 	.value	0x588
 	.uleb128 0x1
 	.long	.LASF268
 	.byte	0xc
-	.value	0x2d7
+	.value	0x2dd
 	.byte	0xa
 	.long	0x71
 	.value	0x58c
 	.uleb128 0x1
 	.long	.LASF269
 	.byte	0xc
-	.value	0x2d8
+	.value	0x2de
 	.byte	0xa
 	.long	0x121
 	.value	0x590
 	.uleb128 0x1
 	.long	.LASF270
 	.byte	0xc
-	.value	0x2da
+	.value	0x2e0
 	.byte	0xa
 	.long	0x71
 	.value	0x594
 	.uleb128 0x1
 	.long	.LASF271
 	.byte	0xc
-	.value	0x2db
+	.value	0x2e1
 	.byte	0xa
 	.long	0x121
 	.value	0x598
 	.uleb128 0x1
 	.long	.LASF272
 	.byte	0xc
-	.value	0x2dc
+	.value	0x2e2
 	.byte	0xa
 	.long	0x121
 	.value	0x599
 	.uleb128 0x1
 	.long	.LASF273
 	.byte	0xc
-	.value	0x2dd
+	.value	0x2e3
 	.byte	0xa
 	.long	0x121
 	.value	0x59a
 	.uleb128 0x1
 	.long	.LASF274
 	.byte	0xc
-	.value	0x2de
+	.value	0x2e4
 	.byte	0xa
 	.long	0x121
 	.value	0x59b
 	.uleb128 0x1
 	.long	.LASF275
 	.byte	0xc
-	.value	0x2df
+	.value	0x2e5
 	.byte	0xa
 	.long	0x121
 	.value	0x59c
 	.uleb128 0x1
 	.long	.LASF276
 	.byte	0xc
-	.value	0x2e0
+	.value	0x2e6
 	.byte	0x9
 	.long	0x71
 	.value	0x5a0
 	.uleb128 0x1
 	.long	.LASF277
 	.byte	0xc
-	.value	0x2e2
+	.value	0x2e8
 	.byte	0x9
 	.long	0x71
 	.value	0x5a4
 	.uleb128 0x1
 	.long	.LASF278
 	.byte	0xc
-	.value	0x2e4
+	.value	0x2ea
 	.byte	0xa
 	.long	0x121
 	.value	0x5a8
 	.uleb128 0x1
 	.long	.LASF279
 	.byte	0xc
-	.value	0x2e7
+	.value	0x2ed
 	.byte	0xa
 	.long	0x121
 	.value	0x5a9
 	.uleb128 0x1
 	.long	.LASF280
 	.byte	0xc
-	.value	0x2e8
+	.value	0x2ee
 	.byte	0xa
 	.long	0x121
 	.value	0x5aa
 	.uleb128 0x1
 	.long	.LASF281
 	.byte	0xc
-	.value	0x2e9
+	.value	0x2ef
 	.byte	0x9
 	.long	0x71
 	.value	0x5ac
 	.uleb128 0x1
 	.long	.LASF282
 	.byte	0xc
-	.value	0x2ec
+	.value	0x2f2
 	.byte	0xa
 	.long	0x121
 	.value	0x5b0
 	.uleb128 0x1
 	.long	.LASF283
 	.byte	0xc
-	.value	0x2ed
+	.value	0x2f3
 	.byte	0x9
 	.long	0x71
 	.value	0x5b4
 	.uleb128 0x1
 	.long	.LASF284
 	.byte	0xc
-	.value	0x2ee
+	.value	0x2f4
 	.byte	0xa
 	.long	0x121
 	.value	0x5b8
 	.uleb128 0x1
 	.long	.LASF285
 	.byte	0xc
-	.value	0x2ef
+	.value	0x2f5
 	.byte	0x9
 	.long	0x71
 	.value	0x5bc
 	.uleb128 0x1
 	.long	.LASF286
 	.byte	0xc
-	.value	0x2f0
+	.value	0x2f6
 	.byte	0xa
 	.long	0x121
 	.value	0x5c0
 	.uleb128 0x1
 	.long	.LASF287
 	.byte	0xc
-	.value	0x2f1
+	.value	0x2f7
 	.byte	0xa
 	.long	0x121
 	.value	0x5c1
 	.uleb128 0x1
 	.long	.LASF288
 	.byte	0xc
-	.value	0x2f2
+	.value	0x2f8
 	.byte	0xa
 	.long	0x121
 	.value	0x5c2
 	.uleb128 0x1
 	.long	.LASF289
 	.byte	0xc
-	.value	0x2f3
+	.value	0x2f9
 	.byte	0xa
 	.long	0x71
 	.value	0x5c4
 	.uleb128 0x1
 	.long	.LASF290
 	.byte	0xc
-	.value	0x2f6
+	.value	0x2fc
 	.byte	0xa
 	.long	0x121
 	.value	0x5c8
 	.uleb128 0x1
 	.long	.LASF291
 	.byte	0xc
-	.value	0x2f7
+	.value	0x2fd
 	.byte	0x9
 	.long	0x71
 	.value	0x5cc
 	.uleb128 0x1
 	.long	.LASF292
 	.byte	0xc
-	.value	0x2f8
+	.value	0x2fe
 	.byte	0x9
 	.long	0x71
 	.value	0x5d0
 	.uleb128 0x1
 	.long	.LASF293
 	.byte	0xc
-	.value	0x2f9
+	.value	0x2ff
 	.byte	0x9
 	.long	0x71
 	.value	0x5d4
 	.uleb128 0x1
 	.long	.LASF294
 	.byte	0xc
-	.value	0x2fa
+	.value	0x300
 	.byte	0x9
 	.long	0x71
 	.value	0x5d8
 	.uleb128 0x1
 	.long	.LASF295
 	.byte	0xc
-	.value	0x2fd
+	.value	0x303
 	.byte	0x9
 	.long	0x71
 	.value	0x5dc
 	.uleb128 0x1
 	.long	.LASF296
 	.byte	0xc
-	.value	0x2ff
+	.value	0x305
 	.byte	0x9
 	.long	0x71
 	.value	0x5e0
 	.uleb128 0x1
 	.long	.LASF297
 	.byte	0xc
-	.value	0x305
+	.value	0x30b
 	.byte	0x9
 	.long	0x71
 	.value	0x5e4
 	.uleb128 0x1
 	.long	.LASF298
 	.byte	0xc
-	.value	0x312
+	.value	0x318
 	.byte	0xa
 	.long	0x71
 	.value	0x5e8
 	.uleb128 0x1
 	.long	.LASF299
 	.byte	0xc
-	.value	0x313
+	.value	0x319
 	.byte	0xa
 	.long	0x71
 	.value	0x5ec
 	.uleb128 0x1
 	.long	.LASF300
 	.byte	0xc
-	.value	0x314
+	.value	0x31a
 	.byte	0xa
 	.long	0x71
 	.value	0x5f0
 	.uleb128 0x1
 	.long	.LASF301
 	.byte	0xc
-	.value	0x315
+	.value	0x31b
 	.byte	0xa
 	.long	0x121
 	.value	0x5f4
 	.uleb128 0x1
 	.long	.LASF302
 	.byte	0xc
-	.value	0x316
+	.value	0x31c
 	.byte	0xa
 	.long	0x121
 	.value	0x5f5
 	.uleb128 0x1
 	.long	.LASF303
 	.byte	0xc
-	.value	0x317
+	.value	0x31d
 	.byte	0x13
-	.long	0x152c
+	.long	0x153b
 	.value	0x5f6
 	.uleb128 0x1
 	.long	.LASF304
 	.byte	0xc
-	.value	0x318
+	.value	0x31e
 	.byte	0x13
-	.long	0x152c
+	.long	0x153b
 	.value	0x617
 	.uleb128 0x1
 	.long	.LASF305
 	.byte	0xc
-	.value	0x319
+	.value	0x31f
 	.byte	0x13
-	.long	0x152c
+	.long	0x153b
 	.value	0x638
 	.uleb128 0x1
 	.long	.LASF306
 	.byte	0xc
-	.value	0x31a
+	.value	0x320
 	.byte	0x9
 	.long	0x71
 	.value	0x65c
 	.uleb128 0x1
 	.long	.LASF307
 	.byte	0xc
-	.value	0x31e
+	.value	0x324
 	.byte	0x13
-	.long	0x152c
+	.long	0x153b
 	.value	0x660
 	.uleb128 0x1
 	.long	.LASF308
 	.byte	0xc
-	.value	0x31f
+	.value	0x325
 	.byte	0xa
 	.long	0x71
 	.value	0x684
 	.uleb128 0x1
 	.long	.LASF309
 	.byte	0xc
-	.value	0x321
+	.value	0x327
 	.byte	0xa
 	.long	0x121
 	.value	0x688
 	.uleb128 0x1
 	.long	.LASF310
 	.byte	0xc
-	.value	0x322
+	.value	0x328
 	.byte	0xa
 	.long	0x121
 	.value	0x689
 	.uleb128 0x1
 	.long	.LASF311
 	.byte	0xc
-	.value	0x324
+	.value	0x32a
 	.byte	0x9
 	.long	0x71
 	.value	0x68c
 	.uleb128 0x1
 	.long	.LASF312
 	.byte	0xc
-	.value	0x32b
+	.value	0x331
 	.byte	0xa
 	.long	0x121
 	.value	0x690
 	.uleb128 0x1
 	.long	.LASF313
 	.byte	0xc
-	.value	0x32c
+	.value	0x332
 	.byte	0xa
 	.long	0x71
 	.value	0x694
 	.uleb128 0x1
 	.long	.LASF314
 	.byte	0xc
-	.value	0x32d
+	.value	0x333
 	.byte	0x9
 	.long	0x71
 	.value	0x698
 	.uleb128 0x1
 	.long	.LASF315
 	.byte	0xc
-	.value	0x330
+	.value	0x336
 	.byte	0x9
 	.long	0x71
 	.value	0x69c
 	.uleb128 0x1
 	.long	.LASF316
 	.byte	0xc
-	.value	0x33e
+	.value	0x344
 	.byte	0x9
 	.long	0x71
 	.value	0x6a0
 	.uleb128 0x1
 	.long	.LASF317
 	.byte	0xc
-	.value	0x366
+	.value	0x36d
 	.byte	0xa
 	.long	0x121
 	.value	0x6a4
 	.uleb128 0x1
 	.long	.LASF318
 	.byte	0xc
-	.value	0x369
+	.value	0x370
 	.byte	0xa
 	.long	0x121
 	.value	0x6a5
 	.uleb128 0x1
 	.long	.LASF319
 	.byte	0xc
-	.value	0x36f
+	.value	0x376
 	.byte	0xa
 	.long	0x121
 	.value	0x6a6
 	.uleb128 0x1
 	.long	.LASF320
 	.byte	0xc
-	.value	0x378
+	.value	0x37f
 	.byte	0xa
 	.long	0x121
 	.value	0x6a7
 	.uleb128 0x1
 	.long	.LASF321
 	.byte	0xc
-	.value	0x379
+	.value	0x380
 	.byte	0xa
 	.long	0x121
 	.value	0x6a8
 	.uleb128 0x1
 	.long	.LASF322
 	.byte	0xc
-	.value	0x38c
+	.value	0x393
 	.byte	0x13
-	.long	0x155c
+	.long	0x156b
 	.value	0x6a9
 	.uleb128 0x1
 	.long	.LASF104
 	.byte	0xc
-	.value	0x391
+	.value	0x398
 	.byte	0x20
 	.long	0x609
 	.value	0x6ec
 	.uleb128 0x1
 	.long	.LASF323
 	.byte	0xc
-	.value	0x393
+	.value	0x39a
 	.byte	0x9
 	.long	0x71
 	.value	0x704
 	.uleb128 0x1
 	.long	.LASF324
 	.byte	0xc
-	.value	0x394
+	.value	0x39b
 	.byte	0xa
 	.long	0x121
 	.value	0x708
 	.uleb128 0x1
 	.long	.LASF325
 	.byte	0xc
-	.value	0x395
+	.value	0x39c
 	.byte	0xa
 	.long	0x121
 	.value	0x709
 	.uleb128 0x1
 	.long	.LASF326
 	.byte	0xc
-	.value	0x397
+	.value	0x39e
 	.byte	0xa
 	.long	0x121
 	.value	0x70a
 	.uleb128 0x1
 	.long	.LASF327
 	.byte	0xc
-	.value	0x39b
+	.value	0x3a2
 	.byte	0xa
 	.long	0x121
 	.value	0x70b
 	.uleb128 0x1
 	.long	.LASF328
 	.byte	0xc
-	.value	0x3a1
+	.value	0x3a8
 	.byte	0x9
 	.long	0x71
 	.value	0x70c
 	.uleb128 0x1
 	.long	.LASF329
 	.byte	0xc
-	.value	0x3a2
+	.value	0x3a9
 	.byte	0x9
 	.long	0x71
 	.value	0x710
 	.uleb128 0x1
 	.long	.LASF330
 	.byte	0xc
-	.value	0x3a6
+	.value	0x3ad
 	.byte	0x9
 	.long	0x71
 	.value	0x714
 	.uleb128 0x1
 	.long	.LASF331
 	.byte	0xc
-	.value	0x3c4
+	.value	0x3cb
 	.byte	0xa
 	.long	0x121
 	.value	0x718
 	.uleb128 0x1
 	.long	.LASF332
 	.byte	0xc
-	.value	0x3c5
+	.value	0x3cc
 	.byte	0xa
 	.long	0x121
 	.value	0x719
 	.uleb128 0x1
 	.long	.LASF333
 	.byte	0xc
-	.value	0x3c8
+	.value	0x3cf
 	.byte	0xa
-	.long	0x14ae
+	.long	0x14bd
 	.value	0x71a
 	.uleb128 0x1
 	.long	.LASF334
 	.byte	0xc
-	.value	0x3ca
+	.value	0x3d1
 	.byte	0xa
 	.long	0x121
 	.value	0x76b
 	.uleb128 0x1
 	.long	.LASF335
 	.byte	0xc
-	.value	0x3cc
+	.value	0x3d3
 	.byte	0xa
 	.long	0x121
 	.value	0x76c
 	.uleb128 0x1
 	.long	.LASF336
 	.byte	0xc
-	.value	0x3d0
+	.value	0x3d7
 	.byte	0x9
 	.long	0x71
 	.value	0x770
 	.uleb128 0x1
 	.long	.LASF337
 	.byte	0xc
-	.value	0x3d2
+	.value	0x3d9
 	.byte	0x9
 	.long	0x71
 	.value	0x774
 	.uleb128 0x1
 	.long	.LASF338
 	.byte	0xc
-	.value	0x3d5
+	.value	0x3dc
 	.byte	0x9
 	.long	0x71
 	.value	0x778
 	.uleb128 0x1
 	.long	.LASF339
 	.byte	0xc
-	.value	0x3d6
+	.value	0x3dd
 	.byte	0x9
 	.long	0x71
 	.value	0x77c
 	.uleb128 0x1
 	.long	.LASF340
 	.byte	0xc
-	.value	0x3d9
+	.value	0x3e0
 	.byte	0x9
 	.long	0x71
 	.value	0x780
 	.uleb128 0x1
 	.long	.LASF341
 	.byte	0xc
-	.value	0x3da
+	.value	0x3e1
 	.byte	0x9
 	.long	0x71
 	.value	0x784
 	.uleb128 0x1
 	.long	.LASF342
 	.byte	0xc
-	.value	0x3db
+	.value	0x3e2
 	.byte	0x9
 	.long	0x71
 	.value	0x788
 	.uleb128 0x1
 	.long	.LASF343
 	.byte	0xc
-	.value	0x3dc
+	.value	0x3e3
 	.byte	0x9
 	.long	0x71
 	.value	0x78c
 	.uleb128 0x1
 	.long	.LASF344
 	.byte	0xc
-	.value	0x3dd
+	.value	0x3e4
 	.byte	0xa
 	.long	0x121
 	.value	0x790
 	.uleb128 0x1
 	.long	.LASF345
 	.byte	0xc
-	.value	0x3de
+	.value	0x3e5
 	.byte	0x9
 	.long	0x71
 	.value	0x794
 	.uleb128 0x13
 	.string	"pbe"
 	.byte	0xc
-	.value	0x3e0
+	.value	0x3e7
 	.byte	0x9
 	.long	0x71
 	.value	0x798
 	.uleb128 0x1
 	.long	.LASF346
 	.byte	0xc
-	.value	0x3e1
+	.value	0x3e8
 	.byte	0x9
 	.long	0x71
 	.value	0x79c
 	.uleb128 0x1
 	.long	.LASF347
 	.byte	0xc
-	.value	0x3e3
+	.value	0x3ea
 	.byte	0x9
 	.long	0x71
 	.value	0x7a0
 	.uleb128 0x1
 	.long	.LASF348
 	.byte	0xc
-	.value	0x3ef
+	.value	0x3f6
 	.byte	0xa
 	.long	0x121
 	.value	0x7a4
 	.uleb128 0x1
 	.long	.LASF349
 	.byte	0xc
-	.value	0x3f4
+	.value	0x3fb
 	.byte	0xa
 	.long	0x121
 	.value	0x7a5
 	.uleb128 0x1
 	.long	.LASF350
 	.byte	0xc
-	.value	0x3f9
+	.value	0x400
 	.byte	0xa
 	.long	0x121
 	.value	0x7a6
 	.uleb128 0x1
 	.long	.LASF351
 	.byte	0xc
-	.value	0x3fa
+	.value	0x401
 	.byte	0x9
 	.long	0x71
 	.value	0x7a8
 	.uleb128 0x1
 	.long	.LASF352
 	.byte	0xc
-	.value	0x3fb
+	.value	0x402
 	.byte	0x9
 	.long	0x71
 	.value	0x7ac
+	.uleb128 0x1
+	.long	.LASF353
+	.byte	0xc
+	.value	0x403
+	.byte	0x9
+	.long	0x71
+	.value	0x7b0
 	.byte	0
 	.uleb128 0xb
 	.long	0x698
-	.long	0x14ae
+	.long	0x14bd
 	.uleb128 0xd
 	.long	0x44
 	.byte	0x9
 	.byte	0
 	.uleb128 0xb
 	.long	0xaf
-	.long	0x14be
+	.long	0x14cd
 	.uleb128 0xd
 	.long	0x44
 	.byte	0x50
 	.byte	0
 	.uleb128 0xb
-	.long	0x14ce
-	.long	0x14ce
+	.long	0x14dd
+	.long	0x14dd
 	.uleb128 0xd
 	.long	0x44
 	.byte	0x3
 	.byte	0
 	.uleb128 0x4
-	.long	0x1527
+	.long	0x1536
 	.uleb128 0x9
-	.long	.LASF353
+	.long	.LASF354
 	.byte	0x30
 	.byte	0xd
 	.byte	0xa9
-	.long	0x1527
+	.long	0x1536
 	.uleb128 0x2
-	.long	.LASF354
+	.long	.LASF355
 	.byte	0xd
 	.byte	0xaa
 	.byte	0x1a
 	.long	0xd3
 	.byte	0
 	.uleb128 0x2
-	.long	.LASF355
+	.long	.LASF356
 	.byte	0xd
 	.byte	0xab
 	.byte	0x1a
 	.long	0xa8
 	.byte	0x8
 	.uleb128 0x2
-	.long	.LASF356
+	.long	.LASF357
 	.byte	0xd
 	.byte	0xac
 	.byte	0x1a
 	.long	0x71
 	.byte	0x10
 	.uleb128 0x2
-	.long	.LASF357
+	.long	.LASF358
 	.byte	0xd
 	.byte	0xad
 	.byte	0x1a
-	.long	0x1578
+	.long	0x1587
 	.byte	0x18
 	.uleb128 0x2
-	.long	.LASF358
+	.long	.LASF359
 	.byte	0xd
 	.byte	0xae
 	.byte	0x1a
 	.long	0x111
 	.byte	0x20
 	.uleb128 0x16
-	.long	0x189f
+	.long	0x18ae
 	.byte	0x28
 	.byte	0
 	.uleb128 0xc
-	.long	0x14d3
+	.long	0x14e2
 	.uleb128 0xb
 	.long	0x2a
-	.long	0x153c
+	.long	0x154b
 	.uleb128 0xd
 	.long	0x44
 	.byte	0x20
 	.byte	0
 	.uleb128 0xb
 	.long	0x2a
-	.long	0x154c
+	.long	0x155b
 	.uleb128 0xd
 	.long	0x44
 	.byte	0x50
 	.byte	0
 	.uleb128 0xb
 	.long	0x2a
-	.long	0x155c
+	.long	0x156b
 	.uleb128 0xd
 	.long	0x44
 	.byte	0xa0
 	.byte	0
 	.uleb128 0xb
 	.long	0x2a
-	.long	0x156c
+	.long	0x157b
 	.uleb128 0xd
 	.long	0x44
 	.byte	0x3f
 	.byte	0
 	.uleb128 0xa
-	.long	.LASF359
+	.long	.LASF360
 	.byte	0xd
 	.byte	0x1d
 	.byte	0xf
 	.long	0x5e5
 	.uleb128 0x22
-	.long	.LASF404
+	.long	.LASF405
 	.byte	0x8
 	.byte	0xd
 	.byte	0x1f
 	.byte	0x7
-	.long	0x15d3
+	.long	0x15e2
 	.uleb128 0x6
-	.long	.LASF360
+	.long	.LASF361
 	.byte	0x20
 	.byte	0x9
 	.long	0x71
 	.uleb128 0x6
-	.long	.LASF361
+	.long	.LASF362
 	.byte	0x21
 	.byte	0x12
 	.long	0x3d
 	.uleb128 0x6
-	.long	.LASF362
+	.long	.LASF363
 	.byte	0x22
 	.byte	0xa
 	.long	0x121
 	.uleb128 0x6
-	.long	.LASF363
+	.long	.LASF364
 	.byte	0x23
 	.byte	0xb
 	.long	0xaa
 	.uleb128 0x6
-	.long	.LASF364
+	.long	.LASF365
 	.byte	0x24
 	.byte	0x14
 	.long	0x15e
 	.uleb128 0x6
-	.long	.LASF365
+	.long	.LASF366
 	.byte	0x25
 	.byte	0x12
-	.long	0x156c
+	.long	0x157b
 	.uleb128 0x6
-	.long	.LASF366
+	.long	.LASF367
 	.byte	0x26
 	.byte	0xb
 	.long	0xa8
 	.byte	0
 	.uleb128 0x9
-	.long	.LASF367
+	.long	.LASF368
 	.byte	0x4
 	.byte	0xd
 	.byte	0x31
-	.long	0x15ed
+	.long	0x15fc
 	.uleb128 0x2
-	.long	.LASF355
+	.long	.LASF356
 	.byte	0xd
 	.byte	0x32
 	.byte	0x9
@@ -4294,36 +4306,36 @@ main:
 	.byte	0
 	.byte	0
 	.uleb128 0xc
-	.long	0x15d3
+	.long	0x15e2
 	.uleb128 0x9
-	.long	.LASF368
+	.long	.LASF369
 	.byte	0x18
 	.byte	0xd
 	.byte	0x37
-	.long	0x1633
+	.long	0x1642
 	.uleb128 0x2
-	.long	.LASF369
+	.long	.LASF370
 	.byte	0xd
 	.byte	0x38
 	.byte	0xc
-	.long	0x1643
+	.long	0x1652
 	.byte	0
 	.uleb128 0x2
-	.long	.LASF370
+	.long	.LASF371
 	.byte	0xd
 	.byte	0x39
 	.byte	0x9
 	.long	0x71
 	.byte	0x8
 	.uleb128 0x2
-	.long	.LASF371
+	.long	.LASF372
 	.byte	0xd
 	.byte	0x3a
 	.byte	0x9
 	.long	0x71
 	.byte	0xc
 	.uleb128 0x2
-	.long	.LASF372
+	.long	.LASF373
 	.byte	0xd
 	.byte	0x3b
 	.byte	0x13
@@ -4331,36 +4343,36 @@ main:
 	.byte	0x10
 	.byte	0
 	.uleb128 0xc
-	.long	0x15f2
+	.long	0x1601
 	.uleb128 0x11
-	.long	0x1643
+	.long	0x1652
 	.uleb128 0x7
 	.long	0x121
 	.byte	0
 	.uleb128 0x4
-	.long	0x1638
+	.long	0x1647
 	.uleb128 0x9
-	.long	.LASF373
+	.long	.LASF374
 	.byte	0x18
 	.byte	0xd
 	.byte	0x42
-	.long	0x167c
+	.long	0x168b
 	.uleb128 0x2
-	.long	.LASF374
+	.long	.LASF375
 	.byte	0xd
 	.byte	0x43
 	.byte	0x11
 	.long	0x111
 	.byte	0
 	.uleb128 0x2
-	.long	.LASF375
+	.long	.LASF376
 	.byte	0xd
 	.byte	0x44
 	.byte	0x11
 	.long	0x111
 	.byte	0x8
 	.uleb128 0x2
-	.long	.LASF376
+	.long	.LASF377
 	.byte	0xd
 	.byte	0x45
 	.byte	0x9
@@ -4368,29 +4380,29 @@ main:
 	.byte	0x10
 	.byte	0
 	.uleb128 0xc
-	.long	0x1648
+	.long	0x1657
 	.uleb128 0x9
-	.long	.LASF377
+	.long	.LASF378
 	.byte	0x28
 	.byte	0xd
 	.byte	0x49
-	.long	0x16e9
+	.long	0x16f8
 	.uleb128 0x2
-	.long	.LASF369
+	.long	.LASF370
 	.byte	0xd
 	.byte	0x4a
 	.byte	0xc
 	.long	0x12f
 	.byte	0
 	.uleb128 0x2
-	.long	.LASF378
+	.long	.LASF379
 	.byte	0xd
 	.byte	0x4b
 	.byte	0xd
 	.long	0xbb
 	.byte	0x8
 	.uleb128 0x2
-	.long	.LASF379
+	.long	.LASF380
 	.byte	0xd
 	.byte	0x4c
 	.byte	0xd
@@ -4411,25 +4423,25 @@ main:
 	.long	0x71
 	.byte	0x10
 	.uleb128 0x2
-	.long	.LASF380
+	.long	.LASF381
 	.byte	0xd
 	.byte	0x50
 	.byte	0x13
-	.long	0x170c
+	.long	0x171b
 	.byte	0x18
 	.uleb128 0x2
-	.long	.LASF381
+	.long	.LASF382
 	.byte	0xd
 	.byte	0x51
 	.byte	0xf
-	.long	0x1725
+	.long	0x1734
 	.byte	0x20
 	.byte	0
 	.uleb128 0xc
-	.long	0x1681
+	.long	0x1690
 	.uleb128 0x12
 	.long	0x111
-	.long	0x170c
+	.long	0x171b
 	.uleb128 0x7
 	.long	0xaa
 	.uleb128 0x7
@@ -4440,27 +4452,27 @@ main:
 	.long	0x111
 	.byte	0
 	.uleb128 0x4
-	.long	0x16ee
+	.long	0x16fd
 	.uleb128 0x12
 	.long	0xc7
-	.long	0x1725
+	.long	0x1734
 	.uleb128 0x7
 	.long	0x71
 	.uleb128 0x7
 	.long	0x71
 	.byte	0
 	.uleb128 0x4
-	.long	0x1711
+	.long	0x1720
 	.uleb128 0x17
 	.byte	0x5b
-	.long	0x1747
-	.uleb128 0x6
-	.long	.LASF382
-	.byte	0x5c
-	.byte	0x1f
-	.long	0x1747
+	.long	0x1756
 	.uleb128 0x6
 	.long	.LASF383
+	.byte	0x5c
+	.byte	0x1f
+	.long	0x1756
+	.uleb128 0x6
+	.long	.LASF384
 	.byte	0x5d
 	.byte	0x1e
 	.long	0x116
@@ -4468,88 +4480,88 @@ main:
 	.uleb128 0x4
 	.long	0x5ea
 	.uleb128 0x9
-	.long	.LASF384
+	.long	.LASF385
 	.byte	0x20
 	.byte	0xd
 	.byte	0x55
-	.long	0x1786
+	.long	0x1795
 	.uleb128 0x2
-	.long	.LASF369
+	.long	.LASF370
 	.byte	0xd
 	.byte	0x56
 	.byte	0xc
 	.long	0x12f
 	.byte	0
 	.uleb128 0x2
-	.long	.LASF385
+	.long	.LASF386
 	.byte	0xd
 	.byte	0x57
 	.byte	0x9
 	.long	0x71
 	.byte	0x8
 	.uleb128 0x2
-	.long	.LASF372
+	.long	.LASF373
 	.byte	0xd
 	.byte	0x58
 	.byte	0x11
 	.long	0x111
 	.byte	0x10
 	.uleb128 0x16
-	.long	0x172a
+	.long	0x1739
 	.byte	0x18
 	.byte	0
 	.uleb128 0xc
-	.long	0x174c
+	.long	0x175b
 	.uleb128 0x9
-	.long	.LASF386
+	.long	.LASF387
 	.byte	0x30
 	.byte	0xd
 	.byte	0x68
-	.long	0x17f3
+	.long	0x1802
 	.uleb128 0x2
-	.long	.LASF369
+	.long	.LASF370
 	.byte	0xd
 	.byte	0x69
 	.byte	0xc
 	.long	0x12f
 	.byte	0
 	.uleb128 0x2
-	.long	.LASF380
+	.long	.LASF381
 	.byte	0xd
 	.byte	0x6a
 	.byte	0x13
-	.long	0x170c
+	.long	0x171b
 	.byte	0x8
 	.uleb128 0x2
-	.long	.LASF381
+	.long	.LASF382
 	.byte	0xd
 	.byte	0x6b
 	.byte	0xf
-	.long	0x1725
+	.long	0x1734
 	.byte	0x10
 	.uleb128 0x2
-	.long	.LASF378
+	.long	.LASF379
 	.byte	0xd
 	.byte	0x6c
 	.byte	0x9
 	.long	0x71
 	.byte	0x18
 	.uleb128 0x2
-	.long	.LASF385
+	.long	.LASF386
 	.byte	0xd
 	.byte	0x6d
 	.byte	0x9
 	.long	0x71
 	.byte	0x1c
 	.uleb128 0x2
-	.long	.LASF372
+	.long	.LASF373
 	.byte	0xd
 	.byte	0x6e
 	.byte	0x11
 	.long	0x111
 	.byte	0x20
 	.uleb128 0x2
-	.long	.LASF387
+	.long	.LASF388
 	.byte	0xd
 	.byte	0x71
 	.byte	0x11
@@ -4557,56 +4569,56 @@ main:
 	.byte	0x28
 	.byte	0
 	.uleb128 0xc
-	.long	0x178b
+	.long	0x179a
 	.uleb128 0x9
-	.long	.LASF388
+	.long	.LASF389
 	.byte	0x20
 	.byte	0xd
 	.byte	0x7b
-	.long	0x1839
-	.uleb128 0x2
-	.long	.LASF389
-	.byte	0xd
-	.byte	0x80
-	.byte	0xc
-	.long	0x184e
-	.byte	0
+	.long	0x1848
 	.uleb128 0x2
 	.long	.LASF390
 	.byte	0xd
-	.byte	0x86
-	.byte	0xd
-	.long	0x186c
-	.byte	0x8
+	.byte	0x80
+	.byte	0xc
+	.long	0x185d
+	.byte	0
 	.uleb128 0x2
 	.long	.LASF391
 	.byte	0xd
-	.byte	0x8c
-	.byte	0xc
-	.long	0x1885
-	.byte	0x10
+	.byte	0x86
+	.byte	0xd
+	.long	0x187b
+	.byte	0x8
 	.uleb128 0x2
 	.long	.LASF392
 	.byte	0xd
+	.byte	0x8c
+	.byte	0xc
+	.long	0x1894
+	.byte	0x10
+	.uleb128 0x2
+	.long	.LASF393
+	.byte	0xd
 	.byte	0x91
 	.byte	0xc
-	.long	0x189a
+	.long	0x18a9
 	.byte	0x18
 	.byte	0
 	.uleb128 0xc
-	.long	0x17f8
+	.long	0x1807
 	.uleb128 0x11
-	.long	0x184e
+	.long	0x185d
 	.uleb128 0x7
 	.long	0xa8
 	.uleb128 0x7
 	.long	0xaa
 	.byte	0
 	.uleb128 0x4
-	.long	0x183e
+	.long	0x184d
 	.uleb128 0x12
 	.long	0xaa
-	.long	0x186c
+	.long	0x187b
 	.uleb128 0x7
 	.long	0xa8
 	.uleb128 0x7
@@ -4615,91 +4627,91 @@ main:
 	.long	0x71
 	.byte	0
 	.uleb128 0x4
-	.long	0x1853
+	.long	0x1862
 	.uleb128 0x12
 	.long	0x121
-	.long	0x1885
+	.long	0x1894
 	.uleb128 0x7
 	.long	0xa8
 	.uleb128 0x7
 	.long	0xa8
 	.byte	0
 	.uleb128 0x4
-	.long	0x1871
+	.long	0x1880
 	.uleb128 0x11
-	.long	0x189a
+	.long	0x18a9
 	.uleb128 0x7
 	.long	0xa8
 	.uleb128 0x7
 	.long	0xa8
 	.byte	0
 	.uleb128 0x4
-	.long	0x188a
+	.long	0x1899
 	.uleb128 0x17
 	.byte	0xb0
-	.long	0x1909
+	.long	0x1918
 	.uleb128 0x6
-	.long	.LASF393
+	.long	.LASF394
 	.byte	0xb1
 	.byte	0x15
 	.long	0x11b
 	.uleb128 0x6
-	.long	.LASF367
+	.long	.LASF368
 	.byte	0xb2
 	.byte	0x25
-	.long	0x1909
-	.uleb128 0x6
-	.long	.LASF368
-	.byte	0xb3
-	.byte	0x25
-	.long	0x190e
-	.uleb128 0x6
-	.long	.LASF373
-	.byte	0xb4
-	.byte	0x28
-	.long	0x1913
-	.uleb128 0x6
-	.long	.LASF377
-	.byte	0xb5
-	.byte	0x23
 	.long	0x1918
 	.uleb128 0x6
-	.long	.LASF384
-	.byte	0xb6
-	.byte	0x26
+	.long	.LASF369
+	.byte	0xb3
+	.byte	0x25
 	.long	0x191d
 	.uleb128 0x6
-	.long	.LASF386
-	.byte	0xb7
-	.byte	0x25
+	.long	.LASF374
+	.byte	0xb4
+	.byte	0x28
 	.long	0x1922
 	.uleb128 0x6
-	.long	.LASF388
-	.byte	0xb8
-	.byte	0x26
+	.long	.LASF378
+	.byte	0xb5
+	.byte	0x23
 	.long	0x1927
 	.uleb128 0x6
-	.long	.LASF372
+	.long	.LASF385
+	.byte	0xb6
+	.byte	0x26
+	.long	0x192c
+	.uleb128 0x6
+	.long	.LASF387
+	.byte	0xb7
+	.byte	0x25
+	.long	0x1931
+	.uleb128 0x6
+	.long	.LASF389
+	.byte	0xb8
+	.byte	0x26
+	.long	0x1936
+	.uleb128 0x6
+	.long	.LASF373
 	.byte	0xb9
 	.byte	0x17
 	.long	0x111
 	.byte	0
 	.uleb128 0x4
-	.long	0x15ed
+	.long	0x15fc
 	.uleb128 0x4
-	.long	0x1633
+	.long	0x1642
 	.uleb128 0x4
-	.long	0x167c
+	.long	0x168b
 	.uleb128 0x4
-	.long	0x16e9
+	.long	0x16f8
 	.uleb128 0x4
-	.long	0x1786
+	.long	0x1795
 	.uleb128 0x4
-	.long	0x17f3
+	.long	0x1802
 	.uleb128 0x4
-	.long	0x1839
+	.long	0x1848
 	.uleb128 0x23
-	.long	.LASF405
+	.long	.LASF406
 	.byte	0x1
 	.byte	0x19
 	.byte	0x5
@@ -4709,46 +4721,46 @@ main:
 	.uleb128 0x1
 	.byte	0x9c
 	.uleb128 0x18
-	.long	.LASF394
+	.long	.LASF395
 	.byte	0x20
 	.long	0x6ca
 	.uleb128 0x18
-	.long	.LASF395
+	.long	.LASF396
 	.byte	0x2f
 	.long	0x79f
 	.uleb128 0xf
-	.long	.LASF396
-	.value	0x111
+	.long	.LASF397
+	.value	0x112
 	.byte	0x1c
 	.long	0x664
 	.uleb128 0xf
-	.long	.LASF397
-	.value	0x115
+	.long	.LASF398
+	.value	0x116
 	.byte	0x18
 	.long	0x698
 	.uleb128 0xf
-	.long	.LASF398
-	.value	0x119
+	.long	.LASF399
+	.value	0x11a
 	.byte	0x1c
 	.long	0x609
 	.uleb128 0xf
-	.long	.LASF399
-	.value	0x120
+	.long	.LASF400
+	.value	0x121
 	.byte	0x17
 	.long	0x5ef
 	.uleb128 0xf
-	.long	.LASF400
-	.value	0x122
+	.long	.LASF401
+	.value	0x123
 	.byte	0x11
 	.long	0x163
 	.uleb128 0xf
-	.long	.LASF401
-	.value	0x160
+	.long	.LASF402
+	.value	0x161
 	.byte	0x15
 	.long	0x510
 	.uleb128 0xf
-	.long	.LASF402
-	.value	0x164
+	.long	.LASF403
+	.value	0x165
 	.byte	0x1a
 	.long	0x56b
 	.byte	0
@@ -5287,7 +5299,7 @@ main:
 	.string	"lineout_active"
 .LASF123:
 	.string	"resume_pitch"
-.LASF356:
+.LASF357:
 	.string	"lang_id"
 .LASF145:
 	.string	"crossfade_fade_out_mixmode"
@@ -5299,7 +5311,7 @@ main:
 	.string	"id3v1buf"
 .LASF69:
 	.string	"playcount"
-.LASF362:
+.LASF363:
 	.string	"bool_"
 .LASF163:
 	.string	"rec_channels"
@@ -5317,7 +5329,7 @@ main:
 	.string	"crossfeed_cross_gain"
 .LASF183:
 	.string	"rec_trigger_mode"
-.LASF391:
+.LASF392:
 	.string	"is_changed"
 .LASF36:
 	.string	"comment"
@@ -5383,7 +5395,7 @@ main:
 	.string	"timestretch_enabled"
 .LASF291:
 	.string	"sort_dir"
-.LASF403:
+.LASF404:
 	.string	"GNU C99 16.1.1 20260625 -mtune=generic -march=x86-64 -g -Os -std=gnu99 -funit-at-a-time -fno-delete-null-pointer-checks -fno-strict-overflow -fno-common -fno-builtin"
 .LASF285:
 	.string	"talk_file"
@@ -5393,7 +5405,7 @@ main:
 	.string	"usb_charging"
 .LASF254:
 	.string	"dynamic_colors"
-.LASF393:
+.LASF394:
 	.string	"RESERVED"
 .LASF15:
 	.string	"int16_t"
@@ -5413,7 +5425,7 @@ main:
 	.string	"resume_speed"
 .LASF28:
 	.string	"title"
-.LASF355:
+.LASF356:
 	.string	"setting"
 .LASF17:
 	.string	"uint32_t"
@@ -5439,7 +5451,7 @@ main:
 	.string	"skip_length"
 .LASF157:
 	.string	"dithering_enabled"
-.LASF385:
+.LASF386:
 	.string	"count"
 .LASF63:
 	.string	"index"
@@ -5447,13 +5459,13 @@ main:
 	.string	"long long unsigned int"
 .LASF322:
 	.string	"ui_vp_config"
-.LASF364:
+.LASF365:
 	.string	"ucharptr"
 .LASF134:
 	.string	"bass"
 .LASF132:
 	.string	"user_settings"
-.LASF376:
+.LASF377:
 	.string	"max_len"
 .LASF100:
 	.string	"CHAR_ENC_UTF_16_LE"
@@ -5485,9 +5497,9 @@ main:
 	.string	"discnum"
 .LASF290:
 	.string	"sort_case"
-.LASF377:
+.LASF378:
 	.string	"int_setting"
-.LASF372:
+.LASF373:
 	.string	"cfg_vals"
 .LASF255:
 	.string	"ipone_charge_wallpaper"
@@ -5513,9 +5525,11 @@ main:
 	.string	"tagcache_scan_paths"
 .LASF301:
 	.string	"offset_out_of_view"
+.LASF353:
+	.string	"ui_engine_extras_pane"
 .LASF348:
 	.string	"clear_settings_on_hold"
-.LASF374:
+.LASF375:
 	.string	"prefix"
 .LASF195:
 	.string	"default_codepage"
@@ -5531,7 +5545,7 @@ main:
 	.string	"rec_mono_mode"
 .LASF309:
 	.string	"caption_backlight"
-.LASF365:
+.LASF366:
 	.string	"func"
 .LASF284:
 	.string	"talk_dir_clip"
@@ -5553,7 +5567,7 @@ main:
 	.string	"battery_display"
 .LASF135:
 	.string	"treble"
-.LASF354:
+.LASF355:
 	.string	"flags"
 .LASF141:
 	.string	"crossfade_fade_in_delay"
@@ -5567,7 +5581,7 @@ main:
 	.string	"show_icons"
 .LASF289:
 	.string	"talk_mixer_amp"
-.LASF390:
+.LASF391:
 	.string	"write_to_cfg"
 .LASF48:
 	.string	"id3v1len"
@@ -5581,7 +5595,7 @@ main:
 	.string	"gain"
 .LASF38:
 	.string	"grouping"
-.LASF388:
+.LASF389:
 	.string	"custom_setting"
 .LASF115:
 	.string	"cutoff"
@@ -5589,7 +5603,7 @@ main:
 	.string	"mp3_albumart"
 .LASF310:
 	.string	"bl_filter_first_keypress"
-.LASF366:
+.LASF367:
 	.string	"custom"
 .LASF299:
 	.string	"screen_scroll_step"
@@ -5615,7 +5629,7 @@ main:
 	.string	"keep_current_track_on_replace_playlist"
 .LASF247:
 	.string	"backdrop_file"
-.LASF402:
+.LASF403:
 	.string	"section_10"
 .LASF210:
 	.string	"peak_meter_min"
@@ -5635,7 +5649,7 @@ main:
 	.string	"poweroff"
 .LASF271:
 	.string	"fade_on_stop"
-.LASF384:
+.LASF385:
 	.string	"choice_setting"
 .LASF241:
 	.string	"autoresume_enable"
@@ -5657,7 +5671,7 @@ main:
 	.string	"root_menu_customized"
 .LASF86:
 	.string	"AA_TYPE_UNKNOWN"
-.LASF360:
+.LASF361:
 	.string	"int_"
 .LASF319:
 	.string	"prevent_skip"
@@ -5679,7 +5693,7 @@ main:
 	.string	"long long int"
 .LASF98:
 	.string	"CHAR_ENC_ISO_8859_1"
-.LASF404:
+.LASF405:
 	.string	"storage_type"
 .LASF150:
 	.string	"crossfeed_hf_cutoff"
@@ -5687,23 +5701,23 @@ main:
 	.string	"ui_engine_dark_mode"
 .LASF185:
 	.string	"pause_rewind"
-.LASF394:
-	.string	"section_1"
 .LASF395:
-	.string	"section_2"
+	.string	"section_1"
 .LASF396:
-	.string	"section_3"
+	.string	"section_2"
 .LASF397:
-	.string	"section_4"
+	.string	"section_3"
 .LASF398:
-	.string	"section_5"
+	.string	"section_4"
 .LASF399:
-	.string	"section_6"
+	.string	"section_5"
 .LASF400:
-	.string	"section_8"
+	.string	"section_6"
 .LASF401:
+	.string	"section_8"
+.LASF402:
 	.string	"section_9"
-.LASF386:
+.LASF387:
 	.string	"table_setting"
 .LASF44:
 	.string	"codectype"
@@ -5715,9 +5729,9 @@ main:
 	.string	"scroll_speed"
 .LASF269:
 	.string	"constrain_next_folder"
-.LASF371:
+.LASF372:
 	.string	"lang_no"
-.LASF381:
+.LASF382:
 	.string	"get_talk_id"
 .LASF47:
 	.string	"id3v2len"
@@ -5729,7 +5743,7 @@ main:
 	.string	"eq_band_setting"
 .LASF224:
 	.string	"scrollbar_width"
-.LASF379:
+.LASF380:
 	.string	"step"
 .LASF54:
 	.string	"tail_trim"
@@ -5737,7 +5751,7 @@ main:
 	.string	"size"
 .LASF249:
 	.string	"fg_color"
-.LASF389:
+.LASF390:
 	.string	"load_from_cfg"
 .LASF213:
 	.string	"sbs_file"
@@ -5745,13 +5759,13 @@ main:
 	.string	"rating"
 .LASF294:
 	.string	"interpret_numbers"
-.LASF380:
+.LASF381:
 	.string	"formatter"
 .LASF74:
 	.string	"track_gain"
 .LASF172:
 	.string	"rec_split_method"
-.LASF387:
+.LASF388:
 	.string	"values"
 .LASF143:
 	.string	"crossfade_fade_in_duration"
@@ -5765,13 +5779,13 @@ main:
 	.string	"AA_TYPE_PNG"
 .LASF347:
 	.string	"afr_enabled"
-.LASF378:
+.LASF379:
 	.string	"unit"
 .LASF350:
 	.string	"ui_engine_lock_settings"
 .LASF162:
 	.string	"rec_frequency"
-.LASF392:
+.LASF393:
 	.string	"set_default"
 .LASF243:
 	.string	"autoresume_paths"
@@ -5781,11 +5795,11 @@ main:
 	.string	"crossfeed_hf_attenuation"
 .LASF60:
 	.string	"id3v2buf"
-.LASF383:
+.LASF384:
 	.string	"talks"
 .LASF31:
 	.string	"genre_string"
-.LASF353:
+.LASF354:
 	.string	"settings_list"
 .LASF35:
 	.string	"composer"
@@ -5795,7 +5809,7 @@ main:
 	.string	"lang_file"
 .LASF137:
 	.string	"stereo_width"
-.LASF369:
+.LASF370:
 	.string	"option_callback"
 .LASF73:
 	.string	"album_level"
@@ -5813,7 +5827,7 @@ main:
 	.string	"track_peak"
 .LASF280:
 	.string	"playlist_viewer_indices"
-.LASF375:
+.LASF376:
 	.string	"suffix"
 .LASF327:
 	.string	"morse_input"
@@ -5857,7 +5871,7 @@ main:
 	.string	"ff_rewind_min_step"
 .LASF71:
 	.string	"playtime"
-.LASF358:
+.LASF359:
 	.string	"cfg_name"
 .LASF212:
 	.string	"wps_file"
@@ -5871,7 +5885,7 @@ main:
 	.string	"glyphs_to_cache"
 .LASF305:
 	.string	"font_file"
-.LASF363:
+.LASF364:
 	.string	"charptr"
 .LASF175:
 	.string	"cliplight"
@@ -5963,7 +5977,7 @@ main:
 	.string	"rec_trigger_type"
 .LASF197:
 	.string	"play_selected"
-.LASF367:
+.LASF368:
 	.string	"sound_setting"
 .LASF37:
 	.string	"albumartist"
@@ -5975,13 +5989,13 @@ main:
 	.string	"viewers_icon_file"
 .LASF34:
 	.string	"year_string"
-.LASF357:
+.LASF358:
 	.string	"default_val"
 .LASF105:
 	.string	"threshold"
-.LASF359:
+.LASF360:
 	.string	"_isfunc_type"
-.LASF368:
+.LASF369:
 	.string	"bool_setting"
 .LASF222:
 	.string	"statusbar"
@@ -6011,7 +6025,7 @@ main:
 	.string	"keyclick_repeats"
 .LASF326:
 	.string	"show_shutdown_message"
-.LASF405:
+.LASF406:
 	.string	"main"
 .LASF246:
 	.string	"tagcache_db_path"
@@ -6049,11 +6063,11 @@ main:
 	.string	"kbd_file"
 .LASF70:
 	.string	"lastplayed"
-.LASF382:
+.LASF383:
 	.string	"desc"
 .LASF296:
 	.string	"battery_capacity"
-.LASF361:
+.LASF362:
 	.string	"uint_"
 .LASF187:
 	.string	"unplug_autoresume"
@@ -6069,9 +6083,9 @@ main:
 	.string	"peak_meter_clip_hold"
 .LASF155:
 	.string	"keyclick"
-.LASF370:
+.LASF371:
 	.string	"lang_yes"
-.LASF373:
+.LASF374:
 	.string	"filename_setting"
 .LASF263:
 	.string	"ui_engine_hold_effect"

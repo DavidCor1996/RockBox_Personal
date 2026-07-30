@@ -36,6 +36,7 @@ ROCKBOX_ROOT_MENU_KEY = "root menu order"
 ROCKBOX_UI_FONT_SCALE_KEY = "ui engine font scale"
 ROCKBOX_UI_SURFACE_KEY = "ui engine surface"
 ROCKBOX_UI_HOLD_EFFECT_KEY = "ui engine hold effect"
+ROCKBOX_UI_EXTRAS_PANE_KEY = "ui engine extras pane"
 ROCKBOX_UI_DARK_MODE_KEY = "ui engine dark mode"
 
 ROCKBOX_UI_ACCENTS = {
@@ -187,6 +188,15 @@ def set_rockbox_ui_hold_effect(device, hold_effect):
     normalized = str(hold_effect or "").strip().lower()
     value = normalized if normalized in {"dim", "lockscreen"} else "lockscreen"
     return _set_rockbox_config_value(mount_path, ROCKBOX_UI_HOLD_EFFECT_KEY, value)
+
+
+def set_rockbox_ui_extras_pane(device, pane):
+    mount_path = getattr(device, "mount_path", "")
+    normalized = str(pane or "").strip().lower()
+    value = normalized if normalized in {"clock", "avatar", "sitekick"} else "clock"
+    return _set_rockbox_config_value(
+        mount_path, ROCKBOX_UI_EXTRAS_PANE_KEY, value
+    )
 
 
 def set_rockbox_ui_dark_mode(device, enabled):

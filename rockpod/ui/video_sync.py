@@ -21,8 +21,7 @@ class VideoSyncPanel(QWidget):
     """Compact iTunes-style video sync picker."""
 
     preview_requested = Signal(set)
-    sync_requested = Signal(set)
-    force_repair_requested = Signal(set)
+    sync_requested = Signal(set, str)
     remove_requested = Signal(set)
     delete_requested = Signal(set)
     hide_requested = Signal(set)
@@ -76,8 +75,16 @@ class VideoSyncPanel(QWidget):
         self._hide_btn = QPushButton("Hide Selected")
         self._lock_btn = QPushButton("Lock & Hide on iPod")
         self._preview_btn = QPushButton("Preview Sync")
-        self._sync_btn = QPushButton("Sync Selected")
-        self._repair_btn = QPushButton("Repair Selected")
+        self._sync_rvp_btn = QPushButton("Sync as RVP")
+        self._sync_mpeg_btn = QPushButton("Sync as MPEG")
+        self._sync_rvp_btn.setToolTip(
+            "Sync selected new videos as native 320×240 RVP. "
+            "RVP is very large but uses the RVP player."
+        )
+        self._sync_mpeg_btn.setToolTip(
+            "Sync selected new videos as seekable 320×240 MPEG-2. "
+            "MPEG is recommended for high quality at a practical size."
+        )
         for button in (
             self._refresh_btn,
             self._select_missing_btn,
@@ -87,7 +94,11 @@ class VideoSyncPanel(QWidget):
             button.setObjectName("store_nav_button")
             action_layout.addWidget(button)
         action_layout.addStretch(1)
-        for button in (self._preview_btn, self._sync_btn, self._repair_btn):
+        for button in (
+            self._preview_btn,
+            self._sync_rvp_btn,
+            self._sync_mpeg_btn,
+        ):
             button.setObjectName("store_buy_button")
             action_layout.addWidget(button)
         for button in (self._hide_btn, self._lock_btn, self._remove_btn, self._delete_btn):
@@ -113,9 +124,15 @@ class VideoSyncPanel(QWidget):
         self._select_missing_btn.clicked.connect(self.select_missing)
         self._select_all_btn.clicked.connect(self.select_all)
         self._clear_btn.clicked.connect(self.clear_selection)
-        self._preview_btn.clicked.connect(lambda: self.preview_requested.emit(self.selected_track_ids()))
-        self._sync_btn.clicked.connect(lambda: self.sync_requested.emit(self.selected_track_ids()))
-        self._repair_btn.clicked.connect(lambda: self.force_repair_requested.emit(self.selected_track_ids()))
+        self._preview_btn.clicked.connect(
+            lambda: self.preview_requested.emit(self.syncable_track_ids())
+        )
+        self._sync_rvp_btn.clicked.connect(
+            lambda: self.sync_requested.emit(self.syncable_track_ids(), "native_raw")
+        )
+        self._sync_mpeg_btn.clicked.connect(
+            lambda: self.sync_requested.emit(self.syncable_track_ids(), "quality")
+        )
         self._remove_btn.clicked.connect(lambda: self.remove_requested.emit(self.selected_track_ids()))
         self._delete_btn.clicked.connect(lambda: self.delete_requested.emit(self.selected_track_ids()))
         self._hide_btn.clicked.connect(lambda: self.hide_requested.emit(self.selected_track_ids()))
@@ -128,19 +145,22 @@ class VideoSyncPanel(QWidget):
         for video in self._videos:
             title = str(video.get("title") or os.path.basename(str(video.get("file_path") or "")) or "Untitled Video")
             kind = str(video.get("video_sync_label") or video.get("video_kind") or "video").replace("_", " ").title()
-            on_ipod = bool(video.get("synced_to_device"))
+            device_path = str(video.get("device_path") or video.get("device_device_path") or "")
+            on_ipod = bool(video.get("synced_to_device") or device_path)
             status = "On iPod" if on_ipod else "Not on iPod"
             if video.get("video_hidden"):
                 status += " · Hidden"
             if video.get("video_locked"):
                 status += " · Locked"
-            device_path = str(video.get("device_path") or video.get("device_device_path") or "")
             file_path = str(video.get("file_path") or "")
             item = QTreeWidgetItem([title, kind, status, device_path, file_path])
             item.setData(0, Qt.UserRole, int(video.get("id") or 0))
             item.setData(0, Qt.UserRole + 1, dict(video))
             item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
-            item.setCheckState(0, Qt.Unchecked)
+            # Checked means the video is part of the iPod selection. Existing
+            # device files stay selected so a refresh never makes them look
+            # absent, but normal sync actions only submit newly selected rows.
+            item.setCheckState(0, Qt.Checked if on_ipod else Qt.Unchecked)
             self._tree.addTopLevelItem(item)
         self._tree.blockSignals(False)
         self._resize_columns()
@@ -164,11 +184,31 @@ class VideoSyncPanel(QWidget):
                 videos.append(dict(item.data(0, Qt.UserRole + 1) or {}))
         return videos
 
+    def syncable_track_ids(self):
+        """Return checked videos that are not already present on the iPod."""
+        return {
+            int(video.get("id") or 0)
+            for video in self.selected_videos()
+            if int(video.get("id") or 0)
+            and not (video.get("synced_to_device") or video.get("device_path"))
+        }
+
     def select_missing(self):
         self._tree.blockSignals(True)
         for index in range(self._tree.topLevelItemCount()):
             item = self._tree.topLevelItem(index)
-            item.setCheckState(0, Qt.Checked if item.text(2) == "Not on iPod" else Qt.Unchecked)
+            video = dict(item.data(0, Qt.UserRole + 1) or {})
+            item.setCheckState(
+                0,
+                Qt.Checked
+                if (
+                    video.get("synced_to_device")
+                    or video.get("device_path")
+                    or video.get("device_device_path")
+                    or item.text(2) == "Not on iPod"
+                )
+                else Qt.Unchecked,
+            )
         self._tree.blockSignals(False)
         self._update_summary()
 
@@ -190,16 +230,26 @@ class VideoSyncPanel(QWidget):
 
     def _update_summary(self):
         total = len(self._videos)
-        on_ipod = sum(1 for video in self._videos if video.get("synced_to_device"))
+        on_ipod = sum(
+            1
+            for video in self._videos
+            if (
+                video.get("synced_to_device")
+                or video.get("device_path")
+                or video.get("device_device_path")
+            )
+        )
         selected = len(self.selected_track_ids())
+        syncable = len(self.syncable_track_ids())
         missing = total - on_ipod
         self._subhead.setText(
             f"{total} video{'s' if total != 1 else ''} in library. "
-            f"{missing} not on iPod. {selected} selected."
+            f"{missing} not on iPod. {selected} selected; {syncable} new to sync. "
+            "Existing copies are skipped; remove one before changing its format."
         )
-        self._preview_btn.setEnabled(selected > 0)
-        self._sync_btn.setEnabled(selected > 0)
-        self._repair_btn.setEnabled(selected > 0)
+        self._preview_btn.setEnabled(syncable > 0)
+        self._sync_rvp_btn.setEnabled(syncable > 0)
+        self._sync_mpeg_btn.setEnabled(syncable > 0)
         selected_videos = self.selected_videos()
         self._remove_btn.setEnabled(any(video.get("synced_to_device") for video in selected_videos))
         self._delete_btn.setEnabled(selected > 0)

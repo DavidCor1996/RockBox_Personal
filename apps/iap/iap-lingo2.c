@@ -95,8 +95,15 @@ void iap_handlepkt_mode2(const unsigned int len, const unsigned char *buf)
      */
     CHECKLEN(3);
 
-    /* Lingo 0x02 must have been negotiated */
-    if (!DEVICE_LINGO_SUPPORTED(0x02)) {
+    /* Lingo 0x02 must have been negotiated, except for
+     * ContextButtonStatus (0x00): simple remotes like the Apple A1018
+     * identify only once at power-up. If the remote was already
+     * powered before Rockbox started (e.g. plugged in at boot) that
+     * identification is never seen, and rejecting the button events
+     * would leave the remote dead until it is replugged. Per MFi
+     * spec Table 2-7, cmd 0x00 on UART does not require auth.
+     */
+    if ((cmd != 0x00) && !DEVICE_LINGO_SUPPORTED(0x02)) {
         cmd_ack(cmd, IAP_ACK_BAD_PARAM);
         return;
     }
@@ -121,6 +128,19 @@ void iap_handlepkt_mode2(const unsigned int len, const unsigned char *buf)
         {
             iap_remotebtn = BUTTON_NONE;
             iap_timeoutbtn = 0;
+
+            /* Kokkia reports a newly acquired Bluetooth peer as a transient
+             * play-state status pulse.  Observe that edge before startup
+             * quarantine discards it; waiting for remote_control_rx() loses
+             * the pulse completely and Home never receives its animation
+             * event.  Headset clicks use the command-button bytes instead,
+             * so they do not manufacture connection notifications. */
+            if (iap_kokkia_present() && len >= 4 &&
+                (buf[3] & (BIT_N(0) | BIT_N(1))))
+                iap_note_kokkia_peer_connection();
+
+            if (iap_remote_input_suppressed())
+                break;
 
             if(buf[2] != 0)
             {
@@ -159,12 +179,19 @@ void iap_handlepkt_mode2(const unsigned int len, const unsigned char *buf)
                 if(buf[2] & 16)
                     REMOTE_BUTTON(BUTTON_RC_LEFT);
             }
-
-            if(len >= 4 && buf[3] != 0)
+            else if(len >= 4 && buf[3] != 0)
             {
                 if(buf[3] & 1) /* play */
                 {
-                    if (audio_status() != AUDIO_STATUS_PLAY)
+                    /* A Play state sent while playback is fully stopped is
+                     * commonly an accessory startup announcement, not a
+                     * click.  Posting RC_PLAY on Home maps to ACTION_STD_OK
+                     * and launches Cover Flow.  Resume only an existing
+                     * paused session; physical button events still arrive
+                     * through byte 2 above. */
+                    if ((audio_status() & (AUDIO_STATUS_PLAY |
+                                           AUDIO_STATUS_PAUSE)) ==
+                        (AUDIO_STATUS_PLAY | AUDIO_STATUS_PAUSE))
                         REMOTE_BUTTON(BUTTON_RC_PLAY);
 #if CONFIG_TUNER
                     if (radio_present == 1) {
@@ -191,8 +218,7 @@ void iap_handlepkt_mode2(const unsigned int len, const unsigned char *buf)
                     }
                 }
             }
-
-            if(len >= 5 && buf[4] != 0)
+            else if(len >= 5 && buf[4] != 0)
             {
                 if(buf[4] & 1) /* repeat */
                 {
@@ -227,8 +253,7 @@ void iap_handlepkt_mode2(const unsigned int len, const unsigned char *buf)
                 if(buf[4] & 128) /* select */
                     REMOTE_BUTTON(BUTTON_RC_SELECT);
             }
-
-            if(len >= 6 && buf[5] != 0)
+            else if(len >= 6 && buf[5] != 0)
             {
                 if(buf[5] & 1) /* up */
                     REMOTE_BUTTON(BUTTON_RC_UP);

@@ -2,7 +2,7 @@
 """Prepare private, pixel-authentic Apple assets used by iPodJS.
 
 Apple binaries are intentionally not stored in this repository.  This tool
-accepts two official Apple downloads, verifies their exact hashes, and emits
+accepts official Apple downloads, verifies their exact hashes, and emits
 only direct resource extractions or format conversions.  It never redraws,
 traces, interpolates, or resamples artwork.
 """
@@ -27,6 +27,9 @@ CLASSIC_IPSW_SHA256 = (
 )
 GUIDE_SHA256 = (
     "b5b8dca3c526c3eaa80507818de5541611d35e5711dc7f5fd7186c8439227d2a"
+)
+TOUCH_GUIDE_SHA256 = (
+    "242a4175ca7513e2b303f53f35d20c7980e4b5197e13027b28aef704e2b5131a"
 )
 FIRMWARE_NAME = "Firmware-13.6.3"
 CLASSIC_FIRMWARE_NAME = "Firmware-24.9.1.2"
@@ -193,6 +196,28 @@ def build_battery_strip(guide: Path, temporary: Path, output: Path) -> None:
     if identify.stdout != "26x65":
         raise SystemExit(f"unexpected Apple battery strip size: {identify.stdout}")
 
+def build_bluetooth_icon(guide: Path, temporary: Path, output: Path) -> None:
+    """Rasterize and crop Apple's status glyph without tracing or resampling."""
+    prefix = temporary / "touch-status-icons"
+    page = temporary / "touch-status-icons.png"
+
+    run(require_tool("pdftoppm"), "-f", "17", "-l", "17", "-singlefile",
+        "-png", "-r", "144", guide, prefix)
+    if not page.is_file():
+        raise SystemExit("the Apple iPod touch status-icon page was not found")
+
+    # At 144 dpi the Bluetooth vector is exactly 12x19 pixels on page 17.
+    # Crop those rendered Apple pixels directly, replacing only the white
+    # page background with Rockbox's transparent bitmap key.
+    run(require_tool("magick"), page, "-crop", "12x19+282+760", "+repage",
+        "-fill", "#ff00ff", "-opaque", "white", f"BMP3:{output}")
+    identify = subprocess.run(
+        [require_tool("identify"), "-format", "%wx%h", str(output)],
+        check=True, capture_output=True, text=True,
+    )
+    if identify.stdout != "12x19":
+        raise SystemExit(f"unexpected Apple Bluetooth icon size: {identify.stdout}")
+
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
@@ -202,6 +227,8 @@ def main() -> int:
                         help="official Apple iPod_24.1.1.2.ipsw")
     parser.add_argument("--guide", required=True, type=Path,
                         help="official iPod classic 120GB User Guide PDF")
+    parser.add_argument("--touch-guide", required=True, type=Path,
+                        help="official iPod touch iPhone OS 3.0 User Guide PDF")
     parser.add_argument(
         "--output", type=Path, default=ROOT / "assets/ipodjs/apple",
         help="private output directory (default: assets/ipodjs/apple)",
@@ -212,6 +239,8 @@ def main() -> int:
     require_hash(args.classic_ipsw, CLASSIC_IPSW_SHA256,
                  "Apple iPod classic IPSW")
     require_hash(args.guide, GUIDE_SHA256, "Apple user guide")
+    require_hash(args.touch_guide, TOUCH_GUIDE_SHA256,
+                 "Apple iPod touch user guide")
     args.output.mkdir(parents=True, exist_ok=True)
 
     with tempfile.TemporaryDirectory(prefix="ipodjs-apple-") as temp_name:
@@ -364,6 +393,10 @@ def main() -> int:
             args.guide, temporary,
             args.output / "status-battery.apple.26x65x24.bmp",
         )
+        build_bluetooth_icon(
+            args.touch_guide, temporary,
+            args.output / "status-bluetooth.apple.12x19x24.bmp",
+        )
 
     generated = sorted(path for path in args.output.iterdir() if path.is_file())
     provenance = [
@@ -385,6 +418,11 @@ def main() -> int:
         "Apple iPod classic 120GB User Guide",
         f"SHA-256: {GUIDE_SHA256}",
         "Resources: page 16 battery-state images (PDF objects 123-131)",
+        "",
+        "Apple iPod touch User Guide for iPhone OS 3.0",
+        f"SHA-256: {TOUCH_GUIDE_SHA256}",
+        "Resource: page 17 Bluetooth status glyph, rendered at 144 dpi",
+        "          and cropped without tracing, repainting, or resampling",
         "",
         "Apple iPod_24.1.1.2.ipsw",
         f"SHA-256: {CLASSIC_IPSW_SHA256}",

@@ -101,6 +101,7 @@ class Sidebar(QWidget):
     LIBRARY_ALBUMS = "library_albums"
     LIBRARY_GENRES = "library_genres"
     DEVICE_ROOT = "device_root"
+    DEVICE_DESKTOP_MODE = "device_desktop_mode"
     DEVICE_MUSIC = "device_music"
     DEVICE_NOT_ON_IPOD = "device_not_on_ipod"
     DEVICE_PLAYLIST_PREFIX = "device_playlist_"
@@ -112,7 +113,11 @@ class Sidebar(QWidget):
     ROCKBOX_BOOT = "rockbox_boot"
     ROCKBOX_PLUGINS = "rockbox_plugins"
     ROCKBOX_GAME_SYNC = "rockbox_game_sync"
+    ROCKBOX_MAKER_LITE = "rockbox_maker_lite"
     ROCKBOX_ACHIEVEMENTS_AVATAR = "rockbox_achievements_avatar"
+    ROCKBOX_SITEKICK = "rockbox_sitekick"
+    ROCKBOX_CALM = "rockbox_calm"
+    ROCKBOX_LIVETV = "rockbox_livetv"
     ROCKBOX_GAMES = "rockbox_games"
     ROCKBOX_PHOTOS = "rockbox_photos"
     ROCKBOX_LINUX = "rockbox_linux"
@@ -196,6 +201,8 @@ class Sidebar(QWidget):
                                           _make_icon("#4a90d9", "music"))
         self._videos_item = self._add_item(lib_header, "Videos", self.LIBRARY_VIDEOS,
                                            _make_icon("#7f8fb3", "device"))
+        self._livetv_item = self._add_item(lib_header, "Live TV", self.ROCKBOX_LIVETV,
+                                           _make_icon("#0f5689", "device"))
         self._video_sync_item = self._add_item(lib_header, "Video Sync", self.LIBRARY_VIDEO_SYNC,
                                                _make_icon("#6f8fb8", "playlist"))
         self._artists_item = self._add_item(lib_header, "Artists", self.LIBRARY_ARTISTS,
@@ -240,10 +247,22 @@ class Sidebar(QWidget):
             self._rockbox_header, "Game Sync", self.ROCKBOX_GAME_SYNC,
             _make_icon("#6f8fb8", "device")
         )
+        self._maker_lite_item = self._add_item(
+            self._rockbox_header, "Maker Lite", self.ROCKBOX_MAKER_LITE,
+            _make_icon("#4f9b72", "device")
+        )
         self._achievements_avatar_item = self._add_item(
             self._rockbox_header, "Achievements & Avatar",
             self.ROCKBOX_ACHIEVEMENTS_AVATAR,
             _make_icon("#69a719", "artist")
+        )
+        self._sitekick_item = self._add_item(
+            self._rockbox_header, "Sitekick", self.ROCKBOX_SITEKICK,
+            _make_icon("#7d289d", "device")
+        )
+        self._calm_item = self._add_item(
+            self._rockbox_header, "Calm Sync", self.ROCKBOX_CALM,
+            _make_icon("#509ae7", "music")
         )
         self._photos_item = self._add_item(
             self._rockbox_header, "Photos", self.ROCKBOX_PHOTOS,
@@ -276,6 +295,10 @@ class Sidebar(QWidget):
         self._device_item = self._add_item(
             self._device_header, "No Device", self.DEVICE_ROOT,
             _make_icon("#8f98a1", "device")
+        )
+        self._device_desktop_mode_item = self._add_item(
+            self._device_header, "Desktop Mode", self.DEVICE_DESKTOP_MODE,
+            _make_icon("#6f86a7", "device")
         )
         self._device_music_item = self._add_item(
             self._device_header, "On This iPod", self.DEVICE_MUSIC,

@@ -33,3 +33,6 @@ stream_mgr.c
 mpegplayer.c
 mpeg_parser.c
 mpeg_misc.c
+#ifdef HAVE_LCD_COLOR
+livetv_guide.c
+#endif

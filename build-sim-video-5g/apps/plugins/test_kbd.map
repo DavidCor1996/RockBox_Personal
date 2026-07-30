@@ -458,10 +458,10 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000     0xf4b8
+.debug_info     0x0000000000000000     0xf4d6
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x76da /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/test_kbd.o
- .debug_info    0x00000000000076da     0x7dde /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+ .debug_info    0x0000000000000000     0x76e9 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/test_kbd.o
+ .debug_info    0x00000000000076e9     0x7ded /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
 
 .debug_abbrev   0x0000000000000000      0x75b
  *(.debug_abbrev)
@@ -476,12 +476,12 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x4c69
+.debug_str      0x0000000000000000     0x4c7f
  *(.debug_str)
- .debug_str     0x0000000000000000     0x4c69 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/test_kbd.o
-                                       0x4a3c (size before relaxing)
- .debug_str     0x0000000000004c69        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
-                                       0x52f4 (size before relaxing)
+ .debug_str     0x0000000000000000     0x4c7f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/test_kbd.o
+                                       0x4a52 (size before relaxing)
+ .debug_str     0x0000000000004c7f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+                                       0x530a (size before relaxing)
 
 .debug_loc
  *(.debug_loc)

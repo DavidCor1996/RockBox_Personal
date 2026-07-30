@@ -1171,33 +1171,33 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x5d6f2
+.debug_info     0x0000000000000000    0x5d788
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x8b6a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/frotz.o
- .debug_info    0x0000000000008b6a      0x69a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/buffer.o
- .debug_info    0x0000000000009204      0x88a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/err.o
- .debug_info    0x0000000000009a8e     0x902e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/fastmem.o
- .debug_info    0x0000000000012abc     0x8768 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/files.o
- .debug_info    0x000000000001b224     0x7b5e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/hotkey.o
- .debug_info    0x0000000000022d82      0x668 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/input.o
- .debug_info    0x00000000000233ea      0xe17 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/main.o
- .debug_info    0x0000000000024201      0x3a7 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/math.o
- .debug_info    0x00000000000245a8     0x12eb /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/object.o
- .debug_info    0x0000000000025893     0x1253 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/process.o
- .debug_info    0x0000000000026ae6     0x8d0f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/quetzal.o
- .debug_info    0x000000000002f7f5      0x5b4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/random.o
- .debug_info    0x000000000002fda9      0x7d8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/redirect.o
- .debug_info    0x0000000000030581     0x28b3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/screen.o
- .debug_info    0x0000000000032e34      0x7e6 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/sound.o
- .debug_info    0x000000000003361a      0x83d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/stream.o
- .debug_info    0x0000000000033e57      0x35a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/table.o
- .debug_info    0x00000000000341b1     0x1934 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/text.o
- .debug_info    0x0000000000035ae5      0x533 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/variable.o
- .debug_info    0x0000000000036018     0x7c2c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/dumb_init.o
- .debug_info    0x000000000003dc44     0x852e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/dumb_output.o
- .debug_info    0x0000000000046172     0x7dde /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
- .debug_info    0x000000000004df50     0x780e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
- .debug_info    0x000000000005575e     0x7f94 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
+ .debug_info    0x0000000000000000     0x8b79 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/frotz.o
+ .debug_info    0x0000000000008b79      0x69a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/buffer.o
+ .debug_info    0x0000000000009213      0x88a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/err.o
+ .debug_info    0x0000000000009a9d     0x903d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/fastmem.o
+ .debug_info    0x0000000000012ada     0x8777 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/files.o
+ .debug_info    0x000000000001b251     0x7b6d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/hotkey.o
+ .debug_info    0x0000000000022dbe      0x668 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/input.o
+ .debug_info    0x0000000000023426      0xe17 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/main.o
+ .debug_info    0x000000000002423d      0x3a7 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/math.o
+ .debug_info    0x00000000000245e4     0x12eb /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/object.o
+ .debug_info    0x00000000000258cf     0x1253 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/process.o
+ .debug_info    0x0000000000026b22     0x8d1e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/quetzal.o
+ .debug_info    0x000000000002f840      0x5b4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/random.o
+ .debug_info    0x000000000002fdf4      0x7d8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/redirect.o
+ .debug_info    0x00000000000305cc     0x28b3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/screen.o
+ .debug_info    0x0000000000032e7f      0x7e6 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/sound.o
+ .debug_info    0x0000000000033665      0x83d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/stream.o
+ .debug_info    0x0000000000033ea2      0x35a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/table.o
+ .debug_info    0x00000000000341fc     0x1934 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/text.o
+ .debug_info    0x0000000000035b30      0x533 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/variable.o
+ .debug_info    0x0000000000036063     0x7c3b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/dumb_init.o
+ .debug_info    0x000000000003dc9e     0x853d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/dumb_output.o
+ .debug_info    0x00000000000461db     0x7ded /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+ .debug_info    0x000000000004dfc8     0x781d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+ .debug_info    0x00000000000557e5     0x7fa3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
 
 .debug_abbrev   0x0000000000000000     0x5309
  *(.debug_abbrev)
@@ -1258,58 +1258,58 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x78dd
+.debug_str      0x0000000000000000     0x78f3
  *(.debug_str)
- .debug_str     0x0000000000000000     0x78dd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/frotz.o
-                                       0x681d (size before relaxing)
- .debug_str     0x00000000000078dd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/buffer.o
+ .debug_str     0x0000000000000000     0x78f3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/frotz.o
+                                       0x6833 (size before relaxing)
+ .debug_str     0x00000000000078f3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/buffer.o
                                         0x9c0 (size before relaxing)
- .debug_str     0x00000000000078dd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/err.o
+ .debug_str     0x00000000000078f3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/err.o
                                         0xaa3 (size before relaxing)
- .debug_str     0x00000000000078dd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/fastmem.o
-                                       0x5870 (size before relaxing)
- .debug_str     0x00000000000078dd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/files.o
-                                       0x54b9 (size before relaxing)
- .debug_str     0x00000000000078dd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/hotkey.o
-                                       0x4bf9 (size before relaxing)
- .debug_str     0x00000000000078dd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/input.o
+ .debug_str     0x00000000000078f3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/fastmem.o
+                                       0x5886 (size before relaxing)
+ .debug_str     0x00000000000078f3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/files.o
+                                       0x54cf (size before relaxing)
+ .debug_str     0x00000000000078f3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/hotkey.o
+                                       0x4c0f (size before relaxing)
+ .debug_str     0x00000000000078f3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/input.o
                                         0x2e5 (size before relaxing)
- .debug_str     0x00000000000078dd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/main.o
+ .debug_str     0x00000000000078f3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/main.o
                                         0xe47 (size before relaxing)
- .debug_str     0x00000000000078dd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/math.o
+ .debug_str     0x00000000000078f3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/math.o
                                         0x200 (size before relaxing)
- .debug_str     0x00000000000078dd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/object.o
+ .debug_str     0x00000000000078f3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/object.o
                                         0x515 (size before relaxing)
- .debug_str     0x00000000000078dd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/process.o
+ .debug_str     0x00000000000078f3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/process.o
                                        0x1073 (size before relaxing)
- .debug_str     0x00000000000078dd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/quetzal.o
-                                       0x523d (size before relaxing)
- .debug_str     0x00000000000078dd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/random.o
+ .debug_str     0x00000000000078f3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/quetzal.o
+                                       0x5253 (size before relaxing)
+ .debug_str     0x00000000000078f3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/random.o
                                         0x954 (size before relaxing)
- .debug_str     0x00000000000078dd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/redirect.o
+ .debug_str     0x00000000000078f3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/redirect.o
                                         0x9f5 (size before relaxing)
- .debug_str     0x00000000000078dd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/screen.o
+ .debug_str     0x00000000000078f3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/screen.o
                                        0x11df (size before relaxing)
- .debug_str     0x00000000000078dd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/sound.o
+ .debug_str     0x00000000000078f3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/sound.o
                                         0xa6b (size before relaxing)
- .debug_str     0x00000000000078dd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/stream.o
+ .debug_str     0x00000000000078f3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/stream.o
                                         0x4b5 (size before relaxing)
- .debug_str     0x00000000000078dd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/table.o
+ .debug_str     0x00000000000078f3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/table.o
                                         0x207 (size before relaxing)
- .debug_str     0x00000000000078dd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/text.o
+ .debug_str     0x00000000000078f3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/text.o
                                         0xe6f (size before relaxing)
- .debug_str     0x00000000000078dd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/variable.o
+ .debug_str     0x00000000000078f3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/variable.o
                                         0x21d (size before relaxing)
- .debug_str     0x00000000000078dd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/dumb_init.o
-                                       0x535b (size before relaxing)
- .debug_str     0x00000000000078dd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/dumb_output.o
-                                       0x53e8 (size before relaxing)
- .debug_str     0x00000000000078dd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
-                                       0x52f4 (size before relaxing)
- .debug_str     0x00000000000078dd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
-                                       0x499b (size before relaxing)
- .debug_str     0x00000000000078dd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
-                                       0x6445 (size before relaxing)
+ .debug_str     0x00000000000078f3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/dumb_init.o
+                                       0x5371 (size before relaxing)
+ .debug_str     0x00000000000078f3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/frotz/dumb_output.o
+                                       0x53fe (size before relaxing)
+ .debug_str     0x00000000000078f3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+                                       0x530a (size before relaxing)
+ .debug_str     0x00000000000078f3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+                                       0x49b1 (size before relaxing)
+ .debug_str     0x00000000000078f3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
+                                       0x645b (size before relaxing)
 
 .debug_loc
  *(.debug_loc)

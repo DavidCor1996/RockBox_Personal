@@ -31,6 +31,7 @@ namespace gameswf
 		bool	flush();
 
 		static gc_ptr<as_object> get_local( const tu_string & name, player * player );
+		static void flush_all();
 
 	};
 

@@ -5,6 +5,9 @@
 #include "ipodhero.h"
 
 #define IH_HEADER_H 20
+/* Slightly tighter than a stock Rockbox list so six fret bars, a two line
+ * song billing and the control footer all fit a 240 pixel tall panel. */
+#define IH_MENU_ROW_H 20
 #define IH_HIGHWAY_X 60
 #define IH_HIGHWAY_Y 20
 #define IH_RECEPTOR_Y 207
@@ -30,18 +33,95 @@ static void ih_draw_text_center(int y, const char *text, unsigned color)
     rb->lcd_set_drawmode(DRMODE_SOLID);
 }
 
-static void ih_draw_stock_header(const char *title)
+/* Fret colours in the conventional five-lane order.  The menu chrome reuses
+ * them so every screen reads as part of the same instrument.  The component
+ * table exists because the selection bars shade towards each fret colour and
+ * the LCD driver only takes packed values. */
+static const unsigned char ih_fret_rgb[IH_LANE_COUNT][3] =
+{
+    {  45, 205,  72 },
+    { 235,  55,  62 },
+    { 245, 205,  45 },
+    {  60, 120, 235 },
+    { 245, 135,  35 }
+};
+
+static const unsigned ih_fret_colors[IH_LANE_COUNT] =
+{
+    LCD_RGBPACK(45, 205, 72),
+    LCD_RGBPACK(235, 55, 62),
+    LCD_RGBPACK(245, 205, 45),
+    LCD_RGBPACK(60, 120, 235),
+    LCD_RGBPACK(245, 135, 35)
+};
+
+static void ih_draw_vgradient(int x, int y, int width, int height,
+                              int r0, int g0, int b0,
+                              int r1, int g1, int b1)
+{
+    int span = MAX(1, height - 1);
+    int row;
+
+    for (row = 0; row < height; ++row)
+    {
+        rb->lcd_set_foreground(LCD_RGBPACK(r0 + (r1 - r0) * row / span,
+                                           g0 + (g1 - g0) * row / span,
+                                           b0 + (b1 - b0) * row / span));
+        rb->lcd_hline(x, x + width - 1, y + row);
+    }
+}
+
+/* The five-colour rule that separates the stage from the chrome. */
+static void ih_draw_fret_rule(int x, int y, int width, int height)
+{
+    int column;
+
+    for (column = 0; column < width; ++column)
+    {
+        rb->lcd_set_foreground(
+            ih_fret_colors[column * IH_LANE_COUNT / MAX(1, width)]);
+        rb->lcd_vline(x + column, y, y + height - 1);
+    }
+}
+
+/* Darken the stage photograph behind a block of text without hiding it.  The
+ * LCD driver has no alpha blend, so this lays down black scanlines: it reads
+ * as stage lighting rather than as a dither, and costs one hline per pair of
+ * rows instead of a pixel call per pixel. */
+static void ih_draw_scrim(int x, int y, int width, int height)
+{
+    int row;
+
+    rb->lcd_set_foreground(LCD_BLACK);
+    for (row = 0; row < height; row += 2)
+        rb->lcd_hline(x, x + width - 1, y + row);
+}
+
+static void ih_draw_panel(int x, int y, int width, int height)
+{
+    ih_draw_scrim(x, y, width, height);
+    rb->lcd_set_foreground(LCD_RGBPACK(24, 24, 30));
+    rb->lcd_fillrect(x + 2, y + 2, width - 4, height - 4);
+    rb->lcd_set_foreground(LCD_RGBPACK(96, 96, 108));
+    rb->lcd_drawrect(x, y, width, height);
+    rb->lcd_set_foreground(LCD_RGBPACK(148, 148, 160));
+    rb->lcd_hline(x + 1, x + width - 2, y + 1);
+}
+
+static void ih_draw_screen_header(const char *title)
 {
     int width;
 
-    rb->lcd_set_foreground(LCD_WHITE);
-    rb->lcd_fillrect(0, 0, LCD_WIDTH, IH_HEADER_H);
-    rb->lcd_set_foreground(LCD_RGBPACK(205, 205, 205));
-    rb->lcd_hline(0, LCD_WIDTH - 1, IH_HEADER_H - 1);
-    rb->lcd_set_foreground(LCD_BLACK);
-    rb->lcd_set_background(LCD_WHITE);
+    ih_draw_vgradient(0, 0, LCD_WIDTH, IH_HEADER_H - 2,
+                      34, 34, 42, 10, 10, 14);
+    ih_draw_fret_rule(0, IH_HEADER_H - 2, LCD_WIDTH, 2);
     rb->lcd_getstringsize(title, &width, NULL);
+    rb->lcd_set_drawmode(DRMODE_FG);
+    rb->lcd_set_foreground(LCD_BLACK);
+    rb->lcd_putsxy((LCD_WIDTH - width) / 2 + 1, 4, title);
+    rb->lcd_set_foreground(LCD_RGBPACK(248, 248, 252));
     rb->lcd_putsxy((LCD_WIDTH - width) / 2, 3, title);
+    rb->lcd_set_drawmode(DRMODE_SOLID);
 }
 
 static void ih_draw_control_footer(const char *menu_action,
@@ -50,54 +130,92 @@ static void ih_draw_control_footer(const char *menu_action,
     char left[48];
     char right[48];
     int width;
+    int top = LCD_HEIGHT - 21;
 
-    rb->lcd_set_foreground(LCD_RGBPACK(238, 238, 238));
-    rb->lcd_fillrect(0, LCD_HEIGHT - 21, LCD_WIDTH, 21);
-    rb->lcd_set_foreground(LCD_RGBPACK(190, 190, 190));
-    rb->lcd_hline(0, LCD_WIDTH - 1, LCD_HEIGHT - 21);
+    ih_draw_fret_rule(0, top, LCD_WIDTH, 2);
+    ih_draw_vgradient(0, top + 2, LCD_WIDTH, 19, 14, 14, 18, 34, 34, 42);
     rb->snprintf(left, sizeof(left), "MENU  %s", menu_action);
     rb->snprintf(right, sizeof(right), "CENTER  %s", select_action);
-    rb->lcd_set_foreground(LCD_BLACK);
-    rb->lcd_set_background(LCD_RGBPACK(238, 238, 238));
+    rb->lcd_set_drawmode(DRMODE_FG);
+    rb->lcd_set_foreground(LCD_RGBPACK(214, 214, 222));
     rb->lcd_putsxy(10, LCD_HEIGHT - 16, left);
     rb->lcd_getstringsize(right, &width, NULL);
     rb->lcd_putsxy(LCD_WIDTH - width - 10, LCD_HEIGHT - 16, right);
+    rb->lcd_set_drawmode(DRMODE_SOLID);
 }
 
+/* Guitar Hero style selection bars: slanted, fret coloured, and lit from the
+ * top.  The geometry matches the old stock rows exactly so every caller's
+ * layout and selection indices are unchanged. */
 static void ih_draw_menu_rows(const char *const *items, int count,
                               int selected, int top)
 {
+    const int row_h = IH_MENU_ROW_H;
+    const int x = 16;
+    const int width = LCD_WIDTH - x * 2;
+    const int slant = 7;
     int i;
-    int row_h = 22;
-    int x = 16;
-    int width = LCD_WIDTH - x * 2;
 
-    rb->lcd_set_foreground(LCD_WHITE);
-    rb->lcd_fillrect(x, top, width, count * row_h + 1);
     for (i = 0; i < count; ++i)
     {
         int y = top + i * row_h;
+        unsigned accent = ih_fret_colors[i % IH_LANE_COUNT];
+        int bar_h = row_h - 3;
+        int span = MAX(1, bar_h - 1);
+        int row;
+
+        for (row = 0; row < bar_h; ++row)
+        {
+            int shift = (bar_h - 1 - row) * slant / bar_h;
+            int left = x + shift;
+            int right = x + width - 1 - shift / 2;
+
+            if (i == selected)
+            {
+                /* Lit fret bar: full colour at the top edge falling to a
+                 * third of it at the bottom, so white text stays legible. */
+                int lit = 100 + 155 * (span - row) / span;
+                rb->lcd_set_foreground(
+                    LCD_RGBPACK(ih_fret_rgb[i % IH_LANE_COUNT][0] * lit / 255,
+                                ih_fret_rgb[i % IH_LANE_COUNT][1] * lit / 255,
+                                ih_fret_rgb[i % IH_LANE_COUNT][2] * lit / 255));
+            }
+            else
+            {
+                rb->lcd_set_foreground(
+                    LCD_RGBPACK(20 + 26 * (span - row) / span,
+                                20 + 26 * (span - row) / span,
+                                26 + 30 * (span - row) / span));
+            }
+            rb->lcd_hline(left, right, y + row);
+        }
+
+        /* Fret cap on the leading edge, brightened for the active row. */
+        rb->lcd_set_foreground(accent);
+        for (row = 0; row < bar_h; ++row)
+        {
+            int shift = (bar_h - 1 - row) * slant / bar_h;
+            rb->lcd_hline(x + shift, x + shift + (i == selected ? 5 : 3),
+                          y + row);
+        }
         if (i == selected)
         {
-            rb->lcd_set_foreground(LCD_RGBPACK(38, 103, 205));
-            rb->lcd_fillrect(x + 1, y + 1, width - 2, row_h - 1);
-            rb->lcd_set_foreground(LCD_RGBPACK(99, 151, 231));
-            rb->lcd_hline(x + 1, x + width - 2, y + 1);
-            rb->lcd_set_foreground(LCD_WHITE);
-            rb->lcd_set_background(LCD_RGBPACK(38, 103, 205));
+            rb->lcd_set_foreground(LCD_RGBPACK(252, 252, 255));
+            rb->lcd_hline(x + slant, x + width - 1, y);
         }
-        else
+
+        rb->lcd_set_drawmode(DRMODE_FG);
+        rb->lcd_set_foreground(LCD_BLACK);
+        rb->lcd_putsxy(x + 15, y + 4, items[i]);
+        rb->lcd_set_foreground(i == selected ? LCD_RGBPACK(255, 255, 255) :
+                               LCD_RGBPACK(186, 186, 196));
+        rb->lcd_putsxy(x + 14, y + 3, items[i]);
+        if (i == selected)
         {
-            rb->lcd_set_foreground(LCD_BLACK);
-            rb->lcd_set_background(LCD_WHITE);
+            rb->lcd_set_foreground(LCD_RGBPACK(255, 255, 255));
+            rb->lcd_putsxy(x + width - 16, y + 3, ">");
         }
-        rb->lcd_putsxy(x + 9, y + 4, items[i]);
-        rb->lcd_putsxy(x + width - 17, y + 4, ">");
-        if (i != selected)
-        {
-            rb->lcd_set_foreground(LCD_RGBPACK(220, 220, 220));
-            rb->lcd_hline(x + 7, x + width - 7, y + row_h);
-        }
+        rb->lcd_set_drawmode(DRMODE_SOLID);
     }
 }
 
@@ -124,15 +242,20 @@ void ih_render_song_library(const struct ih_song_library *library,
         items[row] = labels[row];
     }
 
-    rb->lcd_set_background(LCD_WHITE);
+    rb->lcd_set_background(LCD_BLACK);
     rb->lcd_set_foreground(LCD_BLACK);
     rb->lcd_clear_display();
+    ih_draw_vgradient(0, IH_HEADER_H, LCD_WIDTH, LCD_HEIGHT - IH_HEADER_H,
+                      18, 18, 24, 6, 6, 9);
     rb->snprintf(count_text, sizeof(count_text), "Songs  %d / %d",
                  selected + 1, library->count);
+    rb->lcd_set_drawmode(DRMODE_FG);
+    rb->lcd_set_foreground(LCD_RGBPACK(190, 190, 200));
     rb->lcd_putsxy(20, 24, count_text);
+    rb->lcd_set_drawmode(DRMODE_SOLID);
     ih_draw_menu_rows(items, count, selected - first, 43);
     ih_draw_control_footer("Exit", "Open");
-    ih_draw_stock_header("iPod Hero Songs");
+    ih_draw_screen_header("iPod Hero Songs");
     rb->lcd_update();
 }
 
@@ -162,17 +285,20 @@ void ih_render_menu(const struct ih_app *app, int selected,
     items[4] = "Game Settings";
     items[5] = "Choose Song";
 
-    rb->lcd_set_background(LCD_WHITE);
+    rb->lcd_set_background(LCD_BLACK);
     rb->lcd_set_foreground(LCD_BLACK);
     rb->lcd_clear_display();
-    rb->lcd_bitmap_part((const fb_data *)app->skin.background.bitmap.data,
-                        0, 72, app->skin.background.bitmap.width,
-                        0, 20, LCD_WIDTH, 50);
+    ih_draw_background(app);
+    /* Stage banner: a darkened strip of the concert photograph billing the
+     * track, closed by a fret rule.  The logo lives on the Settings screen,
+     * which is the only one with room for the full stacked wordmark. */
+    ih_draw_scrim(0, IH_HEADER_H, LCD_WIDTH, 40);
+    ih_draw_fret_rule(0, 60, LCD_WIDTH, 2);
     rb->lcd_set_foreground(LCD_BLACK);
-    rb->lcd_fillrect(0, 54, LCD_WIDTH, 34);
+    rb->lcd_fillrect(0, 62, LCD_WIDTH, 34);
     rb->snprintf(detail, sizeof(detail), "%s - %s",
                  app->index.artist, app->index.title);
-    ih_draw_text_center(57, detail, LCD_WHITE);
+    ih_draw_text_center(63, detail, LCD_WHITE);
     if (app->best_score > 0)
         rb->snprintf(best, sizeof(best), "%s  Best %08lu  %lu.%02lu%%",
                      origin_name[app->chart.origin],
@@ -183,10 +309,10 @@ void ih_render_menu(const struct ih_app *app, int selected,
         rb->snprintf(best, sizeof(best), "%s  No ranked score  %+d ms",
                      origin_name[app->chart.origin],
                      app->game.calibration_ms);
-    ih_draw_text_center(72, best, LCD_LIGHTGRAY);
-    ih_draw_menu_rows(items, ARRAYLEN(items), selected, 88);
+    ih_draw_text_center(79, best, LCD_LIGHTGRAY);
+    ih_draw_menu_rows(items, ARRAYLEN(items), selected, 98);
     ih_draw_control_footer("Songs", "Choose");
-    ih_draw_stock_header("iPod Hero");
+    ih_draw_screen_header("iPod Hero");
     rb->lcd_update();
 }
 
@@ -383,14 +509,6 @@ static void ih_draw_lane_labels(void)
     {
         "LEFT", "MENU", "SELECT", "PLAY", "RIGHT"
     };
-    static const unsigned colors[IH_LANE_COUNT] =
-    {
-        LCD_RGBPACK(45, 205, 72),
-        LCD_RGBPACK(235, 55, 62),
-        LCD_RGBPACK(245, 205, 45),
-        LCD_RGBPACK(60, 120, 235),
-        LCD_RGBPACK(245, 135, 35)
-    };
     int lane;
 
     rb->lcd_setfont(FONT_SYSFIXED);
@@ -401,7 +519,7 @@ static void ih_draw_lane_labels(void)
 
         rb->lcd_set_foreground(LCD_BLACK);
         rb->lcd_fillrect(x, 221, 38, 17);
-        rb->lcd_set_foreground(colors[lane]);
+        rb->lcd_set_foreground(ih_fret_colors[lane]);
         rb->lcd_drawrect(x, 221, 38, 17);
         rb->lcd_set_foreground(LCD_WHITE);
         rb->lcd_set_background(LCD_BLACK);
@@ -499,11 +617,12 @@ void ih_render_pause(const struct ih_app *app, int selected)
         "Resume", "Restart", "Calibration", "No-Fail", "Quit Song"
     };
     ih_render_game(app);
-    rb->lcd_set_foreground(LCD_BLACK);
-    rb->lcd_fillrect(31, 42, LCD_WIDTH - 62, 150);
+    /* Scrim the frozen stage so the pause list reads over live gameplay. */
+    ih_draw_scrim(0, IH_HEADER_H, LCD_WIDTH, LCD_HEIGHT - IH_HEADER_H - 21);
+    ih_draw_panel(12, 42, LCD_WIDTH - 24, 150);
     ih_draw_menu_rows(items, ARRAYLEN(items), selected, 62);
     ih_draw_control_footer("Resume", "Choose");
-    ih_draw_stock_header("Paused");
+    ih_draw_screen_header("Paused");
     rb->lcd_update();
 }
 
@@ -516,12 +635,14 @@ void ih_render_results(const struct ih_app *app, int selected)
     int stars;
 
     ih_draw_background(app);
-    rb->lcd_set_foreground(LCD_BLACK);
-    rb->lcd_fillrect(30, 32, LCD_WIDTH - 60, 190);
-    ih_draw_text_center(42, app->game.failed ? "SONG FAILED" :
+    ih_draw_panel(12, 26, LCD_WIDTH - 24, 196);
+    ih_draw_fret_rule(14, 60, LCD_WIDTH - 28, 2);
+    ih_draw_text_center(40, app->game.failed ? "SONG FAILED" :
                         app->game.assist ? "SONG COMPLETE - ASSIST" :
                         app->game.no_fail ? "SONG COMPLETE - NO FAIL" :
-                        "SONG COMPLETE", LCD_WHITE);
+                        "SONG COMPLETE",
+                        app->game.failed ? LCD_RGBPACK(245, 80, 80) :
+                        LCD_RGBPACK(250, 215, 90));
     rb->snprintf(text, sizeof(text), "Score  %08lu",
                  (unsigned long)app->game.score.points);
     ih_draw_text_center(70, text, LCD_WHITE);
@@ -544,7 +665,7 @@ void ih_render_results(const struct ih_app *app, int selected)
         85, 125, stars * 30, 30);
     ih_draw_menu_rows(items, ARRAYLEN(items), selected, 169);
     ih_draw_control_footer("Menu", "Choose");
-    ih_draw_stock_header("Results");
+    ih_draw_screen_header("Results");
     rb->lcd_update();
 }
 
@@ -555,21 +676,23 @@ void ih_render_calibration(const struct ih_app *app, int proposed,
     int marker = 160 + proposed / 4;
 
     ih_draw_background(app);
-    rb->lcd_set_foreground(LCD_BLACK);
-    rb->lcd_fillrect(24, 38, LCD_WIDTH - 48, 164);
-    ih_draw_text_center(50, "Audio Calibration", LCD_WHITE);
+    ih_draw_panel(16, 34, LCD_WIDTH - 32, 172);
+    ih_draw_text_center(50, "Audio Calibration", LCD_RGBPACK(250, 215, 90));
     rb->snprintf(text, sizeof(text), "%+d ms", proposed);
     ih_draw_text_center(82, text, LCD_WHITE);
-    rb->lcd_set_foreground(LCD_DARKGRAY);
+    rb->lcd_set_foreground(LCD_RGBPACK(52, 52, 62));
     rb->lcd_fillrect(60, 119, 200, 8);
-    rb->lcd_set_foreground(LCD_RGBPACK(38, 103, 205));
+    ih_draw_fret_rule(60, 121, 200, 4);
+    rb->lcd_set_foreground(LCD_BLACK);
+    rb->lcd_fillrect(marker - 3, 111, 7, 24);
+    rb->lcd_set_foreground(LCD_RGBPACK(252, 252, 255));
     rb->lcd_fillrect(marker - 2, 111, 5, 24);
     ih_draw_text_center(145, "Wheel adjusts in 5 ms steps", LCD_WHITE);
     ih_draw_text_center(164, allow_tap ? "Play starts an 8-tap test" :
                         "Tap test is available before play", LCD_WHITE);
     ih_draw_text_center(183, "Select saves  |  Menu cancels", LCD_WHITE);
     ih_draw_control_footer("Cancel", "Save");
-    ih_draw_stock_header("Calibration");
+    ih_draw_screen_header("Calibration");
     rb->lcd_update();
 }
 
@@ -578,11 +701,10 @@ void ih_render_calibration_tap(const struct ih_app *app, int tap_count)
     char text[40];
 
     ih_render_game(app);
-    rb->lcd_set_foreground(LCD_BLACK);
-    rb->lcd_fillrect(65, 42, 190, 40);
+    ih_draw_panel(58, 38, 204, 48);
     rb->snprintf(text, sizeof(text), "TAP SELECT  %d / 8", tap_count);
-    ih_draw_text_center(49, text, LCD_WHITE);
-    ih_draw_text_center(65, "Menu cancels", LCD_LIGHTGRAY);
+    ih_draw_text_center(49, text, LCD_RGBPACK(250, 215, 90));
+    ih_draw_text_center(66, "Menu cancels", LCD_LIGHTGRAY);
     rb->lcd_update();
 }
 
@@ -603,11 +725,13 @@ void ih_render_settings(const struct ih_app *app, int selected)
     items[2] = "Input Test";
     items[3] = "Done";
     ih_draw_background(app);
+    ih_draw_scrim(0, IH_HEADER_H, LCD_WIDTH, 86);
     rb->lcd_bitmap_transparent((const fb_data *)app->skin.logo.bitmap.data,
                                40, 24, 240, 80);
+    ih_draw_fret_rule(0, 104, LCD_WIDTH, 2);
     ih_draw_menu_rows(items, ARRAYLEN(items), selected, 106);
     ih_draw_control_footer("Back", "Choose");
-    ih_draw_stock_header("Settings");
+    ih_draw_screen_header("Settings");
     rb->lcd_update();
 }
 
@@ -616,30 +740,38 @@ void ih_render_input_test(uint32_t count, const char *last_event,
 {
     char text[64];
 
-    rb->lcd_set_background(LCD_WHITE);
+    rb->lcd_set_background(LCD_BLACK);
     rb->lcd_set_foreground(LCD_BLACK);
     rb->lcd_clear_display();
-    ih_draw_stock_header("Input Test");
+    ih_draw_vgradient(0, IH_HEADER_H, LCD_WIDTH, LCD_HEIGHT - IH_HEADER_H,
+                      18, 18, 24, 6, 6, 9);
+    ih_draw_screen_header("Input Test");
+    rb->lcd_set_drawmode(DRMODE_FG);
+    rb->lcd_set_foreground(LCD_RGBPACK(214, 214, 222));
     rb->lcd_putsxy(12, 35, "Press every button and combination");
     rb->lcd_putsxy(12, 57, "Roll all five lanes both directions");
     rb->lcd_putsxy(12, 79, "Turn wheel while holding a lane");
     rb->lcd_putsxy(12, 101, "Move Hold on and off");
-    rb->lcd_set_foreground(LCD_RGBPACK(220, 220, 220));
-    rb->lcd_hline(12, LCD_WIDTH - 13, 128);
-    rb->lcd_set_foreground(LCD_BLACK);
+    rb->lcd_set_drawmode(DRMODE_SOLID);
+    ih_draw_fret_rule(12, 128, LCD_WIDTH - 24, 2);
+    rb->lcd_set_drawmode(DRMODE_FG);
+    rb->lcd_set_foreground(LCD_RGBPACK(250, 215, 90));
     rb->snprintf(text, sizeof(text), "Events: %lu / 512%s",
                  (unsigned long)count, full ? "  FULL" : "");
     rb->lcd_putsxy(12, 140, text);
     rb->snprintf(text, sizeof(text), "Hold: %s", hold ? "ON" : "off");
     rb->lcd_putsxy(210, 140, text);
+    rb->lcd_set_foreground(LCD_RGBPACK(214, 214, 222));
     rb->lcd_putsxy(12, 164, "Last:");
     rb->lcd_putsxy(52, 164, last_event);
-    rb->lcd_set_foreground(LCD_RGBPACK(38, 103, 205));
-    rb->lcd_fillrect(0, 202, LCD_WIDTH, 38);
-    rb->lcd_set_foreground(LCD_WHITE);
-    rb->lcd_set_background(LCD_RGBPACK(38, 103, 205));
-    rb->lcd_putsxy(12, 207, "Select + Menu exits");
-    rb->lcd_putsxy(12, 223, "Hold for 2 seconds also exits");
+    rb->lcd_set_drawmode(DRMODE_SOLID);
+    ih_draw_fret_rule(0, 202, LCD_WIDTH, 2);
+    ih_draw_vgradient(0, 204, LCD_WIDTH, 36, 34, 34, 42, 12, 12, 16);
+    rb->lcd_set_drawmode(DRMODE_FG);
+    rb->lcd_set_foreground(LCD_RGBPACK(248, 248, 252));
+    rb->lcd_putsxy(12, 209, "Select + Menu exits");
+    rb->lcd_putsxy(12, 225, "Hold for 2 seconds also exits");
+    rb->lcd_set_drawmode(DRMODE_SOLID);
     rb->lcd_update();
 }
 
@@ -649,11 +781,16 @@ void ih_render_error(const char *title, const char *detail)
     const char *cursor = detail;
     int y = 62;
 
-    rb->lcd_set_background(LCD_WHITE);
+    rb->lcd_set_background(LCD_BLACK);
     rb->lcd_set_foreground(LCD_BLACK);
     rb->lcd_clear_display();
-    ih_draw_stock_header(title);
+    ih_draw_vgradient(0, IH_HEADER_H, LCD_WIDTH, LCD_HEIGHT - IH_HEADER_H,
+                      18, 18, 24, 6, 6, 9);
+    ih_draw_screen_header(title);
+    rb->lcd_set_drawmode(DRMODE_FG);
+    rb->lcd_set_foreground(LCD_RGBPACK(245, 90, 90));
     rb->lcd_putsxy(14, 42, "iPod Hero could not continue:");
+    rb->lcd_set_foreground(LCD_RGBPACK(214, 214, 222));
     while (cursor[0] != '\0' && y <= 182)
     {
         const char *newline = rb->strchr(cursor, '\n');
@@ -669,6 +806,8 @@ void ih_render_error(const char *title, const char *detail)
             break;
         cursor = newline + 1;
     }
+    rb->lcd_set_foreground(LCD_RGBPACK(250, 215, 90));
     rb->lcd_putsxy(14, 205, "Press Menu to return");
+    rb->lcd_set_drawmode(DRMODE_SOLID);
     rb->lcd_update();
 }

@@ -251,11 +251,60 @@ class VideoThumbnailService:
             artwork_id=artwork_id,
         )
 
+    # Manifest column order. The device parser reads these positionally and
+    # tolerates a longer row but not a reordered one, so new columns are only
+    # ever appended. The header line and every row are generated from this one
+    # tuple so the two cannot drift apart.
+    _MANIFEST_COLUMNS = (
+        "video_id", "thumb", "preview", "title", "kind", "group_key",
+        "device_path", "show", "season", "episode", "duration", "locked",
+        "year", "genre", "rating", "plot_short", "plot_long",
+        "content_rating", "netflix_poster", "netflix_detail", "show_art_id",
+        "season_art_id", "show_plot",
+    )
+
+    # The device reads a manifest row into a fixed VIDEO_LIST_MANIFEST_LINE_MAX
+    # buffer (1024) and splits it in place. A longer row is truncated, loses
+    # its trailing tabs, fails the split and is dropped from the browser
+    # completely - a missing title, not merely a missing description. Keep a
+    # little headroom below that and spend the overflow on the prose fields,
+    # which are the only expendable ones.
+    _MANIFEST_LINE_BUDGET = 1000
+    _MANIFEST_TRIMMABLE = ("show_plot", "plot_long", "plot_short")
+
+    def _manifest_cell(self, entry, name):
+        if name == "locked":
+            flag = str(entry.get("locked") or "0").strip().lower()
+            return "1" if flag in {"1", "true", "yes"} else "0"
+        return self._manifest_field(entry.get(name))
+
+    def _fit_manifest_row(self, entry):
+        entry = dict(entry or {})
+
+        def measure():
+            return sum(
+                len(self._manifest_cell(entry, name).encode("utf-8")) + 1
+                for name in self._MANIFEST_COLUMNS
+            )
+
+        for name in self._MANIFEST_TRIMMABLE:
+            overflow = measure() - self._MANIFEST_LINE_BUDGET
+            if overflow <= 0:
+                break
+            text = self._manifest_field(entry.get(name))
+            if not text:
+                continue
+            entry[name] = text[:max(0, len(text) - overflow)].rstrip()
+        return entry
+
     def export_video_list_manifest(self, entries):
         manifest_path = os.path.join(self._video_list_dir, "index.tsv")
+        # v6 appends show_plot. Appending is the only safe way to grow this
+        # file: the device parser reads columns positionally and tolerates a
+        # longer row, but not a reordered one.
         lines = [
-            "# rockpod videolist v5",
-            "video_id\tthumb\tpreview\ttitle\tkind\tgroup_key\tdevice_path\tshow\tseason\tepisode\tduration\tlocked\tyear\tgenre\trating\tplot_short\tplot_long\tcontent_rating\tnetflix_poster\tnetflix_detail\tshow_art_id\tseason_art_id",
+            "# rockpod videolist v6",
+            "\t".join(self._MANIFEST_COLUMNS),
         ]
         def sort_key(item):
             return (
@@ -264,32 +313,11 @@ class VideoThumbnailService:
             )
 
         for entry in sorted(entries, key=sort_key):
+            entry = self._fit_manifest_row(entry)
             lines.append(
                 "\t".join(
-                    [
-                        self._manifest_field(entry.get("video_id")),
-                        self._manifest_field(entry.get("thumb")),
-                        self._manifest_field(entry.get("preview")),
-                        self._manifest_field(entry.get("title")),
-                        self._manifest_field(entry.get("kind")),
-                        self._manifest_field(entry.get("group_key")),
-                        self._manifest_field(entry.get("device_path")),
-                        self._manifest_field(entry.get("show")),
-                        self._manifest_field(entry.get("season")),
-                        self._manifest_field(entry.get("episode")),
-                        self._manifest_field(entry.get("duration")),
-                        "1" if str(entry.get("locked") or "0").strip().lower() in {"1", "true", "yes"} else "0",
-                        self._manifest_field(entry.get("year")),
-                        self._manifest_field(entry.get("genre")),
-                        self._manifest_field(entry.get("rating")),
-                        self._manifest_field(entry.get("plot_short")),
-                        self._manifest_field(entry.get("plot_long")),
-                        self._manifest_field(entry.get("content_rating")),
-                        self._manifest_field(entry.get("netflix_poster")),
-                        self._manifest_field(entry.get("netflix_detail")),
-                        self._manifest_field(entry.get("show_art_id")),
-                        self._manifest_field(entry.get("season_art_id")),
-                    ]
+                    self._manifest_cell(entry, name)
+                    for name in self._MANIFEST_COLUMNS
                 )
             )
         atomic_write_text(manifest_path, "\n".join(lines) + "\n")

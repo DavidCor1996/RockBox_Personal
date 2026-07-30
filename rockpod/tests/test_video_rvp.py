@@ -1,8 +1,13 @@
 import os
+import shutil
 import sys
 import threading
+import json
+from pathlib import Path
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+
+import pytest
 
 from services.video_rvp import (
     RVP_PROFILE_DEFINITIONS,
@@ -50,6 +55,23 @@ class _Runner:
             with open(target, "wb") as handle:
                 handle.truncate(self.audio_bytes)
         return _Result()
+
+
+class _MpegRunner(_Runner):
+    def __init__(self, media_info):
+        super().__init__()
+        self.media_info = media_info
+
+    def run(self, command, cwd="", timeout=None, env=None):
+        if "-show_entries" in command:
+            self.commands.append(list(command))
+            return _Result(stdout=json.dumps(self.media_info))
+        if "mpeg2video" in command:
+            self.commands.append(list(command))
+            with open(command[-1], "wb") as handle:
+                handle.write(b"mpeg-program-stream")
+            return _Result()
+        return super().run(command, cwd=cwd, timeout=timeout, env=env)
 
 
 class _BlockingRunner(_Runner):
@@ -114,6 +136,281 @@ def test_video_rvp_transcoder_creates_bundle_and_sync_metadata(tmp_dir):
     assert any("-show_entries" in cmd for cmd in runner.commands if isinstance(cmd, list))
     assert any("rawvideo" in cmd for cmd in runner.commands if isinstance(cmd, list))
     assert any("s16le" in cmd for cmd in runner.commands if isinstance(cmd, list))
+
+
+def test_video_rvp_defaults_to_raw_profile():
+    transcoder = VideoRvpTranscoder("/tmp/unused-rvp-cache")
+
+    assert RVP_PROFILE_DEFAULT == "raw"
+    assert transcoder._profile == "raw"
+    assert transcoder._target_fps == 20
+
+
+def test_compact_raw_profile_keeps_20fps_with_smaller_frames_and_audio(
+    tmp_dir,
+):
+    source = os.path.join(tmp_dir, "Concert.mpg")
+    with open(source, "wb") as handle:
+        handle.write(b"source-video")
+
+    runner = _Runner()
+    transcoder = VideoRvpTranscoder(
+        os.path.join(tmp_dir, "cache"),
+        ffmpeg_path="/bin/true",
+        command_runner=runner,
+        profile="compact_raw",
+    )
+    row, info = transcoder.prepare_track_for_sync(
+        {
+            "file_path": source,
+            "title": "Concert",
+            "duration": 1.0,
+            "media_type": "video",
+        },
+        "mock-ipod",
+    )
+
+    assert info["converted"] is True
+    assert row["sync_output_ext"] == ".rvp"
+    assert row["sync_video_width"] == 160
+    assert row["sync_video_height"] == 120
+    assert row["sync_video_fps"] == 20
+    assert row["sync_video_sample_rate"] == 22050
+    marker = Path(row["sync_source_path"]).read_text(encoding="utf-8")
+    assert "width=160" in marker
+    assert "height=120" in marker
+    assert "fps=20" in marker
+    assert "sample_rate=22050" in marker
+
+
+def test_native_raw_profile_keeps_source_detail_and_fluid_motion(tmp_dir):
+    source = os.path.join(tmp_dir, "Concert.mpg")
+    with open(source, "wb") as handle:
+        handle.write(b"source-video")
+
+    runner = _Runner()
+    transcoder = VideoRvpTranscoder(
+        os.path.join(tmp_dir, "cache"),
+        ffmpeg_path="/bin/true",
+        command_runner=runner,
+        profile="native_raw",
+    )
+    row, info = transcoder.prepare_track_for_sync(
+        {
+            "file_path": source,
+            "title": "Concert",
+            "duration": 1.0,
+            "media_type": "video",
+        },
+        "mock-ipod",
+    )
+
+    assert info["converted"] is True
+    assert row["sync_output_ext"] == ".rvp"
+    assert row["sync_video_width"] == 320
+    assert row["sync_video_height"] == 240
+    assert row["sync_video_fps"] == 20
+    assert row["sync_video_sample_rate"] == 22050
+    marker = Path(row["sync_source_path"]).read_text(encoding="utf-8")
+    assert "width=320" in marker
+    assert "height=240" in marker
+    assert "fps=20" in marker
+    assert "sample_rate=22050" in marker
+
+
+def test_compact_profile_rebuilds_compatible_mpeg_for_reliable_seeking(
+    tmp_dir,
+):
+    source = os.path.join(tmp_dir, "Concert.mpg")
+    with open(source, "wb") as handle:
+        handle.write(b"already-compatible")
+    runner = _MpegRunner(
+        {
+            "streams": [
+                {
+                    "codec_type": "video",
+                    "codec_name": "mpeg2video",
+                    "width": 320,
+                    "height": 240,
+                    "pix_fmt": "yuv420p",
+                    "r_frame_rate": "20/1",
+                    "has_b_frames": 0,
+                },
+                {
+                    "codec_type": "audio",
+                    "codec_name": "mp2",
+                    "sample_rate": "44100",
+                    "channels": 2,
+                },
+            ],
+            "format": {"duration": "3600", "bit_rate": "500000"},
+        }
+    )
+    transcoder = VideoRvpTranscoder(
+        os.path.join(tmp_dir, "cache"),
+        ffmpeg_path="/bin/true",
+        command_runner=runner,
+        profile="compact",
+    )
+
+    row, info = transcoder.prepare_track_for_sync(
+        {
+            "file_path": source,
+            "title": "Concert",
+            "media_type": "video",
+            "file_hash": "source-hash",
+        },
+        "mock-ipod",
+    )
+
+    assert row["sync_source_path"] != source
+    assert row["sync_output_ext"] == ".mpg"
+    assert row["sync_video_fps"] == 20
+    assert row["sync_transcoded"] is True
+    assert info["reason"] == "seekable_mpeg2_video"
+    command = next(
+        command for command in runner.commands if "mpeg2video" in command
+    )
+    assert command[command.index("-g") + 1] == "12"
+    assert command[command.index("-sc_threshold") + 1] == "0"
+    assert command[command.index("-packetsize") + 1] == "2048"
+    assert command[command.index("-f") + 1] == "mpeg"
+
+
+def test_compact_profile_converts_other_video_to_20fps_mpeg(tmp_dir):
+    source = os.path.join(tmp_dir, "Movie.mp4")
+    with open(source, "wb") as handle:
+        handle.write(b"source-video")
+    runner = _MpegRunner(
+        {
+            "streams": [
+                {
+                    "codec_type": "video",
+                    "codec_name": "h264",
+                    "width": 1920,
+                    "height": 1080,
+                    "pix_fmt": "yuv420p",
+                    "r_frame_rate": "30/1",
+                    "has_b_frames": 2,
+                },
+                {
+                    "codec_type": "audio",
+                    "codec_name": "aac",
+                    "sample_rate": "48000",
+                    "channels": 2,
+                },
+            ],
+            "format": {"duration": "60", "bit_rate": "5000000"},
+        }
+    )
+    transcoder = VideoRvpTranscoder(
+        os.path.join(tmp_dir, "cache"),
+        ffmpeg_path="/bin/true",
+        command_runner=runner,
+        profile="compact",
+    )
+
+    row, info = transcoder.prepare_track_for_sync(
+        {
+            "file_path": source,
+            "title": "Movie",
+            "media_type": "video",
+            "file_hash": "source-hash",
+        },
+        "mock-ipod",
+    )
+
+    command = next(
+        command for command in runner.commands if "mpeg2video" in command
+    )
+    assert row["sync_output_ext"] == ".mpg"
+    assert row["sync_video_fps"] == 20
+    assert row["sync_transcoded"] is True
+    assert info["reason"] == "seekable_mpeg2_video"
+    assert "fps=20" in command[command.index("-vf") + 1]
+    assert command[command.index("-q:v") + 1] == "2"
+    assert command[command.index("-maxrate") + 1] == "1600k"
+    assert command[command.index("-bufsize") + 1] == "800k"
+    assert command[command.index("-b:a") + 1] == "112k"
+    assert command[command.index("-bf") + 1] == "0"
+
+
+def test_video_rvp_rejects_conversion_before_filling_local_cache(
+    tmp_dir, monkeypatch
+):
+    source = os.path.join(tmp_dir, "Long Movie.mp4")
+    with open(source, "wb") as handle:
+        handle.write(b"source-video")
+
+    runner = _Runner()
+    transcoder = VideoRvpTranscoder(
+        os.path.join(tmp_dir, "cache"),
+        ffmpeg_path="/bin/true",
+        command_runner=runner,
+    )
+    disk_usage = shutil._ntuple_diskusage(
+        total=10 * 1024 * 1024,
+        used=9 * 1024 * 1024,
+        free=1024 * 1024,
+    )
+    monkeypatch.setattr(shutil, "disk_usage", lambda _path: disk_usage)
+
+    with pytest.raises(RuntimeError, match="not enough local cache space"):
+        transcoder.prepare_track_for_sync(
+            {
+                "file_path": source,
+                "title": "Long Movie",
+                "duration": 3600,
+                "media_type": "video",
+            },
+            "mock-ipod",
+        )
+
+    assert not any(
+        "rawvideo" in command for command in runner.commands
+    )
+
+
+def test_video_rvp_removes_partial_temp_file_after_ffmpeg_failure(tmp_dir):
+    class _FailingRunner(_Runner):
+        def run(self, command, cwd="", timeout=None, env=None):
+            result = super().run(
+                command, cwd=cwd, timeout=timeout, env=env
+            )
+            if "rawvideo" in command:
+                result.returncode = 1
+                result.stderr = "simulated write failure"
+            return result
+
+    source = os.path.join(tmp_dir, "Failed Movie.mp4")
+    with open(source, "wb") as handle:
+        handle.write(b"source-video")
+
+    cache_root = os.path.join(tmp_dir, "cache")
+    transcoder = VideoRvpTranscoder(
+        cache_root,
+        ffmpeg_path="/bin/true",
+        command_runner=_FailingRunner(),
+    )
+    with pytest.raises(RuntimeError, match="video conversion failed"):
+        transcoder.prepare_track_for_sync(
+            {
+                "file_path": source,
+                "title": "Failed Movie",
+                "duration": 1,
+                "media_type": "video",
+            },
+            "mock-ipod",
+        )
+
+    leftovers = []
+    for root, _dirs, files in os.walk(cache_root):
+        leftovers.extend(
+            os.path.join(root, name)
+            for name in files
+            if name.endswith(".tmp")
+        )
+    assert leftovers == []
 
 
 def test_video_rvp_serializes_concurrent_preparation_of_same_bundle(tmp_dir):

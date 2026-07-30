@@ -1,8 +1,10 @@
 """Authentic Xbox 360 avatar profiles and bounded iPod frame packs.
 
-The bundled character pixels are renders of Microsoft's Ms-PL XNA Avatar
-Animation Pack.  RockPod only composes profiles and converts those real
-renders to the small RAV1 format consumed by the Rockbox plugin.
+The character pixels are rendered on demand from Microsoft's real Ms-PL XNA
+Avatar rig by `services.xbox_avatar_render`.  RockPod composes a wardrobe out of
+the genuine mesh parts, tints the original colour maps, prints real in-tree
+artwork onto the real garment, and converts the result to the small RAV2 format
+consumed by the Rockbox plugin.
 """
 
 from __future__ import annotations
@@ -10,19 +12,38 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import re
 import shutil
 import struct
 import time
 import zlib
-from collections import deque
-from colorsys import rgb_to_hsv
 from dataclasses import dataclass
-from functools import lru_cache
 from pathlib import Path
 
-from PIL import Image, ImageChops, ImageDraw, ImageFilter, ImageOps
+from PIL import Image, ImageDraw
 
 from services.file_safety import atomic_write_text
+from services.xbox_avatar_designs import (
+    DEFAULT_SCALE,
+    DESIGN_CHOICES,
+    DESIGN_LABELS,
+    SCALES,
+)
+from services.xbox_avatar_render import (
+    AvatarRig,
+    MARKETPLACE_KINDS,
+    MARKETPLACE_SLOTS,
+    MarketplacePack,
+    BODY_PRESETS,
+    BOTTOM_STYLES,
+    DECAL_LABELS,
+    HAIR_STYLES,
+    SHOE_STYLES,
+    TOP_STYLES,
+    available_styles,
+    render_frames,
+    style_available,
+)
 
 
 AVATAR_ROOT = ".rockbox/achievements/avatar"
@@ -38,67 +59,160 @@ MAX_RAV_WIDTH = 104
 MAX_RAV_HEIGHT = 168
 MAX_RAV_FRAMES = 24
 MAX_RAV_BYTES = 1024 * 1024
+# The iPodJS Extras pane is half the 320x240 screen, and steps through these
+# pre-rendered turntable angles so hovering Achievements shows the avatar
+# turning rather than a still image.
+MENU_PREVIEW_SIZE = (160, 240)
+MENU_PREVIEW_FRAMES = 12
 EMOTE_CLIPS = (
     "jump", "throw", "faint", "sit-idle", "punch", "kick", "walk",
 )
 TURNTABLE_CLIP = "turntable"
 CLIPS = (*EMOTE_CLIPS, TURNTABLE_CLIP)
-BODY_PRESETS = ("xna-boy", "xna-girl", "xna-girl-heels")
-BODY_FAMILIES = {
-    "xna-boy": "xna-boy",
-    "xna-girl": "xna-girl",
-    "xna-girl-heels": "xna-girl",
+PREVIEW_FRAME_WIDTH = 416
+PREVIEW_FRAME_HEIGHT = 672
+TURNTABLE_ANGLES = tuple(index * 360.0 / 24 for index in range(24))
+STYLE_SLOTS = ("hair", "top", "bottom", "shoes")
+STYLE_TABLES = {
+    "hair": HAIR_STYLES,
+    "top": TOP_STYLES,
+    "bottom": BOTTOM_STYLES,
+    "shoes": SHOE_STYLES,
 }
-MASTER_FRAME_WIDTH = 416
-MASTER_FRAME_HEIGHT = 672
-FACE_PART_FILES = {
-    "left_eye": "left-eye.tga",
-    "right_eye": "right-eye.tga",
-    "eyebrow": "eyebrow.tga",
-    "mouth": "mouth.tga",
+STYLE_LABELS = {
+    "original": "Original XNA",
+    "boy-short": "Short crop",
+    "girl-bob": "Bob",
+    "shaved": "Shaved",
+    "crew-tee": "Crew tee",
+    "scoop-tee": "Scoop tee",
+    "none": "No top",
+    "jeans": "Jeans",
+    "shorts": "Shorts",
+    "sneakers": "Sneakers",
+    "flats": "Flats",
+    "heels": "Heels",
+    "barefoot": "Barefoot",
 }
-APPEARANCE_PALETTES = {
-    "skin": (
+STYLE_FIELDS = tuple(f"{slot}_style" for slot in STYLE_SLOTS)
+
+# Every swatch tints one of Microsoft's own colour maps; `original` leaves the
+# real texture untouched.
+COLOUR_PALETTES = {
+    "skin_colour": (
         ("original", "Original XNA", None),
+        ("porcelain", "Porcelain", "#f3d7c0"),
         ("light", "Light", "#edc6a5"),
         ("medium", "Medium", "#bd8964"),
+        ("tan", "Tan", "#a2704c"),
         ("deep", "Deep", "#704936"),
+        ("rich", "Rich", "#4d3226"),
     ),
-    "hair": (
+    "hair_colour": (
         ("original", "Original XNA", None),
         ("black", "Black", "#202124"),
         ("brown", "Brown", "#5b392b"),
+        ("chestnut", "Chestnut", "#7a4a2f"),
         ("blond", "Blond", "#c49a55"),
         ("auburn", "Auburn", "#79352b"),
+        ("red", "Red", "#a4442a"),
+        ("silver", "Silver", "#b7b9bc"),
     ),
-    "top": (
+    "top_colour": (
         ("original", "Original XNA", None),
         ("xbox-green", "Xbox Green", "#69a72a"),
         ("blue", "Blue", "#3f74ad"),
+        ("navy", "Navy", "#2b3a63"),
         ("red", "Red", "#a63239"),
         ("black", "Black", "#303236"),
         ("white", "White", "#d9dcde"),
+        ("purple", "Purple", "#6d4b91"),
+        ("orange", "Orange", "#c9702c"),
     ),
-    "bottom": (
+    "bottom_colour": (
         ("original", "Original XNA", None),
         ("denim", "Denim", "#3b526c"),
         ("black", "Black", "#292c30"),
         ("gray", "Gray", "#62676b"),
         ("khaki", "Khaki", "#8d7a5c"),
+        ("white", "White", "#d4d6d8"),
     ),
-    "shoes": (
+    "shoes_colour": (
         ("original", "Original XNA", None),
         ("white", "White", "#d8d9d6"),
         ("black", "Black", "#292a2c"),
         ("brown", "Brown", "#654638"),
         ("red", "Red", "#90232b"),
+        ("blue", "Blue", "#31527e"),
+    ),
+    "eye_colour": (
+        ("original", "Original XNA", None),
+        ("brown", "Brown", "#5d3a22"),
+        ("blue", "Blue", "#3f7fb5"),
+        ("green", "Green", "#3f7a49"),
+        ("hazel", "Hazel", "#8a6a33"),
+        ("grey", "Grey", "#6f7a80"),
+    ),
+    "brow_colour": (
+        ("original", "Original XNA", None),
+        ("black", "Black", "#26221f"),
+        ("brown", "Brown", "#54382a"),
+        ("blond", "Blond", "#a9854e"),
+        ("auburn", "Auburn", "#6f3126"),
+    ),
+    "lip_colour": (
+        ("original", "Original XNA", None),
+        ("natural", "Natural", "#c4796f"),
+        ("rose", "Rose", "#cf7d86"),
+        ("red", "Red", "#b3323f"),
+        ("berry", "Berry", "#8c3a58"),
     ),
 }
-APPEARANCE_FIELDS = tuple(APPEARANCE_PALETTES)
-_PALETTE_COLORS = {
-    category: {value: color for value, _label, color in entries}
-    for category, entries in APPEARANCE_PALETTES.items()
+COLOUR_FIELDS = tuple(COLOUR_PALETTES)
+_COLOUR_VALUES = {
+    field: {value: colour for value, _label, colour in entries}
+    for field, entries in COLOUR_PALETTES.items()
 }
+DECAL_CHOICES = tuple(DECAL_LABELS)
+
+# Generated designs are printed onto the real garment maps; each slot picks a
+# pattern and a repeat, and the pattern is drawn in the slot's own colour
+# against the shared accent.
+DESIGN_SLOTS = ("top", "bottom", "shoes")
+DESIGN_FIELDS = tuple(
+    f"{slot}_{suffix}"
+    for slot in DESIGN_SLOTS for suffix in ("design", "design_scale")
+)
+SCALE_LABELS = {
+    "fine": "Fine", "small": "Small", "medium": "Medium",
+    "large": "Large", "huge": "Huge",
+}
+ACCENT_PALETTE = (
+    ("white", "White", "#e4e6e8"),
+    ("black", "Black", "#26282b"),
+    ("xbox-green", "Xbox Green", "#69a72a"),
+    ("blue", "Blue", "#3f74ad"),
+    ("red", "Red", "#a63239"),
+    ("gold", "Gold", "#c49a55"),
+    ("purple", "Purple", "#6d4b91"),
+    ("orange", "Orange", "#c9702c"),
+)
+_ACCENT_VALUES = {value: colour for value, _label, colour in ACCENT_PALETTE}
+# Imported Xbox 360 Marketplace items, validated against the installed pack.
+MARKETPLACE_FIELDS = MARKETPLACE_SLOTS
+APPEARANCE_FIELDS = (STYLE_FIELDS + COLOUR_FIELDS + DESIGN_FIELDS +
+                     ("accent_colour", "decal") + MARKETPLACE_FIELDS)
+
+# RockPod used to store five palette names against fixed sprite strips.  Those
+# saved profiles still load: each old palette maps onto the matching colour.
+LEGACY_COLOUR_FIELDS = {
+    "skin": "skin_colour",
+    "hair": "hair_colour",
+    "top": "top_colour",
+    "bottom": "bottom_colour",
+    "shoes": "shoes_colour",
+}
+
 PROVENANCE_CLASSES = (
     "official-download",
     "owned-import",
@@ -322,35 +436,106 @@ def encode_ui_bank(rate, effects):
     return bytes(result)
 
 
+def profile_from_target(profile):
+    """Collect every avatar field RockPod stores on a target profile.
+
+    Sync paths used to name the handful of fields they knew about, so each new
+    wardrobe option silently stopped reaching the device.  Forwarding the whole
+    `xbox_avatar_*` namespace keeps that from happening again.
+    """
+    return {
+        key[len("xbox_avatar_"):]: value
+        for key, value in (profile or {}).items()
+        if key.startswith("xbox_avatar_") and value is not None
+    }
+
+
 @dataclass(frozen=True)
 class AvatarProfile:
+    """One offline avatar: a real body, real wardrobe parts, and colours."""
+
     display_name: str = "OFFLINE PLAYER"
     body: str = "xna-boy"
     favorite_clip: str = "jump"
-    skin: str = "original"
-    hair: str = "original"
-    top: str = "original"
-    bottom: str = "original"
-    shoes: str = "original"
+    hair_style: str = "original"
+    top_style: str = "original"
+    bottom_style: str = "original"
+    shoes_style: str = "original"
+    skin_colour: str = "original"
+    hair_colour: str = "original"
+    top_colour: str = "original"
+    bottom_colour: str = "original"
+    shoes_colour: str = "original"
+    eye_colour: str = "original"
+    brow_colour: str = "original"
+    lip_colour: str = "original"
+    top_design: str = "none"
+    top_design_scale: str = DEFAULT_SCALE
+    bottom_design: str = "none"
+    bottom_design_scale: str = DEFAULT_SCALE
+    shoes_design: str = "none"
+    shoes_design_scale: str = DEFAULT_SCALE
+    accent_colour: str = "black"
+    decal: str = "original"
+    costume: str = "none"
+    marketplace_top: str = "none"
+    headwear: str = "none"
+    prop: str = "none"
 
     @classmethod
     def from_mapping(cls, mapping):
-        name = " ".join(str(mapping.get("display_name") or
+        def read(key):
+            value = mapping.get(key)
+            if value in (None, ""):
+                value = mapping.get(f"xbox_avatar_{key}")
+            return value
+
+        name = " ".join(str(read("display_name") or
                             "OFFLINE PLAYER").split())[:15]
-        body = str(mapping.get("body") or "xna-boy")
-        clip = str(mapping.get("favorite_clip") or "jump")
+        body = str(read("body") or "xna-boy")
+        clip = str(read("favorite_clip") or "jump")
         if body not in BODY_PRESETS:
             body = "xna-boy"
         if clip not in EMOTE_CLIPS:
             clip = "jump"
-        appearance = {}
-        for field in APPEARANCE_FIELDS:
-            value = str(mapping.get(field) or mapping.get(
-                f"xbox_avatar_{field}") or "original")
-            appearance[field] = (
-                value if value in _PALETTE_COLORS[field] else "original"
+        family = BODY_PRESETS[body]["family"]
+
+        values = {}
+        for slot in STYLE_SLOTS:
+            field = f"{slot}_style"
+            choice = str(read(field) or "original")
+            if choice not in STYLE_TABLES[slot] or \
+                    not style_available(slot, choice, family):
+                choice = "original"
+            values[field] = choice
+        for field in COLOUR_FIELDS:
+            choice = read(field)
+            if choice in (None, ""):
+                legacy = next((old for old, new in LEGACY_COLOUR_FIELDS.items()
+                               if new == field), None)
+                choice = read(legacy) if legacy else None
+            choice = str(choice or "original")
+            values[field] = (choice if choice in _COLOUR_VALUES[field]
+                             else "original")
+        for slot in DESIGN_SLOTS:
+            design = str(read(f"{slot}_design") or "none")
+            values[f"{slot}_design"] = (
+                design if design in DESIGN_CHOICES else "none"
             )
-        return cls(name or "OFFLINE PLAYER", body, clip, **appearance)
+            scale = str(read(f"{slot}_design_scale") or DEFAULT_SCALE)
+            values[f"{slot}_design_scale"] = (
+                scale if scale in SCALES else DEFAULT_SCALE
+            )
+        accent = str(read("accent_colour") or "black")
+        values["accent_colour"] = (
+            accent if accent in _ACCENT_VALUES else "black"
+        )
+        decal = str(read("decal") or "original")
+        values["decal"] = decal if decal in DECAL_LABELS else "original"
+        for field in MARKETPLACE_FIELDS:
+            item = str(read(field) or "none")
+            values[field] = re.sub(r"[^a-z0-9-]", "", item.lower()) or "none"
+        return cls(name or "OFFLINE PLAYER", body, clip, **values)
 
     def as_dict(self):
         return {
@@ -360,380 +545,44 @@ class AvatarProfile:
             **{field: getattr(self, field) for field in APPEARANCE_FIELDS},
         }
 
-    def is_original_appearance(self):
-        return all(getattr(self, field) == "original"
-                   for field in APPEARANCE_FIELDS)
-
-
-def _connected_components(points, width, height):
-    remaining = set(points)
-    components = []
-    while remaining:
-        start = remaining.pop()
-        queue = deque((start,))
-        component = [start]
-        while queue:
-            index = queue.popleft()
-            x, y = index % width, index // width
-            for nx, ny in ((x - 1, y), (x + 1, y),
-                           (x, y - 1), (x, y + 1)):
-                if 0 <= nx < width and 0 <= ny < height:
-                    neighbor = ny * width + nx
-                    if neighbor in remaining:
-                        remaining.remove(neighbor)
-                        component.append(neighbor)
-                        queue.append(neighbor)
-        if len(component) >= 2:
-            components.append(component)
-    return components
-
-
-@lru_cache(maxsize=8)
-def _load_official_face_parts(face_root, body, signature):
-    """Load the facial layers referenced by Microsoft's XNA Maya scene."""
-    del signature  # Asset mtimes are included in the cache key.
-    body_root = Path(face_root) / body
-    parts = {}
-    for name, filename in FACE_PART_FILES.items():
-        with Image.open(body_root / filename) as source:
-            part = source.convert("RGBA")
-        bounds = part.getchannel("A").getbbox()
-        if not bounds:
-            raise ValueError(f"Empty official XNA face texture: {filename}")
-        parts[name] = part.crop(bounds)
-    return parts
-
-
-def load_official_face_parts(face_root, body):
-    paths = [Path(face_root) / body / filename
-             for filename in FACE_PART_FILES.values()]
-    signature = tuple(path.stat().st_mtime_ns for path in paths)
-    return _load_official_face_parts(str(Path(face_root)), body, signature)
-
-
-def _head_skin_mask(masks, width, height):
-    """Return the skin island attached to the real rendered hair mesh."""
-    hair_bounds = masks["hair"].getbbox()
-    if not hair_bounds:
-        return None, None
-    hair_x = (hair_bounds[0] + hair_bounds[2] - 1) / 2.0
-    hair_y = (hair_bounds[1] + hair_bounds[3] - 1) / 2.0
-    skin_points = {
-        index for index, value in enumerate(masks["skin"].tobytes()) if value
-    }
-    components = _connected_components(skin_points, width, height)
-    if not components:
-        return None, None
-    component = min(
-        components,
-        key=lambda points: min(
-            (index % width - hair_x) ** 2 +
-            (index // width - hair_y) ** 2
-            for index in points
-        ),
-    )
-    xs = [index % width for index in component]
-    ys = [index // width for index in component]
-    bounds = (min(xs), min(ys), max(xs) + 1, max(ys) + 1)
-    if len(component) < 60 or bounds[2] - bounds[0] < 11 or \
-            bounds[3] - bounds[1] < 11:
-        return None, None
-    mask = Image.new("L", (width, height), 0)
-    data = bytearray(width * height)
-    for index in component:
-        data[index] = 255
-    mask.frombytes(bytes(data))
-    return mask.filter(ImageFilter.MaxFilter(3)), bounds
-
-
-def render_official_face(frame, body, face_parts, masks=None,
-                         head_bounds=None):
-    """Project genuine XNA eye, brow, and mouth layers onto the head render."""
-    if not face_parts:
-        return frame.convert("RGBA")
-    rgba = frame.convert("RGBA")
-    masks = masks or avatar_material_masks(rgba, body)
-    head_mask, detected = _head_skin_mask(masks, rgba.width, rgba.height)
-    if head_mask is None:
-        return rgba
-    bounds = head_bounds or detected
-    left, top, right, bottom = bounds
-    face_width = right - left
-    face_height = bottom - top
-    eye_width = max(3, round(face_width * 0.18))
-    eye_height = max(2, round(face_height * 0.11))
-    brow_width = eye_width
-    brow_height = max(1, round(face_height * 0.055))
-    mouth_width = max(4, round(face_width * 0.29))
-    mouth_height = max(2, round(face_height * 0.10))
-    eye_y = top + round(face_height * 0.36) - eye_height // 2
-    brow_y = top + round(face_height * 0.24) - brow_height // 2
-    mouth_y = top + round(face_height * 0.66) - mouth_height // 2
-    centers = (
-        left + round(face_width * 0.34),
-        left + round(face_width * 0.66),
-    )
-    placements = (
-        (face_parts["left_eye"], centers[0] - eye_width // 2,
-         eye_y, eye_width, eye_height),
-        (face_parts["right_eye"], centers[1] - eye_width // 2,
-         eye_y, eye_width, eye_height),
-        (face_parts["eyebrow"], centers[0] - brow_width // 2,
-         brow_y, brow_width, brow_height),
-        (ImageOps.mirror(face_parts["eyebrow"]),
-         centers[1] - brow_width // 2, brow_y, brow_width, brow_height),
-        (face_parts["mouth"],
-         left + (face_width - mouth_width) // 2,
-         mouth_y, mouth_width, mouth_height),
-    )
-    result = rgba.copy()
-    for part, x, y, width, height in placements:
-        scaled = part.resize((width, height), Image.Resampling.LANCZOS)
-        layer = Image.new("RGBA", rgba.size, (0, 0, 0, 0))
-        layer.alpha_composite(scaled, (x, y))
-        layer.putalpha(ImageChops.multiply(layer.getchannel("A"), head_mask))
-        result.alpha_composite(layer)
-    result.putalpha(rgba.getchannel("A"))
-    return result
-
-
-def _stabilized_face_bounds(masks, width, height):
-    """Track a fixed-size facial plane through an animation clip."""
-    detected = [
-        _head_skin_mask(mask, width, height)[1]
-        for mask in masks
-    ]
-    valid = [bounds for bounds in detected if bounds]
-    if not valid:
-        return [None] * len(masks)
-    widths = sorted(right - left for left, _top, right, _bottom in valid)
-    heights = sorted(bottom - top for _left, top, _right, bottom in valid)
-    stable_width = widths[len(widths) // 2]
-    stable_height = heights[len(heights) // 2]
-    result = []
-    previous = valid[0]
-    for bounds in detected:
-        bounds = bounds or previous
-        left, top, right, bottom = bounds
-        center_x = (left + right) // 2
-        center_y = (top + bottom) // 2
-        stable = (
-            center_x - stable_width // 2,
-            center_y - stable_height // 2,
-            center_x - stable_width // 2 + stable_width,
-            center_y - stable_height // 2 + stable_height,
-        )
-        result.append(stable)
-        previous = bounds
-    return result
-
-
-def avatar_material_masks(frame, body):
-    """Derive semantic regions from the original XNA render materials.
-
-    These masks are not illustrated assets.  They are deterministic selections
-    of pixels already emitted by the licensed XNA mesh/material render.  This
-    keeps every silhouette, texture edge, pose, and anti-aliased contour from
-    the source character.
-    """
-    rgba = frame.convert("RGBA")
-    width, height = rgba.size
-    masks = {field: set() for field in APPEARANCE_FIELDS}
-    red_material = set()
-    for index, (red, green, blue, alpha) in enumerate(rgba.getdata()):
-        if alpha < 64:
-            continue
-        maximum = max(red, green, blue)
-        minimum = min(red, green, blue)
-        hue, saturation, _value = rgb_to_hsv(
-            red / 255.0, green / 255.0, blue / 255.0
-        )
-        hue *= 360.0
-
-        # Warm, moderately saturated XNA skin material.  The red shoe/short
-        # material is much more saturated and is intentionally excluded.
-        if (8 <= hue <= 42 and 0.08 <= saturation <= 0.48 and
-                55 <= maximum <= 238 and red > green > blue):
-            masks["skin"].add(index)
-            continue
-
-        if (red >= green * 1.42 and red >= blue * 1.32 and
-                saturation >= 0.34 and maximum >= 48):
-            red_material.add(index)
-            continue
-
-        if BODY_FAMILIES.get(body, body) == "xna-boy":
-            cool = blue >= red + 7 and blue >= green + 2
-            if cool and maximum >= 88:
-                masks["top"].add(index)
-            elif cool and maximum < 112:
-                masks["bottom"].add(index)
-            elif maximum < 78 and maximum - minimum < 27:
-                masks["hair"].add(index)
-        else:
-            purple = (red >= green + 3 and blue >= green + 3 and
-                      maximum >= 86 and saturation <= 0.28)
-            if purple:
-                masks["top"].add(index)
-            elif maximum < 82 and maximum - minimum < 28:
-                masks["hair"].add(index)
-
-    if BODY_FAMILIES.get(body, body) == "xna-girl" and red_material:
-        components = _connected_components(red_material, width, height)
-        top_points = masks["top"]
-        if top_points:
-            tx = sum(index % width for index in top_points) / len(top_points)
-            ty = sum(index // width for index in top_points) / len(top_points)
-        else:
-            tx, ty = width / 2, height / 2
-        ranked = sorted((
-            (min(
-                (index % width - tx) ** 2 + (index // width - ty) ** 2
-                for index in component
-            ), component)
-            for component in components
-        ), key=lambda item: item[0])
-        if ranked:
-            nearest = ranked[0][0]
-            for distance, component in ranked:
-                if distance <= max(144, nearest + 64):
-                    masks["bottom"].update(component)
-                else:
-                    masks["shoes"].update(component)
-    else:
-        masks["shoes"].update(red_material)
-
-    # The source sneakers use a neutral upper with a small red sole. Grow from
-    # that authentic sole material into adjacent otherwise-unclassified shoe
-    # pixels. Classified legs and clothing form a hard boundary.
-    if masks["shoes"]:
-        shoe_seed = Image.new("L", rgba.size, 0)
-        shoe_data = bytearray(width * height)
-        for index in masks["shoes"]:
-            shoe_data[index] = 255
-        shoe_seed.frombytes(bytes(shoe_data))
-        grown = shoe_seed.filter(ImageFilter.MaxFilter(9)).tobytes()
-        occupied = set().union(*(masks[field] for field in APPEARANCE_FIELDS
-                                 if field != "shoes"))
-        rgba_pixels = list(rgba.getdata())
-        for index, amount in enumerate(grown):
-            if (amount and index not in occupied and
-                    rgba_pixels[index][3] >= 64):
-                masks["shoes"].add(index)
-
-    # Select the largest neutral-dark island as hair.  This rejects small
-    # shadow flecks while retaining the actual hair mesh in every pose.
-    hair_components = _connected_components(masks["hair"], width, height)
-    masks["hair"] = (
-        set(max(hair_components, key=len)) if hair_components else set()
-    )
-
-    result = {}
-    for field, points in masks.items():
-        mask = Image.new("L", rgba.size, 0)
-        data = bytearray(width * height)
-        for index in points:
-            data[index] = 255
-        mask.frombytes(bytes(data))
-        result[field] = mask
-    return result
-
-
-def _hex_rgb(value):
-    value = value.lstrip("#")
-    return tuple(int(value[index:index + 2], 16) for index in (0, 2, 4))
-
-
-def _tint_material(image, mask, target, source_luma):
-    if target is None:
-        return image
-    rgba = image.convert("RGBA")
-    pixels = list(rgba.getdata())
-    mask_data = mask.tobytes()
-    target_rgb = _hex_rgb(target)
-    for index, amount in enumerate(mask_data):
-        if not amount:
-            continue
-        red, green, blue, alpha = pixels[index]
-        old_luma = (54 * red + 183 * green + 19 * blue) / 256.0
-        # Preserve rendered illumination while letting palette brightness move
-        # the material naturally lighter or darker than its source swatch.
-        scale = max(0.18, old_luma / max(1.0, source_luma))
-        desired = tuple(min(255, round(channel * scale)) for channel in target_rgb)
-        blend = amount / 255.0
-        pixels[index] = (
-            round(red + (desired[0] - red) * blend),
-            round(green + (desired[1] - green) * blend),
-            round(blue + (desired[2] - blue) * blend),
-            alpha,
-        )
-    rgba.putdata(pixels)
-    return rgba
-
-
-def render_avatar_frame(frame, profile, masks=None, face_parts=None):
-    """Apply a normalized appearance profile to one genuine XNA frame."""
-    profile = profile if isinstance(profile, AvatarProfile) else \
-        AvatarProfile.from_mapping(profile or {})
-    masks = masks or avatar_material_masks(frame, profile.body)
-    source_luma = {
-        "skin": 163, "hair": 34, "top": 153,
-        "bottom": 58 if BODY_FAMILIES[profile.body] == "xna-boy" else 80,
-        "shoes": 78,
-    }
-    result = frame.convert("RGBA")
-    if not profile.is_original_appearance():
-        for field in APPEARANCE_FIELDS:
-            result = _tint_material(
-                result, masks[field],
-                _PALETTE_COLORS[field][getattr(profile, field)],
-                source_luma[field],
+    def render_mapping(self):
+        """Translate the stored palette names into concrete render values."""
+        mapping = {
+            "body": self.body,
+            "decal": self.decal,
+        }
+        for field in STYLE_FIELDS:
+            mapping[field] = getattr(self, field)
+        for field in COLOUR_FIELDS:
+            mapping[field] = _COLOUR_VALUES[field][getattr(self, field)]
+        accent = _ACCENT_VALUES[self.accent_colour]
+        for field in MARKETPLACE_FIELDS:
+            mapping[field] = getattr(self, field)
+        for index, slot in enumerate(DESIGN_SLOTS):
+            mapping[f"{slot}_design"] = getattr(self, f"{slot}_design")
+            mapping[f"{slot}_design_scale"] = getattr(
+                self, f"{slot}_design_scale"
             )
-    return render_official_face(
-        result, profile.body, face_parts, masks=masks
-    )
+            # The garment's own swatch prints the pattern; `original` items
+            # have no swatch of their own, so they fall back to a clean white.
+            mapping[f"{slot}_design_primary"] = (
+                mapping.get(f"{slot}_colour") or "#d9dcde"
+            )
+            mapping[f"{slot}_design_secondary"] = accent
+            mapping[f"{slot}_design_seed"] = index
+        return mapping
 
+    def is_original_appearance(self):
+        return (self.decal == "original" and
+                all(getattr(self, field) == "none"
+                    for field in MARKETPLACE_FIELDS) and
+                all(getattr(self, f"{slot}_design") == "none"
+                    for slot in DESIGN_SLOTS) and
+                all(getattr(self, field) == "original"
+                    for field in STYLE_FIELDS + COLOUR_FIELDS))
 
-@lru_cache(maxsize=32)
-def _source_bundle(path, body, frame_width, modified_ns):
-    del modified_ns  # Included in the cache key so replaced assets invalidate.
-    frames = tuple(load_strip(path, frame_width=frame_width))
-    masks = tuple(avatar_material_masks(frame, body) for frame in frames)
-    return frames, masks
-
-
-def _fit_master_frames(frames, size):
-    """Fit a whole clip into one stable viewport without per-frame jitter."""
-    alpha_bounds = [frame.getchannel("A").getbbox() for frame in frames]
-    valid = [bounds for bounds in alpha_bounds if bounds]
-    if not valid:
-        return [Image.new("RGBA", size, (0, 0, 0, 0)) for _ in frames]
-    union = (
-        min(bounds[0] for bounds in valid),
-        min(bounds[1] for bounds in valid),
-        max(bounds[2] for bounds in valid),
-        max(bounds[3] for bounds in valid),
-    )
-    margin = max(2, round(min(size) * 0.018))
-    available = (size[0] - margin * 2, size[1] - margin * 2)
-    source_width = max(1, union[2] - union[0])
-    source_height = max(1, union[3] - union[1])
-    scale = min(available[0] / source_width, available[1] / source_height)
-    scaled_size = (
-        max(1, round(frames[0].width * scale)),
-        max(1, round(frames[0].height * scale)),
-    )
-    union_center_x = (union[0] + union[2]) * scale / 2.0
-    union_bottom = union[3] * scale
-    offset_x = round(size[0] / 2.0 - union_center_x)
-    offset_y = round(size[1] - margin - union_bottom)
-    result = []
-    for frame in frames:
-        scaled = frame.resize(scaled_size, Image.Resampling.LANCZOS)
-        canvas = Image.new("RGBA", size, (0, 0, 0, 0))
-        canvas.alpha_composite(scaled, (offset_x, offset_y))
-        result.append(canvas)
-    return result
+    def styles_for_body(self):
+        return available_styles(BODY_PRESETS[self.body]["family"])
 
 
 def _device_stage_background(size=(MAX_RAV_WIDTH, MAX_RAV_HEIGHT)):
@@ -746,17 +595,36 @@ def _device_stage_background(size=(MAX_RAV_WIDTH, MAX_RAV_HEIGHT)):
         screen_y = y + 43
         if 48 <= screen_y < 202:
             index = screen_y - 48
-            divisor = 153
-            color = tuple(
-                top[channel] + (bottom[channel] - top[channel]) * index //
-                divisor for channel in range(3)
+            colour = tuple(
+                top[channel] + (bottom[channel] - top[channel]) * index // 153
+                for channel in range(3)
             )
         elif screen_y >= 202:
-            color = (70, 132, 15)
+            colour = (70, 132, 15)
         else:
-            color = (226, 228, 230)
+            colour = (226, 228, 230)
         for x in range(size[0]):
-            pixels[x, y] = (*color, 255)
+            pixels[x, y] = (*colour, 255)
+    return image
+
+
+def _menu_stage_background(size):
+    """The NXE stage the Extras pane shows behind the avatar."""
+    image = Image.new("RGBA", size, (226, 228, 230, 255))
+    pixels = image.load()
+    top = (247, 248, 249)
+    bottom = (184, 188, 192)
+    floor = int(size[1] * 0.86)
+    for y in range(size[1]):
+        if y < floor:
+            colour = tuple(
+                top[channel] + (bottom[channel] - top[channel]) * y // floor
+                for channel in range(3)
+            )
+        else:
+            colour = (70, 132, 15)
+        for x in range(size[0]):
+            pixels[x, y] = (*colour, 255)
     return image
 
 
@@ -780,70 +648,58 @@ class XboxAvatarService:
             self.repo_root, "assets", "ipodjs", "sources", "xbox360",
             "avatar",
         )
-        self.face_root = os.path.join(self.source_root, "faces")
+        self._rig_cache = None
 
-    def _face_sources(self):
-        family = BODY_FAMILIES[self.profile.body]
-        return [
-            os.path.join(
-                self.face_root, family, filename
-            )
-            for filename in FACE_PART_FILES.values()
-        ]
+    def _rig(self):
+        if self._rig_cache is None:
+            self._rig_cache = AvatarRig(self.repo_root)
+        return self._rig_cache
 
     def available(self):
-        sources = [
-            os.path.join(
-                self.source_root, "master", self.profile.body,
-                clip + ".rgba.png"
-            )
-            for clip in CLIPS
-        ] + self._face_sources()
-        return all(os.path.isfile(path) for path in sources)
+        return self._rig().available()
 
     def frames(self, clip, target="device", matte=False):
-        """Return stable high-resolution preview or exact device frames."""
+        """Render the real rig into preview or exact device frames."""
         if clip not in CLIPS:
             raise ValueError(f"Unsupported avatar clip: {clip}")
-        source = os.path.join(
-            self.source_root, "master", self.profile.body,
-            clip + ".rgba.png"
+        rig = self._rig()
+        if not rig.available():
+            raise FileNotFoundError(rig.root)
+        size = ((MAX_RAV_WIDTH, MAX_RAV_HEIGHT) if target == "device"
+                else (PREVIEW_FRAME_WIDTH, PREVIEW_FRAME_HEIGHT))
+        angles = (TURNTABLE_ANGLES if clip == TURNTABLE_CLIP else None)
+        rendered = render_frames(
+            rig, self.profile.render_mapping(), clip, size,
+            repo_root=self.repo_root,
+            supersample=2 if target == "device" else 1,
+            angles=angles,
         )
-        if os.path.isfile(source):
-            stat = os.stat(source)
-            frames, masks = _source_bundle(
-                source, self.profile.body, MASTER_FRAME_WIDTH,
-                stat.st_mtime_ns
-            )
-            family = BODY_FAMILIES[self.profile.body]
-            face_parts = load_official_face_parts(
-                self.face_root, family
-            )
-            if clip == TURNTABLE_CLIP:
-                rendered = []
-                for index, (frame, mask) in enumerate(zip(frames, masks)):
-                    angle = index * 360.0 / len(frames)
-                    front_angle = min(angle, 360.0 - angle)
-                    base = render_avatar_frame(frame, self.profile, mask)
-                    rendered.append(render_official_face(
-                        base, family,
-                        face_parts if front_angle <= 60.0 else None,
-                        masks=mask,
-                    ))
-            else:
-                face_bounds = _stabilized_face_bounds(
-                    masks, frames[0].width, frames[0].height
-                )
-                rendered = [render_official_face(
-                    render_avatar_frame(frame, self.profile, mask),
-                    family, face_parts, masks=mask, head_bounds=bounds,
-                ) for frame, mask, bounds in zip(frames, masks, face_bounds)]
-            size = ((MAX_RAV_WIDTH, MAX_RAV_HEIGHT) if target == "device"
-                    else (MASTER_FRAME_WIDTH, MASTER_FRAME_HEIGHT))
-            fitted = (_fit_master_frames(rendered, size)
-                      if target == "device" else rendered)
-            return matte_device_frames(fitted) if matte else fitted
-        raise FileNotFoundError(source)
+        return matte_device_frames(rendered) if matte else rendered
+
+    def frames_at_angles(self, angles, size=(280, 360)):
+        """Render single turntable angles for the creator's live viewport."""
+        rig = self._rig()
+        if not rig.available():
+            raise FileNotFoundError(rig.root)
+        return render_frames(
+            rig, self.profile.render_mapping(), TURNTABLE_CLIP, size,
+            repo_root=self.repo_root, supersample=1, angles=list(angles),
+        )
+
+    def menu_preview_frames(self):
+        """Render the turntable angles the Extras menu pane steps through."""
+        rig = self._rig()
+        if not rig.available():
+            raise FileNotFoundError(rig.root)
+        step = 360.0 / MENU_PREVIEW_FRAMES
+        frames = render_frames(
+            rig, self.profile.render_mapping(), TURNTABLE_CLIP,
+            MENU_PREVIEW_SIZE, repo_root=self.repo_root, supersample=2,
+            angles=[index * step for index in range(MENU_PREVIEW_FRAMES)],
+        )
+        background = _menu_stage_background(MENU_PREVIEW_SIZE)
+        return [Image.alpha_composite(background, frame).convert("RGB")
+                for frame in frames]
 
     def build_sync_assets(self, mount_root, stage_root, totals=None):
         if not self.available():
@@ -854,7 +710,6 @@ class XboxAvatarService:
               for rate in (44100, 48000)),
             *(os.path.join(self.asset_root, "sounds", f"unlock-{rate}.pcm")
               for rate in (44100, 48000)),
-            *self._face_sources(),
         ]
         if not all(os.path.isfile(path) for path in sources):
             return [], {"available": False, "missing": [
@@ -866,12 +721,17 @@ class XboxAvatarService:
         ).encode("utf-8"))
         for source in sources:
             digest.update(_sha256(source).encode("ascii"))
-        for clip in CLIPS:
-            source = os.path.join(
-                self.source_root, "master", self.profile.body,
-                clip + ".rgba.png"
-            )
-            digest.update(_sha256(source).encode("ascii"))
+        digest.update(_sha256(
+            os.path.join(self._rig().root, "geometry.npz")
+        ).encode("ascii"))
+        digest.update(json.dumps(
+            self._rig().manifest, sort_keys=True
+        ).encode("utf-8"))
+        pack = MarketplacePack(self.repo_root)
+        if pack.available():
+            digest.update(_sha256(
+                os.path.join(pack.root, "geometry.npz")
+            ).encode("ascii"))
         generation = digest.hexdigest()[:16]
         work_root = os.path.join(os.path.abspath(stage_root), "avatar")
         generation_root = os.path.join(work_root, "generations", generation)
@@ -902,6 +762,13 @@ class XboxAvatarService:
                 )
                 shutil.copy2(source, destination)
                 copied.append(destination)
+
+        menu_root = os.path.join(generation_root, "menu")
+        os.makedirs(menu_root, exist_ok=True)
+        for index, frame in enumerate(self.menu_preview_frames()):
+            destination = os.path.join(menu_root, f"frame-{index:02d}.bmp")
+            frame.save(destination, "BMP")
+            copied.append(destination)
 
         profile_path = os.path.join(generation_root, "profile.v1.tsv")
         atomic_write_text(
@@ -1010,18 +877,6 @@ class XboxAvatarService:
         return [XboxAvatarService._asset(
             seed, ".rockbox/achievements/state/avatar-preferences.v1.tsv"
         )]
-
-
-def load_strip(path, frame_width=104):
-    """Split a bundled RGBA sprite strip into ordered animation frames."""
-    with Image.open(path) as image:
-        image = image.convert("RGBA")
-        if image.width % frame_width:
-            raise ValueError("Avatar strip width is not frame aligned")
-        return [
-            image.crop((x, 0, x + frame_width, image.height))
-            for x in range(0, image.width, frame_width)
-        ]
 
 
 def _save_avatar_portrait(frame, path):

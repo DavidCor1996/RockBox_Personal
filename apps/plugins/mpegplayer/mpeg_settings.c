@@ -1156,6 +1156,23 @@ int mpeg_start_menu(uint32_t duration)
     else
         resume_threshold_high = INVALID_TIMESTAMP;
 
+    if (mpegplayer_netflix_launch)
+    {
+        uint32_t resume_time = settings.resume_time > 0 ?
+                               (uint32_t)settings.resume_time : 0;
+
+        if (!stream_can_seek() ||
+            resume_time == 0 ||
+            (duration != INVALID_TIMESTAMP &&
+             resume_time >= resume_threshold_high))
+        {
+            settings.resume_time = 0;
+            return MPEG_START_RESTART;
+        }
+
+        return MPEG_START_SEEK;
+    }
+
     switch (settings.resume_options)
     {
     case MPEG_RESUME_MENU_IF_INCOMPLETE:
@@ -1477,6 +1494,11 @@ static void mpeg_settings(void)
         if (mpeg_sysevent() != 0)
             menu_quit = true;
     }
+}
+
+bool mpeg_resume_available(const char *filename)
+{
+    return configfile_get_value(SETTINGS_FILENAME, filename) > 0;
 }
 
 void init_settings(const char* filename)

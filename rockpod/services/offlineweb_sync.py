@@ -9,6 +9,7 @@ import re
 import sys
 import time
 from dataclasses import dataclass
+from datetime import date
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -196,6 +197,7 @@ def remove_synced_website(device_root, url):
     if not removed:
         return False
 
+    removed_catalog_paths = set()
     kept_files = {
         str(path)
         for item in kept
@@ -205,6 +207,9 @@ def remove_synced_website(device_root, url):
         owned_files = set(item.get("files") or [])
         owned_files.update(
             str(item.get(key) or "") for key in ("path", "preview_path")
+        )
+        removed_catalog_paths.update(
+            str(path) for path in owned_files if str(path)
         )
         preview_path = str(item.get("preview_path") or "")
         if preview_path and not item.get("files"):
@@ -226,21 +231,54 @@ def remove_synced_website(device_root, url):
     with open(registry, "w", encoding="utf-8") as handle:
         json.dump(kept, handle, indent=2)
     pages_path = os.path.join(os.path.dirname(registry), "pages.tsv")
+    catalog = {}
+    order = []
+    try:
+        with open(pages_path, "r", encoding="utf-8", errors="ignore") as handle:
+            for line in handle:
+                if not line.strip() or line.startswith("#"):
+                    continue
+                fields = line.rstrip("\r\n").split("\t")
+                if len(fields) < 3 or not fields[2]:
+                    continue
+                fields.extend([""] * (8 - len(fields)))
+                if fields[2] in removed_catalog_paths:
+                    continue
+                if fields[2] not in catalog:
+                    order.append(fields[2])
+                catalog[fields[2]] = fields[:8]
+    except OSError:
+        pass
+
+    for item in kept:
+        path = str(item.get("path") or "")
+        if not path:
+            continue
+        absolute = os.path.join(root, path.lstrip("/"))
+        if not os.path.isfile(absolute):
+            continue
+        fields = [
+            item.get("title") or urlparse(item.get("url") or "").netloc,
+            item.get("url") or "",
+            path,
+            "Website Sync",
+            "",
+            "",
+            str(item.get("synced_at") or "")[:10],
+            "",
+        ]
+        if path not in catalog:
+            order.append(path)
+        catalog[path] = fields
+
     with open(pages_path, "w", encoding="utf-8", newline="\n") as handle:
         handle.write(
             "# title\turl\tpath\tsource\tneighborhood\tauthor\tarchived\tkeywords\n"
         )
-        for item in kept:
-            fields = (
-                item.get("title") or urlparse(item.get("url") or "").netloc,
-                item.get("url") or "",
-                item.get("path") or "",
-                "Website Sync",
-                "",
-                "",
-                str(item.get("synced_at") or "")[:10],
-                "",
-            )
+        for path in order:
+            fields = catalog.get(path)
+            if not fields:
+                continue
             handle.write(
                 "\t".join(
                     str(value).replace("\t", " ").replace("\n", " ")
@@ -270,7 +308,7 @@ class OfflineWebSyncImporter:
     def log_dir(self):
         return os.path.join(self.state_dir, "logs")
 
-    def prepare_sync(self, urls, device_root):
+    def prepare_sync(self, urls, device_root, oldest_date=""):
         normalized_urls = parse_sync_urls(urls)
         if not normalized_urls:
             raise OfflineWebSyncError("Enter at least one website URL to cache.")
@@ -301,6 +339,15 @@ class OfflineWebSyncImporter:
             log_path,
             "--use-firefox-cookies",
         ]
+        oldest_date = str(oldest_date or "").strip()
+        if oldest_date:
+            try:
+                date.fromisoformat(oldest_date)
+            except ValueError as exc:
+                raise OfflineWebSyncError(
+                    "Oldest post date must use YYYY-MM-DD."
+                ) from exc
+            command.extend(["--oldest-date", oldest_date])
         for url in normalized_urls:
             command.extend(["--url", url])
 

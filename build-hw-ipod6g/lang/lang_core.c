@@ -478,6 +478,7 @@ const unsigned char core_language_builtin[] =
     "Unknown\0"
     "Stop Recording and Shutdown\0"
     "Serial Bitrate\0"
+    "Pause on Kokkia Unplug\0"
     "Auto\0"
     "9600\0"
     "19200\0"

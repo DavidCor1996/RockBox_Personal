@@ -150,6 +150,13 @@ struct device_t {
                                      */
     uint32_t capabilities_queried;  /* Capabilities already queried */
     bool audio_init_pending;        /* Send GetAccSampleRateCaps after auth */
+    bool volume_notify_pending;     /* Send volume notification after auth */
+    uint32_t idps_lingoes;          /* Lingoes parsed from IDPS IdentifyToken */
+    uint32_t idps_options;          /* Options from IDPS IdentifyToken */
+    uint32_t idps_deviceid;         /* DeviceID from IDPS IdentifyToken */
+    uint16_t ipod_trans_id;         /* Transaction ID for iPod-originated cmds */
+    bool serial_activation_sent;    /* Post-auth dock activation was sent */
+    bool kokkia_detected;           /* Kokkia activation signature received */
 };
 
 extern struct device_t device;
@@ -223,6 +230,17 @@ extern unsigned char* iap_txnext;
  */
 #define IAP_TX_PUT_STRLCPY(str) iap_tx_strlcpy(str)
 
+/* Put an iPod-originated transaction ID into the TX buffer if in IDPS mode.
+ * Increments the counter after use.
+ */
+#define IAP_TX_PUT_IPOD_TRANSID() do { \
+        if (device.auth.idps) { \
+            IAP_TX_PUT((device.ipod_trans_id >> 8) & 0xFF); \
+            IAP_TX_PUT(device.ipod_trans_id & 0xFF); \
+            device.ipod_trans_id++; \
+        } \
+    } while(0)
+
 extern unsigned char lingo_versions[32][2];
 #define LINGO_SUPPORTED(x) (LINGO_MAJOR((x)&0x1f) > 0)
 #define LINGO_MAJOR(x) (lingo_versions[(x)&0x1f][0])
@@ -244,6 +262,16 @@ void iap_fill_power_state(void);
 
 void iap_send_tx(void);
 void iap_set_remote_volume(void);
+
+/* Convert between the player's dB volume and the 0..255 iAP byte using
+ * the codec's actual range. */
+unsigned char iap_volume_byte(void);
+int iap_volume_from_byte(unsigned char raw);
+
+/* Called when a Kokkia-style activation exchange is observed. */
+void iap_note_kokkia_candidate(void);
+void iap_note_kokkia_peer_connection(void);
+void iap_note_accessory_restart(void);
 
 extern enum interface_state interface_state;
 void iap_interface_state_change(const enum interface_state new);

@@ -1,6 +1,7 @@
 # RockAchievements Xbox 360 Avatar Page Specification
 
-Status: implemented; hardware redeploy pending mounted target
+Status: implemented on the real XNA rig; hardware redeploy pending a
+mounted target
 
 ## Purpose
 
@@ -38,6 +39,11 @@ in asset provenance.
 No generated, hand-drawn, traced, or stylistically similar substitute character
 art is accepted. Native rectangles, gradients, text, masks, and transition
 geometry are UI, not pictorial assets, and remain allowed.
+
+Every character pixel is rasterized from Microsoft's own meshes, UV channels,
+texture maps, skin weights, and animation curves. Customization changes which
+real mesh parts are worn and tints the original colour maps; it never redraws,
+reshapes, or substitutes a part.
 
 ## User Experience
 
@@ -88,6 +94,10 @@ Achievement only / Off`, `Sounds over music: On / Off`, and `Idle emotes: On /
 Off`. These are device-local preferences and must survive RockPod catalog
 regeneration.
 
+Appearance is chosen in RockPod, not on the device. The iPod plugin reads only
+the display name, favourite clip, and gamerscore totals from `profile.v1.tsv`,
+so widening the wardrobe never changes device code or device budgets.
+
 ### Animation behavior
 
 Use only animations derived from the real Xbox 360 avatar system. The initial
@@ -108,98 +118,248 @@ unlock toasts remain explicitly deferred to the follow-up notification system.
 The authentic export cadence is 8 fps on iPod and in RockPod's exact preview.
 Reduced Motion halves the clip cadence; Motion Off keeps a static frame.
 
-## RockPod Avatar Creator
+## Real Rig Pack
 
-### Location
+`tools/xbox_avatar_rigpack.py` reads Microsoft's binary FBX 6100 scenes from
+`AvatarAnimPack_4_0_FBX` and writes a compact pack to
+`assets/ipodjs/sources/xbox360/avatar/rig/`:
 
-Add `Achievements & Avatar` under Rockbox in the sidebar and link to the same
-creator from Game Sync. RetroAchievements credentials stay in Game Sync.
+```text
+rig/
+    rig.json          part, channel, texture, material and clip manifest
+    geometry.npz      per part: triangles, every original UV set, per-polygon
+                      texture and material bindings
+    textures/*.png    the Microsoft colour, intensity, decal and facial maps
+                      embedded in the scene, keyed by their original filenames
+    clips/<clip>.npz  per part, per frame, baked skinned vertex positions
+```
 
-### Layout
+The extractor evaluates Microsoft's own node hierarchy, animation curves, skin
+clusters, and inverse bind matrices, then bakes world-space vertex positions at
+the device cadence. The iPod never sees any of this; RockPod renders from it.
 
-- Left: profile name, XNA Boy/XNA Girl body preset, authentic animation picker,
-  and editable Skin & Face, Hair, Top, Bottom, and Shoes material palettes.
-- Center: a hardware-accelerated Qt Quick 3D viewport using the real converted
-  XNA mesh, with mouse drag for unrestricted rotation; a toggle retains the
-  high-resolution motion preview.
-- Right: the exact iPod gamercard and 320x240 export preview.
-- Footer actions: Randomize Preset, Reset, Play/Pause Preview, Save Profile,
-  and Build & Sync to Target.
+Extracted real parts:
 
-Both previews use frames rendered from the actual XNA rig, textures, and
-animation curves at the device export cadence. Appearance editing selects
-semantic material regions from those real source pixels and changes color while
-preserving their original shading, silhouette, transparency, pose, and texture
-edges. It does not redraw or replace any character part. The editor never
-advertises unavailable headwear, clothes meshes, or accessories as editable.
+| Slot | Real meshes |
+| --- | --- |
+| Body | `boy-body`, `girl-body`, `girl-body-heelleg` |
+| Head | `boy-head`, `girl-head` (blend-shape ear default) |
+| Hair | `boy-hair`, `girl-hair` |
+| Top | `boy-top` (item 0599-0), `girl-top` (item 0320-0) |
+| Bottom | `boy-bottoms` (item 0010-1), `girl-bottoms` (item 0687-0) |
+| Shoes | `boy-shoes` (item 0468-0), `girl-shoes` (item 0334-0), `girl-highheels` |
 
-Each Rockbox target profile stores one active offline avatar. Display names are
-limited to 15 visible characters to retain Xbox 360 gamercard proportions.
+Replacing the previous pre-rendered 416x672 sprite strips with the rig pack
+also removed 23 MB of derived images from the tree.
 
 ### Authentic asset setup
 
 The installed personal asset pack records one of three provenance classes:
 
 1. `official-download`: Microsoft/Xbox-hosted files, including the original
-   Achievement Unlocked master.
+   Achievement Unlocked master and the Ms-PL XNA Avatar Animation Pack.
 2. `owned-import`: avatar/system assets imported by the user from their own
-   Xbox 360 storage, backup, or already-installed Xbox Original Avatars data.
+   Xbox 360 storage, backup, or installed Xbox Original Avatars data.
 3. `archive-extracted`: real extracted Xbox 360 Marketplace items from an
-   archival source such as The Models Resource.
+   archival source such as The Models Resource. The imported item pack records
+   this class, and every item keeps its source page and archive SHA-256.
 
-This personal repository stores device-ready renders and original source sound
-resources under `assets/ipodjs/sources/xbox360/avatar/`, beside source URLs,
-SHA-256 values, transformation notes, and the Microsoft Permissive License.
-The large raw FBX files remain in their cited archive.
+`rig.json` records the source archive, the Ms-PL licence, and an explicit
+`hand_drawn_or_generated_geometry: false` flag. The original licence text and
+sound resources stay beside it under
+`assets/ipodjs/sources/xbox360/avatar/`. The ~10 MB raw FBX files remain in
+their cited archive; the rig pack is a derived form of them.
 
 A source is rejected if it is AI-generated, fan-remade, traced, lacks a usable
-character/rig license for the user's personal pack, or cannot be tied to real
+character/rig licence for the user's personal pack, or cannot be tied to real
 Xbox 360 content. Archived Marketplace props may extend an owned base rig but
 must never be mislabeled as an official Microsoft download.
 
-The verified Microsoft XNA Avatar Animation Pack supplies the original boy,
-girl/sneakers, and girl/heels mesh configurations and all seven implemented
-motions. It does not supply the full Xbox 360 Avatar Editor item catalog, so
-unsupported customization is shown as fixed instead of being recreated.
+The licensed base pack supplies no additional headwear or accessory meshes, so
+those categories stay unavailable rather than being recreated.
 
-### Normalized desktop pack
+## Marketplace Item Pack
 
-The normalized source set is:
+`tools/xbox_avatar_marketplace_fetch.py` caches the archived Xbox 360 Avatar
+Marketplace models preserved by The Models Resource, and
+`tools/xbox_avatar_marketplace.py` fits them onto the real rig into
+`assets/ipodjs/sources/xbox360/avatar/marketplace/`. These carry
+`archive-extracted` provenance, never `official-download`.
 
-```text
-assets/ipodjs/sources/xbox360/avatar/
-    build-manifest.json
-    README.md
-    Microsoft Permissive License.rtf
-    master/xna-boy/{jump,throw,faint,sit-idle,punch,kick,walk,turntable}.rgba.png
-    master/xna-girl/{jump,throw,faint,sit-idle,punch,kick,walk,turntable}.rgba.png
-    master/xna-girl-heels/{jump,throw,faint,sit-idle,punch,kick,walk,turntable}.rgba.png
-    faces/SOURCES.tsv
-    faces/xna-boy/{left-eye,right-eye,eyebrow,mouth}.tga
-    faces/xna-girl/{left-eye,right-eye,eyebrow,mouth}.tga
-    AchievementUnlocked.master.mp3
-    snd_channelup.xma
-    snd_buttonselect.xma
-    snd_buttonback.xma
-```
+The archive holds 166 items. Everything wearable is imported; pets, vehicles,
+scenery, and toys are recorded as unsupported with a reason rather than being
+placed by guesswork, as are the few archives that ship only COLLADA.
 
-The RGBA strips are 416x672 transparent textured renders directly derived from
-the archived Microsoft FBX files and original Microsoft UV color maps. Compact
-Qt Quick 3D `.mesh` conversions under `rockpod/ui/qml/xbox_avatar_models/`
-retain the actual triangles and texture coordinates for RockPod's live view.
-RockPod deterministically derives semantic material regions at preview/export
-time. The large raw FBX files remain in the cited archive, while the original
-license and exact transformation/provenance manifest stay with the derived
-model and device-ready source renders.
-The Maya scenes render facial expressions through separate `layeredTexture`
-nodes that legacy FBX renderers omit. RockPod restores the genuine `BoyAnim`
-and `GirlAnim` eye, eyebrow, and mouth texture layers before both desktop
-preview and RAV2 encoding; it does not draw replacement facial features.
+| Slot | Imported | Attachment |
+| --- | ---: | --- |
+| Headwear (hats, helmets, masks, hoods) | 26 (8 exact) | rigid, head bone |
+| Costumes | 31 | skinned |
+| Tops | 3 | skinned |
+| Held props | 9 | rigid, right-hand bone |
 
-RockPod stores display name, body preset ID, favorite authentic clip, and five
-normalized material palette IDs in the target profile. Widget state and
-absolute asset paths are not stored. `Randomize Avatar` changes every editable
-category; Reset returns every material to its untouched XNA source appearance.
+### Placement
+
+None of the archives contain the avatar body, so there is no reference frame in
+the file to align against. What each capture does or does not preserve decides
+how faithfully it can be placed, and every item records which case it is:
+
+- `placement: exact` — the vertex buffer was dumped while the item sat at head
+  height above the avatar's own origin, so it still carries the real Xbox
+  placement and already shares this rig's lateral origin. These are reproduced
+  with a single uniform scale and **no translation**; moving them would discard
+  the placement being reproduced. Eight headwear items qualify.
+- `placement: fitted` — the item was exported as a standalone model resting on
+  its own origin, so the archive simply does not record where it sat. These are
+  fitted to the matching real part: helmets, masks, and mascot heads are sized
+  to the head and made concentric with it, hats are sized across the brim and
+  sat on the crown, and held props are sized against the avatar and carried by
+  the right-hand bone.
+
+Fitted placement is an approximation and is not claimed to match the Xbox
+exactly. Making more items exact needs either a capture source that preserves
+avatar-space coordinates or a per-item offset recorded by hand.
+
+Rigid items are expressed once in their bone's space and then follow that bone
+exactly. Worn items are recorded in the same T-pose the XNA rig binds in, so
+each imported vertex takes an inverse-distance blend of the bone weights of its
+nearest real avatar vertices and is then deformed by Microsoft's own skin
+matrices. A chosen costume hides the ordinary top, bottom, and shoes, exactly
+as it does on a real Xbox 360 avatar.
+
+Nothing is redrawn, reshaped, or retextured; each item keeps its original mesh
+and its own extracted texture maps.
+
+## Renderer
+
+`rockpod/services/xbox_avatar_render.py` rasterizes the real parts through the
+authentic Xbox avatar material model:
+
+- a depth-buffered rasterizer with back-face culling, batched by triangle
+  bounding-box size so a full frame costs a handful of array operations;
+- the item's original `ColorMap` as the base, tinted by the chosen swatch so
+  the source weave, seams, shading, and silhouette survive;
+- the item's own `DecalMap` where Microsoft supplied one;
+- the head composed from its six real per-feature channels
+  (`SkinFeatures`, `FacialHair`, `EyeShadow`, `Mouth`, `Eye`, `EyeBrow`), each
+  bound per polygon to the correct left or right texture with clamped UVs.
+
+Batching resolves the nearest candidate per pixel before any texture work, so
+it is pixel-identical to a plain per-triangle rasterizer; a full eight-clip
+device export takes about 7 seconds and one creator angle about 70 ms.
+
+### Face placement
+
+The face is the head's own UV mapping. Eyes, brows, and mouth are sampled
+through `__EyeIntensityMap`, `__EyeBrowIntensityMap`, and `__MouthIntensityMap`
+on the head mesh, so they land exactly where Microsoft mapped them in every
+pose and at every turntable angle, and they disappear correctly when the head
+turns away.
+
+This replaces the previous approach, which detected a skin island in the
+rendered 2D sprite and pasted scaled facial textures at fixed fractions of its
+bounding box. That estimate drifted off the head whenever the pose, head tilt,
+or rotation moved the silhouette, which is the defect this revision fixes.
+
+### Fitting rule
+
+Microsoft cut each garment for one body. Hair sits above the shoulders and
+swaps freely, and the girl body is the narrower of the two, so it wears either
+wardrobe. The broader boy body pushes through the girl-fitted top, and the
+heels require the girl heel-leg body, so those two stay family-bound and are
+not offered on the boy body. `garment_clipping()` measures body pixels that win
+the depth test through a worn top and gates this in tests.
+
+Selecting heels automatically swaps in Microsoft's heel-leg body, which is the
+leg shape that pose was authored against.
+
+## RockPod Avatar Creator
+
+### Location
+
+`Achievements & Avatar` under Rockbox in the sidebar, also reachable from Game
+Sync. RetroAchievements credentials stay in Game Sync.
+
+### Layout
+
+- Left: display name, body preset, favourite animation, and the wardrobe and
+  colour pickers below.
+- Centre: a live model view rendered by the export renderer itself, dragged
+  through all 24 real turntable angles, with a toggle for the motion preview.
+- Right: the exact iPod gamercard and 320x240 export preview.
+- Footer: Randomize Avatar, Reset, Play/Pause Preview, Save Profile, and
+  Build & Sync to Target.
+
+The centre view is rendered by the same code that produces the device clips, so
+the creator preview and the export cannot diverge.
+
+### Editable appearance
+
+| Field | Choices |
+| --- | --- |
+| Body | XNA Boy, XNA Girl, XNA Girl (heels) |
+| Hair style | Original, Short crop, Bob, Shaved |
+| Top | Original, Crew tee, Scoop tee (girl body), No top |
+| Bottom | Original, Jeans, Shorts |
+| Shoes | Original, Sneakers, Flats, Heels (girl body), Barefoot |
+| Skin tone | Original plus six real tints |
+| Hair colour | Original plus seven |
+| Top / bottom / shoe colour | Original plus five to eight each |
+| Eye, eyebrow, lip colour | Original plus four to five each |
+| Chest print | See below |
+
+`Original XNA` always leaves that material untouched. Eye and lip colours tint
+only the pixels Microsoft's own textures already colour, so the sclera and
+teeth stay white. Facial hair and eye shadow are real channels in the pack but
+Microsoft shipped them empty, so they are not advertised as editable.
+
+Display names remain limited to 15 visible characters to retain Xbox 360
+gamercard proportions, and each target profile stores one active avatar.
+
+### Chest prints
+
+The Xbox garment shader carries a decal layer, and RockPod fills it with real
+artwork already in this repository rather than anything drawn for the feature:
+
+| Print | Real source |
+| --- | --- |
+| Original XNA | the garment's own Microsoft decal map |
+| Rockbox logo / icon | `apps/bitmaps/native/rockboxlogo`, `rockboxicon` |
+| iPod Apple mark | `.rockbox/ipodjs/apple-logo-white` |
+| iPod album art print | `.rockbox/ipodjs/default_album_artwork` |
+| iPod play / volume glyph | `.rockbox/ipodjs/play`, `volume_full` |
+
+Prints are projected onto the front of the real garment mesh from the standing
+pose, so the graphic stays attached to the fabric through every frame and wraps
+out of view as the avatar turns. Flat backgrounds are keyed out; the Rockbox
+marks are amber badges by design and print full frame.
+
+### Generated designs
+
+Beyond the fixed colour swatches, each of the top, bottom, and shoes can take a
+procedurally generated pattern. These are computed, not drawn: every design is
+a closed-form function of the pixel grid, so one is fully described by a name,
+a repeat size, two colours, and a seed.
+
+Available designs: solid, stripes, pinstripe, diagonal, chevron, checks,
+plaid, tartan, polka dots, halftone, rings, sunburst, waves, argyle,
+houndstooth, camo, marble, fade, grid, triangles, and static, each at five
+repeat sizes.
+
+A design supplies the colour at each texel while the item's real Microsoft
+colour map still supplies the weave, seams, and lighting, so a patterned
+garment keeps reading as fabric and the silhouette never moves. The pattern is
+drawn in the garment's own colour swatch against a shared accent colour.
+
+### Stored profile
+
+RockPod stores the display name, body preset, favourite clip, four style
+choices, eight colour choices, three design and three design-size choices, the
+accent colour, and the chest print. Widget state and absolute
+asset paths are not stored. Profiles written before the rig landed stored one
+palette name per clothing slot; those names still load as the matching colour.
+
+`Randomize Avatar` changes every editable category; Reset returns every field
+to its untouched XNA source appearance.
 
 ## Device Pack
 
@@ -341,7 +501,9 @@ Sound failure never blocks input or animation.
 ## RockPod Sync Integration
 
 - Avatar pack generation is a sibling transaction to achievement generation,
-  called by the existing Achievement sync service.
+  called by the existing Achievement sync service. The generation hash covers
+  the profile, the rig pack geometry and manifest, and the sound banks, so any
+  wardrobe, colour, or print change produces a new immutable generation.
 - Syncing newly added games updates gamercard totals without rebuilding avatar
   meshes or clips when the avatar profile hash is unchanged.
 - Avatar profile changes rebuild only the avatar generation.
@@ -367,10 +529,25 @@ Sound failure never blocks input or animation.
 
 ### RockPod
 
-- Unit tests cover profile schema, bounds, CRC failure, RAV2 encode/decode, PCM
-  bank construction, bundled real assets, target sync, and preference survival.
-- Creator tests cover real-pack decode, profile switching, exact iPod preview,
-  persistence signals, sidebar routing, and target generation.
+- Unit tests cover profile schema, legacy palette migration, bounds, CRC
+  failure, RAV2 encode/decode, PCM bank construction, target sync, generation
+  hashing, and preference survival.
+- Rig tests assert the pack declares Ms-PL provenance and
+  `hand_drawn_or_generated_geometry: false`, that both heads expose Microsoft's
+  dedicated eye, brow, and mouth UV channels, and that every worn part animates
+  across a clip.
+- A face-placement test renders the head with and without its facial layers and
+  requires the difference to sit inside the head silhouette, cluster on the
+  upper face rather than the neck, stay centred horizontally, and vanish when
+  the head is turned to the back.
+- A fitting test requires every offered top to keep body pixels showing through
+  it at or below 6 percent, and records that the excluded boy/scoop-tee pairing
+  exceeds 10 percent.
+- Chest-print tests require every print to resolve to a real in-tree bitmap and
+  to land on the chest band rather than the head or legs.
+- Colour tests require a swatch to change pixels without moving the silhouette.
+- Creator tests cover profile round-trip, persistence signals, and that only
+  body-appropriate garments are offered.
 - No test may fall back to generated placeholder character art.
 
 ### Simulator
@@ -399,8 +576,9 @@ Sound failure never blocks input or animation.
 
 ## Definition of Done
 
-The feature is complete when RockPod can build a provenance-valid real Xbox
-360 avatar, preview its authentic rigged animation and exact iPod export,
-atomically sync it, and the iPod can open it with Hold Menu, animate it, play
-authentic optional sounds, and return without disturbing achievements, active
-music, playback memory, or database state.
+The feature is complete when RockPod can compose a provenance-valid real Xbox
+360 avatar out of Microsoft's own mesh parts, with the face carried by the
+head's own UV channels, preview its authentic rigged animation and exact iPod
+export, atomically sync it, and the iPod can open it with Hold Menu, animate
+it, play authentic optional sounds, and return without disturbing achievements,
+active music, playback memory, or database state.

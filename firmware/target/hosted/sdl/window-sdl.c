@@ -59,6 +59,8 @@ static SDL_Surface  *picture_surface;
 static bool new_gui_texture_needed = true;
 static bool window_adjustment_needed;
 double display_zoom = 1;
+bool sdl_fullscreen = false;
+static bool fullscreen_pending;
 static bool rockpod_preview_enabled;
 static bool rockpod_preview_hidden;
 static Uint32 rockpod_preview_interval_ms;
@@ -221,7 +223,12 @@ static void rebuild_gui_texture(void)
 
     get_window_dimensions(&w, &h);
     SDL_RenderGetLogicalSize(sdlRenderer, &prev_w, &prev_h);
-    SDL_RenderSetLogicalSize(sdlRenderer, w, h);
+    /* A fullscreen session fills the display instead of pillarboxing, so it
+     * must not have a logical size restored underneath it here. */
+    if (sdl_fullscreen)
+        sdl_window_fill_display();
+    else
+        SDL_RenderSetLogicalSize(sdlRenderer, w, h);
     if ((gui_texture = SDL_CreateTexture(sdlRenderer, SDL_MasksToPixelFormatEnum(depth,
                                          0, 0, 0, 0), SDL_TEXTUREACCESS_STREAMING, w, h)) == NULL)
         panicf("%s", SDL_GetError());
@@ -273,6 +280,15 @@ static void rebuild_gui_texture(void)
 
 void sdl_window_render(void)
 {
+    if (fullscreen_pending)
+    {
+        fullscreen_pending = false;
+        if (SDL_SetWindowFullscreen(sdlWindow,
+                                    SDL_WINDOW_FULLSCREEN_DESKTOP) != 0)
+            fprintf(stderr, "Fullscreen failed: %s\n", SDL_GetError());
+        else
+            sdl_window_fill_display();
+    }
     if (new_gui_texture_needed)
     {
         new_gui_texture_needed = false;
@@ -338,6 +354,45 @@ void sdl_window_adjustment_needed(bool destroy_texture)
 #endif
 }
 
+/* Stretch the panel across the whole display.
+ *
+ * A logical size preserves the panel's 4:3 aspect and pillarboxes it, which
+ * leaves black bars on a 16:9 screen.  Filling the display instead means
+ * scaling each axis independently, so the scale is set directly and the
+ * logical size is cleared.  The picture is stretched horizontally as a
+ * result; that is the cost of filling a widescreen display with a 4:3 panel.
+ */
+void sdl_window_fill_display(void)
+{
+    int width;
+    int height;
+    int output_w = 0;
+    int output_h = 0;
+
+    if (!sdlRenderer)
+        return;
+    get_window_dimensions(&width, &height);
+    SDL_GetRendererOutputSize(sdlRenderer, &output_w, &output_h);
+    if (width <= 0 || height <= 0 || output_w <= 0 || output_h <= 0)
+        return;
+    SDL_RenderSetLogicalSize(sdlRenderer, 0, 0);
+    SDL_RenderSetScale(sdlRenderer, (float)output_w / width,
+                       (float)output_h / height);
+}
+
+void sdl_window_to_panel(int window_x, int window_y, float *panel_x,
+                         float *panel_y)
+{
+    *panel_x = window_x;
+    *panel_y = window_y;
+    if (!sdlRenderer)
+        return;
+    /* The renderer already knows its logical size and the letterbox around
+     * it, so let SDL do the conversion rather than re-deriving it. */
+    SDL_RenderWindowToLogical(sdlRenderer, window_x, window_y, panel_x,
+                              panel_y);
+}
+
 void sdl_window_setup(void)
 {
     int width, height;
@@ -346,13 +401,8 @@ void sdl_window_setup(void)
 
     rockpod_preview_configure();
 
-#if 0
-    /* Fullscreen mode might be desired */
-    flags |= SDL_WINDOW_FULLSCREEN;
-#else
-    if (display_zoom == 1)
+    if (!sdl_fullscreen && display_zoom == 1)
         flags |= SDL_WINDOW_RESIZABLE;
-#endif
     if (rockpod_preview_hidden)
         flags |= SDL_WINDOW_HIDDEN;
 
@@ -367,6 +417,18 @@ void sdl_window_setup(void)
         sdl_window_startup_fatal("SDL window creation");
     if ((sdlRenderer = SDL_CreateRenderer(sdlWindow, -1, SDL_RENDERER_PRESENTVSYNC)) == NULL)
         sdl_window_startup_fatal("SDL renderer creation");
+
+    /* Establish the panel's logical size up front.  Until it is set the
+     * renderer scales 1:1, so a fullscreen session would letterbox correctly
+     * on screen while reporting raw window coordinates to anything mapping a
+     * host pointer back onto the panel. */
+    SDL_RenderSetLogicalSize(sdlRenderer, width, height);
+
+    /* Going fullscreen needs the window manager to answer, and the event
+     * thread that would pump that answer does not exist yet: switching here
+     * blocks before the first frame is ever drawn.  Defer it to the first
+     * render instead. */
+    fullscreen_pending = sdl_fullscreen;
 
     /* Surface for LCD content only. Needs to fit largest LCD */
     int surface_width =

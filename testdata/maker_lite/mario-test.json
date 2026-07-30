@@ -1,0 +1,44 @@
+{
+  "format_version": 1,
+  "title": "Mario Maker Lite Test Course",
+  "project_id": "mario-test-course",
+  "kit_id": "smw-private-kit",
+  "ruleset": "mario",
+  "view": [256, 224],
+  "size": [40, 15],
+  "tile_size": 16,
+  "terrain": [
+    {"rect": [0, 13, 40, 2], "tile": 1, "collision": ["solid"]},
+    {"rect": [8, 10, 4, 1], "tile": 2, "collision": ["solid"]},
+    {"rect": [17, 8, 5, 1], "tile": 2, "collision": ["solid"]},
+    {"rect": [27, 11, 3, 1], "tile": 2, "collision": ["one_way"]},
+    {"rect": [23, 12, 2, 1], "tile": 4, "collision": ["hazard"]}
+  ],
+  "entities": [
+    {"kind": "player", "x": 48, "y": 208},
+    {"kind": "collectible", "x": 160, "y": 152, "params": [16, 16, 10]},
+    {"kind": "enemy", "x": 304, "y": 208, "params": [16, 16]},
+    {"kind": "checkpoint", "x": 400, "y": 208, "params": [16, 32]},
+    {"kind": "block", "flags": 7, "x": 240, "y": 128,
+     "params": [32, 8, 0, 1]},
+    {"kind": "goal", "x": 608, "y": 208, "params": [16, 48]}
+  ],
+  "events": [
+    {
+      "trigger": "entered_region",
+      "condition": "always",
+      "action": "set_checkpoint",
+      "region": [40, 176, 48, 48],
+      "params": [48, 208],
+      "one_shot": true
+    }
+  ],
+  "paths": [
+    {
+      "id": 1,
+      "points": [[240, 128], [320, 128]],
+      "speed": 128,
+      "ping_pong": true
+    }
+  ]
+}

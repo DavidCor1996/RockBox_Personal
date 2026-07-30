@@ -6,6 +6,7 @@ import io
 import json
 from pathlib import Path
 import stat
+import subprocess
 import sys
 import tarfile
 import zipfile
@@ -354,12 +355,14 @@ def test_n25_eclair_device_tree_is_ram_only_and_usb_peripheral():
         assert node not in dts
 
 
-def test_classic_menu_play_direct_boot_is_fixed_and_volatile():
+def test_classic_select_right_direct_boot_is_fixed_and_volatile():
     bootloader = (REPO_ROOT / "bootloader/ipod-s5l87xx.c").read_text()
     builder = (TOOLS / "build_n25_eclair_native_bundle.sh").read_text()
 
     for marker in (
-        "btn == (BUTTON_MENU|BUTTON_PLAY)",
+        "n25_android_boot_chord(btn)",
+        "buttons == (BUTTON_SELECT|BUTTON_RIGHT)",
+        "buttons == (BUTTON_MENU|BUTTON_PLAY)",
         'BOOTDIR "/android/n25-eclair-kernel.ipod"',
         'BOOTDIR "/android/n25-eclair-initramfs.ipod"',
         'BOOTDIR "/android/n25-eclair-dtb.ipod"',
@@ -371,9 +374,85 @@ def test_classic_menu_play_direct_boot_is_fixed_and_volatile():
         "n25_android_linux_jump",
     ):
         assert marker in bootloader
-    assert 'makedfu --kind n3g' in builder
-    assert 'n25-eclair-menu-play-bootloader.dfu' in builder
+    assert 'n25-eclair-select-right-bootloader.dfu' in builder
+    assert 'make_s5l8702_img1.py' in builder
+    assert builder.count('make_s5l8702_img1.py') == 3
+    assert "N25_ANDROID_FORCE_VOLATILE_TEST" in builder
+    assert "n25-eclair-select-right-forced-volatile-test.dfu" in builder
+    assert "--require-forced-android" in builder
+    assert 'emulate_rockbox_boot_chords.py' in builder
+    assert 'emulate_n25_arm_head.py' in builder
+    assert '--boot-chord-report' in builder
+    assert '--select-right-chain-report' in builder
+    assert '--image "${linux_build}/arch/arm/boot/zImage"' in builder
+    assert '--stop-at s5l_lcd_probe' in builder
+    assert '--verify-n25-irq' in builder
     assert '--rockbox-bootloader-dfu' in builder
+    assert '--mkdfu-uninst' in builder
+    assert '--rockbox-nor-uninstaller' in builder
+    assert 'n25-eclair-select-right-nor-uninstaller.dfu' in builder
+
+
+def test_dualboot_nor_installer_gate_embeds_exact_preservation_bootloader(
+    tmp_path,
+):
+    bootloader = tmp_path / "bootloader.bin"
+    installer = tmp_path / "installer.dfu"
+    payload = bytes(range(32))
+    bootloader.write_bytes(payload)
+    info_offset = 0x30C + 5396 - 80
+    payload_offset = info_offset + 0x800
+    image = bytearray(payload_offset + len(payload))
+    image[:8] = b"87021.0\x03"
+    image[0x30C:info_offset] = bytes([1]) * (info_offset - 0x30C)
+    image[info_offset:info_offset + 8] = b"87021.0\x02"
+    image[info_offset + 12:info_offset + 16] = len(payload).to_bytes(
+        4, "little"
+    )
+    image[payload_offset:] = payload
+    installer.write_bytes(image)
+
+    qualify_n25_eclair.check_dualboot_nor_installer(installer, bootloader)
+
+    image[info_offset + 64] = 1
+    installer.write_bytes(image)
+    with pytest.raises(
+        qualify_n25.QualificationError, match="single-boot flag"
+    ):
+        qualify_n25_eclair.check_dualboot_nor_installer(
+            installer, bootloader
+        )
+
+
+def test_dualboot_nor_uninstaller_matches_exact_mks5lboot_packet(tmp_path):
+    mks5lboot = REPO_ROOT / "utils/mks5lboot/mks5lboot"
+    uninstaller = tmp_path / "uninstaller.dfu"
+    subprocess.run(
+        [
+            str(mks5lboot),
+            "--mkdfu-uninst",
+            "ipod6g",
+            str(uninstaller),
+        ],
+        check=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+    )
+
+    qualify_n25_eclair.check_dualboot_nor_uninstaller(
+        uninstaller, mks5lboot
+    )
+
+    damaged = bytearray(uninstaller.read_bytes())
+    damaged[-1] ^= 1
+    uninstaller.write_bytes(damaged)
+    with pytest.raises(
+        qualify_n25.QualificationError, match="does not match"
+    ):
+        qualify_n25_eclair.check_dualboot_nor_uninstaller(
+            uninstaller, mks5lboot
+        )
 
 
 def test_n25_visible_probe_gates_exact_handoff_and_all_lcd_panels():

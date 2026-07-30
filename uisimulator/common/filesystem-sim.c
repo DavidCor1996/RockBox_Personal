@@ -42,6 +42,36 @@
 
 extern const char *sim_root_dir;
 
+/* A portable Desktop Mode runtime lives on the mounted iPod beside the
+ * hardware Rockbox install. Its native host plugins cannot replace the ARM
+ * plugins under the device's /.rockbox/rocks tree, so the simulator may
+ * overlay only host-runtime/resource directories from a second root. Media,
+ * tagcache and videolist paths continue to resolve against sim_root_dir,
+ * which is the mounted iPod itself. */
+static bool sim_path_uses_system_root(const char *path)
+{
+    static const char * const prefixes[] =
+    {
+        "/.rockbox/rocks",
+        "/.rockbox/rocks.data",
+        "/.rockbox/fonts",
+        "/.rockbox/langs",
+        "/.rockbox/icons",
+    };
+    size_t i;
+
+    for (i = 0; i < ARRAYLEN(prefixes); i++)
+    {
+        size_t length = strlen(prefixes[i]);
+
+        if (!strncmp(path, prefixes[i], length) &&
+            (path[length] == '\0' || path[length] == PATH_SEPCH ||
+             path[length] == '/' || path[length] == '\\'))
+            return true;
+    }
+    return false;
+}
+
 /* Windows (and potentially other OSes) distinguish binary and text files.
  * Define a dummy for the others. */
 #ifndef O_BINARY
@@ -242,6 +272,9 @@ void sim_ext_extracted(int drive)
  */
 int sim_get_os_path(char *buffer, const char *path, size_t bufsize)
 {
+    const char *path_root = sim_root_dir;
+    const char *system_root = getenv("ROCKBOX_SIM_SYSTEM_ROOT");
+
     #define ADVBUF(amt) \
         ({ buffer += (amt); bufsize -= (amt); })
 
@@ -259,8 +292,12 @@ int sim_get_os_path(char *buffer, const char *path, size_t bufsize)
     DEBUGF("PPP (pre): \"%s\"\n", path);
 #endif
 
-    /* Prepend sim root */
-    size_t size = strlcpy(buffer, sim_root_dir, bufsize);
+    if (system_root && system_root[0] != '\0' &&
+        sim_path_uses_system_root(path))
+        path_root = system_root;
+
+    /* Prepend the media root or the optional native-system overlay root. */
+    size_t size = strlcpy(buffer, path_root, bufsize);
     if (size >= bufsize)
     {
         errno = ENAMETOOLONG;
@@ -377,11 +414,11 @@ int sim_get_os_path(char *buffer, const char *path, size_t bufsize)
                     /* Get the main simdisk directory so it can be reentered */
                     char tmpbuf[sizeof (dirbase)];
                 #ifdef WIN32
-                    path_correct_separators(tmpbuf, sim_root_dir);
+                    path_correct_separators(tmpbuf, path_root);
                     path_strip_drive(tmpbuf, &p, false);
                 #else
                     p = tmpbuf;
-                    strcpy(tmpbuf, sim_root_dir);
+                    strcpy(tmpbuf, path_root);
                 #endif
                     size = path_basename(p, &p);
                     ((char *)p)[size] = '\0';
@@ -390,7 +427,7 @@ int sim_get_os_path(char *buffer, const char *path, size_t bufsize)
                     {
                         /* This is nonsense and won't work */
                         DEBUGF("ERROR: sim root dir basname is dotdir or"
-                               " empty: \"%s\"\n", sim_root_dir);
+                               " empty: \"%s\"\n", path_root);
                         errno = ENOENT;
                         return -1;
                     }

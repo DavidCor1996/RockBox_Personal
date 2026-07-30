@@ -46,6 +46,9 @@ ASSET_EXTS = {
     ".mp3",
     ".m4a",
     ".mp4",
+    ".mpg",
+    ".mpeg",
+    ".m2v",
     ".webm",
     ".avif",
     ".bin",
@@ -181,7 +184,17 @@ def copy_tree(source: Path, target: Path) -> list[Path]:
                 continue
             dst = target / safe_rel(src, source)
             dst.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copy2(src, dst)
+            if src.resolve() != dst.resolve():
+                try:
+                    unchanged = (
+                        dst.is_file()
+                        and dst.stat().st_size == src.stat().st_size
+                        and dst.stat().st_mtime_ns >= src.stat().st_mtime_ns
+                    )
+                except OSError:
+                    unchanged = False
+                if not unchanged:
+                    shutil.copy2(src, dst)
             if ext in HTML_EXTS:
                 copied_html.append(dst)
     return copied_html

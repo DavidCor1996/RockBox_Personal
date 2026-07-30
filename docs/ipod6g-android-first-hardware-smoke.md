@@ -1,8 +1,23 @@
-# iPod Classic N25 first volatile hardware smoke test
+# iPod Classic N25 Select+Right hardware qualification
 
-Status: **COMPRESSED U-BOOT STAGE A HOST-QUALIFIED FOR ONE VOLATILE TEST**
-Persistent-storage action: none. Leave every historical diagnostic directory
-untouched; Stage A does not mount or read the iPod volume.
+Status: **SELECT+RIGHT DIRECT BOOT FAILED VOLATILE HARDWARE TEST**
+Persistent action: **LOCKED**. The first run uses the transient bootloader only;
+it must not execute the packaged NOR installer.
+
+The 2026-07-28 forced-Android DFU run required no button timing and reached the
+visible Rockbox message `Verified; starting Android`, proving DFU execution,
+checksum-wrapped payload reads, and the loader side of the handoff. Linux then
+reset repeatedly and the device ultimately returned to black Boot ROM DFU.
+The candidate is disqualified for NOR installation. Recovery with the ordinary
+transient loader restored `05ac:1261`; Rockbox firmware, database/tagcache,
+payload, and historical-diagnostic checksums remained unchanged. Rockbox's
+normal recovery boot rotated resume state and refreshed cache timestamps.
+
+Stage A was then attempted once. Its qualified storage-free DFU upload
+completed, but U-Boot never exposed `05ac:8007`; the old Boot ROM endpoint was
+unresponsive until a physical reset restored `05ac:1261`. The Linux FIT was
+not uploaded. FAT subsequently fell back to a read-only mount, so the new
+headless USB diagnostic was not staged and no repair was run.
 
 Do not execute an old DFU loader. `diagnostic-trace1` changed from Rockbox text
 to a full white screen. That proves a later display-side transition occurred,
@@ -13,8 +28,9 @@ disqualified and its white result cannot identify the final execution stage.
 TRACE2 passed an exact linked Rockbox panel-prepare/quiesce/cache/jump host
 model, but its physical boot retained the Rockbox legend ending at
 `3 BANDS = PID 1` and never produced its first red band. It is disqualified;
-no Rockbox-to-Linux packet is approved for another device test. The independent
-storage-free U-Boot enumeration gate below is now the only approved next step.
+that historical packet must not be retried. The current candidate uses a fresh
+kernel and DTB, a linked payload-size contract, exact Select+Right chord
+emulation, and a new end-to-end compressed-zImage ARM926 gate.
 
 The original 195,136-byte direct U-Boot DFU packet is also disqualified for
 Boot ROM transport. wInd3x rejected block 129 with status 3 before U-Boot
@@ -31,6 +47,12 @@ bands. The completed pattern is persistent and exactly 76,800 pixels, so it
 does not depend on cursor wraparound or human-visible timing. All four N25
 panel straps, Linux initcalls, PL192 handshakes, and final ARM entry state pass.
 This clears the corrected host gate; it is not physical qualification.
+
+The production candidate additionally executes its exact compressed zImage
+from the complete linked Rockbox handoff for 91,242,967 ARM926 instructions.
+It reaches `s5l_lcd_probe` after zImage decompression, `start_kernel`, 616
+acknowledged Timer B interrupts, and both PL192 VICADDRESS handshakes. This is
+the packet approved for the volatile procedure below.
 
 Superseded timer-only packet identities (do not boot):
 
@@ -108,6 +130,66 @@ firmware, update either Rockbox copy, alter the MBR, resize FAT32, create a
 partition, or write NOR. Reset or power loss discards all running code and
 Android state.
 
+## Current Select+Right candidate
+
+Use only `rockpod/bin/ipod6g-android/eclair-native` after its complete
+`SHA256SUMS` passes. The device-facing identities are:
+
+| Artifact | Size | SHA-256 |
+|---|---:|---|
+| `n25-eclair-kernel.ipod` | 1,684,232 | `7978b2e6ddff0b65f2170aec03f516852f7ddf0e963bfd6a6f1a4c1ae06299d9` |
+| `n25-eclair-initramfs.ipod` | 13,842,312 | `959c8ff59013c98ab6bdd80129e0fe70888079920902e6a8c8ec3e2b03fba372` |
+| `n25-eclair-dtb.ipod` | 3,056 | `83285c5c03d37d9cc70e00b9e521c13bfe2152d85fda30c2dea766d990b0dad7` |
+| `n25-eclair-select-right-bootloader.dfu` | 100,960 | `8c2ea99f44f3b2aa1f59bd5e83aeeea54fcf41268b8209e07583366107146402` |
+| `n25-eclair-select-right-nor-installer.dfu` | 107,056 | `f527887329ae31de664d60d0e447f50192c13f4e003625e4765d6800640abb85` |
+| `n25-eclair-select-right-nor-uninstaller.dfu` | 5,856 | `203e836412b71d3a16b3b57a5bf7ef034a0f5dcae1ca193685b8bfee33868a3a` |
+
+The first four artifacts are eligible for the volatile test. The NOR installer
+and uninstaller are listed so both can be positively identified and kept out
+of that test.
+
+### Volatile Select+Right procedure
+
+1. Verify the complete bundle with `sha256sum -c SHA256SUMS`.
+2. Back up and hash both installed `rockbox.ipod` copies and every
+   `database*.tcd`/`tagcache*.tcd` file.
+3. Use Rockpod's Android page to stage the three payload files. It may update
+   an older set only when the existing files match their own manifest.
+4. Sync and unmount the volume, then verify the staged manifest by read-back.
+5. Hold Select+Menu until Apple Boot ROM DFU `05ac:1223` enumerates.
+6. Release Select+Menu, immediately hold Select+Right, and run only:
+
+   ```sh
+   wInd3x run n25-eclair-select-right-bootloader.dfu
+   ```
+
+7. Keep Select+Right held through the bootloader's 400 ms selection point.
+   The Rockbox boot screen must say `Select+Right / RAM-only Android`.
+8. Pass requires Android to reach the Rockpod Launcher with stable LCD output,
+   working Select/Menu/Play/Left/Right and wheel navigation, correct Hold
+   lockout, and Menu+Select reset recovery. The 180-second watchdog is the
+   fallback.
+9. After Rockbox returns, read back both firmware copies, the payload manifest,
+   and all database/tagcache files. Every protected hash must match.
+
+Stop on any checksum difference, unexpected USB identity, bootloader error,
+frozen handoff legend, unstable display, missing input, or failed reset.
+Do not execute a NOR command during this run.
+
+### Persistent Select+Right install gate
+
+Only a reviewed pass of the exact volatile packet unlocks the next phase. The
+packaged NOR image was built with `mks5lboot --mkdfu-inst` without `--single`.
+Static qualification proves that it embeds the exact Select+Right bootloader
+and that its single-boot flag is zero, preserving the existing Apple firmware
+as mks5lboot's dual-boot backup. Its paired uninstaller is regenerated during
+qualification and must match mks5lboot's iPod 6G recovery image byte-for-byte.
+The later approved operation will send only
+`n25-eclair-select-right-nor-installer.dfu` through mks5lboot, verify the
+success tones/reboot, then repeat normal Rockbox, Apple firmware, Menu+Play
+USB, and Select+Right Android boot tests. It remains prohibited before the
+volatile gate passes.
+
 ## Superseded direct Menu+Play packet — do not use
 
 The qualified Eclair bundle contains these direct-boot artifacts:
@@ -141,9 +223,11 @@ visible error screen and never enter Linux.
 Never use `mks5lboot --bl-inst`: that command builds and executes a NOR
 installer and is outside this test.
 
-## Fixed compressed Stage-A packet
+## Historical compressed Stage-A packet
 
-Use only the files under `rockpod/bin/ipod6g-android/ramdiag-stage0` after
+This independent U-Boot enumeration path is retained as historical recovery
+evidence, not as the current Android direct-boot gate. If separately approved,
+use only the files under `rockpod/bin/ipod6g-android/ramdiag-stage0` after
 `sha256sum -c SHA256SUMS` passes and `qualification.json` reports
 `device_test_ready: true`. At this checkpoint the binary identities are:
 

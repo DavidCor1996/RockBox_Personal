@@ -22,19 +22,24 @@
 #include "tree.h"
 #include "viewport.h"
 #include "recorder/bmp.h"
+#include "slideshow_order.h"
 #ifdef HAVE_IPODJS_UI
 #include "ipodjs_ui.h"
 #endif
 
 #define ALBUMLIST_INDEX ROCKBOX_DIR "/albumlist/index.tsv"
 #define ALBUMLIST_ROOT ROCKBOX_DIR "/albumlist"
+#define ALBUMLIST_PACK ROCKBOX_DIR "/albumlist/thumbs.pack"
 #define ALBUMLIST_THUMB_SIZE 40
 #define ALBUMLIST_COMPACT_THUMB_SIZE 24
 #define ALBUMLIST_COMPACT_TEXT_PAD 5
 #define ALBUMLIST_TEXT_PAD 8
 #define ALBUMLIST_ROW_HEIGHT 44
 #define ALBUMLIST_LOOKUP_CACHE 16
-#define ALBUMLIST_BITMAP_CACHE 32
+/* 64 slots x ~3.9 KB = ~250 KB BSS.  Sized so a long scroll through the
+ * album list does not evict rows the user is about to scroll back to;
+ * with thumbs.pack, reloads after eviction are one small read anyway. */
+#define ALBUMLIST_BITMAP_CACHE 64
 #define ALBUMLIST_PENDING_MAX 8
 #define ALBUMLIST_MANIFEST_CACHE_MAX 384
 #define ALBUMLIST_MANIFEST_RELOAD_DELAY (HZ * 300)
@@ -49,6 +54,7 @@
 struct albumlist_lookup_slot {
     bool valid;
     bool found;
+    int pack_row;
     char album[ALBUMLIST_ALBUM_LEN];
     char artist[ALBUMLIST_ARTIST_LEN];
     char path[ALBUMLIST_PATH_LEN];
@@ -73,6 +79,7 @@ struct albumlist_pending_item {
     struct tree_context *tc;
     int line;
     int size;
+    int pack_row;
     char album[ALBUMLIST_ALBUM_LEN];
     char artist[ALBUMLIST_ARTIST_LEN];
     char path[ALBUMLIST_PATH_LEN];
@@ -85,6 +92,7 @@ static void trim_line(char *line);
 static int split_tsv(char *line, char *fields[], int max_fields);
 
 struct albumlist_manifest_entry {
+    int pack_row;
     char thumb_path[ALBUMLIST_PATH_LEN];
     char slide_path[ALBUMLIST_PATH_LEN];
     char album[ALBUMLIST_ALBUM_LEN];
@@ -96,6 +104,44 @@ static struct albumlist_manifest_entry
 static int manifest_cache_count;
 static bool manifest_cache_loaded;
 static long manifest_cache_next_reload;
+
+/* thumbs.pack: raw RGB565 thumbnail records written by RockPod in
+ * index.tsv data-line order.  One seek+read replaces the per-file BMP
+ * open/parse/scale, which is what makes list art keep up with wheel
+ * scrolling the way the stock firmware's packed artwork database does. */
+#define ALBUMLIST_PACK_HEADER_SIZE 16
+#define ALBUMLIST_PACK_RECORD_HEADER 4
+#define ALBUMLIST_PACK_RECORD_SIZE \
+    (ALBUMLIST_PACK_RECORD_HEADER + \
+     ALBUMLIST_THUMB_SIZE * ALBUMLIST_THUMB_SIZE * 2)
+static bool pack_valid;
+static int pack_count;
+
+static void albumlist_check_pack(void)
+{
+    unsigned char header[ALBUMLIST_PACK_HEADER_SIZE];
+    int fd;
+
+    pack_valid = false;
+    pack_count = 0;
+
+    fd = open(ALBUMLIST_PACK, O_RDONLY);
+    if (fd < 0)
+        return;
+
+    if (read(fd, header, sizeof(header)) == (ssize_t)sizeof(header) &&
+        memcmp(header, "ALTB", 4) == 0 &&
+        (header[4] | (header[5] << 8)) == 1 &&
+        (header[6] | (header[7] << 8)) == ALBUMLIST_THUMB_SIZE &&
+        (header[8] | (header[9] << 8)) == ALBUMLIST_THUMB_SIZE)
+    {
+        pack_count = header[12] | (header[13] << 8) |
+                     (header[14] << 16) | (header[15] << 24);
+        pack_valid = pack_count > 0;
+    }
+
+    close(fd);
+}
 
 #if defined(IPOD_VIDEO) || defined(IPOD_6G)
 static void albumlist_slideshow_invalidate_failures(void);
@@ -224,11 +270,14 @@ static void albumlist_load_manifest_cache(void)
     albumlist_slideshow_invalidate_failures();
 #endif
 
+    albumlist_check_pack();
+
     int fd = open(ALBUMLIST_INDEX, O_RDONLY);
     if (fd < 0)
         return;
 
     char line[512];
+    int pack_row_counter = 0;
     while (manifest_cache_count < ALBUMLIST_MANIFEST_CACHE_MAX &&
            read_line(fd, line, sizeof(line)) > 0)
     {
@@ -236,6 +285,10 @@ static void albumlist_load_manifest_cache(void)
         if (line[0] == '#' || line[0] == '\0' ||
             strncmp(line, "album_id\t", 9) == 0)
             continue;
+
+        /* Pack records align with data-line ordinals, including lines the
+         * validation below rejects. */
+        int pack_row = pack_row_counter++;
 
         char *fields[7] = {0};
         int field_count = split_tsv(line, fields, ARRAYLEN(fields));
@@ -254,6 +307,7 @@ static void albumlist_load_manifest_cache(void)
         struct albumlist_manifest_entry *entry =
             &manifest_cache[manifest_cache_count];
         memset(entry, 0, sizeof(*entry));
+        entry->pack_row = pack_row;
         strmemccpy(entry->artist, fields[artist_field], sizeof(entry->artist));
         strmemccpy(entry->album, fields[album_field], sizeof(entry->album));
 
@@ -334,10 +388,7 @@ static struct albumlist_slideshow_failure
     slideshow_failures[ALBUMLIST_SLIDESHOW_FAILURE_CACHE];
 static int slideshow_slot_victim;
 static int slideshow_last_drawn_index = -1;
-static int slideshow_order_count;
-static int slideshow_order_base;
-static int slideshow_order_step;
-static unsigned long slideshow_order_seed;
+static struct slideshow_order slideshow_random_order;
 static bool slideshow_paused;
 static long slideshow_paused_at;
 static long slideshow_paused_total;
@@ -365,65 +416,9 @@ static long albumlist_slideshow_tick(void)
     return tick - slideshow_paused_total;
 }
 
-static unsigned long albumlist_slideshow_next_random(void)
-{
-    if (slideshow_order_seed == 0)
-        slideshow_order_seed = current_tick ? (unsigned long)current_tick :
-                               0x9e3779b9ul;
-
-    slideshow_order_seed ^= slideshow_order_seed << 13;
-    slideshow_order_seed ^= slideshow_order_seed >> 17;
-    slideshow_order_seed ^= slideshow_order_seed << 5;
-    return slideshow_order_seed;
-}
-
-static int albumlist_gcd(int a, int b)
-{
-    while (b != 0)
-    {
-        int t = a % b;
-        a = b;
-        b = t;
-    }
-
-    return a < 0 ? -a : a;
-}
-
-static void albumlist_prepare_random_order(int entry_count)
-{
-    if (entry_count <= 0 || slideshow_order_count == entry_count)
-        return;
-
-    slideshow_order_count = entry_count;
-    slideshow_order_base =
-        (int)(albumlist_slideshow_next_random() % (unsigned long)entry_count);
-
-    if (entry_count == 1)
-    {
-        slideshow_order_step = 0;
-        return;
-    }
-
-    slideshow_order_step =
-        (int)(albumlist_slideshow_next_random() % (unsigned long)(entry_count - 1)) + 1;
-    while (albumlist_gcd(slideshow_order_step, entry_count) != 1)
-    {
-        slideshow_order_step++;
-        if (slideshow_order_step >= entry_count)
-            slideshow_order_step = 1;
-    }
-}
-
 static int albumlist_random_manifest_index(long cycle, int entry_count)
 {
-    albumlist_prepare_random_order(entry_count);
-
-    if (entry_count <= 1)
-        return 0;
-
-    return (slideshow_order_base +
-            (int)((cycle % entry_count) * slideshow_order_step)) %
-           entry_count;
+    return slideshow_order_index(&slideshow_random_order, cycle, entry_count);
 }
 
 static bool albumlist_manifest_path_at(int wanted, char *path, size_t path_size)
@@ -936,6 +931,53 @@ static int split_tsv(char *line, char *fields[], int max_fields)
     return count;
 }
 
+/* Load one raw RGB565 record from thumbs.pack into a cache slot.  The fd
+ * is opened and closed within the call so the browser never holds one
+ * across a yield. */
+static bool albumlist_load_thumb_from_pack(struct albumlist_bitmap_slot *slot,
+                                           int pack_row, int size)
+{
+    unsigned char rec[ALBUMLIST_PACK_RECORD_HEADER];
+    int fd;
+    bool ok = false;
+
+    if (!pack_valid || pack_row < 0 || pack_row >= pack_count ||
+        size != ALBUMLIST_THUMB_SIZE)
+        return false;
+
+    fd = open(ALBUMLIST_PACK, O_RDONLY);
+    if (fd < 0)
+        return false;
+
+    if (lseek(fd, ALBUMLIST_PACK_HEADER_SIZE +
+              (off_t)pack_row * ALBUMLIST_PACK_RECORD_SIZE, SEEK_SET) >= 0 &&
+        read(fd, rec, sizeof(rec)) == (ssize_t)sizeof(rec) &&
+        rec[0] == 1)
+    {
+        int w = rec[2];
+        int h = rec[3];
+
+        if (w > 0 && h > 0 && w <= ALBUMLIST_THUMB_SIZE &&
+            h <= ALBUMLIST_THUMB_SIZE)
+        {
+            ssize_t bytes = (ssize_t)w * h * 2;
+
+            if (read(fd, slot->data, bytes) == bytes)
+            {
+                memset(&slot->bm, 0, sizeof(slot->bm));
+                slot->bm.width = w;
+                slot->bm.height = h;
+                slot->bm.format = FORMAT_NATIVE;
+                slot->bm.data = slot->data;
+                ok = true;
+            }
+        }
+    }
+
+    close(fd);
+    return ok;
+}
+
 static bool manifest_entry_matches(const char *album, const char *artist,
                                    char *fields[])
 {
@@ -952,12 +994,15 @@ static bool manifest_entry_matches(const char *album, const char *artist,
 }
 
 static bool find_manifest_thumb(const char *album, const char *artist,
-                                char *path, size_t path_size)
+                                char *path, size_t path_size,
+                                int *pack_row)
 {
     albumlist_load_manifest_cache();
+    *pack_row = -1;
     if (!artist[0])
     {
         int matches = 0;
+        int candidate_row = -1;
         char candidate[ALBUMLIST_PATH_LEN];
 
         candidate[0] = '\0';
@@ -970,7 +1015,10 @@ static bool find_manifest_thumb(const char *album, const char *artist,
 
             matches++;
             if (matches == 1)
+            {
                 strmemccpy(candidate, entry->thumb_path, sizeof(candidate));
+                candidate_row = entry->pack_row;
+            }
             else
                 return false;
         }
@@ -978,6 +1026,7 @@ static bool find_manifest_thumb(const char *album, const char *artist,
         if (matches == 1)
         {
             strmemccpy(path, candidate, path_size);
+            *pack_row = candidate_row;
             return true;
         }
 
@@ -1002,6 +1051,7 @@ static bool find_manifest_thumb(const char *album, const char *artist,
         if (manifest_entry_matches(album, artist, fields))
         {
             strmemccpy(path, entry->thumb_path, path_size);
+            *pack_row = entry->pack_row;
             return true;
         }
     }
@@ -1011,6 +1061,7 @@ static bool find_manifest_thumb(const char *album, const char *artist,
      * album+artist match misses, accept a unique album match so covers still
      * appear in both Albums and Artist -> Albums views. */
     int matches = 0;
+    int candidate_row = -1;
     const char *candidate = NULL;
     for (int i = 0; i < manifest_cache_count; i++)
     {
@@ -1019,12 +1070,14 @@ static bool find_manifest_thumb(const char *album, const char *artist,
             ascii_casecmp(entry->album, album) != 0)
             continue;
         candidate = entry->thumb_path;
+        candidate_row = entry->pack_row;
         if (++matches > 1)
             return false;
     }
     if (matches == 1)
     {
         strmemccpy(path, candidate, path_size);
+        *pack_row = candidate_row;
         return true;
     }
 
@@ -1032,7 +1085,8 @@ static bool find_manifest_thumb(const char *album, const char *artist,
 }
 
 static bool lookup_thumb_path(const char *album, const char *artist,
-                              char *path, size_t path_size)
+                              char *path, size_t path_size,
+                              int *pack_row)
 {
     for (int i = 0; i < ALBUMLIST_LOOKUP_CACHE; i++)
     {
@@ -1043,7 +1097,10 @@ static bool lookup_thumb_path(const char *album, const char *artist,
             ascii_casecmp(slot->artist, artist) == 0)
         {
             if (slot->found)
+            {
                 strmemccpy(path, slot->path, path_size);
+                *pack_row = slot->pack_row;
+            }
             return slot->found;
         }
     }
@@ -1054,9 +1111,12 @@ static bool lookup_thumb_path(const char *album, const char *artist,
     strmemccpy(slot->album, album, sizeof(slot->album));
     strmemccpy(slot->artist, artist, sizeof(slot->artist));
     slot->found = find_manifest_thumb(album, artist, slot->path,
-                                      sizeof(slot->path));
+                                      sizeof(slot->path), &slot->pack_row);
     if (slot->found)
+    {
         strmemccpy(path, slot->path, path_size);
+        *pack_row = slot->pack_row;
+    }
     return slot->found;
 }
 
@@ -1086,6 +1146,7 @@ static void cache_thumb_path(const char *album, const char *artist,
     }
 
     slot->found = true;
+    slot->pack_row = -1;
     strmemccpy(slot->path, path, sizeof(slot->path));
 }
 
@@ -1108,7 +1169,8 @@ static struct albumlist_bitmap_slot *bitmap_cache_victim(void)
     return &bitmap_cache[victim];
 }
 
-static struct bitmap *load_thumb_bitmap(const char *path, int size)
+static struct bitmap *load_thumb_bitmap(const char *path, int size,
+                                        int pack_row)
 {
     size = MIN(size, ALBUMLIST_THUMB_SIZE);
     if (size <= 0)
@@ -1125,6 +1187,16 @@ static struct bitmap *load_thumb_bitmap(const char *path, int size)
     }
 
     struct albumlist_bitmap_slot *slot = bitmap_cache_victim();
+
+    if (albumlist_load_thumb_from_pack(slot, pack_row, size))
+    {
+        slot->valid = true;
+        slot->size = size;
+        slot->last_used = ++bitmap_tick;
+        strmemccpy(slot->path, path, sizeof(slot->path));
+        return &slot->bm;
+    }
+
     memset(&slot->bm, 0, sizeof(slot->bm));
     slot->bm.width = size;
     slot->bm.height = size;
@@ -1172,7 +1244,7 @@ static struct bitmap *find_thumb_bitmap(const char *path, int size)
 
 static void albumlist_queue_pending(struct tree_context *tc, int line,
                                     const char *album, const char *artist,
-                                    const char *path, int size)
+                                    const char *path, int size, int pack_row)
 {
     for (int i = 0; i < pending_count; i++)
     {
@@ -1188,6 +1260,7 @@ static void albumlist_queue_pending(struct tree_context *tc, int line,
     item->tc = tc;
     item->line = line;
     item->size = size;
+    item->pack_row = pack_row;
     strmemccpy(item->album, album, sizeof(item->album));
     strmemccpy(item->artist, artist, sizeof(item->artist));
     if (path)
@@ -1196,53 +1269,120 @@ static void albumlist_queue_pending(struct tree_context *tc, int line,
         item->path[0] = '\0';
 }
 
-bool albumlist_art_service_pending(void)
+static bool albumlist_art_service_item(struct albumlist_pending_item *item)
 {
     static char track_path[MAX_PATH];
     static char cover_path[ALBUMLIST_PATH_LEN];
+    const char *path = item->path;
+
+    if (!path[0])
+    {
+        if (!tagtree_get_album_art_path(item->tc, item->line,
+                                        track_path,
+                                        sizeof(track_path)) ||
+            !albumlist_cover_path_for_track(track_path, cover_path,
+                                            sizeof(cover_path)))
+            return false;
+
+        cache_thumb_path(item->album, item->artist, cover_path);
+        path = cover_path;
+    }
+
+    return load_thumb_bitmap(path, item->size, item->pack_row) != NULL;
+}
+
+bool albumlist_art_service_pending(void)
+{
     bool changed = false;
     int count = pending_count;
 
     pending_count = 0;
     for (int i = 0; i < count; i++)
     {
-        struct albumlist_pending_item *item = &pending_items[i];
-        const char *path = item->path;
-
-        if (!path[0])
-        {
-            if (!tagtree_get_album_art_path(item->tc, item->line,
-                                            track_path,
-                                            sizeof(track_path)) ||
-                !albumlist_cover_path_for_track(track_path, cover_path,
-                                                sizeof(cover_path)))
-                continue;
-
-            cache_thumb_path(item->album, item->artist, cover_path);
-            path = cover_path;
-        }
-
-        if (load_thumb_bitmap(path, item->size))
+        if (albumlist_art_service_item(&pending_items[i]))
             changed = true;
     }
 
     return changed;
 }
 
+/* Bounded variant for use between wheel detents: loads at most one missing
+ * thumbnail, so queued navigation is never delayed by more than one small
+ * pack read.  Remaining work stays queued for the idle burst. */
+bool albumlist_art_service_one(void)
+{
+    bool changed = false;
+
+    if (pending_count <= 0)
+        return false;
+
+    changed = albumlist_art_service_item(&pending_items[0]);
+    pending_count--;
+    memmove(&pending_items[0], &pending_items[1],
+            pending_count * sizeof(pending_items[0]));
+
+    return changed;
+}
+
+/* Queue up to two not-yet-cached rows beyond the selection in the scroll
+ * direction.  RAM-only: manifest and cache lookups here, loads later from
+ * the bounded service points. */
+void albumlist_art_prefetch_direction(struct gui_synclist *list,
+                                      int direction)
+{
+    struct tree_context *tc = list ? (struct tree_context *)list->data : NULL;
+    char album[ALBUMLIST_ALBUM_LEN];
+    char artist[ALBUMLIST_ARTIST_LEN];
+    char path[ALBUMLIST_PATH_LEN];
+    int queued = 0;
+    int thumb_size;
+
+    if (!list || !tc || direction == 0 ||
+        list->callback_draw_item != albumlist_art_draw_item)
+        return;
+
+    thumb_size = MIN(ALBUMLIST_THUMB_SIZE,
+                     list->line_height[SCREEN_MAIN] - 2);
+
+    for (int step = 1; step <= 4 && queued < 2; step++)
+    {
+        int line = list->selected_item + direction * step;
+        int pack_row = -1;
+
+        if (line < 0 || line >= list->nb_items)
+            break;
+
+        if (!albumlist_get_album_row(tc, line, album, sizeof(album),
+                                     artist, sizeof(artist)))
+            continue;
+
+        if (!lookup_thumb_path(album, artist, path, sizeof(path), &pack_row))
+            continue;
+
+        if (find_thumb_bitmap(path, thumb_size))
+            continue;
+
+        albumlist_queue_pending(tc, line, album, artist, path, thumb_size,
+                                pack_row);
+        queued++;
+    }
+}
+
 struct bitmap *albumlist_art_get_thumb(const char *album, const char *artist,
                                        int size)
 {
     char path[ALBUMLIST_PATH_LEN];
+    int pack_row = -1;
 
     if (!album || !album[0])
         return NULL;
     if (!artist)
         artist = "";
 
-    if (!lookup_thumb_path(album, artist, path, sizeof(path)))
+    if (!lookup_thumb_path(album, artist, path, sizeof(path), &pack_row))
         return NULL;
 
-    return load_thumb_bitmap(path, size);
+    return load_thumb_bitmap(path, size, pack_row);
 }
 
 #ifdef HAVE_IPODJS_UI
@@ -1265,18 +1405,20 @@ static void albumlist_draw_item_ipodjs(struct list_putlineinfo_t *list_info,
                                 album, sizeof(album),
                                 artist, sizeof(artist)))
     {
+        int pack_row = -1;
+
         thumb_size = MIN(thumb_size, list_info->linedes->height - 2);
-        if (lookup_thumb_path(album, artist, path, sizeof(path)))
+        if (lookup_thumb_path(album, artist, path, sizeof(path), &pack_row))
         {
             bm = find_thumb_bitmap(path, thumb_size);
             if (!bm)
                 albumlist_queue_pending(tc, list_info->line, album, artist,
-                                        path, thumb_size);
+                                        path, thumb_size, pack_row);
         }
         else
         {
             albumlist_queue_pending(tc, list_info->line, album, artist,
-                                    NULL, thumb_size);
+                                    NULL, thumb_size, -1);
         }
     }
 
@@ -1314,18 +1456,19 @@ static void albumlist_draw_item_with_art(struct list_putlineinfo_t *list_info,
     char album[ALBUMLIST_ALBUM_LEN];
     char artist[ALBUMLIST_ARTIST_LEN];
     char path[ALBUMLIST_PATH_LEN];
+    int pack_row = -1;
 
     if (!albumlist_get_album_row(tc, list_info->line,
                                  album, sizeof(album),
                                  artist, sizeof(artist)) ||
-        !lookup_thumb_path(album, artist, path, sizeof(path)))
+        !lookup_thumb_path(album, artist, path, sizeof(path), &pack_row))
     {
         gui_list_draw_item_default(list_info);
         return;
     }
 
     thumb_size = MIN(thumb_size, list_info->linedes->height - 2);
-    struct bitmap *bm = load_thumb_bitmap(path, thumb_size);
+    struct bitmap *bm = load_thumb_bitmap(path, thumb_size, pack_row);
 
     if (!bm)
     {

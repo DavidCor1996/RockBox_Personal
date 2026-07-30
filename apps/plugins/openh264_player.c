@@ -19,6 +19,7 @@
 
 #include "plugin.h"
 #include "lib/helper.h"
+#include "netflix_intro.h"
 
 #define PROFILE_LOG ROCKBOX_DIR "/openh264/openh264_profile.log"
 #define PROFILE_DIR ROCKBOX_DIR "/openh264"
@@ -38,6 +39,9 @@
 #define RAW_OSD_HEADER_HEIGHT 24
 #define RAW_OSD_TITLE_SIZE 96
 #define RAW_STOCK_ASSET_DIR ROCKBOX_DIR "/ipodjs/apple"
+#define RAW_RESUME_MAGIC 0x52565031u
+#define RAW_RESUME_FILE \
+    PLUGIN_APPS_DATA_DIR "/openh264-resume-%08lx.dat"
 #define RAW_STOCK_PLAYBACK_W 20
 #define RAW_STOCK_PLAYBACK_FRAME_H 16
 #define RAW_STOCK_BATTERY_W 26
@@ -55,6 +59,10 @@
 #define RAW_VOLUME_SLIDER_W 117
 #define RAW_VOLUME_SLIDER_H 5
 #define RAW_VOLUME_SLIDER_END_W 3
+#define RAW_NETFLIX_OVERLAY_H 64
+#define RAW_NETFLIX_RED LCD_RGBPACK(180, 19, 29)
+#define RAW_NETFLIX_BG LCD_RGBPACK(20, 20, 20)
+#define RAW_NETFLIX_TRACK LCD_RGBPACK(72, 72, 72)
 
 enum raw_fit_mode {
     RAW_FIT_UNKNOWN = 0,
@@ -78,6 +86,13 @@ struct raw_render_area {
     int dst_width;
     int dst_height;
     bool scale;
+};
+
+struct raw_resume_record {
+    uint32_t magic;
+    uint32_t path_crc;
+    int32_t frame;
+    int32_t total_frames;
 };
 
 struct raw_osd_state {
@@ -179,6 +194,7 @@ static unsigned long raw_saved_elapsed;
 static unsigned long raw_saved_offset;
 static unsigned int raw_saved_mixer_freq;
 static const char *raw_current_path;
+static bool raw_netflix_launch;
 
 static void raw_audio_stop(void);
 
@@ -609,6 +625,71 @@ static void raw_osd_draw_progress(void)
                         LCD_HEIGHT - progress_y);
 }
 
+static void raw_osd_draw_netflix(void)
+{
+    char current[24];
+    char duration[24];
+    char title[RAW_OSD_TITLE_SIZE];
+    const char *status = raw_osd.paused ? "PAUSED" :
+                         raw_osd.seeking ? "SEEKING" : "PLAYING";
+    int duration_w;
+    int status_w;
+    int title_w;
+    int title_h;
+    int bar_x = 8;
+    int bar_y = LCD_HEIGHT - 12;
+    int bar_w = LCD_WIDTH - 16;
+    int fill_w;
+    int y = LCD_HEIGHT - RAW_NETFLIX_OVERLAY_H;
+    long current_frame = raw_osd.current_frame;
+    long total_frames = raw_osd.total_frames;
+
+    if (total_frames <= 0)
+        total_frames = 1;
+    if (current_frame < 0)
+        current_frame = 0;
+    if (current_frame > total_frames)
+        current_frame = total_frames;
+
+    raw_osd_format_time(current_frame, current, sizeof(current));
+    raw_osd_format_time(total_frames, duration, sizeof(duration));
+    raw_osd_title(title, sizeof(title), LCD_WIDTH - 98);
+
+    rb->lcd_set_drawmode(DRMODE_SOLID);
+    rb->lcd_set_background(RAW_NETFLIX_BG);
+    rb->lcd_set_foreground(RAW_NETFLIX_BG);
+    rb->lcd_fillrect(0, y, LCD_WIDTH, RAW_NETFLIX_OVERLAY_H);
+    rb->lcd_set_foreground(RAW_NETFLIX_RED);
+    rb->lcd_fillrect(0, y, LCD_WIDTH, 3);
+
+    rb->lcd_setfont(FONT_UI);
+    rb->lcd_set_foreground(RAW_NETFLIX_RED);
+    rb->lcd_putsxy(7, y + 7, "NETFLIX");
+    rb->lcd_getstringsize(title, &title_w, &title_h);
+    rb->lcd_set_foreground(LCD_WHITE);
+    rb->lcd_putsxy(LCD_WIDTH - 7 - title_w, y + 7, title);
+
+    rb->lcd_getstringsize(status, &status_w, NULL);
+    rb->lcd_getstringsize(duration, &duration_w, NULL);
+    rb->lcd_set_foreground(LCD_WHITE);
+    rb->lcd_putsxy(8, y + 27, current);
+    rb->lcd_set_foreground(RAW_NETFLIX_RED);
+    rb->lcd_putsxy((LCD_WIDTH - status_w) / 2, y + 27, status);
+    rb->lcd_set_foreground(LCD_WHITE);
+    rb->lcd_putsxy(LCD_WIDTH - 8 - duration_w, y + 27, duration);
+
+    rb->lcd_set_foreground(RAW_NETFLIX_TRACK);
+    rb->lcd_fillrect(bar_x, bar_y, bar_w, 5);
+    fill_w = (int)(((long long)current_frame * bar_w) / total_frames);
+    if (fill_w > 0)
+    {
+        rb->lcd_set_foreground(RAW_NETFLIX_RED);
+        rb->lcd_fillrect(bar_x, bar_y, fill_w, 5);
+    }
+
+    raw_osd_update_rect(0, y, LCD_WIDTH, RAW_NETFLIX_OVERLAY_H);
+}
+
 static bool raw_volume_load_bitmap(const char *path, struct bitmap *bm,
                                    fb_data *pixels, size_t bytes,
                                    int width, int height)
@@ -826,8 +907,13 @@ static void raw_osd_draw_if_needed(bool force)
     old_drawmode = rb->lcd_get_drawmode();
     rb->lcd_set_drawmode(DRMODE_FG);
     if (raw_osd.visible)
-        raw_osd_draw_progress();
-    if (raw_osd.volume_visible)
+    {
+        if (raw_netflix_launch)
+            raw_osd_draw_netflix();
+        else
+            raw_osd_draw_progress();
+    }
+    if (raw_osd.volume_visible && !raw_netflix_launch)
         raw_osd_draw_volume();
     rb->lcd_set_drawmode(old_drawmode);
     rb->lcd_set_foreground(old_fg);
@@ -975,6 +1061,134 @@ static bool replace_ext(const char *path, const char *ext,
     out[base_len] = '.';
     rb->strcpy(out + base_len + 1, ext);
     return true;
+}
+
+static void raw_resume_filename(const char *path, char *filename,
+                                size_t filename_size, uint32_t *crc_out)
+{
+    uint32_t crc = rb->crc_32(path, rb->strlen(path), 0xffffffff);
+
+    rb->snprintf(filename, filename_size, RAW_RESUME_FILE,
+                 (unsigned long)crc);
+    if (crc_out != NULL)
+        *crc_out = crc;
+}
+
+static long raw_resume_load(const char *path, long total_frames, int fps)
+{
+    struct raw_resume_record record;
+    char filename[MAX_PATH];
+    uint32_t crc;
+    int fd;
+
+    (void)fps;
+    raw_resume_filename(path, filename, sizeof(filename), &crc);
+    fd = rb->open(filename, O_RDONLY);
+    if (fd < 0)
+        return 0;
+
+    if (rb->read(fd, &record, sizeof(record)) != sizeof(record))
+    {
+        rb->close(fd);
+        return 0;
+    }
+    rb->close(fd);
+
+    if (record.magic != RAW_RESUME_MAGIC || record.path_crc != crc ||
+        record.total_frames != total_frames || record.frame <= 0 ||
+        record.frame >= (total_frames * 95) / 100)
+        return 0;
+
+    return record.frame;
+}
+
+static void raw_resume_save(const char *path, long frame, long total_frames,
+                            int fps)
+{
+    struct raw_resume_record record;
+    char filename[MAX_PATH];
+    uint32_t crc;
+    int fd;
+
+    (void)fps;
+    raw_resume_filename(path, filename, sizeof(filename), &crc);
+    if (frame <= 0 || frame >= (total_frames * 95) / 100)
+    {
+        rb->remove(filename);
+        return;
+    }
+
+    rb->mkdir(PLUGIN_APPS_DATA_DIR);
+    record.magic = RAW_RESUME_MAGIC;
+    record.path_crc = crc;
+    record.frame = frame;
+    record.total_frames = total_frames;
+    fd = rb->open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+    if (fd < 0)
+        return;
+
+    (void)rb->write(fd, &record, sizeof(record));
+    rb->close(fd);
+}
+
+static void raw_resume_clear(const char *path)
+{
+    char filename[MAX_PATH];
+
+    raw_resume_filename(path, filename, sizeof(filename), NULL);
+    rb->remove(filename);
+}
+
+/* Netflix "watched" record.
+ *
+ * A finished title leaves no resume record behind - raw_resume_save() removes
+ * it past 95% and raw_resume_clear() removes it at end of stream - so
+ * completion cannot be recovered from resume data and is recorded separately.
+ * This shares one file with mpegplayer so the catalog has a single source.
+ * Only a small text file is opened, appended to and closed on the exit path;
+ * no PCM, mixer or buffer API is involved. */
+#define RAW_NETFLIX_WATCHED_FILE \
+    ROCKBOX_DIR "/videolist/netflix-watched.tsv"
+#define RAW_NETFLIX_WATCHED_MAX 512
+
+static bool raw_netflix_already_watched(const char *path)
+{
+    char line[MAX_PATH];
+    int fd = rb->open(RAW_NETFLIX_WATCHED_FILE, O_RDONLY);
+    bool found = false;
+    int count = 0;
+
+    if (fd < 0)
+        return false;
+
+    while (!found && count < RAW_NETFLIX_WATCHED_MAX &&
+           rb->read_line(fd, line, sizeof(line)) > 0)
+    {
+        count++;
+        if (!rb->strcmp(line, path))
+            found = true;
+    }
+
+    rb->close(fd);
+    return found;
+}
+
+static void raw_netflix_mark_watched(const char *path)
+{
+    int fd;
+
+    if (path == NULL || path[0] != '/')
+        return;
+    if (raw_netflix_already_watched(path))
+        return;
+
+    fd = rb->open(RAW_NETFLIX_WATCHED_FILE,
+                  O_WRONLY | O_CREAT | O_APPEND, 0666);
+    if (fd < 0)
+        return;
+
+    rb->fdprintf(fd, "%s\n", path);
+    rb->close(fd);
 }
 
 static bool raw_path_dirname(const char *path, char *out, size_t out_size)
@@ -1144,7 +1358,8 @@ static void normalize_raw_video_dimensions(int *width, int *height)
 }
 
 static void compute_raw_render_area(const struct raw_video_config *config,
-                                  struct raw_render_area *area)
+                                    struct raw_render_area *area,
+                                    bool force_contain)
 {
     int width = config->width;
     int height = config->height;
@@ -1154,7 +1369,8 @@ static void compute_raw_render_area(const struct raw_video_config *config,
     if (area == NULL || config == NULL)
         return;
 
-    if (width == RAW_DEFAULT_WIDTH && height == RAW_DEFAULT_HEIGHT)
+    if (!force_contain &&
+        width == RAW_DEFAULT_WIDTH && height == RAW_DEFAULT_HEIGHT)
     {
         area->src_width = width;
         area->src_height = height;
@@ -1184,7 +1400,7 @@ static void compute_raw_render_area(const struct raw_video_config *config,
         return;
     }
 
-    if (config->fit == RAW_FIT_CONTAIN)
+    if (force_contain || config->fit == RAW_FIT_CONTAIN)
     {
         dst_w = (int)(((long long)LCD_WIDTH * height) / width);
         if (dst_w < 1)
@@ -1305,6 +1521,50 @@ static bool scale_yuv420_nearest(const unsigned char *source,
     if (dst_width == src_width && dst_height == src_height)
     {
         rb->memcpy(scaled, source, source_luma + 2u * source_chroma);
+        return true;
+    }
+
+    /* Compact RVP is exactly half the LCD dimensions. Keep its 20 fps path
+     * cheap by expanding each sample directly instead of using the general
+     * rational scaler. */
+    if (dst_width == src_width * 2 && dst_height == src_height * 2)
+    {
+        const uint8_t *src_planes[3] = {
+            src,
+            src + source_luma,
+            src + source_luma + source_chroma,
+        };
+        uint8_t *dst_planes[3] = {
+            dst,
+            dst + dest_luma,
+            dst + dest_luma + (dest_luma >> 2),
+        };
+
+        for (int plane = 0; plane < 3; plane++)
+        {
+            int plane_width = plane == 0 ? src_width : src_width / 2;
+            int plane_height = plane == 0 ? src_height : src_height / 2;
+
+            for (int y = 0; y < plane_height; y++)
+            {
+                const uint8_t *src_row =
+                    src_planes[plane] + y * plane_width;
+                uint8_t *dst_row0 =
+                    dst_planes[plane] + (y * 2) * (plane_width * 2);
+                uint8_t *dst_row1 = dst_row0 + plane_width * 2;
+
+                for (int x = 0; x < plane_width; x++)
+                {
+                    uint8_t value = src_row[x];
+                    int dx = x * 2;
+
+                    dst_row0[dx] = value;
+                    dst_row0[dx + 1] = value;
+                    dst_row1[dx] = value;
+                    dst_row1[dx + 1] = value;
+                }
+            }
+        }
         return true;
     }
 
@@ -1844,6 +2104,176 @@ static bool raw_size_add(size_t left, size_t right, size_t *result)
     return true;
 }
 
+#if defined(HAVE_LCD_COLOR) && LCD_WIDTH == 320 && LCD_HEIGHT == 240
+#define RAW_VIDEO_VOLUME_H 50
+#define RAW_VIDEO_VOLUME_SEGMENTS 16
+#define RAW_VIDEO_VOLUME_BAR_W 112
+static unsigned char raw_volume_y[LCD_WIDTH * RAW_VIDEO_VOLUME_H];
+static unsigned char raw_volume_u[(LCD_WIDTH / 2) *
+                                  (RAW_VIDEO_VOLUME_H / 2)];
+static unsigned char raw_volume_v[(LCD_WIDTH / 2) *
+                                  (RAW_VIDEO_VOLUME_H / 2)];
+
+static unsigned char raw_yuv_clamp(int value)
+{
+    return value < 0 ? 0 : value > 255 ? 255 : value;
+}
+
+static void raw_yuv_color(int red, int green, int blue,
+                          unsigned char *y, unsigned char *u,
+                          unsigned char *v)
+{
+    *y = raw_yuv_clamp(
+        ((66 * red + 129 * green + 25 * blue + 128) >> 8) + 16);
+    *u = raw_yuv_clamp(
+        ((-38 * red - 74 * green + 112 * blue + 128) >> 8) + 128);
+    *v = raw_yuv_clamp(
+        ((112 * red - 94 * green - 18 * blue + 128) >> 8) + 128);
+}
+
+static void raw_yuv_rect(unsigned char * const *planes,
+                         int x, int y, int width, int height,
+                         int red, int green, int blue)
+{
+    unsigned char py;
+    unsigned char pu;
+    unsigned char pv;
+    int row;
+    int col;
+
+    raw_yuv_color(red, green, blue, &py, &pu, &pv);
+    for (row = MAX(0, y); row < MIN(RAW_VIDEO_VOLUME_H, y + height); row++)
+    {
+        for (col = MAX(0, x); col < MIN(LCD_WIDTH, x + width); col++)
+        {
+            planes[0][row * LCD_WIDTH + col] = py;
+            planes[1][(row / 2) * (LCD_WIDTH / 2) + col / 2] = pu;
+            planes[2][(row / 2) * (LCD_WIDTH / 2) + col / 2] = pv;
+        }
+    }
+}
+
+static int raw_yuv_text_width(const char *text)
+{
+    struct font *font = rb->font_get(FONT_SYSFIXED);
+    int width = 0;
+
+    while (font != NULL && *text != '\0')
+        width += rb->font_get_width(font, (unsigned char)*text++);
+    return width;
+}
+
+static void raw_yuv_text_2x(unsigned char * const *planes,
+                            int x, int y, const char *text)
+{
+    struct font *font = rb->font_get(FONT_SYSFIXED);
+
+    if (font == NULL || font->depth != 0)
+        return;
+
+    while (*text != '\0')
+    {
+        unsigned char ch = *text++;
+        int glyph_w = rb->font_get_width(font, ch);
+        const unsigned char *bits = rb->font_get_bits(font, ch);
+        int col;
+
+        for (col = 0; col < glyph_w; col++)
+        {
+            const unsigned char *src = bits + col;
+            int row;
+
+            for (row = 0; row < (int)font->height; row++)
+            {
+                if (src[(row >> 3) * glyph_w] & (1u << (row & 7)))
+                    raw_yuv_rect(planes, x + col * 2, y + row * 2,
+                                 2, 2, 32, 255, 80);
+            }
+        }
+        x += glyph_w * 2;
+    }
+}
+
+static bool raw_blit_netflix_volume(unsigned char * const *planes,
+                                    int stride, int x, int y,
+                                    int width, int height)
+{
+    unsigned char *overlay[3] = {
+        raw_volume_y, raw_volume_u, raw_volume_v
+    };
+    struct font *font;
+    int top = LCD_HEIGHT - RAW_VIDEO_VOLUME_H;
+    int label_w;
+    int group_w;
+    int group_x;
+    int bar_x;
+    int bar_y = (RAW_VIDEO_VOLUME_H - 14) / 2;
+    int min_volume;
+    int max_volume;
+    int volume;
+    int percent;
+    int lit;
+    int i;
+
+    if (!raw_netflix_launch || !raw_osd.volume_visible ||
+        x != 0 || y != 0 || width != LCD_WIDTH || height != LCD_HEIGHT)
+        return false;
+
+    rb->memcpy(overlay[0], planes[0] + top * stride,
+               sizeof(raw_volume_y));
+    rb->memcpy(overlay[1], planes[1] + (top / 2) * (stride / 2),
+               sizeof(raw_volume_u));
+    rb->memcpy(overlay[2], planes[2] + (top / 2) * (stride / 2),
+               sizeof(raw_volume_v));
+
+    font = rb->font_get(FONT_SYSFIXED);
+    label_w = raw_yuv_text_width("VOLUME") * 2;
+    group_w = label_w + 12 + RAW_VIDEO_VOLUME_BAR_W;
+    group_x = (LCD_WIDTH - group_w) / 2;
+    bar_x = group_x + label_w + 12;
+    raw_yuv_text_2x(overlay, group_x,
+                    (RAW_VIDEO_VOLUME_H -
+                     (font != NULL ? font->height * 2 : 16)) / 2,
+                    "VOLUME");
+
+    min_volume = rb->sound_min(SOUND_VOLUME);
+    max_volume = rb->sound_max(SOUND_VOLUME);
+    if (rb->global_settings != NULL &&
+        rb->global_settings->volume_limit >= min_volume &&
+        rb->global_settings->volume_limit < max_volume)
+        max_volume = rb->global_settings->volume_limit;
+    volume = rb->global_status != NULL ?
+             rb->global_status->volume : min_volume;
+    percent = volume <= min_volume ? 0 :
+              volume >= max_volume ? 100 :
+              ((volume - min_volume) * 100) /
+              (max_volume - min_volume);
+    lit = percent >= 100 ? RAW_VIDEO_VOLUME_SEGMENTS :
+          (percent * (RAW_VIDEO_VOLUME_SEGMENTS - 1) + 99) / 100;
+    for (i = 0; i < RAW_VIDEO_VOLUME_SEGMENTS; i++)
+    {
+        int segment_x =
+            bar_x + (i * RAW_VIDEO_VOLUME_BAR_W) /
+                    RAW_VIDEO_VOLUME_SEGMENTS;
+
+        raw_yuv_rect(overlay, segment_x, bar_y, 5, 14,
+                     i < lit ? 32 : 12,
+                     i < lit ? 255 : 72,
+                     i < lit ? 80 : 28);
+    }
+
+    rb->lcd_blit_yuv(planes, 0, 0, stride, 0, 0, LCD_WIDTH, top);
+    rb->lcd_blit_yuv(overlay, 0, 0, LCD_WIDTH, 0, top,
+                     LCD_WIDTH, RAW_VIDEO_VOLUME_H);
+    rb->lcd_blit_yuv(planes, 0, top + RAW_VIDEO_VOLUME_H, stride,
+                     0, top + RAW_VIDEO_VOLUME_H, LCD_WIDTH,
+                     LCD_HEIGHT - top - RAW_VIDEO_VOLUME_H);
+    return true;
+}
+#else
+#define raw_blit_netflix_volume(planes, stride, x, y, width, height) false
+#endif
+
 static bool raw_render_frame(unsigned char *frame_buf,
                              unsigned char *scaled_frame_buf,
                              int src_width, int src_height,
@@ -1866,16 +2296,20 @@ static bool raw_render_frame(unsigned char *frame_buf,
         planes[0] = scaled_frame_buf;
         planes[1] = planes[0] + dst_luma;
         planes[2] = planes[1] + dst_chroma;
-        rb->lcd_blit_yuv(planes, 0, 0, dst_width, x, y,
-                         dst_width, dst_height);
+        if (!raw_blit_netflix_volume(planes, dst_width, x, y,
+                                     dst_width, dst_height))
+            rb->lcd_blit_yuv(planes, 0, 0, dst_width, x, y,
+                             dst_width, dst_height);
     }
     else
     {
         planes[0] = frame_buf;
         planes[1] = frame_buf + src_luma;
         planes[2] = planes[1] + src_chroma;
-        rb->lcd_blit_yuv(planes, 0, 0, src_width, x, y,
-                         dst_width, dst_height);
+        if (!raw_blit_netflix_volume(planes, src_width, x, y,
+                                     dst_width, dst_height))
+            rb->lcd_blit_yuv(planes, 0, 0, src_width, x, y,
+                             dst_width, dst_height);
     }
     return true;
 }
@@ -1896,7 +2330,8 @@ static int play_raw_segment(const char *display_path, const char *yuv_path,
                             long segment_frame_offset,
                             long initial_frame,
                             bool initial_paused, bool initial_seeking,
-                            int *segment_move_out, bool *paused_out,
+                            long *position_out, int *segment_move_out,
+                            bool *paused_out,
                             bool *seeking_out)
 {
     int vfd = -1;
@@ -2058,6 +2493,9 @@ static int play_raw_segment(const char *display_path, const char *yuv_path,
             user_exit = true;
             goto stopped;
         }
+        if (command == RAW_INPUT_VOLUME_CHANGED)
+            force_render = true;
+
         if (command == RAW_INPUT_TOGGLE_PAUSE)
         {
             if (!paused)
@@ -2206,6 +2644,12 @@ static int play_raw_segment(const char *display_path, const char *yuv_path,
 
         if (paused || seek_active)
         {
+            if (raw_osd.volume_visible &&
+                TIME_AFTER(*rb->current_tick, raw_osd.volume_hide_tick))
+            {
+                raw_osd.volume_visible = false;
+                force_render = true;
+            }
             if (force_render && have_frame)
             {
                 if (!raw_render_frame(frame_buf, scaled_frame_buf,
@@ -2299,6 +2743,8 @@ out:
         *ticks_out = *rb->current_tick - start_tick;
     if (exit_out != NULL)
         *exit_out = user_exit;
+    if (position_out != NULL)
+        *position_out = segment_frame_offset + frame_index;
 
     {
         long final_frames = (vfd >= 0 && video_size > 0) ?
@@ -2316,7 +2762,8 @@ out:
     return rc;
 }
 
-static int play_raw_rvp(const char *path)
+static int play_raw_rvp(const char *path, bool netflix_launch,
+                        bool netflix_restart)
 {
     struct raw_video_config raw_config;
     struct raw_render_area render_area;
@@ -2339,9 +2786,13 @@ static int play_raw_rvp(const char *path)
     long total_frames = 0;
     long total_late = 0;
     long total_ticks = 0;
+    long resume_frame = 0;
+    long last_position = 0;
+    bool exited_by_user = false;
     int rc = PLUGIN_ERROR;
 
     raw_current_path = path;
+    raw_netflix_launch = netflix_launch;
     raw_video_config_defaults(&raw_config);
     raw_capture_playback_state();
     raw_pool = rb->plugin_get_audio_buffer(&raw_pool_size);
@@ -2387,7 +2838,14 @@ static int play_raw_rvp(const char *path)
         raw_audio_shutdown();
         return PLUGIN_ERROR;
     }
-    compute_raw_render_area(&raw_config, &render_area);
+    compute_raw_render_area(
+        &raw_config, &render_area,
+#if LCD_WIDTH >= 1920 && LCD_HEIGHT >= 1080
+        netflix_launch
+#else
+        false
+#endif
+    );
     scaled_frame_size = (size_t)render_area.dst_width * render_area.dst_height * 3 / 2;
     if (scaled_frame_size == 0)
     {
@@ -2413,6 +2871,11 @@ static int play_raw_rvp(const char *path)
         total_video_frames += raw_segment_frame_counts[i];
     }
     raw_osd_reset(total_video_frames, raw_config.fps);
+    resume_frame = raw_resume_load(path, total_video_frames, raw_config.fps);
+    if (netflix_restart)
+        resume_frame = 0;
+    if (netflix_launch && resume_frame == 0)
+        netflix_intro_run(raw_pool, raw_pool_size);
 
     render_area.scale = (frame_size != scaled_frame_size) ||
                        render_area.dst_width != raw_config.width ||
@@ -2496,6 +2959,17 @@ static int play_raw_rvp(const char *path)
     bool paused = false;
     bool seeking = false;
     int i = 0;
+
+    while (i < segment_count &&
+           resume_frame >=
+               segment_frame_offset + raw_segment_frame_counts[i])
+    {
+        segment_frame_offset += raw_segment_frame_counts[i];
+        i++;
+    }
+    if (i < segment_count)
+        initial_frame = resume_frame - segment_frame_offset;
+
     while (i < segment_count)
     {
         long frames = 0;
@@ -2523,7 +2997,8 @@ static int play_raw_rvp(const char *path)
             &frames, &late, &ticks, &user_exit, &raw_config, &render_area,
             frame_size, raw_audio_bytes_per_frame,
             segment_frame_offset, initial_frame,
-            paused, seeking, &segment_move, &paused, &seeking);
+            paused, seeking, &last_position, &segment_move,
+            &paused, &seeking);
         if (double_buffer_audio)
         {
             audio_ready[slot] = false;
@@ -2536,7 +3011,10 @@ static int play_raw_rvp(const char *path)
         if (rc != PLUGIN_OK)
             break;
         if (user_exit)
+        {
+            exited_by_user = true;
             break;
+        }
         if (segment_move == -2)
         {
             audio_ready[0] = false;
@@ -2578,6 +3056,23 @@ static int play_raw_rvp(const char *path)
                            total_ticks, rc == PLUGIN_OK ? 0 : -1,
                            &raw_config);
 
+    if (exited_by_user)
+    {
+        raw_resume_save(path, last_position, total_video_frames,
+                        raw_config.fps);
+        /* raw_resume_save() drops the record past 95%, treating the title as
+         * finished. Record that here or the checkmark would be lost with it. */
+        if (netflix_launch && total_video_frames > 0 &&
+            last_position >= (total_video_frames * 95) / 100)
+            raw_netflix_mark_watched(path);
+    }
+    else if (rc == PLUGIN_OK && i >= segment_count)
+    {
+        raw_resume_clear(path);
+        if (netflix_launch)
+            raw_netflix_mark_watched(path);
+    }
+
     raw_audio_shutdown();
     return rc;
 }
@@ -2585,6 +3080,8 @@ static int play_raw_rvp(const char *path)
 enum plugin_status plugin_start(const void *parameter)
 {
     const char *path = parameter;
+    bool netflix_launch;
+    bool netflix_restart;
     long bytes = 0;
     long nal_count = 0;
     long idr_count = 0;
@@ -2599,8 +3096,19 @@ enum plugin_status plugin_start(const void *parameter)
         return PLUGIN_ERROR;
     }
 
+    netflix_restart =
+        !rb->strncmp(path, NETFLIX_RESTART_PARAMETER_PREFIX,
+                     NETFLIX_RESTART_PARAMETER_PREFIX_LEN);
+    netflix_launch = netflix_restart ||
+        !rb->strncmp(path, NETFLIX_PARAMETER_PREFIX,
+                     NETFLIX_PARAMETER_PREFIX_LEN);
+    if (netflix_restart)
+        path += NETFLIX_RESTART_PARAMETER_PREFIX_LEN;
+    else if (netflix_launch)
+        path += NETFLIX_PARAMETER_PREFIX_LEN;
+
     if (has_ext(path, "rvp"))
-        return play_raw_rvp(path);
+        return play_raw_rvp(path, netflix_launch, netflix_restart);
 
     rc = scan_annexb(path, &bytes, &nal_count, &idr_count,
                      &sps_count, &pps_count, &scan_ticks);

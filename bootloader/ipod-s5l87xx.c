@@ -1587,7 +1587,9 @@ static void n3g_handoff_disk_native(unsigned char *image, int length)
 
 #ifdef IPOD_6G
 extern void lcd_wait_for_dma(void);
+#ifdef N25_ANDROID_VISIBLE_DIAG_TEST
 extern void lcd_prepare_for_pio_trace(void);
+#endif
 
 /*
  * The first hardware gate deliberately uses three ordinary Rockbox firmware
@@ -1595,7 +1597,11 @@ extern void lcd_prepare_for_pio_trace(void);
  * ip6g model tag and the additive Rockbox checksum before exposing a body.
  * Exact body sizes make a valid prefix/trailing-data substitution fail closed.
  */
-#ifdef N25_ANDROID_VISIBLE_DIAG_TEST
+#ifdef N25_ANDROID_HEADLESS_USB_TEST
+#define N25_ANDROID_KERNEL_PATH BOOTDIR "/android/diagnostic-headless-usb2/n25-headless-kernel.ipod"
+#define N25_ANDROID_INITRD_PATH BOOTDIR "/android/diagnostic-headless-usb2/n25-headless-initramfs.ipod"
+#define N25_ANDROID_DTB_PATH    BOOTDIR "/android/diagnostic-headless-usb2/n25-headless-dtb.ipod"
+#elif defined(N25_ANDROID_VISIBLE_DIAG_TEST)
 #define N25_ANDROID_KERNEL_PATH BOOTDIR "/android/diagnostic-trace2/n25-visible-kernel.ipod"
 #define N25_ANDROID_INITRD_PATH BOOTDIR "/android/diagnostic-trace2/n25-visible-initramfs.ipod"
 #define N25_ANDROID_DTB_PATH    BOOTDIR "/android/diagnostic-trace2/n25-visible-dtb.ipod"
@@ -1609,16 +1615,72 @@ extern void lcd_prepare_for_pio_trace(void);
 #define N25_ANDROID_INITRD_ADDR 0x09c00000u
 #define N25_ANDROID_DTB_ADDR    0x0ad00000u
 
+/*
+ * Keep the two iPod 6G boot chords as linked, independently executable
+ * functions.  The release qualification gate runs these exact functions from
+ * bootloader.bin for every possible main-button bit pattern, then verifies
+ * that main calls both of them.  Select+Right belongs exclusively to Android;
+ * the old bootloader USB action moves to the otherwise unused Menu+Play chord.
+ */
+static bool __attribute__((noinline))
+n25_android_boot_chord(int buttons)
+{
+    return buttons == (BUTTON_SELECT|BUTTON_RIGHT);
+}
+
+#ifdef N25_ANDROID_FORCE_VOLATILE_TEST
+/*
+ * The transient DFU hardware gate must not depend on an operator racing the
+ * 400 ms button sample after the host finishes its USB upload.  This linked
+ * predicate exists only in that separately built volatile image and is
+ * exact-binary emulated as always true.  Persistent/NOR builds do not define
+ * this symbol and still require exact Select+Right.
+ */
+static bool __attribute__((noinline))
+n25_android_force_volatile_test(void)
+{
+    return true;
+}
+#endif
+
+#ifdef HAVE_BOOTLOADER_USB_MODE
+static bool __attribute__((noinline))
+n25_usb_mode_chord(int buttons)
+{
+    return buttons == (BUTTON_MENU|BUTTON_PLAY);
+}
+#endif
+
 /* tools/scramble pads bodies to four bytes before adding the ip6g header. */
 #ifndef N25_ANDROID_KERNEL_SIZE
-#define N25_ANDROID_KERNEL_SIZE 1683480
+#define N25_ANDROID_KERNEL_SIZE 1684224
 #endif
 #ifndef N25_ANDROID_INITRD_SIZE
 #define N25_ANDROID_INITRD_SIZE 13842304
 #endif
 #ifndef N25_ANDROID_DTB_SIZE
-#define N25_ANDROID_DTB_SIZE    3024
+#define N25_ANDROID_DTB_SIZE    3048
 #endif
+
+struct n25_android_image_contract
+{
+    uint32_t kernel_size;
+    uint32_t initrd_size;
+    uint32_t dtb_size;
+};
+
+/*
+ * Volatile keeps the linked contract authoritative for the actual load calls
+ * and leaves one machine-readable object for qualification.  The bundle gate
+ * compares these exact words with the three checksum-wrapped payload bodies.
+ */
+static const volatile struct n25_android_image_contract
+n25_android_image_contract =
+{
+    N25_ANDROID_KERNEL_SIZE,
+    N25_ANDROID_INITRD_SIZE,
+    N25_ANDROID_DTB_SIZE,
+};
 
 static int n25_android_load_exact(const char *path, uintptr_t address,
                                   int expected_size)
@@ -1661,11 +1723,16 @@ n25_android_linux_jump(uintptr_t entry __attribute__((unused)),
         "mov r3, #0\n"
         "mcr p15, 0, r3, c8, c7, 0\n"
         "mcr p15, 0, r3, c7, c5, 4\n"
+#ifdef N25_ANDROID_VISIBLE_DIAG_TEST
         /*
-         * Post-cache breadcrumb. Rockbox explicitly starts one full-screen
-         * GRAM transaction immediately before handoff. Each of five opaque
-         * boot stages appends one 320x48 band, so the final display retains
-         * every completed milestone without resetting the panel cursor here.
+         * TRACE2-only post-cache breadcrumb. Rockbox explicitly starts one
+         * full-screen GRAM transaction immediately before handoff. Each of
+         * five opaque boot stages appends one 320x48 band.
+         *
+         * Never link this LCD FIFO wait into production or headless Linux
+         * handoffs. Physical TRACE2 retained the pre-handoff legend and never
+         * completed this first band, so the diagnostic MMIO loop itself is a
+         * hardware stop point rather than a valid Linux prerequisite.
          */
         "ldr r5, 2f\n"
         "ldr r6, 3f\n"
@@ -1678,14 +1745,17 @@ n25_android_linux_jump(uintptr_t entry __attribute__((unused)),
         "str r7, [r6]\n"
         "subs r8, r8, #1\n"
         "bne 1b\n"
+#endif
         "mov r0, #0\n"
         "mvn r1, #0\n"
         "bx r4\n"
+#ifdef N25_ANDROID_VISIBLE_DIAG_TEST
         ".align 2\n"
         "2: .word 0x3830001c\n"
         "3: .word 0x38300040\n"
         "4: .word 0x0000f800\n"
         "5: .word 15360\n"
+#endif
     );
 }
 
@@ -1721,7 +1791,9 @@ static void __attribute__((noinline)) n25_android_quiesce(void)
  */
 static void __attribute__((noinline, noreturn)) n25_android_handoff(void)
 {
+#ifdef N25_ANDROID_VISIBLE_DIAG_TEST
     lcd_prepare_for_pio_trace();
+#endif
     n25_android_quiesce();
     commit_discard_idcache();
     n25_android_linux_jump(N25_ANDROID_KERNEL_ADDR, N25_ANDROID_DTB_ADDR);
@@ -1732,30 +1804,39 @@ static void __attribute__((noinline)) n25_android_boot(void)
     lcd_clear_display();
     line = 0;
     lcd_set_foreground(LCD_WHITE);
-#ifdef N25_ANDROID_VISIBLE_DIAG_TEST
+#ifdef N25_ANDROID_HEADLESS_USB_TEST
+    printf("N25 HEADLESS USB2 PROBE");
+    printf("RAM ONLY / STORAGE ABSENT");
+#elif defined(N25_ANDROID_VISIBLE_DIAG_TEST)
     printf("N25 LINUX VISIBLE PROBE");
     printf("RAM ONLY / STORAGE ABSENT");
+#elif defined(N25_ANDROID_FORCE_VOLATILE_TEST)
+    printf("Android 2.0 RAM boot");
+    printf("DFU volatile test / forced Android");
 #else
     printf("Android 2.0 RAM boot");
-    printf("Menu+Play / no storage in Linux");
+    printf("Select+Right / RAM-only Android");
 #endif
     printf("Loading kernel...");
     lcd_update();
 
     if (n25_android_load_exact(N25_ANDROID_KERNEL_PATH,
-            N25_ANDROID_KERNEL_ADDR, N25_ANDROID_KERNEL_SIZE) != 0)
+            N25_ANDROID_KERNEL_ADDR,
+            n25_android_image_contract.kernel_size) != 0)
         fatal_error(ERR_ANDROID);
 
     printf("Loading RAM root...");
     lcd_update();
     if (n25_android_load_exact(N25_ANDROID_INITRD_PATH,
-            N25_ANDROID_INITRD_ADDR, N25_ANDROID_INITRD_SIZE) != 0)
+            N25_ANDROID_INITRD_ADDR,
+            n25_android_image_contract.initrd_size) != 0)
         fatal_error(ERR_ANDROID);
 
     printf("Loading device tree...");
     lcd_update();
     if (n25_android_load_exact(N25_ANDROID_DTB_PATH,
-            N25_ANDROID_DTB_ADDR, N25_ANDROID_DTB_SIZE) != 0)
+            N25_ANDROID_DTB_ADDR,
+            n25_android_image_contract.dtb_size) != 0)
         fatal_error(ERR_ANDROID);
 
     /* No filesystem or storage driver exists on the Linux side of handoff. */
@@ -1779,8 +1860,9 @@ void main(void)
 {
     int rc = 0;
 #ifdef IPOD_6G
-#if defined(N25_ANDROID_FORCE_VOLATILE_TEST) || \
-    defined(N25_ANDROID_VISIBLE_DIAG_TEST)
+#if defined(N25_ANDROID_FORCE_VOLATILE_TEST)
+    bool android_boot_requested = n25_android_force_volatile_test();
+#elif defined(N25_ANDROID_VISIBLE_DIAG_TEST)
     bool android_boot_requested = true;
 #else
     bool android_boot_requested = false;
@@ -1897,8 +1979,8 @@ void main(void)
             btn = button_read_device();
         }
 #ifdef IPOD_6G
-        /* Exact unused chord; all existing Apple/Rockbox chords are retained. */
-        if (btn == (BUTTON_MENU|BUTTON_PLAY))
+        /* Exact Select+Right chord; qualified independently from USB mode. */
+        if (n25_android_boot_chord(btn))
             android_boot_requested = true;
 #endif
         /* Enter OF, diagmode and diskmode using ONB */
@@ -2181,8 +2263,15 @@ of_loaded:
     }
 
 #ifdef HAVE_BOOTLOADER_USB_MODE
-    /* Enter USB mode if SELECT+RIGHT are pressed */
+    /*
+     * Select+Right is the Android boot chord on iPod 6G.  Preserve the
+     * bootloader USB action on exact Menu+Play instead.
+     */
+#ifdef IPOD_6G
+    if (n25_usb_mode_chord(button_read_device())) {
+#else
     if (button_read_device() == (BUTTON_SELECT|BUTTON_RIGHT)) {
+#endif
 #if defined(MAX_VIRT_SECTOR_SIZE) && defined(DEFAULT_VIRT_SECTOR_SIZE)
 #ifdef HAVE_MULTIDRIVE
             for (int i = 0 ; i < NUM_DRIVES ; i++)

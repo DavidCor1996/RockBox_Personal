@@ -61,6 +61,14 @@ def test_steam_library_loads_installed_ipod_games_from_achievement_catalog():
         root_menu
 
 
+def test_cps1_has_a_dedicated_zip_platform_and_manifest():
+    root_menu = _text("apps/root_menu.c")
+
+    assert 'strstr(path, "/games/cps1/roms/")' in root_menu
+    assert 'return "CPS1 Arcade";' in root_menu
+    assert 'ROCKBOX_DIR "/rocks/games/cps1/games.tsv"' in root_menu
+
+
 def test_official_steam_logo_has_native_header_background_without_white_box():
     readme = _text("assets/ipodjs/sources/steam/README.md")
     logo_path = ROOT / "assets/ipodjs/rockbox/steam/steam-logo-official.110x32x24.bmp"

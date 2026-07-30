@@ -392,3 +392,60 @@ def test_deleted_local_photo_remains_removable_from_device(tmp_dir):
     )
     assert removed["success"] is True
     assert not os.path.exists(os.path.join(device, "Photos", "IMG_0001.jpg"))
+
+
+def test_photo_sync_writes_preview_index_and_remove_updates_it(tmp_dir):
+    repo_root = os.path.join(tmp_dir, "repo")
+    photos = os.path.join(tmp_dir, "photos")
+    device = os.path.join(tmp_dir, "device")
+    _make_image(os.path.join(photos, "Trip", "IMG_0001.jpg"), size=(640, 480))
+    _make_image(os.path.join(photos, "Trip", "IMG_0002.jpg"), size=(480, 640))
+    os.makedirs(device, exist_ok=True)
+
+    _config, store = _make_store(tmp_dir, repo_root)
+    profile = store.current_profile()
+    profile["photos_library_path"] = photos
+    profile["device_mount_path"] = device
+    profile = store.save_profile(profile)
+
+    service = RockboxPhotoService()
+    deploy = RockboxDeployService()
+    deploy_profile = service.deploy_profile(profile, "device")
+    selected = service.list_photos(profile)
+    synced = deploy.apply_diff(
+        deploy_profile,
+        deploy.build_diff(deploy_profile, service.build_sync_bundle(profile, selected, "device")),
+    )
+    assert synced["success"] is True
+
+    index_path = os.path.join(device, "Photos", ".photo_previews", "index.tsv")
+    assert os.path.isfile(index_path)
+    with open(index_path, encoding="utf-8") as handle:
+        lines = [line.rstrip("\n") for line in handle if line.strip()]
+
+    assert lines[0] == "relpath\twidth\theight"
+    entries = {line.split("\t")[0]: line.split("\t") for line in lines[1:]}
+    assert set(entries) == {"Trip/IMG_0001.jpg.bmp", "Trip/IMG_0002.jpg.bmp"}
+    for relpath, fields in entries.items():
+        assert len(fields) == 3
+        assert int(fields[1]) > 0
+        assert int(fields[2]) > 0
+        assert os.path.isfile(
+            os.path.join(device, "Photos", ".photo_previews", relpath)
+        )
+
+    removed_photo = next(
+        item for item in selected if item["relative_path"] == "Trip/IMG_0001.jpg"
+    )
+    removed = deploy.apply_diff(
+        deploy_profile,
+        deploy.build_diff(
+            deploy_profile, service.build_remove_bundle(profile, [removed_photo], "device")
+        ),
+    )
+    assert removed["success"] is True
+
+    with open(index_path, encoding="utf-8") as handle:
+        lines = [line.rstrip("\n") for line in handle if line.strip()]
+    remaining = [line.split("\t")[0] for line in lines[1:]]
+    assert remaining == ["Trip/IMG_0002.jpg.bmp"]

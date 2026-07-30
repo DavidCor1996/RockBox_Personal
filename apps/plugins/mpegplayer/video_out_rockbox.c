@@ -23,6 +23,7 @@
 #include "plugin.h"
 #include "mpegplayer.h"
 #include "mpeg_settings.h"
+#include "livetv.h"
 
 #define VO_NON_NULL_RECT 0x1
 #define VO_VISIBLE       0x2
@@ -141,6 +142,92 @@ static inline void yuv_blit(uint8_t * const * buf, int src_x, int src_y,
     video_unlock();
 }
 
+#if defined(HAVE_LCD_COLOR) && LCD_WIDTH == 320 && LCD_HEIGHT == 240
+#define VO_YUV_OVERLAY_MAX_H 64
+static uint8_t vo_overlay_y[LCD_WIDTH * VO_YUV_OVERLAY_MAX_H];
+static uint8_t vo_overlay_u[(LCD_WIDTH / 2) *
+                            (VO_YUV_OVERLAY_MAX_H / 2)];
+static uint8_t vo_overlay_v[(LCD_WIDTH / 2) *
+                            (VO_YUV_OVERLAY_MAX_H / 2)];
+
+static void vo_draw_yuv_overlay(uint8_t * const *buf)
+{
+    uint8_t *overlay[3] = {
+        vo_overlay_y, vo_overlay_u, vo_overlay_v
+    };
+    int height = mpegplayer_yuv_overlay_height();
+    int screen_y;
+    int x;
+    int y;
+
+    if (buf == NULL || height <= 0 || height > VO_YUV_OVERLAY_MAX_H)
+        return;
+
+    screen_y = mpegplayer_yuv_overlay_y();
+    if (screen_y < 0 || screen_y + height > LCD_HEIGHT)
+        return;
+    for (y = 0; y < height; y++)
+    {
+        int display_y = screen_y + y;
+
+        for (x = 0; x < LCD_WIDTH; x++)
+        {
+            if (x >= vo.output_x &&
+                x < vo.output_x + vo.output_width &&
+                display_y >= vo.output_y &&
+                display_y < vo.output_y + vo.output_height)
+            {
+                int src_x = vo.src_x + x - vo.output_x;
+                int src_y = vo.src_y + display_y - vo.output_y;
+
+                overlay[0][y * LCD_WIDTH + x] =
+                    buf[0][src_y * vo.image_width + src_x];
+            }
+            else
+            {
+                overlay[0][y * LCD_WIDTH + x] = 16;
+            }
+        }
+    }
+
+    for (y = 0; y < height / 2; y++)
+    {
+        int display_y = screen_y + y * 2;
+
+        for (x = 0; x < LCD_WIDTH / 2; x++)
+        {
+            int display_x = x * 2;
+            int index = y * (LCD_WIDTH / 2) + x;
+
+            if (display_x >= vo.output_x &&
+                display_x < vo.output_x + vo.output_width &&
+                display_y >= vo.output_y &&
+                display_y < vo.output_y + vo.output_height)
+            {
+                int src_x = vo.src_x + display_x - vo.output_x;
+                int src_y = vo.src_y + display_y - vo.output_y;
+                int src_index =
+                    (src_y / 2) * (vo.image_width / 2) + src_x / 2;
+
+                overlay[1][index] = buf[1][src_index];
+                overlay[2][index] = buf[2][src_index];
+            }
+            else
+            {
+                overlay[1][index] = 128;
+                overlay[2][index] = 128;
+            }
+        }
+    }
+
+    mpegplayer_yuv_overlay_draw(overlay, LCD_WIDTH, height);
+    yuv_blit(overlay, 0, 0, LCD_WIDTH, 0, screen_y,
+             LCD_WIDTH, height);
+}
+#else
+#define vo_draw_yuv_overlay(buf) do { } while (0)
+#endif
+
 void stretch_image_plane(const uint8_t * src, uint8_t *dst, int stride,
                          int src_w, int src_h, int dst_w, int dst_h);
 
@@ -231,6 +318,38 @@ void vo_draw_frame(uint8_t * const * buf)
          * away - copout */
         DEBUGF("vo hidden\n");
     }
+#ifdef HAVE_LCD_COLOR
+    else if (mpegplayer_livetv_launch &&
+             mpegplayer_livetv_weather_hidden &&
+             !mpegplayer_livetv_pig)
+    {
+        /* Forecast-panel phase: keep decoding on the ordinary full-screen
+         * output rectangle, but do not let fresh carrier frames overwrite
+         * the native panel. Toggling this flag never reconfigures or stalls
+         * the video/audio threads; the next visible phase can immediately
+         * paint the most recently decoded frame. */
+    }
+    else if (mpegplayer_livetv_launch && mpegplayer_livetv_pig &&
+             buf != NULL)
+    {
+        /* Picture in guide shows the whole picture shrunk into the corner
+         * window. The ordinary path blits one screen pixel per source
+         * pixel, which would show only the top left corner of the frame,
+         * so scale it the way the seek thumbnail does. The Weather channel
+         * while watching full screen never reaches this: it is hidden
+         * entirely (VO_NON_NULL_RECT clear, caught above), not boxed. */
+        vo_draw_frame_thumb(buf, &vo.rc_vid);
+    }
+#if LCD_WIDTH >= 1920 && LCD_HEIGHT >= 1080
+    else if (mpegplayer_netflix_launch && buf != NULL)
+    {
+        /* Desktop Netflix owns the display during playback. Scale a Video
+         * Sync frame into the 1080p decoder rectangle instead of leaving a
+         * 320x240 source at native size in the middle of the screen. */
+        vo_draw_frame_thumb(buf, &vo.rc_vid);
+    }
+#endif
+#endif
     else if (buf == NULL)
     {
         /* No frame exists - draw black */
@@ -253,10 +372,50 @@ void vo_draw_frame(uint8_t * const * buf)
     }
     else
     {
+#if defined(HAVE_LCD_COLOR) && LCD_WIDTH == 320 && LCD_HEIGHT == 240
+        int overlay_height = mpegplayer_yuv_overlay_height();
+        int overlay_top = mpegplayer_yuv_overlay_y();
+        int overlay_bottom = overlay_top + overlay_height;
+        int video_bottom = vo.output_y + vo.output_height;
+
+        /*
+         * Never let the ordinary video blit briefly erase an active overlay.
+         * Draw the portions above and below it separately; the overlay path
+         * copies those decoded pixels, adds its UI in YUV, and owns the band
+         * until it expires.
+         */
+        if (overlay_height > 0 &&
+            vo.output_y < overlay_top &&
+            video_bottom > overlay_top)
+        {
+            int top_height = overlay_top - vo.output_y;
+            int bottom_y = MAX(vo.output_y, overlay_bottom);
+            int bottom_height = video_bottom - bottom_y;
+
+            if (top_height > 0)
+                yuv_blit(buf, vo.src_x, vo.src_y, vo.image_width,
+                         vo.output_x, vo.output_y, vo.output_width,
+                         top_height);
+            if (bottom_height > 0)
+                yuv_blit(buf, vo.src_x,
+                         vo.src_y + bottom_y - vo.output_y,
+                         vo.image_width, vo.output_x, bottom_y,
+                         vo.output_width, bottom_height);
+        }
+        else
+        {
+            yuv_blit(buf, vo.src_x, vo.src_y, vo.image_width,
+                     vo.output_x, vo.output_y, vo.output_width,
+                     vo.output_height);
+        }
+#else
         yuv_blit(buf, vo.src_x, vo.src_y, vo.image_width,
                  vo.output_x, vo.output_y, vo.output_width,
                  vo.output_height);
+#endif
     }
+
+    vo_draw_yuv_overlay(buf);
 
     if (vo.post_draw_callback)
         vo.post_draw_callback();
@@ -464,6 +623,76 @@ void stretch_image_plane(const uint8_t * src, uint8_t *dst, int stride,
     }
 }
 
+#ifdef HAVE_LCD_COLOR
+/* Scale a horizontal band without allocating a full destination frame.
+ * Desktop 1080p needs a much larger output than the decoder's ordinary
+ * picture-in-guide scratch block, while the physical iPod path never does.
+ * Mapping each destination coordinate against the full output dimensions
+ * keeps adjacent bands seamless. */
+static void stretch_image_plane_band(const uint8_t *src, uint8_t *dst,
+                                     int stride, int src_w, int src_h,
+                                     int dst_w, int dst_h,
+                                     int dst_y, int rows)
+{
+    int y;
+
+    for (y = 0; y < rows; y++)
+    {
+        const uint8_t *source =
+            src + ((dst_y + y) * src_h / dst_h) * stride;
+        uint8_t *target = dst + y * dst_w;
+        int x;
+
+        for (x = 0; x < dst_w; x++)
+            target[x] = source[x * src_w / dst_w];
+    }
+}
+
+static bool vo_draw_frame_thumb_banded(uint8_t * const *buf,
+                                       const struct vo_rect *rc,
+                                       void *mem, size_t bufsize)
+{
+    int width = rc->r - rc->l;
+    int height = rc->b - rc->t;
+    int uv_width = width / 2;
+    int uv_height = height / 2;
+    int rows = MIN(64, (int)(bufsize / (size_t)(width * 3)) * 2);
+    int y;
+
+    rows &= ~1;
+    if (rows < 2)
+        return false;
+
+    for (y = 0; y < height; y += rows)
+    {
+        int band_h = MIN(rows, height - y);
+        int uv_band_h = band_h / 2;
+        uint8_t *scaled[3];
+
+        scaled[0] = mem;
+        scaled[1] = scaled[0] + width * band_h;
+        scaled[2] = scaled[1] + uv_width * uv_band_h;
+
+        stretch_image_plane_band(
+            buf[0], scaled[0], vo.image_width,
+            vo.display_width, vo.display_height,
+            width, height, y, band_h);
+        stretch_image_plane_band(
+            buf[1], scaled[1], vo.image_width / 2,
+            vo.display_width / 2, vo.display_height / 2,
+            uv_width, uv_height, y / 2, uv_band_h);
+        stretch_image_plane_band(
+            buf[2], scaled[2], vo.image_width / 2,
+            vo.display_width / 2, vo.display_height / 2,
+            uv_width, uv_height, y / 2, uv_band_h);
+
+        yuv_blit(scaled, 0, 0, width, rc->l, rc->t + y, width, band_h);
+    }
+
+    return true;
+}
+#endif
+
 bool vo_draw_frame_thumb(uint8_t * const * buf, const struct vo_rect *rc)
 {
     void *mem;
@@ -507,6 +736,16 @@ bool vo_draw_frame_thumb(uint8_t * const * buf, const struct vo_rect *rc)
 #endif
             )
     {
+#ifdef HAVE_LCD_COLOR
+        if (((mpegplayer_livetv_desktop &&
+              !mpegplayer_livetv_guide_active) ||
+#if LCD_WIDTH >= 1920 && LCD_HEIGHT >= 1080
+             mpegplayer_netflix_launch ||
+#endif
+             false) &&
+            vo_draw_frame_thumb_banded(buf, &thumb_rc, mem, bufsize))
+            return true;
+#endif
         DEBUGF("thumb: insufficient buffer\n");
         goto no_thumb_exit;
     }
@@ -551,6 +790,20 @@ no_thumb_exit:
 void vo_setup(const mpeg2_sequence_t * sequence)
 {
     int scaled_w, scaled_h;
+    bool youtube_embedded = mpegplayer_youtube_launch &&
+                            mpegplayer_youtube_embedded;
+#if LCD_WIDTH >= 1920 && LCD_HEIGHT >= 1080
+    bool netflix_desktop = mpegplayer_netflix_launch;
+#else
+    const bool netflix_desktop = false;
+#endif
+#ifdef HAVE_LCD_COLOR
+    /* Live TV picture in guide: the channel keeps decoding into the small
+     * window in the corner of the guide, as on a DIRECTV receiver. */
+    bool livetv_pig = mpegplayer_livetv_launch && mpegplayer_livetv_pig;
+#else
+    const bool livetv_pig = false;
+#endif
 
     vo.image_width = sequence->width;
     vo.image_height = sequence->height;
@@ -562,7 +815,52 @@ void vo_setup(const mpeg2_sequence_t * sequence)
     vo.image_chroma_x = vo.image_width / sequence->chroma_width;
     vo.image_chroma_y = vo.image_height / sequence->chroma_height;
 
-    switch (settings.display_mode)
+    if (livetv_pig)
+    {
+        scaled_w = mpegplayer_livetv_desktop &&
+                   !mpegplayer_livetv_guide_active ? LIVETV_DM_VIDEO_W :
+                                                     LIVETV_PIG_W;
+        scaled_h = mpegplayer_livetv_desktop &&
+                   !mpegplayer_livetv_guide_active ? LIVETV_DM_VIDEO_H :
+                                                     LIVETV_PIG_H;
+        vo.src_x = 0;
+        vo.src_y = 0;
+    }
+    else if (youtube_embedded)
+    {
+        scaled_w = 210;
+        scaled_h = 158;
+        vo.src_x = 0;
+        vo.src_y = 0;
+    }
+    else if (netflix_desktop)
+    {
+        int64_t width_fit =
+            (int64_t)SCREEN_WIDTH * vo.display_height;
+        int64_t height_fit =
+            (int64_t)SCREEN_HEIGHT * vo.display_width;
+
+        /* Contain the complete synchronized picture in 1920x1080. Any
+         * aspect-ratio bars are outside the frame and cannot intersect the
+         * app's labels because the window is no longer on screen. */
+        if (width_fit <= height_fit)
+        {
+            scaled_w = SCREEN_WIDTH;
+            scaled_h = (int)((int64_t)SCREEN_WIDTH *
+                             vo.display_height / vo.display_width);
+        }
+        else
+        {
+            scaled_h = SCREEN_HEIGHT;
+            scaled_w = (int)((int64_t)SCREEN_HEIGHT *
+                             vo.display_width / vo.display_height);
+        }
+        vo.src_x = 0;
+        vo.src_y = 0;
+        DEBUGF("NETFLIX DESKTOP: source=%dx%d scaled=%dx%d\n",
+               vo.display_width, vo.display_height, scaled_w, scaled_h);
+    }
+    else switch (settings.display_mode)
     {
     default:
     case MPEG_VIDEO_DISPLAY_FIT:
@@ -667,8 +965,17 @@ void vo_setup(const mpeg2_sequence_t * sequence)
         break;
     }
 
-    scaled_w = MIN(scaled_w, vo.display_width - vo.src_x);
-    scaled_h = MIN(scaled_h, vo.display_height - vo.src_y);
+    /* Windowed DIRECTV at 1080p intentionally scales the selected channel
+     * up to the complete decoder-owned content rectangle. The ordinary cap
+     * is for one-source-pixel-per-output-pixel paths; Live TV uses the
+     * thumbnail scaler below and can therefore enlarge safely. */
+    if (!netflix_desktop &&
+        !(mpegplayer_livetv_desktop &&
+          !mpegplayer_livetv_guide_active && livetv_pig))
+    {
+        scaled_w = MIN(scaled_w, vo.display_width - vo.src_x);
+        scaled_h = MIN(scaled_h, vo.display_height - vo.src_y);
+    }
 
 #ifdef HAVE_LCD_COLOR
     scaled_w &= ~1;
@@ -687,8 +994,25 @@ void vo_setup(const mpeg2_sequence_t * sequence)
     scaled_w = MAX(scaled_w, 2);
     scaled_h = MAX(scaled_h, 2);
 
-    vo.rc_vid.l = (SCREEN_WIDTH - scaled_w) / 2;
-    vo.rc_vid.t = (SCREEN_HEIGHT - scaled_h) / 2;
+    if (livetv_pig)
+    {
+        vo.rc_vid.l = mpegplayer_livetv_desktop &&
+                      !mpegplayer_livetv_guide_active ? LIVETV_DM_VIDEO_X :
+                                                        LIVETV_PIG_X;
+        vo.rc_vid.t = mpegplayer_livetv_desktop &&
+                      !mpegplayer_livetv_guide_active ? LIVETV_DM_VIDEO_Y :
+                                                        LIVETV_PIG_Y;
+    }
+    else if (youtube_embedded)
+    {
+        vo.rc_vid.l = 4;
+        vo.rc_vid.t = 62;
+    }
+    else
+    {
+        vo.rc_vid.l = (SCREEN_WIDTH - scaled_w) / 2;
+        vo.rc_vid.t = (SCREEN_HEIGHT - scaled_h) / 2;
+    }
 #ifdef HAVE_LCD_COLOR
     vo.rc_vid.l &= ~1;
     vo.rc_vid.t &= ~1;

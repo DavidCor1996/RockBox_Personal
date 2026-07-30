@@ -1,0 +1,880 @@
+{
+  "archive": "https://github.com/tgc-utn/xna-game-studio/tree/master/Samples/AvatarAnimPack_4_0_FBX",
+  "attachment_bones": [
+    "head",
+    "back",
+    "hand-left",
+    "hand-right",
+    "base"
+  ],
+  "bones": [
+    "BACKA__Skeleton",
+    "BACKB__Skeleton",
+    "BASE__Skeleton",
+    "HEAD__Skeleton",
+    "LF_A__Skeleton",
+    "LF_C__Skeleton",
+    "LF_E_TWIST__Skeleton",
+    "LF_FINGA__Skeleton",
+    "LF_FINGA1__Skeleton",
+    "LF_FINGA2__Skeleton",
+    "LF_FINGB__Skeleton",
+    "LF_FINGB1__Skeleton",
+    "LF_FINGB2__Skeleton",
+    "LF_FINGC__Skeleton",
+    "LF_FINGC1__Skeleton",
+    "LF_FINGC2__Skeleton",
+    "LF_FINGD__Skeleton",
+    "LF_FINGD1__Skeleton",
+    "LF_FINGD2__Skeleton",
+    "LF_H__Skeleton",
+    "LF_SC_E__Skeleton",
+    "LF_SC_H__Skeleton",
+    "LF_SC_K__Skeleton",
+    "LF_SC_S__Skeleton",
+    "LF_SC_TWIST_S__Skeleton",
+    "LF_T__Skeleton",
+    "LF_THUMB__Skeleton",
+    "LF_THUMB1__Skeleton",
+    "LF_THUMB2__Skeleton",
+    "LF_W__Skeleton",
+    "RT_A__Skeleton",
+    "RT_C__Skeleton",
+    "RT_E_TWIST__Skeleton",
+    "RT_FINGA__Skeleton",
+    "RT_FINGA1__Skeleton",
+    "RT_FINGA2__Skeleton",
+    "RT_FINGB__Skeleton",
+    "RT_FINGB1__Skeleton",
+    "RT_FINGB2__Skeleton",
+    "RT_FINGC__Skeleton",
+    "RT_FINGC1__Skeleton",
+    "RT_FINGC2__Skeleton",
+    "RT_FINGD__Skeleton",
+    "RT_FINGD1__Skeleton",
+    "RT_FINGD2__Skeleton",
+    "RT_H__Skeleton",
+    "RT_SC_E__Skeleton",
+    "RT_SC_H__Skeleton",
+    "RT_SC_K__Skeleton",
+    "RT_SC_S__Skeleton",
+    "RT_SC_TWIST_S__Skeleton",
+    "RT_T__Skeleton",
+    "RT_THUMB__Skeleton",
+    "RT_THUMB1__Skeleton",
+    "RT_THUMB2__Skeleton",
+    "RT_W__Skeleton",
+    "SC_BACKA__Skeleton",
+    "SC_BACKB__Skeleton",
+    "SC_BASE__Skeleton",
+    "SC_NECK__Skeleton",
+    "LF_K__Skeleton",
+    "RT_K__Skeleton",
+    "NECK__Skeleton"
+  ],
+  "clips": {
+    "faint": {
+      "frames": 11,
+      "source": "faint.fbx"
+    },
+    "jump": {
+      "frames": 14,
+      "source": "jump.fbx"
+    },
+    "kick": {
+      "frames": 12,
+      "source": "kick.fbx"
+    },
+    "punch": {
+      "frames": 12,
+      "source": "punch.fbx"
+    },
+    "sit-idle": {
+      "frames": 16,
+      "source": "sitIdle.fbx"
+    },
+    "throw": {
+      "frames": 10,
+      "source": "throw.fbx"
+    },
+    "turntable": {
+      "angles": 24,
+      "frames": 1,
+      "source": "jump.fbx"
+    },
+    "walk": {
+      "frames": 16,
+      "source": "walk.fbx"
+    }
+  },
+  "hand_drawn_or_generated_geometry": false,
+  "license": "Microsoft Permissive License (Ms-PL)",
+  "parts": {
+    "boy-body": {
+      "bones": 60,
+      "channels": [
+        "__IntensityMap",
+        "__DecalColorMap",
+        "__ColorMap"
+      ],
+      "materials": [
+        "__BodyOpaque"
+      ],
+      "node": "boy_body_mesh_Natal",
+      "textures": [
+        "__IntensityMap",
+        "__DecalColorMap",
+        "skin__ColorMap"
+      ],
+      "triangles": 2264,
+      "vertices": 1137
+    },
+    "boy-bottoms": {
+      "bones": 13,
+      "channels": [
+        "__ColorMap",
+        "__IntensityMap",
+        "__DecalMap"
+      ],
+      "materials": [
+        "Jeans__BodyOpaque"
+      ],
+      "node": "boy_bottoms_Natal",
+      "textures": [
+        "Jeans__ColorMap",
+        "Jeans__IntensityMap",
+        "Jeans__DecalColorMap"
+      ],
+      "triangles": 798,
+      "vertices": 401
+    },
+    "boy-hair": {
+      "bones": 1,
+      "channels": [
+        "__ColorMap",
+        "__IntensityMap",
+        "__DecalColorMap"
+      ],
+      "materials": [
+        "Boy_Hair__BodyOpaque"
+      ],
+      "node": "boy_hair_Natal",
+      "textures": [
+        "Boy_Hair__ColorMap",
+        "Boy_Hair__IntensityMap",
+        "Boy_Hair__DecalColorMap"
+      ],
+      "triangles": 770,
+      "vertices": 415
+    },
+    "boy-head": {
+      "bones": 1,
+      "channels": [
+        "__SkinFeaturesIntensityMap",
+        "__MouthIntensityMap",
+        "__FacialHairIntensityMap",
+        "__EyeShadowIntensityMap",
+        "__EyeIntensityMap",
+        "__EyeBrowIntensityMap",
+        "__SkinFeaturesIntensityMap",
+        "__MouthIntensityMap",
+        "__FacialHairIntensityMap",
+        "__EyeShadowIntensityMap",
+        "__EyeIntensityMap",
+        "__EyeBrowIntensityMap"
+      ],
+      "materials": [
+        "face_if__HeadOpaque",
+        "face_rt__HeadOpaque1"
+      ],
+      "node": "BlendShapeEarDefault_Natal",
+      "textures": [
+        "__SkinFeaturesIntensityMap",
+        "ClampUV__MouthIntensityMap",
+        "__FacialHairIntensityMap",
+        "__EyeShadowIntensityMap",
+        "Left__ClampUV__EyeIntensityMap",
+        "Left__ClampUV__EyeBrowIntensityMap",
+        "__SkinFeaturesIntensityMap1",
+        "ClampUV__MouthIntensityMap1",
+        "__FacialHairIntensityMap1",
+        "__EyeShadowIntensityMap1",
+        "Right__ClampUV__EyeIntensityMap1",
+        "Right__ClampUV__EyeBrowIntensityMap1"
+      ],
+      "triangles": 846,
+      "vertices": 428
+    },
+    "boy-shoes": {
+      "bones": 8,
+      "channels": [
+        "__ColorMap",
+        "__IntensityMap",
+        "__DecalColorMap"
+      ],
+      "materials": [
+        "footwear__BodyOpaque"
+      ],
+      "node": "boy_shoes_Natal",
+      "textures": [
+        "footwear__ColorMap",
+        "footwear__IntensityMap",
+        "footwear__DecalColorMap"
+      ],
+      "triangles": 588,
+      "vertices": 298
+    },
+    "boy-top": {
+      "bones": 20,
+      "channels": [
+        "__ColorMap",
+        "__IntensityMap",
+        "__DecalColorMap"
+      ],
+      "materials": [
+        "Top__BodyOpaque"
+      ],
+      "node": "boy_top_Natal",
+      "textures": [
+        "Top__ColorMap",
+        "Top__IntensityMap",
+        "Top__DecalColorMap"
+      ],
+      "triangles": 620,
+      "vertices": 312
+    },
+    "girl-body": {
+      "bones": 61,
+      "channels": [
+        "__ColorMap",
+        "__IntensityMap",
+        "__DecalColorMap"
+      ],
+      "materials": [
+        "girlBody__BodyOpaque"
+      ],
+      "node": "girl_body_mesh_Natal",
+      "textures": [
+        "girlBody_skin__ColorMap",
+        "girlBody__IntensityMap",
+        "girlBody__DecalColorMap"
+      ],
+      "triangles": 2454,
+      "vertices": 1232
+    },
+    "girl-body-heelleg": {
+      "bones": 61,
+      "channels": [
+        "__DecalColorMap",
+        "__DecalColorMap",
+        "__DecalColorMap",
+        "__ColorMap",
+        "__IntensityMap"
+      ],
+      "materials": [
+        "girlBody__BodyOpaque"
+      ],
+      "node": "girl_body_heelleg_mesh_Natal",
+      "textures": [
+        "girlBody_skin__ColorMap",
+        "girlBody__IntensityMap",
+        "girlBody__DecalColorMap"
+      ],
+      "triangles": 2454,
+      "vertices": 1232
+    },
+    "girl-bottoms": {
+      "bones": 8,
+      "channels": [
+        "__ColorMap",
+        "__IntensityMap",
+        "__DecalColorMap"
+      ],
+      "materials": [
+        "surfgirl_hotpants__BodyOpaque"
+      ],
+      "node": "girl_bottoms_Natal",
+      "textures": [
+        "Bottom__ColorMap",
+        "Bottom__IntensityMap",
+        "Bottom__DecalColorMap"
+      ],
+      "triangles": 610,
+      "vertices": 348
+    },
+    "girl-hair": {
+      "bones": 1,
+      "channels": [
+        "__ColorMap",
+        "__IntensityMap",
+        "__DecalColorMap"
+      ],
+      "materials": [
+        "Hair__BodyOpaque"
+      ],
+      "node": "girl_hair_Natal",
+      "textures": [
+        "Hair__ColorMap",
+        "Hair__IntensityMap",
+        "Hair__DecalColorMap"
+      ],
+      "triangles": 826,
+      "vertices": 428
+    },
+    "girl-head": {
+      "bones": 1,
+      "channels": [
+        "__SkinFeaturesIntensityMap",
+        "__MouthIntensityMap",
+        "__FacialHairIntensityMap",
+        "__EyeShadowIntensityMap",
+        "__EyeIntensityMap",
+        "__EyeBrowIntensityMap",
+        "__SkinFeaturesIntensityMap",
+        "__MouthIntensityMap",
+        "__FacialHairIntensityMap",
+        "__EyeShadowIntensityMap",
+        "__EyeIntensityMap",
+        "__EyeBrowIntensityMap"
+      ],
+      "materials": [
+        "girlHead_face_if__HeadOpaque",
+        "girlHead_face_rt__HeadOpaque1"
+      ],
+      "node": "girlHead_BlendShapeEarDefault_Natal",
+      "textures": [
+        "girlHead__SkinFeaturesIntensityMap",
+        "girlHead_ClampUV__MouthIntensityMap",
+        "girlHead__FacialHairIntensityMap",
+        "girlHead__EyeShadowIntensityMap",
+        "girlHead_Left__ClampUV__EyeIntensityMap",
+        "girlHead_Left__ClampUV__EyeBrowIntensityMap",
+        "girlHead__SkinFeaturesIntensityMap1",
+        "girlHead_ClampUV__MouthIntensityMap1",
+        "girlHead__FacialHairIntensityMap1",
+        "girlHead__EyeShadowIntensityMap1",
+        "girlHead_Right__ClampUV__EyeIntensityMap1",
+        "girlHead_Right__ClampUV__EyeBrowIntensityMap1"
+      ],
+      "triangles": 846,
+      "vertices": 428
+    },
+    "girl-highheels": {
+      "bones": 8,
+      "channels": [
+        "__ColorMap",
+        "__IntensityMap",
+        "__DecalColorMap"
+      ],
+      "materials": [
+        "HighHeels__BodyOpaque"
+      ],
+      "node": "girl_highheels_mesh_Natal",
+      "textures": [
+        "HighHeels__ColorMap",
+        "HighHeels__IntensityMap",
+        "HighHeels__DecalColorMap"
+      ],
+      "triangles": 584,
+      "vertices": 284
+    },
+    "girl-shoes": {
+      "bones": 6,
+      "channels": [
+        "__ColorMap",
+        "__IntensityMap",
+        "__DecalColorMap"
+      ],
+      "materials": [
+        "girlShoes_footwear__BodyOpaque"
+      ],
+      "node": "girl_shoes_Natal",
+      "textures": [
+        "girlShoes_footwear__ColorMap",
+        "girlShoes_footwear__IntensityMap",
+        "girlShoes_footwear__DecalColorMap"
+      ],
+      "triangles": 468,
+      "vertices": 238
+    },
+    "girl-top": {
+      "bones": 18,
+      "channels": [
+        "__ColorMap",
+        "__IntensityMap",
+        "__DecalColorMap"
+      ],
+      "materials": [
+        "girlTop_Top__BodyOpaque"
+      ],
+      "node": "girl_top_Natal",
+      "textures": [
+        "girlTop_Top__ColorMap",
+        "girlTop_Top__IntensityMap",
+        "girlTop_Top__DecalColorMap"
+      ],
+      "triangles": 750,
+      "vertices": 377
+    }
+  },
+  "schema": 1,
+  "source": "Microsoft XNA Game Studio 4.0 Avatar Animation Pack (FBX)",
+  "textures": {
+    "Bottom__ColorMap": {
+      "file": "0687-0_ColorMap_1.png",
+      "size": [
+        128,
+        128
+      ],
+      "source": "0687-0_ColorMap_1.tga"
+    },
+    "Bottom__DecalColorMap": {
+      "file": "0687-0_DecalMap_1.png",
+      "size": [
+        32,
+        32
+      ],
+      "source": "0687-0_DecalMap_1.tga"
+    },
+    "Bottom__IntensityMap": {
+      "file": "0687-0_IntensityMap_1.png",
+      "size": [
+        32,
+        32
+      ],
+      "source": "0687-0_IntensityMap_1.tga"
+    },
+    "Boy_Hair__ColorMap": {
+      "file": "Hair__ColorMap.png",
+      "size": [
+        32,
+        32
+      ],
+      "source": "Hair__ColorMap.tga"
+    },
+    "Boy_Hair__DecalColorMap": {
+      "file": "Hair__ColorMap.png",
+      "size": [
+        32,
+        32
+      ],
+      "source": "Hair__ColorMap.tga"
+    },
+    "Boy_Hair__IntensityMap": {
+      "file": "Hair__ColorMap.png",
+      "size": [
+        32,
+        32
+      ],
+      "source": "Hair__ColorMap.tga"
+    },
+    "ClampUV__MouthIntensityMap": {
+      "file": "BoyAnim_mouth.001.png",
+      "size": [
+        128,
+        128
+      ],
+      "source": "BoyAnim_mouth.001.tga"
+    },
+    "ClampUV__MouthIntensityMap1": {
+      "file": "BoyAnim_mouth.001.png",
+      "size": [
+        128,
+        128
+      ],
+      "source": "BoyAnim_mouth.001.tga"
+    },
+    "Hair__ColorMap": {
+      "file": "GirlHair__ColorMap.png",
+      "size": [
+        32,
+        32
+      ],
+      "source": "GirlHair__ColorMap.tga"
+    },
+    "Hair__DecalColorMap": {
+      "file": "GirlHair__ColorMap.png",
+      "size": [
+        32,
+        32
+      ],
+      "source": "GirlHair__ColorMap.tga"
+    },
+    "Hair__IntensityMap": {
+      "file": "GirlHair__ColorMap.png",
+      "size": [
+        32,
+        32
+      ],
+      "source": "GirlHair__ColorMap.tga"
+    },
+    "HighHeels__ColorMap": {
+      "file": "heels_ColorMap_1.png",
+      "size": [
+        128,
+        64
+      ],
+      "source": "heels_ColorMap_1.tga"
+    },
+    "HighHeels__DecalColorMap": {
+      "file": "heels_DecalMap_1.png",
+      "size": [
+        128,
+        64
+      ],
+      "source": "heels_DecalMap_1.tga"
+    },
+    "HighHeels__IntensityMap": {
+      "file": "heels_IntensityMap_1.png",
+      "size": [
+        32,
+        32
+      ],
+      "source": "heels_IntensityMap_1.tga"
+    },
+    "Jeans__ColorMap": {
+      "file": "0010-1_ColorMap_1.png",
+      "size": [
+        128,
+        128
+      ],
+      "source": "0010-1_ColorMap_1.tga"
+    },
+    "Jeans__DecalColorMap": {
+      "file": "0010-1_DecalMap_1.png",
+      "size": [
+        128,
+        64
+      ],
+      "source": "0010-1_DecalMap_1.tga"
+    },
+    "Jeans__IntensityMap": {
+      "file": "0010-1_IntensityMap_1.png",
+      "size": [
+        32,
+        32
+      ],
+      "source": "0010-1_IntensityMap_1.tga"
+    },
+    "Left__ClampUV__EyeBrowIntensityMap": {
+      "file": "BoyAnim_eyebrows.001.png",
+      "size": [
+        64,
+        64
+      ],
+      "source": "BoyAnim_eyebrows.001.tga"
+    },
+    "Left__ClampUV__EyeIntensityMap": {
+      "file": "BoyAnim_eye.001.png",
+      "size": [
+        64,
+        64
+      ],
+      "source": "BoyAnim_eye.001.tga"
+    },
+    "Right__ClampUV__EyeBrowIntensityMap1": {
+      "file": "BoyAnim_eyebrows.001.png",
+      "size": [
+        64,
+        64
+      ],
+      "source": "BoyAnim_eyebrows.001.tga"
+    },
+    "Right__ClampUV__EyeIntensityMap1": {
+      "file": "BoyAnim_rt_eye.001.png",
+      "size": [
+        64,
+        64
+      ],
+      "source": "BoyAnim_rt_eye.001.tga"
+    },
+    "Top__ColorMap": {
+      "file": "0599-0_ColorMap_1.png",
+      "size": [
+        128,
+        128
+      ],
+      "source": "0599-0_ColorMap_1.tga"
+    },
+    "Top__DecalColorMap": {
+      "file": "0599-0_IntensityMap_1.png",
+      "size": [
+        32,
+        32
+      ],
+      "source": "0599-0_IntensityMap_1.tga"
+    },
+    "Top__IntensityMap": {
+      "file": "0599-0_IntensityMap_1.png",
+      "size": [
+        32,
+        32
+      ],
+      "source": "0599-0_IntensityMap_1.tga"
+    },
+    "__DecalColorMap": {
+      "file": "Body__ColorMap.png",
+      "size": [
+        32,
+        32
+      ],
+      "source": "Body__ColorMap.tga"
+    },
+    "__EyeShadowIntensityMap": {
+      "file": "Head_IntensityMap.png",
+      "size": [
+        128,
+        64
+      ],
+      "source": "Head_IntensityMap.tga"
+    },
+    "__EyeShadowIntensityMap1": {
+      "file": "Head_IntensityMap.png",
+      "size": [
+        128,
+        64
+      ],
+      "source": "Head_IntensityMap.tga"
+    },
+    "__FacialHairIntensityMap": {
+      "file": "Facialhair__ColorMap.png",
+      "size": [
+        128,
+        64
+      ],
+      "source": "Facialhair__ColorMap.tga"
+    },
+    "__FacialHairIntensityMap1": {
+      "file": "Facialhair__ColorMap.png",
+      "size": [
+        128,
+        64
+      ],
+      "source": "Facialhair__ColorMap.tga"
+    },
+    "__IntensityMap": {
+      "file": "Body__ColorMap.png",
+      "size": [
+        32,
+        32
+      ],
+      "source": "Body__ColorMap.tga"
+    },
+    "__SkinFeaturesIntensityMap": {
+      "file": "Head_SkinFeaturesColorMap.png",
+      "size": [
+        32,
+        32
+      ],
+      "source": "Head_SkinFeaturesColorMap.tga"
+    },
+    "__SkinFeaturesIntensityMap1": {
+      "file": "Head_SkinFeaturesColorMap.png",
+      "size": [
+        32,
+        32
+      ],
+      "source": "Head_SkinFeaturesColorMap.tga"
+    },
+    "footwear__ColorMap": {
+      "file": "0468-0_ColorMap_1.png",
+      "size": [
+        64,
+        64
+      ],
+      "source": "0468-0_ColorMap_1.tga"
+    },
+    "footwear__DecalColorMap": {
+      "file": "0468-0_DecalMap_1.png",
+      "size": [
+        32,
+        32
+      ],
+      "source": "0468-0_DecalMap_1.tga"
+    },
+    "footwear__IntensityMap": {
+      "file": "0468-0_IntensityMap_1.png",
+      "size": [
+        32,
+        32
+      ],
+      "source": "0468-0_IntensityMap_1.tga"
+    },
+    "girlBody__DecalColorMap": {
+      "file": "Body__ColorMap.png",
+      "size": [
+        32,
+        32
+      ],
+      "source": "Body__ColorMap.tga"
+    },
+    "girlBody__IntensityMap": {
+      "file": "Body__ColorMap.png",
+      "size": [
+        32,
+        32
+      ],
+      "source": "Body__ColorMap.tga"
+    },
+    "girlBody_skin__ColorMap": {
+      "file": "Body__ColorMap.png",
+      "size": [
+        32,
+        32
+      ],
+      "source": "Body__ColorMap.tga"
+    },
+    "girlHead_ClampUV__MouthIntensityMap": {
+      "file": "GirlAnim_mouth.001.png",
+      "size": [
+        64,
+        64
+      ],
+      "source": "GirlAnim_mouth.001.tga"
+    },
+    "girlHead_ClampUV__MouthIntensityMap1": {
+      "file": "GirlAnim_mouth.001.png",
+      "size": [
+        64,
+        64
+      ],
+      "source": "GirlAnim_mouth.001.tga"
+    },
+    "girlHead_Left__ClampUV__EyeBrowIntensityMap": {
+      "file": "GirlAnim_eyebrows.001.png",
+      "size": [
+        64,
+        64
+      ],
+      "source": "GirlAnim_eyebrows.001.tga"
+    },
+    "girlHead_Left__ClampUV__EyeIntensityMap": {
+      "file": "GirlAnim_eye.001.png",
+      "size": [
+        64,
+        64
+      ],
+      "source": "GirlAnim_eye.001.tga"
+    },
+    "girlHead_Right__ClampUV__EyeBrowIntensityMap1": {
+      "file": "GirlAnim_eyebrows.001.png",
+      "size": [
+        64,
+        64
+      ],
+      "source": "GirlAnim_eyebrows.001.tga"
+    },
+    "girlHead_Right__ClampUV__EyeIntensityMap1": {
+      "file": "GirlAnim_rt_eye.001.png",
+      "size": [
+        64,
+        64
+      ],
+      "source": "GirlAnim_rt_eye.001.tga"
+    },
+    "girlHead__EyeShadowIntensityMap": {
+      "file": "Head_IntensityMap.png",
+      "size": [
+        128,
+        64
+      ],
+      "source": "Head_IntensityMap.tga"
+    },
+    "girlHead__EyeShadowIntensityMap1": {
+      "file": "Head_IntensityMap.png",
+      "size": [
+        128,
+        64
+      ],
+      "source": "Head_IntensityMap.tga"
+    },
+    "girlHead__FacialHairIntensityMap": {
+      "file": "Facialhair__ColorMap.png",
+      "size": [
+        128,
+        64
+      ],
+      "source": "Facialhair__ColorMap.tga"
+    },
+    "girlHead__FacialHairIntensityMap1": {
+      "file": "Facialhair__ColorMap.png",
+      "size": [
+        128,
+        64
+      ],
+      "source": "Facialhair__ColorMap.tga"
+    },
+    "girlHead__SkinFeaturesIntensityMap": {
+      "file": "Head_SkinFeaturesColorMap.png",
+      "size": [
+        32,
+        32
+      ],
+      "source": "Head_SkinFeaturesColorMap.tga"
+    },
+    "girlHead__SkinFeaturesIntensityMap1": {
+      "file": "Head_SkinFeaturesColorMap.png",
+      "size": [
+        32,
+        32
+      ],
+      "source": "Head_SkinFeaturesColorMap.tga"
+    },
+    "girlShoes_footwear__ColorMap": {
+      "file": "0334-0_ColorMap_1.png",
+      "size": [
+        64,
+        64
+      ],
+      "source": "0334-0_ColorMap_1.tga"
+    },
+    "girlShoes_footwear__DecalColorMap": {
+      "file": "0334-0_DecalMap_1.png",
+      "size": [
+        32,
+        32
+      ],
+      "source": "0334-0_DecalMap_1.tga"
+    },
+    "girlShoes_footwear__IntensityMap": {
+      "file": "0334-0_IntensityMap_1.png",
+      "size": [
+        32,
+        32
+      ],
+      "source": "0334-0_IntensityMap_1.tga"
+    },
+    "girlTop_Top__ColorMap": {
+      "file": "0320-0_ColorMap_1.png",
+      "size": [
+        128,
+        128
+      ],
+      "source": "0320-0_ColorMap_1.tga"
+    },
+    "girlTop_Top__DecalColorMap": {
+      "file": "0320-0_DecalMap_1.png",
+      "size": [
+        32,
+        32
+      ],
+      "source": "0320-0_DecalMap_1.tga"
+    },
+    "girlTop_Top__IntensityMap": {
+      "file": "0320-0_IntensityMap_1.png",
+      "size": [
+        32,
+        32
+      ],
+      "source": "0320-0_IntensityMap_1.tga"
+    },
+    "skin__ColorMap": {
+      "file": "Body__ColorMap.png",
+      "size": [
+        32,
+        32
+      ],
+      "source": "Body__ColorMap.tga"
+    }
+  }
+}

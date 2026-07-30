@@ -1,0 +1,35 @@
+Xbox 360 2005 console boot source
+=================================
+
+Selected sequence:
+  dark horizon -> metallic sphere -> green X -> Xbox 360 wordmark
+
+This is the original 2005 console startup, not the later bright-white
+ribbon-and-sphere Xbox 360 brand/game mnemonic.
+
+Captured source:
+  https://www.youtube.com/watch?v=92coix3E_vY
+  Title: Original Xbox 360 Startup (1080p)
+  Uploader: Patexi
+  Duration: 11.454 seconds
+  Video: 1920x1080, 30000/1001 fps, AV1
+  Audio: 48000 Hz stereo Opus
+
+Authoritative creator references:
+  https://vimeo.com/225005083
+  https://www.audiobrain.com/xbox-360-press-release
+  https://static1.squarespace.com/static/55916bdce4b06f59a48a09f8/t/5c743e31971a1821727b439c/1551121969398/Microsoft_Official%2BAudiobrain_XBox_360%2BPress_Release.pdf
+
+Audiobrain states that it worked with Microsoft on the Xbox 360 startup,
+sonic signature, user-interface sounds, and product sonification. Its public
+Vimeo master is access-blocked from the build environment, so the checked-in
+video is a clean console-boot capture. The separate .opus file is a stream
+copy of that capture's audio; it has not been synthesized or recreated.
+
+Preparation notes for the future iPod launch pack:
+  - main sound begins at approximately 0.768 seconds;
+  - main sound ends at approximately 6.501 seconds;
+  - retain aspect ratio and letterbox for 320x240;
+  - derive device PCM only when the Achievements launch lifecycle is added;
+  - do not ship or present these trademarked/copyrighted assets as a general
+    redistributable Rockbox asset pack.

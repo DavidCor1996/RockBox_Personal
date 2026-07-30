@@ -548,13 +548,13 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x2b609
+.debug_info     0x0000000000000000    0x2b654
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0xadf7 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rb_info.o
- .debug_info    0x000000000000adf7     0x7dde /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
- .debug_info    0x0000000000012bd5     0x80b5 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(action_helper.o)
- .debug_info    0x000000000001ac8a     0x7b26 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(button_helper.o)
- .debug_info    0x00000000000227b0     0x8e59 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(printcell_helper.o)
+ .debug_info    0x0000000000000000     0xae06 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rb_info.o
+ .debug_info    0x000000000000ae06     0x7ded /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+ .debug_info    0x0000000000012bf3     0x80c4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(action_helper.o)
+ .debug_info    0x000000000001acb7     0x7b35 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(button_helper.o)
+ .debug_info    0x00000000000227ec     0x8e68 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(printcell_helper.o)
 
 .debug_abbrev   0x0000000000000000     0x1722
  *(.debug_abbrev)
@@ -575,18 +575,18 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0xb707
+.debug_str      0x0000000000000000     0xb71d
  *(.debug_str)
- .debug_str     0x0000000000000000     0xb707 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rb_info.o
-                                       0xb973 (size before relaxing)
- .debug_str     0x000000000000b707        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
-                                       0x52f4 (size before relaxing)
- .debug_str     0x000000000000b707        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(action_helper.o)
-                                       0x6368 (size before relaxing)
- .debug_str     0x000000000000b707        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(button_helper.o)
-                                       0x519d (size before relaxing)
- .debug_str     0x000000000000b707        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(printcell_helper.o)
-                                       0x557c (size before relaxing)
+ .debug_str     0x0000000000000000     0xb71d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rb_info.o
+                                       0xb989 (size before relaxing)
+ .debug_str     0x000000000000b71d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+                                       0x530a (size before relaxing)
+ .debug_str     0x000000000000b71d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(action_helper.o)
+                                       0x637e (size before relaxing)
+ .debug_str     0x000000000000b71d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(button_helper.o)
+                                       0x51b3 (size before relaxing)
+ .debug_str     0x000000000000b71d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(printcell_helper.o)
+                                       0x5592 (size before relaxing)
 
 .debug_loc
  *(.debug_loc)

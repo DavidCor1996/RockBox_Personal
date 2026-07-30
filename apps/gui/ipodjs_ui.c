@@ -33,6 +33,7 @@
 #include "misc.h"
 #include "power.h"
 #include "powermgmt.h"
+#include "pcm_mixer.h"
 #include "rbpaths.h"
 #include "string-extra.h"
 #include "rbunicode.h"
@@ -93,6 +94,11 @@
 #define IPODJS_STOCK_REPEAT_H      38
 #define IPODJS_STOCK_SHUFFLE_W     21
 #define IPODJS_STOCK_SHUFFLE_H     19
+#define IPODJS_STOCK_BLUETOOTH_W   12
+#define IPODJS_STOCK_BLUETOOTH_H   19
+#define IPODJS_AIRPODS_W           124
+#define IPODJS_AIRPODS_H           109
+#define IPODJS_AIRPODS_ANIMATION_FPS 20
 #define IPODJS_SEARCH_SURFACE_W     97
 #define IPODJS_SEARCH_SURFACE_H     32
 
@@ -155,6 +161,446 @@ void ipodjs_ui_transition_cancel(void)
     ipodjs_ui_transition_direction = 0;
     ipodjs_ui_transition_deadline = 0;
     ipodjs_ui_preview_fade_active = false;
+}
+
+#ifdef IPODJS_UI_HAS_ANIMATION_WORKSPACE
+#define IPODJS_NETFLIX_DIR ROCKBOX_DIR "/ipodjs/netflix/launch"
+#define IPODJS_NETFLIX_PACK IPODJS_NETFLIX_DIR "/intro-106x60.nfr"
+#define IPODJS_NETFLIX_SOUND \
+    IPODJS_NETFLIX_DIR "/intro-20000-mono.mulaw"
+#define IPODJS_NETFLIX_OUTPUT_WIDTH 320
+#define IPODJS_NETFLIX_OUTPUT_HEIGHT 180
+#define IPODJS_NETFLIX_SOURCE_RATE 20000
+#define IPODJS_NETFLIX_PACK_HEADER 16
+#define IPODJS_NETFLIX_PCM_CHUNK_FRAMES 512
+#define IPODJS_NETFLIX_INDEX_BYTES \
+    (IPODJS_NETFLIX_OUTPUT_WIDTH * IPODJS_NETFLIX_OUTPUT_HEIGHT / 2)
+
+static uint16_t ipodjs_netflix_read_le16(const unsigned char *data)
+{
+    return data[0] | (data[1] << 8);
+}
+
+static uint32_t ipodjs_netflix_read_le32(const unsigned char *data)
+{
+    return (uint32_t)data[0] | ((uint32_t)data[1] << 8) |
+           ((uint32_t)data[2] << 16) | ((uint32_t)data[3] << 24);
+}
+
+static bool ipodjs_netflix_read_file(const char *path, unsigned char *buffer,
+                                     size_t capacity, size_t *size)
+{
+    int fd = open(path, O_RDONLY);
+    off_t length;
+    size_t done = 0;
+
+    if (fd < 0)
+        return false;
+    length = filesize(fd);
+    if (length <= 0 || (off_t)(size_t)length != length ||
+        (size_t)length > capacity)
+    {
+        close(fd);
+        return false;
+    }
+    while (done < (size_t)length)
+    {
+        ssize_t count = read(fd, buffer + done, (size_t)length - done);
+
+        if (count <= 0)
+        {
+            close(fd);
+            return false;
+        }
+        done += (size_t)count;
+    }
+    close(fd);
+    *size = done;
+    return true;
+}
+
+static unsigned int ipodjs_netflix_index_get(const unsigned char *indices,
+                                              size_t position)
+{
+    unsigned char packed = indices[position / 2];
+    return position & 1 ? packed & 15 : packed >> 4;
+}
+
+static void ipodjs_netflix_index_set(unsigned char *indices, size_t position,
+                                     unsigned int value)
+{
+    unsigned char *packed = &indices[position / 2];
+
+    if (position & 1)
+        *packed = (*packed & 0xf0) | value;
+    else
+        *packed = (*packed & 0x0f) | (value << 4);
+}
+
+static bool ipodjs_netflix_decode_indices(const unsigned char *pack,
+                                           size_t pack_size, int frame,
+                                           unsigned char *indices)
+{
+    size_t offsets_at;
+    size_t position = 0;
+    size_t cursor;
+    size_t end;
+    int palette_count;
+    int frame_count;
+    int width;
+    int height;
+    bool rgb565;
+
+    if (pack_size < IPODJS_NETFLIX_PACK_HEADER ||
+        (memcmp(pack, "NFX1", 4) && memcmp(pack, "NFR1", 4)))
+        return false;
+    rgb565 = !memcmp(pack, "NFR1", 4);
+    width = ipodjs_netflix_read_le16(pack + 4);
+    height = ipodjs_netflix_read_le16(pack + 6);
+    frame_count = ipodjs_netflix_read_le16(pack + 8);
+    palette_count = ipodjs_netflix_read_le16(pack + 12);
+    if (frame < 0 || frame >= frame_count ||
+        frame_count <= 0 || frame_count > 64 ||
+        width <= 0 || width > IPODJS_NETFLIX_OUTPUT_WIDTH ||
+        height <= 0 || height > IPODJS_NETFLIX_OUTPUT_HEIGHT ||
+        (width * height) & 1 ||
+        (rgb565 ? palette_count != 0 :
+                  palette_count <= 0 || palette_count > 16))
+        return false;
+    offsets_at = IPODJS_NETFLIX_PACK_HEADER + palette_count * 2;
+    if (offsets_at + (frame_count + 1) * 4 > pack_size)
+        return false;
+    cursor = ipodjs_netflix_read_le32(pack + offsets_at + frame * 4);
+    end = ipodjs_netflix_read_le32(pack + offsets_at + (frame + 1) * 4);
+    if (cursor >= end || end > pack_size)
+        return false;
+
+    while (cursor + 2 <= end &&
+           position < (size_t)width * height)
+    {
+        unsigned int token = ipodjs_netflix_read_le16(pack + cursor);
+        size_t count = token & 0x7fff;
+
+        cursor += 2;
+        if (count == 0 ||
+            position + count > (size_t)width * height)
+            return false;
+        if (token & 0x8000)
+        {
+            position += count;
+            continue;
+        }
+        if (rgb565)
+        {
+            if (cursor + count * 2 > end)
+                return false;
+            for (size_t pixel = 0; pixel < count; ++pixel)
+                ((fb_data *)indices)[position + pixel] =
+                    (fb_data)ipodjs_netflix_read_le16(
+                        pack + cursor + pixel * 2);
+            cursor += count * 2;
+        }
+        else
+        {
+            if (cursor + (count + 1) / 2 > end)
+                return false;
+            for (size_t pixel = 0; pixel < count; ++pixel)
+            {
+                unsigned char packed = pack[cursor + pixel / 2];
+                unsigned int color = pixel & 1 ? packed & 15 : packed >> 4;
+
+                if (color >= (unsigned int)palette_count)
+                    return false;
+                ipodjs_netflix_index_set(indices, position + pixel, color);
+            }
+            cursor += (count + 1) / 2;
+        }
+        position += count;
+    }
+    return position == (size_t)width * height &&
+           cursor == end;
+}
+
+static void ipodjs_netflix_render(const unsigned char *pack,
+                                  const unsigned char *indices)
+{
+    static unsigned short source_x_map[IPODJS_NETFLIX_OUTPUT_WIDTH];
+    static int mapped_width;
+    fb_data palette[16];
+    fb_data *output = FBADDR(
+        0, (LCD_HEIGHT - IPODJS_NETFLIX_OUTPUT_HEIGHT) / 2);
+    int width = ipodjs_netflix_read_le16(pack + 4);
+    int height = ipodjs_netflix_read_le16(pack + 6);
+    int palette_count = ipodjs_netflix_read_le16(pack + 12);
+    bool rgb565 = !memcmp(pack, "NFR1", 4);
+    int previous_source_y = -1;
+
+    if (mapped_width != width)
+    {
+        for (int x = 0; x < IPODJS_NETFLIX_OUTPUT_WIDTH; ++x)
+            source_x_map[x] = x * (width - 1) /
+                (IPODJS_NETFLIX_OUTPUT_WIDTH - 1);
+        mapped_width = width;
+    }
+    for (int index = 0; index < palette_count; ++index)
+        palette[index] = (fb_data)ipodjs_netflix_read_le16(
+            pack + IPODJS_NETFLIX_PACK_HEADER + index * 2);
+    for (int y = 0; y < IPODJS_NETFLIX_OUTPUT_HEIGHT; ++y)
+    {
+        int source_y = y * height / IPODJS_NETFLIX_OUTPUT_HEIGHT;
+        size_t source_row = (size_t)source_y * width;
+        fb_data *destination =
+            output + (size_t)y * IPODJS_NETFLIX_OUTPUT_WIDTH;
+
+        if (rgb565 && source_y == previous_source_y)
+        {
+            memcpy(destination,
+                   destination - IPODJS_NETFLIX_OUTPUT_WIDTH,
+                   IPODJS_NETFLIX_OUTPUT_WIDTH * sizeof(fb_data));
+            continue;
+        }
+        for (int x = 0; x < IPODJS_NETFLIX_OUTPUT_WIDTH; ++x)
+        {
+            if (rgb565)
+            {
+                const fb_data *pixels = (const fb_data *)indices;
+
+                destination[x] =
+                    pixels[source_row + source_x_map[x]];
+            }
+            else
+            {
+                size_t source = source_row +
+                    x * width / IPODJS_NETFLIX_OUTPUT_WIDTH;
+                destination[x] =
+                    palette[ipodjs_netflix_index_get(indices, source)];
+            }
+        }
+        previous_source_y = source_y;
+    }
+    screens[SCREEN_MAIN].update();
+}
+
+#ifndef HAVE_HARDWARE_BEEP
+static const unsigned char *ipodjs_netflix_audio;
+static size_t ipodjs_netflix_audio_size;
+static size_t ipodjs_netflix_audio_position;
+static unsigned int ipodjs_netflix_audio_phase;
+static unsigned int ipodjs_netflix_output_rate;
+static int16_t *ipodjs_netflix_pcm;
+static size_t ipodjs_netflix_pcm_frames;
+
+static int16_t ipodjs_netflix_mulaw_decode(unsigned char value)
+{
+    int sample;
+    int exponent;
+
+    value = ~value;
+    exponent = (value >> 4) & 7;
+    sample = (((value & 15) << 3) + 0x84) << exponent;
+    sample -= 0x84;
+    return (value & 0x80) ? -sample : sample;
+}
+
+static void ipodjs_netflix_pcm_more(const void **start, size_t *size)
+{
+    size_t frames = 0;
+
+    if (!ipodjs_netflix_pcm || ipodjs_netflix_pcm_frames == 0 ||
+        !ipodjs_netflix_audio || ipodjs_netflix_output_rate == 0)
+    {
+        *start = NULL;
+        *size = 0;
+        return;
+    }
+    while (frames < ipodjs_netflix_pcm_frames &&
+           ipodjs_netflix_audio_position < ipodjs_netflix_audio_size)
+    {
+        int16_t sample = ipodjs_netflix_mulaw_decode(
+            ipodjs_netflix_audio[ipodjs_netflix_audio_position]);
+        ipodjs_netflix_pcm[frames * 2] = sample;
+        ipodjs_netflix_pcm[frames * 2 + 1] = sample;
+        ++frames;
+        ipodjs_netflix_audio_phase += IPODJS_NETFLIX_SOURCE_RATE;
+        while (ipodjs_netflix_audio_phase >= ipodjs_netflix_output_rate)
+        {
+            ipodjs_netflix_audio_phase -= ipodjs_netflix_output_rate;
+            ++ipodjs_netflix_audio_position;
+        }
+    }
+    *start = ipodjs_netflix_pcm;
+    *size = frames * 2 * sizeof(int16_t);
+}
+
+static void ipodjs_netflix_beep_detach(void)
+{
+    mixer_channel_stop(PCM_MIXER_CHAN_BEEP);
+    mixer_channel_set_buffer_hook(PCM_MIXER_CHAN_BEEP, NULL);
+    {
+        long deadline = current_tick + HZ / 4;
+
+        while (mixer_channel_status(PCM_MIXER_CHAN_BEEP) !=
+               CHANNEL_STOPPED && TIME_BEFORE(current_tick, deadline))
+            sleep(1);
+    }
+    ipodjs_netflix_audio = NULL;
+    ipodjs_netflix_audio_size = 0;
+    ipodjs_netflix_audio_position = 0;
+    ipodjs_netflix_audio_phase = 0;
+    ipodjs_netflix_output_rate = 0;
+    ipodjs_netflix_pcm = NULL;
+    ipodjs_netflix_pcm_frames = 0;
+}
+#endif
+#endif
+
+bool ipodjs_ui_netflix_launch(void)
+{
+#ifdef IPODJS_UI_HAS_ANIMATION_WORKSPACE
+    struct screen *display = &screens[SCREEN_MAIN];
+    unsigned char *pack = (unsigned char *)ipodjs_ui_animation_old;
+    unsigned char *sound = (unsigned char *)ipodjs_ui_animation_new;
+    size_t pack_size;
+    size_t sound_size = 0;
+    size_t index_offset;
+    unsigned char *current_indices;
+    int frame_count;
+    int frame_ms;
+    bool usb = false;
+    long started;
+
+#ifndef HAVE_HARDWARE_BEEP
+    /* The workspace is reused for every launch. Detach the previous beep
+     * callback before either half of it is overwritten by new assets. */
+    ipodjs_netflix_beep_detach();
+#endif
+    ipodjs_ui_transition_cancel();
+    if (!ipodjs_netflix_read_file(IPODJS_NETFLIX_PACK, pack,
+                                   sizeof(ipodjs_ui_animation_old),
+                                   &pack_size) ||
+        pack_size < IPODJS_NETFLIX_PACK_HEADER ||
+        (memcmp(pack, "NFX1", 4) && memcmp(pack, "NFR1", 4)))
+        return false;
+    frame_count = ipodjs_netflix_read_le16(pack + 8);
+    frame_ms = ipodjs_netflix_read_le16(pack + 10);
+    if (frame_count <= 0 || frame_count > 64 ||
+        frame_ms < 40 || frame_ms > 500)
+        return false;
+#ifndef HAVE_HARDWARE_BEEP
+    if (ipodjs_netflix_read_file(
+            IPODJS_NETFLIX_SOUND, sound,
+            sizeof(ipodjs_ui_animation_new) -
+                IPODJS_NETFLIX_INDEX_BYTES - 4096,
+                                  &sound_size))
+    {
+        ipodjs_netflix_audio = sound;
+        ipodjs_netflix_audio_size = sound_size;
+        ipodjs_netflix_audio_position = 0;
+        ipodjs_netflix_audio_phase = 0;
+        ipodjs_netflix_output_rate = mixer_get_frequency();
+    }
+#endif
+    index_offset = (sound_size + 3) & ~(size_t)3;
+    current_indices = sound + index_offset;
+#ifndef HAVE_HARDWARE_BEEP
+    ipodjs_netflix_pcm =
+        (int16_t *)(current_indices + IPODJS_NETFLIX_INDEX_BYTES);
+    ipodjs_netflix_pcm_frames =
+        MIN((sizeof(ipodjs_ui_animation_new) -
+             (index_offset + IPODJS_NETFLIX_INDEX_BYTES)) /
+                (2 * sizeof(int16_t)),
+            (size_t)IPODJS_NETFLIX_PCM_CHUNK_FRAMES);
+#endif
+
+    button_clear_queue();
+    display->set_viewport(NULL);
+    display->set_background(LCD_BLACK);
+    display->clear_display();
+    memset(current_indices, 0, IPODJS_NETFLIX_INDEX_BYTES);
+    if (!ipodjs_netflix_decode_indices(
+            pack, pack_size, 0, current_indices))
+    {
+#ifndef HAVE_HARDWARE_BEEP
+        ipodjs_netflix_beep_detach();
+#endif
+        return false;
+    }
+    ipodjs_netflix_render(pack, current_indices);
+
+#ifndef HAVE_HARDWARE_BEEP
+    if (sound_size > 0 && ipodjs_netflix_output_rate > 0 &&
+        ipodjs_netflix_pcm_frames > 0)
+    {
+        mixer_channel_stop(PCM_MIXER_CHAN_BEEP);
+        mixer_channel_set_amplitude(PCM_MIXER_CHAN_BEEP, MIX_AMP_UNITY);
+        mixer_channel_play_data(PCM_MIXER_CHAN_BEEP,
+                                ipodjs_netflix_pcm_more, NULL, 0);
+    }
+#endif
+    started = current_tick;
+    for (int frame = 1; frame < frame_count; ++frame)
+    {
+        long target = started + frame * frame_ms * HZ / 1000;
+        long following_target =
+            started + (frame + 1) * frame_ms * HZ / 1000;
+
+        while (TIME_BEFORE(current_tick, target))
+        {
+            int button = button_get_w_tmo(0);
+
+            if (button != BUTTON_NONE && !(button & BUTTON_REL))
+            {
+                usb = default_event_handler(button) == SYS_USB_CONNECTED;
+                goto stop;
+            }
+            sleep(1);
+        }
+        {
+            int button = button_get_w_tmo(0);
+
+            if (button != BUTTON_NONE && !(button & BUTTON_REL))
+            {
+                usb = default_event_handler(button) == SYS_USB_CONNECTED;
+                goto stop;
+            }
+        }
+        if (!ipodjs_netflix_decode_indices(
+                pack, pack_size, frame, current_indices))
+            goto stop;
+        if (frame + 1 == frame_count ||
+            TIME_BEFORE(current_tick, following_target))
+            ipodjs_netflix_render(pack, current_indices);
+        else
+            yield();
+    }
+#ifndef HAVE_HARDWARE_BEEP
+    {
+        long deadline = started + HZ * 4;
+
+        while (TIME_BEFORE(current_tick, deadline) &&
+               mixer_channel_status(PCM_MIXER_CHAN_BEEP) != CHANNEL_STOPPED)
+        {
+            int button = button_get_w_tmo(0);
+
+            if (button != BUTTON_NONE && !(button & BUTTON_REL))
+            {
+                usb = default_event_handler(button) == SYS_USB_CONNECTED;
+                break;
+            }
+            sleep(1);
+        }
+    }
+#endif
+
+stop:
+#ifndef HAVE_HARDWARE_BEEP
+    ipodjs_netflix_beep_detach();
+#endif
+    button_clear_queue();
+    return usb;
+#else
+    return false;
+#endif
 }
 
 void ipodjs_ui_transition_begin(int direction)
@@ -385,12 +831,22 @@ struct ipodjs_ui_stock_status_cache {
     unsigned char shuffle_data[
         BM_SIZE(IPODJS_STOCK_SHUFFLE_W, IPODJS_STOCK_SHUFFLE_H,
                 FORMAT_NATIVE, false)];
+    struct bitmap bluetooth;
+    unsigned char bluetooth_data[
+        BM_SIZE(IPODJS_STOCK_BLUETOOTH_W, IPODJS_STOCK_BLUETOOTH_H,
+                FORMAT_NATIVE, false)];
+    struct bitmap airpods;
+    unsigned char airpods_data[
+        BM_SIZE(IPODJS_AIRPODS_W, IPODJS_AIRPODS_H,
+                FORMAT_NATIVE, false)];
     bool battery_tried, battery_valid;
     bool playing_tried, playing_valid;
     bool hold_tried, hold_valid;
     bool header_tried, header_valid;
     bool repeat_tried, repeat_valid;
     bool shuffle_tried, shuffle_valid;
+    bool bluetooth_tried, bluetooth_valid;
+    bool airpods_tried, airpods_valid;
 };
 
 static struct ipodjs_ui_stock_status_cache ipodjs_ui_stock_status;
@@ -516,6 +972,32 @@ static struct bitmap *ipodjs_ui_stock_shuffle(void)
         IPODJS_STOCK_SHUFFLE_W, IPODJS_STOCK_SHUFFLE_H,
         &ipodjs_ui_stock_status.shuffle_tried,
         &ipodjs_ui_stock_status.shuffle_valid);
+}
+
+static struct bitmap *ipodjs_ui_stock_bluetooth(void)
+{
+    return ipodjs_ui_load_stock_status(
+        IPODJS_UI_APPLE_ASSET_DIR
+            "/status-bluetooth.apple.12x19x24.bmp",
+        &ipodjs_ui_stock_status.bluetooth,
+        ipodjs_ui_stock_status.bluetooth_data,
+        sizeof(ipodjs_ui_stock_status.bluetooth_data),
+        IPODJS_STOCK_BLUETOOTH_W, IPODJS_STOCK_BLUETOOTH_H,
+        &ipodjs_ui_stock_status.bluetooth_tried,
+        &ipodjs_ui_stock_status.bluetooth_valid);
+}
+
+static struct bitmap *ipodjs_ui_airpods(void)
+{
+    return ipodjs_ui_load_stock_status(
+        IPODJS_UI_APPLE_ASSET_DIR
+            "/airpods-pro-connected.apple.124x109x24.bmp",
+        &ipodjs_ui_stock_status.airpods,
+        ipodjs_ui_stock_status.airpods_data,
+        sizeof(ipodjs_ui_stock_status.airpods_data),
+        IPODJS_AIRPODS_W, IPODJS_AIRPODS_H,
+        &ipodjs_ui_stock_status.airpods_tried,
+        &ipodjs_ui_stock_status.airpods_valid);
 }
 
 static struct bitmap *ipodjs_ui_fast_scroll_overlay_asset(bool digits)
@@ -1383,6 +1865,219 @@ void ipodjs_ui_draw_shuffle_indicator(struct screen *display, int x, int y)
     bm = ipodjs_ui_stock_shuffle();
     if (bm)
         display->bmp(bm, x, y);
+}
+
+void ipodjs_ui_prepare_bluetooth_indicator(void)
+{
+    /* Screen-entry service point: the draw path below remains I/O-free. */
+    ipodjs_ui_stock_bluetooth();
+    ipodjs_ui_airpods();
+}
+
+void ipodjs_ui_draw_bluetooth_indicator(struct screen *display, int x, int y)
+{
+    if (!display || !ipodjs_ui_stock_status.bluetooth_valid)
+        return;
+
+    display->bmp(&ipodjs_ui_stock_status.bluetooth, x, y);
+}
+
+static void ipodjs_ui_fill_connection_sheet(struct screen *display,
+                                            int x, int y, int w, int h,
+                                            unsigned color)
+{
+    static const unsigned char inset[] = { 6, 4, 2, 1, 1, 0 };
+
+    display->set_foreground(color);
+    display->fillrect(x, y + 6, w, h - 12);
+    display->fillrect(x + 6, y, w - 12, h);
+    for (int row = 0; row < 6; row++)
+    {
+        int edge = inset[row];
+
+        display->hline(x + edge, x + w - edge - 1, y + row);
+        display->hline(x + edge, x + w - edge - 1,
+                       y + h - row - 1);
+    }
+}
+
+static void ipodjs_ui_draw_connection_spinner(struct screen *display,
+                                               int x, int y, int phase)
+{
+    static const signed char points[8][2] = {
+        { 0, -7 }, { 5, -5 }, { 7, 0 }, { 5, 5 },
+        { 0, 7 }, { -5, 5 }, { -7, 0 }, { -5, -5 },
+    };
+
+    for (int index = 0; index < 8; index++)
+    {
+        int distance = (index - phase + 8) & 7;
+        unsigned color = distance == 0 ? LCD_RGBPACK(0, 122, 255) :
+            distance <= 2 ? LCD_RGBPACK(105, 179, 255) :
+            LCD_RGBPACK(205, 226, 248);
+
+        display->set_foreground(color);
+        display->fillrect(x + points[index][0] - 1,
+                          y + points[index][1] - 1, 3, 3);
+    }
+}
+
+static void ipodjs_ui_draw_connection_check(struct screen *display,
+                                             int x, int y)
+{
+    display->set_foreground(LCD_RGBPACK(0, 122, 255));
+    display->fillrect(x - 9, y - 9, 19, 19);
+    display->set_foreground(LCD_RGBPACK(255, 255, 255));
+    display->hline(x - 5, x - 2, y);
+    display->hline(x - 3, x, y + 2);
+    display->hline(x, x + 6, y - 4);
+    display->drawpixel(x - 4, y + 1);
+    display->drawpixel(x - 1, y + 1);
+    display->drawpixel(x + 1, y - 1);
+    display->drawpixel(x + 2, y - 2);
+}
+
+static int ipodjs_ui_connection_smoothstep(long elapsed, long duration)
+{
+    const int scale = 256;
+    int progress;
+
+    if (elapsed <= 0)
+        return 0;
+    if (elapsed >= duration)
+        return scale;
+    progress = elapsed * scale / duration;
+    return progress * progress * (3 * scale - 2 * progress) /
+           (scale * scale);
+}
+
+void ipodjs_ui_airpods_connected_animation(void)
+{
+    struct screen *display = &screens[SCREEN_MAIN];
+    const long enter_ticks = MAX(1, 2 * HZ / 5);
+    const long hold_ticks = MAX(1, 3 * HZ / 2);
+    const long exit_ticks = MAX(1, 7 * HZ / 10);
+    const long connected_ticks = MAX(1, 2 * HZ / 5);
+    const int resting_y = 8;
+    const int sheet_x = 8;
+    const int sheet_w = LCD_WIDTH - 16;
+    const int sheet_h = LCD_HEIGHT - 16;
+    const int image_x = (LCD_WIDTH - IPODJS_AIRPODS_W) / 2;
+    bool restore_home = true;
+    long started;
+
+    if (!ipodjs_ui_stock_status.airpods_valid)
+        return;
+
+    backlight_on();
+    display->set_viewport(NULL);
+    display->set_drawmode(DRMODE_SOLID);
+#ifdef IPODJS_UI_HAS_ANIMATION_WORKSPACE
+    /* Reuse the fixed transition pair while this synchronous animation owns
+     * the display.  Keep the original Home frame for a clean handoff and a
+     * dimmed copy for restoring pixels exposed by the moving sheet. */
+    ipodjs_ui_transition_cancel();
+    memcpy(ipodjs_ui_animation_old, FBADDR(0, 0), FRAMEBUFFER_SIZE);
+    for (size_t pixel = 0;
+         pixel < FRAMEBUFFER_SIZE / sizeof(fb_data); pixel++)
+    {
+        fb_data source = ipodjs_ui_animation_old[pixel];
+        unsigned red = FB_UNPACK_RED(source) * 5 / 8;
+        unsigned green = FB_UNPACK_GREEN(source) * 5 / 8;
+        unsigned blue = FB_UNPACK_BLUE(source) * 5 / 8;
+
+        ipodjs_ui_animation_new[pixel] =
+            FB_RGBPACK(red, green, blue);
+    }
+#endif
+    started = current_tick;
+
+    while (true)
+    {
+        long elapsed = current_tick - started;
+        long exit_elapsed = elapsed - enter_ticks - hold_ticks;
+        int sheet_y;
+        int action;
+        bool connected = elapsed >= enter_ticks + connected_ticks;
+        bool finished = exit_elapsed >= exit_ticks;
+
+        if (elapsed < enter_ticks)
+        {
+            sheet_y = LCD_HEIGHT -
+                (LCD_HEIGHT - resting_y) * elapsed / enter_ticks;
+        }
+        else if (exit_elapsed <= 0)
+            sheet_y = resting_y;
+        else
+        {
+            int eased = ipodjs_ui_connection_smoothstep(
+                exit_elapsed, exit_ticks);
+
+            sheet_y = resting_y +
+                (LCD_HEIGHT - resting_y) * eased / 256;
+        }
+
+#ifdef IPODJS_UI_HAS_ANIMATION_WORKSPACE
+        memcpy(FBADDR(0, 0), ipodjs_ui_animation_new, FRAMEBUFFER_SIZE);
+#else
+        display->set_background(LCD_RGBPACK(30, 33, 38));
+        display->clear_display();
+#endif
+        ipodjs_ui_fill_connection_sheet(display, sheet_x, sheet_y,
+                                        sheet_w, sheet_h,
+                                        LCD_RGBPACK(250, 250, 252));
+
+        display->set_foreground(LCD_RGBPACK(196, 198, 203));
+        display->fillrect((LCD_WIDTH - 34) / 2, sheet_y + 5, 34, 3);
+        display->bmp(&ipodjs_ui_stock_status.airpods,
+                     image_x, sheet_y + 14);
+
+        display->setfont(FONT_UI);
+        display->set_background(LCD_RGBPACK(250, 250, 252));
+        display->set_foreground(LCD_RGBPACK(18, 18, 20));
+        ipodjs_ui_puts_fit(display, 24, sheet_y + 127,
+                          LCD_WIDTH - 48, "AirPods Pro", true);
+        display->set_foreground(connected ?
+            LCD_RGBPACK(0, 122, 255) : LCD_RGBPACK(105, 107, 112));
+        ipodjs_ui_puts_fit(display, 24, sheet_y + 151,
+                          LCD_WIDTH - 48,
+                          connected ? "Connected" : "Connecting...", true);
+
+        if (connected)
+            ipodjs_ui_draw_connection_check(display, LCD_WIDTH / 2,
+                                            sheet_y + 190);
+        else
+            ipodjs_ui_draw_connection_spinner(display, LCD_WIDTH / 2,
+                                              sheet_y + 190,
+                                              (elapsed *
+                                               IPODJS_AIRPODS_ANIMATION_FPS /
+                                               HZ) & 7);
+
+        display->update();
+        if (finished)
+            break;
+        action = get_action(CONTEXT_STD | ALLOW_SOFTLOCK,
+                            MAX(1, HZ / IPODJS_AIRPODS_ANIMATION_FPS));
+        if (action != ACTION_NONE)
+        {
+            if (IS_SYSEVENT(action))
+            {
+                default_event_handler(action);
+                restore_home = false;
+            }
+            break;
+        }
+    }
+
+#ifdef IPODJS_UI_HAS_ANIMATION_WORKSPACE
+    if (restore_home)
+    {
+        memcpy(FBADDR(0, 0), ipodjs_ui_animation_old, FRAMEBUFFER_SIZE);
+        display->update();
+    }
+#else
+    (void)restore_home;
+#endif
 }
 
 void ipodjs_ui_draw_header_battery(struct screen *display, int x, int y)

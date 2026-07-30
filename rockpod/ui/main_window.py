@@ -15,7 +15,7 @@ from datetime import datetime
 
 from PySide6.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QSplitter,
-    QApplication, QMessageBox, QInputDialog, QLineEdit, QMenu, QStackedWidget, QFileDialog,
+    QApplication, QDialog, QMessageBox, QInputDialog, QLineEdit, QMenu, QStackedWidget, QFileDialog,
     QProgressDialog, QTabWidget,
 )
 from PySide6.QtCore import QEventLoop, QItemSelectionModel, Qt, QTimer, Slot, QProcess, QThreadPool
@@ -81,11 +81,20 @@ from services.rockbox_device import (
     set_rockbox_ui_engine,
     set_rockbox_ui_font_scale,
     set_rockbox_ui_hold_effect,
+    set_rockbox_ui_extras_pane,
     set_rockbox_ui_surface,
 )
+from services import sitekick
+from services import livetv
+from services.calm import CalmService
 from services.rockbox_deploy import RockboxDeployService
 from services.rockbox_boot import RockboxBootService, RockboxBuildSyncJob
 from services.rockbox_games import RockboxGameService
+from services.maker_lite_export import (
+    MakerLiteExportError,
+    private_root_for_config,
+    sync_projects as sync_maker_lite_projects,
+)
 from services.rockbox_photos import RockboxPhotoService
 from services.ipone_wallpapers import IPoneWallpaperService
 from services.rockbox_profiles import RockboxProfileStore
@@ -98,6 +107,7 @@ from services.rockbox_tagcache import (
     write_rockbox_tagcache_from_device_inventory,
 )
 from services.rockbox_simulator import RockboxSimulatorService
+from services.desktop_mode import DesktopModeError, DesktopModeService
 from services.rockbox_themes import RockboxThemeService, THEME_DEFINITIONS
 from services.linux_payload import DEBIAN_LIVE_XFCE_ISO, LinuxPayloadService
 from services.android_installer import AndroidInstallerError, AndroidInstallerService
@@ -114,6 +124,7 @@ from ui.toolbar import Toolbar
 from ui.track_table import TrackTable, TrackTableModel, TRACK_DATA_ROLE
 from ui.status_bar import StatusBar
 from ui.device_summary import DeviceSummaryWidget, build_summary_data
+from ui.desktop_mode_panel import DesktopModePanel
 from ui.column_browser import ColumnBrowser
 from ui.library_views import (
     GroupedTrackView, AlbumGridView,
@@ -124,7 +135,9 @@ from ui.track_adapter import normalize_track_for_ui, normalize_tracks_for_ui
 from ui.simulator_panel import SimulatorPanel
 from ui.plugin_manager import PluginManagerWidget
 from ui.game_manager import GameManagerWidget
+from ui.maker_lite_creator import MakerLiteCreator
 from ui.xbox_avatar_editor import XboxAvatarEditorWidget
+from ui.sitekick_panel import SitekickPanel
 from ui.photo_manager import PhotoManagerWidget
 from ui.ipone_wallpaper_manager import IPoneWallpaperManagerWidget
 from ui.linux_manager import LinuxInstallProgressDialog, LinuxManagerWidget
@@ -137,6 +150,9 @@ from ui.ipodjs_engine_designer import IPodJSEngineDesignerWidget
 from ui.video_library import VideoGridView, build_video_browser_groups, classify_video_track
 from ui.video_player import VideoPlayerWindow
 from ui.video_sync import VideoSyncPanel
+from ui.livetv_panel import LiveTvPanel, LiveTvStorePanel
+from ui.calm_panel import CalmLibraryPanel, CalmStorePanel
+from ui.dialogs.livetv_editor import LiveTvEditorDialog
 from ui.website_sync import WebsiteSyncPanel
 from ui.android_workflows import summarize_android_import
 from ui.boot_workflows import BootProgressController
@@ -195,7 +211,10 @@ class MainWindow(QMainWindow):
         self._device_inventory = DeviceInventoryVerifier(self._config, self)
         self._theme_assets = ThemeAssetManager(self._config)
         self._repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+        self._desktop_mode_service = DesktopModeService(self._repo_root)
+        self.destroyed.connect(lambda: self._desktop_mode_service.shutdown())
         self._rockbox_profiles = RockboxProfileStore(self._config, self._repo_root)
+        self._calm_service = CalmService(self._config, self._repo_root)
         self._rockbox_themes = RockboxThemeService()
         self._theme_designer_service = ThemeDesignerService(self._rockbox_themes)
         self._rockbox_deploy = RockboxDeployService()
@@ -394,6 +413,7 @@ class MainWindow(QMainWindow):
         self._video_sync_panel = VideoSyncPanel()
         self._video_player_window = None
         self._device_summary = DeviceSummaryWidget()
+        self._desktop_mode_panel = DesktopModePanel()
         self._theme_hub = ThemeHubWidget()
         self._ipone_wallpapers = IPoneWallpaperManagerWidget()
         self._theme_designer = ThemeDesignerWidget()
@@ -401,7 +421,15 @@ class MainWindow(QMainWindow):
         self._boot_manager = BootManagerWidget()
         self._plugin_manager = PluginManagerWidget()
         self._game_manager = GameManagerWidget()
+        self._maker_lite_creator = MakerLiteCreator(
+            private_root_for_config(self._config), self._repo_root
+        )
         self._avatar_editor = XboxAvatarEditorWidget(self._repo_root)
+        self._sitekick_panel = SitekickPanel()
+        self._calm_panel = CalmLibraryPanel(
+            self._calm_service, self._rockbox_profiles
+        )
+        self._livetv_panel = LiveTvPanel()
         self._photo_manager = PhotoManagerWidget()
         self._linux_manager = LinuxManagerWidget()
         self._android_manager = AndroidManagerWidget()
@@ -420,6 +448,10 @@ class MainWindow(QMainWindow):
         self._store_page.addTab(self._browser_panel, "Music")
         self._store_page.addTab(self._music_sharing_panel, "Sharing")
         self._store_page.addTab(self._movie_store_panel, "Movies")
+        self._livetv_store_panel = LiveTvStorePanel()
+        self._store_page.addTab(self._livetv_store_panel, "Live TV")
+        self._calm_store_panel = CalmStorePanel(self._calm_service)
+        self._store_page.addTab(self._calm_store_panel, "Calm")
         self._store_page.addTab(self._game_browser_panel, "iPod Games")
         self._store_page.currentChanged.connect(self._on_store_tab_changed)
         self._simulator_panel = SimulatorPanel()
@@ -439,6 +471,7 @@ class MainWindow(QMainWindow):
         self._content_stack.addWidget(self._album_view)
         self._content_stack.addWidget(self._genre_view)
         self._content_stack.addWidget(self._device_summary)
+        self._content_stack.addWidget(self._desktop_mode_panel)
         self._content_stack.addWidget(self._theme_hub)
         self._content_stack.addWidget(self._ipone_wallpapers)
         self._content_stack.addWidget(self._theme_designer)
@@ -446,7 +479,11 @@ class MainWindow(QMainWindow):
         self._content_stack.addWidget(self._boot_manager)
         self._content_stack.addWidget(self._plugin_manager)
         self._content_stack.addWidget(self._game_manager)
+        self._content_stack.addWidget(self._maker_lite_creator)
         self._content_stack.addWidget(self._avatar_editor)
+        self._content_stack.addWidget(self._sitekick_panel)
+        self._content_stack.addWidget(self._calm_panel)
+        self._content_stack.addWidget(self._livetv_panel)
         self._content_stack.addWidget(self._store_page)
         self._content_stack.addWidget(self._photo_manager)
         self._content_stack.addWidget(self._linux_manager)
@@ -510,6 +547,8 @@ class MainWindow(QMainWindow):
         device_menu = menubar.addMenu("Device")
         device_menu.addAction("Sync to iPod", self._start_sync, "Ctrl+S")
         device_menu.addAction("Sync Weather", self._sync_weather_only)
+        device_menu.addAction(
+            "Sync TV Information", self._sync_tv_information)
         device_menu.addAction("Import Android Photos/Videos...", self._import_android_media)
         device_menu.addAction("Refresh Device", self._scan_device)
         device_menu.addAction("Force Device Rescan", self._force_device_rescan)
@@ -560,7 +599,6 @@ class MainWindow(QMainWindow):
         self._video_sync_panel.refresh_requested.connect(self._refresh_video_sync_panel)
         self._video_sync_panel.preview_requested.connect(self._preview_video_sync)
         self._video_sync_panel.sync_requested.connect(self._sync_video_track_ids)
-        self._video_sync_panel.force_repair_requested.connect(self._force_repair_video_track_ids)
         self._video_sync_panel.remove_requested.connect(self._remove_video_track_ids_from_device)
         self._video_sync_panel.delete_requested.connect(self._delete_video_track_ids)
         self._video_sync_panel.hide_requested.connect(self._toggle_video_hidden_ids)
@@ -603,6 +641,35 @@ class MainWindow(QMainWindow):
         self._theme_designer.deploy_device_requested.connect(self._deploy_theme_designer_variant_to_device)
         self._theme_designer.deploy_simulator_requested.connect(self._deploy_theme_designer_variant_to_simulator)
         self._ipodjs_engine_designer.apply_device_requested.connect(self._apply_ipodjs_engine_designer)
+        self._sitekick_panel.refresh_requested.connect(self._refresh_sitekick_panel)
+        self._sitekick_panel.trade_requested.connect(self._settle_sitekick_trade)
+        self._sitekick_panel.code_requested.connect(self._redeem_sitekick_code)
+        self._livetv_panel.refresh_requested.connect(
+            lambda: self._refresh_livetv_panel(rescan=True))
+        self._livetv_panel.autobuild_requested.connect(self._livetv_autobuild)
+        self._livetv_panel.sync_requested.connect(self._livetv_sync)
+        self._livetv_panel.assign_requested.connect(self._livetv_assign)
+        self._livetv_panel.unassign_requested.connect(self._livetv_unassign)
+        self._livetv_panel.delete_media_requested.connect(
+            self._livetv_delete_media)
+        self._livetv_panel.rename_requested.connect(self._livetv_rename)
+        self._livetv_panel.edit_media_requested.connect(
+            self._livetv_edit_media)
+        self._livetv_panel.add_channel_requested.connect(
+            self._livetv_add_channel)
+        self._livetv_panel.edit_channel_requested.connect(
+            self._livetv_edit_channel)
+        self._livetv_panel.remove_channel_requested.connect(
+            self._livetv_remove_channel)
+        self._livetv_panel.logo_requested.connect(self._livetv_choose_logo)
+        self._livetv_panel.favourite_toggled.connect(
+            self._livetv_toggle_favourite)
+        self._livetv_store_panel.browse_requested.connect(
+            self._start_livetv_store_browse)
+        self._livetv_store_panel.import_requested.connect(
+            self._start_livetv_store_import)
+        self._calm_store_panel.library_changed.connect(
+            self._calm_panel.refresh)
         self._boot_manager.profile_selected.connect(self._on_boot_profile_selected)
         self._boot_manager.target_mode_selected.connect(self._on_boot_target_mode_selected)
         self._boot_manager.choose_image_requested.connect(self._choose_boot_image)
@@ -635,6 +702,12 @@ class MainWindow(QMainWindow):
         self._game_manager.optimize_cover_requested.connect(self._optimize_selected_game_cover)
         self._game_manager.launch_simulator_requested.connect(self._launch_selected_game_in_simulator)
         self._game_manager.default_games_changed.connect(self._on_game_default_visibility_changed)
+        self._maker_lite_creator.status_changed.connect(
+            self._status_bar.set_left_text
+        )
+        self._maker_lite_creator.sync_requested.connect(
+            self._sync_maker_lite_projects
+        )
         self._game_manager.achievements_settings_changed.connect(
             self._on_achievement_settings_changed
         )
@@ -704,6 +777,27 @@ class MainWindow(QMainWindow):
         self._device_summary.resync_metadata_changed.connect(self._set_resync_metadata_from_summary)
         self._device_summary.rockbox_autoupdate_changed.connect(self._set_rockbox_autoupdate_from_summary)
         self._device_summary.verify_background_changed.connect(self._set_verify_background_from_summary)
+        self._desktop_mode_panel.choose_sources_requested.connect(
+            self._choose_desktop_mode_sources
+        )
+        self._desktop_mode_panel.install_requested.connect(
+            self._install_desktop_mode_pack
+        )
+        self._desktop_mode_panel.display_device_requested.connect(
+            lambda: self._display_desktop_mode_on_host(use_device_pack=True)
+        )
+        self._desktop_mode_panel.display_local_requested.connect(
+            lambda: self._display_desktop_mode_on_host(use_device_pack=False)
+        )
+        self._desktop_mode_panel.stop_display_requested.connect(
+            self._stop_desktop_mode_host_display
+        )
+        self._desktop_mode_panel.refresh_requested.connect(
+            self._refresh_desktop_mode_panel
+        )
+        self._desktop_mode_panel.capture_help_requested.connect(
+            self._show_desktop_mode_capture_help
+        )
 
         # Device detector
         self._device_detector.device_connected.connect(self._on_device_connected)
@@ -986,6 +1080,8 @@ class MainWindow(QMainWindow):
                 tracks = self._sync_engine.get_not_on_device_tracks()
         elif self._current_view == "device_root":
             tracks = []
+        elif self._current_view == "device_desktop_mode":
+            tracks = []
         elif self._current_view == "rockbox_themes":
             tracks = []
         elif self._current_view == "rockbox_wallpapers":
@@ -1001,6 +1097,10 @@ class MainWindow(QMainWindow):
         elif self._current_view == "rockbox_game_sync":
             tracks = []
         elif self._current_view == "rockbox_achievements_avatar":
+            tracks = []
+        elif self._current_view == "rockbox_sitekick":
+            tracks = []
+        elif self._current_view == "rockbox_calm":
             tracks = []
         elif self._current_view == "rockbox_games":
             tracks = []
@@ -1227,7 +1327,11 @@ class MainWindow(QMainWindow):
             "rockbox_boot": "Boot / Branding",
             "rockbox_plugins": "Plugins",
             "rockbox_game_sync": "Game Sync",
+            "rockbox_maker_lite": "Maker Lite",
             "rockbox_achievements_avatar": "Achievements & Avatar",
+            "rockbox_sitekick": "Sitekick",
+            "rockbox_calm": "Calm Sync",
+            "rockbox_livetv": "Live TV",
             "rockbox_games": "Store",
             "rockbox_movies": "Store",
             "rockbox_sharing": "Store",
@@ -1238,6 +1342,7 @@ class MainWindow(QMainWindow):
             "rockbox_website_sync": "Website Sync",
             "rockbox_simulator": "Simulator",
             "device_root": "Device",
+            "device_desktop_mode": "Desktop Mode",
             "device_music": "On This iPod",
             "device_not_on_ipod": "Not on iPod",
         }
@@ -1386,6 +1491,18 @@ class MainWindow(QMainWindow):
                     "Device Settings",
                     f"Saved the RockPod setting, but could not update Rockbox config.cfg:\n{exc}",
                 )
+        if "rockbox_ui_extras_pane" in dict(settings or {}):
+            try:
+                set_rockbox_ui_extras_pane(
+                    device,
+                    settings["rockbox_ui_extras_pane"],
+                )
+            except OSError as exc:
+                QMessageBox.warning(
+                    self,
+                    "Device Settings",
+                    f"Saved the RockPod setting, but could not update Rockbox config.cfg:\n{exc}",
+                )
         if "rockbox_ui_dark_mode" in dict(settings or {}):
             try:
                 set_rockbox_ui_dark_mode(device, settings["rockbox_ui_dark_mode"])
@@ -1474,6 +1591,9 @@ class MainWindow(QMainWindow):
         elif self._current_view == "device_root":
             self._content_stack.setCurrentWidget(self._device_summary)
             self._update_device_summary()
+        elif self._current_view == "device_desktop_mode":
+            self._content_stack.setCurrentWidget(self._desktop_mode_panel)
+            self._refresh_desktop_mode_panel()
         elif self._current_view == "rockbox_themes":
             self._content_stack.setCurrentWidget(self._theme_hub)
             self._refresh_theme_hub()
@@ -1494,9 +1614,18 @@ class MainWindow(QMainWindow):
         elif self._current_view == "rockbox_game_sync":
             self._content_stack.setCurrentWidget(self._game_manager)
             self._refresh_game_manager()
+        elif self._current_view == "rockbox_maker_lite":
+            self._content_stack.setCurrentWidget(self._maker_lite_creator)
+            self._maker_lite_creator.refresh()
         elif self._current_view == "rockbox_achievements_avatar":
             self._content_stack.setCurrentWidget(self._avatar_editor)
             self._refresh_avatar_editor()
+        elif self._current_view == "rockbox_sitekick":
+            self._content_stack.setCurrentWidget(self._sitekick_panel)
+            self._refresh_sitekick_panel()
+        elif self._current_view == "rockbox_calm":
+            self._content_stack.setCurrentWidget(self._calm_panel)
+            self._calm_panel.refresh()
         elif self._current_view == "rockbox_games":
             self._content_stack.setCurrentWidget(self._store_page)
             self._store_page.setCurrentWidget(self._game_browser_panel)
@@ -1505,6 +1634,9 @@ class MainWindow(QMainWindow):
             self._content_stack.setCurrentWidget(self._store_page)
             self._store_page.setCurrentWidget(self._movie_store_panel)
             self._refresh_movie_store_panel()
+        elif self._current_view == "rockbox_livetv":
+            self._content_stack.setCurrentWidget(self._livetv_panel)
+            self._refresh_livetv_panel()
         elif self._current_view == "rockbox_photos":
             self._content_stack.setCurrentWidget(self._photo_manager)
             self._refresh_photo_manager()
@@ -1545,6 +1677,12 @@ class MainWindow(QMainWindow):
             self._current_view = "rockbox_movies"
             self._refresh_movie_store_panel()
             self._status_bar.set_left_text("Store: Movies")
+        elif current is self._livetv_store_panel:
+            self._current_view = "rockbox_livetv_store"
+            self._status_bar.set_left_text("Store: Live TV")
+        elif current is self._calm_store_panel:
+            self._current_view = "rockbox_calm_store"
+            self._status_bar.set_left_text("Store: Calm Sounds")
         elif current is self._game_browser_panel:
             self._current_view = "rockbox_games"
             self._refresh_game_browser_panel()
@@ -2376,6 +2514,11 @@ class MainWindow(QMainWindow):
                         "tmdb_id": metadata.get("tmdb_id") or "",
                         "genre": metadata.get("genre") or t.get("genre") or "",
                         "year": metadata.get("year") or t.get("year") or None,
+                        "content_rating": (
+                            metadata.get("content_rating")
+                            or t.get("content_rating")
+                            or ""
+                        ),
                     }
 
                     matched_type = str(metadata.get("media_type") or "").strip()
@@ -2395,13 +2538,51 @@ class MainWindow(QMainWindow):
                         updates["video_kind"] = "movie"
 
                     if is_group_match:
-                        # Bulk show-level match: share identity/genre/year across
-                        # every episode, but never clobber each episode's own
-                        # title, season, episode number, or per-episode plot.
-                        pass
+                        # Bulk show-level match: share identity/genre/year
+                        # across every episode, but never clobber each
+                        # episode's own title, season or episode number.
+                        #
+                        # The show synopsis does get written to episodes that
+                        # have none, so every title carries a description on
+                        # the iPod. An episode that already has its own plot
+                        # keeps it - a real episode summary always beats the
+                        # series blurb.
+                        show_plot_short = str(
+                            metadata.get("plot_short") or ""
+                        ).strip()
+                        show_plot_long = str(
+                            metadata.get("plot_long") or ""
+                        ).strip()
+                        if show_plot_short and not str(
+                            t.get("plot_short") or ""
+                        ).strip():
+                            updates["plot_short"] = show_plot_short
+                        if show_plot_long and not str(
+                            t.get("plot_long") or ""
+                        ).strip():
+                            updates["plot_long"] = show_plot_long
+                        # Keep the series blurb separately as well, so a show
+                        # or season screen can describe itself without
+                        # borrowing whichever episode happens to be first.
+                        if show_plot_long or show_plot_short:
+                            updates["show_plot"] = (
+                                show_plot_long or show_plot_short
+                            )
                     else:
                         updates["plot_short"] = metadata.get("plot_short") or ""
                         updates["plot_long"] = metadata.get("plot_long") or ""
+                        # The dialog preserves the series synopsis under
+                        # show_plot before an episode summary replaces the
+                        # plot fields; a movie has no series blurb and simply
+                        # reuses its own.
+                        series_plot = str(
+                            metadata.get("show_plot")
+                            or (updates["plot_long"]
+                                if matched_type == "movie" else "")
+                            or ""
+                        ).strip()
+                        if series_plot:
+                            updates["show_plot"] = series_plot
                         if metadata.get("media_type") in ("tv_episode", "movie"):
                             updates["title"] = (
                                 metadata.get("episode_title")
@@ -3227,6 +3408,205 @@ class MainWindow(QMainWindow):
     # Device operations
     # ═══════════════════════════════════════════════════════════════
 
+    def _refresh_desktop_mode_panel(self):
+        status = self._desktop_mode_service.status(
+            self._device_detector.current_device
+        )
+        self._desktop_mode_panel.set_status(status)
+
+    def _choose_desktop_mode_sources(self):
+        source = QFileDialog.getExistingDirectory(
+            self,
+            "Choose Owned Mac OS X 10.6 System or Capture Bundle",
+            os.path.expanduser("~"),
+        )
+        if not source:
+            return
+        self._desktop_mode_panel.set_busy(True)
+        self._desktop_mode_panel.set_activity(
+            "Inspecting authentic Snow Leopard sources…"
+        )
+        QApplication.processEvents()
+        try:
+            discovery = self._desktop_mode_service.inspect_private_sources([source])
+        except DesktopModeError as exc:
+            self._desktop_mode_panel.set_activity(str(exc), error=True)
+            QMessageBox.warning(self, "Snow Leopard Assets", str(exc))
+            self._desktop_mode_panel.set_busy(False)
+            self._refresh_desktop_mode_panel()
+            return
+        if not discovery.get("complete"):
+            problems = list(discovery.get("integrity_errors") or [])
+            missing = list(discovery.get("missing") or [])
+            if missing:
+                problems.append("Missing: " + ", ".join(missing))
+            message = (
+                "This source is not a complete, verified Mac OS X 10.6 capture.\n\n"
+                + "\n".join(problems)
+            )
+            self._desktop_mode_panel.set_activity(message, error=True)
+            QMessageBox.warning(self, "Snow Leopard Assets", message)
+            self._desktop_mode_panel.set_busy(False)
+            self._refresh_desktop_mode_panel()
+            return
+
+        version = (
+            discovery.get("version", {}).get("capture_version")
+            or next(
+                (
+                    item.get("version")
+                    for item in discovery.get("version", {}).get("versions", [])
+                    if str(item.get("version") or "").startswith("10.6")
+                ),
+                "10.6",
+            )
+        )
+        review = QMessageBox(self)
+        review.setIcon(QMessageBox.Icon.Question)
+        review.setWindowTitle("Review Snow Leopard Sources")
+        review.setText(
+            f"Build a private pack from {discovery['resolved_count']} "
+            f"verified Mac OS X {version} assets?"
+        )
+        review.setInformativeText(
+            "Only the listed files will be resized and converted. "
+            "The pack remains in ignored personal storage."
+        )
+        review.setDetailedText(
+            "\n".join(
+                f"{asset_id}\n  {path}"
+                for asset_id, path in sorted(discovery["resolved"].items())
+            )
+        )
+        review.setStandardButtons(
+            QMessageBox.StandardButton.Yes |
+            QMessageBox.StandardButton.Cancel
+        )
+        review.setDefaultButton(QMessageBox.StandardButton.Cancel)
+        if review.exec() != QMessageBox.StandardButton.Yes:
+            self._desktop_mode_panel.set_activity("Snow Leopard import cancelled.")
+            self._desktop_mode_panel.set_busy(False)
+            self._refresh_desktop_mode_panel()
+            return
+
+        self._desktop_mode_panel.set_activity(
+            "Converting reviewed Snow Leopard assets for the iPod…"
+        )
+        QApplication.processEvents()
+        try:
+            result = self._desktop_mode_service.build_private_pack([source])
+        except DesktopModeError as exc:
+            self._desktop_mode_panel.set_activity(str(exc), error=True)
+            QMessageBox.warning(self, "Snow Leopard Assets", str(exc))
+        else:
+            count = len(result.get("checked") or [])
+            self._desktop_mode_panel.set_activity(
+                f"Verified private Snow Leopard pack created with {count} assets."
+            )
+            self._status_bar.set_left_text("Snow Leopard Desktop Mode pack is ready")
+        finally:
+            self._desktop_mode_panel.set_busy(False)
+            self._refresh_desktop_mode_panel()
+
+    def _install_desktop_mode_pack(self):
+        device = self._device_detector.current_device
+        self._desktop_mode_panel.set_busy(True)
+        self._desktop_mode_panel.set_activity(
+            "Installing and checksum-verifying the private pack on iPod…"
+        )
+        QApplication.processEvents()
+        try:
+            result = self._desktop_mode_service.install_private_pack(device)
+        except DesktopModeError as exc:
+            self._desktop_mode_panel.set_activity(str(exc), error=True)
+            QMessageBox.warning(self, "Desktop Mode Install", str(exc))
+        else:
+            runtime_note = (
+                " Desktop Mode runtime is present."
+                if result.get("plugin_present")
+                else " Install a firmware build containing desktop_mode.rock before launching it."
+            )
+            migration_note = (
+                " The legacy XP pack was archived and removed."
+                if result.get("replaced_xp")
+                else ""
+            )
+            self._desktop_mode_panel.set_activity(
+                f"Installed and verified {result['asset_count']} assets."
+                f"{migration_note}{runtime_note}"
+            )
+            self._status_bar.set_left_text("Desktop Mode pack installed and verified")
+        finally:
+            self._desktop_mode_panel.set_busy(False)
+            self._refresh_desktop_mode_panel()
+
+    def _display_desktop_mode_on_host(self, *, use_device_pack):
+        self._desktop_mode_panel.set_busy(True)
+        source_label = "connected iPod" if use_device_pack else "local private pack"
+        self._desktop_mode_panel.set_activity(
+            f"Preparing an isolated simulator copy from the {source_label}…"
+        )
+        QApplication.processEvents()
+        try:
+            targets = self._rockbox_simulator.discover_targets(self._repo_root)
+            result = self._desktop_mode_service.display_on_host(
+                targets,
+                device=self._device_detector.current_device,
+                use_device_pack=use_device_pack,
+                screen_size=self._host_screen_size(),
+            )
+        except (DesktopModeError, OSError) as exc:
+            self._desktop_mode_panel.set_activity(str(exc), error=True)
+            QMessageBox.warning(self, "Display Desktop Mode", str(exc))
+        else:
+            if result["fullscreen"]:
+                presentation = "full screen"
+            else:
+                width, height = result["display_size"]
+                presentation = f"{width}x{height} ({result['display_zoom']}x)"
+            self._desktop_mode_panel.set_activity(
+                f"Desktop Mode is running {presentation} on this computer "
+                f"(process {result['pid']}). Use your mouse to move the "
+                f"pointer, left click to select, right click for the "
+                f"contextual menu, and Escape to go back. "
+                f"The preview is isolated at {result['preview_root']}."
+            )
+            self._status_bar.set_left_text("Desktop Mode host preview launched")
+        finally:
+            self._desktop_mode_panel.set_busy(False)
+            self._refresh_desktop_mode_panel()
+
+    def _host_screen_size(self):
+        """Usable geometry of the screen Rockpod is on, for the parity scale."""
+        screen = self.screen() or QApplication.primaryScreen()
+        if screen is None:
+            return None
+        available = screen.availableGeometry()
+        return available.width(), available.height()
+
+    def _show_desktop_mode_capture_help(self):
+        guide = os.path.join(
+            self._repo_root,
+            "tools",
+            "snow_leopard_capture",
+            "README.md",
+        )
+        text = (
+            "Run the Snow Leopard capture helper from an owned Mac OS X 10.6 "
+            "installation or VM, then import the generated "
+            "SnowLeopardDesktopCapture folder here.\n\n"
+            f"Guide: {guide}"
+        )
+        QMessageBox.information(self, "Snow Leopard Capture", text)
+
+    def _stop_desktop_mode_host_display(self):
+        stopped = self._desktop_mode_service.stop_host_previews()
+        self._desktop_mode_panel.set_activity(
+            f"Stopped {stopped} Desktop Mode host display"
+            f"{'s' if stopped != 1 else ''}."
+        )
+        self._refresh_desktop_mode_panel()
+
     def _on_device_connected(self, device):
         logger.info("Device connected: %s", device)
         self._device_state = "Connected"
@@ -3250,7 +3630,10 @@ class MainWindow(QMainWindow):
             self._refresh_view()
         if self._current_view == "device_root":
             self._update_device_summary()
+        if self._current_view == "device_desktop_mode":
+            self._refresh_desktop_mode_panel()
         self._refresh_current_rockbox_panel()
+        self._refresh_sitekick_panel()
 
         # Only verify in the background if the user enabled it explicitly.
         if self._device_config_value("verify_device_in_background", False):
@@ -3283,7 +3666,10 @@ class MainWindow(QMainWindow):
         self._refresh_device_playlists()
         if self._current_view == "device_root":
             self._update_device_summary()
+        if self._current_view == "device_desktop_mode":
+            self._refresh_desktop_mode_panel()
         self._refresh_current_rockbox_panel()
+        self._sitekick_panel.set_disconnected()
 
     def _refresh_current_rockbox_panel(self):
         if self._current_view == "rockbox_themes":
@@ -3300,6 +3686,10 @@ class MainWindow(QMainWindow):
             self._refresh_game_manager()
         elif self._current_view == "rockbox_achievements_avatar":
             self._refresh_avatar_editor()
+        elif self._current_view == "rockbox_sitekick":
+            self._refresh_sitekick_panel()
+        elif self._current_view == "rockbox_calm":
+            self._calm_panel.refresh()
         elif self._current_view == "rockbox_games":
             self._refresh_game_browser_panel()
         elif self._current_view == "rockbox_photos":
@@ -3813,6 +4203,65 @@ class MainWindow(QMainWindow):
         dialog.sync_cancelled.connect(lambda: self._sync_engine.cancel_sync())
         dialog.exec()
 
+    def _sync_tv_information(self):
+        if getattr(self, "_tv_information_sync_job", None) is not None:
+            return
+        device = self._device_detector.current_device
+        mount_path = (
+            str(getattr(device, "mount_path", "") or "") if device else "")
+        if not mount_path:
+            QMessageBox.warning(
+                self, "No Device", "No Rockbox device is connected.")
+            return
+
+        progress = QProgressDialog(
+            "Checking current TV information...", None, 0, 0, self)
+        progress.setWindowTitle("Sync TV Information")
+        progress.setWindowModality(Qt.WindowModal)
+        progress.setMinimumDuration(0)
+        progress.show()
+
+        job = livetv.TvInformationSyncJob(self._config, mount_path)
+        self._tv_information_sync_job = job
+        self._tv_information_sync_progress = progress
+        job.signals.progress.connect(self._on_tv_information_sync_progress)
+        job.signals.finished.connect(self._on_tv_information_sync_finished)
+        QThreadPool.globalInstance().start(job)
+        self._status_bar.set_left_text("Refreshing TV information")
+
+    def _on_tv_information_sync_progress(self, _done, _total, label):
+        progress = getattr(self, "_tv_information_sync_progress", None)
+        if progress is not None:
+            progress.setLabelText(str(label or "Syncing TV information..."))
+
+    def _on_tv_information_sync_finished(self, result):
+        self._tv_information_sync_job = None
+        progress = getattr(self, "_tv_information_sync_progress", None)
+        self._tv_information_sync_progress = None
+        if progress is not None:
+            progress.close()
+
+        if not result.get("success"):
+            message = result.get("message", "Unknown error")
+            self._status_bar.set_left_text("TV information sync failed")
+            QMessageBox.warning(
+                self, "TV Information Sync Failed", str(message))
+            return
+
+        channels = result.get("information_channels", 0)
+        copied = result.get("copied", 0)
+        skipped = result.get("skipped", 0)
+        warnings = result.get("warnings") or []
+        message = (
+            f"Synced {channels} current TV information channels "
+            f"({copied} files updated, {skipped} already current)."
+        )
+        if warnings:
+            message += f" {warnings[0]}"
+        self._status_bar.set_left_text(message)
+        if getattr(self, "_current_view", "") == "livetv":
+            self._render_livetv_panel()
+
     def _sync_selected(self):
         track_ids = self._active_track_table().get_selected_track_ids()
         if not track_ids:
@@ -3907,11 +4356,8 @@ class MainWindow(QMainWindow):
     def _preview_video_sync(self, track_ids):
         self._show_video_sync_plan(track_ids)
 
-    def _sync_video_track_ids(self, track_ids):
-        self._show_video_sync_plan(track_ids)
-
-    def _force_repair_video_track_ids(self, track_ids):
-        self._show_video_sync_plan(track_ids, force_full=True)
+    def _sync_video_track_ids(self, track_ids, video_profile="quality"):
+        self._show_video_sync_plan(track_ids, video_profile=video_profile)
 
     def _video_rows_for_ids(self, track_ids):
         ids = {int(track_id) for track_id in (track_ids or []) if int(track_id or 0)}
@@ -4116,7 +4562,9 @@ class MainWindow(QMainWindow):
             )
         self._status_bar.set_left_text(f"Deleted {deleted} local video{'s' if deleted != 1 else ''}")
 
-    def _show_video_sync_plan(self, track_ids, force_full=False):
+    def _show_video_sync_plan(
+        self, track_ids, force_full=False, video_profile=None
+    ):
         track_ids = set(track_ids or [])
         if not track_ids:
             self._video_sync_panel.set_status("Select one or more videos to sync.")
@@ -4127,7 +4575,10 @@ class MainWindow(QMainWindow):
             return
 
         plan = self._build_sync_plan_with_feedback(
-            track_ids=track_ids, force_full=force_full, media_type="video"
+            track_ids=track_ids,
+            force_full=force_full,
+            media_type="video",
+            video_profile=video_profile,
         )
         if plan is None:
             return
@@ -4163,7 +4614,12 @@ class MainWindow(QMainWindow):
         return True
 
     def _build_sync_plan_with_feedback(
-        self, track_ids=None, force_full=False, weather_only=False, media_type="audio"
+        self,
+        track_ids=None,
+        force_full=False,
+        weather_only=False,
+        media_type="audio",
+        video_profile=None,
     ):
         if weather_only:
             self._status_bar.set_left_text("Planning weather sync...")
@@ -4205,6 +4661,7 @@ class MainWindow(QMainWindow):
             force_full=force_full,
             weather_only=weather_only,
             media_type=media_type,
+            video_profile=video_profile,
         )
         if not started:
             progress.close()
@@ -4740,8 +5197,27 @@ class MainWindow(QMainWindow):
             return
 
         target_root = self._website_sync_target_root()
+        oldest_date = ""
+        social_sync = any(
+            host in str(urls or "").lower()
+            for host in ("instagram.com", "onlyfans.com")
+        )
+        if social_sync:
+            default_date = f"{datetime.now().year}-01-01"
+            oldest_date, accepted = QInputDialog.getText(
+                self,
+                "Social Profile History",
+                "Load posts back to date (YYYY-MM-DD):",
+                QLineEdit.Normal,
+                default_date,
+            )
+            if not accepted:
+                panel.set_status("Website sync cancelled.", running=False)
+                return
         try:
-            request = self._offlineweb_sync.prepare_sync(urls, target_root)
+            request = self._offlineweb_sync.prepare_sync(
+                urls, target_root, oldest_date=oldest_date
+            )
         except OfflineWebSyncError as exc:
             panel.set_status(str(exc), running=False)
             self._status_bar.set_left_text("Website sync not started")
@@ -4818,14 +5294,38 @@ class MainWindow(QMainWindow):
         html_saved = int(result.get("html_saved") or 0)
         assets_saved = int(result.get("assets_saved") or 0)
         offline_root = str(result.get("offlineweb_root") or "")
-        status = (
-            f"Website sync complete: {completed}/{requested} links cached "
-            f"({html_saved} pages, {assets_saved} assets). Offline root: {offline_root}\n"
-            f"Log: {log_path}"
-        )
+        failures = [
+            item for item in (result.get("results") or [])
+            if isinstance(item, dict) and not item.get("success")
+        ]
+        if failures:
+            details = "; ".join(
+                f"{item.get('url') or 'site'}: "
+                f"{item.get('reason') or 'no usable page captured'}"
+                for item in failures[:3]
+            )
+            status = (
+                f"Website sync finished with errors: {completed}/{requested} "
+                f"links cached ({html_saved} pages, {assets_saved} assets). "
+                f"{details}\nExisting offline sites were preserved. "
+                f"Log: {log_path}"
+            )
+        else:
+            status = (
+                f"Website sync complete: {completed}/{requested} links cached "
+                f"({html_saved} pages, {assets_saved} assets). "
+                f"Offline root: {offline_root}\nLog: {log_path}"
+            )
         self._website_sync_panel.set_status(status, running=False)
         self._refresh_website_sync_panel()
-        self._status_bar.set_left_text(f"Website sync complete ({completed}/{requested})")
+        if failures:
+            self._status_bar.set_left_text(
+                f"Website sync partial ({completed}/{requested})"
+            )
+        else:
+            self._status_bar.set_left_text(
+                f"Website sync complete ({completed}/{requested})"
+            )
 
     def _on_website_sync_error(self, error):
         log_path = self._website_sync_log_path
@@ -7372,6 +7872,752 @@ class MainWindow(QMainWindow):
         self._refresh_boot_manager()
 
     # ═══════════════════════════════════════════════════════════════
+    # Live TV
+    # ═══════════════════════════════════════════════════════════════
+
+    @staticmethod
+    def _livetv_format_hms(seconds):
+        seconds = max(0, int(seconds or 0))
+        hours, remainder = divmod(seconds, 3600)
+        if hours:
+            return f"{hours}h {remainder // 60}m"
+        return f"{remainder // 60}m"
+
+    def _livetv_library(self):
+        library = getattr(self, "_livetv_library_cache", None)
+        if library is None:
+            library = livetv.LiveTvLibrary(self._config)
+            self._livetv_library_cache = library
+        return library
+
+    def _livetv_lineup(self):
+        lineup = getattr(self, "_livetv_lineup_cache", None)
+        if lineup is None:
+            lineup = livetv.LiveTvLineup(self._livetv_library())
+            self._livetv_lineup_cache = lineup
+        return lineup
+
+    def _livetv_media(self):
+        return (getattr(self, "_livetv_shows", []) or [],
+                getattr(self, "_livetv_ads", []) or [])
+
+    def _refresh_livetv_panel(self, rescan=False):
+        shows, ads = self._livetv_media()
+        if rescan or (not shows and not ads):
+            self._start_livetv_scan()
+            return
+        self._render_livetv_panel()
+
+    def _start_livetv_scan(self):
+        if getattr(self, "_livetv_scan_job", None) is not None:
+            return
+        library = self._livetv_library()
+        roots = library.source_roots()
+        if not roots:
+            self._livetv_panel.set_status(
+                "No Live TV folder found. Create "
+                f"{livetv.livetv_source_dir(self._config.video_dir)} for shows "
+                "and an ADS folder inside it for commercials."
+            )
+            self._livetv_panel.set_channels([])
+            return
+
+        self._livetv_panel.set_busy(True)
+        self._livetv_panel.set_status("Scanning Live TV folders...")
+        job = livetv.LiveTvScanJob(library)
+        self._livetv_scan_job = job
+        job.signals.progress.connect(self._on_livetv_scan_progress)
+        job.signals.finished.connect(self._on_livetv_scan_finished)
+        QThreadPool.globalInstance().start(job)
+
+    def _on_livetv_scan_progress(self, done, total, label):
+        self._livetv_panel.set_progress(done, total, label)
+
+    def _on_livetv_scan_finished(self, result):
+        self._livetv_scan_job = None
+        self._livetv_panel.set_busy(False)
+        self._livetv_panel.clear_progress()
+
+        if not result.get("success"):
+            self._livetv_panel.set_status(
+                f"Live TV scan failed: {result.get('message', 'unknown error')}")
+            return
+
+        self._livetv_shows = result.get("shows") or []
+        self._livetv_ads = result.get("ads") or []
+        self._livetv_apply_pending_assignment()
+
+        lineup = self._livetv_lineup()
+        if not lineup.channels and self._livetv_shows:
+            lineup.autobuild(self._livetv_shows, self._livetv_ads)
+            lineup.save()
+
+        self._render_livetv_panel()
+
+    def _render_livetv_panel(self):
+        shows, ads = self._livetv_media()
+        lineup = self._livetv_lineup()
+        by_path = {item.path: item for item in shows + ads}
+
+        show_channel = {}
+        ad_channel = {}
+        show_counts = {}
+        ad_counts = {}
+        for channel in lineup.channels:
+            label = f"{channel.number} {channel.callsign}"
+            playable = 0
+            for path in channel.shows:
+                show_channel[path] = label
+                if (by_path.get(path) or None) and by_path[path].duration > 0:
+                    playable += 1
+            show_counts[channel.number] = playable
+            for path in channel.ads:
+                ad_channel[path] = label
+            ad_counts[channel.number] = len(channel.ads)
+
+        self._livetv_panel.set_channels(lineup.channels, show_counts,
+                                        ad_counts)
+        self._livetv_panel.set_shows(shows, show_channel)
+        self._livetv_panel.set_ads(ads, ad_channel)
+
+        slots = []
+        if lineup.channels:
+            slots = livetv.LiveTvScheduler(lineup, shows, ads).build()
+        self._livetv_slots = slots
+        self._livetv_panel.set_schedule(lineup.channels, slots)
+
+        total_show_seconds = sum(item.duration for item in shows)
+        self._livetv_panel.set_summary(
+            f"{len(lineup.channels)} channels, {len(shows)} shows, "
+            f"{len(ads)} commercials",
+            f"{self._livetv_format_hms(total_show_seconds)} of programming across "
+            f"{len(lineup.channels)} channels. Two to three commercials play "
+            "between shows; every channel runs on the clock, so tuning in "
+            "drops you wherever the programme has already got to."
+        )
+
+        device = self._device_detector.current_device
+        mount_path = str(getattr(device, "mount_path", "") or "") if device else ""
+        if mount_path:
+            self._livetv_panel.set_status(
+                "Ready to sync. Shows and commercials are converted to "
+                "320x240 MPEG and the guide is written to "
+                f"{livetv.LIVETV_DEVICE_DIR} on this iPod."
+            )
+        else:
+            self._livetv_panel.set_status(
+                "Connect an iPod to sync Live TV. The guide below shows what "
+                "is on the air right now."
+            )
+
+    def _livetv_autobuild(self):
+        shows, ads = self._livetv_media()
+        if not shows:
+            self._livetv_panel.set_status(
+                "No shows found. Add videos to ~/Videos/Live first.")
+            return
+        lineup = self._livetv_lineup()
+        lineup.autobuild(shows, ads)
+        lineup.save()
+        self._render_livetv_panel()
+        self._livetv_panel.set_status(
+            f"Built {len(lineup.channels)} channels from your Live folders.")
+
+    def _livetv_assign(self, kind, paths, channel_number):
+        lineup = self._livetv_lineup()
+        channel = lineup.channel_by_number(channel_number)
+        if channel is None:
+            return
+        for path in paths:
+            for other in lineup.channels:
+                target = other.shows if kind == "show" else other.ads
+                if path in target:
+                    target.remove(path)
+            target = channel.shows if kind == "show" else channel.ads
+            if path not in target:
+                target.append(path)
+        lineup.save()
+        self._render_livetv_panel()
+        noun = "shows" if kind == "show" else "commercials"
+        self._livetv_panel.set_status(
+            f"Assigned {len(paths)} {noun} to {channel.number} "
+            f"{channel.callsign}.")
+
+    def _livetv_channel_dialog(self, channel=None):
+        """Ask for a channel's number, call sign and name.
+
+        Returns a ``(number, callsign, name)`` tuple, or None if cancelled.
+        """
+        lineup = self._livetv_lineup()
+        used = {other.number for other in lineup.channels
+                if channel is None or other is not channel}
+
+        default_number = channel.number if channel else (
+            max((c.number for c in lineup.channels),
+                default=livetv.LIVETV_FIRST_CHANNEL - 1) + 1)
+        number, ok = QInputDialog.getInt(
+            self, "Channel Number", "Channel number:", default_number,
+            1, 9999)
+        if not ok:
+            return None
+        if number in used:
+            QMessageBox.warning(
+                self, "Channel Number",
+                f"Channel {number} is already in use.")
+            return None
+
+        callsign, ok = QInputDialog.getText(
+            self, "Call Sign", "Call sign (shown in the guide):",
+            QLineEdit.Normal, channel.callsign if channel else "")
+        if not ok:
+            return None
+        callsign = callsign.strip().upper()[:9]
+        if not callsign:
+            QMessageBox.warning(self, "Call Sign",
+                                "A channel needs a call sign.")
+            return None
+
+        name, ok = QInputDialog.getText(
+            self, "Channel Name", "Channel name:", QLineEdit.Normal,
+            channel.name if channel else callsign.title())
+        if not ok:
+            return None
+        name = name.strip()[:31] or callsign
+
+        return number, callsign, name
+
+    def _livetv_add_channel(self):
+        lineup = self._livetv_lineup()
+        if len(lineup.channels) >= livetv.LIVETV_MAX_CHANNELS:
+            QMessageBox.warning(
+                self, "Live TV",
+                f"An iPod holds at most {livetv.LIVETV_MAX_CHANNELS} "
+                "channels.")
+            return
+
+        details = self._livetv_channel_dialog()
+        if details is None:
+            return
+        number, callsign, name = details
+
+        lineup.channels.append(livetv.LiveTvChannel(
+            number=number, callsign=callsign, name=name))
+        lineup.channels.sort(key=lambda channel: channel.number)
+        lineup.save()
+        self._render_livetv_panel()
+        self._livetv_panel.select_channel(number)
+        self._livetv_panel.set_status(
+            f"Added channel {number} {callsign}. Assign shows to it from the "
+            "Shows tab, then generate the schedule.")
+
+    def _livetv_edit_channel(self, channel_number):
+        lineup = self._livetv_lineup()
+        channel = lineup.channel_by_number(channel_number)
+        if channel is None:
+            return
+
+        details = self._livetv_channel_dialog(channel)
+        if details is None:
+            return
+        channel.number, channel.callsign, channel.name = details
+
+        lineup.channels.sort(key=lambda item: item.number)
+        lineup.save()
+        self._render_livetv_panel()
+        self._livetv_panel.select_channel(channel.number)
+        self._livetv_panel.set_status(
+            f"Channel is now {channel.number} {channel.callsign} "
+            f"({channel.name}).")
+
+    def _livetv_remove_channel(self, channel_number):
+        lineup = self._livetv_lineup()
+        channel = lineup.channel_by_number(channel_number)
+        if channel is None:
+            return
+
+        answer = QMessageBox.question(
+            self, "Remove Channel",
+            f"Remove channel {channel.number} {channel.callsign}?\n\n"
+            "Its shows stay in your Live TV folder and can be assigned to "
+            "another channel.")
+        if answer != QMessageBox.Yes:
+            return
+
+        lineup.channels = [item for item in lineup.channels
+                           if item is not channel]
+        lineup.save()
+        self._render_livetv_panel()
+        self._livetv_panel.set_status(
+            f"Removed channel {channel.number} {channel.callsign}.")
+
+    def _livetv_unassign(self, kind, paths):
+        lineup = self._livetv_lineup()
+        removed = 0
+        for path in paths:
+            for channel in lineup.channels:
+                target = channel.shows if kind == "show" else channel.ads
+                if path in target:
+                    target.remove(path)
+                    removed += 1
+        lineup.save()
+        self._render_livetv_panel()
+        noun = "shows" if kind == "show" else "commercials"
+        self._livetv_panel.set_status(
+            f"Unassigned {removed} {noun}." if removed
+            else f"Those {noun} were not assigned to a channel.")
+
+    def _livetv_delete_media(self, kind, paths):
+        """Remove show(s)/commercial(s) from the Live TV library entirely.
+
+        Unlike Unassign, this deletes the source file - the request this
+        answers was for a way to get rid of content, not just take it off
+        a channel while it keeps sitting in ~/Videos/Live.
+        """
+        noun_one = "show" if kind == "show" else "commercial"
+        noun_many = "shows" if kind == "show" else "commercials"
+        count = len(paths)
+        if QMessageBox.question(
+                self, "Delete",
+                f"Delete {count} {noun_one if count == 1 else noun_many}? "
+                "This removes the source file from disk and unassigns it "
+                "from any channel. This cannot be undone.",
+                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.No) != QMessageBox.Yes:
+            return
+
+        library = self._livetv_library()
+        lineup = self._livetv_lineup()
+        deleted = 0
+        failed = []
+        for path in paths:
+            for channel in lineup.channels:
+                target = channel.shows if kind == "show" else channel.ads
+                target[:] = [key for key in target if key != path and
+                            not key.startswith(path + "#")]
+            library.clear_title(path)
+            library.set_edits(path, [])
+            try:
+                os.remove(path)
+                deleted += 1
+            except FileNotFoundError:
+                deleted += 1
+            except OSError as error:
+                failed.append(f"{os.path.basename(path)}: {error}")
+
+        lineup.save()
+        self._refresh_livetv_panel(rescan=True)
+        parts = [f"Deleted {deleted} "
+                f"{noun_one if deleted == 1 else noun_many}."]
+        if failed:
+            parts.append(f"{len(failed)} could not be deleted: {failed[0]}")
+        self._livetv_panel.set_status(" ".join(parts))
+
+    def _livetv_rename(self, kind, path):
+        """Retitle a show or commercial as the guide will print it."""
+        shows, ads = self._livetv_media()
+        item = next((media for media in (shows if kind == "show" else ads)
+                     if media.path == path), None)
+        if item is None:
+            return
+
+        library = self._livetv_library()
+        current = library.override_for(path)
+        noun = "Show" if kind == "show" else "Commercial"
+
+        title, ok = QInputDialog.getText(
+            self, f"Rename {noun}",
+            f"Title shown in the guide for\n{os.path.basename(path)}:",
+            QLineEdit.Normal, item.title)
+        if not ok:
+            return
+        title = title.strip()
+
+        if not title:
+            library.clear_title(path)
+            item.renamed = False
+            stem = os.path.splitext(os.path.basename(path))[0]
+            item.title = livetv.program_title(path, item.series) \
+                if kind == "show" else livetv.clean_title(stem)
+            self._render_livetv_panel()
+            self._livetv_panel.set_status(
+                f"Restored the title from the filename: {item.title}")
+            return
+
+        description = current.get("description", "")
+        if kind == "show":
+            description, ok = QInputDialog.getText(
+                self, "Description",
+                "Synopsis shown under the title (leave blank to keep the "
+                "generated one):",
+                QLineEdit.Normal, description)
+            if not ok:
+                description = current.get("description", "")
+
+        library.set_title(path, title, description)
+        item.title = title
+        item.renamed = True
+        if description.strip():
+            item.description = description.strip()
+
+        self._render_livetv_panel()
+        self._livetv_panel.set_status(
+            f"{noun} renamed to “{title}”. Generate the schedule "
+            "to put it in the guide on your iPod.")
+
+    def _livetv_edit_media(self, kind, path):
+        """Split a recording into programmes and cut sections out of it."""
+        shows, ads = self._livetv_media()
+        pool = shows if kind == "show" else ads
+        parts = [media for media in pool if media.path == path]
+
+        library = self._livetv_library()
+        editor_source = path
+        title_hint = parts[0].title if len(parts) == 1 else ""
+        existing = library.edits_for(path)
+
+        if parts:
+            source_duration = library.duration_for(path)
+            if source_duration <= 0:
+                QMessageBox.warning(
+                    self, "Split / Trim",
+                    "The length of this recording could not be read, so it "
+                    "cannot be split. Check that ffprobe is installed.")
+                return
+        else:
+            # Not found on this PC. If it was already split before the
+            # source disappeared, edits.json still has the cut points, but
+            # they are offsets into the *original* file - re-splitting the
+            # already-cropped copy synced to the iPod against them would
+            # cut it in the wrong places, so refuse rather than guess.
+            if existing:
+                QMessageBox.warning(
+                    self, "Split / Trim",
+                    f"{os.path.basename(path)} was already split before it "
+                    "was removed from your Videos/Live folder. Its cut "
+                    "points only make sense against the original file, so "
+                    "restore it here to change the split.")
+                return
+
+            sync = livetv.LiveTvSync(library)
+            stand_in = sync.cached_stand_in_for(path, kind)
+            if stand_in is None:
+                QMessageBox.warning(
+                    self, "Split / Trim",
+                    f"{os.path.basename(path)} is not on this computer and "
+                    "has never been synced to an iPod, so there is nothing "
+                    "to split.")
+                return
+            editor_source = sync.cached_mpeg_path(stand_in)
+            source_duration = stand_in.duration
+            title_hint = stand_in.title
+            QMessageBox.information(
+                self, "Split / Trim",
+                f"{os.path.basename(path)} is no longer on this computer. "
+                "Splitting the copy already synced to the iPod instead.")
+
+        dialog = LiveTvEditorDialog(
+            editor_source, source_duration, existing,
+            title=title_hint, ffmpeg=library.ffmpeg_bin(), parent=self)
+        if dialog.exec() != QDialog.Accepted:
+            return
+
+        episodes = dialog.episodes()
+        old_keys = [media.key for media in parts] if parts else \
+            [key for channel in self._livetv_lineup().channels
+             for key in list(channel.shows) + list(channel.ads)
+             if key == path or key.startswith(path + "#")]
+        library.set_edits(path, episodes)
+
+        # Keep the channel assignment: whichever channel held the old
+        # programmes takes the new ones, so a split does not silently
+        # unassign an evening's recording.
+        lineup = self._livetv_lineup()
+        owner = None
+        for channel in lineup.channels:
+            target = channel.shows if kind == "show" else channel.ads
+            for key in old_keys:
+                if key in target:
+                    owner = owner or channel
+                    target.remove(key)
+
+        self._refresh_livetv_panel(rescan=True)
+        self._livetv_pending_assignment = (kind, path, owner.number) \
+            if owner is not None else None
+
+        count = len(episodes) or 1
+        self._livetv_panel.set_status(
+            f"{os.path.basename(path)} is now {count} programme"
+            f"{'s' if count != 1 else ''}. Generate the schedule to put "
+            "the change on your iPod.")
+
+    def _livetv_apply_pending_assignment(self):
+        """Re-assign freshly split programmes to their old channel."""
+        pending = getattr(self, "_livetv_pending_assignment", None)
+        if not pending:
+            return
+        kind, path, number = pending
+        self._livetv_pending_assignment = None
+
+        lineup = self._livetv_lineup()
+        channel = lineup.channel_by_number(number)
+        if channel is None:
+            return
+        shows, ads = self._livetv_media()
+        target = channel.shows if kind == "show" else channel.ads
+        for media in (shows if kind == "show" else ads):
+            if media.path == path and media.key not in target:
+                target.append(media.key)
+        target.sort()
+        lineup.save()
+
+    def _livetv_toggle_favourite(self, channel_number):
+        lineup = self._livetv_lineup()
+        channel = lineup.channel_by_number(channel_number)
+        if channel is None:
+            return
+        channel.favourite = not channel.favourite
+        lineup.save()
+        self._render_livetv_panel()
+        self._livetv_panel.select_channel(channel_number)
+
+    def _livetv_choose_logo(self, channel_number):
+        lineup = self._livetv_lineup()
+        channel = lineup.channel_by_number(channel_number)
+        if channel is None:
+            return
+        path, _filter = QFileDialog.getOpenFileName(
+            self, f"Channel logo for {channel.callsign}", "",
+            "Images (*.png *.jpg *.jpeg *.bmp *.gif *.webp)")
+        if not path:
+            return
+        channel.logo = path
+        lineup.save()
+        self._render_livetv_panel()
+        self._livetv_panel.select_channel(channel_number)
+        self._livetv_panel.set_status(
+            f"{channel.callsign} will use {os.path.basename(path)} in the "
+            "guide once you sync.")
+
+    def _livetv_sync(self):
+        if getattr(self, "_livetv_sync_job", None) is not None:
+            return
+        device = self._device_detector.current_device
+        mount_path = str(getattr(device, "mount_path", "") or "") if device else ""
+        if not mount_path:
+            self._livetv_panel.set_status("Connect an iPod first.")
+            return
+
+        shows, ads = self._livetv_media()
+        lineup = self._livetv_lineup()
+        if not lineup.channels:
+            self._livetv_panel.set_status(
+                "Build channels before syncing.")
+            return
+
+        self._livetv_panel.set_busy(True)
+        self._livetv_panel.set_status("Converting and copying Live TV...")
+        job = livetv.LiveTvSyncJob(
+            livetv.LiveTvSync(self._livetv_library()), mount_path, lineup,
+            shows, ads, config=self._config)
+        self._livetv_sync_job = job
+        job.signals.progress.connect(self._on_livetv_scan_progress)
+        job.signals.finished.connect(self._on_livetv_sync_finished)
+        QThreadPool.globalInstance().start(job)
+
+    def _on_livetv_sync_finished(self, result):
+        self._livetv_sync_job = None
+        self._livetv_panel.set_busy(False)
+        self._livetv_panel.clear_progress()
+
+        if not result.get("success"):
+            self._livetv_panel.set_status(
+                f"Live TV sync failed: {result.get('message', 'unknown error')}")
+            return
+
+        parts = [
+            f"Synced {result.get('copied', 0)} files "
+            f"({result.get('skipped', 0)} already current) across "
+            f"{result.get('channels', 0)} channels, "
+            f"{result.get('slots', 0)} listings.",
+        ]
+        if result.get("staged_deleted"):
+            parts.append(
+                f"Removed {result['staged_deleted']} downloaded files from the "
+                "local staging folder after copying them to the iPod.")
+        if result.get("cache_pruned"):
+            parts.append(
+                f"Cleared {result['cache_pruned']} cached clip(s) no longer "
+                "used by any channel.")
+        for warning in result.get("warnings") or []:
+            parts.append(warning)
+        errors = result.get("errors") or []
+        if errors:
+            parts.append(f"{len(errors)} items failed to convert: "
+                         f"{errors[0]}")
+
+        self._livetv_panel.set_status(" ".join(parts))
+        self._render_livetv_panel()
+
+    # ── Live TV store ────────────────────────────────────────────────
+
+    def _livetv_store_importer(self, destination):
+        """A YouTube importer writing into the Live TV staging folder."""
+        staging = self._livetv_library().staging_dir()
+        if destination == "ad":
+            staging = os.path.join(staging, livetv.LIVETV_ADS_DIR_NAME)
+        os.makedirs(staging, exist_ok=True)
+        return self._youtube_movie_importer.with_output_dir(staging)
+
+    def _start_livetv_store_browse(self, query, destination):
+        if getattr(self, "_livetv_browse_process", None) is not None:
+            return
+        importer = self._livetv_store_importer(destination)
+        try:
+            request = importer.prepare_browse(query, limit=18)
+        except YoutubeMovieImportError as exc:
+            self._livetv_store_panel.set_status(str(exc), running=False)
+            return
+
+        process = self._create_child_process(
+            request,
+            importer.state_dir,
+            self._on_livetv_store_browse_output,
+            self._on_livetv_store_browse_finished,
+            self._on_livetv_store_browse_error,
+        )
+        self._livetv_browse_process = process
+        self._livetv_browse_output_path = request.output_path
+        self._livetv_browse_output = []
+        self._livetv_browse_query = str(query or "").strip()
+        self._livetv_store_panel.set_status(
+            f"Searching for {self._livetv_browse_query}...", running=True)
+        self._status_bar.set_left_text("Browsing Live TV")
+        process.start(request.command[0], request.command[1:])
+
+    def _on_livetv_store_browse_output(self):
+        process = getattr(self, "_livetv_browse_process", None)
+        if process is None:
+            return
+        text = compact_process_text(read_process_text(process))
+        if text:
+            self._livetv_browse_output.append(text)
+
+    def _on_livetv_store_browse_finished(self, exit_code, _exit_status):
+        process = getattr(self, "_livetv_browse_process", None)
+        self._livetv_browse_process = None
+        if process is not None:
+            text = compact_process_text(read_process_text(process))
+            if text:
+                self._livetv_browse_output.append(text)
+
+        output_path = self._livetv_browse_output_path
+        self._livetv_browse_output_path = ""
+        query = self._livetv_browse_query
+        self._livetv_browse_query = ""
+
+        if exit_code != 0:
+            detail = " ".join(self._livetv_browse_output).strip()
+            self._livetv_browse_output = []
+            self._livetv_store_panel.set_status(
+                f"Live TV search failed with exit code {exit_code}: "
+                f"{detail[-400:]}", running=False)
+            return
+
+        try:
+            with open(output_path, "r") as handle:
+                results = json.load(handle)
+        except (OSError, json.JSONDecodeError) as exc:
+            self._livetv_browse_output = []
+            self._livetv_store_panel.set_status(
+                f"Live TV search result could not be read: {exc}",
+                running=False)
+            return
+
+        self._livetv_browse_output = []
+        self._livetv_store_panel.set_results(results)
+        count = len(results)
+        self._livetv_store_panel.set_status(
+            f"Found {count} result{'s' if count != 1 else ''} for "
+            f"{query}. Double-click one to download it into Live TV.",
+            running=False)
+
+    def _on_livetv_store_browse_error(self, error):
+        self._livetv_browse_process = None
+        self._livetv_browse_output_path = ""
+        self._livetv_browse_output = []
+        self._livetv_browse_query = ""
+        self._livetv_store_panel.set_status(
+            f"Live TV search could not start: {error}", running=False)
+
+    def _start_livetv_store_import(self, url, destination):
+        if getattr(self, "_livetv_import_process", None) is not None:
+            return
+        importer = self._livetv_store_importer(destination)
+        try:
+            request = importer.prepare_import(url)
+        except YoutubeMovieImportError as exc:
+            self._livetv_store_panel.set_status(str(exc), running=False)
+            QMessageBox.warning(self, "Live TV Download", str(exc))
+            return
+
+        process = self._create_child_process(
+            request,
+            request.output_dir,
+            self._on_livetv_store_import_output,
+            self._on_livetv_store_import_finished,
+            self._on_livetv_store_import_error,
+        )
+        self._livetv_import_process = process
+        self._livetv_import_output = []
+        self._livetv_import_destination = destination
+        noun = "commercial" if destination == "ad" else "show"
+        self._livetv_store_panel.set_status(
+            f"Downloading and converting {noun}... Log: {request.log_path}",
+            running=True)
+        self._status_bar.set_left_text("Downloading Live TV content")
+        process.start(request.command[0], request.command[1:])
+
+    def _on_livetv_store_import_output(self):
+        process = getattr(self, "_livetv_import_process", None)
+        if process is None:
+            return
+        text = compact_process_text(read_process_text(process))
+        if text:
+            self._livetv_import_output.append(text)
+
+    def _on_livetv_store_import_finished(self, exit_code, _exit_status):
+        process = getattr(self, "_livetv_import_process", None)
+        self._livetv_import_process = None
+        if process is not None:
+            text = compact_process_text(read_process_text(process))
+            if text:
+                self._livetv_import_output.append(text)
+
+        destination = getattr(self, "_livetv_import_destination", "show")
+        detail = " ".join(self._livetv_import_output).strip()
+        self._livetv_import_output = []
+
+        if exit_code != 0:
+            self._livetv_store_panel.set_status(
+                f"Download failed with exit code {exit_code}: "
+                f"{detail[-400:]}", running=False)
+            return
+
+        noun = "Commercial" if destination == "ad" else "Show"
+        self._livetv_store_panel.set_status(
+            f"{noun} downloaded into the Live TV staging folder. It will be "
+            "converted on the next Live TV sync and removed from this "
+            "computer once the iPod copy is verified.", running=False)
+        # Pick the new file up straight away so it can be assigned.
+        self._refresh_livetv_panel(rescan=True)
+
+    def _on_livetv_store_import_error(self, error):
+        self._livetv_import_process = None
+        self._livetv_import_output = []
+        self._livetv_store_panel.set_status(
+            f"Download could not start: {error}", running=False)
+
+    # ═══════════════════════════════════════════════════════════════
     # Rockbox photos
     # ═══════════════════════════════════════════════════════════════
 
@@ -7622,22 +8868,126 @@ class MainWindow(QMainWindow):
         )
         self._avatar_editor.set_achievement_totals(totals)
 
+    def _refresh_sitekick_panel(self):
+        device = self._device_detector.current_device
+        mount_path = str(getattr(device, "mount_path", "") or "") if device else ""
+        if not mount_path:
+            self._sitekick_panel.set_disconnected()
+            return
+        try:
+            snapshot = sitekick.sync_current_sitekick(mount_path)
+        except (OSError, sitekick.SitekickError) as exc:
+            logger.warning("Sitekick device sync failed: %s", exc)
+            self._sitekick_panel.set_error(
+                "Sitekick is not installed on this iPod yet."
+                if "chip table" in str(exc).lower()
+                else str(exc)
+            )
+            return
+        self._sitekick_panel.set_snapshot(snapshot)
+        self._status_bar.set_left_text(
+            f"Sitekick synced: {len(snapshot.state.owned)} chips, "
+            f"{snapshot.state.xp:,} XP"
+        )
+
+    def _settle_sitekick_trade(self, incoming):
+        device = self._device_detector.current_device
+        mount_path = str(getattr(device, "mount_path", "") or "") if device else ""
+        if not mount_path:
+            return
+        try:
+            snapshot = sitekick.sync_current_sitekick(mount_path)
+            incoming = [int(chip_id) for chip_id in incoming]
+            unknown = [chip_id for chip_id in incoming
+                       if chip_id not in snapshot.chips]
+            if unknown:
+                QMessageBox.warning(
+                    self,
+                    "Sitekick Trade",
+                    "Unknown chip IDs: " + ", ".join(str(value) for value in unknown),
+                )
+                return
+            if not snapshot.offers:
+                QMessageBox.information(
+                    self, "Sitekick Trade",
+                    "Stage an offer in Sitekick on the iPod first.",
+                )
+                return
+            offered = ", ".join(
+                f"#{offer.chip_id:04d}" for offer in snapshot.offers
+            )
+            received = (
+                ", ".join(f"#{chip_id:04d}" for chip_id in incoming)
+                if incoming else "25 coins per offered chip"
+            )
+            answer = QMessageBox.question(
+                self,
+                "Accept Sitekick Trade",
+                f"Offer: {offered}\nReceive: {received}\n\n"
+                "Send this result to the connected iPod?",
+                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.No,
+            )
+            if answer != QMessageBox.Yes:
+                return
+            grants = sitekick.settle_trade(snapshot.offers, incoming)
+            sitekick.merge_inbox(snapshot.root, grants)
+            sitekick.clear_outbox(snapshot.root)
+            self._refresh_sitekick_panel()
+            self._status_bar.set_left_text(
+                "Sitekick trade accepted; rewards will arrive next time "
+                "Sitekick opens"
+            )
+        except (OSError, ValueError, sitekick.SitekickError) as exc:
+            QMessageBox.warning(self, "Sitekick Trade", str(exc))
+
+    def _redeem_sitekick_code(self, code):
+        device = self._device_detector.current_device
+        mount_path = str(getattr(device, "mount_path", "") or "") if device else ""
+        if not mount_path:
+            return
+        try:
+            snapshot = sitekick.sync_current_sitekick(mount_path)
+            grants = sitekick.stage_code(
+                snapshot.root, code, snapshot.state.owned
+            )
+            if not grants:
+                QMessageBox.information(
+                    self,
+                    "Sitekick Secret Code",
+                    "Every chip from this code is already owned or waiting "
+                    "in the Sitekick inbox.",
+                )
+                return
+            names = [
+                snapshot.chips[grant.value].name
+                for grant in grants
+                if grant.kind == "grant" and grant.value in snapshot.chips
+            ]
+            self._refresh_sitekick_panel()
+            self._status_bar.set_left_text(
+                f"Sitekick code accepted: {len(names)} chips will unlock "
+                "next time Sitekick opens"
+            )
+            QMessageBox.information(
+                self,
+                "Sitekick Secret Code",
+                "Sent to the connected iPod:\n\n" + "\n".join(names),
+            )
+        except (OSError, ValueError, sitekick.SitekickError) as exc:
+            QMessageBox.warning(self, "Sitekick Secret Code", str(exc))
+
     def _on_avatar_profile_saved(self, values):
         profile = self._rockbox_profiles.current_profile()
         if not profile:
             return
-        profile.update(dict(values or {}))
-        for key in (
-            "xbox_avatar_display_name",
-            "xbox_avatar_body",
-            "xbox_avatar_favorite_clip",
-            "xbox_avatar_skin",
-            "xbox_avatar_hair",
-            "xbox_avatar_top",
-            "xbox_avatar_bottom",
-            "xbox_avatar_shoes",
-        ):
-            self._config.set(key, profile.get(key))
+        values = dict(values or {})
+        profile.update(values)
+        # Persist whatever the creator emitted rather than a fixed list, so a
+        # new wardrobe option cannot be dropped on its way to the config.
+        for key in values:
+            if key.startswith("xbox_avatar_"):
+                self._config.set(key, profile.get(key))
         self._config.save()
         self._rockbox_profiles.save_profile(profile)
         self._status_bar.set_left_text("Xbox avatar profile saved")
@@ -7810,6 +9160,63 @@ class MainWindow(QMainWindow):
             self._status_bar.set_left_text("Game sync failed")
             QMessageBox.warning(self, "Game Sync Failed", "\n".join(result["failures"]))
         self._refresh_game_manager()
+
+    def _sync_maker_lite_projects(self, target_mode):
+        records = self._maker_lite_creator.store.list()
+        if not records:
+            self._status_bar.set_left_text("No Maker Lite projects to sync")
+            return
+        if target_mode == "simulator":
+            if not self._simulator_targets:
+                self._simulator_targets = self._rockbox_simulator.discover_targets(
+                    self._repo_root
+                )
+            profile = self._rockbox_profiles.current_profile()
+            target_id = profile.get("simulator_target") if profile else ""
+            target = self._simulator_target_by_id(target_id)
+            if target is None and self._simulator_targets:
+                target = self._simulator_targets[0]
+            mount_root = target.get("simdisk_path", "") if target else ""
+            plugin_source = os.path.join(
+                self._repo_root,
+                "build-sim-ipod6g",
+                "apps",
+                "plugins",
+                "maker_lite",
+                "maker_lite.rock",
+            )
+        else:
+            device = self._device_detector.current_device
+            mount_root = getattr(device, "mount_path", "") if device else ""
+            plugin_source = os.path.join(
+                self._repo_root,
+                "build-hw-ipod6g",
+                "apps",
+                "plugins",
+                "maker_lite",
+                "maker_lite.rock",
+            )
+        if not mount_root or not os.path.isdir(mount_root):
+            QMessageBox.information(
+                self,
+                "Maker Lite Sync",
+                "Connect an iPod or bind an available simulator first.",
+            )
+            return
+        try:
+            result = sync_maker_lite_projects(
+                records,
+                self._maker_lite_creator.private_root,
+                mount_root,
+                plugin_source,
+            )
+        except (OSError, ValueError, MakerLiteExportError) as exc:
+            QMessageBox.warning(self, "Maker Lite Sync Failed", str(exc))
+            return
+        self._status_bar.set_left_text(
+            f"Maker Lite synced {result['browser_rows']} project(s) to Classic; "
+            f"{result['rows']} visible in Steam"
+        )
 
     def _remove_selected_games(self):
         profile = self._rockbox_profiles.current_profile()
@@ -8232,9 +9639,10 @@ class MainWindow(QMainWindow):
         answer = QMessageBox.question(
             self,
             "Stage Android RAM Boot",
-            "Create three checksum-wrapped files under .rockbox/android on the connected "
-            "iPod? This does not replace Rockbox, resize the filesystem, alter partitions, "
-            "or write the bootloader/NOR.",
+            "Stage three checksum-wrapped files under .rockbox/android on the connected "
+            "iPod? An older set is replaced only if every file matches its own manifest. "
+            "This does not replace Rockbox, resize the filesystem, alter partitions, or "
+            "write the bootloader/NOR.",
             QMessageBox.Yes | QMessageBox.Cancel,
             QMessageBox.Cancel,
         )

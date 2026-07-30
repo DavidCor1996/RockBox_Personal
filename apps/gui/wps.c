@@ -68,6 +68,10 @@
 #include "open_plugin.h"
 #include "plugin.h"
 #include "gui/ipodjs_trace.h"
+#include "gui/ipodjs_ui.h"
+#ifdef IPOD_ACCESSORY_PROTOCOL
+#include "iap.h"
+#endif
 
 #ifdef USB_ENABLE_AUDIO
 #include "usbstack/usb_audio.h"
@@ -523,6 +527,10 @@ long gui_wps_show(void)
     #endif
     long last_left = 0, last_right = 0;
     struct wps_state *state = get_wps_state();
+#ifdef IPOD_ACCESSORY_PROTOCOL
+    bool last_kokkia_present = false;
+    bool last_kokkia_valid = false;
+#endif
 
     ab_reset_markers();
     wps_state_init();
@@ -531,6 +539,29 @@ long gui_wps_show(void)
     {
         bool hotkey = false;
         bool audio_paused = (audio_status() & AUDIO_STATUS_PAUSE)?true:false;
+#ifdef IPOD_ACCESSORY_PROTOCOL
+        bool kokkia_present = iap_kokkia_present();
+
+        if (ipodjs_wps_controls() &&
+            (!last_kokkia_valid ||
+             kokkia_present != last_kokkia_present))
+        {
+            last_kokkia_present = kokkia_present;
+            last_kokkia_valid = true;
+            skin_request_full_update(WPS);
+            update = true;
+        }
+        if (iap_take_kokkia_connection_event())
+        {
+            /* Home owns the connection animation.  Consume WPS connections
+             * silently so they are not replayed after navigating back. */
+            if (ipodjs_wps_controls())
+            {
+                skin_request_full_update(WPS);
+                update = true;
+            }
+        }
+#endif
         if (state->paused != audio_paused) {
             state->paused = audio_paused;
             DEBUGF("wps: paused state changed to %d\n", state->paused);

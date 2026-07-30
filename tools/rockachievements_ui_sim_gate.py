@@ -60,7 +60,16 @@ def prepare_root(repo: Path, build_dir: Path, root: Path) -> None:
         / "achievements"
         / "xbox360-sphere-official.32x32x24.bmp"
     )
-    for required in (plugin, catalog / "current", sphere):
+    boot = (
+        repo / "assets" / "ipodjs" / "rockbox" / "achievements" / "boot"
+    )
+    for required in (
+        plugin,
+        catalog / "current",
+        sphere,
+        boot / "boot-320x180.nfx",
+        boot / "boot-20000-mono.mulaw",
+    ):
         if not required.exists():
             raise SystemExit(f"missing UI gate input: {required}")
 
@@ -111,6 +120,7 @@ def prepare_root(repo: Path, build_dir: Path, root: Path) -> None:
     sphere_target = rockbox / "ipodjs" / "achievements" / sphere.name
     sphere_target.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(sphere, sphere_target)
+    shutil.copytree(boot, sphere_target.parent / "boot")
 
     entry = bytearray(OPEN_PLUGIN_ENTRY_SIZE)
     checksum = open_plugin_lang_checksum(build_dir)
@@ -161,6 +171,35 @@ def wait_for_achievements(frame: Path, timeout: float = 35.0) -> None:
                 return
         time.sleep(0.2)
     raise SystemExit("achievements plugin startup timed out")
+
+
+def wait_for_xbox_boot(frame: Path, timeout: float = 15.0) -> None:
+    """Wait for a letterboxed, non-black frame from the Xbox boot sequence."""
+    wait_for_file(frame)
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        result = subprocess.run(
+            [
+                "magick",
+                str(frame),
+                "-format",
+                "%[pixel:p{160,5}] %[pixel:p{160,120}] "
+                "%[pixel:p{5,120}]",
+                "info:",
+            ],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        values = [int(value) for value in re.findall(r"\d+", result.stdout)]
+        if len(values) >= 9:
+            top = values[:3]
+            center = values[3:6]
+            side = values[6:9]
+            if max(top) < 5 and max(center) > 20 and max(side) > 5:
+                return
+        time.sleep(0.05)
+    raise SystemExit("authentic Xbox 360 boot frame did not appear")
 
 
 def window_id(pid: int) -> str:
@@ -250,7 +289,9 @@ def main() -> int:
     gate_root = args.output / ".button-gates"
     shutil.rmtree(gate_root, ignore_errors=True)
     gate_root.mkdir(parents=True)
-    with tempfile.TemporaryDirectory(prefix="rockachievements-ui-", dir="/tmp") as temp:
+    # The staged root is a full copy of simdisk, so honour TMPDIR when /tmp is a
+    # small tmpfs.
+    with tempfile.TemporaryDirectory(prefix="rockachievements-ui-") as temp:
         root = Path(temp)
         prepare_root(repo, build_dir, root)
         frame = root / "frame.bmp"
@@ -283,6 +324,14 @@ def main() -> int:
             env=environment,
         )
         try:
+            wait_for_xbox_boot(frame)
+            boot_early = args.output / "achievements-boot-early.png"
+            boot_late = args.output / "achievements-boot-late.png"
+            capture(frame, boot_early)
+            time.sleep(1.0)
+            capture(frame, boot_late)
+            if changed_pixels(boot_early, boot_late) < 10_000:
+                raise SystemExit("authentic Xbox 360 boot animation did not advance")
             window_id(process.pid)
             wait_for_achievements(frame)
             time.sleep(0.5)

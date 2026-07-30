@@ -782,6 +782,16 @@ void iap_handlepkt_mode0(const unsigned int len, const unsigned char *buf)
 
                 iap_send_tx();
 
+                /* MFi spec Table 2-8 step 4: send GetAccessoryInfo
+                 * between AckAccessoryAuthenticationInfo and
+                 * GetAccessoryAuthenticationSignature (non-IDPS only). */
+                if (!device.auth.idps)
+                {
+                    IAP_TX_INIT(0x00, 0x27);
+                    IAP_TX_PUT(0x00);
+                    iap_send_tx();
+                }
+
                 device.auth.state = AUST_CERTDONE;
             }
             break;
@@ -846,13 +856,18 @@ void iap_handlepkt_mode0(const unsigned int len, const unsigned char *buf)
 
             iap_send_tx();
             device.auth.state = AUST_AUTH;
-            device.accinfo = ACCST_INIT;
+            if (device.accinfo == ACCST_NONE)
+                device.accinfo = ACCST_INIT;
 
             /* After auth, initiate digital audio via periodic handler.
              * Do NOT call iap_set_remote_volume() or any other send here —
              * tx_buf is shared and 0x19 hasn't finished DMA yet. */
             if (DEVICE_LINGO_SUPPORTED(0x0A))
                 device.audio_init_pending = true;
+
+            /* Defer volume notification until after auth completes
+             * and the periodic handler has a free tx_buf. */
+            device.volume_notify_pending = true;
 
             break;
         }
@@ -1159,6 +1174,42 @@ void iap_handlepkt_mode0(const unsigned int len, const unsigned char *buf)
             break;
         }
 
+        /* SetUIMode (0x37)
+         *
+         * Sets the UI mode of the iPod.
+         * UIMode 0x00 = Standard mode
+         * UIMode 0x01 = Extended Interface mode
+         * UIMode 0x02 = iPod Out mode
+         *
+         * In IDPS mode, a 2-byte transID precedes the payload.
+         */
+        case 0x37:
+        {
+            CHECKAUTH;
+            CHECKLEN(3 + (device.auth.idps ? 2 : 0));
+            int off = device.auth.idps ? 2 : 0;
+            unsigned char mode = buf[2 + off];
+            unsigned char status;
+            if (mode == 0x01) {
+                iap_interface_state_change(IST_EXTENDED);
+                status = IAP_ACK_OK;
+            } else if (mode == 0x00) {
+                iap_interface_state_change(IST_STANDARD);
+                status = IAP_ACK_OK;
+            } else {
+                status = IAP_ACK_BAD_PARAM;
+            }
+            IAP_TX_INIT(0x00, 0x02);
+            if (device.auth.idps) {
+                IAP_TX_PUT(buf[2]);
+                IAP_TX_PUT(buf[3]);
+            }
+            IAP_TX_PUT(status);
+            IAP_TX_PUT(cmd);
+            iap_send_tx();
+            break;
+        }
+
         /* StartIDPS (0x38)
          *
          * Newer accessories use IDPS instead of IdentifyDeviceLingoes.
@@ -1180,6 +1231,94 @@ void iap_handlepkt_mode0(const unsigned int len, const unsigned char *buf)
 #ifdef LOGF_ENABLE
             logf("iap: StartIDPS tid=%02x%02x", tid_hi, tid_lo);
 #endif
+
+            if (iap_transport_is_serial())
+                iap_note_kokkia_candidate();
+
+            /* Post-authentication activation sequence.
+             *
+             * Some Bluetooth dock transmitters (Kokkia i10/i10s) send
+             * StartIDPS *after* the MFi certificate exchange has already
+             * completed, and will not power on their radio until they
+             * receive this specific pair of replies.  Apple's firmware
+             * answers it; stock Rockbox has no handler at all and NAKs
+             * with Bad Parameter, which is why the dongle stays lit but
+             * never enters pairing mode.
+             *
+             * The two packets below were recovered by disassembling a
+             * known-working build (giek2000/rockbox_kokkia, ipod4g), so
+             * they are reproduced verbatim rather than derived from the
+             * spec - 0x39/0x3A are nominally SetFIDTokenValues and
+             * RetFIDTokenValueACKs, and the accessory is evidently
+             * matching on the exact byte sequence.
+             *
+             * Only the authenticated case is claimed here.  An accessory
+             * that opens with StartIDPS before authenticating is doing
+             * real IDPS negotiation (USB MFi DACs), which is handled by
+             * the iPodAck path below together with the 0x39/0x3B
+             * handlers.  The two flows are disjoint by auth state.
+             */
+            if (DEVICE_AUTHENTICATED)
+            {
+                /* A serial accessory normally requests this activation
+                 * once, immediately after authenticating.  Seeing it again
+                 * means the accessory restarted without the PMU observing
+                 * a dock removal.  Discard the stale authenticated session
+                 * and reject this pre-auth request so the Kokkia falls back
+                 * to legacy identification and authenticates again.
+                 */
+                if (iap_transport_is_serial())
+                {
+                    if (device.serial_activation_sent)
+                    {
+                        iap_note_accessory_restart();
+                        iap_reset_device(&device);
+                        cmd_ack(cmd, IAP_ACK_BAD_PARAM);
+                        break;
+                    }
+
+                    device.serial_activation_sent = true;
+                    device.kokkia_detected = true;
+                }
+
+                IAP_TX_INIT(0x00, 0x39);
+                IAP_TX_PUT(0x00);
+                IAP_TX_PUT(0x01);
+                iap_send_tx();
+
+                IAP_TX_INIT(0x00, 0x3A);
+                IAP_TX_PUT(0x00);
+                IAP_TX_PUT(0x01);
+                IAP_TX_PUT(0x01);
+                iap_send_tx();
+                if (iap_transport_is_serial())
+                    iap_note_kokkia_ready();
+                break;
+            }
+
+            /* Refuse to open an IDPS session over the dock UART.
+             *
+             * A captured Kokkia i10s exchange shows it opening with
+             * StartIDPS before authenticating, then sending its
+             * Identify/AccCaps/AccInfo tokens.  We ACK all of them, but
+             * the accessory never follows with EndIDPS - it just
+             * restarts the same sequence every ten seconds, so
+             * authentication never begins and the radio never powers on.
+             *
+             * Accepting IDPS makes the accessory commit to a
+             * negotiation Rockbox cannot finish.  Rejecting StartIDPS
+             * makes it fall back to legacy IdentifyDeviceLingoes and
+             * authenticate normally; it then re-sends StartIDPS once
+             * authenticated, which is the activation case handled above.
+             * This is what the known-working build does - it has no
+             * handler for 0x38 pre-auth, nor for 0x39/0x3B at all.
+             *
+             * USB HID (MFi DAC) docks keep the real IDPS path below.
+             */
+            if (iap_transport_is_serial()) {
+                cmd_ack(cmd, IAP_ACK_BAD_PARAM);
+                break;
+            }
 
             /* iPodAck with transaction ID: format per Table 3-5 */
             IAP_TX_INIT(0x00, 0x02);
@@ -1207,6 +1346,15 @@ void iap_handlepkt_mode0(const unsigned int len, const unsigned char *buf)
         case 0x39:
         {
             CHECKLEN(5);
+            /* IDPS negotiation only happens before authentication.  A
+             * post-auth 0x39 comes from a dock replaying the Kokkia
+             * activation exchange; the known-working build has no
+             * handler in that range and NAKs it, so match that rather
+             * than answering with token ACKs it is not expecting. */
+            if (DEVICE_AUTHENTICATED || iap_transport_is_serial()) {
+                cmd_ack(cmd, IAP_ACK_BAD_PARAM);
+                break;
+            }
             uint8_t tid_hi = buf[2];
             uint8_t tid_lo = buf[3];
             int num_tokens = buf[4];
@@ -1229,6 +1377,33 @@ void iap_handlepkt_mode0(const unsigned int len, const unsigned char *buf)
                 uint8_t fid_len = buf[offset];         /* token payload length */
                 uint8_t fid_type = buf[offset + 1];
                 uint8_t fid_subtype = buf[offset + 2];
+
+                /* Parse IdentifyToken (FIDType=0x00, FIDSubtype=0x00) */
+                if (fid_type == 0x00 && fid_subtype == 0x00 &&
+                    fid_len >= 3 && offset + 1 + fid_len <= (int)len)
+                {
+                    uint8_t num_lingoes = buf[offset + 3];
+                    uint32_t lingoes = 0;
+                    int j;
+                    for (j = 0; j < num_lingoes &&
+                         (offset + 4 + j) < (offset + 1 + fid_len); j++)
+                    {
+                        uint8_t lingo = buf[offset + 4 + j];
+                        if (lingo < 32)
+                            lingoes |= BIT_N(lingo);
+                    }
+                    device.idps_lingoes = lingoes;
+
+                    /* Extract options (4 bytes) after lingo bytes */
+                    int opt_off = offset + 4 + num_lingoes;
+                    if (opt_off + 4 <= offset + 1 + fid_len)
+                        device.idps_options = get_u32(&buf[opt_off]);
+
+                    /* Extract deviceID (4 bytes) after options */
+                    int did_off = opt_off + 4;
+                    if (did_off + 4 <= offset + 1 + fid_len)
+                        device.idps_deviceid = get_u32(&buf[did_off]);
+                }
 
                 /* ACK entry: [length][type][subtype][status] */
                 IAP_TX_PUT(0x03); /* length: type+subtype+status */
@@ -1258,6 +1433,15 @@ void iap_handlepkt_mode0(const unsigned int len, const unsigned char *buf)
         case 0x3B:
         {
             CHECKLEN(5);
+            /* Same reasoning as 0x39, and this one matters more: the
+             * Continue path calls iap_reset_device() and restarts
+             * authentication.  Acting on it after the accessory has
+             * already authenticated would tear down the session the
+             * activation sequence just established. */
+            if (DEVICE_AUTHENTICATED || iap_transport_is_serial()) {
+                cmd_ack(cmd, IAP_ACK_BAD_PARAM);
+                break;
+            }
             uint8_t tid_hi = buf[2];
             uint8_t tid_lo = buf[3];
             uint8_t idps_status = buf[4];
@@ -1281,8 +1465,21 @@ void iap_handlepkt_mode0(const unsigned int len, const unsigned char *buf)
                  * finished sending IDPSStatus (0x3C) yet.
                  * The periodic handler will send 0x14 on the next tick.
                  */
+                /* Save IDPS-parsed fields before reset clears them */
+                uint32_t saved_lingoes = device.idps_lingoes;
+                uint32_t saved_options = device.idps_options;
+                uint32_t saved_deviceid = device.idps_deviceid;
+
                 iap_reset_device(&device);
-                device.lingoes = BIT_N(0x00) | BIT_N(0x03) | BIT_N(0x0A);
+                /* Use lingoes parsed from IdentifyToken if available,
+                 * otherwise fall back to General + Digital Audio */
+                if (saved_lingoes)
+                    device.lingoes = saved_lingoes;
+                else
+                    device.lingoes = BIT_N(0x00) | BIT_N(0x03) | BIT_N(0x0A);
+                device.idps_lingoes = saved_lingoes;
+                device.idps_options = saved_options;
+                device.idps_deviceid = saved_deviceid;
                 device.do_power_notify = true;
                 device.auth.idps = true;
                 device.auth.state = AUST_INIT;
@@ -1364,6 +1561,25 @@ void iap_handlepkt_mode0(const unsigned int len, const unsigned char *buf)
             IAP_TX_PUT(lingo);
             IAP_TX_PUT_U32(0x00);
             IAP_TX_PUT_U32(0x00);
+            iap_send_tx();
+            break;
+        }
+
+        /* SetEventNotification (0x49)
+         *
+         * Accessory requests event notifications from the iPod.
+         * ACK OK for now; no events are actually generated.
+         */
+        case 0x49:
+        {
+            CHECKAUTH;
+            IAP_TX_INIT(0x00, 0x02);
+            if (device.auth.idps) {
+                IAP_TX_PUT(buf[2]);
+                IAP_TX_PUT(buf[3]);
+            }
+            IAP_TX_PUT(IAP_ACK_OK);
+            IAP_TX_PUT(cmd);
             iap_send_tx();
             break;
         }

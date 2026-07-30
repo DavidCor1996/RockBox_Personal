@@ -59,6 +59,17 @@ def _episode_number(track):
     return int(track.get("episode_number") or track.get("track_number") or 0)
 
 
+def _explicit_episode_number(track):
+    """Episode number the source actually asserted.
+
+    _episode_number() also accepts track_number, which is right for labelling
+    an episode but wrong for deciding what something is: a single-file movie
+    rip routinely carries track_number 1, and treating that as episode 1 files
+    every such movie under TV Shows.
+    """
+    return int(track.get("episode_number") or 0)
+
+
 def _infer_show_name_from_track(track):
     path_parts_raw = [part for part in re.split(r"[\\/]+", str(track.get("file_path") or "")) if part]
     path_parts = [part.casefold() for part in path_parts_raw]
@@ -86,7 +97,6 @@ def classify_video_track(track):
     path_parts = [part.casefold() for part in re.split(r"[\\/]+", str(track.get("file_path") or "")) if part]
     title = str(track.get("title") or "").strip()
     season_number = int(track.get("season_number") or 0) or _season_number(album)
-    episode_number = _episode_number(track)
     path_show_name = _infer_show_name_from_track(track)
     parent_folder = path_parts[-2] if len(path_parts) >= 2 else ""
     grandparent_folder = path_parts[-3] if len(path_parts) >= 3 else ""
@@ -102,9 +112,17 @@ def classify_video_track(track):
 
     is_show = video_kind == "show"
     show_name = show_title
-    if not is_show and (show_title or season_number or episode_number):
+    # An explicit "movie" classification is the library's own answer. Only a
+    # show title or a real season/episode number may override it, never the
+    # weaker path and filename heuristics below - those are what drag a movie
+    # sitting beside a TV library into the TV Shows tab.
+    claims_movie = video_kind == "movie"
+    if not is_show and (show_title or season_number or
+                        _explicit_episode_number(track)):
         is_show = True
         show_name = show_title or path_show_name or artist or album or "Unknown Show"
+    elif claims_movie:
+        pass
     elif not is_show and album and re.match(r"(?i)^season\s+\d+$", album):
         is_show = True
         show_name = show_title or path_show_name or artist or "Unknown Show"

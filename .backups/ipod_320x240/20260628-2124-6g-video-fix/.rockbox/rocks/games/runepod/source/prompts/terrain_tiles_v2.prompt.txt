@@ -1,7 +1,0 @@
-Use case: stylized-concept
-Asset type: RunePod iPod 6G game terrain source sheet for conversion into 32x32 Rockbox BMP tiles.
-Primary request: Generate a clean 8-tile terrain strip that matches the existing RunePod low-poly hand-painted fantasy style, replacing the current repeated house tile with better village map assets that do not look like a pile of houses.
-Scene/backdrop: perfectly flat solid #ff00ff chroma-key background, no shadows on the background, no gradients, no texture outside the tiles.
-Subject: exactly 8 separate square top-down terrain tiles in one horizontal row, generous spacing, each tile large and clean for downscaling: 1 grass with small leaves/flowers, 2 darker forest grass, 3 dirt path, 4 wooden plank floor, 5 grey cobblestone plaza, 6 shallow blue water, 7 village building foundation/stone wall and warm roof-edge tile that reads as one architectural ground tile rather than a whole tiny house, 8 cave/rock ground.
-Style: original hand-painted low-poly-inspired fantasy, three-quarter top-down terrain view, muted natural palette, upper-left lighting, readable dark outlines, same art direction as a small old 3D fantasy game rendered into sprites.
-Technical constraints: no characters, no text, no watermark, no proprietary game references, no full houses, no stacked buildings, no busy roof pile, no perspective scene, no isometric diamond grid; each tile must be visually tileable enough when repeated at 32x32. Use #ff00ff only as the background/chroma key and not inside the tiles.

@@ -22,6 +22,7 @@
  ****************************************************************************/
 #include "plugin.h"
 #include "mpegplayer.h"
+#include "../netflix_intro.h"
 #include "lib/grey.h"
 #include "mpeg_settings.h"
 
@@ -461,6 +462,7 @@ static void stream_on_pause(void)
     int status = stream_mgr.status;
 
     stream_mgr_lock();
+    SMLOG("pause begin status=%d\n", status);
 
     /* Reply with previous state */
     stream_mgr_reply_msg(status);
@@ -483,6 +485,7 @@ static void stream_on_pause(void)
         stream_mgr.status = STREAM_PAUSED;
     }
 
+    SMLOG("pause end status=%d\n", stream_mgr.status);
     stream_mgr_unlock();
 }
 
@@ -492,6 +495,7 @@ static void stream_on_resume(void)
     int status = stream_mgr.status;
 
     stream_mgr_lock();
+    SMLOG("resume begin status=%d\n", status);
 
     /* Reply with previous state */
     stream_mgr_reply_msg(status);
@@ -508,6 +512,7 @@ static void stream_on_resume(void)
         stream_mgr.status = STREAM_PLAYING;
     }
 
+    SMLOG("resume end status=%d\n", stream_mgr.status);
     stream_mgr_unlock();
 }
 
@@ -571,6 +576,8 @@ static void stream_on_seek(struct stream_seek_data *skd)
         stream_mgr_reply_msg(STREAM_OK);
 
         stream_mgr_lock();
+        SMLOG("seek begin time=%u whence=%d status=%d\n",
+              (unsigned)time, whence, stream_mgr.status);
 
         /* Either seeking must be possible or a full rewind must be done */
         if (stream_can_seek() || time_from_whence(time, whence) == 0)
@@ -593,6 +600,8 @@ static void stream_on_seek(struct stream_seek_data *skd)
             }
         }
 
+        SMLOG("seek end time=%u status=%d\n",
+              (unsigned)time, stream_mgr.status);
         stream_mgr_unlock();
         return;
     }
@@ -1091,7 +1100,7 @@ int stream_close(void)
 }
 
 /* Initializes the playback engine */
-int stream_init(void)
+int stream_init(bool play_netflix_intro)
 {
     void *mem;
     size_t memsize;
@@ -1110,6 +1119,8 @@ int stream_init(void)
 
     /* sets audiosize and returns buffer pointer */
     mem = rb->plugin_get_audio_buffer(&memsize);
+    if (play_netflix_intro)
+        netflix_intro_run(mem, memsize);
 
     /* Initialize non-allocator blocks first */
 #ifndef HAVE_LCD_COLOR

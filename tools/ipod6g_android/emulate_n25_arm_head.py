@@ -212,17 +212,27 @@ def main() -> int:
     dtb = args.dtb.read_bytes()
     initramfs = args.initramfs.read_bytes() if args.initramfs else b""
     loader = args.loader_bin.read_bytes() if args.loader_bin else b""
-    expected_entry = (
+    expected_visible_entry = (
         0xE59F3068, 0xE59F4068, 0xE3A05E7E, 0xE3A06B0F,
         0xE5937000, 0xE3170010, 0x1AFFFFFC, 0xE5845000,
         0xE2566001, 0x1AFFFFF9, 0xE321F0D3,
     )
     actual_entry = tuple(
         int.from_bytes(image[offset:offset + 4], "little")
-        for offset in range(0, len(expected_entry) * 4, 4)
+        for offset in range(0, len(expected_visible_entry) * 4, 4)
     )
-    if actual_entry != expected_entry:
-        raise SystemExit("unexpected breadcrumb-enabled ARM Image entry")
+    zimage_magic = int.from_bytes(image[0x24:0x28], "little")
+    zimage_end = int.from_bytes(image[0x2C:0x30], "little")
+    if actual_entry == expected_visible_entry:
+        image_format = "breadcrumb-enabled-Image"
+    elif zimage_magic == 0x016F2818 and zimage_end == len(image):
+        image_format = "zImage"
+    elif int.from_bytes(image[:4], "little") == 0xE321F0D3:
+        image_format = "Image"
+    else:
+        raise SystemExit("unexpected ARM Image/zImage entry")
+    if args.verify_n25_lcd and image_format != "breadcrumb-enabled-Image":
+        raise SystemExit("N25 LCD trace gate requires the breadcrumb-enabled ARM Image")
     if dtb[:4] != bytes.fromhex("d00dfeed"):
         raise SystemExit("invalid flattened device tree")
     if KERNEL_ENTRY + len(image) >= INITRD_ADDRESS:
@@ -258,11 +268,11 @@ def main() -> int:
     # Samsung UART UTRSTAT: transmitter empty/ready.  This prevents printk's
     # early console poll loop from becoming the CPU gate's stopping point.
     uc.mem_write(0x3CC00010, (0x6).to_bytes(4, "little"))
-    if args.verify_n25_lcd:
+    if args.verify_n25_lcd or loader:
         uc.mem_write(N25_LCD_STATUS, (0x2).to_bytes(4, "little"))
         uc.mem_write(
             N25_LCD_PANEL_STRAP,
-            (args.panel_strap << 4).to_bytes(4, "little"),
+            ((args.panel_strap or 0) << 4).to_bytes(4, "little"),
         )
     uc.mem_write(KERNEL_ENTRY, image)
     uc.mem_write(DTB_ADDRESS, dtb)
@@ -661,7 +671,7 @@ def main() -> int:
     if args.verify_n25_irq:
         uc.hook_add(UC_HOOK_MEM_READ, vic_read_hook)
         uc.hook_add(UC_HOOK_MEM_WRITE, vic_write_hook)
-    if args.verify_n25_lcd:
+    if args.verify_n25_lcd or loader_handoff is not None:
         uc.hook_add(UC_HOOK_MEM_READ, lcd_read_hook)
         uc.hook_add(UC_HOOK_MEM_WRITE, lcd_write_hook)
     if loader_handoff is None:
@@ -906,6 +916,13 @@ def main() -> int:
         report = {
             "gate_passed": True,
             "cpu": "ARM926EJ-S",
+            "image_format": image_format,
+            "image_sha256": sha256(args.image),
+            "dtb_sha256": sha256(args.dtb),
+            "initramfs_sha256": sha256(args.initramfs) if args.initramfs else None,
+            "rockbox_bootloader_sha256": (
+                sha256(args.loader_bin) if args.loader_bin else None
+            ),
             "stop_at": args.stop_at,
             "model_n25_timer": args.model_n25_timer,
             "verify_n25_periodic": args.verify_n25_periodic,

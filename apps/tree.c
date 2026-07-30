@@ -795,11 +795,38 @@ static int dirbrowse(void)
             button = ACTION_STD_CANCEL;
         }
 #endif
+#if defined(HAVE_TAGCACHE) && defined(HAVE_LCD_COLOR)
+        int albumlist_prev_sel = gui_synclist_get_sel_pos(&tree_lists);
+#endif
         gui_synclist_do_button(&tree_lists, &button);
 #if defined(HAVE_TAGCACHE) && defined(HAVE_LCD_COLOR)
         /* Album thumbnails are decoration, so only decode them after the
          * browser is genuinely idle. In particular, never service rows from
          * a hierarchy level that a queued Menu press is abandoning. */
+        {
+            int albumlist_new_sel = gui_synclist_get_sel_pos(&tree_lists);
+
+            /* Between wheel detents the queue is briefly empty; load at
+             * most one thumbnail there so rows fill while scrolling, the
+             * way the stock firmware's packed artwork database feels.  A
+             * queued press skips this entirely. */
+            if (albumlist_new_sel != albumlist_prev_sel &&
+                button_queue_empty())
+            {
+                int delta = albumlist_new_sel - albumlist_prev_sel;
+                int direction = delta > 0 ? 1 : -1;
+
+                /* A jump longer than half the list is a wrap-around. */
+                if (tree_lists.nb_items > 1 &&
+                    (delta > tree_lists.nb_items / 2 ||
+                     delta < -(tree_lists.nb_items / 2)))
+                    direction = -direction;
+
+                albumlist_art_prefetch_direction(&tree_lists, direction);
+                if (albumlist_art_service_one())
+                    gui_synclist_draw(&tree_lists);
+            }
+        }
         if (button == ACTION_NONE && button_queue_empty() &&
             albumlist_art_service_pending())
             gui_synclist_draw(&tree_lists);

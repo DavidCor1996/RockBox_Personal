@@ -48,4 +48,5 @@ def test_ipodjs_hold_effect_defaults_to_lockscreen(config):
 
     assert dialog._rockbox_ui_hold_effect.currentText() == "Lockscreen"
     assert dialog._rockbox_ui_hold_effect.currentIndex() == 0
+    assert dialog._rockbox_ui_extras_pane.currentText() == "Clock"
     assert app is not None

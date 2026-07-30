@@ -53,7 +53,9 @@ VIDEO_LIST_NETFLIX_DETAIL_DEVICE_DIR = os.path.join(VIDEO_LIST_DEVICE_DIR, "netf
 SYNC_TEMP_SUFFIX = ".rockpod_tmp"
 MAX_AUTO_DUPLICATE_DELETE_COUNT = 50
 AUDIO_TRANSCODE_CACHE_EXTENSIONS = {".mp3", ".m4a"}
-VIDEO_SYNC_CACHE_EXTENSIONS = {".rvp", ".yuv", ".pcm", ".json", ".tmp"}
+VIDEO_SYNC_CACHE_EXTENSIONS = {
+    ".rvp", ".yuv", ".pcm", ".mpg", ".json", ".tmp"
+}
 MANIFEST_ARTWORK_RELPATHS = {
     os.path.join(ALBUM_LIST_DEVICE_DIR, "index.tsv"),
     os.path.join(VIDEO_LIST_DEVICE_DIR, "index.tsv"),
@@ -172,6 +174,70 @@ def _dedupe_group_key(row):
     if title and artist and album:
         return ("identity", artist, album, title)
     return None
+
+
+def _managed_playlist_media_track(row):
+    item = dict(row) if hasattr(row, "keys") else row
+    normalized = str(item.get("file_path") or "").replace("\\", "/").casefold()
+    return "/playlists/rockpod media/" in normalized
+
+
+def _sync_duplicate_key(row):
+    item = dict(row) if hasattr(row, "keys") else row
+    identity = _dedupe_group_key(item)
+    if identity is None:
+        return None
+    try:
+        track_number = int(item.get("track_number") or 0)
+    except (TypeError, ValueError):
+        track_number = 0
+    try:
+        disc_number = int(item.get("disc_number") or 1)
+    except (TypeError, ValueError):
+        disc_number = 1
+    return identity + (
+        track_number,
+        disc_number,
+        _dedupe_duration(item.get("duration")),
+    )
+
+
+def _collapse_managed_playlist_duplicates(rows):
+    """Prefer regular library files over duplicate managed playlist imports."""
+    grouped = defaultdict(list)
+    passthrough = []
+    for row in rows:
+        key = _sync_duplicate_key(row)
+        if key is None:
+            passthrough.append(row)
+        else:
+            grouped[key].append(row)
+
+    collapsed = list(passthrough)
+    for group in grouped.values():
+        regular = [row for row in group if not _managed_playlist_media_track(row)]
+        collapsed.extend(regular if regular else group)
+    return collapsed
+
+
+def _audio_codec_rank(row):
+    item = dict(row) if hasattr(row, "keys") else row
+    codec = str(item.get("codec") or "").strip().casefold()
+    return {
+        "flac": 5,
+        "alac": 5,
+        "wav": 5,
+        "aiff": 5,
+        "ape": 5,
+        "wv": 5,
+        "opus": 4,
+        "ogg": 3,
+        "vorbis": 3,
+        "aac": 2,
+        "m4a": 2,
+        "mp3": 1,
+        "wma": 1,
+    }.get(codec, 0)
 
 
 def _video_episode_label(row):
@@ -595,62 +661,62 @@ _VIDEO_EPISODE_OVERRIDES = {
     "disney's recess - randall's friends": {
         "show_title": "Recess",
         "title": "Randall's Friends",
-        "season_number": 3,
-        "episode_number": 35,
+        "season_number": 4,
+        "episode_number": 12,
     },
     "recess - randall's friends": {
         "show_title": "Recess",
         "title": "Randall's Friends",
-        "season_number": 3,
-        "episode_number": 35,
+        "season_number": 4,
+        "episode_number": 12,
     },
     "randall's friends": {
         "show_title": "Recess",
         "title": "Randall's Friends",
-        "season_number": 3,
-        "episode_number": 35,
+        "season_number": 4,
+        "episode_number": 12,
     },
     "disney's recess - space cadet": {
         "show_title": "Recess",
         "title": "Space Cadet",
         "season_number": 3,
-        "episode_number": 29,
+        "episode_number": 7,
     },
     "recess - space cadet": {
         "show_title": "Recess",
         "title": "Space Cadet",
         "season_number": 3,
-        "episode_number": 29,
+        "episode_number": 7,
     },
     "disney's recess - dodgeball city": {
         "show_title": "Recess",
         "title": "Dodgeball City",
         "season_number": 3,
-        "episode_number": 36,
+        "episode_number": 3,
     },
     "recess - dodgeball city": {
         "show_title": "Recess",
         "title": "Dodgeball City",
         "season_number": 3,
-        "episode_number": 36,
+        "episode_number": 3,
     },
     "disney's recess - lord of the nerds": {
         "show_title": "Recess",
         "title": "Lord of the Nerds",
         "season_number": 3,
-        "episode_number": 37,
+        "episode_number": 10,
     },
     "recess - lord of the nerds": {
         "show_title": "Recess",
         "title": "Lord of the Nerds",
         "season_number": 3,
-        "episode_number": 37,
+        "episode_number": 10,
     },
     "lord of the nerds": {
         "show_title": "Recess",
         "title": "Lord of the Nerds",
         "season_number": 3,
-        "episode_number": 37,
+        "episode_number": 10,
     },
     "who can stay homeless the longest - kenny vs spenny (hd)": {
         "show_title": "Kenny vs. Spenny",
@@ -937,6 +1003,21 @@ def _physical_rvp_paths(device_mount):
     return paths
 
 
+def _manifest_ordinal(value):
+    """Normalise a season or episode number to a bare base-10 integer.
+
+    The device groups seasons by comparing these strings, so "03" and "3"
+    would otherwise split one season into two lists. Blank stays blank.
+    """
+    text = str(value if value is not None else "").strip()
+    if not text:
+        return ""
+    match = re.search(r"\d+", text)
+    if not match:
+        return ""
+    return str(int(match.group(0)))
+
+
 def _fallback_video_manifest_entry(rel_path):
     """Build enough metadata to keep an unlinked physical RVP discoverable."""
     normalized = str(rel_path or "").replace("\\", "/").strip("/")
@@ -969,8 +1050,12 @@ def _fallback_video_manifest_entry(rel_path):
                 r"[^a-z0-9]+", "-", show_title.casefold()
             ).strip("-"),
             show=show_title,
-            season=season_match.group(1) if season_match else "",
-            episode=episode_match.group(2) if episode_match else "",
+            season=_manifest_ordinal(
+                season_match.group(1) if season_match else ""
+            ),
+            episode=_manifest_ordinal(
+                episode_match.group(2) if episode_match else ""
+            ),
         )
     elif len(parts) >= 2 and parts[1].casefold() == "music videos":
         entry.update(kind="music_video", group_key="music_video")
@@ -1025,6 +1110,14 @@ def _merge_existing_video_manifest_entries(entries, plan, device_mount):
         if key in obsolete_keys or key in merged:
             continue
         merged[key] = _fallback_video_manifest_entry(rel_path)
+
+    # Rows carried over untouched from the device keep whatever season and
+    # episode strings an older sync wrote, so normalise every row on the way
+    # out. Otherwise a pre-existing "03" still splits a season away from the
+    # freshly written "3".
+    for entry in merged.values():
+        entry["season"] = _manifest_ordinal(entry.get("season"))
+        entry["episode"] = _manifest_ordinal(entry.get("episode"))
     return list(merged.values())
 
 
@@ -1167,7 +1260,13 @@ def _video_bundle_file_is_current(row, device_path):
     marker_width = _coerce_int(marker_meta.get("width"), 0)
     marker_height = _coerce_int(marker_meta.get("height"), 0)
     marker_fps = _coerce_int(marker_meta.get("fps"), 0)
-    if marker_width < 320 or marker_height < 240 or marker_fps < 20:
+    if (
+        marker_width <= 0
+        or marker_height <= 0
+        or marker_width % 2
+        or marker_height % 2
+        or marker_fps <= 0
+    ):
         return False
 
     return True
@@ -1201,6 +1300,7 @@ class SyncPlan:
         self.copy_reason_counts = {}
         self.update_reason_counts = {}
         self.warnings = []
+        self.verified_duplicate_paths = set()
 
     @property
     def total_operations(self):
@@ -1616,21 +1716,52 @@ class SyncWorker(QObject):
         for source_path, dest_path in copy_pairs:
             if not source_path:
                 self.file_error.emit(src, "RVP video segment is missing a source sidecar")
-                self._remove_partial_video_bundle(dest, copied_paths)
+                self._remove_partial_video_marker(dest)
                 return False, stats
+            if self._files_have_same_content(source_path, dest_path):
+                copied_paths.append(dest_path)
+                continue
             ok, copy_stats = self._copy_file(source_path, dest_path, created_dirs)
             self._add_copy_stats(stats, copy_stats)
             if not ok:
-                self._remove_partial_video_bundle(dest, copied_paths)
+                self._remove_partial_video_marker(dest)
                 return False, stats
             copied_paths.append(dest_path)
 
         ok, marker_stats = self._write_rvp_marker(dest, row, created_dirs)
         self._add_copy_stats(stats, marker_stats)
         if not ok:
-            self._remove_partial_video_bundle(dest, copied_paths)
+            self._remove_partial_video_marker(dest)
             return False, stats
         return True, stats
+
+    def _files_have_same_content(self, source_path, dest_path):
+        """Return whether a completed bundle sidecar can be reused safely."""
+        try:
+            if not os.path.isfile(source_path) or not os.path.isfile(dest_path):
+                return False
+            if os.path.getsize(source_path) != os.path.getsize(dest_path):
+                return False
+            with open(source_path, "rb") as source_handle, open(dest_path, "rb") as dest_handle:
+                while True:
+                    if self._cancelled:
+                        raise _SyncCancelled()
+                    source_chunk = source_handle.read(COPY_CHUNK_SIZE)
+                    dest_chunk = dest_handle.read(COPY_CHUNK_SIZE)
+                    if source_chunk != dest_chunk:
+                        return False
+                    if not source_chunk:
+                        return True
+        except _SyncCancelled:
+            raise
+        except OSError as exc:
+            logger.warning(
+                "Could not verify reusable RVP sidecar %s against %s: %s",
+                dest_path,
+                source_path,
+                exc,
+            )
+            return False
 
     @staticmethod
     def _empty_copy_stats():
@@ -1724,6 +1855,16 @@ class SyncWorker(QObject):
     @staticmethod
     def _remove_partial_video_bundle(dest, copied_paths):
         for path in list(copied_paths) + [dest, dest + SYNC_TEMP_SUFFIX]:
+            if os.path.exists(path):
+                try:
+                    os.remove(path)
+                except OSError:
+                    pass
+
+    @staticmethod
+    def _remove_partial_video_marker(dest):
+        """Hide an incomplete RVP bundle while retaining resumable sidecars."""
+        for path in (dest, dest + SYNC_TEMP_SUFFIX):
             if os.path.exists(path):
                 try:
                     os.remove(path)
@@ -1953,7 +2094,12 @@ class SyncEngine(QObject):
         return False
 
     def build_sync_plan(
-        self, track_ids=None, force_full=False, status_callback=None, media_type="audio"
+        self,
+        track_ids=None,
+        force_full=False,
+        status_callback=None,
+        media_type="audio",
+        video_profile=None,
     ):
         """Analyze what needs to be synced and return a SyncPlan.
 
@@ -1961,6 +2107,7 @@ class SyncEngine(QObject):
             track_ids: optional set of track IDs to sync (None = all missing)
             force_full: if True, re-copy everything regardless of match state
             media_type: optional media filter ("audio", "video", or None for all)
+            video_profile: optional per-action RVP/MPEG conversion profile
         """
         def emit_status(message):
             if status_callback:
@@ -2041,10 +2188,15 @@ class SyncEngine(QObject):
         all_local_tracks = local_tracks if not track_ids else self._db.get_all_tracks(
             media_type=media_type
         )
+        if not track_ids:
+            local_tracks = _collapse_managed_playlist_duplicates(local_tracks)
+            all_local_tracks = local_tracks
 
         stage_start = time.perf_counter()
         emit_status("Preparing tracks for device sync...")
-        local_tracks, transcode_errors, transcode_count = self._prepare_tracks_for_sync(local_tracks)
+        local_tracks, transcode_errors, transcode_count = self._prepare_tracks_for_sync(
+            local_tracks, video_profile=video_profile
+        )
         local_tracks = [self._normalize_video_row_for_sync(row) for row in local_tracks]
         stage_times["audio_prepare_seconds"] = time.perf_counter() - stage_start
         plan.errors.extend(transcode_errors)
@@ -2260,6 +2412,11 @@ class SyncEngine(QObject):
                     rel_path = row.get("device_path", "")
                     if rel_path:
                         plan.to_delete.append(rel_path)
+                        if any(
+                            _audio_codec_rank(keep) > _audio_codec_rank(row)
+                            for keep in group["keep"]
+                        ):
+                            plan.verified_duplicate_paths.add(rel_path)
             self._apply_duplicate_delete_safety(plan)
 
         stage_start = time.perf_counter()
@@ -2356,6 +2513,62 @@ class SyncEngine(QObject):
                     continue
             plan.generated_to_copy.append((src, rel_path, "weather"))
 
+        # Weather-only sync also refreshes the three fixed WX carrier paths.
+        # Their paths are already referenced by the Live TV guide, so
+        # replacing them updates the active recorded-report set without
+        # rebuilding or taking ownership of the rest of the user's lineup.
+        try:
+            from services.livetv import (
+                LIVETV_DEVICE_DIR,
+                LIVETV_WEATHER_BLOCK_SECONDS,
+                LIVETV_WEATHER_CATEGORY,
+                LiveTvLibrary,
+                LiveTvMedia,
+                LiveTvSync,
+                weather_music_files,
+            )
+
+            library = LiveTvLibrary(self._config)
+            weather_sync = LiveTvSync(library)
+            bumpers = weather_sync.ensure_weather_sources(
+                weather_music_files(self._config), self._config)
+            for source in bumpers:
+                media = LiveTvMedia(
+                    path=source,
+                    kind="show",
+                    title="Local Forecast",
+                    series=LIVETV_WEATHER_CATEGORY,
+                    duration=LIVETV_WEATHER_BLOCK_SECONDS,
+                    rating="TV-G",
+                    description="Continuous local weather and music.",
+                )
+                encoded = weather_sync.ensure_mpeg(media)
+                rel_path = os.path.join(
+                    LIVETV_DEVICE_DIR, media.device_relative())
+                device_path = os.path.join(device_mount, rel_path)
+                if (os.path.isfile(device_path) and
+                        compute_file_hash(device_path) ==
+                        compute_file_hash(encoded)):
+                    continue
+                plan.generated_to_copy.append(
+                    (encoded, rel_path, "weather channel"))
+
+            active_report = os.path.join(
+                weather_sync.weather_state_dir(), "active-clips.json")
+            if os.path.isfile(active_report):
+                report_relative = os.path.join(
+                    ".rockbox", "rockpod", "weather",
+                    "active-clips.json")
+                device_report = os.path.join(device_mount, report_relative)
+                if (not os.path.isfile(device_report) or
+                        compute_file_hash(device_report) !=
+                        compute_file_hash(active_report)):
+                    plan.generated_to_copy.append(
+                        (active_report, report_relative, "weather clips"))
+        except Exception as exc:
+            logger.warning("Could not refresh Weather channel: %s", exc)
+            plan.errors.append(f"Weather channel update failed: {exc}")
+
     def get_device_tracks(self):
         """Return the current device index, preferring the in-memory cache."""
         self._ensure_current_device_key()
@@ -2375,12 +2588,18 @@ class SyncEngine(QObject):
 
         unsafe = [
             rel_path for rel_path in deletes
-            if not _looks_like_auto_duplicate_path(rel_path)
+            if (
+                not _looks_like_auto_duplicate_path(rel_path)
+                and rel_path not in plan.verified_duplicate_paths
+            )
         ]
         if unsafe:
             plan.to_delete = [
                 rel_path for rel_path in deletes
-                if _looks_like_auto_duplicate_path(rel_path)
+                if (
+                    _looks_like_auto_duplicate_path(rel_path)
+                    or rel_path in plan.verified_duplicate_paths
+                )
             ]
             plan.warnings.append(
                 "Skipped automatic duplicate cleanup because delete candidates did not look like RockPod "
@@ -2678,6 +2897,17 @@ class SyncEngine(QObject):
         source_path = os.path.abspath(str(item.get("file_path") or ""))
         if not source_path:
             return set()
+        if getattr(self._video_transcoder, "_format", "rvp") == "mpeg2":
+            if Path(source_path).suffix.lower() in {".mpg", ".mpeg"}:
+                return set()
+            cache_path = self._video_transcoder._cache_mpeg_path(
+                source_path, item, device_key
+            )
+            keep = {cache_path}
+            digest_path = cache_path + ".digest.json"
+            if os.path.isfile(digest_path):
+                keep.add(digest_path)
+            return keep
         base_keep = set()
         cache_root = self._video_transcoder._cache_root
         marker_path = self._video_transcoder._cache_marker_path(source_path, item, device_key)
@@ -2764,10 +2994,14 @@ class SyncEngine(QObject):
                         logger.debug("Could not remove stale cache file %s: %s", full_path, exc)
         return removed
 
-    def _prepare_tracks_for_sync(self, rows):
+    def _prepare_tracks_for_sync(self, rows, video_profile=None):
         settings = self._audio_conversion_settings()
-        video_profile = self._config_value("video_sync_profile", "quality")
-        self._video_transcoder.set_profile(video_profile)
+        selected_video_profile = (
+            video_profile
+            if video_profile is not None
+            else self._config_value("video_sync_profile", "quality")
+        )
+        self._video_transcoder.set_profile(selected_video_profile)
         prepared = []
         errors = []
         transcode_count = 0
@@ -3279,8 +3513,8 @@ class SyncEngine(QObject):
                     "group_key": _video_manifest_group_key(row),
                     "device_path": target["device_path"],
                     "show": row.get("show_title") or "",
-                    "season": str(row.get("season_number") or ""),
-                    "episode": str(row.get("episode_number") or ""),
+                    "season": _manifest_ordinal(row.get("season_number")),
+                    "episode": _manifest_ordinal(row.get("episode_number")),
                     "duration": str(int(row.get("duration") or 0)),
                     "locked": "1" if bool(row.get("video_locked")) else "0",
                     "year": row.get("year") or "",
@@ -3295,6 +3529,13 @@ class SyncEngine(QObject):
                     if netflix_detail_rel else "",
                     "show_art_id": show_art_id,
                     "season_art_id": season_art_id,
+                    "show_plot": str(
+                        row.get("show_plot")
+                        or (row.get("plot_long") if
+                            str(row.get("video_kind") or "") == "movie"
+                            else "")
+                        or ""
+                    )[:180],
                 }
             )
 
@@ -3724,7 +3965,10 @@ class SyncEngine(QObject):
         file_hash = 1 if item.get("file_hash") else 0
         metadata_hash = 1 if item.get("metadata_hash") else 0
         path = item.get("device_path", "")
+        canonical_path = 0 if _looks_like_auto_duplicate_path(path) else 1
         return (
+            _audio_codec_rank(item),
+            canonical_path,
             linked,
             synced_path,
             file_hash,
@@ -3758,6 +4002,7 @@ class SyncPlanWorker(QObject):
         force_full=False,
         weather_only=False,
         media_type="audio",
+        video_profile=None,
     ):
         super().__init__()
         self._db_path = db_path
@@ -3768,6 +4013,7 @@ class SyncPlanWorker(QObject):
         self._force_full = force_full
         self._weather_only = bool(weather_only)
         self._media_type = media_type
+        self._video_profile = video_profile
 
     @Slot()
     def run(self):
@@ -3787,6 +4033,7 @@ class SyncPlanWorker(QObject):
                     track_ids=self._track_ids,
                     force_full=self._force_full,
                     media_type=self._media_type,
+                    video_profile=self._video_profile,
                     status_callback=self.status.emit,
                 )
             self.finished.emit(plan)
@@ -3824,6 +4071,7 @@ class SyncPlanBuilder(QObject):
         force_full=False,
         weather_only=False,
         media_type="audio",
+        video_profile=None,
     ):
         if self.is_running:
             return False
@@ -3837,6 +4085,7 @@ class SyncPlanBuilder(QObject):
             force_full=force_full,
             weather_only=weather_only,
             media_type=media_type,
+            video_profile=video_profile,
         )
         self._worker.moveToThread(self._thread)
         self._thread.started.connect(self._worker.run)

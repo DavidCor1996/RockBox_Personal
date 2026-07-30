@@ -5,13 +5,71 @@ from __future__ import annotations
 import json
 import os
 import shutil
+import struct
 from pathlib import Path
 from typing import Iterable
+
+from PIL import Image
 
 from services.artwork_manager import ArtworkManager
 
 
 ALBUMLIST_REL = Path(".rockbox") / "albumlist"
+
+# thumbs.pack: fixed-size raw RGB565 thumbnail records aligned to the
+# index.tsv data-line order, so the firmware album browser loads a row's
+# art with one seek+read instead of a per-file BMP decode.
+THUMB_PACK_MAGIC = b"ALTB"
+THUMB_PACK_VERSION = 1
+THUMB_PACK_SIZE = 40
+
+
+def _rgb565_bytes(image: Image.Image) -> bytes:
+    pixels = image.tobytes()
+    record = bytearray(len(pixels) // 3 * 2)
+    for i in range(len(pixels) // 3):
+        value = (
+            ((pixels[i * 3] >> 3) << 11)
+            | ((pixels[i * 3 + 1] >> 2) << 5)
+            | (pixels[i * 3 + 2] >> 3)
+        )
+        record[i * 2] = value & 0xFF
+        record[i * 2 + 1] = value >> 8
+    return bytes(record)
+
+
+def _write_thumb_pack(pack_path: Path, thumb_sources: list[str | None]) -> bool:
+    size = THUMB_PACK_SIZE
+    record_pixel_bytes = size * size * 2
+    temp_path = pack_path.with_name(pack_path.name + ".tmp")
+    pack_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(temp_path, "wb") as handle:
+        handle.write(THUMB_PACK_MAGIC)
+        handle.write(
+            struct.pack(
+                "<HHHHI", THUMB_PACK_VERSION, size, size, 0, len(thumb_sources)
+            )
+        )
+        for source in thumb_sources:
+            payload = b""
+            width = height = 0
+            if source and os.path.isfile(source):
+                try:
+                    with Image.open(source) as image:
+                        image = image.convert("RGB")
+                        if image.size[0] > size or image.size[1] > size:
+                            image.thumbnail((size, size), Image.Resampling.LANCZOS)
+                        width, height = image.size
+                        payload = _rgb565_bytes(image)
+                except OSError:
+                    payload = b""
+                    width = height = 0
+            present = 1 if payload else 0
+            handle.write(struct.pack("<BBBB", present, 0, width, height))
+            handle.write(payload)
+            handle.write(b"\x00" * (record_pixel_bytes - len(payload)))
+    os.replace(temp_path, pack_path)
+    return True
 
 
 def _row_dict(row):
@@ -160,11 +218,20 @@ def generate_albumlist_art(
         manifest_dst = bundle_albumlist / "index.tsv"
         manifest_copied = _copy_if_changed(manifest_src, manifest_dst)
 
+        manifest_rows = artwork.album_list_manifest_rows(entries)
+        thumb_sources = [
+            str(bundle_albumlist / row["thumb"]) if row["thumb"] else None
+            for row in manifest_rows
+        ]
+        pack_dst = bundle_albumlist / "thumbs.pack"
+        _write_thumb_pack(pack_dst, thumb_sources)
+
         report = {
             "album_count": len(groups),
             "output_root": str(output_base),
             "albumlist_dir": str(bundle_albumlist),
             "manifest": str(manifest_dst),
+            "thumb_pack": str(pack_dst),
             "created": created,
             "missing": missing,
             "manifest_copied": manifest_copied,

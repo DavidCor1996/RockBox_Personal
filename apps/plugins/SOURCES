@@ -1,3 +1,13 @@
+#ifdef DESKTOP_1080
+/* Keep the 1080p panel focused, but include the two media viewers iTunes
+ * hands real device videos to.  The rest of the plugin tree is still written
+ * against small player screens. */
+desktop_mode.c
+openh264_player.c
+livetv.c
+sitekick.c
+netflix_desktop.c
+#else
 /* plugins common to all models */
 #if !defined(SIMULATOR) && (CONFIG_BATTERY_MEASURE != 0)
 battery_bench.c
@@ -11,6 +21,11 @@ credits.c
 #if defined(HAVE_LCD_COLOR) && (LCD_WIDTH >= 320)
 cdogs.c
 runepod.c
+sitekick.c
+/* Live TV needs mpegplayer, which is gated the same way in SUBDIRS */
+#if !defined(RB_PROFILE) && (MEMORYSIZE > 2)
+livetv.c
+#endif
 #endif
 cube.c
 clubpenguin.c
@@ -61,6 +76,7 @@ photos.c
 #if defined(HAVE_LCD_COLOR) && (LCD_WIDTH >= 320) && (LCD_HEIGHT >= 240)
 achievements.c
 weather.c
+calm.c
 nb_maps.c
 #endif
 
@@ -281,3 +297,5 @@ test_touchscreen.c
 test_usb.c
 test_viewports.c
 #endif /* HAVE_TEST_PLUGINS */
+
+#endif /* DESKTOP_1080 */

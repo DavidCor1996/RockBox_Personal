@@ -3,9 +3,9 @@
 from PySide6.QtCore import Qt, Signal, Slot, QThreadPool
 from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import (
-    QDialog, QVBoxLayout, QHBoxLayout, QFormLayout, QLabel, QLineEdit,
-    QPushButton, QTableWidget, QTableWidgetItem, QHeaderView, QTextEdit,
-    QDialogButtonBox, QWidget, QFrame, QMessageBox
+    QComboBox, QDialog, QVBoxLayout, QHBoxLayout, QFormLayout, QLabel,
+    QLineEdit, QPushButton, QTableWidget, QTableWidgetItem, QHeaderView,
+    QTextEdit, QDialogButtonBox, QWidget, QFrame, QMessageBox
 )
 
 from services.video_metadata_jobs import (
@@ -51,11 +51,23 @@ class VideoMetadataLookupDialog(QDialog):
         self._query_edit.setText(initial_query)
         self._query_edit.setPlaceholderText("Search title...")
         
+        # A row's video_kind is only a filename guess, so the search must not
+        # be locked to it - a movie filed as a show would otherwise never show
+        # a single movie result. "All" is the default for that reason.
+        self._type_combo = QComboBox()
+        self._type_combo.addItem("All", "any")
+        self._type_combo.addItem("Movie", "movie")
+        self._type_combo.addItem("TV Show", "tv_show")
+        self._type_combo.setCurrentIndex(0)
+        self._type_combo.currentIndexChanged.connect(self._on_search)
+
         self._search_btn = QPushButton("Search")
         self._search_btn.clicked.connect(self._on_search)
 
         search_layout.addWidget(QLabel("Title:"))
         search_layout.addWidget(self._query_edit, 1)
+        search_layout.addWidget(QLabel("Type:"))
+        search_layout.addWidget(self._type_combo)
         search_layout.addWidget(self._search_btn)
         layout.addWidget(search_frame)
 
@@ -107,7 +119,7 @@ class VideoMetadataLookupDialog(QDialog):
         # Initial trigger
         self._on_search()
 
-    def _on_search(self):
+    def _on_search(self, *_args):
         query = self._query_edit.text().strip()
         if not query:
             return
@@ -119,7 +131,7 @@ class VideoMetadataLookupDialog(QDialog):
         self._art_preview.setText("Searching...")
         self._button_box.button(QDialogButtonBox.Ok).setEnabled(False)
 
-        kind = str(self._track.get("video_kind") or "movie")
+        kind = str(self._type_combo.currentData() or "any")
         # Manual matching searches by title across movies and TV. The result
         # year remains visible for disambiguation, but is never required input.
         job = VideoMetadataSearchJob(self._service, query, kind, year=None)
@@ -129,7 +141,7 @@ class VideoMetadataLookupDialog(QDialog):
 
     @Slot(object)
     def _on_search_results(self, results):
-        self._results = list(results or [])
+        self._results = self._ordered_results(results)
         self._table.setRowCount(len(self._results))
         for row, item in enumerate(self._results):
             values = [
@@ -144,6 +156,24 @@ class VideoMetadataLookupDialog(QDialog):
             self._table.selectRow(0)
         else:
             self._art_preview.setText("No results found.")
+
+    def _ordered_results(self, results):
+        """Lead with the kind the library row claims to be, keeping the other
+        kind reachable underneath so a misfiled title can still be corrected.
+        """
+        results = list(results or [])
+        claimed = str(self._track.get("video_kind") or "").strip().casefold()
+        if claimed not in {"movie", "show"}:
+            return results
+        prefer_show = claimed == "show"
+
+        def rank(item):
+            is_show = str(item.get("media_type") or "") in {
+                "tv_show", "tv_episode"
+            }
+            return 0 if is_show == prefer_show else 1
+
+        return sorted(results, key=rank)
 
     @Slot(str)
     def _on_search_error(self, message):
@@ -240,6 +270,12 @@ class VideoMetadataLookupDialog(QDialog):
     @Slot(object)
     def _on_episode_result(self, episode):
         item = dict(self._pending_accept_item or {})
+        # The pending item is the series result, so keep its synopsis before
+        # the episode summary replaces plot_short/plot_long. A show screen
+        # needs the series blurb, not whichever episode was matched.
+        item["show_plot"] = str(
+            item.get("plot_long") or item.get("plot_short") or ""
+        ).strip()
         if episode:
             item.update({
                 "episode_title": episode.get("title") or "",

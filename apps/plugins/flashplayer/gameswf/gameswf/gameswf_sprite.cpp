@@ -254,6 +254,23 @@ namespace gameswf
 	// regression.)
 	void sprite_instance::advance(float delta_time)
 	{
+		/*
+		 * A sprite owns this environment, so its resting target is always the
+		 * sprite itself.  The collector may clear the weak self-reference for
+		 * a newly nested clip before that clip receives its first advance.
+		 * Leaving it clear makes clip actions such as _parent.renderCube()
+		 * execute without a movie target even though the clip remains on its
+		 * parent's display list.
+		 *
+		 * ActionSetTarget changes are local to action_buffer::execute() and
+		 * are restored on exit, so repairing the target at this boundary
+		 * preserves those semantics.
+		 */
+		if (m_as_environment.get_target() != this)
+		{
+			m_as_environment.set_target(this);
+		}
+
 		// child movieclip frame rate is the same the root movieclip frame rate
 		// that's why it is not needed to analyze 'm_time_remainder'
 		if (m_on_event_load_called == false)
@@ -663,6 +680,8 @@ namespace gameswf
 		gc_ptr<character>	ch = cdef->create_character_instance(this, character_id);
 		assert(ch != NULL);
 		ch->set_name(name);
+		flashplayer_trace_display_object(ch->get_name().c_str(), depth,
+			character_id, 2);
 
 		// Attach event handlers (if any).
 		for (int i = 0, n = event_handlers.size(); i < n; i++)
@@ -1216,19 +1235,16 @@ namespace gameswf
 	{
 		// Keep m_as_environment alive during any method calls!
 		gc_ptr<as_object>	this_ptr(this);
+		if (m_as_environment.get_target() != this)
+		{
+			m_as_environment.set_target(this);
+		}
 
 		// In ActionScript 2.0, event method names are CASE SENSITIVE.
 		// In ActionScript 1.0, event method names are CASE INSENSITIVE.
 		const tu_stringi&	method_name = id.get_function_name().to_tu_stringi();
 		as_value	method;
 		bool has_method = get_member(method_name, &method);
-		if (id.m_id == event_id::ENTER_FRAME &&
-			(get_id() == 206 || get_id() == 251 ||
-			 get_id() == 254 || get_id() == 267))
-		{
-			flashplayer_trace_movie_state("loader_enter_frame", get_id(),
-				get_current_frame(), has_method ? 1 : 0);
-		}
 		if (has_method)
 		{
 			int nargs = 0;

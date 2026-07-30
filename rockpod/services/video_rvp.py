@@ -1,10 +1,11 @@
-"""Sync-only raw video bundle conversion for iPod Rockbox playback."""
+"""iPod video sync conversion with efficient MPEG-2 and raw RVP profiles."""
 
 from __future__ import annotations
 
 import hashlib
 import fcntl
 import logging
+import math
 import os
 import shutil
 import json
@@ -28,25 +29,43 @@ RVP_SEGMENT_FRAMES = RVP_SEGMENT_SECONDS * RVP_FPS
 RVP_SEGMENT_YUV_LIMIT = 512 * 1024 * 1024
 RVP_SEGMENT_PCM_LIMIT = 40 * 1024 * 1024
 RVP_PROFILE_KEY = "sync-profile-v2-screen-padded"
-RVP_PROFILE_DEFAULT = "quality"
+RVP_MPEG_PROFILE_KEY = "sync-mpeg2-v3-seekable-hq-320x240-20fps"
+RVP_PROFILE_DEFAULT = "raw"
+RVP_CACHE_SPACE_RESERVE = 1024 * 1024 * 1024
 RVP_PROFILE_DEFINITIONS = {
     "quality": {
+        "format": "mpeg2",
         "max_width": 320,
         "max_height": 240,
         "fps": 20,
         "sample_rate": 44100,
     },
-    "compact": {
+    "compact_raw": {
+        "format": "rvp",
+        "max_width": 160,
+        "max_height": 120,
+        "fps": 20,
+        "sample_rate": 22050,
+    },
+    "native_raw": {
+        "format": "rvp",
         "max_width": 320,
         "max_height": 240,
-        "fps": 10,
+        "fps": 20,
+        "sample_rate": 22050,
+    },
+    "raw": {
+        "format": "rvp",
+        "max_width": 320,
+        "max_height": 240,
+        "fps": 20,
         "sample_rate": 44100,
     },
 }
 
 
 class VideoRvpTranscoder:
-    """Create cached raw video bundles for the OpenH264/RVP Rockbox plugin."""
+    """Prepare MPEG-2 files or raw RVP bundles for Rockbox playback."""
 
     def __init__(
         self,
@@ -63,16 +82,28 @@ class VideoRvpTranscoder:
         self._target_height = RVP_HEIGHT
         self._target_fps = RVP_FPS
         self._sample_rate = RVP_SAMPLE_RATE
+        self._format = "rvp"
         self._pcm_bytes_per_frame = RVP_PCM_BYTES_PER_FRAME
         self.set_profile(profile)
 
     @staticmethod
     def _normalize_profile(profile):
         normalized = str(profile or RVP_PROFILE_DEFAULT).strip().lower().replace("-", "_")
-        if normalized in {"hi", "high", "quality", "best"}:
+        if normalized in {
+            "hi", "high", "quality", "best", "low", "small", "compact",
+            "efficient", "mpeg", "mpeg2",
+        }:
             normalized = "quality"
-        elif normalized in {"low", "small", "compact"}:
-            normalized = "compact"
+        elif normalized in {
+            "balanced", "compact_raw", "compact_rvp", "small_raw",
+        }:
+            normalized = "compact_raw"
+        elif normalized in {
+            "native", "native_raw", "sharp", "sharp_raw", "recommended",
+        }:
+            normalized = "native_raw"
+        elif normalized in {"raw", "rvp"}:
+            normalized = "raw"
         return normalized if normalized in RVP_PROFILE_DEFINITIONS else RVP_PROFILE_DEFAULT
 
     @staticmethod
@@ -92,6 +123,7 @@ class VideoRvpTranscoder:
         self._target_height = self._coerce_positive_int(cfg.get("max_height"), RVP_HEIGHT)
         self._target_fps = self._coerce_positive_int(cfg.get("fps"), RVP_FPS)
         self._sample_rate = self._coerce_positive_int(cfg.get("sample_rate"), RVP_SAMPLE_RATE)
+        self._format = str(cfg.get("format") or "rvp")
         if self._target_fps > 0:
             self._pcm_bytes_per_frame = (
                 self._sample_rate * RVP_CHANNELS * RVP_BYTES_PER_SAMPLE // self._target_fps
@@ -121,7 +153,14 @@ class VideoRvpTranscoder:
         if not os.path.isfile(source_path):
             raise RuntimeError("source video not found")
 
-        source_width, source_height = self._probe_video_dimensions(ffmpeg_bin, source_path)
+        if self._format == "mpeg2":
+            return self._prepare_mpeg_track(
+                row, source_path, ffmpeg_bin, device_key
+            )
+
+        source_width, source_height, source_duration = self._probe_video_info(
+            ffmpeg_bin, source_path
+        )
         video_width, video_height = self._fit_dimensions(
             source_width,
             source_height,
@@ -142,6 +181,7 @@ class VideoRvpTranscoder:
                 row,
                 video_width,
                 video_height,
+                source_duration=source_duration,
             )
 
             sizes = {
@@ -203,6 +243,283 @@ class VideoRvpTranscoder:
             row.get("episode_number"),
         )
         return row, {"converted": True, "cache_path": marker_path, "reason": "rvp_video"}
+
+    def _prepare_mpeg_track(
+        self, row: dict, source_path: str, ffmpeg_bin: str, device_key: str
+    ):
+        media_info = self._probe_mpeg_info(ffmpeg_bin, source_path)
+        # Structural codec compatibility is not enough for reliable Rockbox
+        # controls. Rebuild even compatible inputs so the program stream has
+        # bounded GOPs, predictable timestamps, and seek-friendly packetization.
+        output_path = self._cache_mpeg_path(
+            source_path, row, device_key
+        )
+        with self._bundle_lock(output_path):
+            self._ensure_mpeg_file(
+                ffmpeg_bin,
+                source_path,
+                output_path,
+                row,
+                media_info.get("duration"),
+            )
+        converted = True
+
+        row["sync_source_path"] = output_path
+        row["sync_output_ext"] = ".mpg"
+        row["sync_transcoded"] = converted
+        row["sync_video_width"] = RVP_WIDTH
+        row["sync_video_height"] = RVP_HEIGHT
+        row["sync_video_fps"] = RVP_FPS
+        row["sync_video_sample_rate"] = RVP_SAMPLE_RATE
+        row["sync_video_profile"] = self._profile
+        row["file_size"] = os.path.getsize(output_path)
+        if converted:
+            row["file_hash"] = self._bundle_hash_cached(
+                output_path, output_path
+            )
+        row["codec"] = "MPEG-2"
+        try:
+            row["bitrate"] = int(media_info.get("bit_rate") or 0) // 1000
+        except (TypeError, ValueError):
+            row["bitrate"] = 0
+        row["metadata_hash"] = compute_metadata_hash(
+            row.get("title", ""),
+            row.get("artist", ""),
+            row.get("album", ""),
+            row.get("album_artist", ""),
+            row.get("track_number"),
+            row.get("disc_number", 1),
+            row.get("genre", ""),
+            row.get("year"),
+            row.get("composer", ""),
+            row.get("duration", 0.0),
+            row.get("bitrate", 0),
+            row.get("codec", ""),
+            row.get("media_type", ""),
+            row.get("video_kind", ""),
+            row.get("show_title", ""),
+            row.get("season_number"),
+            row.get("episode_number"),
+        )
+        reason = "seekable_mpeg2_video"
+        return row, {
+            "converted": converted,
+            "cache_path": output_path,
+            "reason": reason,
+        }
+
+    def _cache_mpeg_path(
+        self, source_path: str, row: dict, device_key: str
+    ) -> str:
+        try:
+            stat = os.stat(source_path)
+            fingerprint = (
+                f"{source_path}|{int(stat.st_mtime)}|{int(stat.st_size)}"
+            )
+        except OSError:
+            fingerprint = source_path
+        material = "|".join(
+            [
+                fingerprint,
+                str(row.get("file_hash") or ""),
+                str(device_key or "device"),
+                RVP_MPEG_PROFILE_KEY,
+            ]
+        )
+        digest = hashlib.sha256(material.encode("utf-8")).hexdigest()[:16]
+        stem = self._safe_stem(Path(source_path).stem)
+        device_dir = os.path.join(
+            self._cache_root, str(device_key or "device")
+        )
+        return os.path.join(device_dir, f"{stem}-{digest}.mpg")
+
+    def _probe_mpeg_info(
+        self, ffmpeg_bin: str, source_path: str
+    ) -> dict:
+        ffprobe_bin = self._ffprobe_bin(ffmpeg_bin)
+        if not ffprobe_bin:
+            return {}
+        command = [
+            ffprobe_bin,
+            "-v",
+            "error",
+            "-show_entries",
+            (
+                "stream=index,codec_type,codec_name,width,height,pix_fmt,"
+                "r_frame_rate,has_b_frames,sample_rate,channels:"
+                "format=duration,bit_rate"
+            ),
+            "-of",
+            "json",
+            source_path,
+        ]
+        try:
+            result = self._command_runner.run(
+                command, cwd=os.path.dirname(source_path) or os.getcwd()
+            )
+        except OSError:
+            return {}
+        if result.returncode != 0:
+            return {}
+        try:
+            payload = json.loads(result.stdout or "")
+        except (TypeError, json.JSONDecodeError):
+            return {}
+
+        info = dict(payload.get("format") or {})
+        for stream in payload.get("streams") or []:
+            stream_type = stream.get("codec_type")
+            if stream_type == "video" and "video" not in info:
+                info["video"] = dict(stream)
+            elif stream_type == "audio" and "audio" not in info:
+                info["audio"] = dict(stream)
+        return info
+
+    @staticmethod
+    def _fps_value(value) -> float:
+        text = str(value or "").strip()
+        if not text:
+            return 0.0
+        try:
+            if "/" in text:
+                numerator, denominator = text.split("/", 1)
+                denominator_value = float(denominator)
+                if denominator_value == 0:
+                    return 0.0
+                return float(numerator) / denominator_value
+            return float(text)
+        except (TypeError, ValueError):
+            return 0.0
+
+    @classmethod
+    def _is_ipod_mpeg_compatible(
+        cls, source_path: str, media_info: dict
+    ) -> bool:
+        if Path(source_path).suffix.lower() not in {".mpg", ".mpeg"}:
+            return False
+        video = dict(media_info.get("video") or {})
+        audio = dict(media_info.get("audio") or {})
+        fps = cls._fps_value(video.get("r_frame_rate"))
+        return (
+            video.get("codec_name") in {"mpeg1video", "mpeg2video"}
+            and int(video.get("width") or 0) == RVP_WIDTH
+            and int(video.get("height") or 0) == RVP_HEIGHT
+            and video.get("pix_fmt") == "yuv420p"
+            and int(video.get("has_b_frames") or 0) == 0
+            and 19.9 <= fps <= 20.1
+            and audio.get("codec_name") in {"mp2", "mp3"}
+            and int(audio.get("sample_rate") or 0) == RVP_SAMPLE_RATE
+            and int(audio.get("channels") or 0) == RVP_CHANNELS
+        )
+
+    def _ensure_mpeg_file(
+        self,
+        ffmpeg_bin: str,
+        source_path: str,
+        output_path: str,
+        row: dict,
+        source_duration=None,
+    ):
+        if os.path.isfile(output_path) and os.path.getsize(output_path) > 0:
+            return
+
+        output_dir = os.path.dirname(output_path)
+        os.makedirs(output_dir, exist_ok=True)
+        tmp_path = output_path + ".tmp"
+        try:
+            os.remove(tmp_path)
+        except FileNotFoundError:
+            pass
+
+        duration = self._positive_float(source_duration)
+        if duration is None:
+            duration = self._positive_float(row.get("duration"))
+        if duration is not None:
+            estimated_bytes = int(
+                math.ceil(duration * (1_600_000 + 112_000) / 8)
+            )
+            required_bytes = estimated_bytes + RVP_CACHE_SPACE_RESERVE
+            try:
+                free_bytes = shutil.disk_usage(output_dir).free
+            except OSError:
+                free_bytes = required_bytes
+            if free_bytes < required_bytes:
+                gib = 1024.0 * 1024.0 * 1024.0
+                raise RuntimeError(
+                    "not enough local cache space for MPEG-2 video "
+                    f"(about {required_bytes / gib:.1f} GiB needed, "
+                    f"{free_bytes / gib:.1f} GiB free)"
+                )
+
+        try:
+            self._run_ffmpeg(
+                self._mpeg_command(ffmpeg_bin, source_path, tmp_path),
+                output_path,
+                "MPEG-2 video conversion failed",
+            )
+            if not os.path.isfile(tmp_path) or os.path.getsize(tmp_path) <= 0:
+                raise RuntimeError(
+                    "MPEG-2 video conversion produced an empty file"
+                )
+            os.replace(tmp_path, output_path)
+        except Exception:
+            try:
+                os.remove(tmp_path)
+            except FileNotFoundError:
+                pass
+            raise
+
+    @staticmethod
+    def _mpeg_command(
+        ffmpeg_bin: str, source_path: str, target_path: str
+    ):
+        return [
+            ffmpeg_bin,
+            "-y",
+            "-loglevel",
+            "error",
+            "-i",
+            source_path,
+            "-vf",
+            VideoRvpTranscoder._video_filter(
+                RVP_WIDTH, RVP_HEIGHT, fps=RVP_FPS
+            ),
+            "-map",
+            "0:v:0",
+            "-map",
+            "0:a:0?",
+            "-c:v",
+            "mpeg2video",
+            "-pix_fmt",
+            "yuv420p",
+            "-bf",
+            "0",
+            "-g",
+            "12",
+            "-flags",
+            "+low_delay",
+            "-sc_threshold",
+            "0",
+            "-q:v",
+            "2",
+            "-maxrate",
+            "1600k",
+            "-bufsize",
+            "800k",
+            "-c:a",
+            "mp2",
+            "-ar",
+            str(RVP_SAMPLE_RATE),
+            "-ac",
+            str(RVP_CHANNELS),
+            "-b:a",
+            "112k",
+            "-packetsize",
+            "2048",
+            "-f",
+            "mpeg",
+            target_path,
+        ]
 
     @staticmethod
     @contextmanager
@@ -284,10 +601,10 @@ class VideoRvpTranscoder:
             ffprobe = shutil.which("ffprobe") or ""
         return ffprobe
 
-    def _probe_video_dimensions(self, ffmpeg_bin: str, source_path: str):
+    def _probe_video_info(self, ffmpeg_bin: str, source_path: str):
         ffprobe_bin = self._ffprobe_bin(ffmpeg_bin)
         if not ffprobe_bin:
-            return (None, None)
+            return (None, None, None)
 
         command = [
             ffprobe_bin,
@@ -296,7 +613,7 @@ class VideoRvpTranscoder:
             "-select_streams",
             "v:0",
             "-show_entries",
-            "stream=width,height",
+            "stream=width,height,duration:format=duration",
             "-of",
             "json",
             source_path,
@@ -304,23 +621,111 @@ class VideoRvpTranscoder:
         try:
             result = self._command_runner.run(command, cwd=os.path.dirname(source_path) or os.getcwd())
         except OSError:
-            return (None, None)
+            return (None, None, None)
 
         if result.returncode != 0:
-            return (None, None)
+            return (None, None, None)
 
         try:
             payload = json.loads(result.stdout or "")
             stream = payload.get("streams") or []
             if isinstance(stream, list) and stream:
                 first = stream[0]
+                duration = self._positive_float(
+                    (payload.get("format") or {}).get("duration")
+                )
+                if duration is None:
+                    duration = self._positive_float(first.get("duration"))
                 return (
                     int(first.get("width")),
                     int(first.get("height")),
+                    duration,
                 )
         except Exception:
-            return (None, None)
-        return (None, None)
+            return (None, None, None)
+        return (None, None, None)
+
+    def _probe_video_dimensions(self, ffmpeg_bin: str, source_path: str):
+        width, height, _duration = self._probe_video_info(
+            ffmpeg_bin, source_path
+        )
+        return width, height
+
+    @staticmethod
+    def _positive_float(value):
+        try:
+            parsed = float(value)
+        except (TypeError, ValueError):
+            return None
+        return parsed if math.isfinite(parsed) and parsed > 0 else None
+
+    def _estimated_bundle_bytes(
+        self, duration: float, width: int, height: int
+    ) -> int:
+        frames = int(math.ceil(duration * self._target_fps))
+        video_bytes = frames * width * height * 3 // 2
+        audio_bytes = int(
+            math.ceil(
+                duration
+                * self._sample_rate
+                * RVP_CHANNELS
+                * RVP_BYTES_PER_SAMPLE
+            )
+        )
+        return video_bytes + audio_bytes
+
+    def _check_cache_space(
+        self,
+        marker_path: str,
+        row: dict,
+        width: int,
+        height: int,
+        source_duration=None,
+    ):
+        duration = self._positive_float(source_duration)
+        if duration is None:
+            duration = self._positive_float(row.get("duration"))
+        if duration is None:
+            return
+
+        estimated_bytes = self._estimated_bundle_bytes(
+            duration, width, height
+        )
+        estimated_video_bytes = int(
+            math.ceil(duration * self._target_fps)
+        ) * width * height * 3 // 2
+        estimated_audio_bytes = int(
+            math.ceil(
+                duration
+                * self._sample_rate
+                * RVP_CHANNELS
+                * RVP_BYTES_PER_SAMPLE
+            )
+        )
+        peak_bytes = estimated_bytes
+        if (
+            estimated_video_bytes > RVP_SEGMENT_YUV_LIMIT
+            or estimated_audio_bytes > RVP_SEGMENT_PCM_LIMIT
+        ):
+            peak_bytes += estimated_bytes
+        required_bytes = peak_bytes + RVP_CACHE_SPACE_RESERVE
+
+        cache_dir = os.path.dirname(marker_path) or self._cache_root
+        os.makedirs(cache_dir, exist_ok=True)
+        try:
+            free_bytes = shutil.disk_usage(cache_dir).free
+        except OSError:
+            return
+        if free_bytes >= required_bytes:
+            return
+
+        gib = 1024.0 * 1024.0 * 1024.0
+        raise RuntimeError(
+            "not enough local cache space for the "
+            f"{self._profile} video profile "
+            f"(about {required_bytes / gib:.1f} GiB needed, "
+            f"{free_bytes / gib:.1f} GiB free)"
+        )
 
     def _ensure_bundle(
         self,
@@ -332,6 +737,7 @@ class VideoRvpTranscoder:
         row: dict,
         video_width: int,
         video_height: int,
+        source_duration=None,
     ):
         if self._is_cached_bundle_valid(marker_path, yuv_path, pcm_path, video_width, video_height):
             return
@@ -344,52 +750,72 @@ class VideoRvpTranscoder:
             if os.path.exists(path):
                 os.remove(path)
 
-        self._run_ffmpeg(
-            self._video_command(
-                ffmpeg_bin,
-                source_path,
-                tmp_yuv,
-                width=video_width,
-                height=video_height,
-                fps=self._target_fps,
-            ),
+        self._check_cache_space(
             marker_path,
-            "video conversion failed",
+            row,
+            video_width,
+            video_height,
+            source_duration=source_duration,
         )
-        audio_ok = self._run_ffmpeg(
-            self._audio_command(
-                ffmpeg_bin,
-                source_path,
-                tmp_pcm,
-                sample_rate=self._sample_rate,
-            ),
-            marker_path,
-            "audio conversion failed",
-            raise_on_error=False,
-        )
-        if not audio_ok or not os.path.isfile(tmp_pcm) or os.path.getsize(tmp_pcm) <= 0:
-            self._write_silence_pcm(
-                tmp_pcm,
-                row,
-                tmp_yuv,
-                width=video_width,
-                height=video_height,
-                fps=self._target_fps,
-                sample_rate=self._sample_rate,
+
+        try:
+            self._run_ffmpeg(
+                self._video_command(
+                    ffmpeg_bin,
+                    source_path,
+                    tmp_yuv,
+                    width=video_width,
+                    height=video_height,
+                    fps=self._target_fps,
+                ),
+                marker_path,
+                "video conversion failed",
             )
+            audio_ok = self._run_ffmpeg(
+                self._audio_command(
+                    ffmpeg_bin,
+                    source_path,
+                    tmp_pcm,
+                    sample_rate=self._sample_rate,
+                ),
+                marker_path,
+                "audio conversion failed",
+                raise_on_error=False,
+            )
+            if (
+                not audio_ok
+                or not os.path.isfile(tmp_pcm)
+                or os.path.getsize(tmp_pcm) <= 0
+            ):
+                self._write_silence_pcm(
+                    tmp_pcm,
+                    row,
+                    tmp_yuv,
+                    width=video_width,
+                    height=video_height,
+                    fps=self._target_fps,
+                    sample_rate=self._sample_rate,
+                )
 
-        with open(tmp_marker, "w", encoding="utf-8", newline="\n") as handle:
-            handle.write(self.marker_text(
-                os.path.basename(marker_path),
-                width=video_width,
-                height=video_height,
-                fps=self._target_fps,
-                sample_rate=self._sample_rate,
-            ))
+            with open(tmp_marker, "w", encoding="utf-8", newline="\n") as handle:
+                handle.write(self.marker_text(
+                    os.path.basename(marker_path),
+                    width=video_width,
+                    height=video_height,
+                    fps=self._target_fps,
+                    sample_rate=self._sample_rate,
+                ))
 
-        os.replace(tmp_yuv, yuv_path)
-        os.replace(tmp_pcm, pcm_path)
-        os.replace(tmp_marker, marker_path)
+            os.replace(tmp_yuv, yuv_path)
+            os.replace(tmp_pcm, pcm_path)
+            os.replace(tmp_marker, marker_path)
+        except Exception:
+            for path in (tmp_yuv, tmp_pcm, tmp_marker):
+                try:
+                    os.remove(path)
+                except FileNotFoundError:
+                    pass
+            raise
         logger.info("Prepared iPod RVP video bundle: %s -> %s", source_path, marker_path)
 
     @staticmethod

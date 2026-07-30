@@ -1940,6 +1940,18 @@ namespace gameswf
 							{
 								log_error("error: can't find %s[0x0].%s\n",
 									last_varname.c_str(), method_name.c_str());
+								if (last_varname == "_parent")
+								{
+									character* target = env->get_target();
+									character* parent =
+										target ? target->get_parent() : NULL;
+									log_error("null _parent target=0x%p name='%s' id=%d depth=%d parent=0x%p method=%s\n",
+										target,
+										target ? target->get_name().c_str() : "",
+										target ? target->get_id() : -1,
+										target ? target->get_depth() : -1,
+										parent, method_name.c_str());
+								}
 							}
 						}
 //#else

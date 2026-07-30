@@ -102,6 +102,14 @@
 #define UI_LCD_POSX                 14 /* x position of lcd */
 #define UI_LCD_POSY                 12 /* y position of lcd */
 
+#elif defined(DESKTOP_1080)
+/* No bezel: the panel is the window, at the size Snow Leopard was drawn for. */
+#define UI_TITLE                    "Snow Leopard Desktop"
+#define UI_WIDTH                    1920
+#define UI_HEIGHT                   1080
+#define UI_LCD_POSX                 0
+#define UI_LCD_POSY                 0
+
 #elif defined(IPOD_6G)
 #define UI_TITLE                    "iPod 6G"
 #define UI_WIDTH                    350 /* width of GUI window */

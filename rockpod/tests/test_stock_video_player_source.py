@@ -50,3 +50,16 @@ def test_pause_and_seek_do_not_block_on_next_segment_prefetch():
 
     assert "raw_prefetch_close(&prefetch);" in state_machine
     assert "wait_for_resume" not in source
+
+
+def test_compact_rvp_uses_direct_double_size_scaler():
+    source = _source()
+    scaler = source[
+        source.index("static bool scale_yuv420_nearest("):
+        source.index("static int parse_rvp_segments(")
+    ]
+
+    assert "dst_width == src_width * 2" in scaler
+    assert "dst_height == src_height * 2" in scaler
+    assert "dst_row0[dx + 1] = value;" in scaler
+    assert "dst_row1[dx + 1] = value;" in scaler

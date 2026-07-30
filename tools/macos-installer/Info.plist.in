@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>en</string>
+	<key>CFBundleExecutable</key>
+	<string>RockPodSetup</string>
+	<key>CFBundleIdentifier</key>
+	<string>org.rockpod.setup.@RP_TARGET@</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>RockPod Setup</string>
+	<key>CFBundleDisplayName</key>
+	<string>RockPod Setup</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleSignature</key>
+	<string>????</string>
+	<key>CFBundleShortVersionString</key>
+	<string>@RP_SETUP_VERSION@</string>
+	<key>CFBundleVersion</key>
+	<string>@RP_SETUP_VERSION@</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>13.0</string>
+	<key>LSApplicationCategoryType</key>
+	<string>public.app-category.utilities</string>
+	<key>NSHighResolutionCapable</key>
+	<true/>
+	<key>NSHumanReadableCopyright</key>
+	<string>Personal Rockbox. Licensed under the GNU General Public License v2.</string>
+	<key>NSRemovableVolumesUsageDescription</key>
+	<string>RockPod Setup reads and writes the connected iPod's music volume to install Personal Rockbox.</string>
+	<key>NSDesktopFolderUsageDescription</key>
+	<string>RockPod Setup saves a diagnostic report to your Desktop when you ask for one.</string>
+</dict>
+</plist>
