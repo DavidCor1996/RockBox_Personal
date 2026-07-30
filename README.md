@@ -166,6 +166,7 @@ Improvement planning and validation specs:
 - [Rockbox improvement spec](docs/rockbox-improvement-spec.md)
 - [Simulator-first iPod deploy spec](docs/simulator-first-ipod-deploy-spec.md)
 - [iPone lockscreen wallpaper customization spec](docs/ipone-lockscreen-wallpaper-customization-spec.md)
+- [RockPod easy installer spec](docs/rockpod-easy-installer-spec.md)
 
 ---
 

@@ -31,6 +31,13 @@
 
 static int idepowered;
 
+#if CONFIG_CHARGING
+/* Set true by usb_charging_maxcurrent_change() when >= 500mA is committed.
+ * power_input_status() checks this before blocking C1 (charge-disable) so
+ * the two callers do not fight over the pin when the screen is off. */
+static volatile bool usb_high_current_committed;
+#endif
+
 void power_off(void)
 {
     /* USB inserted or EXTON1 */
@@ -87,6 +94,26 @@ void power_init(void)
           | (0xe << 4)      /* disable battery charge: off */
           | (0xe << 8)      /* disable battery charge: off */
           | (0x0 << 12);    /* USB inserted/not inserted */
+
+    /* Drive the LTC4066 control GPIOs to a known state.
+     *
+     * Without these GPIOCMD writes the pins are left floating after
+     * the PCON disconnects them from their peripheral functions.  The
+     * LTC4066's SUSP input has an internal pull-up, so a floating B7
+     * asserts SUSP → the charger IC is suspended, draws zero USB
+     * current, and the battery drains to power the device.  The !CHRG
+     * output is also undefined; the S5L8702 weak pull-down holds the
+     * GPIO read-back LOW, so charging_state() falsely reports
+     * "charging" and the animation plays while the battery drains.
+     *
+     *   B7 (SUSP)  = 0 : not suspended, USB current enabled
+     *   B6 (HPWR)  = 0 : conservative 100 mA limit initially
+     *   C1 (CDIS)  = 1 : battery charge disabled until USB current is
+     *                     confirmed by usb_charging_maxcurrent_change()
+     */
+    GPIOCMD = 0xb070e | 0;  /* B7 SUSP: not suspended */
+    GPIOCMD = 0xb060e | 0;  /* B6 HPWR: 100 mA limit  */
+    GPIOCMD = 0xc010e | 1;  /* C1: disable charge until negotiated */
 }
 
 void ide_power_enable(bool on)
@@ -124,6 +151,10 @@ void usb_charging_maxcurrent_change(int maxcurrent)
      * Device still draws operating power from USB; battery only
      * supplements if USB is insufficient. */
     GPIOCMD = 0xc010e | (fast_charging ? 0 : 1);
+
+    /* Record high-current state so power_input_status() does not
+     * override C1 back to disabled on its next 500 ms poll. */
+    usb_high_current_committed = fast_charging;
 }
 #endif
 
@@ -205,7 +236,11 @@ unsigned int power_input_status(void)
                 timeout_cancel(&chrg_monitor_tmo);
                 monitoring = false;
             }
-            if (!usb_charger_detected)
+            /* Block charging only when neither the screen-on probing
+             * nor the USB stack's current negotiation has confirmed a
+             * capable source.  If usb_charging_maxcurrent_change() has
+             * already committed >= 500 mA we must not override C1. */
+            if (!usb_charger_detected && !usb_high_current_committed)
                 GPIOCMD = 0xc010e | 1;  /* C1 HIGH: block */
         }
         /* BL off + charger detected: C1 stays LOW, charging
@@ -222,6 +257,7 @@ unsigned int power_input_status(void)
             monitoring = false;
         }
         usb_charger_detected = false;
+        usb_high_current_committed = false;
         prev_bl_on = false;
         debounce = 0;
     }

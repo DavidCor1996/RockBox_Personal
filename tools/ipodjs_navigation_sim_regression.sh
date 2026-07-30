@@ -112,6 +112,7 @@ prepare_root()
     local config_file
     local dark_mode="${IPODJS_NAVIGATION_DARK_MODE:-off}"
     local accent="${IPODJS_NAVIGATION_ACCENT:-blue}"
+    local extras_pane="${IPODJS_NAVIGATION_EXTRAS_PANE:-clock}"
 
     runtime_root="$(mktemp -d "${repo_root}/.tmp-ipodjs-nav.XXXXXX")"
     dump_bmp="${runtime_root}/simdump.bmp"
@@ -133,6 +134,11 @@ prepare_root()
         mkdir -p "${runtime_root}/.rockbox/ipodjs/apple"
         cp -a "${repo_root}/assets/ipodjs/apple/." \
               "${runtime_root}/.rockbox/ipodjs/apple/"
+    fi
+    if [ -d "${repo_root}/assets/ipodjs/rockbox/sitekick" ]; then
+        mkdir -p "${runtime_root}/.rockbox/sitekick"
+        cp -a "${repo_root}/assets/ipodjs/rockbox/sitekick/." \
+              "${runtime_root}/.rockbox/sitekick/"
     fi
     if [ "${IPODJS_NAVIGATION_VIDEO:-0}" = "1" ]; then
         mkdir -p "${runtime_root}/.rockbox/rocks/viewers"
@@ -222,10 +228,12 @@ prepare_root()
         fi
     fi
     config_file="${runtime_root}/.rockbox/config.cfg"
-    awk -v dark_mode="${dark_mode}" -v accent="${accent}" '
+    awk -v dark_mode="${dark_mode}" -v accent="${accent}" \
+        -v extras_pane="${extras_pane}" '
         /^ui engine:/ { next }
         /^ui engine accent:/ { next }
         /^ui engine dark mode:/ { next }
+        /^ui engine extras pane:/ { next }
         /^start in screen:/ { next }
         /^(tagcache_autoupdate|autoupdate):/ { next }
         /^resume:/ { next }
@@ -236,6 +244,7 @@ prepare_root()
             print "ui engine: ipodjs"
             print "ui engine accent: " accent
             print "ui engine dark mode: " dark_mode
+            print "ui engine extras pane: " extras_pane
             print "start in screen: root"
             print "tagcache_autoupdate: off"
             print "resume: off"
@@ -809,13 +818,44 @@ run_music_journey()
         # The default stock Home order places Extras after Photos.  Exercise
         # the shared menu renderer and lockscreen without launching a plugin;
         # plugin internals and any plugin audio lifecycle remain untouched.
-        for pulse in 1 2 3 4; do
-            tap_key KP_2 0.08
+        for pulse in 1 2 3 4 5 6 7 8; do
+            utility_selected="$(awk -F '\t' '$3 == "screen" && $4 == "Home" {
+                value = $10
+            } END { print value + 0 }' \
+                "${runtime_root}/.rockbox/ipodjs-trace.tsv")"
+            [ "${utility_selected}" -eq 4 ] && break
+            if [ "${utility_selected}" -lt 4 ]; then
+                tap_key KP_2 0.15
+            else
+                tap_key KP_8 0.15
+            fi
         done
+        capture "00-extras-home-pane"
         before="$(trace_last_sequence)"
         tap_key KP_5 0.6
         wait_for_trace_after "Extras" "${before}"
         capture "00-extras"
+        if [ "${IPODJS_NAVIGATION_SITEKICK:-0}" = "1" ]; then
+            tap_key KP_2 0.12
+            tap_key KP_2 0.12
+            tap_key KP_2 0.12
+            before="$(trace_last_sequence)"
+            tap_key KP_5 0.5
+            wait_for_trace_after "Applications" "${before}"
+            tap_key KP_2 0.12
+            capture "00-desktop-mode-application"
+            tap_key KP_2 0.35
+            tap_key KP_2 0.35
+            capture "00-sitekick-application"
+            sleep 0.35
+            capture "00-sitekick-application-float"
+            before="$(trace_last_sequence)"
+            tap_key KP_Decimal 0.5
+            wait_for_trace_after "Extras" "${before}"
+            tap_key KP_8 0.12
+            tap_key KP_8 0.12
+            tap_key KP_8 0.12
+        fi
         hold_cycle "00-extras" "Extras"
         tap_key KP_2 0.15
         tap_key KP_8 0.25
@@ -827,6 +867,29 @@ run_music_journey()
             tap_key KP_8 0.08
         done
         capture "00-extras-home"
+    fi
+
+    if [ "${IPODJS_NAVIGATION_SITEKICK:-0}" = "1" ]; then
+        before="$(trace_last_sequence)"
+        hold_key w 1.3
+        wait_for_trace_after "Quick Settings" "${before}"
+        for pulse in 1 2 3 4 5 6 7 8 9 10 11 12; do
+            quick_selected="$(awk -F '\t' \
+                '$3 == "screen" && $4 == "Quick Settings" {
+                    value = $10
+                } END { print value + 0 }' \
+                "${runtime_root}/.rockbox/ipodjs-trace.tsv")"
+            [ "${quick_selected}" -eq 9 ] && break
+            tap_key KP_2 0.12
+        done
+        capture "00-sitekick-quick-setting"
+        tap_key KP_5 0.25
+        capture "00-sitekick-quick-setting-cycled"
+        tap_key KP_5 0.12
+        tap_key KP_5 0.12
+        before="$(trace_last_sequence)"
+        tap_key w 0.5
+        wait_for_trace_after "Home" "${before}"
     fi
 
     if [ "${IPODJS_NAVIGATION_SETTINGS:-0}" = "1" ]; then

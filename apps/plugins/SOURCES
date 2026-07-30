@@ -1,8 +1,12 @@
 #ifdef DESKTOP_1080
-/* The 1080p Snow Leopard panel builds Desktop Mode alone: the other
- * plugins are written against small iPod screens and several of them
- * #error out on an unrecognised LCD size. */
+/* Keep the 1080p panel focused, but include the two media viewers iTunes
+ * hands real device videos to.  The rest of the plugin tree is still written
+ * against small player screens. */
 desktop_mode.c
+openh264_player.c
+livetv.c
+sitekick.c
+netflix_desktop.c
 #else
 /* plugins common to all models */
 #if !defined(SIMULATOR) && (CONFIG_BATTERY_MEASURE != 0)
@@ -72,6 +76,7 @@ photos.c
 #if defined(HAVE_LCD_COLOR) && (LCD_WIDTH >= 320) && (LCD_HEIGHT >= 240)
 achievements.c
 weather.c
+calm.c
 nb_maps.c
 #endif
 

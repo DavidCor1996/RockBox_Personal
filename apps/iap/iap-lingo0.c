@@ -1232,6 +1232,94 @@ void iap_handlepkt_mode0(const unsigned int len, const unsigned char *buf)
             logf("iap: StartIDPS tid=%02x%02x", tid_hi, tid_lo);
 #endif
 
+            if (iap_transport_is_serial())
+                iap_note_kokkia_candidate();
+
+            /* Post-authentication activation sequence.
+             *
+             * Some Bluetooth dock transmitters (Kokkia i10/i10s) send
+             * StartIDPS *after* the MFi certificate exchange has already
+             * completed, and will not power on their radio until they
+             * receive this specific pair of replies.  Apple's firmware
+             * answers it; stock Rockbox has no handler at all and NAKs
+             * with Bad Parameter, which is why the dongle stays lit but
+             * never enters pairing mode.
+             *
+             * The two packets below were recovered by disassembling a
+             * known-working build (giek2000/rockbox_kokkia, ipod4g), so
+             * they are reproduced verbatim rather than derived from the
+             * spec - 0x39/0x3A are nominally SetFIDTokenValues and
+             * RetFIDTokenValueACKs, and the accessory is evidently
+             * matching on the exact byte sequence.
+             *
+             * Only the authenticated case is claimed here.  An accessory
+             * that opens with StartIDPS before authenticating is doing
+             * real IDPS negotiation (USB MFi DACs), which is handled by
+             * the iPodAck path below together with the 0x39/0x3B
+             * handlers.  The two flows are disjoint by auth state.
+             */
+            if (DEVICE_AUTHENTICATED)
+            {
+                /* A serial accessory normally requests this activation
+                 * once, immediately after authenticating.  Seeing it again
+                 * means the accessory restarted without the PMU observing
+                 * a dock removal.  Discard the stale authenticated session
+                 * and reject this pre-auth request so the Kokkia falls back
+                 * to legacy identification and authenticates again.
+                 */
+                if (iap_transport_is_serial())
+                {
+                    if (device.serial_activation_sent)
+                    {
+                        iap_note_accessory_restart();
+                        iap_reset_device(&device);
+                        cmd_ack(cmd, IAP_ACK_BAD_PARAM);
+                        break;
+                    }
+
+                    device.serial_activation_sent = true;
+                    device.kokkia_detected = true;
+                }
+
+                IAP_TX_INIT(0x00, 0x39);
+                IAP_TX_PUT(0x00);
+                IAP_TX_PUT(0x01);
+                iap_send_tx();
+
+                IAP_TX_INIT(0x00, 0x3A);
+                IAP_TX_PUT(0x00);
+                IAP_TX_PUT(0x01);
+                IAP_TX_PUT(0x01);
+                iap_send_tx();
+                if (iap_transport_is_serial())
+                    iap_note_kokkia_ready();
+                break;
+            }
+
+            /* Refuse to open an IDPS session over the dock UART.
+             *
+             * A captured Kokkia i10s exchange shows it opening with
+             * StartIDPS before authenticating, then sending its
+             * Identify/AccCaps/AccInfo tokens.  We ACK all of them, but
+             * the accessory never follows with EndIDPS - it just
+             * restarts the same sequence every ten seconds, so
+             * authentication never begins and the radio never powers on.
+             *
+             * Accepting IDPS makes the accessory commit to a
+             * negotiation Rockbox cannot finish.  Rejecting StartIDPS
+             * makes it fall back to legacy IdentifyDeviceLingoes and
+             * authenticate normally; it then re-sends StartIDPS once
+             * authenticated, which is the activation case handled above.
+             * This is what the known-working build does - it has no
+             * handler for 0x38 pre-auth, nor for 0x39/0x3B at all.
+             *
+             * USB HID (MFi DAC) docks keep the real IDPS path below.
+             */
+            if (iap_transport_is_serial()) {
+                cmd_ack(cmd, IAP_ACK_BAD_PARAM);
+                break;
+            }
+
             /* iPodAck with transaction ID: format per Table 3-5 */
             IAP_TX_INIT(0x00, 0x02);
             IAP_TX_PUT(tid_hi);
@@ -1258,6 +1346,15 @@ void iap_handlepkt_mode0(const unsigned int len, const unsigned char *buf)
         case 0x39:
         {
             CHECKLEN(5);
+            /* IDPS negotiation only happens before authentication.  A
+             * post-auth 0x39 comes from a dock replaying the Kokkia
+             * activation exchange; the known-working build has no
+             * handler in that range and NAKs it, so match that rather
+             * than answering with token ACKs it is not expecting. */
+            if (DEVICE_AUTHENTICATED || iap_transport_is_serial()) {
+                cmd_ack(cmd, IAP_ACK_BAD_PARAM);
+                break;
+            }
             uint8_t tid_hi = buf[2];
             uint8_t tid_lo = buf[3];
             int num_tokens = buf[4];
@@ -1336,6 +1433,15 @@ void iap_handlepkt_mode0(const unsigned int len, const unsigned char *buf)
         case 0x3B:
         {
             CHECKLEN(5);
+            /* Same reasoning as 0x39, and this one matters more: the
+             * Continue path calls iap_reset_device() and restarts
+             * authentication.  Acting on it after the accessory has
+             * already authenticated would tear down the session the
+             * activation sequence just established. */
+            if (DEVICE_AUTHENTICATED || iap_transport_is_serial()) {
+                cmd_ack(cmd, IAP_ACK_BAD_PARAM);
+                break;
+            }
             uint8_t tid_hi = buf[2];
             uint8_t tid_lo = buf[3];
             uint8_t idps_status = buf[4];

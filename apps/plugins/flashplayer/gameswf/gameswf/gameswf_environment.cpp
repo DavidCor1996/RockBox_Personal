@@ -450,7 +450,6 @@ namespace gameswf
 				val.is_object());
 			return val;
 		}
-
 		if (varname == "map_outside_1" && get_root() != NULL &&
 			get_root()->get_root_movie() != NULL &&
 			get_root()->get_root_movie()->get_member("Map_Outside_1", &val))
@@ -493,11 +492,30 @@ namespace gameswf
 		}
 
 		// check _global.member
-		if (get_player()->get_global()->get_member(varname, &val))
+		as_object* global = get_player()->get_global();
+		if (global->get_member(varname, &val))
 		{
 			flashplayer_trace_variable_lookup(varname.c_str(), 50,
 				val.is_object());
 			return val;
+		}
+		/*
+		 * The compact case-insensitive hash can miss an existing key on this
+		 * target/toolchain.  Global classes are authoritative and do not have
+		 * display-list shadowing semantics, so use the same linear fallback as
+		 * built-in method dispatch without changing ordinary movie members.
+		 */
+		for (stringi_hash<as_value>::const_iterator it =
+				global->m_members.begin(); it != global->m_members.end(); ++it)
+		{
+			if (tu_string::stricmp(
+					it->first.c_str(), varname.c_str()) == 0)
+			{
+				val = it->second;
+				flashplayer_trace_variable_lookup(varname.c_str(), 51,
+					val.is_object());
+				return val;
+			}
 		}
 
 		// Fallback.

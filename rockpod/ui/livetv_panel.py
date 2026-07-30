@@ -9,6 +9,7 @@ is playing. See docs/livetv-directv-guide-spec.md.
 from __future__ import annotations
 
 import os
+from pathlib import Path
 import time
 
 from PySide6.QtCore import Qt, QTimer, Signal
@@ -52,6 +53,19 @@ DTV_DOT_YELLOW = QColor(249, 198, 60)
 
 SLOT_SECONDS = 1800
 GRID_COLUMNS = 3
+
+
+def _clean_text(value: str) -> str:
+    return " ".join(str(value or "").split())
+
+
+def _title_from_path(path: str) -> str:
+    stem = Path(path or "").stem
+    return _clean_text(stem.replace("_", " ")) or "Program"
+
+
+def _slot_title(slot) -> str:
+    return _clean_text(slot.title) or _title_from_path(slot.path)
 
 
 def _format_clock(epoch: float) -> str:
@@ -176,7 +190,7 @@ class LiveTvGuideView(QWidget):
         painter.setFont(bold)
         painter.setPen(QPen(DTV_BRAND_BLUE))
         painter.drawText(10, 22, "DIRECTV")
-        title = selected_slot.title if selected_slot else "No Programming"
+        title = _slot_title(selected_slot) if selected_slot else "No Programming"
         painter.drawText(96, 22, title)
         painter.setFont(small)
         painter.setPen(QPen(DTV_DIM_TEXT))
@@ -277,7 +291,8 @@ class LiveTvGuideView(QWidget):
                 painter.setPen(QPen(DTV_SEL_TEXT if selected else DTV_TEXT))
                 prefix = "‹ " if slot_start < window_start else ""
                 label = painter.fontMetrics().elidedText(
-                    prefix + slot.title, Qt.ElideRight, max(10, x2 - x1 - 10))
+                    prefix + _slot_title(slot),
+                    Qt.ElideRight, max(10, x2 - x1 - 10))
                 painter.drawText(x1 + 5, y + 17, label)
 
         # Hint bar
@@ -303,6 +318,7 @@ class LiveTvPanel(QWidget):
     sync_requested = Signal()
     assign_requested = Signal(str, list, int)   # kind, paths, channel number
     unassign_requested = Signal(str, list)      # kind, paths
+    delete_media_requested = Signal(str, list)  # kind, paths
     rename_requested = Signal(str, str)         # kind, path
     edit_media_requested = Signal(str, str)     # kind, path
     add_channel_requested = Signal()
@@ -391,6 +407,10 @@ class LiveTvPanel(QWidget):
         self._assign_combo = QComboBox()
         self._assign_btn = QPushButton("Assign Selected")
         self._unassign_btn = QPushButton("Unassign")
+        self._delete_media_btn = QPushButton("Delete")
+        self._delete_media_btn.setToolTip(
+            "Remove the selected show(s) or commercial(s) from the Live TV "
+            "library and delete their source file(s) from disk.")
         self._rename_btn = QPushButton("Rename")
         self._rename_btn.setToolTip(
             "Change the title this programme shows in the guide. "
@@ -410,6 +430,7 @@ class LiveTvPanel(QWidget):
                        self._edit_btn, self._remove_btn, self._logo_btn,
                        self._favourite_btn, self._assign_combo,
                        self._assign_btn, self._unassign_btn,
+                       self._delete_media_btn,
                        self._rename_btn, self._edit_media_btn):
             action_layout.addWidget(widget)
         action_layout.addStretch(1)
@@ -426,6 +447,7 @@ class LiveTvPanel(QWidget):
         self._favourite_btn.clicked.connect(self._emit_favourite)
         self._assign_btn.clicked.connect(self._emit_assign)
         self._unassign_btn.clicked.connect(self._emit_unassign)
+        self._delete_media_btn.clicked.connect(self._emit_delete_media)
         self._rename_btn.clicked.connect(self._emit_rename)
         self._edit_media_btn.clicked.connect(self._emit_edit_media)
 
@@ -544,7 +566,7 @@ class LiveTvPanel(QWidget):
         mapping = channel_for_path or {}
         for item in shows or []:
             row = QTreeWidgetItem([
-                item.title,
+                _slot_title(item),
                 item.series,
                 _format_duration(item.duration),
                 str(mapping.get(item.path, "")) or "Unassigned",
@@ -565,7 +587,7 @@ class LiveTvPanel(QWidget):
         mapping = channel_for_path or {}
         for item in ads or []:
             row = QTreeWidgetItem([
-                item.title,
+                _slot_title(item),
                 _format_duration(item.duration),
                 str(mapping.get(item.path, "")) or "All channels",
                 os.path.basename(item.path),
@@ -637,6 +659,18 @@ class LiveTvPanel(QWidget):
         return [item.data(0, Qt.UserRole) for item in tree.selectedItems()
                 if item.data(0, Qt.UserRole)]
 
+    def _selected_single_path(self, tree):
+        """The one selected row's path, or None when the target is
+        ambiguous.
+
+        Rename and Split/Trim act on a single recording. With more than
+        one row selected, Qt's selection order does not match click order,
+        so silently taking the first path can rename or edit a completely
+        different file than the one the user meant.
+        """
+        paths = self._selected_paths(tree)
+        return paths[0] if len(paths) == 1 else None
+
     def _emit_assign(self):
         number = self._assign_combo.currentData()
         if not number:
@@ -680,6 +714,16 @@ class LiveTvPanel(QWidget):
             if paths:
                 self.unassign_requested.emit("ad", paths)
 
+    def _emit_delete_media(self):
+        if self._tab == "shows":
+            paths = self._selected_paths(self._show_tree)
+            if paths:
+                self.delete_media_requested.emit("show", paths)
+        elif self._tab == "ads":
+            paths = self._selected_paths(self._ads_tree)
+            if paths:
+                self.delete_media_requested.emit("ad", paths)
+
     def _on_channel_activated(self, item, _column):
         number = item.data(0, Qt.UserRole)
         if number:
@@ -697,17 +741,17 @@ class LiveTvPanel(QWidget):
 
     def _emit_edit_media(self):
         tree = self._show_tree if self._tab == "shows" else self._ads_tree
-        paths = self._selected_paths(tree)
-        if paths:
+        path = self._selected_single_path(tree)
+        if path:
             self.edit_media_requested.emit(
-                "show" if self._tab == "shows" else "ad", str(paths[0]))
+                "show" if self._tab == "shows" else "ad", str(path))
 
     def _emit_rename(self):
         tree = self._show_tree if self._tab == "shows" else self._ads_tree
-        paths = self._selected_paths(tree)
-        if paths:
+        path = self._selected_single_path(tree)
+        if path:
             self.rename_requested.emit(
-                "show" if self._tab == "shows" else "ad", str(paths[0]))
+                "show" if self._tab == "shows" else "ad", str(path))
 
 
 class LiveTvStorePanel(QWidget):

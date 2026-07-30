@@ -24,6 +24,7 @@
 #include "mpegplayer.h"
 
 #define PPLOG(...) DEBUGF("mpegplayer-parser: " __VA_ARGS__)
+#define MPEG_SEEK_SCAN_LIMIT (1024 * 1024)
 
 struct stream_parser str_parser SHAREDBSS_ATTR;
 
@@ -388,7 +389,9 @@ static off_t mpeg_parser_seek_PTS(uint32_t time, unsigned id)
     {
         uint32_t currpts;
         sk.pos = pos_new;
-        sk.len = (sk.dir < 0) ? pos_new - pos_left : pos_right - pos_new;
+        sk.len = MIN((sk.dir < 0) ? pos_new - pos_left :
+                                      pos_right - pos_new,
+                     MPEG_SEEK_SCAN_LIMIT);
 
         currpts = mpeg_parser_scan_pts(&sk, id);
 
@@ -987,7 +990,7 @@ bool parser_prepare_image(uint32_t time)
 
     sk.pos = parser_can_seek() ?
                 mpeg_parser_seek_PTS(time, video_str.id) : 0;
-    sk.len = sk.pos;
+    sk.len = MIN(sk.pos, (off_t)MPEG_SEEK_SCAN_LIMIT);
     sk.dir = SSCAN_REVERSE;
 
     tries = 1;

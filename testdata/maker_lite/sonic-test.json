@@ -1,0 +1,60 @@
+{
+  "format_version": 1,
+  "title": "Sonic Maker Lite Test Zone",
+  "project_id": "sonic-test-zone",
+  "kit_id": "sonic2-private-kit",
+  "ruleset": "sonic",
+  "view": [320, 224],
+  "size": [60, 15],
+  "tile_size": 16,
+  "terrain": [
+    {"rect": [0, 13, 60, 2], "tile": 8, "collision": ["solid"]},
+    {"rect": [12, 12, 1, 1], "tile": 9, "collision": ["slope_up"]},
+    {"rect": [13, 11, 1, 2], "tile": 8, "collision": ["solid"]},
+    {"rect": [14, 10, 5, 3], "tile": 8, "collision": ["solid"]},
+    {"rect": [19, 11, 1, 2], "tile": 8, "collision": ["solid"]},
+    {"rect": [20, 12, 1, 1], "tile": 10, "collision": ["slope_down"]},
+    {"rect": [34, 12, 3, 1], "tile": 11, "collision": ["hazard"]}
+  ],
+  "entities": [
+    {"kind": "player", "x": 48, "y": 208},
+    {"kind": "collectible", "x": 160, "y": 176, "params": [12, 12, 100]},
+    {"kind": "collectible", "x": 184, "y": 168, "params": [12, 12, 100]},
+    {"kind": "collectible", "x": 208, "y": 160, "params": [12, 12, 100]},
+    {"kind": "spring", "x": 432, "y": 208, "params": [16, 16, 8]},
+    {"kind": "enemy", "x": 600, "y": 208, "params": [20, 20]},
+    {"kind": "checkpoint", "x": 704, "y": 208, "params": [16, 40]},
+    {"kind": "block", "flags": 7, "x": 320, "y": 128,
+     "params": [32, 8, 0, 1]},
+    {"kind": "goal", "x": 928, "y": 208, "params": [16, 48]}
+  ],
+  "events": [
+    {
+      "trigger": "entered_region",
+      "condition": "always",
+      "action": "play_effect",
+      "region": [40, 176, 48, 48],
+      "params": [5, 0],
+      "one_shot": true
+    }
+  ],
+  "paths": [
+    {
+      "id": 1,
+      "points": [[320, 128], [416, 128]],
+      "speed": 192,
+      "ping_pong": true
+    },
+    {
+      "id": 2,
+      "points": [
+        [64, 208], [144, 208], [176, 176], [176, 144],
+        [144, 112], [96, 112], [64, 144], [64, 176],
+        [96, 208], [192, 208]
+      ],
+      "speed": 256,
+      "ping_pong": false,
+      "surface": true
+    }
+  ]
+}

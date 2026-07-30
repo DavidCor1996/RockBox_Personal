@@ -91,6 +91,33 @@ sub tree_copy {
     }, no_chdir => 1 }, $src);
 }
 
+sub copy_sitekick_assets {
+    my ($dest) = @_;
+    my $src = "$ROOT/assets/ipodjs/rockbox/sitekick";
+    return unless -d $src;
+
+    glob_mkdir($dest);
+    glob_mkdir("$dest/base");
+    glob_mkdir("$dest/chips");
+    glob_mkdir("$dest/icons");
+    glob_mkdir("$dest/data");
+    glob_mkdir("$dest/sounds");
+    glob_mkdir("$dest/backgrounds");
+    glob_mkdir("$dest/preview");
+    glob_mkdir("$dest/desktop");
+    glob_mkdir("$dest/state");
+    glob_mkdir("$dest/sync");
+    copy("$src/source.manifest", $dest);
+    glob_copy("$src/base/*.bmp", "$dest/base");
+    glob_copy("$src/chips/*.bmp", "$dest/chips");
+    glob_copy("$src/icons/*.bmp", "$dest/icons");
+    glob_copy("$src/data/*.tsv", "$dest/data");
+    glob_copy("$src/sounds/*.uib", "$dest/sounds");
+    glob_copy("$src/backgrounds/*.bmp", "$dest/backgrounds");
+    glob_copy("$src/preview/*.bmp", "$dest/preview");
+    glob_copy("$src/desktop/*.rga", "$dest/desktop");
+}
+
 sub copy_clubpenguin_assets {
     my ($dest) = @_;
     my $src = "$ROOT/assets/ipodjs/rockbox/clubpenguin";
@@ -757,6 +784,11 @@ sub buildzip {
         copy_clubpenguin_assets("$temp_dir/rocks/games/clubpenguin");
     }
 
+    if(-e "$temp_dir/rocks/apps/sitekick.rock" &&
+       -d "$ROOT/assets/ipodjs/rockbox/sitekick") {
+        copy_sitekick_assets("$temp_dir/sitekick");
+    }
+
     if($image) {
         # image is blank when this is a simulator
         if( filesize("rockbox.ucl") > 1000 ) {
@@ -827,7 +859,7 @@ sub buildzip {
 
     if(-d "$ROOT/assets/ipodjs/rockbox") {
         tree_copy("$ROOT/assets/ipodjs/rockbox", "$temp_dir/ipodjs",
-                  qr{^clubpenguin(?:/|$)|(?:^|/)\.rockbox(?:/|$)|^(?:24-iLike\.fnt|alphabet-overlay-stock\.|status-(?:battery|playing|hold|header|repeat|shuffle)-stock\.|volume_(?:left|right)_stock\.)});
+                  qr{^clubpenguin(?:/|$)|^sitekick(?:/|$)|(?:^|/)\.rockbox(?:/|$)|^(?:24-iLike\.fnt|alphabet-overlay-stock\.|status-(?:battery|playing|hold|header|repeat|shuffle)-stock\.|volume_(?:left|right)_stock\.)});
         copy_clubpenguin_assets("$temp_dir/ipodjs/clubpenguin");
         # The iPodJS Hold screen uses this larger stock-like clock face.  It
         # must be in FONT_DIR on hardware or the renderer falls back to the

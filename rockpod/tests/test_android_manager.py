@@ -69,8 +69,14 @@ def test_android_page_labels_eclair_native_core_as_classic_panel_init():
     assert "Android DPAD key layout" in status.text()
     assert "three-minute volatile-test timeout" in status.text()
     assert "physical LCD output" in status.text()
-    assert "Menu+Play RAM-boot path is packaged" in status.text()
-    assert "does not install it to NOR" in status.text()
+    assert "requires no boot-chord timing" in status.text()
+    assert "does not write NOR" in status.text()
+    assert "Select+Right RAM-boot path and payload-size contract are" in status.text()
+    assert "binary-verified" in status.text()
+    assert "compressed zImage reaches the N25 LCD driver" in status.text()
+    assert "dual-boot NOR installer is packaged" in status.text()
+    assert "exact dual-boot uninstaller" in status.text()
+    assert "staging does not execute either" in status.text()
 
 
 def test_android_page_enables_explicit_ram_boot_staging_only_after_gate():
@@ -85,8 +91,15 @@ def test_android_page_enables_explicit_ram_boot_staging_only_after_gate():
         {
             "aosp_tag": "android-2.0_r1",
             "artifacts": {},
-            "rockbox_menu_play_boot_packaged": True,
+            "rockbox_select_right_boot_packaged": True,
+            "rockbox_select_right_boot_binary_emulated": True,
+            "rockbox_to_linux_zimage_binary_emulated": True,
+            "rockbox_boot_image_sizes_binary_verified": True,
             "rockbox_boot_components_checksum_wrapped": True,
+            "rockbox_forced_android_volatile_test_binary_emulated": True,
+            "rockbox_select_right_dualboot_nor_installer_packaged": True,
+            "rockbox_nor_installer_preserves_original_firmware": True,
+            "rockbox_dualboot_nor_uninstaller_packaged": True,
         }
     )
     assert button.isEnabled() is True

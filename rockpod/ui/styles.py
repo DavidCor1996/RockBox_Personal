@@ -1263,6 +1263,83 @@ QTabWidget#store_tabs QTabBar::tab:selected {{
     border-bottom-color: #ffffff;
 }}
 
+/* ── Maker Lite — restrained stock Apple/iTunes workspace ───────── */
+QWidget#maker_lite_creator {{
+    background: #d9dde3;
+}}
+
+QToolBar#maker_lite_toolbar {{
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 #f8f8f8, stop:0.48 #e9e9e9,
+        stop:0.50 #d2d2d2, stop:1 #bfc4ca);
+    border: none;
+    border-bottom: 1px solid #7f858c;
+    spacing: 3px;
+    padding: 3px 5px;
+}}
+
+QToolBar#maker_lite_toolbar QToolButton {{
+    color: #25282c;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    padding: 4px 7px;
+    font-size: 11px;
+}}
+
+QToolBar#maker_lite_toolbar QToolButton:hover {{
+    background: rgba(255, 255, 255, 150);
+    border-color: #aeb4bb;
+}}
+
+QToolBar#maker_lite_toolbar QToolButton:pressed {{
+    background: #8da8ca;
+    color: #ffffff;
+    border-color: #6f89a9;
+}}
+
+QFrame#maker_lite_browser,
+QFrame#maker_lite_inspector {{
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 #eef1f4, stop:1 #d6dbe1);
+    border: none;
+}}
+
+QListWidget#maker_lite_projects,
+QListWidget#maker_lite_parts {{
+    background: #ffffff;
+    border: 1px solid #aeb5bd;
+    outline: none;
+    font-size: 11px;
+}}
+
+QListWidget#maker_lite_projects::item,
+QListWidget#maker_lite_parts::item {{
+    border-bottom: 1px solid #edf0f3;
+    padding: 2px 6px;
+}}
+
+QListWidget#maker_lite_projects::item:selected,
+QListWidget#maker_lite_parts::item:selected {{
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 #91b9e6, stop:1 #5d8fc8);
+    color: #ffffff;
+}}
+
+QLabel#maker_lite_palette_hint,
+QLabel#maker_lite_page_label {{
+    background: transparent;
+    color: #5b6168;
+    font-size: 10px;
+}}
+
+QPushButton#maker_lite_page_button {{
+    min-width: 24px;
+    max-width: 24px;
+    padding: 1px;
+    font-size: 16px;
+}}
+
 /* ── Rockbox Theme Hub ──────────────────────────────────────────── */
 QWidget#theme_hub,
 QWidget#photo_manager,

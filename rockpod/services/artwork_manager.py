@@ -695,7 +695,12 @@ class ArtworkManager(QObject):
         self._save_album_meta(album_key, meta)
         return slide_path, self._file_hash(slide_path), f"{album_id}.bmp", album_id
 
-    def export_album_list_manifest(self, entries):
+    def album_list_manifest_rows(self, entries):
+        """Filter/sort manifest rows exactly as index.tsv writes them.
+
+        The thumbs.pack records must line up with index.tsv data lines by
+        ordinal, so any consumer building row-aligned artifacts must use
+        this ordering."""
         rows = []
         for entry in entries:
             album_id = str(entry.get("album_id") or "").strip()
@@ -713,6 +718,10 @@ class ArtworkManager(QObject):
                 }
             )
         rows.sort(key=lambda item: (item["artist"].casefold(), item["album"].casefold(), item["album_id"]))
+        return rows
+
+    def export_album_list_manifest(self, entries):
+        rows = self.album_list_manifest_rows(entries)
         lines = [
             "# rockpod albumlist v2",
             "album_id\tthumb\tslide\tartist\talbum\tgroup_key\tdevice_dirs",

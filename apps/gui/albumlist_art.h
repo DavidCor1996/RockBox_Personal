@@ -11,6 +11,9 @@ struct bitmap;
 
 void albumlist_setup_list(struct gui_synclist *list);
 bool albumlist_art_service_pending(void);
+bool albumlist_art_service_one(void);
+void albumlist_art_prefetch_direction(struct gui_synclist *list,
+                                      int direction);
 void albumlist_art_draw_item(struct list_putlineinfo_t *list_info);
 struct bitmap *albumlist_art_get_thumb(const char *album, const char *artist,
                                        int size);

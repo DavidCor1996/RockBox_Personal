@@ -30,6 +30,8 @@
 
 #define LIVETV_PARAM_PREFIX     "-livetv:"
 #define LIVETV_PARAM_PREFIX_LEN (sizeof(LIVETV_PARAM_PREFIX) - 1)
+#define LIVETV_DM_PARAM_PREFIX     "-livetvdm:"
+#define LIVETV_DM_PARAM_PREFIX_LEN (sizeof(LIVETV_DM_PARAM_PREFIX) - 1)
 
 #define LIVETV_DEFAULT_ROOT     "/Videos/LiveTV"
 #define LIVETV_CHANNELS_FILE    "channels.tsv"
@@ -51,6 +53,14 @@
 #define LIVETV_KIND_SHOW        'S'
 #define LIVETV_KIND_AD          'A'
 
+/* The Weather channel is recognised by category, not by a new slot kind or
+ * a fixed channel number: it is an ordinary channel whose shows are real
+ * MPEG files (a 64-second panel/presenter/video clock carrying the user's
+ * own looped music), scheduled and played exactly like any other channel. See
+ * docs/livetv-weather-channel-spec.md section 2 for why a new slot kind
+ * was rejected. */
+#define LIVETV_WEATHER_CATEGORY "Weather"
+
 #define LIVETV_DAY_SECONDS      86400
 #define LIVETV_SLOT_SECONDS     1800    /* guide column = half an hour */
 
@@ -58,14 +68,71 @@
  * The window is flush with the right edge of the screen so the guide never
  * has to repaint a sliver beside it. Both coordinates are even because
  * vo_setup() aligns the video rectangle to even pixels. */
-#define LIVETV_PIG_X            238
-#define LIVETV_PIG_Y            4
-#define LIVETV_PIG_W            (LCD_WIDTH - LIVETV_PIG_X)
+#define LIVETV_PIG_W            82
 #define LIVETV_PIG_H            62
-#define LIVETV_PIG_BOX_X        (LIVETV_PIG_X - 1)
-#define LIVETV_PIG_BOX_Y        (LIVETV_PIG_Y - 1)
-#define LIVETV_PIG_BOX_W        (LCD_WIDTH - LIVETV_PIG_BOX_X)
+#define LIVETV_PIG_LOCAL_X      \
+    (mpegplayer_livetv_desktop ? LIVETV_DM_WIN_W - LIVETV_PIG_W : 238)
+#define LIVETV_PIG_LOCAL_Y      4
+#define LIVETV_PIG_X            \
+    (mpegplayer_livetv_desktop ? \
+        LIVETV_DM_WIN_X + LIVETV_PIG_LOCAL_X : LIVETV_PIG_LOCAL_X)
+#define LIVETV_PIG_Y            \
+    (mpegplayer_livetv_desktop ? \
+        LIVETV_DM_WIN_Y + LIVETV_DM_TITLE_H + LIVETV_PIG_LOCAL_Y : \
+        LIVETV_PIG_LOCAL_Y)
+#define LIVETV_PIG_BOX_X        (LIVETV_PIG_LOCAL_X - 1)
+#define LIVETV_PIG_BOX_Y        (LIVETV_PIG_LOCAL_Y - 1)
+#define LIVETV_PIG_BOX_W        (LIVETV_PIG_W + 1)
 #define LIVETV_PIG_BOX_H        (LIVETV_PIG_H + 2)
+
+/* Desktop Mode serialises its already-painted framebuffer before replacing
+ * itself with mpegplayer. The player preserves that underlay in plugin-owned
+ * memory so decoder teardown cannot erase the Dock during a channel change.
+ * Only the active Aqua title strip is loaded here; video and DIRECTV chrome
+ * are painted in the window body by the same plugin that owns decoding. */
+#if LCD_WIDTH >= 1920
+#define LIVETV_DM_WIN_W          897
+#define LIVETV_DM_WIN_H          671
+#define LIVETV_DM_WIN_X          ((LCD_WIDTH - LIVETV_DM_WIN_W) / 2)
+#define LIVETV_DM_WIN_Y          170
+#define LIVETV_DM_TITLE_PATH \
+    PLUGIN_APPS_DATA_DIR \
+        "/desktop_mode_snow_leopard/1920x1080/chrome/title-bar.897x24x16.bmp"
+#else
+#define LIVETV_DM_WIN_W          304
+#define LIVETV_DM_WIN_H          174
+#define LIVETV_DM_WIN_X          ((LCD_WIDTH - LIVETV_DM_WIN_W) / 2)
+#define LIVETV_DM_WIN_Y          24
+#define LIVETV_DM_TITLE_PATH \
+    PLUGIN_APPS_DATA_DIR \
+        "/desktop_mode_snow_leopard/320x240/chrome/title-bar.304x24x16.bmp"
+#endif
+#define LIVETV_DM_TITLE_H        24
+#define LIVETV_DM_BODY_H         (LIVETV_DM_WIN_H - LIVETV_DM_TITLE_H)
+#define LIVETV_DM_VIDEO_X        (LIVETV_DM_WIN_X + 2)
+#if LCD_WIDTH >= 1920
+/* At 1080p the tuned channel owns the entire window content area. The
+ * decoder still preserves aspect ratio inside these bounds. */
+#define LIVETV_DM_VIDEO_W        ((LIVETV_DM_WIN_W - 4) & ~1)
+#define LIVETV_DM_VIDEO_H        ((LIVETV_DM_BODY_H - 4) & ~1)
+#define LIVETV_DM_VIDEO_Y        (LIVETV_DM_WIN_Y + LIVETV_DM_TITLE_H + 2)
+#else
+#define LIVETV_DM_VIDEO_W        (((LIVETV_DM_WIN_W * 2 / 3) - 6) & ~1)
+#define LIVETV_DM_VIDEO_H_4_3    ((LIVETV_DM_VIDEO_W * 3 / 4) & ~1)
+#define LIVETV_DM_VIDEO_H        \
+    MIN(LIVETV_DM_VIDEO_H_4_3, (LIVETV_DM_BODY_H - 4) & ~1)
+#define LIVETV_DM_VIDEO_Y        \
+    (LIVETV_DM_WIN_Y + LIVETV_DM_TITLE_H + 2 + \
+     (LIVETV_DM_BODY_H - 4 - LIVETV_DM_VIDEO_H) / 2)
+#endif
+#define LIVETV_DM_VIDEO_BOX_X    (LIVETV_DM_VIDEO_X - 1)
+#define LIVETV_DM_VIDEO_BOX_Y    (LIVETV_DM_VIDEO_Y - 1)
+#define LIVETV_DM_VIDEO_BOX_W    (LIVETV_DM_VIDEO_W + 2)
+#define LIVETV_DM_VIDEO_BOX_H    (LIVETV_DM_VIDEO_H + 2)
+#define LIVETV_DM_SIDEBAR_X      \
+    (LIVETV_DM_VIDEO_X + LIVETV_DM_VIDEO_W + 4)
+#define LIVETV_DM_SIDEBAR_W      \
+    (LIVETV_DM_WIN_X + LIVETV_DM_WIN_W - 2 - LIVETV_DM_SIDEBAR_X)
 
 /* One file the player opens. A guide lists programmes, not the commercials
  * inside them, so every slot also carries the enclosing programme block;
@@ -107,6 +174,9 @@ const struct livetv_channel *livetv_channel(int index);
 
 int  livetv_current_channel(void);
 void livetv_set_current_channel(int index);
+/* Move "delta" channels, wrapping at both ends and skipping channels
+ * with nothing on the air. False when no other channel is playable. */
+bool livetv_step_channel(int delta);
 
 const char *livetv_slot_title(const struct livetv_slot *slot);
 const char *livetv_slot_rating(const struct livetv_slot *slot);
@@ -180,10 +250,46 @@ int livetv_guide_run(void);
 void livetv_draw_info_banner(int chan);
 void livetv_draw_mini_guide(int chan);
 void livetv_clear_overlay(void);
+/* Cache the small Aqua title strip before stream_init() takes playback
+ * memory and starts decoder callbacks. */
+bool livetv_desktop_prepare(void);
+/* Draw only the Aqua title/body pixels around the windowed decoded video. */
+void livetv_desktop_draw_window(void);
+
+/* Weather channel ------------------------------------------------------ */
+
+/* True when "chan" is the Weather channel. */
+bool livetv_channel_is_weather(int chan);
+/* True only while the current Weather slot is forecast programming. Ads
+ * remain ordinary full-screen video even though they share the channel. */
+bool livetv_weather_program_active(void);
+/* Seconds into the current forecast carrier. Anchored to the schedule's
+ * tune-in resume point, then advanced with the playback/UI monotonic clock. */
+uint32_t livetv_weather_program_seconds(void);
+/* The carrier's 64-second broadcast clock exposes presenter and weather
+ * inserts at fixed phases. */
+bool livetv_weather_wants_video(uint32_t stream_seconds);
+
+/* Load (or reload) the forecast the Weather channel shows, from the same
+ * /.rockbox/rockpod/weather/forecast.tsv the standalone weather.rock reads.
+ * Call once when tuning into the channel, not per frame or per panel. */
+void livetv_weather_enter(uint32_t stream_seconds);
+/* Synchronise the selected panel and its lightweight animation to the
+ * carrier clock. Safe to call on every idle tick. */
+void livetv_weather_tick(uint32_t stream_seconds);
+/* Repaint whichever panel is currently selected, e.g. after the video
+ * rectangle was reasserted by an overlay or the guide returning. */
+void livetv_weather_draw(void);
 
 /* Video output -------------------------------------------------------- */
 
 extern bool mpegplayer_livetv_launch;
 extern bool mpegplayer_livetv_pig;
+extern bool mpegplayer_livetv_desktop;
+extern bool mpegplayer_livetv_guide_active;
+/* True during native forecast-panel phases. The video output keeps decoding
+ * on its normal full-screen rectangle but skips framebuffer blits until the
+ * next presenter/video phase. Guide picture-in-guide remains visible. */
+extern bool mpegplayer_livetv_weather_hidden;
 
 #endif /* MPEGPLAYER_LIVETV_H */

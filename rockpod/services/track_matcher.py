@@ -82,6 +82,22 @@ def _artist_matches(local, device):
     return bool(local_keys and device_keys and local_keys.intersection(device_keys))
 
 
+def _normalized_codec(row):
+    codec = _normalize(row.get("codec", ""))
+    if codec in {"aac", "m4a", "mp4 audio"}:
+        return "aac"
+    if codec in {"mp3", "mpeg layer 3"}:
+        return "mp3"
+    return codec
+
+
+def _linked_codec_compatible(local, device):
+    """Reject stale persistent links that cross two different encodings."""
+    local_codec = _normalized_codec(local)
+    device_codec = _normalized_codec(device)
+    return not local_codec or not device_codec or local_codec == device_codec
+
+
 class MatchResult:
     """Result of matching a local track against device tracks."""
 
@@ -267,7 +283,10 @@ class TrackMatcher:
         # Priority 1: persistent ID link
         if tid and tid in dev_by_id:
             dt = dev_by_id[tid]
-            if not _is_matched(dt, dev_matched):
+            if (
+                not _is_matched(dt, dev_matched)
+                and _linked_codec_compatible(row, dt)
+            ):
                 _mark_matched(dt, dev_matched)
                 return MatchResult(row, dt, MatchResult.MATCH_ID, 1.0)
 

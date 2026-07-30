@@ -26,9 +26,11 @@
 
 #include "iap-core.h"
 #include "iap-lingo.h"
+#include "kernel.h"
 #include "system.h"
 #include "button.h"
 #include "audio.h"
+#include "sound.h"
 #include "settings.h"
 #include "tuner.h"
 #if CONFIG_TUNER
@@ -57,6 +59,27 @@ static void cmd_ack(const unsigned char cmd, const unsigned char status)
 }
 
 #define cmd_ok(cmd) cmd_ack((cmd), IAP_ACK_OK)
+
+#if defined(IPOD_VIDEO) && defined(HAVE_WM8758)
+static void remote_lineout_adjust_volume(int steps)
+{
+    int volume = global_status.volume + steps * sound_steps(SOUND_VOLUME);
+    int max_volume = global_settings.volume_limit;
+
+    if (max_volume > 0)
+        max_volume = 0;
+
+    if (volume < sound_min(SOUND_VOLUME))
+        volume = sound_min(SOUND_VOLUME);
+    else if (volume > max_volume)
+        volume = max_volume;
+
+    global_status.volume = volume;
+    global_status.last_volume_change = current_tick;
+
+    audiohw_set_remote_lineout_volume(volume);
+}
+#endif
 
 void iap_handlepkt_mode2(const unsigned int len, const unsigned char *buf)
 {
@@ -106,6 +129,19 @@ void iap_handlepkt_mode2(const unsigned int len, const unsigned char *buf)
             iap_remotebtn = BUTTON_NONE;
             iap_timeoutbtn = 0;
 
+            /* Kokkia reports a newly acquired Bluetooth peer as a transient
+             * play-state status pulse.  Observe that edge before startup
+             * quarantine discards it; waiting for remote_control_rx() loses
+             * the pulse completely and Home never receives its animation
+             * event.  Headset clicks use the command-button bytes instead,
+             * so they do not manufacture connection notifications. */
+            if (iap_kokkia_present() && len >= 4 &&
+                (buf[3] & (BIT_N(0) | BIT_N(1))))
+                iap_note_kokkia_peer_connection();
+
+            if (iap_remote_input_suppressed())
+                break;
+
             if(buf[2] != 0)
             {
                 if(buf[2] & 1)
@@ -124,10 +160,20 @@ void iap_handlepkt_mode2(const unsigned int len, const unsigned char *buf)
                     }
 #endif
                 }
-                if(buf[2] & 2)
+                if(buf[2] & 2) {
+#if defined(IPOD_VIDEO) && defined(HAVE_WM8758)
+                    remote_lineout_adjust_volume(1);
+#else
                     REMOTE_BUTTON(BUTTON_RC_VOL_UP);
-                if(buf[2] & 4)
+#endif
+                }
+                if(buf[2] & 4) {
+#if defined(IPOD_VIDEO) && defined(HAVE_WM8758)
+                    remote_lineout_adjust_volume(-1);
+#else
                     REMOTE_BUTTON(BUTTON_RC_VOL_DOWN);
+#endif
+                }
                 if(buf[2] & 8)
                     REMOTE_BUTTON(BUTTON_RC_RIGHT);
                 if(buf[2] & 16)
@@ -137,7 +183,15 @@ void iap_handlepkt_mode2(const unsigned int len, const unsigned char *buf)
             {
                 if(buf[3] & 1) /* play */
                 {
-                    if (audio_status() != AUDIO_STATUS_PLAY)
+                    /* A Play state sent while playback is fully stopped is
+                     * commonly an accessory startup announcement, not a
+                     * click.  Posting RC_PLAY on Home maps to ACTION_STD_OK
+                     * and launches Cover Flow.  Resume only an existing
+                     * paused session; physical button events still arrive
+                     * through byte 2 above. */
+                    if ((audio_status() & (AUDIO_STATUS_PLAY |
+                                           AUDIO_STATUS_PAUSE)) ==
+                        (AUDIO_STATUS_PLAY | AUDIO_STATUS_PAUSE))
                         REMOTE_BUTTON(BUTTON_RC_PLAY);
 #if CONFIG_TUNER
                     if (radio_present == 1) {

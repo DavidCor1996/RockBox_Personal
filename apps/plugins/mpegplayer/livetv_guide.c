@@ -62,14 +62,21 @@
 #define LIVETV_HDR_H        14
 #define LIVETV_GRID_Y       91
 #define LIVETV_ROW_H        22
-#define LIVETV_GRID_ROWS    6
+#define LIVETV_GUIDE_W      \
+    (mpegplayer_livetv_desktop ? LIVETV_DM_WIN_W : LCD_WIDTH)
+#define LIVETV_GUIDE_H      \
+    (mpegplayer_livetv_desktop ? LIVETV_DM_BODY_H : LCD_HEIGHT)
+#define LIVETV_GRID_ROWS    \
+    (mpegplayer_livetv_desktop ? \
+        (LIVETV_GUIDE_H - LIVETV_GRID_Y - 18) / LIVETV_ROW_H : 6)
 #define LIVETV_GRID_H       (LIVETV_ROW_H * LIVETV_GRID_ROWS)
 #define LIVETV_HINT_Y       (LIVETV_GRID_Y + LIVETV_GRID_H)
-#define LIVETV_HINT_H       (LCD_HEIGHT - LIVETV_HINT_Y)
+#define LIVETV_HINT_H       (LIVETV_GUIDE_H - LIVETV_HINT_Y)
 /* Wide enough for the DIRECTV style "100 RTRO" call sign at the UI font. */
 #define LIVETV_CHANCOL_W    68
 #define LIVETV_GRID_COLS    3
-#define LIVETV_COL_W        ((LCD_WIDTH - LIVETV_CHANCOL_W) / LIVETV_GRID_COLS)
+#define LIVETV_COL_W        \
+    ((LIVETV_GUIDE_W - LIVETV_CHANCOL_W) / LIVETV_GRID_COLS)
 #define LIVETV_STRIP_CELL_W 78
 
 #define LIVETV_LOGO_W       40
@@ -77,6 +84,7 @@
 #define LIVETV_LOGO_CACHE   8
 #define LIVETV_BRAND_W      64
 #define LIVETV_BRAND_H      22
+#define LIVETV_SLOT_TITLE_FALLBACK 96
 
 #define LIVETV_BANNER_SECS  (5 * HZ)
 
@@ -140,6 +148,10 @@ static struct bitmap livetv_brand;
 static fb_data livetv_brand_data[LIVETV_BRAND_W * LIVETV_BRAND_H];
 static bool livetv_brand_valid;
 static bool livetv_brand_tried;
+static struct bitmap livetv_dm_title;
+static fb_data livetv_dm_title_data[LIVETV_DM_WIN_W * LIVETV_DM_TITLE_H];
+static bool livetv_dm_title_valid;
+static bool livetv_dm_title_tried;
 
 static const char * const livetv_wday[7] = {
     "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"
@@ -479,6 +491,8 @@ bool livetv_load(const char *root)
     rb->memset(livetv_logos, 0, sizeof(livetv_logos));
     livetv_brand_valid = false;
     livetv_brand_tried = false;
+    livetv_dm_title_valid = false;
+    livetv_dm_title_tried = false;
 
     if (root == NULL || root[0] == '\0')
         root = LIVETV_DEFAULT_ROOT;
@@ -529,11 +543,85 @@ void livetv_set_current_channel(int index)
         livetv_channel_cur = index;
 }
 
+bool livetv_step_channel(int delta)
+{
+    int probe;
+    int step;
+    int tried;
+
+    if (livetv_channel_num <= 1 || delta == 0)
+        return false;
+
+    step = delta > 0 ? 1 : -1;
+    probe = livetv_channel_cur;
+
+    /* Walk the lineup at most once around, so a run of channels with
+     * nothing on the air cannot spin here forever. */
+    for (tried = 0; tried < livetv_channel_num; tried++)
+    {
+        probe += step;
+        if (probe < 0)
+            probe = livetv_channel_num - 1;
+        else if (probe >= livetv_channel_num)
+            probe = 0;
+
+        if (probe == livetv_channel_cur)
+            break;
+        if (livetv_slot_at(probe, 0, NULL) == NULL)
+            continue;
+
+        livetv_channel_cur = probe;
+        return true;
+    }
+
+    return false;
+}
+
 const char *livetv_slot_title(const struct livetv_slot *slot)
 {
     if (slot == NULL)
         return "";
     return &livetv_text_pool[slot->title_off];
+}
+
+static const char *livetv_slot_display_title(const struct livetv_slot *slot)
+{
+    static char fallback[LIVETV_SLOT_TITLE_FALLBACK];
+    const char *title = slot != NULL ? &livetv_text_pool[slot->title_off] : "";
+    const char *path;
+    char *base;
+    char *dot;
+
+    if (title[0] != '\0')
+        return title;
+    if (slot == NULL || slot->path_off == 0)
+        return "Program";
+
+    path = &livetv_path_pool[slot->path_off];
+    if (path[0] == '\0')
+        return "Program";
+
+    rb->strlcpy(fallback, path, sizeof(fallback));
+    if (fallback[0] == '\0')
+        return "Program";
+
+    base = rb->strrchr(fallback, '/');
+    if (base == NULL)
+        base = rb->strrchr(fallback, '\\');
+    if (base != NULL)
+        base++;
+    else
+        base = fallback;
+
+    rb->strlcpy(fallback, base, sizeof(fallback));
+    if (fallback[0] == '\0')
+        return "Program";
+
+    dot = rb->strrchr(fallback, '.');
+    if (dot != NULL && dot > fallback)
+        *dot = '\0';
+
+    return fallback[0] == '\0' ? "Program" : fallback;
 }
 
 const char *livetv_slot_rating(const struct livetv_slot *slot)
@@ -768,6 +856,9 @@ static void livetv_fill(int x, int y, int w, int h, unsigned color)
 /* Commit a region, again skipping the video window. */
 static void livetv_update(int x, int y, int w, int h)
 {
+    int origin_x = mpegplayer_livetv_desktop ? LIVETV_DM_WIN_X : 0;
+    int origin_y = mpegplayer_livetv_desktop ?
+                   LIVETV_DM_WIN_Y + LIVETV_DM_TITLE_H : 0;
     int y2 = y + h;
     int py = LIVETV_PIG_BOX_Y;
     int py2 = py + LIVETV_PIG_BOX_H;
@@ -777,17 +868,19 @@ static void livetv_update(int x, int y, int w, int h)
 
     if (!livetv_pig_active() || y2 <= py || y >= py2)
     {
-        rb->lcd_update_rect(x, y, w, h);
+        rb->lcd_update_rect(origin_x + x, origin_y + y, w, h);
         return;
     }
 
     if (y < py)
-        rb->lcd_update_rect(x, y, w, py - y);
+        rb->lcd_update_rect(origin_x + x, origin_y + y, w, py - y);
     if (y2 > py2)
-        rb->lcd_update_rect(x, py2, w, y2 - py2);
+        rb->lcd_update_rect(origin_x + x, origin_y + py2, w, y2 - py2);
     if (x < LIVETV_PIG_BOX_X)
-        rb->lcd_update_rect(x, MAX(y, py), MIN(x + w, LIVETV_PIG_BOX_X) - x,
-                            MIN(y2, py2) - MAX(y, py));
+        rb->lcd_update_rect(
+            origin_x + x, origin_y + MAX(y, py),
+            MIN(x + w, LIVETV_PIG_BOX_X) - x,
+            MIN(y2, py2) - MAX(y, py));
 }
 
 static void livetv_gradient(int y, int h, unsigned top, unsigned bottom)
@@ -802,7 +895,7 @@ static void livetv_gradient(int y, int h, unsigned top, unsigned bottom)
         unsigned color = LCD_RGBPACK(r1 + (r2 - r1) * i / h,
                                      g1 + (g2 - g1) * i / h,
                                      b1 + (b2 - b1) * i / h);
-        livetv_fill(0, y + i, LCD_WIDTH, 1, color);
+        livetv_fill(0, y + i, LIVETV_GUIDE_W, 1, color);
     }
 }
 
@@ -1157,7 +1250,8 @@ static void livetv_draw_banner_area(void)
     char range[40];
     uint32_t offset = 0;
     int text_h = livetv_font_height();
-    int desc_right = livetv_pig_active() ? LIVETV_PIG_BOX_X - 4 : LCD_WIDTH - 4;
+    int desc_right = livetv_pig_active() ? LIVETV_PIG_BOX_X - 4 :
+                                           LIVETV_GUIDE_W - 4;
 
     slot = livetv_slot_at(chan, guide.cursor, &offset);
 
@@ -1192,10 +1286,10 @@ static void livetv_draw_banner_area(void)
     /* Programme title, in DIRECTV blue on the pale banner */
     livetv_text_fit(72, (LIVETV_BANNER_H - text_h) / 2, desc_right - 76,
                     LIVETV_BRAND_BLUE, LIVETV_BANNER_BOT,
-                    slot != NULL ? livetv_slot_title(slot) : "No Programming");
+                    slot != NULL ? livetv_slot_display_title(slot) : "No Programming");
 
     /* Information strip: clock cell, air window, rating */
-    livetv_fill(0, LIVETV_STRIP_Y, LCD_WIDTH, LIVETV_STRIP_H,
+    livetv_fill(0, LIVETV_STRIP_Y, LIVETV_GUIDE_W, LIVETV_STRIP_H,
                 LIVETV_STRIP_BG);
     livetv_fill(0, LIVETV_STRIP_Y, LIVETV_STRIP_CELL_W, LIVETV_STRIP_H,
                 LIVETV_STRIP_CELL);
@@ -1241,7 +1335,8 @@ static void livetv_draw_banner_area(void)
     }
 
     /* Description block */
-    livetv_fill(0, LIVETV_DESC_Y, LCD_WIDTH, LIVETV_DESC_H, LIVETV_DESC_BG);
+    livetv_fill(0, LIVETV_DESC_Y, LIVETV_GUIDE_W, LIVETV_DESC_H,
+                LIVETV_DESC_BG);
 
     if (slot != NULL)
     {
@@ -1314,7 +1409,8 @@ static void livetv_draw_time_header(void)
     int y = LIVETV_HDR_Y + (LIVETV_HDR_H - text_h) / 2;
     char buf[24];
 
-    livetv_fill(0, LIVETV_HDR_Y, LCD_WIDTH, LIVETV_HDR_H, LIVETV_HDR_BG);
+    livetv_fill(0, LIVETV_HDR_Y, LIVETV_GUIDE_W, LIVETV_HDR_H,
+                LIVETV_HDR_BG);
 
     livetv_format_date(buf, sizeof(buf), base);
     livetv_text_fit(3, y, LIVETV_CHANCOL_W - 6, LIVETV_TEXT, LIVETV_HDR_BG,
@@ -1347,9 +1443,10 @@ static void livetv_draw_grid_row(int row, bool selected_row)
     long probe;
     char buf[96];
 
-    livetv_fill(0, y, LCD_WIDTH, LIVETV_ROW_H, LIVETV_ROW_BG);
+    livetv_fill(0, y, LIVETV_GUIDE_W, LIVETV_ROW_H, LIVETV_ROW_BG);
     livetv_fill(0, y, LIVETV_CHANCOL_W, LIVETV_ROW_H, LIVETV_CHAN_BG);
-    livetv_fill(0, y + LIVETV_ROW_H - 1, LCD_WIDTH, 1, LIVETV_GRID_LINE);
+    livetv_fill(0, y + LIVETV_ROW_H - 1, LIVETV_GUIDE_W, 1,
+                LIVETV_GRID_LINE);
 
     if (view_index >= livetv_view_num)
         return;
@@ -1419,8 +1516,8 @@ static void livetv_draw_grid_row(int row, bool selected_row)
                                      LIVETV_COL_W / LIVETV_SLOT_SECONDS);
         x2 = livetv_col_x(0) + (int)((MIN(slot_end, window_end) - base) *
                                      LIVETV_COL_W / LIVETV_SLOT_SECONDS);
-        if (x2 > LCD_WIDTH)
-            x2 = LCD_WIDTH;
+        if (x2 > LIVETV_GUIDE_W)
+            x2 = LIVETV_GUIDE_W;
         if (x2 <= x1)
             x2 = x1 + 2;
 
@@ -1449,11 +1546,11 @@ static void livetv_draw_grid_row(int row, bool selected_row)
 
         if (avail > 8)
             livetv_text_fit(tx, text_y, avail, fg, bg,
-                            livetv_slot_title(slot));
+                            livetv_slot_display_title(slot));
 
         if (ends_after)
         {
-            livetv_text_at(LCD_WIDTH - 7, text_y,
+            livetv_text_at(LIVETV_GUIDE_W - 7, text_y,
                            selected ? LIVETV_SEL_TEXT : LIVETV_DIM_TEXT,
                            bg, ">");
         }
@@ -1468,7 +1565,8 @@ static void livetv_draw_hint_bar(void)
     int y = LIVETV_HINT_Y + (LIVETV_HINT_H - text_h) / 2;
     int dot_y = LIVETV_HINT_Y + LIVETV_HINT_H / 2 - 3;
 
-    livetv_fill(0, LIVETV_HINT_Y, LCD_WIDTH, LIVETV_HINT_H, LIVETV_HINT_BG);
+    livetv_fill(0, LIVETV_HINT_Y, LIVETV_GUIDE_W, LIVETV_HINT_H,
+                LIVETV_HINT_BG);
     livetv_text_fit(4, y, 90, LIVETV_TEXT, LIVETV_HINT_BG,
                     livetv_guide_filter_name());
 
@@ -1482,7 +1580,8 @@ static void livetv_draw_hint_bar(void)
 
     rb->lcd_set_foreground(LIVETV_DOT_YELLOW);
     rb->lcd_fillrect(206, dot_y, 6, 6);
-    livetv_text_fit(215, y, LCD_WIDTH - 219, LIVETV_TEXT, LIVETV_HINT_BG,
+    livetv_text_fit(215, y, LIVETV_GUIDE_W - 219, LIVETV_TEXT,
+                    LIVETV_HINT_BG,
                     "Guide Options");
 }
 
@@ -1497,7 +1596,7 @@ void livetv_guide_draw(void)
         livetv_draw_grid_row(row, guide.row_top + row == guide.row_sel);
     livetv_draw_hint_bar();
 
-    livetv_update(0, 0, LCD_WIDTH, LCD_HEIGHT);
+    livetv_update(0, 0, LIVETV_GUIDE_W, LIVETV_GUIDE_H);
     guide.full_redraw = false;
     guide.prev_row_sel = guide.row_sel;
 }
@@ -1533,7 +1632,7 @@ void livetv_options_draw(int selected)
     int row_h = text_h + 6;
     int w = 190;
     int h = row_h * (LIVETV_OPTION_COUNT + 1) + 4;
-    int x = (LCD_WIDTH - w) / 2;
+    int x = (LIVETV_GUIDE_W - w) / 2;
     int y = LIVETV_HDR_Y + 6;
 
     rb->lcd_set_drawmode(DRMODE_SOLID);
@@ -1634,7 +1733,7 @@ void livetv_draw_info_banner(int chan)
 
     livetv_text_fit(4, y + 4 + text_h, LCD_WIDTH - 8, LIVETV_TEXT,
                     LIVETV_DESC_BG,
-                    slot != NULL ? livetv_slot_title(slot) : "No Programming");
+                    slot != NULL ? livetv_slot_display_title(slot) : "No Programming");
 
     if (slot != NULL)
     {
@@ -1698,13 +1797,158 @@ void livetv_draw_mini_guide(int chan)
                      LIVETV_MINI_H - text_h - 7);
     livetv_text_fit(73, y + text_h + 6, half - 8, LIVETV_SEL_TEXT,
                     LIVETV_SEL_BG,
-                    now_slot != NULL ? livetv_slot_title(now_slot) : "--");
+                    now_slot != NULL ? livetv_slot_display_title(now_slot) : "--");
 
     livetv_text_fit(72 + half, y + text_h + 6, half - 8, LIVETV_TEXT,
                     LIVETV_ROW_BG,
-                    next_slot != NULL ? livetv_slot_title(next_slot) : "--");
+                    next_slot != NULL ? livetv_slot_display_title(next_slot) : "--");
 
     rb->lcd_update_rect(0, y, LCD_WIDTH, LIVETV_MINI_H);
+}
+
+bool livetv_desktop_prepare(void)
+{
+    if (livetv_dm_title_tried)
+        return livetv_dm_title_valid;
+
+    livetv_dm_title_tried = true;
+    livetv_dm_title.data = (char *)livetv_dm_title_data;
+    if (rb->read_bmp_file(LIVETV_DM_TITLE_PATH, &livetv_dm_title,
+                          sizeof(livetv_dm_title_data), FORMAT_NATIVE,
+                          NULL) > 0)
+        livetv_dm_title_valid = true;
+    /* The sidebar uses the guide's existing brand bitmap. Prime it here too,
+     * so every playback-time repaint is cached pixels and schedule state. */
+    livetv_brand_logo();
+    return livetv_dm_title_valid;
+}
+
+void livetv_desktop_draw_window(void)
+{
+    const struct livetv_channel *ch =
+        livetv_channel(livetv_current_channel());
+#if LCD_WIDTH < 1920
+    const struct livetv_slot *now_slot;
+    const struct livetv_slot *next_slot;
+    struct bitmap *brand;
+#endif
+    unsigned oldfg = rb->lcd_get_foreground();
+    unsigned oldbg = rb->lcd_get_background();
+    int body_y = LIVETV_DM_WIN_Y + LIVETV_DM_TITLE_H;
+    int body_bottom = LIVETV_DM_WIN_Y + LIVETV_DM_WIN_H;
+    int video_right = LIVETV_DM_VIDEO_BOX_X + LIVETV_DM_VIDEO_BOX_W;
+    int video_bottom = LIVETV_DM_VIDEO_BOX_Y + LIVETV_DM_VIDEO_BOX_H;
+    int text_h;
+    int width;
+#if LCD_WIDTH < 1920
+    int y;
+    char buf[96];
+#endif
+
+    if (ch == NULL)
+        return;
+
+    rb->lcd_set_drawmode(DRMODE_SOLID);
+    rb->lcd_setfont(FONT_UI);
+    text_h = livetv_font_height();
+
+    if (livetv_dm_title_valid)
+        rb->lcd_bitmap((const fb_data *)livetv_dm_title.data,
+                       LIVETV_DM_WIN_X, LIVETV_DM_WIN_Y,
+                       livetv_dm_title.width, livetv_dm_title.height);
+    else
+    {
+        rb->lcd_set_foreground(LIVETV_BANNER_BOT);
+        rb->lcd_fillrect(LIVETV_DM_WIN_X, LIVETV_DM_WIN_Y,
+                         LIVETV_DM_WIN_W, LIVETV_DM_TITLE_H);
+    }
+
+    rb->lcd_getstringsize("DIRECTV", &width, NULL);
+    rb->lcd_set_foreground(LCD_RGBPACK(60, 60, 60));
+    rb->lcd_set_drawmode(DRMODE_FG);
+    rb->lcd_putsxy(
+        LIVETV_DM_WIN_X + (LIVETV_DM_WIN_W - width) / 2,
+        LIVETV_DM_WIN_Y + (LIVETV_DM_TITLE_H - text_h) / 2, "DIRECTV");
+    rb->lcd_set_drawmode(DRMODE_SOLID);
+
+    /* Repaint only around the decoder-owned rectangle. The desktop behind
+     * this window is the framebuffer Desktop Mode committed before handoff. */
+    rb->lcd_set_foreground(LIVETV_HDR_BG);
+    if (LIVETV_DM_VIDEO_BOX_Y > body_y)
+        rb->lcd_fillrect(LIVETV_DM_WIN_X, body_y, LIVETV_DM_WIN_W,
+                         LIVETV_DM_VIDEO_BOX_Y - body_y);
+    rb->lcd_fillrect(LIVETV_DM_WIN_X, LIVETV_DM_VIDEO_BOX_Y,
+                     LIVETV_DM_VIDEO_BOX_X - LIVETV_DM_WIN_X,
+                     LIVETV_DM_VIDEO_BOX_H);
+    rb->lcd_fillrect(video_right, LIVETV_DM_VIDEO_BOX_Y,
+                     LIVETV_DM_WIN_X + LIVETV_DM_WIN_W - video_right,
+                     LIVETV_DM_VIDEO_BOX_H);
+    if (video_bottom < body_bottom)
+        rb->lcd_fillrect(LIVETV_DM_WIN_X, video_bottom, LIVETV_DM_WIN_W,
+                         body_bottom - video_bottom);
+
+    rb->lcd_set_foreground(LCD_WHITE);
+    rb->lcd_drawrect(LIVETV_DM_VIDEO_BOX_X, LIVETV_DM_VIDEO_BOX_Y,
+                     LIVETV_DM_VIDEO_BOX_W, LIVETV_DM_VIDEO_BOX_H);
+
+#if LCD_WIDTH < 1920
+    now_slot = livetv_slot_at(livetv_current_channel(), 0, NULL);
+    next_slot = livetv_slot_next(livetv_current_channel(), 0);
+    brand = livetv_brand_logo();
+    y = body_y + 8;
+    if (brand != NULL && brand->width <= LIVETV_DM_SIDEBAR_W - 4)
+    {
+        rb->lcd_bitmap(
+            (const fb_data *)brand->data,
+            LIVETV_DM_SIDEBAR_X +
+                (LIVETV_DM_SIDEBAR_W - brand->width) / 2,
+            y, brand->width, brand->height);
+        y += brand->height + 5;
+    }
+
+    rb->snprintf(buf, sizeof(buf), "%d  %s", ch->number, ch->callsign);
+    livetv_text_fit(LIVETV_DM_SIDEBAR_X + 3, y,
+                    LIVETV_DM_SIDEBAR_W - 6, LIVETV_SEL_BG,
+                    LIVETV_HDR_BG, buf);
+    y += text_h + 5;
+    livetv_text_at(LIVETV_DM_SIDEBAR_X + 3, y, LIVETV_DIM_TEXT,
+                   LIVETV_HDR_BG, "NOW");
+    y += text_h + 1;
+    livetv_text_fit(
+        LIVETV_DM_SIDEBAR_X + 3, y, LIVETV_DM_SIDEBAR_W - 6,
+        LIVETV_TEXT, LIVETV_HDR_BG,
+        now_slot != NULL ? livetv_slot_display_title(now_slot) :
+                           "No programming");
+    y += text_h + 6;
+    if (y + text_h * 2 < body_bottom)
+    {
+        livetv_text_at(LIVETV_DM_SIDEBAR_X + 3, y, LIVETV_DIM_TEXT,
+                       LIVETV_HDR_BG, "NEXT");
+        y += text_h + 1;
+        livetv_text_fit(
+            LIVETV_DM_SIDEBAR_X + 3, y, LIVETV_DM_SIDEBAR_W - 6,
+            LIVETV_TEXT, LIVETV_HDR_BG,
+            next_slot != NULL ? livetv_slot_display_title(next_slot) : "--");
+    }
+#endif
+
+    rb->lcd_update_rect(LIVETV_DM_WIN_X, LIVETV_DM_WIN_Y,
+                        LIVETV_DM_WIN_W, LIVETV_DM_TITLE_H);
+    if (LIVETV_DM_VIDEO_BOX_Y > body_y)
+        rb->lcd_update_rect(LIVETV_DM_WIN_X, body_y, LIVETV_DM_WIN_W,
+                            LIVETV_DM_VIDEO_BOX_Y - body_y);
+    rb->lcd_update_rect(LIVETV_DM_WIN_X, LIVETV_DM_VIDEO_BOX_Y,
+                        LIVETV_DM_VIDEO_BOX_X - LIVETV_DM_WIN_X,
+                        LIVETV_DM_VIDEO_BOX_H);
+    rb->lcd_update_rect(video_right, LIVETV_DM_VIDEO_BOX_Y,
+                        LIVETV_DM_WIN_X + LIVETV_DM_WIN_W - video_right,
+                        LIVETV_DM_VIDEO_BOX_H);
+    if (video_bottom < body_bottom)
+        rb->lcd_update_rect(LIVETV_DM_WIN_X, video_bottom,
+                            LIVETV_DM_WIN_W, body_bottom - video_bottom);
+
+    rb->lcd_set_foreground(oldfg);
+    rb->lcd_set_background(oldbg);
 }
 
 void livetv_clear_overlay(void)
@@ -1903,6 +2147,921 @@ int livetv_guide_run(void)
     }
 
     return result;
+}
+
+/* Weather channel ----------------------------------------------------
+ *
+ * Not a new slot kind: the Weather channel is an ordinary channel whose
+ * shows are real MPEG files (a timed panel/presenter/video carrier carrying
+ * the user's own looped music), so livetv_tune()/stream_open()/the audio
+ * lifecycle above are all reused unmodified.
+ *
+ * Panel phases suppress decoded framebuffer blits while these native panels
+ * use the whole screen; presenter and report phases expose the carrier
+ * full-screen. The guide's picture-in-guide remains untouched.
+ * See docs/livetv-weather-channel-spec.md.
+ */
+
+#define LIVETV_WX_FORECAST_PATH ROCKBOX_DIR "/rockpod/weather/forecast.tsv"
+
+#define LIVETV_WX_MAX_DAYS      7
+/* Today and tomorrow, matching the "only today and tomorrow" discipline
+ * the guide's own schedule already follows. */
+#define LIVETV_WX_MAX_HOURS     48
+
+#define LIVETV_WX_PANEL_COUNT   4
+#define LIVETV_WX_CLOCK_SECS    64
+#define LIVETV_WX_PHASE_SECS    8
+
+/* No video box to dodge while watching (see above), so panels use the
+ * full screen width. */
+#define LIVETV_WX_CONTENT_W     LCD_WIDTH
+#define LIVETV_WX_HDR_H         22
+#define LIVETV_WX_TICKER_H      16
+#define LIVETV_WX_BODY_Y        LIVETV_WX_HDR_H
+#define LIVETV_WX_BODY_H        (LCD_HEIGHT - LIVETV_WX_HDR_H - \
+                                 LIVETV_WX_TICKER_H)
+#define LIVETV_WX_TICKER_Y      (LCD_HEIGHT - LIVETV_WX_TICKER_H)
+#define LIVETV_WX_SCENE_Y       LIVETV_WX_BODY_Y
+#define LIVETV_WX_SCENE_H       70
+#define LIVETV_WX_CARD_Y        (LIVETV_WX_SCENE_Y + LIVETV_WX_SCENE_H)
+#define LIVETV_WX_CARD_H        (LIVETV_WX_TICKER_Y - LIVETV_WX_CARD_Y)
+#define LIVETV_WX_ANIM_RATE     MAX(1, HZ / 5)
+
+/* Deliberately narrow: only what the four panels below print, not a copy
+ * of weather.c's much larger state (see docs/livetv-weather-channel-spec.md
+ * section 5.2 on the BSS budget this keeps clear of). */
+struct livetv_wx_day
+{
+    char date[11];
+    char code[16];
+    char text[24];
+    char temp_min[6];
+    char temp_max[6];
+    char precip[5];
+    char wind_speed[6];
+    char wind_dir[4];
+    char sunrise[6];
+    char sunset[6];
+};
+
+struct livetv_wx_hour
+{
+    char stamp[17];
+    char code[16];
+    char text[24];
+    char temp[6];
+    char precip[5];
+    char is_day[2];
+};
+
+struct livetv_wx_state
+{
+    char location[40];
+    char generated[24];
+    char units[12];
+    struct livetv_wx_day days[LIVETV_WX_MAX_DAYS];
+    struct livetv_wx_hour hours[LIVETV_WX_MAX_HOURS];
+    int day_count;
+    int hour_count;
+    bool loaded;
+};
+
+static struct livetv_wx_state wx;
+static int wx_panel;
+static long wx_anim_epoch;
+static long wx_anim_next_tick;
+static uint32_t wx_clock_base;
+static long wx_clock_epoch;
+
+enum livetv_wx_scene
+{
+    LIVETV_WX_SCENE_CLEAR,
+    LIVETV_WX_SCENE_PARTLY,
+    LIVETV_WX_SCENE_CLOUDY,
+    LIVETV_WX_SCENE_RAIN,
+    LIVETV_WX_SCENE_THUNDER,
+    LIVETV_WX_SCENE_SNOW,
+    LIVETV_WX_SCENE_FOG
+};
+
+static char *wx_field(char **cursor)
+{
+    char *start = *cursor;
+    char *tab;
+
+    if (!start)
+        return "";
+
+    tab = rb->strchr(start, '\t');
+    if (tab)
+    {
+        *tab = '\0';
+        *cursor = tab + 1;
+    }
+    else
+        *cursor = NULL;
+
+    return start;
+}
+
+static void wx_copy(char *dst, size_t size, char **cursor)
+{
+    rb->strlcpy(dst, wx_field(cursor), size);
+}
+
+/* Read forecast.tsv - the same file the standalone weather.rock reads - and
+ * keep only what the panels below need. Called once when tuning into the
+ * channel, not per frame or per panel. */
+static bool livetv_wx_load(void)
+{
+    int fd;
+    char line[400];
+    char *cursor;
+
+    rb->memset(&wx, 0, sizeof(wx));
+    rb->strcpy(wx.units, "metric");
+
+    fd = rb->open(LIVETV_WX_FORECAST_PATH, O_RDONLY);
+    if (fd < 0)
+        return false;
+
+    if (rb->read_line(fd, line, sizeof(line)) <= 0)
+    {
+        rb->close(fd);
+        return false;
+    }
+    cursor = line;
+    if (rb->strcmp(wx_field(&cursor), "rockpod_weather_v1"))
+    {
+        rb->close(fd);
+        return false;
+    }
+    wx_copy(wx.location, sizeof(wx.location), &cursor);
+    wx_field(&cursor); /* latitude */
+    wx_field(&cursor); /* longitude */
+    wx_field(&cursor); /* timezone */
+    wx_copy(wx.generated, sizeof(wx.generated), &cursor);
+    wx_field(&cursor); /* valid_from_local */
+    wx_copy(wx.units, sizeof(wx.units), &cursor);
+
+    while (rb->read_line(fd, line, sizeof(line)) > 0)
+    {
+        char first[16];
+
+        if (!line[0])
+            continue;
+        cursor = line;
+        rb->strlcpy(first, wx_field(&cursor), sizeof(first));
+
+        if (!rb->strcmp(first, "hourly"))
+        {
+            struct livetv_wx_hour *hour;
+
+            if (wx.hour_count >= LIVETV_WX_MAX_HOURS)
+                continue;
+            hour = &wx.hours[wx.hour_count];
+            wx_copy(hour->stamp, sizeof(hour->stamp), &cursor);
+            wx_copy(hour->code, sizeof(hour->code), &cursor);
+            wx_copy(hour->text, sizeof(hour->text), &cursor);
+            wx_copy(hour->temp, sizeof(hour->temp), &cursor);
+            wx_copy(hour->precip, sizeof(hour->precip), &cursor);
+            wx_field(&cursor); /* wind_speed */
+            wx_field(&cursor); /* wind_direction */
+            wx_copy(hour->is_day, sizeof(hour->is_day), &cursor);
+            wx.hour_count++;
+            continue;
+        }
+
+        if (wx.day_count >= LIVETV_WX_MAX_DAYS)
+            continue;
+
+        struct livetv_wx_day *day = &wx.days[wx.day_count];
+        rb->strlcpy(day->date, first, sizeof(day->date));
+        wx_copy(day->code, sizeof(day->code), &cursor);
+        wx_copy(day->text, sizeof(day->text), &cursor);
+        wx_copy(day->temp_min, sizeof(day->temp_min), &cursor);
+        wx_copy(day->temp_max, sizeof(day->temp_max), &cursor);
+        wx_copy(day->precip, sizeof(day->precip), &cursor);
+        wx_copy(day->wind_speed, sizeof(day->wind_speed), &cursor);
+        wx_copy(day->wind_dir, sizeof(day->wind_dir), &cursor);
+        wx_copy(day->sunrise, sizeof(day->sunrise), &cursor);
+        wx_copy(day->sunset, sizeof(day->sunset), &cursor);
+        wx.day_count++;
+    }
+
+    rb->close(fd);
+    wx.loaded = wx.day_count > 0;
+    return wx.loaded;
+}
+
+/* Ported from weather.c's weather_status(): never claim a stale or expired
+ * forecast is current (docs/rockpod-weather-app-spec.md's "never hide
+ * stale data" release blocker applies here exactly as it does there). */
+static const char *livetv_wx_status(void)
+{
+    struct tm *tm = rb->get_time();
+
+    if (!tm || !wx.generated[0] || wx.day_count == 0)
+        return "Synced forecast";
+
+    const char *last = wx.days[wx.day_count - 1].date;
+    if (rb->strlen(last) >= 10)
+    {
+        int today = (tm->tm_year + 1900) * 10000 +
+                    (tm->tm_mon + 1) * 100 + tm->tm_mday;
+        int last_val = rb->atoi(last) * 10000 +
+                       rb->atoi(last + 5) * 100 + rb->atoi(last + 8);
+
+        if (last_val < today)
+            return "Expired forecast";
+    }
+
+    return "Updated by RockPod";
+}
+
+static const char *wx_unit_suffix(void)
+{
+    return !rb->strcmp(wx.units, "imperial") ? "F" : "C";
+}
+
+/* The same dimensional CGI icon set the standalone weather.rock plugin uses
+ * (tools/generate_weather_icons.py, committed under
+ * rockpod/assets/weather/icons/ from one consistent broadcast atlas),
+ * read from the same device path weather.c already reads
+ * (WEATHER_ICON_DIR in weather.c); ensure_weather_channel() on the PC side
+ * deploys them there. Loading one bitmap on demand, single-slot cache, is
+ * the same pattern livetv_channel_logo() above already uses for channel
+ * logos. */
+#define LIVETV_WX_ICON_DIR ROCKBOX_DIR "/rockpod/weather/icons"
+#define LIVETV_WX_ICON_SIZE_SMALL 40
+#define LIVETV_WX_ICON_SIZE_LARGE 64
+
+static struct bitmap wx_icon_bmp;
+static fb_data wx_icon_data[LIVETV_WX_ICON_SIZE_LARGE * LIVETV_WX_ICON_SIZE_LARGE];
+static char wx_icon_loaded_path[MAX_PATH];
+static bool wx_icon_loaded;
+
+static const char *wx_icon_name(const char *code, bool night)
+{
+    if (rb->strstr(code, "clear"))
+        return night ? "clear_night" : "clear_day";
+    if (rb->strstr(code, "partly_cloudy"))
+        return "partly_cloudy";
+    if (rb->strstr(code, "cloudy"))
+        return "cloudy";
+    if (rb->strstr(code, "drizzle"))
+        return "drizzle";
+    if (rb->strstr(code, "rain"))
+        return "rain";
+    if (rb->strstr(code, "snow"))
+        return "snow";
+    if (rb->strstr(code, "fog"))
+        return "fog";
+    if (rb->strstr(code, "thunder"))
+        return "thunderstorm";
+    return "unknown";
+}
+
+/* Ported from weather.c's weather_clean_icon_transparency(): the generator
+ * pads icons with magenta as a colour key, which this turns into
+ * TRANSPARENT_COLOR so the panel background shows through around the
+ * shape instead of a magenta box. */
+static void wx_icon_clean_transparency(struct bitmap *bm)
+{
+    fb_data *pixels;
+    int count;
+    int i;
+
+    if (!bm || !bm->data)
+        return;
+
+    pixels = (fb_data *)bm->data;
+    count = bm->width * bm->height;
+    for (i = 0; i < count; i++)
+    {
+        unsigned px = pixels[i];
+        int r = RGB_UNPACK_RED(px);
+        int g = RGB_UNPACK_GREEN(px);
+        int b = RGB_UNPACK_BLUE(px);
+
+        if (r >= 150 && b >= 170 && g + 28 < r && g + 28 < b)
+            pixels[i] = TRANSPARENT_COLOR;
+    }
+}
+
+static struct bitmap *wx_load_icon(const char *code, bool night, int size)
+{
+    char path[MAX_PATH];
+    int px = size >= 56 ? LIVETV_WX_ICON_SIZE_LARGE : LIVETV_WX_ICON_SIZE_SMALL;
+
+    rb->snprintf(path, sizeof(path), "%s/%s.%dx%dx24.bmp",
+                LIVETV_WX_ICON_DIR, wx_icon_name(code, night), px, px);
+
+    if (wx_icon_loaded && !rb->strcmp(wx_icon_loaded_path, path))
+        return &wx_icon_bmp;
+
+    wx_icon_loaded = false;
+    wx_icon_loaded_path[0] = '\0';
+    if (!rb->file_exists(path))
+        return NULL;
+
+    rb->memset(&wx_icon_bmp, 0, sizeof(wx_icon_bmp));
+    wx_icon_bmp.width = px;
+    wx_icon_bmp.height = px;
+    wx_icon_bmp.format = FORMAT_NATIVE;
+    wx_icon_bmp.data = (char *)wx_icon_data;
+    if (rb->read_bmp_file(path, &wx_icon_bmp, sizeof(wx_icon_data),
+                          FORMAT_NATIVE | FORMAT_TRANSPARENT | FORMAT_DITHER,
+                          NULL) <= 0)
+        return NULL;
+
+    wx_icon_clean_transparency(&wx_icon_bmp);
+    rb->strlcpy(wx_icon_loaded_path, path, sizeof(wx_icon_loaded_path));
+    wx_icon_loaded = true;
+    return &wx_icon_bmp;
+}
+
+/* Falls back to a plain soft circle - never the icon bitmap's shape - only
+ * when the icon pack has not reached the device yet, so a fresh install
+ * still shows something better than a blank hole rather than nothing. */
+static void wx_icon(int cx, int cy, int r, const char *code, bool night)
+{
+    struct bitmap *icon = wx_load_icon(code, night, r);
+
+    if (icon != NULL)
+    {
+        /* Not lcd_bitmap(): it draws every pixel opaque, including the
+         * magenta colour key wx_icon_clean_transparency() just converted
+         * to TRANSPARENT_COLOR, and would paint a solid magenta square. */
+        rb->lcd_bitmap_transparent((const fb_data *)icon->data,
+                                   cx - icon->width / 2,
+                                   cy - icon->height / 2,
+                                   icon->width, icon->height);
+        return;
+    }
+
+    livetv_fill(cx - r / 2, cy - r / 2, r, r,
+               night ? LCD_RGBPACK(237, 240, 210) : LCD_RGBPACK(235, 239, 244));
+}
+
+static void livetv_wx_header(void)
+{
+    int text_h = livetv_font_height();
+
+    livetv_fill(0, 0, LIVETV_WX_CONTENT_W, LIVETV_WX_HDR_H, LIVETV_HDR_BG);
+    livetv_text_at(4, (LIVETV_WX_HDR_H - text_h) / 2, LIVETV_TEXT,
+                  LIVETV_HDR_BG, wx.location[0] ? wx.location : "Weather");
+    livetv_update(0, 0, LIVETV_WX_CONTENT_W, LIVETV_WX_HDR_H);
+}
+
+static void livetv_wx_ticker(void)
+{
+    char buf[80];
+    int text_h = livetv_font_height();
+
+    /* Below the video box entirely (LIVETV_WX_TICKER_Y > box bottom), so
+     * this is safe to draw full width. */
+    livetv_fill(0, LIVETV_WX_TICKER_Y, LCD_WIDTH, LIVETV_WX_TICKER_H,
+               LIVETV_HINT_BG);
+    rb->snprintf(buf, sizeof(buf), "%s - %s",
+                wx.location[0] ? wx.location : "Weather", livetv_wx_status());
+    livetv_text_at(4, LIVETV_WX_TICKER_Y + (LIVETV_WX_TICKER_H - text_h) / 2,
+                  LIVETV_TEXT, LIVETV_HINT_BG, buf);
+    livetv_update(0, LIVETV_WX_TICKER_Y, LCD_WIDTH, LIVETV_WX_TICKER_H);
+}
+
+static const struct livetv_wx_hour *wx_hour_near(int target_hour)
+{
+    const struct livetv_wx_hour *best = NULL;
+    int best_diff = 999;
+    int i;
+
+    if (wx.day_count == 0)
+        return NULL;
+
+    for (i = 0; i < wx.hour_count; i++)
+    {
+        const char *stamp = wx.hours[i].stamp;
+        int hour;
+        int diff;
+
+        if (rb->strlen(stamp) < 13 ||
+            rb->strncmp(stamp, wx.days[0].date, 10))
+            continue;
+
+        hour = rb->atoi(stamp + 11);
+        diff = hour - target_hour;
+        if (diff < 0)
+            diff = -diff;
+        if (diff < best_diff)
+        {
+            best_diff = diff;
+            best = &wx.hours[i];
+        }
+    }
+
+    return best;
+}
+
+static const struct livetv_wx_hour *wx_current_hour(void)
+{
+    return wx_hour_near((int)(livetv_now_secs() / 3600));
+}
+
+static const char *wx_current_code(void)
+{
+    const struct livetv_wx_hour *hour = wx_current_hour();
+
+    if (hour != NULL && hour->code[0])
+        return hour->code;
+    if (wx.day_count > 0 && wx.days[0].code[0])
+        return wx.days[0].code;
+    return "cloudy";
+}
+
+static bool wx_current_is_day(void)
+{
+    const struct livetv_wx_hour *hour = wx_current_hour();
+    int clock_hour = (int)(livetv_now_secs() / 3600);
+
+    if (hour != NULL && hour->is_day[0])
+        return hour->is_day[0] != '0';
+    return clock_hour >= 6 && clock_hour < 19;
+}
+
+static enum livetv_wx_scene wx_scene_for_code(const char *code)
+{
+    if (rb->strstr(code, "thunder"))
+        return LIVETV_WX_SCENE_THUNDER;
+    if (rb->strstr(code, "snow") || rb->strstr(code, "sleet") ||
+        rb->strstr(code, "ice"))
+        return LIVETV_WX_SCENE_SNOW;
+    if (rb->strstr(code, "fog") || rb->strstr(code, "mist"))
+        return LIVETV_WX_SCENE_FOG;
+    if (rb->strstr(code, "rain") || rb->strstr(code, "drizzle") ||
+        rb->strstr(code, "shower"))
+        return LIVETV_WX_SCENE_RAIN;
+    if (rb->strstr(code, "partly") || rb->strstr(code, "mostly_clear"))
+        return LIVETV_WX_SCENE_PARTLY;
+    if (rb->strstr(code, "cloud") || rb->strstr(code, "overcast"))
+        return LIVETV_WX_SCENE_CLOUDY;
+    return LIVETV_WX_SCENE_CLEAR;
+}
+
+static void wx_scene_gradient(unsigned top, unsigned bottom)
+{
+    int r1 = RGB_UNPACK_RED(top);
+    int g1 = RGB_UNPACK_GREEN(top);
+    int b1 = RGB_UNPACK_BLUE(top);
+    int r2 = RGB_UNPACK_RED(bottom);
+    int g2 = RGB_UNPACK_GREEN(bottom);
+    int b2 = RGB_UNPACK_BLUE(bottom);
+    int y;
+
+    for (y = 0; y < LIVETV_WX_SCENE_H; y++)
+    {
+        unsigned color =
+            LCD_RGBPACK(r1 + (r2 - r1) * y / LIVETV_WX_SCENE_H,
+                        g1 + (g2 - g1) * y / LIVETV_WX_SCENE_H,
+                        b1 + (b2 - b1) * y / LIVETV_WX_SCENE_H);
+        livetv_fill(0, LIVETV_WX_SCENE_Y + y,
+                    LIVETV_WX_CONTENT_W, 1, color);
+    }
+}
+
+static void wx_scene_draw(bool commit)
+{
+    const char *code = wx_current_code();
+    const struct livetv_wx_hour *hour = wx_current_hour();
+    enum livetv_wx_scene scene = wx_scene_for_code(code);
+    bool day = wx_current_is_day();
+    unsigned frame = (unsigned)((*rb->current_tick - wx_anim_epoch) /
+                                LIVETV_WX_ANIM_RATE);
+    int shine_x =
+        (int)((frame * 4) % (LIVETV_WX_CONTENT_W + 72)) - 56;
+    int ribbon_y = LIVETV_WX_SCENE_Y + 9;
+    unsigned ribbon_bg = LCD_RGBPACK(12, 68, 126);
+    char temperature[16];
+    int i;
+
+    if (!day)
+    {
+        wx_scene_gradient(LCD_RGBPACK(4, 16, 48),
+                          LCD_RGBPACK(28, 66, 108));
+    }
+    else if (scene == LIVETV_WX_SCENE_THUNDER)
+    {
+        wx_scene_gradient(LCD_RGBPACK(25, 37, 61),
+                          LCD_RGBPACK(69, 82, 98));
+    }
+    else if (scene == LIVETV_WX_SCENE_RAIN ||
+             scene == LIVETV_WX_SCENE_CLOUDY)
+    {
+        wx_scene_gradient(LCD_RGBPACK(48, 78, 108),
+                          LCD_RGBPACK(135, 157, 171));
+    }
+    else if (scene == LIVETV_WX_SCENE_SNOW)
+    {
+        wx_scene_gradient(LCD_RGBPACK(91, 131, 164),
+                          LCD_RGBPACK(207, 221, 230));
+    }
+    else if (scene == LIVETV_WX_SCENE_FOG)
+    {
+        wx_scene_gradient(LCD_RGBPACK(102, 128, 143),
+                          LCD_RGBPACK(190, 200, 201));
+    }
+    else
+    {
+        wx_scene_gradient(LCD_RGBPACK(18, 98, 177),
+                          LCD_RGBPACK(107, 196, 231));
+    }
+
+    /* IntelliSTAR-era broadcast glass: a restrained technical grid, hard
+     * chrome rules and one elapsed-time sheen. There are deliberately no
+     * hand-built sun, cloud or precipitation shapes here; condition artwork
+     * comes only from the dimensional icon atlas in the data cards below. */
+    for (i = 0; i < LIVETV_WX_CONTENT_W; i += 40)
+    {
+        livetv_fill(i, LIVETV_WX_SCENE_Y, 1, LIVETV_WX_SCENE_H,
+                    LCD_RGBPACK(117, 164, 199));
+    }
+    for (i = LIVETV_WX_SCENE_Y + 17;
+         i < LIVETV_WX_SCENE_Y + LIVETV_WX_SCENE_H; i += 18)
+    {
+        livetv_fill(0, i, LIVETV_WX_CONTENT_W, 1,
+                    LCD_RGBPACK(94, 145, 184));
+    }
+    /* A fully-painted blue receiver ribbon replaces the old near-black
+     * title slab. Its complete inner rectangle is redrawn before every
+     * update, so no partially cleared frame can present as a black bar. */
+    livetv_fill(6, ribbon_y, LIVETV_WX_CONTENT_W - 12, 50,
+                LCD_RGBPACK(172, 211, 234));
+    livetv_fill(8, ribbon_y + 2, LIVETV_WX_CONTENT_W - 16, 46, ribbon_bg);
+    livetv_fill(9, ribbon_y + 3, LIVETV_WX_CONTENT_W - 18, 2,
+                LCD_RGBPACK(65, 151, 205));
+    livetv_fill(9, ribbon_y + 45, LIVETV_WX_CONTENT_W - 18, 2,
+                LCD_RGBPACK(4, 39, 82));
+    livetv_fill(8, ribbon_y + 2, 5, 46, LCD_RGBPACK(45, 176, 230));
+    livetv_fill(216, ribbon_y + 6, 1, 38, LCD_RGBPACK(91, 164, 207));
+
+    livetv_text_at(20, ribbon_y + 10, LIVETV_TEXT, ribbon_bg,
+                   "LOCAL WEATHER");
+    livetv_text_at(20, ribbon_y + 28,
+                   LCD_RGBPACK(105, 214, 255),
+                   ribbon_bg, "WX 102  -  LIVE");
+
+    rb->snprintf(temperature, sizeof(temperature), "%s%s",
+                 hour != NULL && hour->temp[0] ? hour->temp : "--",
+                 wx_unit_suffix());
+    livetv_text_fit(226, ribbon_y + 10, 82, LIVETV_TEXT, ribbon_bg,
+                    hour != NULL && hour->text[0] ? hour->text : "Weather");
+    livetv_text_fit(226, ribbon_y + 28, 82,
+                    LCD_RGBPACK(105, 214, 255), ribbon_bg, temperature);
+
+    /* A two-pixel data pulse rides the chrome baseline. Unlike the former
+     * full-height wipe it can never resemble a blank vertical or black bar. */
+    livetv_fill(shine_x, LIVETV_WX_SCENE_Y + 63, 54, 1,
+                LCD_RGBPACK(207, 235, 248));
+    livetv_fill(shine_x + 9, LIVETV_WX_SCENE_Y + 64, 36, 1,
+                LCD_RGBPACK(72, 178, 225));
+
+    /* Chrome horizon rule tying the station ID to the data cards below. */
+    livetv_fill(0, LIVETV_WX_CARD_Y - 3, LIVETV_WX_CONTENT_W, 1,
+               LCD_RGBPACK(222, 235, 244));
+    livetv_fill(0, LIVETV_WX_CARD_Y - 2, LIVETV_WX_CONTENT_W, 2,
+               LCD_RGBPACK(18, 58, 101));
+
+    if (commit)
+        livetv_update(0, LIVETV_WX_SCENE_Y,
+                      LIVETV_WX_CONTENT_W, LIVETV_WX_SCENE_H);
+}
+
+/* Panel 1: Current Conditions, laid out after the reference screenshot the
+ * user supplied (a "Currently" stat list beside a big icon and the current
+ * temperature) rather than a generic vertical stack. Humidity, dew point,
+ * pressure and gusts are on the reference but not yet in forecast.tsv - a
+ * later slice (see docs/livetv-weather-channel-spec.md) - so this only
+ * shows stats the bundle actually carries; it never invents a number. */
+static void livetv_wx_panel_current(void)
+{
+    struct livetv_wx_day *today = wx.day_count > 0 ? &wx.days[0] : NULL;
+    const struct livetv_wx_hour *hour =
+        wx_hour_near((int)(livetv_now_secs() / 3600));
+    const char *code = hour ? hour->code : (today ? today->code : "cloudy");
+    bool night = (livetv_now_secs() / 3600 >= 19) ||
+                (livetv_now_secs() / 3600 < 6);
+    int text_h = livetv_font_height();
+    int stat_x = 10;
+    int icon_col_x = 168;
+    int icon_col_w = LIVETV_WX_CONTENT_W - icon_col_x - 4;
+    int y = LIVETV_WX_CARD_Y;
+    int i;
+    struct { const char *label; char value[24]; } rows[4];
+    int row_count = 0;
+    char buf[24];
+
+    livetv_fill(0, LIVETV_WX_CARD_Y, LIVETV_WX_CONTENT_W, LIVETV_WX_CARD_H,
+               LIVETV_ROW_BG);
+
+    livetv_text_fit(4, y + 4, LIVETV_WX_CONTENT_W - 8, LIVETV_DIM_TEXT,
+                    LIVETV_ROW_BG, "Currently");
+    y += text_h + 12;
+
+    if (today)
+    {
+        rows[row_count].label = "Wind";
+        rb->snprintf(rows[row_count].value, sizeof(rows[row_count].value),
+                    "%s %s", today->wind_speed[0] ? today->wind_speed : "--",
+                    today->wind_dir);
+        row_count++;
+
+        rows[row_count].label = "Precip";
+        rb->snprintf(rows[row_count].value, sizeof(rows[row_count].value),
+                    "%s%%", today->precip[0] ? today->precip : "--");
+        row_count++;
+
+        rows[row_count].label = "High";
+        rb->snprintf(rows[row_count].value, sizeof(rows[row_count].value),
+                    "%s%s", today->temp_max[0] ? today->temp_max : "--",
+                    wx_unit_suffix());
+        row_count++;
+
+        rows[row_count].label = "Low";
+        rb->snprintf(rows[row_count].value, sizeof(rows[row_count].value),
+                    "%s%s", today->temp_min[0] ? today->temp_min : "--",
+                    wx_unit_suffix());
+        row_count++;
+    }
+
+    for (i = 0; i < row_count; i++)
+    {
+        int ry = y + i * (text_h + 8);
+
+        livetv_text_at(stat_x, ry, LIVETV_SEL_BG, LIVETV_ROW_BG,
+                       rows[i].label);
+        livetv_text_at(stat_x + 64, ry, LIVETV_TEXT, LIVETV_ROW_BG,
+                       rows[i].value);
+    }
+
+    wx_icon(icon_col_x + icon_col_w / 2, y + 40, 64, code, night);
+
+    livetv_text_fit(icon_col_x, y + 78, icon_col_w, LIVETV_DIM_TEXT,
+                    LIVETV_ROW_BG,
+                    hour && hour->text[0] ? hour->text :
+                    (today && today->text[0] ? today->text : "Weather"));
+
+    if (hour && hour->temp[0])
+        rb->snprintf(buf, sizeof(buf), "%s%s", hour->temp, wx_unit_suffix());
+    else if (today && today->temp_max[0])
+        rb->snprintf(buf, sizeof(buf), "%s%s", today->temp_max,
+                    wx_unit_suffix());
+    else
+        rb->strcpy(buf, "--");
+    livetv_text_fit(icon_col_x, y + 78 + text_h + 4, icon_col_w, LIVETV_TEXT,
+                    LIVETV_ROW_BG, buf);
+
+    livetv_update(0, LIVETV_WX_CARD_Y, LIVETV_WX_CONTENT_W, LIVETV_WX_CARD_H);
+}
+
+/* Panel 2: Today's Forecast, four time-of-day columns ------------------ */
+static void livetv_wx_panel_today(void)
+{
+    static const int targets[4]         = {8, 12, 17, 21};
+    static const char * const labels[4] = {"Morn", "Noon", "Eve", "Night"};
+    int col_w = (LIVETV_WX_CONTENT_W - 8) / 4;
+    int i;
+
+    livetv_fill(0, LIVETV_WX_CARD_Y, LIVETV_WX_CONTENT_W, LIVETV_WX_CARD_H,
+               LIVETV_ROW_BG);
+    livetv_text_fit(4, LIVETV_WX_CARD_Y + 4, LIVETV_WX_CONTENT_W - 8,
+                    LIVETV_TEXT, LIVETV_ROW_BG, "Today's Forecast");
+
+    for (i = 0; i < 4; i++)
+    {
+        const struct livetv_wx_hour *hour = wx_hour_near(targets[i]);
+        int x = 4 + i * col_w;
+        char buf[16];
+
+        livetv_text_fit(x, LIVETV_WX_CARD_Y + 24, col_w - 4,
+                        LIVETV_DIM_TEXT, LIVETV_ROW_BG, labels[i]);
+        wx_icon(x + col_w / 2 - 2, LIVETV_WX_CARD_Y + 56, 28,
+               hour ? hour->code : "cloudy",
+               targets[i] >= 19 || targets[i] < 6);
+        if (hour && hour->temp[0])
+            rb->snprintf(buf, sizeof(buf), "%s%s", hour->temp,
+                        wx_unit_suffix());
+        else
+            rb->strcpy(buf, "--");
+        livetv_text_fit(x, LIVETV_WX_CARD_Y + 83, col_w - 4, LIVETV_TEXT,
+                        LIVETV_ROW_BG, buf);
+    }
+
+    livetv_update(0, LIVETV_WX_CARD_Y, LIVETV_WX_CONTENT_W, LIVETV_WX_CARD_H);
+}
+
+/* Panel 3: Extended Outlook, the same 7 days weather.c's overview shows.
+ * No Regional/Travel Cities panel: forecast.tsv only ever holds one
+ * location, and a second city would have to be invented to fill one in. */
+static void livetv_wx_panel_extended(void)
+{
+    int text_h = livetv_font_height();
+    int row_h = text_h + 2;
+    int i;
+
+    livetv_fill(0, LIVETV_WX_CARD_Y, LIVETV_WX_CONTENT_W, LIVETV_WX_CARD_H,
+               LIVETV_ROW_BG);
+    livetv_text_fit(4, LIVETV_WX_CARD_Y + 2, LIVETV_WX_CONTENT_W - 8,
+                    LIVETV_TEXT, LIVETV_ROW_BG, "Extended Outlook");
+
+    for (i = 0; i < wx.day_count; i++)
+    {
+        struct livetv_wx_day *day = &wx.days[i];
+        int y = LIVETV_WX_CARD_Y + 18 + i * row_h;
+        const char *label = (i == 0) ? "Today" :
+                            (day->date[5] ? day->date + 5 : "--");
+        char buf[24];
+
+        livetv_text_fit(4, y, 44, LIVETV_TEXT, LIVETV_ROW_BG, label);
+        livetv_text_fit(52, y, LIVETV_WX_CONTENT_W - 130, LIVETV_DIM_TEXT,
+                        LIVETV_ROW_BG, day->text[0] ? day->text : "--");
+        rb->snprintf(buf, sizeof(buf), "%s/%s%s",
+                    day->temp_max[0] ? day->temp_max : "--",
+                    day->temp_min[0] ? day->temp_min : "--",
+                    wx_unit_suffix());
+        livetv_text_at(LIVETV_WX_CONTENT_W - 76, y, LIVETV_TEXT,
+                      LIVETV_ROW_BG, buf);
+    }
+
+    livetv_update(0, LIVETV_WX_CARD_Y, LIVETV_WX_CONTENT_W, LIVETV_WX_CARD_H);
+}
+
+/* Panel 4: Almanac ------------------------------------------------------ */
+static void livetv_wx_panel_almanac(void)
+{
+    struct livetv_wx_day *today = wx.day_count > 0 ? &wx.days[0] : NULL;
+    int text_h = livetv_font_height();
+    int y = LIVETV_WX_CARD_Y + 8;
+    char buf[32];
+
+    livetv_fill(0, LIVETV_WX_CARD_Y, LIVETV_WX_CONTENT_W, LIVETV_WX_CARD_H,
+               LIVETV_ROW_BG);
+    livetv_text_fit(4, y, LIVETV_WX_CONTENT_W - 8, LIVETV_TEXT,
+                    LIVETV_ROW_BG, "Almanac");
+    y += text_h + 10;
+
+    rb->snprintf(buf, sizeof(buf), "Sunrise  %s",
+                today && today->sunrise[0] ? today->sunrise : "--");
+    livetv_text_at(4, y, LIVETV_TEXT, LIVETV_ROW_BG, buf);
+    y += text_h + 6;
+
+    rb->snprintf(buf, sizeof(buf), "Sunset   %s",
+                today && today->sunset[0] ? today->sunset : "--");
+    livetv_text_at(4, y, LIVETV_TEXT, LIVETV_ROW_BG, buf);
+    y += text_h + 6;
+
+    rb->snprintf(buf, sizeof(buf), "Wind     %s %s",
+                today && today->wind_speed[0] ? today->wind_speed : "--",
+                today ? today->wind_dir : "");
+    livetv_text_at(4, y, LIVETV_TEXT, LIVETV_ROW_BG, buf);
+
+    livetv_update(0, LIVETV_WX_CARD_Y, LIVETV_WX_CONTENT_W, LIVETV_WX_CARD_H);
+}
+
+static void livetv_wx_draw_empty(void)
+{
+    int text_h = livetv_font_height();
+
+    livetv_wx_header();
+    livetv_fill(0, LIVETV_WX_BODY_Y, LIVETV_WX_CONTENT_W, LIVETV_WX_BODY_H,
+               LIVETV_ROW_BG);
+    livetv_text_fit(4, LIVETV_WX_BODY_Y + LIVETV_WX_BODY_H / 2 - text_h - 4,
+                    LIVETV_WX_CONTENT_W - 8, LIVETV_TEXT, LIVETV_ROW_BG,
+                    "Forecast unavailable");
+    livetv_text_fit(4, LIVETV_WX_BODY_Y + LIVETV_WX_BODY_H / 2 + 4,
+                    LIVETV_WX_CONTENT_W - 8, LIVETV_DIM_TEXT, LIVETV_ROW_BG,
+                    "Sync with RockPod");
+    livetv_update(0, LIVETV_WX_BODY_Y, LIVETV_WX_CONTENT_W,
+                  LIVETV_WX_BODY_H);
+    livetv_wx_ticker();
+}
+
+bool livetv_channel_is_weather(int chan)
+{
+    const struct livetv_channel *ch = livetv_channel(chan);
+
+    return ch != NULL && !rb->strcmp(ch->category, LIVETV_WEATHER_CATEGORY);
+}
+
+bool livetv_weather_program_active(void)
+{
+    const struct livetv_slot *slot;
+    int chan = livetv_current_channel();
+
+    if (!livetv_channel_is_weather(chan))
+        return false;
+
+    slot = livetv_slot_at(chan, 0, NULL);
+    return slot != NULL && slot->kind == LIVETV_KIND_SHOW;
+}
+
+uint32_t livetv_weather_program_seconds(void)
+{
+    uint32_t elapsed = (uint32_t)(*rb->current_tick - wx_clock_epoch);
+
+    return wx_clock_base + elapsed / HZ;
+}
+
+bool livetv_weather_wants_video(uint32_t stream_seconds)
+{
+    (void)stream_seconds;
+
+    /* Forecast panels are rendered into the same MPEG carrier as presenter
+     * clips. Keeping one video clock avoids an iPod hardware race where the
+     * native overlay could cover decoded presenter frames while their audio
+     * was already playing. */
+    return true;
+}
+
+static int livetv_wx_panel_for_time(uint32_t stream_seconds)
+{
+    switch ((stream_seconds % LIVETV_WX_CLOCK_SECS) /
+            LIVETV_WX_PHASE_SECS)
+    {
+    case 0:
+        return 0; /* Current conditions */
+    case 1:
+        return 1; /* Today's forecast */
+    case 3:
+        return 2; /* Extended outlook */
+    default:
+        return 3; /* Almanac (phase 5; harmless fallback during video) */
+    }
+}
+
+void livetv_weather_enter(uint32_t stream_seconds)
+{
+    livetv_wx_load();
+    wx_clock_base = stream_seconds;
+    wx_clock_epoch = *rb->current_tick;
+    wx_panel = livetv_wx_panel_for_time(stream_seconds);
+    wx_anim_epoch = *rb->current_tick;
+    wx_anim_next_tick = *rb->current_tick + LIVETV_WX_ANIM_RATE;
+}
+
+void livetv_weather_tick(uint32_t stream_seconds)
+{
+    long now = *rb->current_tick;
+    int panel;
+
+    if (!wx.loaded)
+        return;
+
+    panel = livetv_wx_panel_for_time(stream_seconds);
+    if (panel != wx_panel)
+    {
+        wx_panel = panel;
+        wx_anim_epoch = now;
+        livetv_weather_draw();
+        return;
+    }
+
+    if (TIME_BEFORE(now, wx_anim_next_tick))
+        return;
+
+    /* Use elapsed ticks for position, but schedule from "now" so a slow
+     * decoder never creates a catch-up repaint storm. This refresh touches
+     * only the scene band; forecast text and cached icons stay undisturbed. */
+    wx_anim_next_tick = now + LIVETV_WX_ANIM_RATE;
+    wx_scene_draw(true);
+}
+
+void livetv_weather_draw(void)
+{
+    if (!wx.loaded)
+    {
+        livetv_wx_draw_empty();
+        return;
+    }
+
+    livetv_wx_header();
+    wx_scene_draw(false);
+    switch (wx_panel % LIVETV_WX_PANEL_COUNT)
+    {
+    case 0:
+        livetv_wx_panel_current();
+        break;
+    case 1:
+        livetv_wx_panel_today();
+        break;
+    case 2:
+        livetv_wx_panel_extended();
+        break;
+    default:
+        livetv_wx_panel_almanac();
+        break;
+    }
+    livetv_wx_ticker();
 }
 
 #endif /* HAVE_LCD_COLOR */

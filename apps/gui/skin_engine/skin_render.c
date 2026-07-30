@@ -53,6 +53,10 @@
 #include "wps.h"
 #include "strmemccpy.h"
 #include "skin_albumart_color.h"
+#if defined(IPOD_6G) && defined(IPOD_ACCESSORY_PROTOCOL)
+#include "iap.h"
+#include "gui/ipodjs_ui.h"
+#endif
 
 #define MAX_LINE 1024
 
@@ -1579,6 +1583,16 @@ void skin_render(struct gui_wps *gwps, unsigned refresh_mode,
     }
     /* Restore the default viewport */
     display->set_viewport_ex(NULL, VP_FLAG_VP_SET_CLEAN);
+#if defined(IPOD_6G) && defined(IPOD_ACCESSORY_PROTOCOL)
+    if (fixed_ipodjs_wps && display->screen_type == SCREEN_MAIN &&
+        iap_kokkia_present())
+    {
+        /* Compose the glyph into the same framebuffer flush as the WPS.
+         * A post-flush overlay races the skin's periodic header refresh and
+         * visibly flashes even though physical dongle presence is stable. */
+        ipodjs_ui_draw_bluetooth_indicator(display, 254, 2);
+    }
+#endif
     if (!inhibit_flush)
         display->update();
     else

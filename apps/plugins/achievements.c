@@ -18,6 +18,7 @@
 #define ACH_AVATAR_PREFS ACH_ROOT "/state/avatar-preferences.v1.tsv"
 #define ACH_ORB ROCKBOX_DIR \
     "/ipodjs/achievements/xbox360-sphere-official.32x32x24.bmp"
+#define ACH_BOOT_ROOT ROCKBOX_DIR "/ipodjs/achievements/boot"
 #define MAX_GAMES 1024
 #define MAX_ACHIEVEMENTS 384
 #define MAX_CONSOLES 64
@@ -31,6 +32,13 @@
 #define AVATAR_EMOTE_COUNT 7
 #define AVATAR_TURNTABLE_CLIP 7
 #define AVATAR_CLIP_COUNT 8
+#define XBOX_BOOT_WIDTH 320
+#define XBOX_BOOT_HEIGHT 180
+#define XBOX_BOOT_SOURCE_RATE 20000
+#define XBOX_BOOT_PACK_HEADER 16
+#define XBOX_BOOT_MAX_FRAMES 64
+#define XBOX_BOOT_INDEX_BYTES \
+    (XBOX_BOOT_WIDTH * XBOX_BOOT_HEIGHT / 2)
 
 #ifdef HAVE_LCD_COLOR
 #define SILVER_TOP LCD_RGBPACK(247, 248, 249)
@@ -188,6 +196,11 @@ static size_t avatar_sound_size;
 static uint32_t avatar_sound_offsets[3];
 static uint32_t avatar_sound_lengths[3];
 static bool avatar_sound_loaded;
+static const unsigned char *xbox_boot_audio;
+static size_t xbox_boot_audio_size;
+static size_t xbox_boot_audio_position;
+static unsigned int xbox_boot_audio_phase;
+static unsigned int xbox_boot_output_rate;
 #endif
 
 static const char *avatar_clip_ids[AVATAR_CLIP_COUNT] = {
@@ -292,6 +305,242 @@ static bool read_exact_file(const char *path, unsigned char *buffer,
     *size = (size_t)length;
     return true;
 }
+
+#if defined(HAVE_LCD_COLOR) && LCD_WIDTH == XBOX_BOOT_WIDTH && \
+    LCD_HEIGHT >= XBOX_BOOT_HEIGHT
+static size_t xbox_boot_pack_size;
+static unsigned char *xbox_boot_indices;
+static int xbox_boot_frame_count;
+static int xbox_boot_frame_ms;
+
+#ifndef HAVE_HARDWARE_BEEP
+static int16_t xbox_boot_mulaw_decode(unsigned char value)
+{
+    int sample;
+    int exponent;
+
+    value = ~value;
+    exponent = (value >> 4) & 7;
+    sample = (((value & 15) << 3) + 0x84) << exponent;
+    sample -= 0x84;
+    return (value & 0x80) ? -sample : sample;
+}
+
+static void xbox_boot_pcm_more(const void **start, size_t *size)
+{
+    int16_t *output = (int16_t *)avatar_pixels;
+    const size_t capacity = sizeof(avatar_pixels) / (2 * sizeof(int16_t));
+    size_t frames = 0;
+
+    while (frames < capacity &&
+           xbox_boot_audio_position < xbox_boot_audio_size)
+    {
+        int16_t sample =
+            xbox_boot_mulaw_decode(xbox_boot_audio[xbox_boot_audio_position]);
+        output[frames * 2] = sample;
+        output[frames * 2 + 1] = sample;
+        ++frames;
+        xbox_boot_audio_phase += XBOX_BOOT_SOURCE_RATE;
+        while (xbox_boot_audio_phase >= xbox_boot_output_rate)
+        {
+            xbox_boot_audio_phase -= xbox_boot_output_rate;
+            ++xbox_boot_audio_position;
+        }
+    }
+    *start = output;
+    *size = frames * 2 * sizeof(int16_t);
+}
+#endif
+
+static bool load_xbox_boot(void)
+{
+    char path[MAX_PATH];
+    size_t audio_offset;
+    size_t loaded_audio_size = 0;
+    size_t index_offset;
+    int palette_count;
+
+    rb->snprintf(path, sizeof(path), ACH_BOOT_ROOT "/boot-320x180.nfx");
+    if (!read_exact_file(path, avatar_clip_data, sizeof(avatar_clip_data),
+                         &xbox_boot_pack_size) ||
+        xbox_boot_pack_size < XBOX_BOOT_PACK_HEADER ||
+        rb->memcmp(avatar_clip_data, "NFX1", 4) ||
+        read_le16(avatar_clip_data + 4) != XBOX_BOOT_WIDTH ||
+        read_le16(avatar_clip_data + 6) != XBOX_BOOT_HEIGHT)
+        return false;
+    xbox_boot_frame_count = read_le16(avatar_clip_data + 8);
+    xbox_boot_frame_ms = read_le16(avatar_clip_data + 10);
+    palette_count = read_le16(avatar_clip_data + 12);
+    if (xbox_boot_frame_count <= 0 ||
+        xbox_boot_frame_count > XBOX_BOOT_MAX_FRAMES ||
+        xbox_boot_frame_ms < 40 || xbox_boot_frame_ms > 500 ||
+        palette_count <= 0 || palette_count > 16)
+        return false;
+    audio_offset = (xbox_boot_pack_size + 3) & ~(size_t)3;
+#ifndef HAVE_HARDWARE_BEEP
+    rb->snprintf(path, sizeof(path),
+                 ACH_BOOT_ROOT "/boot-20000-mono.mulaw");
+    xbox_boot_audio = avatar_clip_data + audio_offset;
+    xbox_boot_audio_size = 0;
+    if (!read_exact_file(path, (unsigned char *)xbox_boot_audio,
+                         sizeof(avatar_clip_data) - audio_offset,
+                         &xbox_boot_audio_size))
+        xbox_boot_audio_size = 0;
+    loaded_audio_size = xbox_boot_audio_size;
+#endif
+    index_offset = (audio_offset + loaded_audio_size + 3) & ~(size_t)3;
+    if (index_offset + XBOX_BOOT_INDEX_BYTES > sizeof(avatar_clip_data))
+        return false;
+    xbox_boot_indices = avatar_clip_data + index_offset;
+    rb->memset(xbox_boot_indices, 0, XBOX_BOOT_INDEX_BYTES);
+    return true;
+}
+
+static unsigned int xbox_boot_index_get(size_t position)
+{
+    unsigned char packed = xbox_boot_indices[position / 2];
+    return position & 1 ? packed & 15 : packed >> 4;
+}
+
+static void xbox_boot_index_set(size_t position, unsigned int value)
+{
+    unsigned char *packed = &xbox_boot_indices[position / 2];
+
+    if (position & 1)
+        *packed = (*packed & 0xf0) | value;
+    else
+        *packed = (*packed & 0x0f) | (value << 4);
+}
+
+static bool draw_xbox_boot_frame(int frame)
+{
+    fb_data palette[16];
+    struct viewport *viewport;
+    fb_data *output;
+    size_t offsets_at;
+    size_t cursor;
+    size_t end;
+    size_t position = 0;
+    int palette_count = read_le16(avatar_clip_data + 12);
+
+    offsets_at = XBOX_BOOT_PACK_HEADER + palette_count * 2;
+    if (offsets_at + (xbox_boot_frame_count + 1) * 4 >
+            xbox_boot_pack_size)
+        return false;
+    cursor = read_le32(avatar_clip_data + offsets_at + frame * 4);
+    end = read_le32(avatar_clip_data + offsets_at + (frame + 1) * 4);
+    if (cursor >= end || end > xbox_boot_pack_size)
+        return false;
+    while (cursor + 2 <= end &&
+           position < XBOX_BOOT_WIDTH * XBOX_BOOT_HEIGHT)
+    {
+        unsigned int token = read_le16(avatar_clip_data + cursor);
+        size_t count = token & 0x7fff;
+
+        cursor += 2;
+        if (count == 0 ||
+            position + count > XBOX_BOOT_WIDTH * XBOX_BOOT_HEIGHT)
+            return false;
+        if (token & 0x8000)
+        {
+            position += count;
+            continue;
+        }
+        if (cursor + (count + 1) / 2 > end)
+            return false;
+        for (size_t pixel = 0; pixel < count; ++pixel)
+        {
+            unsigned char packed = avatar_clip_data[cursor + pixel / 2];
+            unsigned int color = pixel & 1 ? packed & 15 : packed >> 4;
+
+            if (color >= (unsigned int)palette_count)
+                return false;
+            xbox_boot_index_set(position + pixel, color);
+        }
+        cursor += (count + 1) / 2;
+        position += count;
+    }
+    if (position != XBOX_BOOT_WIDTH * XBOX_BOOT_HEIGHT || cursor != end)
+        return false;
+    for (int index = 0; index < palette_count; ++index)
+        palette[index] = (fb_data)read_le16(
+            avatar_clip_data + XBOX_BOOT_PACK_HEADER + index * 2);
+    rb->lcd_set_viewport(NULL);
+    viewport = *(rb->screens[SCREEN_MAIN]->current_viewport);
+    if (!viewport || !viewport->buffer || !viewport->buffer->fb_ptr)
+        return false;
+    output = viewport->buffer->fb_ptr +
+        ((LCD_HEIGHT - XBOX_BOOT_HEIGHT) / 2) * LCD_WIDTH;
+    for (position = 0;
+         position < XBOX_BOOT_WIDTH * XBOX_BOOT_HEIGHT; ++position)
+        output[position] = palette[xbox_boot_index_get(position)];
+    rb->lcd_update();
+    return true;
+}
+
+static void run_xbox_boot(void)
+{
+    long started;
+
+    if (!load_xbox_boot())
+        return;
+
+    rb->button_clear_queue();
+    rb->lcd_set_backdrop(NULL);
+    rb->lcd_set_background(LCD_BLACK);
+    rb->lcd_clear_display();
+    if (!draw_xbox_boot_frame(0))
+        return;
+
+#ifndef HAVE_HARDWARE_BEEP
+    xbox_boot_output_rate = rb->mixer_get_frequency();
+    xbox_boot_audio_position = 0;
+    xbox_boot_audio_phase = 0;
+    if (xbox_boot_audio_size > 0 && xbox_boot_output_rate > 0)
+    {
+        rb->mixer_channel_stop(PCM_MIXER_CHAN_BEEP);
+        rb->mixer_channel_set_amplitude(PCM_MIXER_CHAN_BEEP, MIX_AMP_UNITY);
+        rb->mixer_channel_play_data(PCM_MIXER_CHAN_BEEP,
+                                    xbox_boot_pcm_more, NULL, 0);
+    }
+#endif
+
+    started = *rb->current_tick;
+    for (int frame = 1; frame < xbox_boot_frame_count; ++frame)
+    {
+        long target = started + frame * xbox_boot_frame_ms * HZ / 1000;
+
+        while (TIME_BEFORE(*rb->current_tick, target))
+        {
+            /* Ignore launch-time press/release noise. A button physically
+             * held after the intro settles is an intentional skip. */
+            if (*rb->current_tick - started > HZ / 2 &&
+                rb->button_status() != BUTTON_NONE)
+                goto stop;
+            rb->sleep(1);
+        }
+        if (!draw_xbox_boot_frame(frame))
+            break;
+    }
+
+stop:
+#ifndef HAVE_HARDWARE_BEEP
+    {
+        long deadline = *rb->current_tick + HZ / 4;
+        rb->mixer_channel_stop(PCM_MIXER_CHAN_BEEP);
+        while (rb->mixer_channel_status(PCM_MIXER_CHAN_BEEP) !=
+               CHANNEL_STOPPED &&
+               TIME_BEFORE(*rb->current_tick, deadline))
+            rb->sleep(1);
+    }
+#endif
+    rb->button_clear_queue();
+}
+#else
+static void run_xbox_boot(void)
+{
+}
+#endif
 
 static void wait_for_menu_release(void)
 {
@@ -417,6 +666,25 @@ static void puts_fit(int x, int y, int width, const char *text)
         buffer[length - 3] = '.';
     }
     rb->lcd_putsxy(x, y, buffer);
+}
+
+/* Right-aligned label, so a heading and its console tag cannot collide. */
+static void puts_right(int right, int y, int width, const char *text)
+{
+    char buffer[160];
+    int text_width;
+    int height;
+    size_t length;
+
+    rb->strlcpy(buffer, text, sizeof(buffer));
+    rb->lcd_getstringsize(buffer, &text_width, &height);
+    length = rb->strlen(buffer);
+    while (text_width > width && length > 3)
+    {
+        buffer[--length] = '\0';
+        rb->lcd_getstringsize(buffer, &text_width, &height);
+    }
+    rb->lcd_putsxy(right - text_width, y, buffer);
 }
 
 static void puts_wrap_2(int x, int y, int width, const char *text)
@@ -1338,6 +1606,8 @@ static void draw_games(void)
     rb->lcd_set_foreground(GREEN_DARK);
     puts_fit(220, 67, 84, console_filter_name(console_filter));
 
+    rb->lcd_set_foreground(GREEN_DARK);
+    rb->lcd_fillrect(35, 90, 277, 2);
     rb->lcd_set_foreground(MUTED_COLOR);
     puts_fit(36, 94, 168, "recent games");
     puts_fit(221, 94, 90, "selected");
@@ -1374,14 +1644,22 @@ static void draw_games(void)
         rb->lcd_bitmap_part((fb_data *)art.data, source_x, source_y,
                             art.width, 221, 108, width, height);
     }
+    else
+    {
+        /* No cover yet: a filled plate carrying the console reads as a Guide
+         * tile instead of an empty outline. */
+        fill_gradient(220, 107, 90, 90, DASH_WHITE, SILVER_TOP);
+        rb->lcd_set_foreground(MUTED_COLOR);
+        puts_fit(226, 143, 78, games[selected_game].console);
+    }
     rb->lcd_set_foreground(CARD_SHADOW);
     rb->lcd_drawrect(219, 106, 92, 92);
     rb->lcd_set_foreground(TEXT_COLOR);
-    rb->lcd_putsxyf(220, 201, "%d/%d   %d G",
+    rb->lcd_putsxyf(220, 200, "%d/%d   %d G",
                     games[selected_game].unlocked,
                     games[selected_game].total,
                     games[selected_game].earned_points);
-    draw_progress(220, 214, 90, games[selected_game].unlocked,
+    draw_progress(220, 213, 90, games[selected_game].unlocked,
                   games[selected_game].total);
     guide_footer("SELECT View   HOLD Filter   HOLD MENU Avatar");
     rb->lcd_update();
@@ -1468,35 +1746,50 @@ static void draw_detail(void)
                   item->unlocked ? GREEN_TOP : DASH_DARK_TOP,
                   item->unlocked ? GREEN_BOTTOM : DASH_DARK_BOTTOM);
     rb->lcd_set_foreground(LCD_WHITE);
-    puts_fit(47, 51, 210, item->unlocked ?
+    /* The heading gets the top line to itself; the console tag and score
+     * share the line below it so nothing overlaps. */
+    puts_fit(47, 52, 252, item->unlocked ?
              "ACHIEVEMENT UNLOCKED" : "ACHIEVEMENT LOCKED");
+    puts_fit(47, 68, 170, games[selected_game].console);
     rb->snprintf(line, sizeof(line), "%d G", item->points);
-    puts_fit(47, 67, 90, line);
-    puts_fit(184, 59, 116, games[selected_game].console);
+    puts_right(302, 68, 70, line);
+
+    /* Xbox Guide accent under the band. */
+    rb->lcd_set_foreground(item->unlocked ? GREEN_DARK : DASH_DARK_BOTTOM);
+    rb->lcd_fillrect(35, 82, 277, 2);
+
+    /* Badge tile: a filled plate reads as a frame even with no artwork. */
+    rb->lcd_set_foreground(SILVER_LINE);
+    rb->lcd_fillrect(44, 92, 76, 76);
+    rb->lcd_set_foreground(item->unlocked ? GREEN_TOP : DASH_DARK_TOP);
+    rb->lcd_fillrect(45, 93, 74, 74);
     if (art_owner == selected_achievement && art_is_achievement && art.data)
         rb->lcd_bitmap_part((fb_data *)art.data, 0, 0, art.width, 46, 94,
                             MIN(72, art.width), MIN(72, art.height));
     rb->lcd_set_foreground(item->unlocked ? GREEN_DARK : LOCKED_COLOR);
     rb->lcd_drawrect(44, 92, 76, 76);
+
     rb->lcd_set_foreground(TEXT_COLOR);
-    puts_fit(133, 96, 168, item->title);
-    rb->lcd_set_foreground(GREEN_DARK);
+    puts_fit(133, 94, 172, item->title);
+    rb->lcd_set_foreground(item->unlocked ? GREEN_DARK : LOCKED_COLOR);
     rb->snprintf(line, sizeof(line), "%d Gamerscore", item->points);
-    puts_fit(133, 119, 168, line);
-    rb->lcd_set_foreground(MUTED_COLOR);
-    puts_wrap_2(133, 142, 168, item->description);
-    if (item->ipod_hardcore)
-        puts_fit(133, 179, 168, "Unlocked on iPod - Hardcore");
-    else if (item->imported)
-        puts_fit(133, 179, 168, "Imported RA unlock");
-    else if (item->unlocked)
-        puts_fit(133, 179, 168, "Local iPod milestone");
-    else if (!rb->strcmp(games[selected_game].kind, "retroachievements"))
-        puts_fit(133, 179, 168, "iPod Hardcore challenge");
-    else
-        puts_fit(133, 179, 168, "Not yet unlocked");
+    puts_fit(133, 114, 172, line);
     rb->lcd_set_foreground(SILVER_LINE);
-    rb->lcd_hline(47, 300, 198);
+    rb->lcd_hline(133, 300, 132);
+    rb->lcd_set_foreground(MUTED_COLOR);
+    puts_wrap_2(133, 140, 172, item->description);
+    if (item->ipod_hardcore)
+        puts_fit(133, 178, 172, "Unlocked on iPod - Hardcore");
+    else if (item->imported)
+        puts_fit(133, 178, 172, "Imported RA unlock");
+    else if (item->unlocked)
+        puts_fit(133, 178, 172, "Local iPod milestone");
+    else if (!rb->strcmp(games[selected_game].kind, "retroachievements"))
+        puts_fit(133, 178, 172, "iPod Hardcore challenge");
+    else
+        puts_fit(133, 178, 172, "Not yet unlocked");
+    rb->lcd_set_foreground(SILVER_LINE);
+    rb->lcd_hline(47, 300, 196);
     rb->lcd_set_foreground(MUTED_COLOR);
     if (item->ipod_hardcore)
         puts_fit(47, 199, 250, "Verified locally on this iPod");
@@ -1770,6 +2063,7 @@ enum plugin_status plugin_start(const void *parameter)
 
     (void)parameter;
     rb->lcd_setfont(FONT_UI);
+    run_xbox_boot();
     orb.data = orb_data;
     orb_loaded = rb->read_bmp_file(ACH_ORB, &orb, sizeof(orb_data),
                                    FORMAT_NATIVE, NULL) > 0;

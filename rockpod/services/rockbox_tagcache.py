@@ -607,6 +607,12 @@ def read_rockbox_tagcache_tracks(
     for idx in range(entry_count):
         row_offset = 24 + (idx * row_size)
         row = list(struct.unpack_from(f"{endian}{TAG_COUNT + 1}i", master_blob, row_offset))
+        # Rockbox does not guarantee that the tag offsets retained in a
+        # deleted master row still reference live string-table entries. Skip
+        # tombstones before dereferencing those offsets; _parse_row() also
+        # checks the flag as a defensive backstop for normal callers.
+        if row[-1] & FLAG_DELETED:
+            continue
         for tag, blob in tag_blobs.items():
             row[tag] = _decode_tag_entry(blob, row[tag], endian)
         parsed = _parse_row(row, mount_path)

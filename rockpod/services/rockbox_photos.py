@@ -250,6 +250,18 @@ class RockboxPhotoService:
                 profile, target_mode, preview_dir, preview_destinations
             )
         )
+        preview_sources = {
+            asset["destination_rel"]: asset["source_abs"]
+            for asset in assets
+            if asset.get("kind") in ("photo_preview", "photo_preview_repair")
+            and asset.get("exists")
+            and asset.get("source_abs")
+        }
+        index_asset = self._build_preview_index_asset(
+            profile, target_mode, preview_dir, preview_destinations, preview_sources
+        )
+        if index_asset:
+            assets.append(index_asset)
         return {
             "id": f"photos-sync-{profile['id']}",
             "name": "Rockbox Photo Sync",
@@ -293,10 +305,90 @@ class RockboxPhotoService:
                     "action": "remove",
                 }
             )
+        removed_relpaths = {
+            str(
+                photo.get("device_relative_path")
+                or self._device_photo_relpath(photo["relative_path"])
+            ).lstrip("/")
+            for photo in photos
+        }
+        index_asset = self._post_remove_preview_index_asset(
+            profile, target_mode, preview_dir, removed_relpaths
+        )
+        if index_asset:
+            assets.append(index_asset)
         return {
             "id": f"photos-remove-{profile['id']}",
             "name": "Remove Rockbox Photos",
             "assets": assets,
+        }
+
+    def _post_remove_preview_index_asset(
+        self, profile, target_mode, preview_dir, removed_relpaths
+    ):
+        target_root = self.photo_target_root(profile, target_mode)
+        if not target_root or not os.path.isdir(target_root):
+            return None
+
+        mount = self.mount_root(profile, target_mode)
+        destinations = set()
+        for source_path in self._scan_photo_files(target_root):
+            relpath = self._relative_photo_path(target_root, source_path)
+            if relpath in removed_relpaths:
+                continue
+            destination = f"{preview_dir}/{relpath}.bmp"
+            preview_abs = os.path.join(mount, destination) if mount else ""
+            if preview_abs and os.path.isfile(preview_abs):
+                destinations.add(destination)
+        return self._build_preview_index_asset(
+            profile, target_mode, preview_dir, destinations, {}
+        )
+
+    def _build_preview_index_asset(
+        self, profile, target_mode, preview_dir, destinations, destination_sources
+    ):
+        """Write the .photo_previews/index.tsv bundle asset.
+
+        The iPodJS Photos hover pane reads this index instead of crawling
+        the device, so it must list every preview that exists after the
+        bundle is applied."""
+        mount = self.mount_root(profile, target_mode)
+        prefix = f"{preview_dir}/"
+        entries = []
+        for destination in sorted(destinations):
+            if not destination.startswith(prefix):
+                continue
+            relpath = destination[len(prefix):]
+            width = height = 0
+            candidate = destination_sources.get(destination, "")
+            if not candidate and mount:
+                candidate = os.path.join(mount, destination)
+            if candidate and os.path.isfile(candidate):
+                try:
+                    with Image.open(candidate) as image:
+                        width, height = image.size
+                except (OSError, UnidentifiedImageError):
+                    width = height = 0
+            entries.append((relpath, width, height))
+
+        cache_root = self._photo_cache_root(profile, target_mode)
+        index_cache = os.path.join(cache_root, "preview_index", "index.tsv")
+        os.makedirs(os.path.dirname(index_cache), exist_ok=True)
+        temp_path = f"{index_cache}.tmp"
+        with open(temp_path, "w", encoding="utf-8", newline="\n") as handle:
+            handle.write("relpath\twidth\theight\n")
+            for relpath, width, height in entries:
+                handle.write(f"{relpath}\t{width}\t{height}\n")
+        os.replace(temp_path, index_cache)
+
+        return {
+            "kind": "photo_preview_index",
+            "source_rel": "",
+            "source_abs": index_cache,
+            "destination_rel": f"{preview_dir}/index.tsv",
+            "exists": True,
+            "size": os.path.getsize(index_cache),
+            "preserve_metadata": False,
         }
 
     def _photo_target_dir(self, profile, target_mode="device"):
@@ -447,6 +539,8 @@ class RockboxPhotoService:
                 self.mount_root(profile, target_mode), preview_destination
             )
             if not self._preview_needs_repair(preview_abs, source_path):
+                # Valid on-device previews still belong in the preview index.
+                planned_destinations.add(preview_destination)
                 continue
 
             preview_cache = os.path.join(cache_root, f"{relpath}.bmp")

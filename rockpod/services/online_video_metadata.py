@@ -427,12 +427,48 @@ class VideoMetadataService:
                 return
         self._provider = ITunesVideoMetadataProvider()
 
-    def search(self, query, media_type="movie", year=None):
-        """Perform provider lookup for Movie or TV Show."""
-        if media_type == "tv_show" or media_type == "show":
-            results = self._provider.search_show(query, year)
-            return results or self._show_fallback.search_show(query, year)
-        return self._provider.search_movie(query, year)
+    def search(self, query, media_type="any", year=None):
+        """Perform provider lookup for Movie, TV Show, or both.
+
+        A library row's video_kind is a guess made from its filename, so
+        restricting the search to that guess makes a misclassified movie
+        unmatchable - the user only ever sees TV results. "any" searches both
+        catalogues and leads with the kind the row claims to be.
+        """
+        media_type = str(media_type or "any").strip().casefold()
+        wants_show = media_type in {"tv_show", "tv_episode", "show"}
+        wants_movie = media_type == "movie"
+
+        if wants_show:
+            return self._search_shows(query, year)
+        if wants_movie:
+            return self._search_movies(query, year)
+
+        errors = []
+        shows = self._collect(self._search_shows, query, year, errors)
+        movies = self._collect(self._search_movies, query, year, errors)
+        if not shows and not movies and errors:
+            # Every catalogue failed - surface it rather than reporting an
+            # empty library as if the title simply were not found.
+            raise errors[0]
+        return shows + movies
+
+    @staticmethod
+    def _collect(search, query, year, errors):
+        try:
+            return search(query, year) or []
+        except VideoMetadataError as exc:
+            errors.append(exc)
+            return []
+
+    def _search_shows(self, query, year=None):
+        results = self._provider.search_show(query, year)
+        if results:
+            return results
+        return self._show_fallback.search_show(query, year) or []
+
+    def _search_movies(self, query, year=None):
+        return self._provider.search_movie(query, year) or []
 
     def lookup_episode(self, show_title, season, episode, title=None):
         """Lookup TV episode metadata."""

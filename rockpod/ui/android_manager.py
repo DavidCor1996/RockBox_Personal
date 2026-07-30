@@ -200,11 +200,23 @@ class AndroidManagerWidget(QWidget):
             "buttons, Hold lockout, Android DPAD key layout, Menu+Select reset chord, watchdog "
             "restart, and three-minute volatile-test timeout are compiled and qualified; "
             "physical LCD output, input, and reset behavior are still untested. "
-            "The exact Menu+Play RAM-boot path is packaged; staging does not install it to NOR."
+            "A separate DFU-only RAM test forces Android after upload, so the "
+            "hardware gate requires no boot-chord timing; it does not write NOR. "
+            "The exact Select+Right RAM-boot path and payload-size contract are "
+            "binary-verified, and the exact compressed zImage reaches the N25 "
+            "LCD driver in ARM926 emulation. A preservation-mode dual-boot NOR installer is "
+            "packaged together with its exact dual-boot uninstaller, but staging "
+            "does not execute either."
         )
         self._stage_boot.setEnabled(
-            status.get("rockbox_menu_play_boot_packaged") is True
+            status.get("rockbox_select_right_boot_packaged") is True
+            and status.get("rockbox_select_right_boot_binary_emulated") is True
+            and status.get("rockbox_to_linux_zimage_binary_emulated") is True
+            and status.get("rockbox_boot_image_sizes_binary_verified") is True
             and status.get("rockbox_boot_components_checksum_wrapped") is True
+            and status.get(
+                "rockbox_forced_android_volatile_test_binary_emulated"
+            ) is True
         )
 
     def set_eclair_native_error(self, message):
@@ -215,8 +227,14 @@ class AndroidManagerWidget(QWidget):
 
     def set_stage_result(self, result):
         count = len(result.get("files", ()))
+        if result.get("already_current"):
+            action = "Already current:"
+        elif result.get("updated"):
+            action = "Updated"
+        else:
+            action = "Staged"
         self._status.setText(
-            f"Staged {count} checksum-verified RAM-boot files under "
+            f"{action} {count} checksum-verified RAM-boot files under "
             f"{result.get('device_directory', '.rockbox/android')}. "
             "Rockbox firmware, database, partition table, and NOR were preserved."
         )

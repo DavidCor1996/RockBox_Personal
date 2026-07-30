@@ -65,6 +65,9 @@ void ipodjs_ui_draw_repeat_indicator(struct screen *display, int x, int y,
                                      int repeat_mode);
 void ipodjs_ui_draw_shuffle_indicator(struct screen *display, int x, int y);
 void ipodjs_ui_draw_header_battery(struct screen *display, int x, int y);
+void ipodjs_ui_prepare_bluetooth_indicator(void);
+void ipodjs_ui_draw_bluetooth_indicator(struct screen *display, int x, int y);
+void ipodjs_ui_airpods_connected_animation(void);
 bool ipodjs_ui_fast_scroll_available(void);
 /* Returns #/A-Z bucket 0..26, or -1 for an unsupported script. */
 int ipodjs_ui_fast_scroll_bucket(const char *text);
@@ -80,6 +83,8 @@ bool ipodjs_ui_draw_search_surface(struct screen *display,
 void ipodjs_ui_transition_begin(int direction);
 bool ipodjs_ui_transition_present(struct screen *display);
 void ipodjs_ui_transition_cancel(void);
+/* Returns true only when USB interrupted the launch. */
+bool ipodjs_ui_netflix_launch(void);
 bool ipodjs_ui_preview_fade_begin(struct screen *display,
                                   int x, int y, int width, int height);
 bool ipodjs_ui_preview_fade_present(struct screen *display);
@@ -179,6 +184,13 @@ static inline void ipodjs_ui_draw_header_battery(struct screen *display,
 {
     (void)display; (void)x; (void)y;
 }
+static inline void ipodjs_ui_prepare_bluetooth_indicator(void) { }
+static inline void ipodjs_ui_draw_bluetooth_indicator(
+    struct screen *display, int x, int y)
+{
+    (void)display; (void)x; (void)y;
+}
+static inline void ipodjs_ui_airpods_connected_animation(void) { }
 static inline void ipodjs_ui_fast_scroll_show(const char *label)
 {
     (void)label;
@@ -218,6 +230,7 @@ static inline bool ipodjs_ui_transition_present(struct screen *display)
     return false;
 }
 static inline void ipodjs_ui_transition_cancel(void) { }
+static inline bool ipodjs_ui_netflix_launch(void) { return false; }
 static inline bool ipodjs_ui_preview_fade_begin(struct screen *display,
                                                 int x, int y,
                                                 int width, int height)

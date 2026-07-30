@@ -27,12 +27,11 @@
 #define LIVETV_GUIDE         LIVETV_ROOT "/guide.tsv"
 #define LIVETV_PLAYER_PATH   VIEWERS_DIR "/mpegplayer.rock"
 #define LIVETV_PARAM_PREFIX  "-livetv:"
+#define LIVETV_DM_PARAM_PREFIX "-livetvdm:"
 
 enum plugin_status plugin_start(const void *parameter)
 {
     static char launch_param[MAX_PATH + 16];
-
-    (void)parameter;
 
     if (!rb->dir_exists(LIVETV_ROOT))
     {
@@ -47,7 +46,9 @@ enum plugin_status plugin_start(const void *parameter)
     }
 
     rb->snprintf(launch_param, sizeof(launch_param), "%s%s",
-                 LIVETV_PARAM_PREFIX, LIVETV_ROOT);
+                 parameter && !rb->strcmp(parameter, "-desktop") ?
+                    LIVETV_DM_PARAM_PREFIX : LIVETV_PARAM_PREFIX,
+                 LIVETV_ROOT);
 
     return rb->plugin_open(LIVETV_PLAYER_PATH, launch_param);
 }

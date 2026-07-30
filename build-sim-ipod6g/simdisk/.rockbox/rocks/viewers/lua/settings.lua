@@ -251,6 +251,7 @@ rb.system.global_settings = {
 	ui_engine_lock_settings = "0x7a6, 1, b",
 	ui_engine_video_appearance = "0x7a8, 4, i",
 	ui_engine_games_appearance = "0x7ac, 4, i",
+	ui_engine_extras_pane = "0x7b0, 4, i",
 }
 
 rb.system.replaygain_settings = {

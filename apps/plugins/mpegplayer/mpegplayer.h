@@ -83,7 +83,17 @@
 #include "disk_buf.h"
 #include "stream_mgr.h"
 
+#ifdef HAVE_LCD_COLOR
+int mpegplayer_yuv_overlay_height(void);
+int mpegplayer_yuv_overlay_y(void);
+void mpegplayer_yuv_overlay_draw(uint8_t * const *planes,
+                                 int width, int height);
+#endif
+
 #define LCD_ENABLE_EVENT_0 MAKE_SYS_EVENT(SYS_EVENT_CLS_PRIVATE, 0)
 #define LCD_ENABLE_EVENT_1 MAKE_SYS_EVENT(SYS_EVENT_CLS_PRIVATE, 1)
+
+extern bool mpegplayer_youtube_launch;
+extern bool mpegplayer_youtube_embedded;
 
 #endif /* MPEGPLAYER_H */

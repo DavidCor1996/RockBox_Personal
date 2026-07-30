@@ -108,10 +108,12 @@ struct mpeg_settings {
 };
 
 extern struct mpeg_settings settings;
+extern bool mpegplayer_netflix_launch;
 
 int mpeg_start_menu(uint32_t duration);
 int mpeg_menu(void);
 
+bool mpeg_resume_available(const char *filename);
 void init_settings(const char* filename);
 void save_settings(void);
 

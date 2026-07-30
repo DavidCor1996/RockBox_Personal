@@ -482,11 +482,11 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x17fbf
+.debug_info     0x0000000000000000    0x17fec
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x82e3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/rockblox1d.o
- .debug_info    0x00000000000082e3     0x7d93 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
- .debug_info    0x0000000000010076     0x7f49 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(pluginlib_actions.o)
+ .debug_info    0x0000000000000000     0x82f2 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/rockblox1d.o
+ .debug_info    0x00000000000082f2     0x7da2 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+ .debug_info    0x0000000000010094     0x7f58 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(pluginlib_actions.o)
 
 .debug_abbrev   0x0000000000000000      0xba4
  *(.debug_abbrev)
@@ -503,14 +503,14 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x5fab
+.debug_str      0x0000000000000000     0x5fc1
  *(.debug_str)
- .debug_str     0x0000000000000000     0x5fab /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/rockblox1d.o
-                                       0x64cd (size before relaxing)
- .debug_str     0x0000000000005fab        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
-                                       0x529d (size before relaxing)
- .debug_str     0x0000000000005fab        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(pluginlib_actions.o)
-                                       0x63ee (size before relaxing)
+ .debug_str     0x0000000000000000     0x5fc1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/rockblox1d.o
+                                       0x64e3 (size before relaxing)
+ .debug_str     0x0000000000005fc1        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+                                       0x52b3 (size before relaxing)
+ .debug_str     0x0000000000005fc1        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(pluginlib_actions.o)
+                                       0x6404 (size before relaxing)
 
 .debug_loc
  *(.debug_loc)

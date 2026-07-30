@@ -34,6 +34,22 @@ BACKGROUNDS = {
     "foo-fighters-live": "backgrounds/foo-fighters-live.320x240x24.bmp",
     "iron-maiden-denver": "backgrounds/iron-maiden-denver.320x240x24.bmp",
     "the-killers-concert": "backgrounds/the-killers-concert.320x240x24.bmp",
+    "the-beatles-belfast-1964":
+        "backgrounds/the-beatles-belfast-1964.320x240x24.bmp",
+    "the-beatles-treslong-1964":
+        "backgrounds/the-beatles-treslong-1964.320x240x24.bmp",
+    "oliver-tree-oakland-2019":
+        "backgrounds/oliver-tree-oakland-2019.320x240x24.bmp",
+    "oliver-tree-sydney-2020":
+        "backgrounds/oliver-tree-sydney-2020.320x240x24.bmp",
+    "emma-blackery-manchester-2016":
+        "backgrounds/emma-blackery-manchester-2016.320x240x24.bmp",
+    "emma-blackery-manchester-2016-b":
+        "backgrounds/emma-blackery-manchester-2016-b.320x240x24.bmp",
+    "cage-the-elephant-bonnaroo-2017":
+        "backgrounds/cage-the-elephant-bonnaroo-2017.320x240x24.bmp",
+    "cage-the-elephant-big-snow-show-2018":
+        "backgrounds/cage-the-elephant-big-snow-show-2018.320x240x24.bmp",
 }
 
 ALT_BACKGROUNDS = {
@@ -41,10 +57,20 @@ ALT_BACKGROUNDS = {
     "foo-fighters-live": "live-rock-band-night",
     "iron-maiden-denver": "the-killers-concert",
     "the-killers-concert": "live-rock-band-night",
+    "the-beatles-belfast-1964": "the-beatles-treslong-1964",
+    "the-beatles-treslong-1964": "the-beatles-belfast-1964",
+    "oliver-tree-oakland-2019": "oliver-tree-sydney-2020",
+    "oliver-tree-sydney-2020": "oliver-tree-oakland-2019",
+    "emma-blackery-manchester-2016": "emma-blackery-manchester-2016-b",
+    "emma-blackery-manchester-2016-b": "emma-blackery-manchester-2016",
+    "cage-the-elephant-bonnaroo-2017": "cage-the-elephant-big-snow-show-2018",
+    "cage-the-elephant-big-snow-show-2018": "cage-the-elephant-bonnaroo-2017",
 }
 
+DEFAULT_SKIN_NAME = "Live Stage"
+
 MANIFEST_BASE = """IHS1
-name=Live Stage
+name={name}
 background=background.bmp
 background_alt=background-alt.bmp
 highway=highway.bmp
@@ -111,8 +137,17 @@ def rockbox_crc32(path: Path) -> int:
     return crc
 
 
-def write_skin_manifest(root: Path) -> None:
-    lines = [MANIFEST_BASE]
+def check_skin_name(name: str) -> str:
+    """The runtime stores the skin name in a 48 byte field."""
+    if not name.strip() or any(character in name for character in "\r\n="):
+        raise ValueError(f"invalid skin name: {name!r}")
+    if len(name.encode("utf-8")) > 47:
+        raise ValueError(f"skin name is longer than 47 bytes: {name!r}")
+    return name
+
+
+def write_skin_manifest(root: Path, name: str) -> None:
+    lines = [MANIFEST_BASE.format(name=check_skin_name(name))]
     for filename, key in CRC_KEYS.items():
         lines.append(f"{key}={rockbox_crc32(root / filename):08x}\n")
     (root / "skin.ihs").write_text("".join(lines), encoding="utf-8")
@@ -171,22 +206,25 @@ def verify(root: Path) -> None:
         key, separator, value = line.partition("=")
         if separator:
             manifest[key] = value
+    check_skin_name(manifest.get("name", ""))
     for filename, key in CRC_KEYS.items():
         if manifest.get(key) != f"{rockbox_crc32(root / filename):08x}":
             raise ValueError(f"runtime CRC mismatch: {filename}")
 
 
-def install(source: Path, output: Path, force: bool, background: str) -> None:
+def install(source: Path, output: Path, force: bool, background: str,
+            name: str) -> None:
     validate_source(source, background)
+    check_skin_name(name)
     output.parent.mkdir(parents=True, exist_ok=True)
     if output.exists() and not force:
         raise FileExistsError(f"output already exists (use --force): {output}")
     temporary = Path(tempfile.mkdtemp(prefix=f".{output.name}.", dir=output.parent))
     backup = output.with_name(f".{output.name}.backup")
     try:
-        for name, (relative, _, _) in selected_assets(background).items():
-            shutil.copy2(source / relative, temporary / name)
-        write_skin_manifest(temporary)
+        for filename, (relative, _, _) in selected_assets(background).items():
+            shutil.copy2(source / relative, temporary / filename)
+        write_skin_manifest(temporary, name)
         local_root = source.parent
         provenance = local_root / "PROVENANCE.md"
         license_file = local_root / "source" / "yarg" / "LICENSE"
@@ -222,6 +260,8 @@ def main() -> int:
     parser.add_argument("--background", choices=BACKGROUNDS,
                         default="live-rock-band-night",
                         help="licensed concert photograph for this skin")
+    parser.add_argument("--name", default=DEFAULT_SKIN_NAME,
+                        help="skin name recorded in skin.ihs (max 47 bytes)")
     args = parser.parse_args()
 
     if args.verify:
@@ -230,7 +270,7 @@ def main() -> int:
         return 0
     if args.source is None:
         parser.error("--source is required unless --verify is used")
-    install(args.source, args.output, args.force, args.background)
+    install(args.source, args.output, args.force, args.background, args.name)
     print(f"installed iPod Hero skin: {args.output}")
     return 0
 

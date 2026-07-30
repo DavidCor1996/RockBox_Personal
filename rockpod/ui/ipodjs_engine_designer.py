@@ -241,6 +241,63 @@ class IPodJSPreview(QFrame):
         p.setPen(QColor("#39404a") if not pal["dark"] else QColor("#d4d9e0"))
         p.drawText(x + int(124 * scale), y + int(186 * scale), "Battery 82%")
 
+    def _draw_extras(self, p, x, y, w, h, scale, pal):
+        header_h = int(20 * scale)
+        list_w = int(145 * scale)
+        p.fillRect(x, y, w, h, pal["panel"])
+        self._draw_header(p, x, y, list_w, scale, pal, "Extras")
+        p.fillRect(x, y + header_h + 1, list_w, h - header_h, pal["row"])
+        p.setFont(self._font(scale, True))
+        labels = ["Applications", "Games", "Photos", "Settings"]
+        for index, label in enumerate(labels):
+            row_y = y + header_h + index * int(25 * scale)
+            if index == 0:
+                p.fillRect(x, row_y, list_w, int(25 * scale), pal["accent"])
+                p.setPen(QColor("#ffffff"))
+            else:
+                p.setPen(pal["text"])
+            p.drawText(x + int(8 * scale), row_y + int(17 * scale), label)
+        right_x = x + list_w + 1
+        pane = self._opt("rockbox_ui_extras_pane", "clock")
+        if pane == "sitekick":
+            p.fillRect(right_x, y, w - list_w - 1, h, QColor("#b9dd42"))
+            p.fillRect(right_x, y, w - list_w - 1, int(32 * scale),
+                       QColor("#4c0b64"))
+            p.setPen(QColor("#ffd81f"))
+            p.drawText(right_x + int(14 * scale), y + int(21 * scale),
+                       "SITEKICK")
+            p.setPen(QPen(QColor("#7d289d"), max(1, int(4 * scale))))
+            p.setBrush(QColor("#ffd81f"))
+            p.drawEllipse(right_x + int(47 * scale), y + int(66 * scale),
+                          int(78 * scale), int(86 * scale))
+            p.setBrush(QColor("#ffffff"))
+            p.drawEllipse(right_x + int(64 * scale), y + int(91 * scale),
+                          int(18 * scale), int(18 * scale))
+            p.drawEllipse(right_x + int(96 * scale), y + int(91 * scale),
+                          int(18 * scale), int(18 * scale))
+        elif pane == "avatar":
+            p.fillRect(right_x, y, w - list_w - 1, h, QColor("#d9e5f0"))
+            p.setPen(QPen(pal["accent"], max(1, int(5 * scale))))
+            p.setBrush(QColor("#f0c59a"))
+            p.drawEllipse(right_x + int(58 * scale), y + int(44 * scale),
+                          int(62 * scale), int(70 * scale))
+            p.setBrush(pal["accent"])
+            p.drawRoundedRect(right_x + int(43 * scale), y + int(114 * scale),
+                              int(92 * scale), int(86 * scale),
+                              int(12 * scale), int(12 * scale))
+            p.setPen(pal["text"])
+            p.drawText(right_x + int(52 * scale), y + int(224 * scale),
+                       "Achievement Avatar")
+        else:
+            p.fillRect(right_x, y, w - list_w - 1, h, pal["preview"])
+            p.setPen(QColor("#ffffff"))
+            p.setFont(QFont("Helvetica", int(31 * scale), QFont.Bold))
+            p.drawText(right_x + int(26 * scale), y + int(110 * scale),
+                       "12:41")
+            p.setFont(self._font(scale, True))
+            p.drawText(right_x + int(31 * scale), y + int(142 * scale),
+                       "Thursday, July 2")
+
     def paintEvent(self, event):
         super().paintEvent(event)
         p = QPainter(self)
@@ -252,6 +309,8 @@ class IPodJSPreview(QFrame):
             self._draw_wps(p, x, y, w, h, scale, pal)
         elif self._screen == "lock":
             self._draw_lock(p, x, y, w, h, scale, pal)
+        elif self._screen == "extras":
+            self._draw_extras(p, x, y, w, h, scale, pal)
         else:
             self._draw_home(p, x, y, w, h, scale, pal)
             if self._opt("rockbox_ui_hold_effect", "lockscreen") == "lockscreen":
@@ -306,6 +365,9 @@ class IPodJSEngineDesignerWidget(QWidget):
         self._font_scale = self._combo(["Small", "Normal", "Large"], 1)
         self._surface = self._combo(["Solid", "Soft", "Transparent"])
         self._hold_effect = self._combo(["Lockscreen", "Stock Dim"])
+        self._extras_pane = self._combo(
+            ["Clock", "Achievement Avatar", "Sitekick"]
+        )
 
         rows = [
             ("Accent", self._accent),
@@ -314,6 +376,7 @@ class IPodJSEngineDesignerWidget(QWidget):
             ("Font", self._font_scale),
             ("Surface", self._surface),
             ("Hold", self._hold_effect),
+            ("Extras Menu Right Pane", self._extras_pane),
         ]
         for row, (label, widget) in enumerate(rows, start=2):
             controls.addWidget(QLabel(label), row, 0)
@@ -344,6 +407,7 @@ class IPodJSEngineDesignerWidget(QWidget):
         self._tabs.addTab(QWidget(), "Home")
         self._tabs.addTab(QWidget(), "WPS")
         self._tabs.addTab(QWidget(), "Lock")
+        self._tabs.addTab(QWidget(), "Extras")
         controls.addWidget(QLabel("Preview"), swatch_row + 1, 0)
         controls.addWidget(self._tabs, swatch_row + 1, 1)
 
@@ -355,7 +419,10 @@ class IPodJSEngineDesignerWidget(QWidget):
         root.addWidget(left)
         root.addWidget(self._preview, 1)
 
-        for combo in (self._accent, self._density, self._font_scale, self._surface, self._hold_effect):
+        for combo in (
+            self._accent, self._density, self._font_scale, self._surface,
+            self._hold_effect, self._extras_pane,
+        ):
             combo.currentIndexChanged.connect(self._refresh_preview)
         self._dark_mode.toggled.connect(self._refresh_preview)
         self._tabs.currentChanged.connect(self._set_preview_tab)
@@ -370,7 +437,9 @@ class IPodJSEngineDesignerWidget(QWidget):
         return combo
 
     def _set_preview_tab(self, index):
-        self._preview.set_screen({0: "home", 1: "wps", 2: "lock"}.get(index, "home"))
+        self._preview.set_screen(
+            {0: "home", 1: "wps", 2: "lock", 3: "extras"}.get(index, "home")
+        )
 
     def _settings(self):
         return {
@@ -381,6 +450,9 @@ class IPodJSEngineDesignerWidget(QWidget):
             "rockbox_ui_font_scale": {0: "small", 1: "normal", 2: "large"}.get(self._font_scale.currentIndex(), "normal"),
             "rockbox_ui_surface": {0: "solid", 1: "soft", 2: "transparent"}.get(self._surface.currentIndex(), "solid"),
             "rockbox_ui_hold_effect": {0: "lockscreen", 1: "dim"}.get(self._hold_effect.currentIndex(), "lockscreen"),
+            "rockbox_ui_extras_pane": {
+                0: "clock", 1: "avatar", 2: "sitekick",
+            }.get(self._extras_pane.currentIndex(), "clock"),
         }
 
     def _refresh_preview(self):

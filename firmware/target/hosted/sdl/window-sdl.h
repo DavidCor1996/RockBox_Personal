@@ -40,5 +40,11 @@ void sdl_window_adjustment_needed(bool destroy_texture);
 
 /* Creates window, renderer, and LCD surface when app launches */
 void sdl_window_setup(void);
+/* Stretch the panel across the whole display, without pillarboxing. */
+void sdl_window_fill_display(void);
+/* Map a host window position onto the simulated panel, undoing the renderer's
+ * current scale so a zoomed or fullscreen session reports true coordinates. */
+void sdl_window_to_panel(int window_x, int window_y, float *panel_x,
+                         float *panel_y);
 
 #endif /* #ifndef __WINDOWSDL_H__ */

@@ -74,6 +74,9 @@ extern const char rbversion[];
 #include "power.h"
 #include "talk.h"
 #include "plugin.h"
+#ifdef SIMULATOR
+#include "open_plugin.h"
+#endif
 #include "misc.h"
 #include "dircache.h"
 #ifdef HAVE_TAGCACHE
@@ -254,13 +257,37 @@ int main(void)
 
         if (sim_plugin && sim_plugin[0]) {
             int sim_plugin_rc;
+            int sim_plugin_loops = 100;
+            const char *next_plugin = sim_plugin;
+            const char *next_param =
+                sim_plugin_param && sim_plugin_param[0] ?
+                sim_plugin_param : NULL;
+            char next_plugin_buf[MAX_PATH];
+            char next_param_buf[MAX_PATH];
+
             fprintf(stderr, "ROCKBOX_SIM_PLUGIN: %s param=%s\n",
-                    sim_plugin,
-                    sim_plugin_param && sim_plugin_param[0] ?
-                    sim_plugin_param : "(null)");
-            sim_plugin_rc = plugin_load(sim_plugin,
-                                        sim_plugin_param && sim_plugin_param[0] ?
-                                        sim_plugin_param : NULL);
+                    next_plugin, next_param ? next_param : "(null)");
+            do {
+                sim_plugin_rc = plugin_load(next_plugin, next_param);
+                if (sim_plugin_rc == PLUGIN_GOTO_PLUGIN) {
+                    struct open_plugin_entry_t *entry =
+                        open_plugin_get_entry();
+
+                    if (!entry || !entry->path[0])
+                        break;
+                    strmemccpy(next_plugin_buf, entry->path,
+                               sizeof(next_plugin_buf));
+                    strmemccpy(next_param_buf, entry->param,
+                               sizeof(next_param_buf));
+                    next_plugin = next_plugin_buf;
+                    next_param = next_param_buf[0] ? next_param_buf : NULL;
+                    fprintf(stderr,
+                            "ROCKBOX_SIM_PLUGIN chain: %s param=%s\n",
+                            next_plugin,
+                            next_param ? next_param : "(null)");
+                }
+            } while (sim_plugin_rc == PLUGIN_GOTO_PLUGIN &&
+                     --sim_plugin_loops > 0);
             fprintf(stderr, "ROCKBOX_SIM_PLUGIN rc=%d\n", sim_plugin_rc);
             if (getenv("ROCKBOX_SIM_PLUGIN_EXIT"))
                 sys_poweroff();

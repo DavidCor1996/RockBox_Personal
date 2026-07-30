@@ -1280,6 +1280,10 @@ const struct settings_list settings[] = {
                    UI_ENGINE_GAMES_CLASSIC,
                    "ui engine games appearance", "classic,steam",
                    NULL, 2, "Classic", "Steam"),
+    CHOICE_SETTING(0, ui_engine_extras_pane, -1,
+                   UI_ENGINE_EXTRAS_CLOCK,
+                   "ui engine extras pane", "clock,avatar,sitekick",
+                   NULL, 3, "Clock", "Achievement Avatar", "Sitekick"),
     OFFON_SETTING(0, ui_engine_lock_settings, -1, false,
                   "ui engine lock settings", NULL),
     OFFON_SETTING(0, ui_engine_dark_mode, -1, false,
@@ -1359,6 +1363,8 @@ const struct settings_list settings[] = {
                    "auto,9600,19200,38400,57600", iap_bitrate_set, 5, ID2P(LANG_SERIAL_BITRATE_AUTO),
            ID2P(LANG_SERIAL_BITRATE_9600),ID2P(LANG_SERIAL_BITRATE_19200),
            ID2P(LANG_SERIAL_BITRATE_38400),ID2P(LANG_SERIAL_BITRATE_57600)),
+    OFFON_SETTING(0, kokkia_pause_on_unplug, LANG_KOKKIA_PAUSE_UNPLUG,
+                  false, "kokkia pause on unplug", NULL),
 #endif
 #ifdef HAVE_ACCESSORY_SUPPLY
     OFFON_SETTING(0, accessory_supply, LANG_ACCESSORY_SUPPLY,

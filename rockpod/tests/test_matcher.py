@@ -31,6 +31,7 @@ def _make_device(did, title, artist, album, duration=240.0, metadata_hash="",
         "file_hash": file_hash,
         "device_path": device_path or f"Music/{artist}/{album}/{title}.mp3",
         "local_track_id": local_track_id,
+        "codec": kw.get("codec", ""),
     }
 
 
@@ -55,6 +56,42 @@ class TestTrackMatcher:
 
         assert len(matched) == 1
         assert matched[0].match_type == MatchResult.MATCH_METADATA_HASH
+
+    def test_stale_links_across_codecs_fall_back_to_correct_hash_matches(self):
+        local = [
+            _make_local(1, "Song", "Art", "Alb", metadata_hash="aac_hash", codec="AAC"),
+            _make_local(2, "Song", "Art", "Alb", metadata_hash="flac_hash", codec="FLAC"),
+        ]
+        device = [
+            _make_device(
+                10,
+                "Song",
+                "Art",
+                "Alb",
+                metadata_hash="flac_hash",
+                local_track_id=1,
+                codec="FLAC",
+                device_path="Music/Art/Alb/01 - Song.flac",
+            ),
+            _make_device(
+                11,
+                "Song",
+                "Art",
+                "Alb",
+                metadata_hash="aac_hash",
+                local_track_id=2,
+                codec="M4A",
+                device_path="Music/Art/Alb/01 - Song.m4a",
+            ),
+        ]
+
+        matcher = TrackMatcher()
+        matched, unmatched, orphaned, resync = matcher.match_all(local, device)
+
+        assert not unmatched
+        assert not orphaned
+        assert not resync
+        assert [result.device_track["codec"] for result in matched] == ["M4A", "FLAC"]
 
     def test_match_by_metadata_fields(self):
         local = [_make_local(1, "Song Title", "Artist Name", "Album Name", duration=180.0)]

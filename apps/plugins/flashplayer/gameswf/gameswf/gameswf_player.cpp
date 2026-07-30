@@ -545,6 +545,12 @@ namespace gameswf
 		m_force_realtime_framerate(false),
 		m_log_bitmap_info(false)
 	{
+		// Rockbox can reload a plugin into the same memory region, where the
+		// player-count guard and static map storage may survive independently.
+		// Rebuild method dispatch before global constructors can invoke it.
+		clear_standard_method_map();
+		standard_method_map_init();
+
 		m_global = new as_object(this);
 
 		action_init();
@@ -554,12 +560,6 @@ namespace gameswf
 			// timer should be inited only once
 			tu_timer::init_timer();
 		}
-
-		// Rockbox can reload a plugin into the same memory region, where the
-		// player-count guard and static map storage may survive independently.
-		// Flashplayer owns exactly one player, so always rebuild these maps.
-		clear_standard_method_map();
-		standard_method_map_init();
 
 		++s_player_count;
 		
@@ -583,6 +583,11 @@ namespace gameswf
 		// heap, with the exception of any objects that are still
 		// referenced by the host program and haven't had drop_ref()
 		// called on them.
+
+		if (s_player_count == 1)
+		{
+			as_sharedobject::flush_all();
+		}
 
 		m_current_root = NULL;
 		m_global = NULL;

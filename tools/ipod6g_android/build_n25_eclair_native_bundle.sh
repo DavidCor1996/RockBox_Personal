@@ -4,11 +4,11 @@ set -euo pipefail
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 uboot_source="${1:-}"
 linux_source="${2:-}"
-wind3x_bin="${3:-}"
-eclair_root_bundle="${4:-}"
-install_dir="${5:-${repo_root}/rockpod/bin/ipod6g-android/eclair-native}"
+eclair_root_bundle="${3:-}"
+install_dir="${4:-${repo_root}/rockpod/bin/ipod6g-android/eclair-native}"
 build_root="${IPOD6G_ANDROID_BUILD_ROOT:-${repo_root}/tools/ipod6g_android/out}/eclair-native"
 jobs="${JOBS:-$(nproc)}"
+unicorn_python="${UNICORN_PYTHON:-python3}"
 source_date_epoch="${SOURCE_DATE_EPOCH:-1704067200}"
 build_timestamp="$(date --utc --date="@${source_date_epoch}" \
     "+%a %b %e %T UTC %Y")"
@@ -26,7 +26,7 @@ linux_overlay="${repo_root}/tools/ipod6g_android/linux-overlay"
 
 usage()
 {
-    echo "usage: $0 UBOOT_SOURCE LINUX_SOURCE WIND3X_BIN ECLAIR_ROOT_BUNDLE [INSTALL_DIR]" >&2
+    echo "usage: $0 UBOOT_SOURCE LINUX_SOURCE ECLAIR_ROOT_BUNDLE [INSTALL_DIR]" >&2
     echo "builds and qualifies RAM-only artifacts; it never accesses an iPod" >&2
     exit 2
 }
@@ -37,11 +37,10 @@ fatal()
     exit 1
 }
 
-[[ -n "${uboot_source}" && -n "${linux_source}" && -n "${wind3x_bin}" && \
+[[ -n "${uboot_source}" && -n "${linux_source}" && \
    -n "${eclair_root_bundle}" ]] || usage
 uboot_source="$(realpath "${uboot_source}")"
 linux_source="$(realpath "${linux_source}")"
-wind3x_bin="$(realpath "${wind3x_bin}")"
 eclair_root_bundle="$(realpath "${eclair_root_bundle}")"
 install_dir="$(realpath -m "${install_dir}")"
 build_root="$(realpath -m "${build_root}")"
@@ -52,20 +51,26 @@ initramfs="${install_dir}/n25-eclair-native-initramfs.cpio.gz"
 root_report="${install_dir}/eclair-root-qualification.json"
 system_report="${install_dir}/eclair-system-emulation.json"
 input_report="${install_dir}/n25-input-emulation.json"
+boot_chord_report="${install_dir}/n25-boot-chord-emulation.json"
+volatile_force_report="${install_dir}/n25-forced-volatile-boot-emulation.json"
+select_right_chain_report="${install_dir}/n25-select-right-chain-emulation.json"
 fit="${install_dir}/n25-eclair-native.itb"
 dfu="${install_dir}/n25-eclair-native-uboot.dfu"
 kernel_ipod="${install_dir}/n25-eclair-kernel.ipod"
 initramfs_ipod="${install_dir}/n25-eclair-initramfs.ipod"
 dtb_ipod="${install_dir}/n25-eclair-dtb.ipod"
-rockbox_bootloader="${install_dir}/n25-eclair-menu-play-bootloader.ipod"
-rockbox_bootloader_dfu="${install_dir}/n25-eclair-menu-play-bootloader.dfu"
+rockbox_bootloader="${install_dir}/n25-eclair-select-right-bootloader.ipod"
+rockbox_bootloader_dfu="${install_dir}/n25-eclair-select-right-bootloader.dfu"
+rockbox_volatile_test_dfu="${install_dir}/n25-eclair-select-right-forced-volatile-test.dfu"
+rockbox_nor_installer="${install_dir}/n25-eclair-select-right-nor-installer.dfu"
+rockbox_nor_uninstaller="${install_dir}/n25-eclair-select-right-nor-uninstaller.dfu"
 its="${build_root}/n25-eclair-native.its"
 uboot_build="${build_root}/uboot"
 linux_build="${build_root}/linux"
 host_bin="${build_root}/host-bin"
 rockbox_bootloader_build="${build_root}/rockbox-bootloader"
+rockbox_volatile_test_build="${build_root}/rockbox-volatile-test"
 
-[[ -x "${wind3x_bin}" ]] || fatal "wInd3x executable not found: ${wind3x_bin}"
 [[ -f "${source_initramfs}" && ! -L "${source_initramfs}" ]] || \
     fatal "qualified Eclair initramfs not found"
 [[ -f "${source_root_report}" && ! -L "${source_root_report}" ]] || \
@@ -161,6 +166,23 @@ SOURCE_DATE_EPOCH="${source_date_epoch}" \
     CROSS_COMPILE=arm-none-eabi- -j"${jobs}" \
     zImage samsung/s5l8702-n25-eclair-native.dtb
 
+wrapped_body_size()
+{
+    local size
+    size="$(stat -c %s "$1")"
+    echo $(( (size + 3) & ~3 ))
+}
+
+kernel_size="$(wrapped_body_size \
+    "${linux_build}/arch/arm/boot/zImage")"
+initramfs_size="$(wrapped_body_size "${initramfs}")"
+dtb_size="$(wrapped_body_size \
+    "${linux_build}/arch/arm/boot/dts/samsung/s5l8702-n25-eclair-native.dtb")"
+extra_defines="-DBOOTLOADER -ffunction-sections -fdata-sections"
+extra_defines+=" -DN25_ANDROID_KERNEL_SIZE=${kernel_size}"
+extra_defines+=" -DN25_ANDROID_INITRD_SIZE=${initramfs_size}"
+extra_defines+=" -DN25_ANDROID_DTB_SIZE=${dtb_size}"
+
 mkdir -p "${rockbox_bootloader_build}"
 if [[ ! -f "${rockbox_bootloader_build}/Makefile" ]]; then
     (
@@ -168,11 +190,56 @@ if [[ ! -f "${rockbox_bootloader_build}/Makefile" ]]; then
         "${repo_root}/tools/configure" --target=ipod6g --type=b --no-ccache
     )
 fi
-make -C "${rockbox_bootloader_build}" -j"${jobs}"
+SOURCE_DATE_EPOCH="${source_date_epoch}" \
+    make -C "${rockbox_bootloader_build}" -j"${jobs}" \
+    EXTRA_DEFINES="${extra_defines}"
 cp "${rockbox_bootloader_build}/bootloader-ipod6g.ipod" \
     "${rockbox_bootloader}"
-"${wind3x_bin}" makedfu --kind n3g \
+python3 "${repo_root}/tools/ipod6g_android/make_s5l8702_img1.py" \
     "${rockbox_bootloader_build}/bootloader.bin" "${rockbox_bootloader_dfu}"
+"${repo_root}/utils/mks5lboot/mks5lboot" --mkdfu-inst \
+    "${rockbox_bootloader}" "${rockbox_nor_installer}"
+"${repo_root}/utils/mks5lboot/mks5lboot" --mkdfu-uninst \
+    ipod6g "${rockbox_nor_uninstaller}"
+python3 "${repo_root}/tools/ipod6g_android/emulate_rockbox_boot_chords.py" \
+    --bootloader-bin "${rockbox_bootloader_build}/bootloader.bin" \
+    --bootloader-elf "${rockbox_bootloader_build}/bootloader.elf" \
+    --output "${boot_chord_report}"
+
+mkdir -p "${rockbox_volatile_test_build}"
+if [[ ! -f "${rockbox_volatile_test_build}/Makefile" ]]; then
+    (
+        cd "${rockbox_volatile_test_build}"
+        "${repo_root}/tools/configure" --target=ipod6g --type=b --no-ccache
+    )
+fi
+volatile_extra_defines="${extra_defines} -DN25_ANDROID_FORCE_VOLATILE_TEST"
+SOURCE_DATE_EPOCH="${source_date_epoch}" \
+    make -C "${rockbox_volatile_test_build}" -j"${jobs}" \
+    EXTRA_DEFINES="${volatile_extra_defines}"
+python3 "${repo_root}/tools/ipod6g_android/make_s5l8702_img1.py" \
+    "${rockbox_volatile_test_build}/bootloader.bin" \
+    "${rockbox_volatile_test_dfu}"
+python3 "${repo_root}/tools/ipod6g_android/emulate_rockbox_boot_chords.py" \
+    --bootloader-bin "${rockbox_volatile_test_build}/bootloader.bin" \
+    --bootloader-elf "${rockbox_volatile_test_build}/bootloader.elf" \
+    --require-forced-android \
+    --output "${volatile_force_report}"
+
+"${unicorn_python}" -c "import unicorn" >/dev/null 2>&1 || \
+    fatal "UNICORN_PYTHON must provide the pinned Unicorn ARM emulator"
+"${unicorn_python}" \
+    "${repo_root}/tools/ipod6g_android/emulate_n25_arm_head.py" \
+    --image "${linux_build}/arch/arm/boot/zImage" \
+    --dtb \
+    "${linux_build}/arch/arm/boot/dts/samsung/s5l8702-n25-eclair-native.dtb" \
+    --system-map "${linux_build}/System.map" \
+    --initramfs "${initramfs}" \
+    --loader-bin "${rockbox_bootloader_build}/bootloader.bin" \
+    --loader-elf "${rockbox_bootloader_build}/bootloader.elf" \
+    --model-n25-timer --verify-n25-irq \
+    --stop-at s5l_lcd_probe --max-instructions 250000000 \
+    --json-output "${select_right_chain_report}"
 
 sed \
     -e "s|@KERNEL@|${linux_build}/arch/arm/boot/zImage|g" \
@@ -182,7 +249,8 @@ sed \
 
 SOURCE_DATE_EPOCH="${source_date_epoch}" \
     "${uboot_build}/tools/mkimage" -f "${its}" "${fit}"
-"${wind3x_bin}" makedfu --kind n3g "${uboot_build}/u-boot.bin" "${dfu}"
+python3 "${repo_root}/tools/ipod6g_android/make_s5l8702_img1.py" \
+    "${uboot_build}/u-boot.bin" "${dfu}"
 "${repo_root}/tools/scramble" -add=ip6g \
     "${linux_build}/arch/arm/boot/zImage" "${kernel_ipod}"
 "${repo_root}/tools/scramble" -add=ip6g "${initramfs}" "${initramfs_ipod}"
@@ -197,6 +265,9 @@ SOURCE_DATE_EPOCH="${source_date_epoch}" \
     --root-report "${root_report}" \
     --system-report "${system_report}" \
     --input-report "${input_report}" \
+    --boot-chord-report "${boot_chord_report}" \
+    --volatile-force-report "${volatile_force_report}" \
+    --select-right-chain-report "${select_right_chain_report}" \
     --fit "${fit}" \
     --dfu "${dfu}" \
     --kernel-ipod "${kernel_ipod}" \
@@ -204,19 +275,30 @@ SOURCE_DATE_EPOCH="${source_date_epoch}" \
     --dtb-ipod "${dtb_ipod}" \
     --rockbox-bootloader "${rockbox_bootloader}" \
     --rockbox-bootloader-dfu "${rockbox_bootloader_dfu}" \
+    --rockbox-volatile-test-dfu "${rockbox_volatile_test_dfu}" \
+    --rockbox-volatile-test-bin "${rockbox_volatile_test_build}/bootloader.bin" \
+    --rockbox-volatile-test-elf "${rockbox_volatile_test_build}/bootloader.elf" \
+    --rockbox-nor-installer "${rockbox_nor_installer}" \
+    --rockbox-nor-uninstaller "${rockbox_nor_uninstaller}" \
     --rockbox-bootloader-bin "${rockbox_bootloader_build}/bootloader.bin" \
     --rockbox-bootloader-elf "${rockbox_bootloader_build}/bootloader.elf" \
+    --mks5lboot "${repo_root}/utils/mks5lboot/mks5lboot" \
     > "${install_dir}/qualification.json"
 
 (
     cd "${install_dir}"
     sha256sum n25-eclair-native-initramfs.cpio.gz \
         eclair-root-qualification.json eclair-system-emulation.json \
-        n25-input-emulation.json \
+        n25-input-emulation.json n25-boot-chord-emulation.json \
+        n25-forced-volatile-boot-emulation.json \
+        n25-select-right-chain-emulation.json \
         n25-eclair-kernel.ipod n25-eclair-initramfs.ipod \
         n25-eclair-dtb.ipod \
-        n25-eclair-menu-play-bootloader.ipod \
-        n25-eclair-menu-play-bootloader.dfu \
+        n25-eclair-select-right-bootloader.ipod \
+        n25-eclair-select-right-bootloader.dfu \
+        n25-eclair-select-right-forced-volatile-test.dfu \
+        n25-eclair-select-right-nor-installer.dfu \
+        n25-eclair-select-right-nor-uninstaller.dfu \
         n25-eclair-native.itb \
         n25-eclair-native-uboot.dfu qualification.json > SHA256SUMS
 )

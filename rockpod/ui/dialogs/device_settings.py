@@ -187,11 +187,34 @@ class DeviceSettingsDialog(QDialog):
         sync_layout.addRow("Converted Bitrate:", self._audio_conversion_bitrate)
 
         self._video_sync_profile = QComboBox()
-        self._video_sync_profile.addItems(["Compact", "Quality"])
-        profile_map = {"compact": 0, "quality": 1}
+        self._video_sync_profile.addItems(
+            [
+                "Seekable MPEG-2 320×240 (recommended)",
+                "Compact RVP 160×120 (20 fps)",
+                "Native RVP 320×240 (20 fps)",
+                "Native RVP + HQ audio (20 fps)",
+            ]
+        )
+        self._video_sync_profile.setToolTip(
+            "Seekable MPEG-2 keeps full 320×240 detail and fluid 20 fps motion "
+            "at a practical size; RockPod rebuilds regular seek points."
+        )
+        profile_map = {
+            "quality": 0,
+            "compact": 0,
+            "efficient": 0,
+            "compact_raw": 1,
+            "compact_rvp": 1,
+            "balanced": 1,
+            "native_raw": 2,
+            "native": 2,
+            "sharp": 2,
+            "raw": 3,
+            "rvp": 3,
+        }
         self._video_sync_profile.setCurrentIndex(
             profile_map.get(
-                str(self._config.get_effective("video_sync_profile", device=device, default="compact")).strip().lower(),
+                str(self._config.get_effective("video_sync_profile", device=device, default="quality")).strip().lower(),
                 0,
             )
         )
@@ -297,6 +320,24 @@ class DeviceSettingsDialog(QDialog):
             else 1
         )
         ui_layout.addRow("Hold Effect:", self._rockbox_ui_hold_effect)
+
+        self._rockbox_ui_extras_pane = QComboBox()
+        self._rockbox_ui_extras_pane.addItems(
+            ["Clock", "Achievement Avatar", "Sitekick"]
+        )
+        self._rockbox_ui_extras_pane.setCurrentIndex(
+            {"clock": 0, "avatar": 1, "sitekick": 2}.get(
+                str(
+                    self._config.get_effective(
+                        "rockbox_ui_extras_pane",
+                        device=device,
+                        default="clock",
+                    )
+                ).strip().lower(),
+                0,
+            )
+        )
+        ui_layout.addRow("Extras Right Pane:", self._rockbox_ui_extras_pane)
         options_layout.addWidget(ui_group)
 
         app_group = QGroupBox("Extras")
@@ -473,8 +514,17 @@ class DeviceSettingsDialog(QDialog):
             )
         )
         self._video_sync_profile.setCurrentIndex(
-            {"compact": 0, "quality": 1}.get(
-                str(self._config.get("video_sync_profile", "compact")).strip().lower(),
+            {
+                "quality": 0,
+                "compact": 0,
+                "efficient": 0,
+                "compact_raw": 1,
+                "compact_rvp": 1,
+                "balanced": 1,
+                "raw": 2,
+                "rvp": 2,
+            }.get(
+                str(self._config.get("video_sync_profile", "quality")).strip().lower(),
                 0,
             )
         )
@@ -528,6 +578,12 @@ class DeviceSettingsDialog(QDialog):
             == "lockscreen"
             else 1
         )
+        self._rockbox_ui_extras_pane.setCurrentIndex(
+            {"clock": 0, "avatar": 1, "sitekick": 2}.get(
+                str(self._config.get("rockbox_ui_extras_pane", "clock")).strip().lower(),
+                0,
+            )
+        )
         self._show_applications.setChecked(bool(self._config.get("rockbox_show_applications_menu", False)))
         self._weather_enabled.setChecked(bool(self._config.get("weather_enabled", True)))
         self._weather_location.setText(str(self._config.get("weather_location_name", "Moncton, NB") or ""))
@@ -569,9 +625,14 @@ class DeviceSettingsDialog(QDialog):
                 self._audio_conversion_bitrate.currentIndex(),
                 160,
             ),
-            "video_sync_profile": {0: "compact", 1: "quality"}.get(
+            "video_sync_profile": {
+                0: "quality",
+                1: "compact_raw",
+                2: "native_raw",
+                3: "raw",
+            }.get(
                 self._video_sync_profile.currentIndex(),
-                "compact",
+                "native_raw",
             ),
             "rockbox_ui_engine": {0: "rockbox", 1: "ipodjs"}.get(
                 self._rockbox_ui_engine.currentIndex(),
@@ -608,6 +669,9 @@ class DeviceSettingsDialog(QDialog):
                 self._rockbox_ui_hold_effect.currentIndex(),
                 "lockscreen",
             ),
+            "rockbox_ui_extras_pane": {
+                0: "clock", 1: "avatar", 2: "sitekick",
+            }.get(self._rockbox_ui_extras_pane.currentIndex(), "clock"),
             "rockbox_show_applications_menu": self._show_applications.isChecked(),
             "weather_enabled": self._weather_enabled.isChecked(),
             "weather_location_name": self._weather_location.text().strip() or "Moncton, NB",

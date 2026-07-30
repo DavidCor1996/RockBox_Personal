@@ -261,6 +261,21 @@ def gold_pixels(frame: Path) -> int:
         return 0
 
 
+def volume_green_pixels(frame: Path) -> int:
+    """Count green pixels in the bottom, horizontally centred volume strip."""
+    result = subprocess.run(
+        ["magick", str(frame), "-crop", "320x50+0+190", "+repage",
+         "-fuzz", "8%", "-fill", "black", "+opaque", "#20FF50",
+         "-fill", "white", "-opaque", "#20FF50",
+         "-format", "%[fx:int(mean*w*h)]", "info:"],
+        check=False, capture_output=True, text=True,
+    )
+    try:
+        return int(result.stdout.strip())
+    except ValueError:
+        return 0
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--build-dir", type=Path,
@@ -352,6 +367,27 @@ def main() -> int:
                 failures.append("SELECT did not tune the channel full screen")
             if motion(frame, args.output, "livetv-full", FULL_CROP) < 200:
                 failures.append("the tuned channel is not playing video")
+
+            # The wheel changes volume through a receiver-owned CRT strip.
+            # It must be green, horizontally centred at the bottom, and
+            # disappear back to live video without invoking the generic OSD.
+            tap(process.pid, "KP_2")
+            time.sleep(0.25)
+            volume = args.output / "livetv-volume-green.png"
+            capture(frame, volume)
+            volume_green = volume_green_pixels(volume)
+            if volume_green < 100:
+                failures.append("the green CRT volume strip did not appear")
+            # A wheel tap can emit a short repeat tail; wait from the final
+            # repeat, not merely from the first synthetic press.
+            time.sleep(3.5)
+            volume_cleared = args.output / "livetv-volume-cleared.png"
+            capture(frame, volume_cleared)
+            # The gate clip contains green SMPTE bars of its own, so verify
+            # that the phosphor pixels added by the OSD went away instead of
+            # requiring the whole moving picture to contain no green.
+            if volume_green_pixels(volume_cleared) >= volume_green - 300:
+                failures.append("the CRT volume strip did not clear")
 
             # Live television cannot be seeked: left and right change
             # channel, and the wheel is left alone for volume.

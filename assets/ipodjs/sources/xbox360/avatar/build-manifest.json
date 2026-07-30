@@ -2,153 +2,93 @@
   "bodies": {
     "xna-boy": {
       "faint": {
-        "bytes": 134030,
-        "frames": 11,
-        "strip": "assets/ipodjs/sources/xbox360/avatar/master/xna-boy/faint.rgba.png"
+        "bytes": 121502
       },
       "jump": {
-        "bytes": 188964,
-        "frames": 14,
-        "strip": "assets/ipodjs/sources/xbox360/avatar/master/xna-boy/jump.rgba.png"
+        "bytes": 119720
       },
       "kick": {
-        "bytes": 179262,
-        "frames": 12,
-        "strip": "assets/ipodjs/sources/xbox360/avatar/master/xna-boy/kick.rgba.png"
+        "bytes": 155822
       },
       "punch": {
-        "bytes": 172556,
-        "frames": 12,
-        "strip": "assets/ipodjs/sources/xbox360/avatar/master/xna-boy/punch.rgba.png"
+        "bytes": 165498
       },
       "sit-idle": {
-        "bytes": 178650,
-        "frames": 16,
-        "strip": "assets/ipodjs/sources/xbox360/avatar/master/xna-boy/sit-idle.rgba.png"
+        "bytes": 201220
       },
       "throw": {
-        "bytes": 158284,
-        "frames": 10,
-        "strip": "assets/ipodjs/sources/xbox360/avatar/master/xna-boy/throw.rgba.png"
+        "bytes": 120216
       },
       "turntable": {
-        "bytes": 823226,
-        "frames": 24,
-        "strip": "assets/ipodjs/sources/xbox360/avatar/master/xna-boy/turntable.rgba.png"
+        "bytes": 835350
       },
       "walk": {
-        "bytes": 186818,
-        "frames": 16,
-        "strip": "assets/ipodjs/sources/xbox360/avatar/master/xna-boy/walk.rgba.png"
+        "bytes": 244320
       }
     },
     "xna-girl": {
       "faint": {
-        "bytes": 121574,
-        "frames": 11,
-        "strip": "assets/ipodjs/sources/xbox360/avatar/master/xna-girl/faint.rgba.png"
+        "bytes": 110676
       },
       "jump": {
-        "bytes": 166154,
-        "frames": 14,
-        "strip": "assets/ipodjs/sources/xbox360/avatar/master/xna-girl/jump.rgba.png"
+        "bytes": 108762
       },
       "kick": {
-        "bytes": 166922,
-        "frames": 12,
-        "strip": "assets/ipodjs/sources/xbox360/avatar/master/xna-girl/kick.rgba.png"
+        "bytes": 146264
       },
       "punch": {
-        "bytes": 155454,
-        "frames": 12,
-        "strip": "assets/ipodjs/sources/xbox360/avatar/master/xna-girl/punch.rgba.png"
+        "bytes": 149664
       },
       "sit-idle": {
-        "bytes": 162092,
-        "frames": 16,
-        "strip": "assets/ipodjs/sources/xbox360/avatar/master/xna-girl/sit-idle.rgba.png"
+        "bytes": 180124
       },
       "throw": {
-        "bytes": 142512,
-        "frames": 10,
-        "strip": "assets/ipodjs/sources/xbox360/avatar/master/xna-girl/throw.rgba.png"
+        "bytes": 109832
       },
       "turntable": {
-        "bytes": 821406,
-        "frames": 24,
-        "strip": "assets/ipodjs/sources/xbox360/avatar/master/xna-girl/turntable.rgba.png"
+        "bytes": 835178
       },
       "walk": {
-        "bytes": 176160,
-        "frames": 16,
-        "strip": "assets/ipodjs/sources/xbox360/avatar/master/xna-girl/walk.rgba.png"
+        "bytes": 222706
       }
     },
     "xna-girl-heels": {
       "faint": {
-        "bytes": 121044,
-        "frames": 11,
-        "strip": "assets/ipodjs/sources/xbox360/avatar/master/xna-girl-heels/faint.rgba.png"
+        "bytes": 110676
       },
       "jump": {
-        "bytes": 166420,
-        "frames": 14,
-        "strip": "assets/ipodjs/sources/xbox360/avatar/master/xna-girl-heels/jump.rgba.png"
+        "bytes": 108762
       },
       "kick": {
-        "bytes": 166706,
-        "frames": 12,
-        "strip": "assets/ipodjs/sources/xbox360/avatar/master/xna-girl-heels/kick.rgba.png"
+        "bytes": 146264
       },
       "punch": {
-        "bytes": 156362,
-        "frames": 12,
-        "strip": "assets/ipodjs/sources/xbox360/avatar/master/xna-girl-heels/punch.rgba.png"
+        "bytes": 149664
       },
       "sit-idle": {
-        "bytes": 164030,
-        "frames": 16,
-        "strip": "assets/ipodjs/sources/xbox360/avatar/master/xna-girl-heels/sit-idle.rgba.png"
+        "bytes": 180124
       },
       "throw": {
-        "bytes": 142770,
-        "frames": 10,
-        "strip": "assets/ipodjs/sources/xbox360/avatar/master/xna-girl-heels/throw.rgba.png"
+        "bytes": 109832
       },
       "turntable": {
-        "bytes": 821298,
-        "frames": 24,
-        "strip": "assets/ipodjs/sources/xbox360/avatar/master/xna-girl-heels/turntable.rgba.png"
+        "bytes": 835178
       },
       "walk": {
-        "bytes": 177626,
-        "frames": 16,
-        "strip": "assets/ipodjs/sources/xbox360/avatar/master/xna-girl-heels/walk.rgba.png"
+        "bytes": 222706
       }
     }
-  },
-  "appearance": {
-    "editable_materials": [
-      "skin",
-      "hair",
-      "top",
-      "bottom",
-      "shoes"
-    ],
-    "method": "tint authentic textured material regions while preserving source UV detail, lighting, silhouette, and alpha",
-    "replacement_or_hand_drawn_parts": false
   },
   "frame_ms": 125,
   "provenance": {
     "achievement_sound": "Xbox Wire Major Nelson master; non-commercial personal use",
-    "character_and_motion": "Microsoft XNA Avatar Animation Pack 4.0",
+    "character_and_motion": "Microsoft XNA Game Studio 4.0 Avatar Animation Pack",
     "character_license": "Microsoft Permissive License (Ms-PL)",
-    "character_textures": "Original Microsoft XNA Avatar_texture color maps",
     "dashboard_ui_sounds": "Xbox 360 SystemUpdate 17559 AvatarEditor.xex",
-    "desktop_model": "Qt Quick 3D mesh converted from the genuine XNA FBX geometry",
-    "render_conversion": "ufbx 0.23.0; original UV color maps; studio lighting; 416x672 RGBA; 24-angle 360-degree turntable",
-    "generated_or_hand_drawn_character_art": false
+    "generated_or_hand_drawn_character_art": false,
+    "renderer": "services.xbox_avatar_render",
+    "rig_pack": "assets/ipodjs/sources/xbox360/avatar/rig"
   },
-  "schema": 2,
+  "schema": 3,
   "turntable_frame_ms": 200
 }

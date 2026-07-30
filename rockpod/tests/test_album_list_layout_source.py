@@ -249,12 +249,33 @@ def test_ipodjs_fullscreen_album_lists_keep_ipodjs_palette():
 def test_ipodjs_photos_slideshow_uses_full_quality_previews():
     root_menu = _read("apps/root_menu.c")
     photo_loader = root_menu.split(
-        "static void root_menu_video_preview_load_photo_paths", 1
+        "static int root_menu_video_photo_load_locks", 1
     )[1].split("static void root_menu_video_preview_load_game_paths", 1)[0]
+    photo_timing = root_menu.split(
+        "static long root_menu_video_source_slideshow_period", 1
+    )[1].split("static bool root_menu_video_preview_service", 1)[0]
+    decode_gate = root_menu.split(
+        "static bool root_menu_video_preview_decode_permitted", 1
+    )[1].split("static struct root_menu_video_preview_slot *", 1)[0]
+    preview_service = root_menu.split(
+        "static bool root_menu_video_preview_service", 1
+    )[1].split("static bool root_menu_video_draw_preview_cover", 1)[0]
 
-    assert '"/Photos/.photo_previews"' in photo_loader
+    assert '.photo_previews"' in photo_loader
     assert ".photo_thumbs" not in photo_loader
+    assert 'root_menu_video_preview_path_has_previews("/Photos")' in root_menu
     assert "root_menu_video_draw_source_slideshow_cached(source," in root_menu
+    assert "#define IPODJS_PHOTO_INDEX_MAX 1024" in root_menu
+    assert "#define IPODJS_PREVIEW_IMAGE_WIDTH 320" in root_menu
+    assert "#define IPODJS_PREVIEW_IMAGE_HEIGHT 240" in root_menu
+    assert "slot->bm.width = IPODJS_PREVIEW_IMAGE_WIDTH;" in root_menu
+    assert "slot->bm.height = IPODJS_PREVIEW_IMAGE_HEIGHT;" in root_menu
+    assert "slideshow_order_index(&root_menu_video_photo_order" in photo_timing
+    assert "if (source == IPODJS_PREVIEW_PHOTOS)" in photo_timing
+    assert "return HZ * 6;" in photo_timing
+    assert "root_menu_video_source_slideshow_period(source) / 2" in photo_timing
+    assert "AUDIO_STATUS_PAUSE" not in decode_gate
+    assert "AUDIO_STATUS_PAUSE" not in preview_service
 
 
 def test_ipodjs_photo_and_game_slideshows_cover_the_full_right_pane():
@@ -284,23 +305,59 @@ def test_ipodjs_photos_slideshow_excludes_locked_photos_and_folders():
         "static int launch_photos_plugin", 1
     )[1].split("MENUITEM_FUNCTION(photos_item", 1)[0]
 
+    lock_boundary = root_menu.split(
+        "static bool root_menu_video_photo_relative_locked", 1
+    )[1].split("static bool root_menu_video_photo_preview_is_locked", 1)[0]
+    index_loader = root_menu.split(
+        "static int root_menu_video_photo_load_locks", 1
+    )[1].split("static void root_menu_video_preview_load_photo_paths", 1)[0]
+
     assert 'PLUGIN_APPS_DATA_DIR "/photos.locks"' in root_menu
-    assert "relative_len == lock_len || relative[lock_len] == '/'" in lock_filter
-    assert "root_menu_video_preview_filter_locked_photos();" in root_menu
+    assert "relative_len == lock_len || relative[lock_len] == '/'" in lock_boundary
+    assert (
+        "root_menu_video_preview_filter_locked_photos(root_menu_video_photo_root);"
+        in root_menu
+    )
     assert "root_menu_video_preview_path_count = 0;" in lock_filter
+    # The index path must apply locks while building the offset table and
+    # fail closed when the lock database cannot be read.
+    assert "root_menu_video_photo_relative_locked(line, locks[i])" in index_loader
+    assert "lock_count < 0" in index_loader
     assert "IPODJS_PREVIEW_PHOTOS" in photo_launcher
     assert "file_exists(photo_path)" in root_menu
+
+
+def test_ipodjs_photos_fallback_maps_nested_previews_from_preview_root():
+    root_menu = _read("apps/root_menu.c")
+    preview_scan = root_menu.split(
+        "static void root_menu_video_preview_scan_photo_previews", 1
+    )[1].split(
+        "static bool root_menu_video_photo_relative_locked", 1
+    )[0]
+
+    assert "const char *preview_root" in preview_scan
+    assert "const size_t prefix_len = strlen(preview_root);" in preview_scan
+    assert "strncmp(child, preview_root, prefix_len)" in preview_scan
+    assert (
+        "root_menu_video_preview_scan_photo_previews(child,\n"
+        "                                                       preview_root,"
+        in preview_scan
+    )
 
 
 def test_photos_plugin_keeps_full_quality_previews_with_photo_operations():
     photos = _read("apps/plugins/photos.c")
 
-    assert '#define PHOTOS_PREVIEW_DIR PHOTOS_ROOT "/.photo_previews"' in photos
+    assert '#define PHOTOS_PREVIEW_DIR_SUFFIX ".photo_previews"' in photos
     assert "static void photos_move_sidecars" in photos
     assert "photos_move_sidecars(entry->path, newpath, entry->is_dir);" in photos
     assert "photos_move_sidecars(entry->path, newpath, false);" in photos
     assert "static void photos_delete_sidecars_for" in photos
     assert "photos_delete_sidecars_for(delete_path, is_dir);" in photos
+    # Rename/delete operations must keep the hover-pane preview index
+    # consistent so it never references a moved or deleted photo.
+    assert "photos_update_preview_index(old_rel, new_rel, is_dir);" in photos
+    assert "photos_update_preview_index(relpath, NULL, is_dir);" in photos
 
 
 def test_album_list_change_does_not_edit_ipone_colors():

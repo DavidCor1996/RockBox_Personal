@@ -397,6 +397,14 @@ void sys_handle_argv(int argc, char *argv[])
                 background = false;
                 printf("Disabling background image.\n");
             }
+            else if (!strcmp("--fullscreen", argv[x]))
+            {
+                /* Rockpod's parity session fills the host display with the
+                 * 320x240 panel instead of showing it in a small window. */
+                sdl_fullscreen = true;
+                background = false;
+                printf("Filling the host display.\n");
+            }
 #ifdef HAVE_REMOTE_LCD
             else if (!strcmp("--noremote", argv[x]))
             {

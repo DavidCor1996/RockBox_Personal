@@ -741,23 +741,23 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x1e6da
+.debug_info     0x0000000000000000    0x1e707
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0xe1cd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/minishcap.o
- .debug_info    0x000000000000e1cd     0x7dde /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
- .debug_info    0x0000000000015fab     0x780e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
- .debug_info    0x000000000001d7b9      0x142 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_back.24x24x24.o)
- .debug_info    0x000000000001d8fb      0x142 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_front.24x24x24.o)
- .debug_info    0x000000000001da3d      0x142 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_front_step.24x24x24.o)
- .debug_info    0x000000000001db7f      0x142 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_left.24x24x24.o)
- .debug_info    0x000000000001dcc1      0x142 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_left_step.24x24x24.o)
- .debug_info    0x000000000001de03      0x142 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_right.24x24x24.o)
- .debug_info    0x000000000001df45      0x142 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_right_step.24x24x24.o)
- .debug_info    0x000000000001e087      0x145 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_room_meadow_real.320x208x24.o)
- .debug_info    0x000000000001e1cc      0x145 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_room_creek_real.320x208x24.o)
- .debug_info    0x000000000001e311      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_room_links_house_bedroom.240x160x24.o)
- .debug_info    0x000000000001e454      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_room_links_house_entrance.240x160x24.o)
- .debug_info    0x000000000001e597      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_room_links_house_smith.240x160x24.o)
+ .debug_info    0x0000000000000000     0xe1dc /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/minishcap.o
+ .debug_info    0x000000000000e1dc     0x7ded /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+ .debug_info    0x0000000000015fc9     0x781d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+ .debug_info    0x000000000001d7e6      0x142 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_back.24x24x24.o)
+ .debug_info    0x000000000001d928      0x142 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_front.24x24x24.o)
+ .debug_info    0x000000000001da6a      0x142 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_front_step.24x24x24.o)
+ .debug_info    0x000000000001dbac      0x142 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_left.24x24x24.o)
+ .debug_info    0x000000000001dcee      0x142 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_left_step.24x24x24.o)
+ .debug_info    0x000000000001de30      0x142 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_right.24x24x24.o)
+ .debug_info    0x000000000001df72      0x142 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_right_step.24x24x24.o)
+ .debug_info    0x000000000001e0b4      0x145 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_room_meadow_real.320x208x24.o)
+ .debug_info    0x000000000001e1f9      0x145 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_room_creek_real.320x208x24.o)
+ .debug_info    0x000000000001e33e      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_room_links_house_bedroom.240x160x24.o)
+ .debug_info    0x000000000001e481      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_room_links_house_entrance.240x160x24.o)
+ .debug_info    0x000000000001e5c4      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_room_links_house_smith.240x160x24.o)
 
 .debug_abbrev   0x0000000000000000     0x16f9
  *(.debug_abbrev)
@@ -798,37 +798,37 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x5e63
+.debug_str      0x0000000000000000     0x5e79
  *(.debug_str)
- .debug_str     0x0000000000000000     0x5e63 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/minishcap.o
-                                       0x63e8 (size before relaxing)
- .debug_str     0x0000000000005e63        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
-                                       0x52f4 (size before relaxing)
- .debug_str     0x0000000000005e63        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
-                                       0x499b (size before relaxing)
- .debug_str     0x0000000000005e63        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_back.24x24x24.o)
+ .debug_str     0x0000000000000000     0x5e79 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/minishcap.o
+                                       0x63fe (size before relaxing)
+ .debug_str     0x0000000000005e79        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+                                       0x530a (size before relaxing)
+ .debug_str     0x0000000000005e79        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+                                       0x49b1 (size before relaxing)
+ .debug_str     0x0000000000005e79        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_back.24x24x24.o)
                                         0x17a (size before relaxing)
- .debug_str     0x0000000000005e63        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_front.24x24x24.o)
+ .debug_str     0x0000000000005e79        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_front.24x24x24.o)
                                         0x17c (size before relaxing)
- .debug_str     0x0000000000005e63        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_front_step.24x24x24.o)
+ .debug_str     0x0000000000005e79        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_front_step.24x24x24.o)
                                         0x186 (size before relaxing)
- .debug_str     0x0000000000005e63        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_left.24x24x24.o)
+ .debug_str     0x0000000000005e79        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_left.24x24x24.o)
                                         0x17a (size before relaxing)
- .debug_str     0x0000000000005e63        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_left_step.24x24x24.o)
+ .debug_str     0x0000000000005e79        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_left_step.24x24x24.o)
                                         0x184 (size before relaxing)
- .debug_str     0x0000000000005e63        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_right.24x24x24.o)
+ .debug_str     0x0000000000005e79        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_right.24x24x24.o)
                                         0x17c (size before relaxing)
- .debug_str     0x0000000000005e63        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_right_step.24x24x24.o)
+ .debug_str     0x0000000000005e79        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_right_step.24x24x24.o)
                                         0x186 (size before relaxing)
- .debug_str     0x0000000000005e63        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_room_meadow_real.320x208x24.o)
+ .debug_str     0x0000000000005e79        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_room_meadow_real.320x208x24.o)
                                         0x188 (size before relaxing)
- .debug_str     0x0000000000005e63        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_room_creek_real.320x208x24.o)
+ .debug_str     0x0000000000005e79        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_room_creek_real.320x208x24.o)
                                         0x186 (size before relaxing)
- .debug_str     0x0000000000005e63        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_room_links_house_bedroom.240x160x24.o)
+ .debug_str     0x0000000000005e79        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_room_links_house_bedroom.240x160x24.o)
                                         0x198 (size before relaxing)
- .debug_str     0x0000000000005e63        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_room_links_house_entrance.240x160x24.o)
+ .debug_str     0x0000000000005e79        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_room_links_house_entrance.240x160x24.o)
                                         0x19a (size before relaxing)
- .debug_str     0x0000000000005e63        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_room_links_house_smith.240x160x24.o)
+ .debug_str     0x0000000000005e79        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_room_links_house_smith.240x160x24.o)
                                         0x194 (size before relaxing)
 
 .debug_loc

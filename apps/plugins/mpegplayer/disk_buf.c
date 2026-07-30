@@ -880,7 +880,12 @@ int disk_buf_open(const char *filename)
 
         if (filesize <= 0)
         {
-            rb->close(disk_buf.in_file);
+            /* Empty or unreadable file: nothing was stored in
+             * disk_buf.in_file, so it is "fd" that must be closed here
+             * or the handle leaks (surfaces as the plugin file-handle
+             * leak dialog on exit, e.g. after Live TV opens a zero-byte
+             * synced clip). */
+            rb->close(fd);
         }
         else
         {

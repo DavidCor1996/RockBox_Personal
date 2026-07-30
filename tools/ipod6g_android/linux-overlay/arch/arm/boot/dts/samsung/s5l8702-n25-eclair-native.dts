@@ -21,7 +21,7 @@
 		stdout-path = "serial0:57600n8";
 		bootargs = "console=ttySAC0,57600 earlycon=s5l,mmio32,0x3cc00000 rdinit=/init androidboot.hardware=n25 androidboot.console=ttySAC0 loglevel=8 panic=5";
 		/*
-		 * Fixed RAM-only handoff used by the Rockbox Menu+Play boot path.
+		 * Fixed RAM-only handoff used by the Rockbox Select+Right boot path.
 		 * U-Boot normally adds these properties to the FIT's DTB; keeping
 		 * them in the DTB also makes the independently checksummed direct
 		 * boot components self-contained.

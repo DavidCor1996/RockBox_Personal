@@ -47,6 +47,70 @@ const unsigned char *iap_get_serbuf(void);
 /* Transport abstraction — USB HID driver overrides this for iAP-over-USB */
 extern void (*iap_transport_send)(const unsigned char *buf, int len);
 
+/* True while iAP runs over the dock connector UART rather than USB HID */
+extern bool iap_transport_is_serial(void);
+
+enum iap_connection_status {
+    IAP_CONNECTION_DISCONNECTED = 0,
+    IAP_CONNECTION_DETECTING,
+    IAP_CONNECTION_AUTHENTICATING,
+    IAP_CONNECTION_READY,
+    IAP_CONNECTION_RETRYING,
+};
+
+enum iap_reconnect_reason {
+    IAP_RECONNECT_NONE = 0,
+    IAP_RECONNECT_NO_DATA,
+    IAP_RECONNECT_AUTOBAUD,
+    IAP_RECONNECT_AUTH_TIMEOUT,
+    IAP_RECONNECT_ACTIVATION_TIMEOUT,
+    IAP_RECONNECT_ACCESSORY_RESTART,
+    IAP_RECONNECT_MANUAL,
+    IAP_RECONNECT_LINK_ERRORS,
+};
+
+enum iap_autobaud_status {
+    IAP_AUTOBAUD_LAUNCHED = 0,
+    IAP_AUTOBAUD_SYNCING,
+    IAP_AUTOBAUD_DONE,
+};
+
+struct iap_connection_info {
+    enum iap_connection_status status;
+    enum iap_reconnect_reason reason;
+    unsigned int retry_count;
+    unsigned int rx_bytes;
+    unsigned int autobaud_relaunches;
+    unsigned int uart_errors;
+    unsigned int checksum_errors;
+    unsigned int contact_dropouts;
+    unsigned int max_absent_ticks;
+    int bitrate;
+    bool kokkia_seen;
+    bool authenticated;
+    bool activated;
+};
+
+/* Serial accessory connection health and bounded recovery controls. */
+extern enum iap_connection_status iap_connection_status(void);
+extern enum iap_reconnect_reason iap_last_reconnect_reason(void);
+extern unsigned int iap_reconnect_count(void);
+extern void iap_get_connection_info(struct iap_connection_info *info);
+extern bool iap_restart_kokkia(void);
+
+/* Suppress non-user remote/status events during dock startup. */
+extern void iap_note_serial_connect(void);
+extern void iap_note_serial_disconnect(void);
+extern bool iap_remote_input_suppressed(void);
+
+/* Presence drives the Bluetooth glyph; connected drives peer-ready behavior
+ * such as the one-shot AirPods animation and headset button translation. */
+extern bool iap_ready_for_serial(void);
+extern bool iap_kokkia_present(void);
+extern bool iap_kokkia_connected(void);
+extern void iap_note_kokkia_ready(void);
+extern bool iap_take_kokkia_connection_event(void);
+
 /* Button state — set by iAP Simple Remote and Extended Interface
  * lingo handlers, read by remote_control_rx() in the button driver. */
 extern unsigned long iap_remotebtn;

@@ -18,7 +18,7 @@ from PIL import Image, UnidentifiedImageError
 
 from services.file_safety import atomic_write_json, atomic_write_text
 from services.achievements import AchievementSyncService
-from services.xbox_avatar import XboxAvatarService
+from services.xbox_avatar import XboxAvatarService, profile_from_target
 from services.online_game_metadata import OnlineGameMetadataLookup
 
 
@@ -825,21 +825,7 @@ class RockboxGameService:
                 profile.get("source_repo_path") or os.getcwd(),
                 api_key=profile.get("retroachievements_web_api_key", ""),
                 username=profile.get("retroachievements_username", ""),
-                avatar_profile={
-                    "display_name": profile.get(
-                        "xbox_avatar_display_name", "OFFLINE PLAYER"
-                    ),
-                    "body": profile.get("xbox_avatar_body", "xna-boy"),
-                    "favorite_clip": profile.get(
-                        "xbox_avatar_favorite_clip", "jump"
-                    ),
-                    **{
-                        field: profile.get(
-                            f"xbox_avatar_{field}", "original"
-                        )
-                        for field in ("skin", "hair", "top", "bottom", "shoes")
-                    },
-                },
+                avatar_profile=profile_from_target(profile),
             )
             achievement_assets, _coverage = achievement_service.build_sync_assets(
                 mount_root, stage_root, add_games=games)
@@ -864,19 +850,7 @@ class RockboxGameService:
         totals = self.mounted_achievement_totals(mount_root)
         service = XboxAvatarService(
             profile.get("source_repo_path") or os.getcwd(),
-            {
-                "display_name": profile.get(
-                    "xbox_avatar_display_name", "OFFLINE PLAYER"
-                ),
-                "body": profile.get("xbox_avatar_body", "xna-boy"),
-                "favorite_clip": profile.get(
-                    "xbox_avatar_favorite_clip", "jump"
-                ),
-                **{
-                    field: profile.get(f"xbox_avatar_{field}", "original")
-                    for field in ("skin", "hair", "top", "bottom", "shoes")
-                },
-            },
+            profile_from_target(profile),
         )
         assets, coverage = service.build_sync_assets(
             mount_root, stage_root, totals=totals

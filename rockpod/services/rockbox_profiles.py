@@ -7,18 +7,75 @@ import os
 import re
 
 
+# Mirrors services.xbox_avatar so a stored profile always round-trips through
+# the same set of real wardrobe parts and colour swatches the creator offers.
+_AVATAR_STYLE_VALUES = {
+    "hair_style": {"original", "boy-short", "girl-bob", "shaved"},
+    "top_style": {"original", "crew-tee", "scoop-tee", "none"},
+    "bottom_style": {"original", "jeans", "shorts"},
+    "shoes_style": {"original", "sneakers", "flats", "heels", "barefoot"},
+}
+_AVATAR_COLOUR_VALUES = {
+    "skin_colour": {"original", "porcelain", "light", "medium", "tan", "deep",
+                    "rich"},
+    "hair_colour": {"original", "black", "brown", "chestnut", "blond",
+                    "auburn", "red", "silver"},
+    "top_colour": {"original", "xbox-green", "blue", "navy", "red", "black",
+                   "white", "purple", "orange"},
+    "bottom_colour": {"original", "denim", "black", "gray", "khaki", "white"},
+    "shoes_colour": {"original", "white", "black", "brown", "red", "blue"},
+    "eye_colour": {"original", "brown", "blue", "green", "hazel", "grey"},
+    "brow_colour": {"original", "black", "brown", "blond", "auburn"},
+    "lip_colour": {"original", "natural", "rose", "red", "berry"},
+}
+_AVATAR_DECAL_VALUES = {
+    "original", "none", "rockbox", "rockbox-icon", "apple", "album-art",
+    "ipod-play", "ipod-volume",
+}
+_AVATAR_DESIGN_VALUES = {
+    "none", "solid", "stripes", "pinstripe", "diagonal", "chevron", "checks",
+    "plaid", "tartan", "dots", "halftone", "rings", "rays", "waves", "argyle",
+    "houndstooth", "camo", "marble", "fade", "grid", "triangles", "static",
+}
+_AVATAR_SCALE_VALUES = {"fine", "small", "medium", "large", "huge"}
+_AVATAR_ACCENT_VALUES = {
+    "white", "black", "xbox-green", "blue", "red", "gold", "purple", "orange",
+}
 _AVATAR_APPEARANCE_VALUES = {
-    "skin": {"original", "light", "medium", "deep"},
-    "hair": {"original", "black", "brown", "blond", "auburn"},
-    "top": {"original", "xbox-green", "blue", "red", "black", "white"},
-    "bottom": {"original", "denim", "black", "gray", "khaki"},
-    "shoes": {"original", "white", "black", "brown", "red"},
+    **_AVATAR_STYLE_VALUES,
+    **_AVATAR_COLOUR_VALUES,
+    **{f"{slot}_design": _AVATAR_DESIGN_VALUES
+       for slot in ("top", "bottom", "shoes")},
+    **{f"{slot}_design_scale": _AVATAR_SCALE_VALUES
+       for slot in ("top", "bottom", "shoes")},
+    "accent_colour": _AVATAR_ACCENT_VALUES,
+    "decal": _AVATAR_DECAL_VALUES,
+}
+# Imported Marketplace item names come from the installed pack, so they are
+# sanitised here and validated by the renderer rather than being enumerated.
+_AVATAR_MARKETPLACE_FIELDS = ("costume", "marketplace_top", "headwear", "prop")
+_AVATAR_APPEARANCE_DEFAULTS = {
+    **{f"{slot}_design": "none" for slot in ("top", "bottom", "shoes")},
+    **{f"{slot}_design_scale": "medium"
+       for slot in ("top", "bottom", "shoes")},
+    "accent_colour": "black",
+}
+
+# Profiles written before the real rig landed stored one palette name per
+# clothing slot; those names are still valid colours.
+_AVATAR_LEGACY_COLOURS = {
+    "skin": "skin_colour",
+    "hair": "hair_colour",
+    "top": "top_colour",
+    "bottom": "bottom_colour",
+    "shoes": "shoes_colour",
 }
 
 
 def _normalize_avatar_appearance(field, value):
-    value = str(value or "original")
-    return value if value in _AVATAR_APPEARANCE_VALUES[field] else "original"
+    default = _AVATAR_APPEARANCE_DEFAULTS.get(field, "original")
+    value = str(value or default)
+    return value if value in _AVATAR_APPEARANCE_VALUES[field] else default
 
 
 def _slug(value):
@@ -334,10 +391,25 @@ class RockboxProfileStore:
                 } else "jump"
             ),
             **{
+                f"xbox_avatar_{field}": re.sub(
+                    r"[^a-z0-9-]", "",
+                    str(item.get(f"xbox_avatar_{field}")
+                        or self._config.get(f"xbox_avatar_{field}")
+                        or "none").lower()
+                ) or "none"
+                for field in _AVATAR_MARKETPLACE_FIELDS
+            },
+            **{
                 f"xbox_avatar_{field}": _normalize_avatar_appearance(
                     field,
                     item.get(f"xbox_avatar_{field}")
-                    or self._config.get(f"xbox_avatar_{field}", "original")
+                    or self._config.get(f"xbox_avatar_{field}")
+                    or (item.get(f"xbox_avatar_{legacy}")
+                        or self._config.get(f"xbox_avatar_{legacy}")
+                        if (legacy := next(
+                            (old for old, new in _AVATAR_LEGACY_COLOURS.items()
+                             if new == field), None)) else None)
+                    or None
                 )
                 for field in _AVATAR_APPEARANCE_VALUES
             },

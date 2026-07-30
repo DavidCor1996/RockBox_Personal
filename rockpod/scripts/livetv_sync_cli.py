@@ -20,6 +20,7 @@ from services.livetv import (  # noqa: E402
     LiveTvLibrary,
     LiveTvLineup,
     LiveTvSync,
+    ensure_weather_channel,
 )
 
 
@@ -44,6 +45,13 @@ def main():
     if not lineup.channels:
         lineup.autobuild(shows, ads)
         lineup.save()
+
+    before = len(shows)
+    shows = ensure_weather_channel(sync, lineup, config, shows, ads)
+    if len(shows) > before:
+        print(f"  Weather channel: {len(shows) - before} bumper(s)",
+              flush=True)
+    lineup.save()
     print(f"  {len(lineup.channels)} channels", flush=True)
 
     started = time.time()
@@ -65,6 +73,8 @@ def main():
     print(f"\nConverted {summary['converted']}, copied {summary['copied']}, "
           f"unchanged {summary['skipped']}")
     print(f"{summary['channels']} channels, {summary['slots']} listings")
+    if summary.get("cache_pruned"):
+        print(f"Removed {summary['cache_pruned']} unused cached clip(s)")
     for warning in summary.get("warnings") or []:
         print(f"WARNING: {warning}")
     for error in (summary.get("errors") or [])[:10]:

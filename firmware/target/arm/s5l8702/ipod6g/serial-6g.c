@@ -25,6 +25,9 @@
 #include "cpu.h"
 #include "system.h"
 #include "serial.h"
+#ifdef IPOD_ACCESSORY_PROTOCOL
+#include "iap.h"
+#endif
 
 #include "s5l87xx.h"
 #include "uc87xx.h"
@@ -106,20 +109,72 @@ void serial_setup(void)
 #else /* IPOD_ACCESSORY_PROTOCOL */
 #include "kernel.h"
 #include "pmu-target.h"
-#include "iap.h"
-
-static enum {
-    ABR_STATUS_LAUNCHED,    /* ST_SYNC */
-    ABR_STATUS_SYNCING,     /* ST_SOF */
-    ABR_STATUS_DONE
-} abr_status;
+static enum iap_autobaud_status abr_status;
 
 static int bitrate = 0;
 static bool acc_plugged = false;
+static unsigned int acc_absent_ticks;
+
+/* A tap can make the dock-presence contact bounce for one or two scheduler
+ * ticks even though the transmitter never left the connector.  Treating that
+ * as a real removal tears down an otherwise healthy authenticated session.
+ * Require 250 ms of continuous absence before closing the UART.  A genuine
+ * unplug is only delayed by that bounded interval, while a brief contact
+ * dropout leaves playback and iAP state untouched. */
+#define ACCESSORY_REMOVE_DEBOUNCE_TICKS MAX(1, (HZ + 3) / 4)
+
+/* Diagnostics surfaced by the Debug IAP screen.  These let us tell
+ * apart the three ways a dock accessory can fail to talk to us:
+ * accessory never detected (port never opened), detected but silent
+ * (no Rx bytes), or talking at a bitrate we never lock onto (Rx bytes
+ * climbing while ABR keeps relaunching).
+ */
+unsigned int iap_diag_rx_bytes;
+unsigned int iap_diag_abr_relaunch;
+unsigned int iap_diag_abr_status;
+unsigned int iap_diag_port_open;
+unsigned int iap_diag_uart_errors;
+unsigned int iap_diag_uart_overruns;
+unsigned int iap_diag_uart_parity_errors;
+unsigned int iap_diag_uart_frame_errors;
+unsigned int iap_diag_uart_breaks;
+unsigned int iap_diag_contact_dropouts;
+unsigned int iap_diag_max_absent_ticks;
+int iap_diag_rate;
 
 static void serial_acc_tick(void)
 {
     bool plugged = pmu_accessory_present();
+
+    /* serial_setup() runs well before iap_setup().  If an already-inserted
+     * Kokkia is opened in that gap, it can exhaust its bounded startup
+     * identification attempts before the protocol queue and framing buffers
+     * exist; a later physical replug then appears to fix it. */
+    if (!iap_ready_for_serial())
+    {
+        acc_absent_ticks = 0;
+        return;
+    }
+
+    if (acc_plugged && !plugged)
+    {
+        if (acc_absent_ticks == 0)
+            iap_diag_contact_dropouts++;
+        if (++acc_absent_ticks < ACCESSORY_REMOVE_DEBOUNCE_TICKS)
+        {
+            if (acc_absent_ticks > iap_diag_max_absent_ticks)
+                iap_diag_max_absent_ticks = acc_absent_ticks;
+            return;
+        }
+
+        if (acc_absent_ticks > iap_diag_max_absent_ticks)
+            iap_diag_max_absent_ticks = acc_absent_ticks;
+    }
+    else
+    {
+        acc_absent_ticks = 0;
+    }
+
     if (acc_plugged != plugged)
     {
         acc_plugged = plugged;
@@ -132,12 +187,22 @@ static void serial_acc_tick(void)
             uartc_port_config(&ser_port, ULCON_DATA_BITS_8,
                                 ULCON_PARITY_NONE, ULCON_STOP_BITS_1);
             uartc_port_set_tx_mode(&ser_port, UCON_MODE_INTREQ);
+            iap_diag_port_open = 1;
+            iap_note_serial_connect();
             serial_bitrate(bitrate);
         }
         else
         {
+            /* A reinserted accessory starts a new iAP session.  Clear
+             * authentication and capability state from the device that
+             * was just removed, otherwise a freshly powered accessory can
+             * be mistaken for the already-authenticated previous session.
+             */
+            iap_note_serial_disconnect();
             uartc_port_close(&ser_port);
             uartc_close(ser_port.uartc);
+            iap_diag_port_open = 0;
+            iap_reset_state(IF_IAP_MP(0));
         }
     }
 }
@@ -176,7 +241,9 @@ void serial_bitrate(int rate)
          */
         uartc_port_set_rx_mode(&ser_port, UCON_MODE_DISABLED);
         uartc_port_abr_start(&ser_port);
-        abr_status = ABR_STATUS_LAUNCHED;
+        abr_status = IAP_AUTOBAUD_LAUNCHED;
+        iap_diag_abr_status = abr_status;
+        iap_diag_rate = 0;
     }
     else {
         uint32_t brdata;
@@ -187,33 +254,54 @@ void serial_bitrate(int rate)
         uartc_port_abr_stop(&ser_port); /* abort ABR if already launched */
         uartc_port_set_bitrate_raw(&ser_port, brdata);
         uartc_port_set_rx_mode(&ser_port, UCON_MODE_INTREQ);
-        abr_status = ABR_STATUS_DONE;
+        abr_status = IAP_AUTOBAUD_DONE;
+        iap_diag_abr_status = abr_status;
+        iap_diag_rate = rate;
     }
 }
 
 static void iap_rx_isr(int len, char *data, char *err, uint32_t abr_cnt)
 {
-    /* ignore Rx errors, upper layer will discard bad packets */
-    (void) err;
-
     static int sync_retry;
 
-    if (abr_status == ABR_STATUS_LAUNCHED) {
+    if (abr_status == IAP_AUTOBAUD_LAUNCHED) {
         /* autobauding */
         if (abr_cnt) {
             #define BR2CNT(s) (IPOD6G_UART_CLK_HZ / (unsigned)(s))
             if (abr_cnt < BR2CNT(57600*1.1) || abr_cnt > BR2CNT(9600*0.9)) {
                 /* detected speed out of range, relaunch ABR */
+                iap_diag_abr_relaunch++;
                 uartc_port_abr_start(&ser_port);
                 return;
             }
             /* valid speed detected, select it */
             uint32_t brdata;
-            if      (abr_cnt < BR2CNT(48000)) brdata = BRDATA_57600;
-            else if (abr_cnt < BR2CNT(33600)) brdata = BRDATA_38400;
-            else if (abr_cnt < BR2CNT(24000)) brdata = BRDATA_28800;
-            else if (abr_cnt < BR2CNT(14400)) brdata = BRDATA_19200;
-            else brdata = BRDATA_9600;
+            int detected_rate;
+            if (abr_cnt < BR2CNT(48000))
+            {
+                brdata = BRDATA_57600;
+                detected_rate = 57600;
+            }
+            else if (abr_cnt < BR2CNT(33600))
+            {
+                brdata = BRDATA_38400;
+                detected_rate = 38400;
+            }
+            else if (abr_cnt < BR2CNT(24000))
+            {
+                brdata = BRDATA_28800;
+                detected_rate = 28800;
+            }
+            else if (abr_cnt < BR2CNT(14400))
+            {
+                brdata = BRDATA_19200;
+                detected_rate = 19200;
+            }
+            else
+            {
+                brdata = BRDATA_9600;
+                detected_rate = 9600;
+            }
 
             /* set detected speed */
             uartc_port_set_bitrate_raw(&ser_port, brdata);
@@ -222,7 +310,9 @@ static void iap_rx_isr(int len, char *data, char *err, uint32_t abr_cnt)
             /* enter SOF state */
             iap_getc(IF_IAP_MP(0,) 0xff);
 
-            abr_status = ABR_STATUS_SYNCING;
+            abr_status = IAP_AUTOBAUD_SYNCING;
+            iap_diag_abr_status = abr_status;
+            iap_diag_rate = -detected_rate; /* negative marks auto mode */
             sync_retry = 2; /* we are expecting [0xff] 0x55 */
         }
     }
@@ -230,16 +320,35 @@ static void iap_rx_isr(int len, char *data, char *err, uint32_t abr_cnt)
     /* process received data */
     while (len--)
     {
-        bool sync_done = !iap_getc(IF_IAP_MP(0,) *data++);
+        unsigned char error = (unsigned char)*err++;
+        unsigned char byte = (unsigned char)*data++;
 
-        if (abr_status == ABR_STATUS_SYNCING)
+        if (error)
+        {
+            iap_diag_uart_errors++;
+            if (error & UERSTAT_OVERRUN_BIT)
+                iap_diag_uart_overruns++;
+            if (error & UERSTAT_PARITY_ERR_BIT)
+                iap_diag_uart_parity_errors++;
+            if (error & UERSTAT_FRAME_ERR_BIT)
+                iap_diag_uart_frame_errors++;
+            if (error & UERSTAT_BREAK_DETECT_BIT)
+                iap_diag_uart_breaks++;
+        }
+
+        iap_diag_rx_bytes++;
+        bool sync_done = !iap_getc(IF_IAP_MP(0,) byte);
+
+        if (abr_status == IAP_AUTOBAUD_SYNCING)
         {
             if (sync_done) {
-                abr_status = ABR_STATUS_DONE;
+                abr_status = IAP_AUTOBAUD_DONE;
+                iap_diag_abr_status = abr_status;
             }
             else if (--sync_retry == 0) {
                 /* invalid speed detected, relaunch ABR
                    discarding remaining data (if any) */
+                iap_diag_abr_relaunch++;
                 serial_bitrate(0);
                 break;
             }

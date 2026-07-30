@@ -14,9 +14,9 @@
 #include "plugin.h"
 #include "lib/pluginlib_actions.h"
 
-#define PHOTOS_ROOT      "/Photos"
-#define PHOTOS_THUMB_DIR PHOTOS_ROOT "/.photo_thumbs"
-#define PHOTOS_PREVIEW_DIR PHOTOS_ROOT "/.photo_previews"
+#define PHOTOS_DEFAULT_ROOT      "/Photos"
+#define PHOTOS_THUMB_DIR_SUFFIX  ".photo_thumbs"
+#define PHOTOS_PREVIEW_DIR_SUFFIX ".photo_previews"
 #define PHOTOS_VIEWER    VIEWERS_DIR "/imageviewer.rock"
 #define PHOTOS_STATE     PLUGIN_APPS_DATA_DIR "/photos.state"
 #define PHOTOS_LOCKS     PLUGIN_APPS_DATA_DIR "/photos.locks"
@@ -34,6 +34,8 @@
 #define MIN_ENTRY_CAPACITY 32
 #define MAX_LOCKS 128
 #define MAX_MOVE_DIRS 96
+#define PHOTOS_ROOT_SCAN_MAX_DIRS 64
+#define PHOTOS_ROOT_SCAN_MAX_DEPTH 2
 #define PIN_LEN 4
 
 #if (CONFIG_KEYPAD == IPOD_1G2G_PAD) \
@@ -60,6 +62,11 @@ struct photo_lock {
 
 struct photo_move_dir {
     char path[MAX_PATH];
+};
+
+struct photo_root_scan_dir {
+    char path[MAX_PATH];
+    int depth;
 };
 
 struct thumb_slot {
@@ -101,6 +108,7 @@ static struct photo_lock photo_locks[MAX_LOCKS];
 static struct photo_move_dir photo_move_dirs[MAX_MOVE_DIRS];
 static int photo_lock_count;
 static int photo_move_dir_count;
+static char photos_root[MAX_PATH] = PHOTOS_DEFAULT_ROOT;
 
 struct photos_pin_surfaces {
     struct bitmap panel;
@@ -212,6 +220,178 @@ static bool photos_has_supported_ext(const char *name)
     return false;
 }
 
+static bool photos_root_has_sidecars(const char *root)
+{
+    char thumb_root[MAX_PATH];
+    char preview_root[MAX_PATH];
+
+    rb->snprintf(thumb_root, sizeof(thumb_root), "%s/%s",
+                 root, PHOTOS_THUMB_DIR_SUFFIX);
+    rb->snprintf(preview_root, sizeof(preview_root), "%s/%s",
+                 root, PHOTOS_PREVIEW_DIR_SUFFIX);
+
+    return rb->dir_exists(thumb_root) || rb->dir_exists(preview_root);
+}
+
+static int photos_count_preview_files(const char *path, int depth)
+{
+    DIR *dir;
+    struct dirent *entry;
+    struct dirinfo info;
+    int count = 0;
+    char child[MAX_PATH];
+    const char *ext;
+
+    if (!path || !path[0] || depth > 6)
+        return 0;
+
+    dir = rb->opendir(path);
+    if (!dir)
+        return 0;
+
+    while ((entry = rb->readdir(dir)) != NULL)
+    {
+        if (!rb->strcmp(entry->d_name, ".") || !rb->strcmp(entry->d_name, ".."))
+            continue;
+
+        rb->snprintf(child, sizeof(child), "%s/%s", path, entry->d_name);
+        info = rb->dir_get_info(dir, entry);
+        if (info.attribute & ATTR_DIRECTORY)
+        {
+            count += photos_count_preview_files(child, depth + 1);
+            continue;
+        }
+
+        ext = rb->strrchr(entry->d_name, '.');
+        if (ext && !rb->strcasecmp(ext, ".bmp"))
+            count++;
+    }
+
+    rb->closedir(dir);
+    return count;
+}
+
+static void photos_scan_better_root(bool *found_root, char *best_root,
+                                    size_t best_root_size, int *best_count)
+{
+    struct photo_root_scan_dir *scan_dirs;
+    size_t buffer_size;
+    int scan_capacity;
+    int scan_head = 0;
+    int scan_count = 1;
+    DIR *dir;
+    struct dirent *entry;
+    struct dirinfo info;
+    char candidate[MAX_PATH];
+    char preview_root[MAX_PATH];
+    int count;
+
+    scan_dirs = rb->plugin_get_buffer(&buffer_size);
+    if (!scan_dirs)
+        return;
+
+    scan_capacity = (int)(buffer_size / sizeof(*scan_dirs));
+    if (scan_capacity > PHOTOS_ROOT_SCAN_MAX_DIRS)
+        scan_capacity = PHOTOS_ROOT_SCAN_MAX_DIRS;
+    if (scan_capacity < 1)
+        return;
+
+    rb->strlcpy(scan_dirs[0].path, "/", sizeof(scan_dirs[0].path));
+    scan_dirs[0].depth = 0;
+
+    while (scan_head < scan_count)
+    {
+        const char *base = scan_dirs[scan_head].path;
+        int depth = scan_dirs[scan_head].depth;
+        bool is_root = (base[0] == '/' && base[1] == '\0');
+
+        dir = rb->opendir(base);
+        if (!dir)
+        {
+            scan_head++;
+            continue;
+        }
+
+        while ((entry = rb->readdir(dir)) != NULL)
+        {
+            if (entry->d_name[0] == '.')
+                continue;
+
+            if (is_root)
+                rb->snprintf(candidate, sizeof(candidate), "/%s",
+                             entry->d_name);
+            else
+                rb->snprintf(candidate, sizeof(candidate), "%s/%s", base,
+                             entry->d_name);
+
+            info = rb->dir_get_info(dir, entry);
+            if (!(info.attribute & ATTR_DIRECTORY))
+                continue;
+
+            if (photos_root_has_sidecars(candidate))
+            {
+                rb->snprintf(preview_root, sizeof(preview_root), "%s/%s",
+                             candidate, PHOTOS_PREVIEW_DIR_SUFFIX);
+                count = photos_count_preview_files(preview_root, 0);
+                if (!*found_root || count > *best_count)
+                {
+                    rb->strlcpy(best_root, candidate, best_root_size);
+                    *best_count = count;
+                    *found_root = true;
+                }
+            }
+
+            if (depth + 1 < PHOTOS_ROOT_SCAN_MAX_DEPTH &&
+                scan_count < scan_capacity)
+            {
+                rb->strlcpy(scan_dirs[scan_count].path, candidate,
+                            sizeof(scan_dirs[scan_count].path));
+                scan_dirs[scan_count].depth = depth + 1;
+                scan_count++;
+            }
+        }
+
+        rb->closedir(dir);
+        scan_head++;
+    }
+}
+
+static bool photos_resolve_root(void)
+{
+    bool found_best_root = false;
+    int best_count = 0;
+    char best_root[MAX_PATH];
+
+    /* The normal RockPod layout is authoritative.  Avoid surveying the
+     * volume at every launch when /Photos is already present. */
+    if (rb->dir_exists(PHOTOS_DEFAULT_ROOT))
+    {
+        rb->strlcpy(photos_root, PHOTOS_DEFAULT_ROOT, sizeof(photos_root));
+        return true;
+    }
+
+    photos_scan_better_root(&found_best_root, best_root, sizeof(best_root),
+                            &best_count);
+
+    if (found_best_root)
+    {
+        rb->strlcpy(photos_root, best_root, sizeof(photos_root));
+        return true;
+    }
+
+    return false;
+}
+
+static void photos_thumb_root(char *out, size_t out_size)
+{
+    rb->snprintf(out, out_size, "%s/%s", photos_root, PHOTOS_THUMB_DIR_SUFFIX);
+}
+
+static void photos_preview_root(char *out, size_t out_size)
+{
+    rb->snprintf(out, out_size, "%s/%s", photos_root, PHOTOS_PREVIEW_DIR_SUFFIX);
+}
+
 static const char *photos_basename(const char *path)
 {
     const char *base = rb->strrchr(path, '/');
@@ -220,14 +400,14 @@ static const char *photos_basename(const char *path)
 
 static bool photos_path_is_root(const char *path)
 {
-    return !rb->strcmp(path, PHOTOS_ROOT);
+    return !rb->strcmp(path, photos_root);
 }
 
 static bool photos_relpath(const char *path, char *out, size_t out_size)
 {
-    size_t root_len = rb->strlen(PHOTOS_ROOT);
+    size_t root_len = rb->strlen(photos_root);
 
-    if (rb->strncmp(path, PHOTOS_ROOT, root_len) != 0)
+    if (rb->strncmp(path, photos_root, root_len) != 0)
         return false;
 
     path += root_len;
@@ -247,7 +427,7 @@ static void photos_dirname(const char *path, char *out, size_t out_size)
     slash = rb->strrchr(tmp, '/');
     if (!slash || slash == tmp)
     {
-        rb->strlcpy(out, PHOTOS_ROOT, out_size);
+        rb->strlcpy(out, photos_root, out_size);
         return;
     }
 
@@ -890,6 +1070,7 @@ static void photos_thumb_path(const char *photo_path, char *thumb_path,
                               size_t thumb_path_size)
 {
     char relpath[MAX_PATH];
+    char thumb_root[MAX_PATH];
 
     if (!photos_relpath(photo_path, relpath, sizeof(relpath)))
     {
@@ -897,8 +1078,9 @@ static void photos_thumb_path(const char *photo_path, char *thumb_path,
         return;
     }
 
+    photos_thumb_root(thumb_root, sizeof(thumb_root));
     rb->snprintf(thumb_path, thumb_path_size, "%s/%s.bmp",
-                 PHOTOS_THUMB_DIR, relpath);
+                 thumb_root, relpath);
 }
 
 static void photos_sidecar_path(const char *photo_path, const char *root,
@@ -935,11 +1117,135 @@ static void photos_move_sidecar(const char *old_path, const char *new_path,
     rb->rename(old_sidecar, new_sidecar);
 }
 
+/* Keep .photo_previews/index.tsv (read by the iPodJS Photos hover pane)
+ * consistent with renames and deletions.  old_rel is the photo-relative
+ * path being changed; new_rel is NULL for deletion.  Lines that fail to
+ * match are copied through untouched, so a missing or foreign index is
+ * never corrupted. */
+static void photos_update_preview_index(const char *old_rel,
+                                        const char *new_rel, bool is_dir)
+{
+    char preview_root[MAX_PATH];
+    char index_path[MAX_PATH];
+    char temp_path[MAX_PATH];
+    char line[MAX_PATH + 32];
+    char match[MAX_PATH];
+    size_t match_len;
+    int in_fd;
+    int out_fd;
+    bool failed = false;
+
+    if (!old_rel || !old_rel[0])
+        return;
+
+    photos_preview_root(preview_root, sizeof(preview_root));
+    rb->snprintf(index_path, sizeof(index_path), "%s/index.tsv",
+                 preview_root);
+    if (!rb->file_exists(index_path))
+        return;
+
+    /* Files are indexed as "<relpath>.bmp"; directories match by prefix. */
+    rb->snprintf(match, sizeof(match), is_dir ? "%s/" : "%s.bmp", old_rel);
+    match_len = rb->strlen(match);
+
+    rb->snprintf(temp_path, sizeof(temp_path), "%s/index.tsv.tmp",
+                 preview_root);
+
+    in_fd = rb->open(index_path, O_RDONLY);
+    if (in_fd < 0)
+        return;
+
+    out_fd = rb->open(temp_path, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+    if (out_fd < 0)
+    {
+        rb->close(in_fd);
+        return;
+    }
+
+    while (rb->read_line(in_fd, line, sizeof(line)) > 0)
+    {
+        const char *rest = "";
+        char *tab;
+        bool matched;
+
+        if (line[0] == '#' || line[0] == '\0' ||
+            !rb->strncmp(line, "relpath\t", 8))
+        {
+            if (rb->fdprintf(out_fd, "%s\n", line) < 0)
+            {
+                failed = true;
+                break;
+            }
+            continue;
+        }
+
+        tab = rb->strchr(line, '\t');
+        if (tab)
+        {
+            *tab = '\0';
+            rest = tab + 1;
+        }
+
+        matched = is_dir ? !rb->strncmp(line, match, match_len)
+                         : !rb->strcmp(line, match);
+
+        if (matched && !new_rel)
+            continue;
+
+        if (matched)
+        {
+            int rc;
+
+            if (is_dir)
+                rc = rb->fdprintf(out_fd, "%s/%s%s%s\n", new_rel,
+                                  line + match_len, tab ? "\t" : "", rest);
+            else
+                rc = rb->fdprintf(out_fd, "%s.bmp%s%s\n", new_rel,
+                                  tab ? "\t" : "", rest);
+            if (rc < 0)
+            {
+                failed = true;
+                break;
+            }
+            continue;
+        }
+
+        if (rb->fdprintf(out_fd, "%s%s%s\n", line,
+                         tab ? "\t" : "", rest) < 0)
+        {
+            failed = true;
+            break;
+        }
+    }
+
+    rb->close(in_fd);
+    rb->close(out_fd);
+
+    if (failed)
+    {
+        rb->remove(temp_path);
+        return;
+    }
+
+    rb->remove(index_path);
+    rb->rename(temp_path, index_path);
+}
+
 static void photos_move_sidecars(const char *old_path, const char *new_path,
                                  bool is_dir)
 {
-    photos_move_sidecar(old_path, new_path, PHOTOS_THUMB_DIR, is_dir);
-    photos_move_sidecar(old_path, new_path, PHOTOS_PREVIEW_DIR, is_dir);
+    char thumb_root[MAX_PATH];
+    char preview_root[MAX_PATH];
+    char old_rel[MAX_PATH];
+    char new_rel[MAX_PATH];
+
+    photos_thumb_root(thumb_root, sizeof(thumb_root));
+    photos_preview_root(preview_root, sizeof(preview_root));
+    photos_move_sidecar(old_path, new_path, thumb_root, is_dir);
+    photos_move_sidecar(old_path, new_path, preview_root, is_dir);
+    if (photos_relpath(old_path, old_rel, sizeof(old_rel)) &&
+        photos_relpath(new_path, new_rel, sizeof(new_rel)))
+        photos_update_preview_index(old_rel, new_rel, is_dir);
 }
 
 static bool photos_load_thumb(struct thumb_slot *slot, const char *photo_path)
@@ -1129,13 +1435,20 @@ static void photos_restore_resume_state(void)
     int fd;
     char dir[MAX_PATH];
     char path[MAX_PATH];
+    size_t root_len;
 
     fd = rb->open(PHOTOS_STATE, O_RDONLY);
     if (fd < 0)
         return;
 
-    if (rb->read_line(fd, dir, sizeof(dir)) > 0 && rb->dir_exists(dir))
+    root_len = rb->strlen(photos_root);
+    if (rb->read_line(fd, dir, sizeof(dir)) > 0 &&
+        rb->dir_exists(dir) &&
+        rb->strncmp(dir, photos_root, root_len) == 0 &&
+        (dir[root_len] == '\0' || dir[root_len] == '/'))
+    {
         rb->strlcpy(photos.current_dir, dir, sizeof(photos.current_dir));
+    }
 
     if (rb->read_line(fd, path, sizeof(path)) > 0)
         rb->strlcpy(photos.selected_path, path, sizeof(photos.selected_path));
@@ -1613,8 +1926,16 @@ static void photos_delete_sidecar_for(const char *path, const char *root,
 
 static void photos_delete_sidecars_for(const char *path, bool is_dir)
 {
-    photos_delete_sidecar_for(path, PHOTOS_THUMB_DIR, is_dir);
-    photos_delete_sidecar_for(path, PHOTOS_PREVIEW_DIR, is_dir);
+    char thumb_root[MAX_PATH];
+    char preview_root[MAX_PATH];
+    char relpath[MAX_PATH];
+
+    photos_thumb_root(thumb_root, sizeof(thumb_root));
+    photos_preview_root(preview_root, sizeof(preview_root));
+    photos_delete_sidecar_for(path, thumb_root, is_dir);
+    photos_delete_sidecar_for(path, preview_root, is_dir);
+    if (photos_relpath(path, relpath, sizeof(relpath)))
+        photos_update_preview_index(relpath, NULL, is_dir);
 }
 
 static bool photos_delete_selected(void)
@@ -1755,7 +2076,7 @@ static bool photos_pick_move_destination(char *out, size_t out_size)
     bool picked = false;
 
     photo_move_dir_count = 0;
-    photos_collect_move_dirs(PHOTOS_ROOT);
+    photos_collect_move_dirs(photos_root);
     if (photo_move_dir_count <= 0)
         return false;
 
@@ -2070,7 +2391,7 @@ enum plugin_status plugin_start(const void *parameter)
     if (path && !resume && path[0] && rb->file_exists(path))
         return rb->plugin_open(PHOTOS_VIEWER, path);
 
-    if (!rb->dir_exists(PHOTOS_ROOT))
+    if (!photos_resolve_root() || !rb->dir_exists(photos_root))
     {
         rb->splash(HZ * 2, "Create /Photos");
         return PLUGIN_OK;
@@ -2083,7 +2404,7 @@ enum plugin_status plugin_start(const void *parameter)
     }
 
     photos_load_locks();
-    rb->strlcpy(photos.current_dir, PHOTOS_ROOT, sizeof(photos.current_dir));
+    rb->strlcpy(photos.current_dir, photos_root, sizeof(photos.current_dir));
 
     if (resume)
         photos_restore_resume_state();
@@ -2091,7 +2412,7 @@ enum plugin_status plugin_start(const void *parameter)
         photos_clear_resume_state();
 
     if (!rb->dir_exists(photos.current_dir))
-        rb->strlcpy(photos.current_dir, PHOTOS_ROOT, sizeof(photos.current_dir));
+        rb->strlcpy(photos.current_dir, photos_root, sizeof(photos.current_dir));
 
     photos_rescan_current_dir();
     if (photos.entry_count <= 0)

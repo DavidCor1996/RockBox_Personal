@@ -86,6 +86,7 @@ from services.rockbox_device import (
 )
 from services import sitekick
 from services import livetv
+from services.calm import CalmService
 from services.rockbox_deploy import RockboxDeployService
 from services.rockbox_boot import RockboxBootService, RockboxBuildSyncJob
 from services.rockbox_games import RockboxGameService
@@ -150,6 +151,7 @@ from ui.video_library import VideoGridView, build_video_browser_groups, classify
 from ui.video_player import VideoPlayerWindow
 from ui.video_sync import VideoSyncPanel
 from ui.livetv_panel import LiveTvPanel, LiveTvStorePanel
+from ui.calm_panel import CalmLibraryPanel, CalmStorePanel
 from ui.dialogs.livetv_editor import LiveTvEditorDialog
 from ui.website_sync import WebsiteSyncPanel
 from ui.android_workflows import summarize_android_import
@@ -212,6 +214,7 @@ class MainWindow(QMainWindow):
         self._desktop_mode_service = DesktopModeService(self._repo_root)
         self.destroyed.connect(lambda: self._desktop_mode_service.shutdown())
         self._rockbox_profiles = RockboxProfileStore(self._config, self._repo_root)
+        self._calm_service = CalmService(self._config, self._repo_root)
         self._rockbox_themes = RockboxThemeService()
         self._theme_designer_service = ThemeDesignerService(self._rockbox_themes)
         self._rockbox_deploy = RockboxDeployService()
@@ -423,6 +426,9 @@ class MainWindow(QMainWindow):
         )
         self._avatar_editor = XboxAvatarEditorWidget(self._repo_root)
         self._sitekick_panel = SitekickPanel()
+        self._calm_panel = CalmLibraryPanel(
+            self._calm_service, self._rockbox_profiles
+        )
         self._livetv_panel = LiveTvPanel()
         self._photo_manager = PhotoManagerWidget()
         self._linux_manager = LinuxManagerWidget()
@@ -444,6 +450,8 @@ class MainWindow(QMainWindow):
         self._store_page.addTab(self._movie_store_panel, "Movies")
         self._livetv_store_panel = LiveTvStorePanel()
         self._store_page.addTab(self._livetv_store_panel, "Live TV")
+        self._calm_store_panel = CalmStorePanel(self._calm_service)
+        self._store_page.addTab(self._calm_store_panel, "Calm")
         self._store_page.addTab(self._game_browser_panel, "iPod Games")
         self._store_page.currentChanged.connect(self._on_store_tab_changed)
         self._simulator_panel = SimulatorPanel()
@@ -474,6 +482,7 @@ class MainWindow(QMainWindow):
         self._content_stack.addWidget(self._maker_lite_creator)
         self._content_stack.addWidget(self._avatar_editor)
         self._content_stack.addWidget(self._sitekick_panel)
+        self._content_stack.addWidget(self._calm_panel)
         self._content_stack.addWidget(self._livetv_panel)
         self._content_stack.addWidget(self._store_page)
         self._content_stack.addWidget(self._photo_manager)
@@ -538,6 +547,8 @@ class MainWindow(QMainWindow):
         device_menu = menubar.addMenu("Device")
         device_menu.addAction("Sync to iPod", self._start_sync, "Ctrl+S")
         device_menu.addAction("Sync Weather", self._sync_weather_only)
+        device_menu.addAction(
+            "Sync TV Information", self._sync_tv_information)
         device_menu.addAction("Import Android Photos/Videos...", self._import_android_media)
         device_menu.addAction("Refresh Device", self._scan_device)
         device_menu.addAction("Force Device Rescan", self._force_device_rescan)
@@ -639,6 +650,8 @@ class MainWindow(QMainWindow):
         self._livetv_panel.sync_requested.connect(self._livetv_sync)
         self._livetv_panel.assign_requested.connect(self._livetv_assign)
         self._livetv_panel.unassign_requested.connect(self._livetv_unassign)
+        self._livetv_panel.delete_media_requested.connect(
+            self._livetv_delete_media)
         self._livetv_panel.rename_requested.connect(self._livetv_rename)
         self._livetv_panel.edit_media_requested.connect(
             self._livetv_edit_media)
@@ -655,6 +668,8 @@ class MainWindow(QMainWindow):
             self._start_livetv_store_browse)
         self._livetv_store_panel.import_requested.connect(
             self._start_livetv_store_import)
+        self._calm_store_panel.library_changed.connect(
+            self._calm_panel.refresh)
         self._boot_manager.profile_selected.connect(self._on_boot_profile_selected)
         self._boot_manager.target_mode_selected.connect(self._on_boot_target_mode_selected)
         self._boot_manager.choose_image_requested.connect(self._choose_boot_image)
@@ -1085,6 +1100,8 @@ class MainWindow(QMainWindow):
             tracks = []
         elif self._current_view == "rockbox_sitekick":
             tracks = []
+        elif self._current_view == "rockbox_calm":
+            tracks = []
         elif self._current_view == "rockbox_games":
             tracks = []
         elif self._current_view == "rockbox_photos":
@@ -1313,6 +1330,7 @@ class MainWindow(QMainWindow):
             "rockbox_maker_lite": "Maker Lite",
             "rockbox_achievements_avatar": "Achievements & Avatar",
             "rockbox_sitekick": "Sitekick",
+            "rockbox_calm": "Calm Sync",
             "rockbox_livetv": "Live TV",
             "rockbox_games": "Store",
             "rockbox_movies": "Store",
@@ -1605,6 +1623,9 @@ class MainWindow(QMainWindow):
         elif self._current_view == "rockbox_sitekick":
             self._content_stack.setCurrentWidget(self._sitekick_panel)
             self._refresh_sitekick_panel()
+        elif self._current_view == "rockbox_calm":
+            self._content_stack.setCurrentWidget(self._calm_panel)
+            self._calm_panel.refresh()
         elif self._current_view == "rockbox_games":
             self._content_stack.setCurrentWidget(self._store_page)
             self._store_page.setCurrentWidget(self._game_browser_panel)
@@ -1659,6 +1680,9 @@ class MainWindow(QMainWindow):
         elif current is self._livetv_store_panel:
             self._current_view = "rockbox_livetv_store"
             self._status_bar.set_left_text("Store: Live TV")
+        elif current is self._calm_store_panel:
+            self._current_view = "rockbox_calm_store"
+            self._status_bar.set_left_text("Store: Calm Sounds")
         elif current is self._game_browser_panel:
             self._current_view = "rockbox_games"
             self._refresh_game_browser_panel()
@@ -2490,6 +2514,11 @@ class MainWindow(QMainWindow):
                         "tmdb_id": metadata.get("tmdb_id") or "",
                         "genre": metadata.get("genre") or t.get("genre") or "",
                         "year": metadata.get("year") or t.get("year") or None,
+                        "content_rating": (
+                            metadata.get("content_rating")
+                            or t.get("content_rating")
+                            or ""
+                        ),
                     }
 
                     matched_type = str(metadata.get("media_type") or "").strip()
@@ -2509,13 +2538,51 @@ class MainWindow(QMainWindow):
                         updates["video_kind"] = "movie"
 
                     if is_group_match:
-                        # Bulk show-level match: share identity/genre/year across
-                        # every episode, but never clobber each episode's own
-                        # title, season, episode number, or per-episode plot.
-                        pass
+                        # Bulk show-level match: share identity/genre/year
+                        # across every episode, but never clobber each
+                        # episode's own title, season or episode number.
+                        #
+                        # The show synopsis does get written to episodes that
+                        # have none, so every title carries a description on
+                        # the iPod. An episode that already has its own plot
+                        # keeps it - a real episode summary always beats the
+                        # series blurb.
+                        show_plot_short = str(
+                            metadata.get("plot_short") or ""
+                        ).strip()
+                        show_plot_long = str(
+                            metadata.get("plot_long") or ""
+                        ).strip()
+                        if show_plot_short and not str(
+                            t.get("plot_short") or ""
+                        ).strip():
+                            updates["plot_short"] = show_plot_short
+                        if show_plot_long and not str(
+                            t.get("plot_long") or ""
+                        ).strip():
+                            updates["plot_long"] = show_plot_long
+                        # Keep the series blurb separately as well, so a show
+                        # or season screen can describe itself without
+                        # borrowing whichever episode happens to be first.
+                        if show_plot_long or show_plot_short:
+                            updates["show_plot"] = (
+                                show_plot_long or show_plot_short
+                            )
                     else:
                         updates["plot_short"] = metadata.get("plot_short") or ""
                         updates["plot_long"] = metadata.get("plot_long") or ""
+                        # The dialog preserves the series synopsis under
+                        # show_plot before an episode summary replaces the
+                        # plot fields; a movie has no series blurb and simply
+                        # reuses its own.
+                        series_plot = str(
+                            metadata.get("show_plot")
+                            or (updates["plot_long"]
+                                if matched_type == "movie" else "")
+                            or ""
+                        ).strip()
+                        if series_plot:
+                            updates["show_plot"] = series_plot
                         if metadata.get("media_type") in ("tv_episode", "movie"):
                             updates["title"] = (
                                 metadata.get("episode_title")
@@ -3621,6 +3688,8 @@ class MainWindow(QMainWindow):
             self._refresh_avatar_editor()
         elif self._current_view == "rockbox_sitekick":
             self._refresh_sitekick_panel()
+        elif self._current_view == "rockbox_calm":
+            self._calm_panel.refresh()
         elif self._current_view == "rockbox_games":
             self._refresh_game_browser_panel()
         elif self._current_view == "rockbox_photos":
@@ -4133,6 +4202,65 @@ class MainWindow(QMainWindow):
         dialog.sync_confirmed.connect(lambda: self._execute_sync(plan, dialog))
         dialog.sync_cancelled.connect(lambda: self._sync_engine.cancel_sync())
         dialog.exec()
+
+    def _sync_tv_information(self):
+        if getattr(self, "_tv_information_sync_job", None) is not None:
+            return
+        device = self._device_detector.current_device
+        mount_path = (
+            str(getattr(device, "mount_path", "") or "") if device else "")
+        if not mount_path:
+            QMessageBox.warning(
+                self, "No Device", "No Rockbox device is connected.")
+            return
+
+        progress = QProgressDialog(
+            "Checking current TV information...", None, 0, 0, self)
+        progress.setWindowTitle("Sync TV Information")
+        progress.setWindowModality(Qt.WindowModal)
+        progress.setMinimumDuration(0)
+        progress.show()
+
+        job = livetv.TvInformationSyncJob(self._config, mount_path)
+        self._tv_information_sync_job = job
+        self._tv_information_sync_progress = progress
+        job.signals.progress.connect(self._on_tv_information_sync_progress)
+        job.signals.finished.connect(self._on_tv_information_sync_finished)
+        QThreadPool.globalInstance().start(job)
+        self._status_bar.set_left_text("Refreshing TV information")
+
+    def _on_tv_information_sync_progress(self, _done, _total, label):
+        progress = getattr(self, "_tv_information_sync_progress", None)
+        if progress is not None:
+            progress.setLabelText(str(label or "Syncing TV information..."))
+
+    def _on_tv_information_sync_finished(self, result):
+        self._tv_information_sync_job = None
+        progress = getattr(self, "_tv_information_sync_progress", None)
+        self._tv_information_sync_progress = None
+        if progress is not None:
+            progress.close()
+
+        if not result.get("success"):
+            message = result.get("message", "Unknown error")
+            self._status_bar.set_left_text("TV information sync failed")
+            QMessageBox.warning(
+                self, "TV Information Sync Failed", str(message))
+            return
+
+        channels = result.get("information_channels", 0)
+        copied = result.get("copied", 0)
+        skipped = result.get("skipped", 0)
+        warnings = result.get("warnings") or []
+        message = (
+            f"Synced {channels} current TV information channels "
+            f"({copied} files updated, {skipped} already current)."
+        )
+        if warnings:
+            message += f" {warnings[0]}"
+        self._status_bar.set_left_text(message)
+        if getattr(self, "_current_view", "") == "livetv":
+            self._render_livetv_panel()
 
     def _sync_selected(self):
         track_ids = self._active_track_table().get_selected_track_ids()
@@ -8038,6 +8166,52 @@ class MainWindow(QMainWindow):
             f"Unassigned {removed} {noun}." if removed
             else f"Those {noun} were not assigned to a channel.")
 
+    def _livetv_delete_media(self, kind, paths):
+        """Remove show(s)/commercial(s) from the Live TV library entirely.
+
+        Unlike Unassign, this deletes the source file - the request this
+        answers was for a way to get rid of content, not just take it off
+        a channel while it keeps sitting in ~/Videos/Live.
+        """
+        noun_one = "show" if kind == "show" else "commercial"
+        noun_many = "shows" if kind == "show" else "commercials"
+        count = len(paths)
+        if QMessageBox.question(
+                self, "Delete",
+                f"Delete {count} {noun_one if count == 1 else noun_many}? "
+                "This removes the source file from disk and unassigns it "
+                "from any channel. This cannot be undone.",
+                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.No) != QMessageBox.Yes:
+            return
+
+        library = self._livetv_library()
+        lineup = self._livetv_lineup()
+        deleted = 0
+        failed = []
+        for path in paths:
+            for channel in lineup.channels:
+                target = channel.shows if kind == "show" else channel.ads
+                target[:] = [key for key in target if key != path and
+                            not key.startswith(path + "#")]
+            library.clear_title(path)
+            library.set_edits(path, [])
+            try:
+                os.remove(path)
+                deleted += 1
+            except FileNotFoundError:
+                deleted += 1
+            except OSError as error:
+                failed.append(f"{os.path.basename(path)}: {error}")
+
+        lineup.save()
+        self._refresh_livetv_panel(rescan=True)
+        parts = [f"Deleted {deleted} "
+                f"{noun_one if deleted == 1 else noun_many}."]
+        if failed:
+            parts.append(f"{len(failed)} could not be deleted: {failed[0]}")
+        self._livetv_panel.set_status(" ".join(parts))
+
     def _livetv_rename(self, kind, path):
         """Retitle a show or commercial as the guide will print it."""
         shows, ads = self._livetv_media()
@@ -8095,28 +8269,63 @@ class MainWindow(QMainWindow):
         shows, ads = self._livetv_media()
         pool = shows if kind == "show" else ads
         parts = [media for media in pool if media.path == path]
-        if not parts:
-            return
 
         library = self._livetv_library()
-        source_duration = library.duration_for(path)
-        if source_duration <= 0:
-            QMessageBox.warning(
-                self, "Split / Trim",
-                "The length of this recording could not be read, so it "
-                "cannot be split. Check that ffprobe is installed.")
-            return
-
+        editor_source = path
+        title_hint = parts[0].title if len(parts) == 1 else ""
         existing = library.edits_for(path)
+
+        if parts:
+            source_duration = library.duration_for(path)
+            if source_duration <= 0:
+                QMessageBox.warning(
+                    self, "Split / Trim",
+                    "The length of this recording could not be read, so it "
+                    "cannot be split. Check that ffprobe is installed.")
+                return
+        else:
+            # Not found on this PC. If it was already split before the
+            # source disappeared, edits.json still has the cut points, but
+            # they are offsets into the *original* file - re-splitting the
+            # already-cropped copy synced to the iPod against them would
+            # cut it in the wrong places, so refuse rather than guess.
+            if existing:
+                QMessageBox.warning(
+                    self, "Split / Trim",
+                    f"{os.path.basename(path)} was already split before it "
+                    "was removed from your Videos/Live folder. Its cut "
+                    "points only make sense against the original file, so "
+                    "restore it here to change the split.")
+                return
+
+            sync = livetv.LiveTvSync(library)
+            stand_in = sync.cached_stand_in_for(path, kind)
+            if stand_in is None:
+                QMessageBox.warning(
+                    self, "Split / Trim",
+                    f"{os.path.basename(path)} is not on this computer and "
+                    "has never been synced to an iPod, so there is nothing "
+                    "to split.")
+                return
+            editor_source = sync.cached_mpeg_path(stand_in)
+            source_duration = stand_in.duration
+            title_hint = stand_in.title
+            QMessageBox.information(
+                self, "Split / Trim",
+                f"{os.path.basename(path)} is no longer on this computer. "
+                "Splitting the copy already synced to the iPod instead.")
+
         dialog = LiveTvEditorDialog(
-            path, source_duration, existing,
-            title=parts[0].title if len(parts) == 1 else "",
-            ffmpeg=library.ffmpeg_bin(), parent=self)
+            editor_source, source_duration, existing,
+            title=title_hint, ffmpeg=library.ffmpeg_bin(), parent=self)
         if dialog.exec() != QDialog.Accepted:
             return
 
         episodes = dialog.episodes()
-        old_keys = [media.key for media in parts]
+        old_keys = [media.key for media in parts] if parts else \
+            [key for channel in self._livetv_lineup().channels
+             for key in list(channel.shows) + list(channel.ads)
+             if key == path or key.startswith(path + "#")]
         library.set_edits(path, episodes)
 
         # Keep the channel assignment: whichever channel held the old
@@ -8209,7 +8418,7 @@ class MainWindow(QMainWindow):
         self._livetv_panel.set_status("Converting and copying Live TV...")
         job = livetv.LiveTvSyncJob(
             livetv.LiveTvSync(self._livetv_library()), mount_path, lineup,
-            shows, ads)
+            shows, ads, config=self._config)
         self._livetv_sync_job = job
         job.signals.progress.connect(self._on_livetv_scan_progress)
         job.signals.finished.connect(self._on_livetv_sync_finished)
@@ -8235,6 +8444,10 @@ class MainWindow(QMainWindow):
             parts.append(
                 f"Removed {result['staged_deleted']} downloaded files from the "
                 "local staging folder after copying them to the iPod.")
+        if result.get("cache_pruned"):
+            parts.append(
+                f"Cleared {result['cache_pruned']} cached clip(s) no longer "
+                "used by any channel.")
         for warning in result.get("warnings") or []:
             parts.append(warning)
         errors = result.get("errors") or []
@@ -9001,7 +9214,7 @@ class MainWindow(QMainWindow):
             QMessageBox.warning(self, "Maker Lite Sync Failed", str(exc))
             return
         self._status_bar.set_left_text(
-            f"Maker Lite synced {len(records)} project(s); "
+            f"Maker Lite synced {result['browser_rows']} project(s) to Classic; "
             f"{result['rows']} visible in Steam"
         )
 
@@ -9426,9 +9639,10 @@ class MainWindow(QMainWindow):
         answer = QMessageBox.question(
             self,
             "Stage Android RAM Boot",
-            "Create three checksum-wrapped files under .rockbox/android on the connected "
-            "iPod? This does not replace Rockbox, resize the filesystem, alter partitions, "
-            "or write the bootloader/NOR.",
+            "Stage three checksum-wrapped files under .rockbox/android on the connected "
+            "iPod? An older set is replaced only if every file matches its own manifest. "
+            "This does not replace Rockbox, resize the filesystem, alter partitions, or "
+            "write the bootloader/NOR.",
             QMessageBox.Yes | QMessageBox.Cancel,
             QMessageBox.Cancel,
         )

@@ -116,6 +116,7 @@ class Sidebar(QWidget):
     ROCKBOX_MAKER_LITE = "rockbox_maker_lite"
     ROCKBOX_ACHIEVEMENTS_AVATAR = "rockbox_achievements_avatar"
     ROCKBOX_SITEKICK = "rockbox_sitekick"
+    ROCKBOX_CALM = "rockbox_calm"
     ROCKBOX_LIVETV = "rockbox_livetv"
     ROCKBOX_GAMES = "rockbox_games"
     ROCKBOX_PHOTOS = "rockbox_photos"
@@ -258,6 +259,10 @@ class Sidebar(QWidget):
         self._sitekick_item = self._add_item(
             self._rockbox_header, "Sitekick", self.ROCKBOX_SITEKICK,
             _make_icon("#7d289d", "device")
+        )
+        self._calm_item = self._add_item(
+            self._rockbox_header, "Calm Sync", self.ROCKBOX_CALM,
+            _make_icon("#509ae7", "music")
         )
         self._photos_item = self._add_item(
             self._rockbox_header, "Photos", self.ROCKBOX_PHOTOS,

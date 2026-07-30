@@ -1,0 +1,56 @@
+RockPod Setup for macOS
+=======================
+
+This application installs Personal Rockbox, a custom build of Rockbox for the
+iPod Classic 6G/7G and iPod Video 5G/5.5G.
+
+License
+-------
+
+Rockbox and the firmware payload in this bundle are licensed under the GNU
+General Public License, version 2. The full license text is in
+Contents/Resources/COPYING.
+
+The corresponding source for the firmware in this bundle is the Personal
+Rockbox repository at the revision recorded in
+Contents/Resources/payload/manifest.json.
+
+What this installer does
+------------------------
+
+- Identifies a single connected iPod using macOS's own diskutil and IOKit data.
+- Verifies every bundled file against a SHA-256 manifest before writing.
+- Backs up the iPod's Rockbox database, firmware, and configuration to
+  ~/Library/Application Support/RockPod/recovery before making any change.
+- Installs the Rockbox package over the existing .rockbox directory without
+  deleting it, and never touches the Music folder or playlists.
+- Restores the preserved database byte-for-byte and verifies it afterwards.
+- Writes rockbox.ipod to both /rockbox.ipod and /.rockbox/rockbox.ipod and
+  verifies both against the release SHA-256.
+- Ejects the iPod through macOS.
+
+What this installer does not do
+-------------------------------
+
+- It does not write, replace, or remove a bootloader. Installing the Rockbox
+  bootloader on an iPod that has never run Rockbox is a separate step.
+- It does not repartition, reformat, or restore an iPod.
+- It does not convert an HFS-formatted iPod to FAT32.
+- It never offers a single-boot installation.
+- It does not contact the network.
+
+Unsigned build
+--------------
+
+This bundle is not code-signed or notarized, because it is produced on a Linux
+build host. macOS Gatekeeper will therefore refuse a plain double-click the
+first time. Right-click RockPod Setup.app and choose Open, then confirm, or run:
+
+    xattr -dr com.apple.quarantine "/path/to/RockPod Setup.app"
+
+Logs and reports
+----------------
+
+Logs are written to ~/Library/Logs/RockPod. Diagnostic reports have the account
+name redacted from displayed paths and contain no music metadata. Nothing is
+ever uploaded.

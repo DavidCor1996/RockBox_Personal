@@ -589,15 +589,15 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x2b33c
+.debug_info     0x0000000000000000    0x2b387
  *(.debug_info .gnu.linkonce.wi.*)
  .debug_info    0x0000000000000000     0x1019 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/reversi/reversi-game.o
- .debug_info    0x0000000000001019     0x8bde /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/reversi/reversi-gui.o
- .debug_info    0x0000000000009bf7      0x569 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/reversi/reversi-strategy.o
- .debug_info    0x000000000000a160     0x7b73 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/reversi/reversi-strategy-naive.o
- .debug_info    0x0000000000011cd3     0x7f2b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/reversi/reversi-strategy-simple.o
- .debug_info    0x0000000000019bfe     0x7d93 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
- .debug_info    0x0000000000021991     0x99ab /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
+ .debug_info    0x0000000000001019     0x8bed /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/reversi/reversi-gui.o
+ .debug_info    0x0000000000009c06      0x569 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/reversi/reversi-strategy.o
+ .debug_info    0x000000000000a16f     0x7b82 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/reversi/reversi-strategy-naive.o
+ .debug_info    0x0000000000011cf1     0x7f3a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/reversi/reversi-strategy-simple.o
+ .debug_info    0x0000000000019c2b     0x7da2 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+ .debug_info    0x00000000000219cd     0x99ba /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
 
 .debug_abbrev   0x0000000000000000     0x1b4d
  *(.debug_abbrev)
@@ -622,22 +622,22 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0xa328
+.debug_str      0x0000000000000000     0xa33e
  *(.debug_str)
- .debug_str     0x0000000000000000     0xa328 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/reversi/reversi-game.o
+ .debug_str     0x0000000000000000     0xa33e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/reversi/reversi-game.o
                                         0xb64 (size before relaxing)
- .debug_str     0x000000000000a328        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/reversi/reversi-gui.o
-                                       0x5767 (size before relaxing)
- .debug_str     0x000000000000a328        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/reversi/reversi-strategy.o
+ .debug_str     0x000000000000a33e        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/reversi/reversi-gui.o
+                                       0x577d (size before relaxing)
+ .debug_str     0x000000000000a33e        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/reversi/reversi-strategy.o
                                         0x99b (size before relaxing)
- .debug_str     0x000000000000a328        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/reversi/reversi-strategy-naive.o
-                                       0x51ca (size before relaxing)
- .debug_str     0x000000000000a328        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/reversi/reversi-strategy-simple.o
-                                       0x5217 (size before relaxing)
- .debug_str     0x000000000000a328        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
-                                       0x529d (size before relaxing)
- .debug_str     0x000000000000a328        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
-                                       0xa30b (size before relaxing)
+ .debug_str     0x000000000000a33e        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/reversi/reversi-strategy-naive.o
+                                       0x51e0 (size before relaxing)
+ .debug_str     0x000000000000a33e        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/reversi/reversi-strategy-simple.o
+                                       0x522d (size before relaxing)
+ .debug_str     0x000000000000a33e        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+                                       0x52b3 (size before relaxing)
+ .debug_str     0x000000000000a33e        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
+                                       0xa321 (size before relaxing)
 
 .debug_loc
  *(.debug_loc)

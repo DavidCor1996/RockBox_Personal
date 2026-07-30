@@ -10,7 +10,7 @@ from models.track import compute_metadata_hash
 
 logger = logging.getLogger(__name__)
 
-SCHEMA_VERSION = 12
+SCHEMA_VERSION = 13
 
 SCHEMA_SQL = """
 CREATE TABLE IF NOT EXISTS schema_version (
@@ -66,7 +66,9 @@ CREATE TABLE IF NOT EXISTS tracks (
     video_hidden INTEGER DEFAULT 0,
     video_locked INTEGER DEFAULT 0,
     plot_short TEXT DEFAULT '',
-    plot_long TEXT DEFAULT ''
+    plot_long TEXT DEFAULT '',
+    content_rating TEXT DEFAULT '',
+    show_plot TEXT DEFAULT ''
 );
 
 CREATE TABLE IF NOT EXISTS playlists (
@@ -484,6 +486,23 @@ class Database:
                 "ON tracks(media_type, video_hidden, video_locked)"
             )
 
+        if current_version < 13:
+            track_cols = {
+                row["name"] for row in conn.execute("PRAGMA table_info(tracks)")
+            }
+            additions = {
+                # content_rating was already read by the video manifest
+                # exporter but never existed as a column, so every synced row
+                # shipped an empty rating. show_plot carries the series-level
+                # synopsis so a show or season screen has a description even
+                # when no episode is selected.
+                "content_rating": "TEXT DEFAULT ''",
+                "show_plot": "TEXT DEFAULT ''",
+            }
+            for col, spec in additions.items():
+                if col not in track_cols:
+                    conn.execute(f"ALTER TABLE tracks ADD COLUMN {col} {spec}")
+
     @classmethod
     def _write_lock_for_path(cls, path):
         abs_path = os.path.abspath(path)
@@ -817,6 +836,8 @@ class Database:
             "video_locked",
             "plot_short",
             "plot_long",
+            "content_rating",
+            "show_plot",
         }
         metadata_hash_fields = {
             "title",

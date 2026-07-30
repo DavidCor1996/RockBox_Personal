@@ -45,7 +45,8 @@ It does not include:
 - claims that a locally owned file is currently available from Netflix;
 - network access from Rockbox;
 - trailers, autoplay previews, or video decoding in list draw functions;
-- background music or UI sounds;
+- background music or general navigation sounds (the authentic launch ident
+  sound is the sole branded-audio exception);
 - changes to the user's music playlist; or
 - replacement of the existing generic `Videos` browser.
 
@@ -201,15 +202,21 @@ for the wordmark, thin rules, section tabs, progress fill, and Play button.
 
 ### Launch screen
 
-- Duration: 8 ticks minimum, 18 ticks maximum; any queued input cancels it.
-- Background: solid deep red.
-- Center: the real period white wordmark with its authentic dark outline and
-  shadow, fitted to 150x45 without changing aspect ratio.
-- No animation beyond a direct frame or one bounded 6-frame opacity reveal.
-- No full-screen transition copy and no storage work after the first frame.
+- Source: Netflix's official 2013 ident, which uses the same older wordmark
+  family as this personal library skin.
+- Duration: 3.3 seconds from the visual lead-in through the complete sound
+  logo; any queued input cancels it.
+- Visuals: twelve authentic 320x180 source frames at 10 fps, letterboxed on
+  the 320x240 display, followed by a hold on the final red wordmark.
+- Audio: the original 44.1 kHz stereo sound logo on
+  `PCM_MIXER_CHAN_PLAYBACK`.
+- Playback ownership: the selected viewer takes the shared plugin audio
+  buffer once, runs the ident from that buffer, stops the intro channel, and
+  then initializes the selected video. The catalog UI never allocates or
+  owns an intro framebuffer.
 
-The launch bitmap is an installed personal asset. Do not typeset `NETFLIX`
-with an approximation and do not use the modern ribbon `N`.
+The launch pack is an installed personal asset. Do not typeset `NETFLIX`
+with an approximation and do not substitute the modern ribbon `N`.
 
 ### Home screen
 

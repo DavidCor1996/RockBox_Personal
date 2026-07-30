@@ -1,0 +1,61 @@
+{
+  "format_version": 1,
+  "title": "Zelda Maker Lite Test Dungeon",
+  "project_id": "zelda-test-dungeon",
+  "kit_id": "alttp-private-kit",
+  "ruleset": "zelda",
+  "view": [256, 224],
+  "size": [32, 14],
+  "tile_size": 16,
+  "terrain": [
+    {"rect": [0, 0, 16, 1], "tile": 5, "collision": ["solid"]},
+    {"rect": [0, 13, 16, 1], "tile": 5, "collision": ["solid"]},
+    {"rect": [0, 0, 1, 14], "tile": 5, "collision": ["solid"]},
+    {"rect": [31, 0, 1, 14], "tile": 5, "collision": ["solid"]},
+    {"rect": [7, 1, 1, 8], "tile": 6, "collision": ["solid"]},
+    {"rect": [3, 9, 3, 1], "tile": 7, "collision": ["hazard"]}
+  ],
+  "entities": [
+    {"kind": "player", "x": 40, "y": 48},
+    {"kind": "key", "x": 88, "y": 176, "params": [16, 16]},
+    {"kind": "door", "x": 120, "y": 160, "params": [16, 32]},
+    {"kind": "enemy", "x": 184, "y": 72, "params": [16, 16]},
+    {"kind": "switch", "x": 200, "y": 176, "params": [16, 16]},
+    {"kind": "block", "flags": 7, "x": 144, "y": 112,
+     "params": [16, 16, 0, 1]},
+    {"kind": "goal", "x": 480, "y": 208, "params": [16, 16]}
+  ],
+  "events": [
+    {
+      "trigger": "entered_region",
+      "condition": "always",
+      "action": "play_effect",
+      "region": [32, 32, 48, 48],
+      "params": [4, 0],
+      "one_shot": true
+    }
+  ],
+  "paths": [
+    {
+      "id": 1,
+      "points": [[144, 112], [176, 112]],
+      "speed": 64,
+      "ping_pong": true
+    }
+  ],
+  "rooms": [
+    {"id": "west", "title": "Switch Hall", "rect": [0, 0, 16, 14]},
+    {"id": "east", "title": "Goal Chamber", "rect": [16, 0, 16, 14]}
+  ],
+  "room_links": [
+    {
+      "id": "west-east",
+      "from_room": "west",
+      "to_room": "east",
+      "from_position": [232, 208],
+      "to_position": [280, 208],
+      "reciprocal": true,
+      "locked": false
+    }
+  ]
+}

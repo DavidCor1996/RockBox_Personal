@@ -5,7 +5,7 @@ Archive member included to satisfy reference by file (symbol)
 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
                               /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/menu.o (backlight_ignore_timeout)
 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(rockachievements.o)
-                              /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/rockboy.o (rockachievements_init)
+                              /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/rockboy.o (rockachievements_available)
 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(rockachievements_allocator.o)
                               /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(rockachievements.o) (rockachievements_allocator_reset)
 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_runtime.o)
@@ -313,509 +313,514 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .plt.sec
  *(.plt.sec)
 
-.text           0x0000000000003250    0x1674d
+.text           0x0000000000003260    0x16d1c
  *(.text.unlikely .text.*_unlikely .text.unlikely.*)
  *(.text.exit .text.exit.*)
  *(.text.startup .text.startup.*)
  *(.text.hot .text.hot.*)
  *(SORT_BY_NAME(.text.sorted.*))
  *(.text .stub .text.* .gnu.linkonce.t.*)
- .text          0x0000000000003250        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crti.o
- .text          0x0000000000003250       0xc9 /usr/lib/gcc/x86_64-pc-linux-gnu/16/crtbeginS.o
- .text          0x0000000000003319      0x449 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/../../../firmware/libc/sscanf.o
-                0x000000000000341b                sscanf
- .text          0x0000000000003762     0x2fe1 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/cpu.o
-                0x00000000000038ef                cpu_reset
-                0x0000000000003973                cpu_timers
-                0x00000000000039c0                cpu_mem_access
-                0x0000000000003a6c                cpu_emulate
- .text          0x0000000000006743      0x3b5 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/emu.o
-                0x00000000000067ec                emu_reset
-                0x000000000000680c                emu_run
- .text          0x0000000000006af8       0x72 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/events.o
-                0x0000000000006af8                ev_postevent
-                0x0000000000006b2e                ev_getevent
- .text          0x0000000000006b6a      0x292 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/fastmem.o
-                0x0000000000006b6a                readb
-                0x0000000000006bc8                writeb
-                0x0000000000006c47                readw
-                0x0000000000006ce6                writew
-                0x0000000000006de2                readhi
-                0x0000000000006ded                writehi
- .text          0x0000000000006dfc      0x2f8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/hw.o
-                0x0000000000006dfc                hw_interrupt
-                0x0000000000006e50                hw_dma
-                0x0000000000006e84                hw_hdma
-                0x0000000000006f28                hw_hdma_cmd
-                0x0000000000007023                pad_refresh
-                0x000000000000707f                pad_set
-                0x00000000000070aa                hw_reset
- .text          0x00000000000070f4     0x22ce /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/lcd.o
-                0x0000000000007219                lcd_begin
-                0x00000000000072ba                setvidmode
-                0x0000000000007399                lcd_refreshline
-                0x000000000000918f                pal_write
-                0x00000000000091b3                pal_write_dmg
-                0x0000000000009249                vram_dirty
-                0x0000000000009274                pal_dirty
-                0x00000000000092e5                set_pal
-                0x0000000000009316                vram_write
-                0x0000000000009398                lcd_reset
- .text          0x00000000000093c2      0x2c9 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/lcdc.o
-                0x00000000000093c2                stat_trigger
-                0x0000000000009448                lcdc_change
-                0x0000000000009492                lcdc_trans
- .text          0x000000000000968b      0x5c3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/loader.o
-                0x000000000000968c                sn_save
-                0x0000000000009705                sn_load
-                0x000000000000974c                cleanup
-                0x00000000000098ae                loader_init
- .text          0x0000000000009c4e      0xf75 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/mem.o
-                0x0000000000009e6d                mem_accuracy_log_cart_write
-                0x0000000000009fa3                mem_oam_bug_active
-                0x0000000000009fdc                mem_oam_corrupt_read
-                0x0000000000009ff4                mem_oam_corrupt_write
-                0x000000000000a00f                mem_oam_corrupt_read_idu
-                0x000000000000a150                mem_updatemap
-                0x000000000000a340                mem_write
-                0x000000000000a9b0                mem_read
-                0x000000000000abab                mbc_reset
- .text          0x000000000000abc3      0x8fc /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/menu.o
-                0x000000000000b0a2                do_user_menu
- .text          0x000000000000b4bf      0x3a7 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/rbsound.o
-                0x000000000000b55d                rockboy_pcm_init
-                0x000000000000b686                rockboy_pcm_close
-                0x000000000000b6f9                rockboy_pcm_submit
- .text          0x000000000000b866      0x7a8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/rockboy.o
-                0x000000000000b9e4                rockboy_achievements_frame
-                0x000000000000b9f0                rockboy_achievements_reset
-                0x000000000000b9fc                die
-                0x000000000000ba0e                my_malloc
-                0x000000000000ba43                rockboy_apply_performance_preset
-                0x000000000000ba82                doevents
-                0x000000000000bae1                plugin_start
- .text          0x000000000000c00e      0x7a8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/profiler.o
-                0x000000000000c071                rockboy_profile_reset
-                0x000000000000c092                rockboy_profile_start
-                0x000000000000c0b6                rockboy_perf_start
-                0x000000000000c105                rockboy_perf_frame_rendered
-                0x000000000000c10d                rockboy_perf_frame_skipped
-                0x000000000000c115                rockboy_perf_log_if_due
-                0x000000000000c2bf                rockboy_profile_add_enabled
-                0x000000000000c2e9                rockboy_profile_frame_skipped_enabled
-                0x000000000000c2f1                rockboy_profile_pcm_underrun_enabled
-                0x000000000000c2f9                rockboy_profile_pcm_drop_enabled
-                0x000000000000c301                rockboy_profile_count_enabled
-                0x000000000000c318                rockboy_profile_get_totals
-                0x000000000000c320                rockboy_profile_log_summary
-                0x000000000000c777                rockboy_profile_frame_rendered_enabled
- .text          0x000000000000c7b6      0x446 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/rtc.o
-                0x000000000000c7b6                rtc_latch
-                0x000000000000c82e                rtc_write
-                0x000000000000c967                rtc_tick
-                0x000000000000ca0f                rtc_save_internal
-                0x000000000000ca80                rtc_load_internal
- .text          0x000000000000cbfc      0x51f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/save.o
-                0x000000000000cbfc                loadstate
-                0x000000000000cea8                savestate
- .text          0x000000000000d11b     0x17f4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/sound.o
-                0x000000000000d20c                sound_mix
-                0x000000000000d6ca                sound_tick
-                0x000000000000d8de                sound_read
-                0x000000000000d978                sound_write
-                0x000000000000e584                sound_reset
-                0x000000000000e7ee                sound_dirty
- .text          0x000000000000e90f      0x703 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/sys_rockbox.o
-                0x000000000000e975                ev_poll
-                0x000000000000efb5                vid_begin
-                0x000000000000f003                vid_init
- .text          0x000000000000f012       0xe3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
-                0x000000000000f021                plugin__start
-                0x000000000000f075                rb_atexit
-                0x000000000000f08e                exit
-                0x000000000000f0a7                _exit
-                0x000000000000f0b6                exit_on_usb
- .text          0x000000000000f0f5       0xcd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
-                0x000000000000f0f5                memcpy
-                0x000000000000f120                memset
-                0x000000000000f149                memmove
-                0x000000000000f189                memcmp
- .text          0x000000000000f1c2      0x11a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
-                0x000000000000f1c2                talk_val
-                0x000000000000f1da                backlight_force_on
-                0x000000000000f1fc                backlight_ignore_timeout
-                0x000000000000f23a                backlight_use_settings
-                0x000000000000f26c                sw_poweroff_disable
-                0x000000000000f292                sw_poweroff_restore
-                0x000000000000f2a9                remote_backlight_force_on
-                0x000000000000f2aa                remote_backlight_ignore_timeout
-                0x000000000000f2ab                remote_backlight_use_settings
-                0x000000000000f2ac                buttonlight_force_on
-                0x000000000000f2ad                buttonlight_force_off
-                0x000000000000f2ae                buttonlight_ignore_timeout
-                0x000000000000f2af                buttonlight_use_settings
-                0x000000000000f2b0                backlight_brightness_set
-                0x000000000000f2c0                backlight_brightness_use_setting
-                0x000000000000f2da                buttonlight_brightness_set
-                0x000000000000f2db                buttonlight_brightness_use_setting
- .text          0x000000000000f2dc      0xa7c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(rockachievements.o)
-                0x000000000000f86e                rockachievements_init
-                0x000000000000fcd9                rockachievements_do_frame
-                0x000000000000fd04                rockachievements_reset
-                0x000000000000fd1b                rockachievements_shutdown
- .text          0x000000000000fd58      0x1c3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(rockachievements_allocator.o)
-                0x000000000000fd58                rockachievements_allocator_reset
-                0x000000000000fd9b                rockachievements_malloc
-                0x000000000000fe07                rockachievements_calloc
-                0x000000000000fe48                rockachievements_free
-                0x000000000000feb4                rockachievements_realloc
- .text          0x000000000000ff1b     0x1282 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_runtime.o)
-                0x0000000000010002                rc_runtime_init
-                0x0000000000010029                rc_runtime_alloc
-                0x000000000001004d                rc_runtime_destroy
-                0x0000000000010108                rc_runtime_checksum
-                0x0000000000010166                rc_runtime_deactivate_achievement
-                0x00000000000101a0                rc_runtime_activate_achievement
-                0x0000000000010461                rc_runtime_get_achievement
-                0x0000000000010489                rc_runtime_get_achievement_measured
-                0x00000000000104ee                rc_runtime_format_achievement_measured
-                0x0000000000010598                rc_runtime_deactivate_lboard
-                0x00000000000105d2                rc_runtime_activate_lboard
-                0x0000000000010899                rc_runtime_get_lboard
-                0x00000000000108c2                rc_runtime_format_lboard_value
-                0x00000000000108c7                rc_runtime_activate_richpresence
-                0x0000000000010add                rc_runtime_get_richpresence
-                0x0000000000010af9                rc_runtime_do_frame
-                0x0000000000010e22                rc_runtime_reset
-                0x0000000000010e8a                rc_value_contains_memref
-                0x0000000000010ebd                rc_trigger_contains_memref
-                0x0000000000010fff                rc_runtime_invalidate_address
-                0x0000000000011053                rc_runtime_validate_addresses
- .text          0x000000000001119d     0x12a3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_runtime_progress.o)
-                0x0000000000011a41                rc_runtime_progress_size
-                0x0000000000011aa6                rc_runtime_serialize_progress_sized
-                0x0000000000011b17                rc_runtime_serialize_progress
-                0x0000000000011b27                rc_runtime_deserialize_progress_sized
-                0x0000000000012433                rc_runtime_deserialize_progress
- .text          0x0000000000012440     0x13f1 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_richpresence.o)
-                0x0000000000012ecd                rc_parse_richpresence_internal
-                0x00000000000134ff                rc_richpresence_size_lines
-                0x00000000000135a8                rc_richpresence_size
-                0x00000000000135af                rc_parse_richpresence
-                0x00000000000136bf                rc_richpresence_get_memrefs
-                0x00000000000136ce                rc_update_richpresence_internal
-                0x0000000000013701                rc_update_richpresence
-                0x000000000001373b                rc_get_richpresence_display_string
-                0x00000000000137b4                rc_evaluate_richpresence
-                0x0000000000013805                rc_reset_richpresence_triggers
-                0x000000000001381e                rc_reset_richpresence
- .text          0x0000000000013831      0x5ca /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_trigger.o)
-                0x000000000001387f                rc_parse_trigger_internal
-                0x0000000000013961                rc_trigger_size
-                0x00000000000139f8                rc_parse_trigger
-                0x0000000000013b07                rc_trigger_state_active
-                0x0000000000013b22                rc_trigger_get_memrefs
-                0x0000000000013b31                rc_reset_trigger
-                0x0000000000013b57                rc_evaluate_trigger
-                0x0000000000013de6                rc_test_trigger
- .text          0x0000000000013dfb      0xedc /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_value.o)
-                0x0000000000013dfb                rc_is_valid_variable_character
-                0x0000000000013e2c                rc_parse_value_internal
-                0x0000000000014235                rc_value_size
-                0x00000000000142cc                rc_parse_value
-                0x00000000000143db                rc_reset_value
-                0x0000000000014405                rc_value_from_hits
-                0x0000000000014436                rc_alloc_variable
-                0x0000000000014523                rc_count_values
-                0x0000000000014533                rc_reset_values
-                0x000000000001454c                rc_typed_value_from_memref_value
-                0x0000000000014557                rc_typed_value_convert
-                0x00000000000145f2                rc_typed_value_negate
-                0x000000000001461e                rc_typed_value_add
-                0x00000000000146ba                rc_typed_value_multiply
-                0x0000000000014754                rc_typed_value_divide
-                0x00000000000147fb                rc_typed_value_modulus
-                0x00000000000148ab                rc_typed_value_combine
-                0x0000000000014938                rc_typed_value_compare
-                0x0000000000014af7                rc_evaluate_value_typed
-                0x0000000000014bf1                rc_evaluate_value
-                0x0000000000014c68                rc_update_values
- .text          0x0000000000014cd7      0x8c8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_md5.o)
-                0x00000000000153ff                md5_init
-                0x0000000000015421                md5_append
-                0x00000000000154f2                md5_finish
- .text          0x000000000001559f      0x34a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_util.o)
-                0x000000000001559f                rc_buffer_init
-                0x00000000000155bc                rc_buffer_destroy
-                0x00000000000155da                rc_buffer_reserve
-                0x0000000000015646                rc_buffer_consume
-                0x0000000000015676                rc_buffer_alloc
-                0x000000000001569d                rc_buffer_strncpy
-                0x00000000000156e6                rc_buffer_strcpy
-                0x0000000000015705                rc_format_md5
-                0x000000000001576f                rc_djb2
-                0x0000000000015786                rc_error_str
- .text          0x00000000000158e9       0x2b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(rockachievements_math.o)
-                0x00000000000158e9                fmod
- .text          0x0000000000015914      0x5ec /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_alloc.o)
-                0x00000000000159cf                rc_alloc
-                0x0000000000015a2d                rc_alloc_scratch
-                0x0000000000015a60                rc_alloc_str
-                0x0000000000015b51                rc_destroy_preparse_state
-                0x0000000000015b5a                rc_preparse_alloc_memrefs
-                0x0000000000015c41                rc_preparse_reserve_memrefs
-                0x0000000000015d8f                rc_preparse_copy_memrefs
-                0x0000000000015e53                rc_reset_parse_state
-                0x0000000000015ea9                rc_init_parse_state
-                0x0000000000015edc                rc_init_preparse_state
-                0x0000000000015ef7                rc_destroy_parse_state
- .text          0x0000000000015f00      0xc79 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_condition.o)
-                0x0000000000016061                rc_condition_convert_to_operand
-                0x00000000000160e8                rc_parse_condition_internal
-                0x000000000001647d                rc_parse_condition
-                0x00000000000164c0                rc_condition_update_parse_state
-                0x00000000000167ff                rc_condition_get_real_operand1
-                0x0000000000016879                rc_condition_is_combining
-                0x0000000000016883                rc_test_condition
-                0x0000000000016b19                rc_evaluate_condition_value
- .text          0x0000000000016b79      0xb9d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_condset.o)
-                0x0000000000016ced                rc_parse_condset
-                0x00000000000173e5                rc_test_condset_internal
-                0x000000000001759e                rc_condset_get_conditions
-                0x00000000000175ae                rc_test_condset
-                0x0000000000017701                rc_reset_condset
- .text          0x0000000000017716      0x6c1 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_format.o)
-                0x000000000001781a                rc_parse_format
-                0x0000000000017a14                rc_format_typed_value
-                0x0000000000017d96                rc_format_value
- .text          0x0000000000017dd7      0x629 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_lboard.o)
-                0x0000000000017dd7                rc_parse_lboard_internal
-                0x00000000000180b8                rc_lboard_size
-                0x0000000000018142                rc_parse_lboard
-                0x0000000000018240                rc_evaluate_lboard
-                0x00000000000183ad                rc_lboard_state_active
-                0x00000000000183bd                rc_reset_lboard
- .text          0x0000000000018400      0xb57 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_memref.o)
-                0x00000000000184b9                rc_alloc_memref
-                0x0000000000018614                rc_alloc_modified_memref
-                0x0000000000018822                rc_memrefs_init
-                0x0000000000018863                rc_memrefs_destroy
-                0x00000000000188e4                rc_memrefs_count_memrefs
-                0x00000000000188f8                rc_memrefs_count_modified_memrefs
-                0x0000000000018910                rc_parse_memref
-                0x0000000000018a9b                rc_transform_memref_value
-                0x0000000000018cb4                rc_memref_mask
-                0x0000000000018cce                rc_memref_shared_size
-                0x0000000000018ce5                rc_peek_value
-                0x0000000000018d47                rc_update_memref_value
-                0x0000000000018d5a                rc_init_parse_state_memrefs
-                0x0000000000018d82                rc_get_memref_value
-                0x0000000000018da2                rc_get_modified_memref_value
-                0x0000000000018ea9                rc_update_memref_values
- .text          0x0000000000018f57      0xa46 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_operand.o)
-                0x00000000000190d8                rc_parse_operand
-                0x0000000000019508                rc_operand_set_const
-                0x0000000000019515                rc_operand_set_float_const
-                0x0000000000019524                rc_operands_are_equal
-                0x00000000000195ec                rc_operator_is_modifying
-                0x00000000000195f8                rc_memsize_is_float
-                0x0000000000019608                rc_operand_type_is_memref
-                0x0000000000019622                rc_operand_type_is_transform
-                0x0000000000019632                rc_operand_is_memref
-                0x0000000000019638                rc_operand_is_float_memref
-                0x000000000001966c                rc_operand_is_recall
-                0x0000000000019676                rc_operand_is_float
-                0x000000000001969a                rc_operand_addsource
-                0x0000000000019759                rc_evaluate_operand
- .text          0x000000000001999d        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16/crtendS.o
- .text          0x000000000001999d        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
+ .text          0x0000000000003260        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crti.o
+ .text          0x0000000000003260       0xc9 /usr/lib/gcc/x86_64-pc-linux-gnu/16/crtbeginS.o
+ *fill*         0x0000000000003329       0x17 
+ .text          0x0000000000003340      0x7a7 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/../../../firmware/libc/sscanf.o
+                0x00000000000033f0                sscanf
+ .text          0x0000000000003ae7     0x2fe1 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/cpu.o
+                0x0000000000003c74                cpu_reset
+                0x0000000000003cf8                cpu_timers
+                0x0000000000003d45                cpu_mem_access
+                0x0000000000003df1                cpu_emulate
+ .text          0x0000000000006ac8      0x3b5 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/emu.o
+                0x0000000000006b71                emu_reset
+                0x0000000000006b91                emu_run
+ .text          0x0000000000006e7d       0x72 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/events.o
+                0x0000000000006e7d                ev_postevent
+                0x0000000000006eb3                ev_getevent
+ .text          0x0000000000006eef      0x292 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/fastmem.o
+                0x0000000000006eef                readb
+                0x0000000000006f4d                writeb
+                0x0000000000006fcc                readw
+                0x000000000000706b                writew
+                0x0000000000007167                readhi
+                0x0000000000007172                writehi
+ .text          0x0000000000007181      0x2f8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/hw.o
+                0x0000000000007181                hw_interrupt
+                0x00000000000071d5                hw_dma
+                0x0000000000007209                hw_hdma
+                0x00000000000072ad                hw_hdma_cmd
+                0x00000000000073a8                pad_refresh
+                0x0000000000007404                pad_set
+                0x000000000000742f                hw_reset
+ .text          0x0000000000007479     0x22ce /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/lcd.o
+                0x000000000000759e                lcd_begin
+                0x000000000000763f                setvidmode
+                0x000000000000771e                lcd_refreshline
+                0x0000000000009514                pal_write
+                0x0000000000009538                pal_write_dmg
+                0x00000000000095ce                vram_dirty
+                0x00000000000095f9                pal_dirty
+                0x000000000000966a                set_pal
+                0x000000000000969b                vram_write
+                0x000000000000971d                lcd_reset
+ .text          0x0000000000009747      0x2c9 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/lcdc.o
+                0x0000000000009747                stat_trigger
+                0x00000000000097cd                lcdc_change
+                0x0000000000009817                lcdc_trans
+ .text          0x0000000000009a10      0x5c3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/loader.o
+                0x0000000000009a11                sn_save
+                0x0000000000009a8a                sn_load
+                0x0000000000009ad1                cleanup
+                0x0000000000009c33                loader_init
+ .text          0x0000000000009fd3      0xf75 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/mem.o
+                0x000000000000a1f2                mem_accuracy_log_cart_write
+                0x000000000000a328                mem_oam_bug_active
+                0x000000000000a361                mem_oam_corrupt_read
+                0x000000000000a379                mem_oam_corrupt_write
+                0x000000000000a394                mem_oam_corrupt_read_idu
+                0x000000000000a4d5                mem_updatemap
+                0x000000000000a6c5                mem_write
+                0x000000000000ad35                mem_read
+                0x000000000000af30                mbc_reset
+ .text          0x000000000000af48      0x91d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/menu.o
+                0x000000000000b448                do_user_menu
+ .text          0x000000000000b865      0x3a7 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/rbsound.o
+                0x000000000000b903                rockboy_pcm_init
+                0x000000000000ba2c                rockboy_pcm_close
+                0x000000000000ba9f                rockboy_pcm_submit
+ .text          0x000000000000bc0c      0x7c4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/rockboy.o
+                0x000000000000bd8a                rockboy_achievements_frame
+                0x000000000000bd96                rockboy_achievements_reset
+                0x000000000000bda2                die
+                0x000000000000bdb4                my_malloc
+                0x000000000000bde9                rockboy_apply_performance_preset
+                0x000000000000be28                doevents
+                0x000000000000be87                plugin_start
+ .text          0x000000000000c3d0      0x7a8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/profiler.o
+                0x000000000000c433                rockboy_profile_reset
+                0x000000000000c454                rockboy_profile_start
+                0x000000000000c478                rockboy_perf_start
+                0x000000000000c4c7                rockboy_perf_frame_rendered
+                0x000000000000c4cf                rockboy_perf_frame_skipped
+                0x000000000000c4d7                rockboy_perf_log_if_due
+                0x000000000000c681                rockboy_profile_add_enabled
+                0x000000000000c6ab                rockboy_profile_frame_skipped_enabled
+                0x000000000000c6b3                rockboy_profile_pcm_underrun_enabled
+                0x000000000000c6bb                rockboy_profile_pcm_drop_enabled
+                0x000000000000c6c3                rockboy_profile_count_enabled
+                0x000000000000c6da                rockboy_profile_get_totals
+                0x000000000000c6e2                rockboy_profile_log_summary
+                0x000000000000cb39                rockboy_profile_frame_rendered_enabled
+ .text          0x000000000000cb78      0x446 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/rtc.o
+                0x000000000000cb78                rtc_latch
+                0x000000000000cbf0                rtc_write
+                0x000000000000cd29                rtc_tick
+                0x000000000000cdd1                rtc_save_internal
+                0x000000000000ce42                rtc_load_internal
+ .text          0x000000000000cfbe      0x51f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/save.o
+                0x000000000000cfbe                loadstate
+                0x000000000000d26a                savestate
+ .text          0x000000000000d4dd     0x17f4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/sound.o
+                0x000000000000d5ce                sound_mix
+                0x000000000000da8c                sound_tick
+                0x000000000000dca0                sound_read
+                0x000000000000dd3a                sound_write
+                0x000000000000e946                sound_reset
+                0x000000000000ebb0                sound_dirty
+ .text          0x000000000000ecd1      0x703 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/sys_rockbox.o
+                0x000000000000ed37                ev_poll
+                0x000000000000f377                vid_begin
+                0x000000000000f3c5                vid_init
+ .text          0x000000000000f3d4       0xe3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+                0x000000000000f3e3                plugin__start
+                0x000000000000f437                rb_atexit
+                0x000000000000f450                exit
+                0x000000000000f469                _exit
+                0x000000000000f478                exit_on_usb
+ .text          0x000000000000f4b7       0xcd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+                0x000000000000f4b7                memcpy
+                0x000000000000f4e2                memset
+                0x000000000000f50b                memmove
+                0x000000000000f54b                memcmp
+ .text          0x000000000000f584      0x11a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
+                0x000000000000f584                talk_val
+                0x000000000000f59c                backlight_force_on
+                0x000000000000f5be                backlight_ignore_timeout
+                0x000000000000f5fc                backlight_use_settings
+                0x000000000000f62e                sw_poweroff_disable
+                0x000000000000f654                sw_poweroff_restore
+                0x000000000000f66b                remote_backlight_force_on
+                0x000000000000f66c                remote_backlight_ignore_timeout
+                0x000000000000f66d                remote_backlight_use_settings
+                0x000000000000f66e                buttonlight_force_on
+                0x000000000000f66f                buttonlight_force_off
+                0x000000000000f670                buttonlight_ignore_timeout
+                0x000000000000f671                buttonlight_use_settings
+                0x000000000000f672                backlight_brightness_set
+                0x000000000000f682                backlight_brightness_use_setting
+                0x000000000000f69c                buttonlight_brightness_set
+                0x000000000000f69d                buttonlight_brightness_use_setting
+ .text          0x000000000000f69e      0xc99 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(rockachievements.o)
+                0x000000000000ff50                rockachievements_available
+                0x000000000000ffb6                rockachievements_init
+                0x0000000000010290                rockachievements_do_frame
+                0x00000000000102bb                rockachievements_reset
+                0x00000000000102d2                rockachievements_shutdown
+                0x0000000000010311                rockachievements_hardcore_active
+                0x000000000001032e                rockachievements_any_hardcore_active
+ .text          0x0000000000010337      0x1c3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(rockachievements_allocator.o)
+                0x0000000000010337                rockachievements_allocator_reset
+                0x000000000001037a                rockachievements_malloc
+                0x00000000000103e6                rockachievements_calloc
+                0x0000000000010427                rockachievements_free
+                0x0000000000010493                rockachievements_realloc
+ .text          0x00000000000104fa     0x1282 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_runtime.o)
+                0x00000000000105e1                rc_runtime_init
+                0x0000000000010608                rc_runtime_alloc
+                0x000000000001062c                rc_runtime_destroy
+                0x00000000000106e7                rc_runtime_checksum
+                0x0000000000010745                rc_runtime_deactivate_achievement
+                0x000000000001077f                rc_runtime_activate_achievement
+                0x0000000000010a40                rc_runtime_get_achievement
+                0x0000000000010a68                rc_runtime_get_achievement_measured
+                0x0000000000010acd                rc_runtime_format_achievement_measured
+                0x0000000000010b77                rc_runtime_deactivate_lboard
+                0x0000000000010bb1                rc_runtime_activate_lboard
+                0x0000000000010e78                rc_runtime_get_lboard
+                0x0000000000010ea1                rc_runtime_format_lboard_value
+                0x0000000000010ea6                rc_runtime_activate_richpresence
+                0x00000000000110bc                rc_runtime_get_richpresence
+                0x00000000000110d8                rc_runtime_do_frame
+                0x0000000000011401                rc_runtime_reset
+                0x0000000000011469                rc_value_contains_memref
+                0x000000000001149c                rc_trigger_contains_memref
+                0x00000000000115de                rc_runtime_invalidate_address
+                0x0000000000011632                rc_runtime_validate_addresses
+ .text          0x000000000001177c     0x12a3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_runtime_progress.o)
+                0x0000000000012020                rc_runtime_progress_size
+                0x0000000000012085                rc_runtime_serialize_progress_sized
+                0x00000000000120f6                rc_runtime_serialize_progress
+                0x0000000000012106                rc_runtime_deserialize_progress_sized
+                0x0000000000012a12                rc_runtime_deserialize_progress
+ .text          0x0000000000012a1f     0x13f1 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_richpresence.o)
+                0x00000000000134ac                rc_parse_richpresence_internal
+                0x0000000000013ade                rc_richpresence_size_lines
+                0x0000000000013b87                rc_richpresence_size
+                0x0000000000013b8e                rc_parse_richpresence
+                0x0000000000013c9e                rc_richpresence_get_memrefs
+                0x0000000000013cad                rc_update_richpresence_internal
+                0x0000000000013ce0                rc_update_richpresence
+                0x0000000000013d1a                rc_get_richpresence_display_string
+                0x0000000000013d93                rc_evaluate_richpresence
+                0x0000000000013de4                rc_reset_richpresence_triggers
+                0x0000000000013dfd                rc_reset_richpresence
+ .text          0x0000000000013e10      0x5ca /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_trigger.o)
+                0x0000000000013e5e                rc_parse_trigger_internal
+                0x0000000000013f40                rc_trigger_size
+                0x0000000000013fd7                rc_parse_trigger
+                0x00000000000140e6                rc_trigger_state_active
+                0x0000000000014101                rc_trigger_get_memrefs
+                0x0000000000014110                rc_reset_trigger
+                0x0000000000014136                rc_evaluate_trigger
+                0x00000000000143c5                rc_test_trigger
+ .text          0x00000000000143da      0xedc /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_value.o)
+                0x00000000000143da                rc_is_valid_variable_character
+                0x000000000001440b                rc_parse_value_internal
+                0x0000000000014814                rc_value_size
+                0x00000000000148ab                rc_parse_value
+                0x00000000000149ba                rc_reset_value
+                0x00000000000149e4                rc_value_from_hits
+                0x0000000000014a15                rc_alloc_variable
+                0x0000000000014b02                rc_count_values
+                0x0000000000014b12                rc_reset_values
+                0x0000000000014b2b                rc_typed_value_from_memref_value
+                0x0000000000014b36                rc_typed_value_convert
+                0x0000000000014bd1                rc_typed_value_negate
+                0x0000000000014bfd                rc_typed_value_add
+                0x0000000000014c99                rc_typed_value_multiply
+                0x0000000000014d33                rc_typed_value_divide
+                0x0000000000014dda                rc_typed_value_modulus
+                0x0000000000014e8a                rc_typed_value_combine
+                0x0000000000014f17                rc_typed_value_compare
+                0x00000000000150d6                rc_evaluate_value_typed
+                0x00000000000151d0                rc_evaluate_value
+                0x0000000000015247                rc_update_values
+ .text          0x00000000000152b6      0x8c8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_md5.o)
+                0x00000000000159de                md5_init
+                0x0000000000015a00                md5_append
+                0x0000000000015ad1                md5_finish
+ .text          0x0000000000015b7e      0x34a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_util.o)
+                0x0000000000015b7e                rc_buffer_init
+                0x0000000000015b9b                rc_buffer_destroy
+                0x0000000000015bb9                rc_buffer_reserve
+                0x0000000000015c25                rc_buffer_consume
+                0x0000000000015c55                rc_buffer_alloc
+                0x0000000000015c7c                rc_buffer_strncpy
+                0x0000000000015cc5                rc_buffer_strcpy
+                0x0000000000015ce4                rc_format_md5
+                0x0000000000015d4e                rc_djb2
+                0x0000000000015d65                rc_error_str
+ .text          0x0000000000015ec8       0x2b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(rockachievements_math.o)
+                0x0000000000015ec8                fmod
+ .text          0x0000000000015ef3      0x5ec /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_alloc.o)
+                0x0000000000015fae                rc_alloc
+                0x000000000001600c                rc_alloc_scratch
+                0x000000000001603f                rc_alloc_str
+                0x0000000000016130                rc_destroy_preparse_state
+                0x0000000000016139                rc_preparse_alloc_memrefs
+                0x0000000000016220                rc_preparse_reserve_memrefs
+                0x000000000001636e                rc_preparse_copy_memrefs
+                0x0000000000016432                rc_reset_parse_state
+                0x0000000000016488                rc_init_parse_state
+                0x00000000000164bb                rc_init_preparse_state
+                0x00000000000164d6                rc_destroy_parse_state
+ .text          0x00000000000164df      0xc79 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_condition.o)
+                0x0000000000016640                rc_condition_convert_to_operand
+                0x00000000000166c7                rc_parse_condition_internal
+                0x0000000000016a5c                rc_parse_condition
+                0x0000000000016a9f                rc_condition_update_parse_state
+                0x0000000000016dde                rc_condition_get_real_operand1
+                0x0000000000016e58                rc_condition_is_combining
+                0x0000000000016e62                rc_test_condition
+                0x00000000000170f8                rc_evaluate_condition_value
+ .text          0x0000000000017158      0xb9d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_condset.o)
+                0x00000000000172cc                rc_parse_condset
+                0x00000000000179c4                rc_test_condset_internal
+                0x0000000000017b7d                rc_condset_get_conditions
+                0x0000000000017b8d                rc_test_condset
+                0x0000000000017ce0                rc_reset_condset
+ .text          0x0000000000017cf5      0x6c1 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_format.o)
+                0x0000000000017df9                rc_parse_format
+                0x0000000000017ff3                rc_format_typed_value
+                0x0000000000018375                rc_format_value
+ .text          0x00000000000183b6      0x629 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_lboard.o)
+                0x00000000000183b6                rc_parse_lboard_internal
+                0x0000000000018697                rc_lboard_size
+                0x0000000000018721                rc_parse_lboard
+                0x000000000001881f                rc_evaluate_lboard
+                0x000000000001898c                rc_lboard_state_active
+                0x000000000001899c                rc_reset_lboard
+ .text          0x00000000000189df      0xb57 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_memref.o)
+                0x0000000000018a98                rc_alloc_memref
+                0x0000000000018bf3                rc_alloc_modified_memref
+                0x0000000000018e01                rc_memrefs_init
+                0x0000000000018e42                rc_memrefs_destroy
+                0x0000000000018ec3                rc_memrefs_count_memrefs
+                0x0000000000018ed7                rc_memrefs_count_modified_memrefs
+                0x0000000000018eef                rc_parse_memref
+                0x000000000001907a                rc_transform_memref_value
+                0x0000000000019293                rc_memref_mask
+                0x00000000000192ad                rc_memref_shared_size
+                0x00000000000192c4                rc_peek_value
+                0x0000000000019326                rc_update_memref_value
+                0x0000000000019339                rc_init_parse_state_memrefs
+                0x0000000000019361                rc_get_memref_value
+                0x0000000000019381                rc_get_modified_memref_value
+                0x0000000000019488                rc_update_memref_values
+ .text          0x0000000000019536      0xa46 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_operand.o)
+                0x00000000000196b7                rc_parse_operand
+                0x0000000000019ae7                rc_operand_set_const
+                0x0000000000019af4                rc_operand_set_float_const
+                0x0000000000019b03                rc_operands_are_equal
+                0x0000000000019bcb                rc_operator_is_modifying
+                0x0000000000019bd7                rc_memsize_is_float
+                0x0000000000019be7                rc_operand_type_is_memref
+                0x0000000000019c01                rc_operand_type_is_transform
+                0x0000000000019c11                rc_operand_is_memref
+                0x0000000000019c17                rc_operand_is_float_memref
+                0x0000000000019c4b                rc_operand_is_recall
+                0x0000000000019c55                rc_operand_is_float
+                0x0000000000019c79                rc_operand_addsource
+                0x0000000000019d38                rc_evaluate_operand
+ .text          0x0000000000019f7c        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16/crtendS.o
+ .text          0x0000000000019f7c        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
  *(.gnu.warning)
 
-.fini           0x00000000000199a0        0xd
+.fini           0x0000000000019f7c        0xd
  *(SORT_NONE(.fini))
- .fini          0x00000000000199a0        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crti.o
-                0x00000000000199a0                _fini
- .fini          0x00000000000199a8        0x5 /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
+ .fini          0x0000000000019f7c        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crti.o
+                0x0000000000019f7c                _fini
+ .fini          0x0000000000019f84        0x5 /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
                 [!provide]                        PROVIDE (__etext = .)
                 [!provide]                        PROVIDE (_etext = .)
                 [!provide]                        PROVIDE (etext = .)
                 0x000000000001a000                . = ALIGN (CONSTANT (MAXPAGESIZE))
                 0x000000000001a000                . = SEGMENT_START ("rodata-segment", (ALIGN (CONSTANT (MAXPAGESIZE)) + (. & (CONSTANT (MAXPAGESIZE) - 0x1))))
 
-.rodata         0x000000000001a000     0x2f4c
+.rodata         0x000000000001a000     0x2fcc
  *(.rodata .rodata.* .gnu.linkonce.r.*)
+ .rodata        0x000000000001a000       0x54 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/../../../firmware/libc/sscanf.o
  .rodata.str1.1
-                0x000000000001a000     0x1231 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/cpu.o
+                0x000000000001a054     0x1261 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/cpu.o
                                          0x4e (size before relaxing)
- *fill*         0x000000000001b231        0xf 
- .rodata        0x000000000001b240      0xd00 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/cpu.o
+ *fill*         0x000000000001b2b5        0xb 
+ .rodata        0x000000000001b2c0      0xd00 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/cpu.o
  .rodata.str1.1
-                0x000000000001bf40        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/emu.o
+                0x000000000001bfc0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/emu.o
                                          0x18 (size before relaxing)
  .rodata.str1.1
-                0x000000000001bf40        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/lcd.o
+                0x000000000001bfc0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/lcd.o
                                          0x92 (size before relaxing)
- .rodata        0x000000000001bf40      0x100 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/lcd.o
+ .rodata        0x000000000001bfc0      0x100 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/lcd.o
  .rodata.str1.1
-                0x000000000001c040        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/lcdc.o
+                0x000000000001c0c0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/lcdc.o
                                          0x18 (size before relaxing)
- .rodata        0x000000000001c040       0x10 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/lcdc.o
+ .rodata        0x000000000001c0c0       0x10 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/lcdc.o
  .rodata.str1.1
-                0x000000000001c050        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/loader.o
+                0x000000000001c0d0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/loader.o
                                          0xa3 (size before relaxing)
- *fill*         0x000000000001c050       0x10 
- .rodata        0x000000000001c060      0x4a0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/loader.o
+ *fill*         0x000000000001c0d0       0x10 
+ .rodata        0x000000000001c0e0      0x4a0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/loader.o
  .rodata.str1.1
-                0x000000000001c500        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/mem.o
+                0x000000000001c580        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/mem.o
                                          0x7c (size before relaxing)
- .rodata        0x000000000001c500      0x130 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/mem.o
+ .rodata        0x000000000001c580      0x130 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/mem.o
  .rodata.str1.1
-                0x000000000001c630        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/menu.o
-                                        0x365 (size before relaxing)
- .rodata        0x000000000001c630       0x44 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/menu.o
+                0x000000000001c6b0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/menu.o
+                                        0x387 (size before relaxing)
+ .rodata        0x000000000001c6b0       0x44 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/menu.o
  .rodata.str1.1
-                0x000000000001c674        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/rockboy.o
+                0x000000000001c6f4        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/rockboy.o
                                          0x94 (size before relaxing)
  .rodata.str1.1
-                0x000000000001c674        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/profiler.o
+                0x000000000001c6f4        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/profiler.o
                                         0x575 (size before relaxing)
- .rodata        0x000000000001c674       0x14 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/rtc.o
+ .rodata        0x000000000001c6f4       0x14 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/rtc.o
  .rodata.str1.1
-                0x000000000001c688        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/rtc.o
+                0x000000000001c708        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/rtc.o
                                          0x19 (size before relaxing)
- *fill*         0x000000000001c688       0x18 
- .rodata        0x000000000001c6a0      0x120 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/sound.o
+ *fill*         0x000000000001c708       0x18 
+ .rodata        0x000000000001c720      0x120 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/sound.o
  .rodata.str1.1
-                0x000000000001c7c0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/sys_rockbox.o
+                0x000000000001c840        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/sys_rockbox.o
                                          0x3a (size before relaxing)
  .rodata.str1.1
-                0x000000000001c7c0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(rockachievements.o)
-                                        0x1cd (size before relaxing)
+                0x000000000001c840        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(rockachievements.o)
+                                        0x1db (size before relaxing)
  .rodata.str1.1
-                0x000000000001c7c0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_runtime.o)
+                0x000000000001c840        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_runtime.o)
                                           0xb (size before relaxing)
  .rodata.str1.1
-                0x000000000001c7c0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_richpresence.o)
+                0x000000000001c840        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_richpresence.o)
                                          0xdd (size before relaxing)
- .rodata        0x000000000001c7c0       0x14 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_richpresence.o)
+ .rodata        0x000000000001c840       0x14 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_richpresence.o)
  .rodata.str1.1
-                0x000000000001c7d4        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_value.o)
+                0x000000000001c854        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_value.o)
                                           0xe (size before relaxing)
- .rodata        0x000000000001c7d4       0x4c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_value.o)
- .rodata.cst16  0x000000000001c820       0x10 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_value.o)
- .rodata.cst4   0x000000000001c830        0x4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_value.o)
- *fill*         0x000000000001c834        0xc 
- .rodata        0x000000000001c840       0x40 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_md5.o)
+ .rodata        0x000000000001c854       0x4c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_value.o)
+ .rodata.cst16  0x000000000001c8a0       0x10 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_value.o)
+ .rodata.cst4   0x000000000001c8b0        0x4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_value.o)
+ *fill*         0x000000000001c8b4        0xc 
+ .rodata        0x000000000001c8c0       0x40 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_md5.o)
  .rodata.str1.1
-                0x000000000001c880        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_util.o)
+                0x000000000001c900        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_util.o)
                                         0x3a8 (size before relaxing)
- .rodata        0x000000000001c880       0xa0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_util.o)
- .rodata        0x000000000001c920      0x1bc /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_condition.o)
- .rodata        0x000000000001cadc       0xa8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_condset.o)
+ .rodata        0x000000000001c900       0xa0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_util.o)
+ .rodata        0x000000000001c9a0      0x1bc /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_condition.o)
+ .rodata        0x000000000001cb5c       0xa8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_condset.o)
  .rodata.str1.1
-                0x000000000001cb84        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_format.o)
+                0x000000000001cc04        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_format.o)
                                          0xdc (size before relaxing)
- .rodata        0x000000000001cb84       0x94 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_format.o)
- *fill*         0x000000000001cc18        0x8 
- .rodata        0x000000000001cc20      0x2a0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_memref.o)
- .rodata.cst8   0x000000000001cec0       0x28 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_memref.o)
- .rodata.cst16  0x000000000001cee8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_memref.o)
+ .rodata        0x000000000001cc04       0x94 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_format.o)
+ *fill*         0x000000000001cc98        0x8 
+ .rodata        0x000000000001cca0      0x2a0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_memref.o)
+ .rodata.cst8   0x000000000001cf40       0x28 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_memref.o)
+ .rodata.cst16  0x000000000001cf68        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_memref.o)
                                          0x10 (size before relaxing)
  .rodata.str1.1
-                0x000000000001cee8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_operand.o)
+                0x000000000001cf68        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_operand.o)
                                           0x7 (size before relaxing)
- .rodata        0x000000000001cee8       0x64 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_operand.o)
+ .rodata        0x000000000001cf68       0x64 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_operand.o)
 
 .rodata1
  *(.rodata1)
 
-.eh_frame_hdr   0x000000000001cf4c      0xb64
+.eh_frame_hdr   0x000000000001cfcc      0xb84
  *(.eh_frame_hdr)
- .eh_frame_hdr  0x000000000001cf4c      0xb64 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/../../../firmware/libc/sscanf.o
-                0x000000000001cf4c                __GNU_EH_FRAME_HDR
+ .eh_frame_hdr  0x000000000001cfcc      0xb84 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/../../../firmware/libc/sscanf.o
+                0x000000000001cfcc                __GNU_EH_FRAME_HDR
  *(.eh_frame_entry .eh_frame_entry.*)
 
-.eh_frame       0x000000000001dab0     0x37d0
+.eh_frame       0x000000000001db50     0x3880
  *(.eh_frame)
- .eh_frame      0x000000000001dab0       0x40 /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crti.o
- .eh_frame      0x000000000001daf0        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crti.o
- .eh_frame      0x000000000001daf0       0xa8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/../../../firmware/libc/sscanf.o
-                                         0xc0 (size before relaxing)
- .eh_frame      0x000000000001db98      0x180 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/cpu.o
+ .eh_frame      0x000000000001db50       0x40 /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crti.o
+ .eh_frame      0x000000000001db90        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crti.o
+ .eh_frame      0x000000000001db90       0x88 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/../../../firmware/libc/sscanf.o
+                                         0xa0 (size before relaxing)
+ .eh_frame      0x000000000001dc18      0x180 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/cpu.o
                                         0x198 (size before relaxing)
- .eh_frame      0x000000000001dd18       0xb0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/emu.o
+ .eh_frame      0x000000000001dd98       0xb0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/emu.o
                                          0xc8 (size before relaxing)
- .eh_frame      0x000000000001ddc8       0x28 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/events.o
+ .eh_frame      0x000000000001de48       0x28 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/events.o
                                          0x40 (size before relaxing)
- .eh_frame      0x000000000001ddf0      0x130 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/fastmem.o
+ .eh_frame      0x000000000001de70      0x130 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/fastmem.o
                                         0x148 (size before relaxing)
- .eh_frame      0x000000000001df20      0x120 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/hw.o
+ .eh_frame      0x000000000001dfa0      0x120 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/hw.o
                                         0x138 (size before relaxing)
- .eh_frame      0x000000000001e040      0x1f8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/lcd.o
+ .eh_frame      0x000000000001e0c0      0x1f8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/lcd.o
                                         0x210 (size before relaxing)
- .eh_frame      0x000000000001e238       0x88 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/lcdc.o
+ .eh_frame      0x000000000001e2b8       0x88 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/lcdc.o
                                          0xa0 (size before relaxing)
- .eh_frame      0x000000000001e2c0      0x168 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/loader.o
+ .eh_frame      0x000000000001e340      0x168 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/loader.o
                                         0x180 (size before relaxing)
- .eh_frame      0x000000000001e428      0x218 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/mem.o
+ .eh_frame      0x000000000001e4a8      0x218 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/mem.o
                                         0x230 (size before relaxing)
- .eh_frame      0x000000000001e640      0x158 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/menu.o
+ .eh_frame      0x000000000001e6c0      0x158 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/menu.o
                                         0x170 (size before relaxing)
- .eh_frame      0x000000000001e798       0x98 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/rbsound.o
+ .eh_frame      0x000000000001e818       0x98 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/rbsound.o
                                          0xb0 (size before relaxing)
- .eh_frame      0x000000000001e830      0x130 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/rockboy.o
+ .eh_frame      0x000000000001e8b0      0x130 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/rockboy.o
                                         0x148 (size before relaxing)
- .eh_frame      0x000000000001e960      0x290 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/profiler.o
+ .eh_frame      0x000000000001e9e0      0x290 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/profiler.o
                                         0x2a8 (size before relaxing)
- .eh_frame      0x000000000001ebf0       0xb0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/rtc.o
+ .eh_frame      0x000000000001ec70       0xb0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/rtc.o
                                          0xc8 (size before relaxing)
- .eh_frame      0x000000000001eca0       0x98 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/save.o
+ .eh_frame      0x000000000001ed20       0x98 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/save.o
                                          0xb0 (size before relaxing)
- .eh_frame      0x000000000001ed38      0x160 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/sound.o
+ .eh_frame      0x000000000001edb8      0x160 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/sound.o
                                         0x178 (size before relaxing)
- .eh_frame      0x000000000001ee98       0xb0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/sys_rockbox.o
+ .eh_frame      0x000000000001ef18       0xb0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/sys_rockbox.o
                                          0xc8 (size before relaxing)
- .eh_frame      0x000000000001ef48       0x88 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+ .eh_frame      0x000000000001efc8       0x88 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
                                          0xa0 (size before relaxing)
- .eh_frame      0x000000000001efd0       0x50 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+ .eh_frame      0x000000000001f050       0x50 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
                                          0x68 (size before relaxing)
- .eh_frame      0x000000000001f020      0x178 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
+ .eh_frame      0x000000000001f0a0      0x178 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
                                         0x190 (size before relaxing)
- .eh_frame      0x000000000001f198      0x208 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(rockachievements.o)
-                                        0x220 (size before relaxing)
- .eh_frame      0x000000000001f3a0       0x90 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(rockachievements_allocator.o)
+ .eh_frame      0x000000000001f218      0x2d8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(rockachievements.o)
+                                        0x2f0 (size before relaxing)
+ .eh_frame      0x000000000001f4f0       0x90 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(rockachievements_allocator.o)
                                          0xa8 (size before relaxing)
- .eh_frame      0x000000000001f430      0x4c0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_runtime.o)
+ .eh_frame      0x000000000001f580      0x4c0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_runtime.o)
                                         0x4d8 (size before relaxing)
- .eh_frame      0x000000000001f8f0      0x258 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_runtime_progress.o)
+ .eh_frame      0x000000000001fa40      0x258 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_runtime_progress.o)
                                         0x270 (size before relaxing)
- .eh_frame      0x000000000001fb48      0x3f0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_richpresence.o)
+ .eh_frame      0x000000000001fc98      0x3f0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_richpresence.o)
                                         0x408 (size before relaxing)
- .eh_frame      0x000000000001ff38      0x158 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_trigger.o)
+ .eh_frame      0x0000000000020088      0x158 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_trigger.o)
                                         0x170 (size before relaxing)
- .eh_frame      0x0000000000020090      0x340 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_value.o)
+ .eh_frame      0x00000000000201e0      0x340 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_value.o)
                                         0x358 (size before relaxing)
- .eh_frame      0x00000000000203d0       0xf8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_md5.o)
+ .eh_frame      0x0000000000020520       0xf8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_md5.o)
                                         0x110 (size before relaxing)
- .eh_frame      0x00000000000204c8      0x170 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_util.o)
+ .eh_frame      0x0000000000020618      0x170 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_util.o)
                                         0x188 (size before relaxing)
- .eh_frame      0x0000000000020638       0x18 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(rockachievements_math.o)
+ .eh_frame      0x0000000000020788       0x18 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(rockachievements_math.o)
                                          0x30 (size before relaxing)
- .eh_frame      0x0000000000020650      0x220 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_alloc.o)
+ .eh_frame      0x00000000000207a0      0x220 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_alloc.o)
                                         0x238 (size before relaxing)
- .eh_frame      0x0000000000020870      0x200 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_condition.o)
+ .eh_frame      0x00000000000209c0      0x200 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_condition.o)
                                         0x218 (size before relaxing)
- .eh_frame      0x0000000000020a70      0x188 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_condset.o)
+ .eh_frame      0x0000000000020bc0      0x188 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_condset.o)
                                         0x1a0 (size before relaxing)
- .eh_frame      0x0000000000020bf8      0x108 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_format.o)
+ .eh_frame      0x0000000000020d48      0x108 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_format.o)
                                         0x120 (size before relaxing)
- .eh_frame      0x0000000000020d00      0x108 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_lboard.o)
+ .eh_frame      0x0000000000020e50      0x108 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_lboard.o)
                                         0x120 (size before relaxing)
- .eh_frame      0x0000000000020e08      0x280 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_memref.o)
+ .eh_frame      0x0000000000020f58      0x280 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_memref.o)
                                         0x298 (size before relaxing)
- .eh_frame      0x0000000000021088      0x1f4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_operand.o)
+ .eh_frame      0x00000000000211d8      0x1f4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_operand.o)
                                         0x210 (size before relaxing)
- .eh_frame      0x000000000002127c        0x4 /usr/lib/gcc/x86_64-pc-linux-gnu/16/crtendS.o
+ .eh_frame      0x00000000000213cc        0x4 /usr/lib/gcc/x86_64-pc-linux-gnu/16/crtendS.o
  *(.eh_frame.*)
 
 .sframe
@@ -835,98 +840,98 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
  *(.note.build-id)
 
 .note.GNU-stack
-                0x0000000000021280        0x0
+                0x00000000000213d0        0x0
  *(.note.GNU-stack)
  .note.GNU-stack
-                0x0000000000021280        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crti.o
+                0x00000000000213d0        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crti.o
  .note.GNU-stack
-                0x0000000000021280        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16/crtbeginS.o
+                0x00000000000213d0        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16/crtbeginS.o
  .note.GNU-stack
-                0x0000000000021280        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/../../../firmware/libc/sscanf.o
+                0x00000000000213d0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/../../../firmware/libc/sscanf.o
  .note.GNU-stack
-                0x0000000000021280        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/cpu.o
+                0x00000000000213d0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/cpu.o
  .note.GNU-stack
-                0x0000000000021280        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/emu.o
+                0x00000000000213d0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/emu.o
  .note.GNU-stack
-                0x0000000000021280        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/events.o
+                0x00000000000213d0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/events.o
  .note.GNU-stack
-                0x0000000000021280        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/fastmem.o
+                0x00000000000213d0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/fastmem.o
  .note.GNU-stack
-                0x0000000000021280        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/hw.o
+                0x00000000000213d0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/hw.o
  .note.GNU-stack
-                0x0000000000021280        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/lcd.o
+                0x00000000000213d0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/lcd.o
  .note.GNU-stack
-                0x0000000000021280        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/lcdc.o
+                0x00000000000213d0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/lcdc.o
  .note.GNU-stack
-                0x0000000000021280        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/loader.o
+                0x00000000000213d0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/loader.o
  .note.GNU-stack
-                0x0000000000021280        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/mem.o
+                0x00000000000213d0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/mem.o
  .note.GNU-stack
-                0x0000000000021280        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/menu.o
+                0x00000000000213d0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/menu.o
  .note.GNU-stack
-                0x0000000000021280        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/rbsound.o
+                0x00000000000213d0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/rbsound.o
  .note.GNU-stack
-                0x0000000000021280        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/rockboy.o
+                0x00000000000213d0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/rockboy.o
  .note.GNU-stack
-                0x0000000000021280        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/profiler.o
+                0x00000000000213d0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/profiler.o
  .note.GNU-stack
-                0x0000000000021280        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/rtc.o
+                0x00000000000213d0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/rtc.o
  .note.GNU-stack
-                0x0000000000021280        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/save.o
+                0x00000000000213d0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/save.o
  .note.GNU-stack
-                0x0000000000021280        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/sound.o
+                0x00000000000213d0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/sound.o
  .note.GNU-stack
-                0x0000000000021280        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/sys_rockbox.o
+                0x00000000000213d0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/sys_rockbox.o
  .note.GNU-stack
-                0x0000000000021280        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+                0x00000000000213d0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
  .note.GNU-stack
-                0x0000000000021280        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+                0x00000000000213d0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
  .note.GNU-stack
-                0x0000000000021280        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
+                0x00000000000213d0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
  .note.GNU-stack
-                0x0000000000021280        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(rockachievements.o)
+                0x00000000000213d0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(rockachievements.o)
  .note.GNU-stack
-                0x0000000000021280        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(rockachievements_allocator.o)
+                0x00000000000213d0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(rockachievements_allocator.o)
  .note.GNU-stack
-                0x0000000000021280        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_runtime.o)
+                0x00000000000213d0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_runtime.o)
  .note.GNU-stack
-                0x0000000000021280        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_runtime_progress.o)
+                0x00000000000213d0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_runtime_progress.o)
  .note.GNU-stack
-                0x0000000000021280        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_richpresence.o)
+                0x00000000000213d0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_richpresence.o)
  .note.GNU-stack
-                0x0000000000021280        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_trigger.o)
+                0x00000000000213d0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_trigger.o)
  .note.GNU-stack
-                0x0000000000021280        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_value.o)
+                0x00000000000213d0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_value.o)
  .note.GNU-stack
-                0x0000000000021280        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_md5.o)
+                0x00000000000213d0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_md5.o)
  .note.GNU-stack
-                0x0000000000021280        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_util.o)
+                0x00000000000213d0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_util.o)
  .note.GNU-stack
-                0x0000000000021280        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(rockachievements_math.o)
+                0x00000000000213d0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(rockachievements_math.o)
  .note.GNU-stack
-                0x0000000000021280        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_alloc.o)
+                0x00000000000213d0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_alloc.o)
  .note.GNU-stack
-                0x0000000000021280        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_condition.o)
+                0x00000000000213d0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_condition.o)
  .note.GNU-stack
-                0x0000000000021280        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_condset.o)
+                0x00000000000213d0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_condset.o)
  .note.GNU-stack
-                0x0000000000021280        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_format.o)
+                0x00000000000213d0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_format.o)
  .note.GNU-stack
-                0x0000000000021280        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_lboard.o)
+                0x00000000000213d0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_lboard.o)
  .note.GNU-stack
-                0x0000000000021280        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_memref.o)
+                0x00000000000213d0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_memref.o)
  .note.GNU-stack
-                0x0000000000021280        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_operand.o)
+                0x00000000000213d0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_operand.o)
  .note.GNU-stack
-                0x0000000000021280        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16/crtendS.o
+                0x00000000000213d0        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16/crtendS.o
  .note.GNU-stack
-                0x0000000000021280        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
+                0x00000000000213d0        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 
 .note.gnu.property
-                0x0000000000021280       0x30
+                0x00000000000213d0       0x30
  *(.note.gnu.property)
  .note.gnu.property
-                0x0000000000021280       0x30 /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crti.o
+                0x00000000000213d0       0x30 /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crti.o
 
 .note.ABI-tag
  *(.note.ABI-tag)
@@ -1405,210 +1410,210 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0xdf7b5
+.debug_info     0x0000000000000000    0xdff0b
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000      0xbba /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/../../../firmware/libc/sscanf.o
- .debug_info    0x0000000000000bba     0xa17f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/cpu.o
- .debug_info    0x000000000000ad39     0x8171 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/emu.o
- .debug_info    0x0000000000012eaa      0x550 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/events.o
- .debug_info    0x00000000000133fa      0x9fa /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/fastmem.o
- .debug_info    0x0000000000013df4     0x80a4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/hw.o
- .debug_info    0x000000000001be98     0xa797 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/lcd.o
- .debug_info    0x000000000002662f     0x7bb3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/lcdc.o
- .debug_info    0x000000000002e1e2     0x88b1 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/loader.o
- .debug_info    0x0000000000036a93     0x8f77 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/mem.o
- .debug_info    0x000000000003fa0a     0x8ce1 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/menu.o
- .debug_info    0x00000000000486eb     0x7ffd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/rbsound.o
- .debug_info    0x00000000000506e8     0x8b39 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/rockboy.o
- .debug_info    0x0000000000059221     0x84df /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/profiler.o
- .debug_info    0x0000000000061700     0x7c99 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/rtc.o
- .debug_info    0x0000000000069399     0x86de /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/save.o
- .debug_info    0x0000000000071a77     0x1e82 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/sound.o
- .debug_info    0x00000000000738f9     0x865f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/sys_rockbox.o
- .debug_info    0x000000000007bf58     0x7dde /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
- .debug_info    0x0000000000083d36     0x780e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
- .debug_info    0x000000000008b544     0x7bd6 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
- .debug_info    0x000000000009311a     0x9227 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(rockachievements.o)
- .debug_info    0x000000000009c341     0x7ccf /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(rockachievements_allocator.o)
- .debug_info    0x00000000000a4010     0x3441 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_runtime.o)
- .debug_info    0x00000000000a7451     0x332e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_runtime_progress.o)
- .debug_info    0x00000000000aa77f     0xa9a0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_richpresence.o)
- .debug_info    0x00000000000b511f     0x1f6d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_trigger.o)
- .debug_info    0x00000000000b708c     0x2d16 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_value.o)
- .debug_info    0x00000000000b9da2      0x52e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_md5.o)
- .debug_info    0x00000000000ba2d0      0x7fc /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_util.o)
- .debug_info    0x00000000000baacc       0x92 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(rockachievements_math.o)
- .debug_info    0x00000000000bab5e     0x2212 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_alloc.o)
- .debug_info    0x00000000000bcd70     0x9e8b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_condition.o)
- .debug_info    0x00000000000c6bfb     0x2a3e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_condset.o)
- .debug_info    0x00000000000c9639      0xfda /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_format.o)
- .debug_info    0x00000000000ca613     0x19c9 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_lboard.o)
- .debug_info    0x00000000000cbfdc     0xa047 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_memref.o)
- .debug_info    0x00000000000d6023     0x9792 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_operand.o)
+ .debug_info    0x0000000000000000      0xd93 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/../../../firmware/libc/sscanf.o
+ .debug_info    0x0000000000000d93     0xa18e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/cpu.o
+ .debug_info    0x000000000000af21     0x8180 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/emu.o
+ .debug_info    0x00000000000130a1      0x550 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/events.o
+ .debug_info    0x00000000000135f1      0x9fa /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/fastmem.o
+ .debug_info    0x0000000000013feb     0x80b3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/hw.o
+ .debug_info    0x000000000001c09e     0xa7a6 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/lcd.o
+ .debug_info    0x0000000000026844     0x7bc2 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/lcdc.o
+ .debug_info    0x000000000002e406     0x88c0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/loader.o
+ .debug_info    0x0000000000036cc6     0x8f86 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/mem.o
+ .debug_info    0x000000000003fc4c     0x8d1f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/menu.o
+ .debug_info    0x000000000004896b     0x800c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/rbsound.o
+ .debug_info    0x0000000000050977     0x8bc3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/rockboy.o
+ .debug_info    0x000000000005953a     0x84ee /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/profiler.o
+ .debug_info    0x0000000000061a28     0x7ca8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/rtc.o
+ .debug_info    0x00000000000696d0     0x86ed /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/save.o
+ .debug_info    0x0000000000071dbd     0x1e82 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/sound.o
+ .debug_info    0x0000000000073c3f     0x866e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/sys_rockbox.o
+ .debug_info    0x000000000007c2ad     0x7ded /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+ .debug_info    0x000000000008409a     0x781d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+ .debug_info    0x000000000008b8b7     0x7be5 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
+ .debug_info    0x000000000009349c     0x95b0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(rockachievements.o)
+ .debug_info    0x000000000009ca4c     0x7cde /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(rockachievements_allocator.o)
+ .debug_info    0x00000000000a472a     0x3441 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_runtime.o)
+ .debug_info    0x00000000000a7b6b     0x332e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_runtime_progress.o)
+ .debug_info    0x00000000000aae99     0xa9af /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_richpresence.o)
+ .debug_info    0x00000000000b5848     0x1f6d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_trigger.o)
+ .debug_info    0x00000000000b77b5     0x2d16 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_value.o)
+ .debug_info    0x00000000000ba4cb      0x52e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_md5.o)
+ .debug_info    0x00000000000ba9f9      0x7fc /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_util.o)
+ .debug_info    0x00000000000bb1f5       0x92 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(rockachievements_math.o)
+ .debug_info    0x00000000000bb287     0x2212 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_alloc.o)
+ .debug_info    0x00000000000bd499     0x9e9a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_condition.o)
+ .debug_info    0x00000000000c7333     0x2a3e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_condset.o)
+ .debug_info    0x00000000000c9d71      0xfda /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_format.o)
+ .debug_info    0x00000000000cad4b     0x19c9 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_lboard.o)
+ .debug_info    0x00000000000cc714     0xa056 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_memref.o)
+ .debug_info    0x00000000000d676a     0x97a1 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_operand.o)
 
-.debug_abbrev   0x0000000000000000     0xacb2
+.debug_abbrev   0x0000000000000000     0xad96
  *(.debug_abbrev)
- .debug_abbrev  0x0000000000000000      0x2d6 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/../../../firmware/libc/sscanf.o
- .debug_abbrev  0x00000000000002d6      0x6bd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/cpu.o
- .debug_abbrev  0x0000000000000993      0x523 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/emu.o
- .debug_abbrev  0x0000000000000eb6      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/events.o
- .debug_abbrev  0x0000000000000ff9      0x2cd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/fastmem.o
- .debug_abbrev  0x00000000000012c6      0x469 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/hw.o
- .debug_abbrev  0x000000000000172f      0x7f0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/lcd.o
- .debug_abbrev  0x0000000000001f1f      0x435 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/lcdc.o
- .debug_abbrev  0x0000000000002354      0x595 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/loader.o
- .debug_abbrev  0x00000000000028e9      0x6a5 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/mem.o
- .debug_abbrev  0x0000000000002f8e      0x607 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/menu.o
- .debug_abbrev  0x0000000000003595      0x45c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/rbsound.o
- .debug_abbrev  0x00000000000039f1      0x65e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/rockboy.o
- .debug_abbrev  0x000000000000404f      0x4f0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/profiler.o
- .debug_abbrev  0x000000000000453f      0x400 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/rtc.o
- .debug_abbrev  0x000000000000493f      0x3fe /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/save.o
- .debug_abbrev  0x0000000000004d3d      0x504 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/sound.o
- .debug_abbrev  0x0000000000005241      0x5da /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/sys_rockbox.o
- .debug_abbrev  0x000000000000581b      0x442 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
- .debug_abbrev  0x0000000000005c5d      0x327 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
- .debug_abbrev  0x0000000000005f84      0x3c2 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
- .debug_abbrev  0x0000000000006346      0x5ae /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(rockachievements.o)
- .debug_abbrev  0x00000000000068f4      0x3d3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(rockachievements_allocator.o)
- .debug_abbrev  0x0000000000006cc7      0x586 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_runtime.o)
- .debug_abbrev  0x000000000000724d      0x476 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_runtime_progress.o)
- .debug_abbrev  0x00000000000076c3      0x616 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_richpresence.o)
- .debug_abbrev  0x0000000000007cd9      0x485 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_trigger.o)
- .debug_abbrev  0x000000000000815e      0x4ee /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_value.o)
- .debug_abbrev  0x000000000000864c      0x240 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_md5.o)
- .debug_abbrev  0x000000000000888c      0x21c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_util.o)
- .debug_abbrev  0x0000000000008aa8       0x65 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(rockachievements_math.o)
- .debug_abbrev  0x0000000000008b0d      0x43f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_alloc.o)
- .debug_abbrev  0x0000000000008f4c      0x64f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_condition.o)
- .debug_abbrev  0x000000000000959b      0x496 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_condset.o)
- .debug_abbrev  0x0000000000009a31      0x2f2 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_format.o)
- .debug_abbrev  0x0000000000009d23      0x357 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_lboard.o)
- .debug_abbrev  0x000000000000a07a      0x606 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_memref.o)
- .debug_abbrev  0x000000000000a680      0x632 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_operand.o)
+ .debug_abbrev  0x0000000000000000      0x2dc /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/../../../firmware/libc/sscanf.o
+ .debug_abbrev  0x00000000000002dc      0x6bd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/cpu.o
+ .debug_abbrev  0x0000000000000999      0x523 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/emu.o
+ .debug_abbrev  0x0000000000000ebc      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/events.o
+ .debug_abbrev  0x0000000000000fff      0x2cd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/fastmem.o
+ .debug_abbrev  0x00000000000012cc      0x469 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/hw.o
+ .debug_abbrev  0x0000000000001735      0x7f0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/lcd.o
+ .debug_abbrev  0x0000000000001f25      0x435 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/lcdc.o
+ .debug_abbrev  0x000000000000235a      0x595 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/loader.o
+ .debug_abbrev  0x00000000000028ef      0x6a5 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/mem.o
+ .debug_abbrev  0x0000000000002f94      0x61d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/menu.o
+ .debug_abbrev  0x00000000000035b1      0x45c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/rbsound.o
+ .debug_abbrev  0x0000000000003a0d      0x65e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/rockboy.o
+ .debug_abbrev  0x000000000000406b      0x4f0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/profiler.o
+ .debug_abbrev  0x000000000000455b      0x400 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/rtc.o
+ .debug_abbrev  0x000000000000495b      0x3fe /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/save.o
+ .debug_abbrev  0x0000000000004d59      0x504 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/sound.o
+ .debug_abbrev  0x000000000000525d      0x5da /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/sys_rockbox.o
+ .debug_abbrev  0x0000000000005837      0x442 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+ .debug_abbrev  0x0000000000005c79      0x327 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+ .debug_abbrev  0x0000000000005fa0      0x3c2 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
+ .debug_abbrev  0x0000000000006362      0x676 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(rockachievements.o)
+ .debug_abbrev  0x00000000000069d8      0x3d3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(rockachievements_allocator.o)
+ .debug_abbrev  0x0000000000006dab      0x586 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_runtime.o)
+ .debug_abbrev  0x0000000000007331      0x476 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_runtime_progress.o)
+ .debug_abbrev  0x00000000000077a7      0x616 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_richpresence.o)
+ .debug_abbrev  0x0000000000007dbd      0x485 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_trigger.o)
+ .debug_abbrev  0x0000000000008242      0x4ee /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_value.o)
+ .debug_abbrev  0x0000000000008730      0x240 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_md5.o)
+ .debug_abbrev  0x0000000000008970      0x21c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_util.o)
+ .debug_abbrev  0x0000000000008b8c       0x65 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(rockachievements_math.o)
+ .debug_abbrev  0x0000000000008bf1      0x43f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_alloc.o)
+ .debug_abbrev  0x0000000000009030      0x64f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_condition.o)
+ .debug_abbrev  0x000000000000967f      0x496 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_condset.o)
+ .debug_abbrev  0x0000000000009b15      0x2f2 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_format.o)
+ .debug_abbrev  0x0000000000009e07      0x357 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_lboard.o)
+ .debug_abbrev  0x000000000000a15e      0x606 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_memref.o)
+ .debug_abbrev  0x000000000000a764      0x632 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_operand.o)
 
-.debug_line     0x0000000000000000    0x16e50
+.debug_line     0x0000000000000000    0x17432
  *(.debug_line .debug_line.* .debug_line_end)
- .debug_line    0x0000000000000000      0x5a3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/../../../firmware/libc/sscanf.o
- .debug_line    0x00000000000005a3     0x2eb0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/cpu.o
- .debug_line    0x0000000000003453      0x5d9 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/emu.o
- .debug_line    0x0000000000003a2c      0x102 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/events.o
- .debug_line    0x0000000000003b2e      0x338 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/fastmem.o
- .debug_line    0x0000000000003e66      0x4b9 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/hw.o
- .debug_line    0x000000000000431f     0x24bb /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/lcd.o
- .debug_line    0x00000000000067da      0x455 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/lcdc.o
- .debug_line    0x0000000000006c2f      0x641 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/loader.o
- .debug_line    0x0000000000007270      0xcb7 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/mem.o
- .debug_line    0x0000000000007f27      0x789 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/menu.o
- .debug_line    0x00000000000086b0      0x4d4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/rbsound.o
- .debug_line    0x0000000000008b84      0x7e9 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/rockboy.o
- .debug_line    0x000000000000936d      0x563 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/profiler.o
- .debug_line    0x00000000000098d0      0x4eb /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/rtc.o
- .debug_line    0x0000000000009dbb      0x46d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/save.o
- .debug_line    0x000000000000a228     0x15b6 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/sound.o
- .debug_line    0x000000000000b7de      0xadd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/sys_rockbox.o
- .debug_line    0x000000000000c2bb      0x2bd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
- .debug_line    0x000000000000c578      0x2c0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
- .debug_line    0x000000000000c838      0x2b4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
- .debug_line    0x000000000000caec      0x957 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(rockachievements.o)
- .debug_line    0x000000000000d443      0x3eb /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(rockachievements_allocator.o)
- .debug_line    0x000000000000d82e     0x1221 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_runtime.o)
- .debug_line    0x000000000000ea4f     0x12b7 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_runtime_progress.o)
- .debug_line    0x000000000000fd06     0x132f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_richpresence.o)
- .debug_line    0x0000000000011035      0x56c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_trigger.o)
- .debug_line    0x00000000000115a1      0xc7c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_value.o)
- .debug_line    0x000000000001221d      0x4e4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_md5.o)
- .debug_line    0x0000000000012701      0x3e6 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_util.o)
- .debug_line    0x0000000000012ae7       0x72 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(rockachievements_math.o)
- .debug_line    0x0000000000012b59      0x791 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_alloc.o)
- .debug_line    0x00000000000132ea      0xd36 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_condition.o)
- .debug_line    0x0000000000014020      0xbcb /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_condset.o)
- .debug_line    0x0000000000014beb      0x530 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_format.o)
- .debug_line    0x000000000001511b      0x4d2 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_lboard.o)
- .debug_line    0x00000000000155ed      0xda3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_memref.o)
- .debug_line    0x0000000000016390      0xac0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_operand.o)
+ .debug_line    0x0000000000000000      0x9e4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/../../../firmware/libc/sscanf.o
+ .debug_line    0x00000000000009e4     0x2eb0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/cpu.o
+ .debug_line    0x0000000000003894      0x5d9 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/emu.o
+ .debug_line    0x0000000000003e6d      0x102 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/events.o
+ .debug_line    0x0000000000003f6f      0x338 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/fastmem.o
+ .debug_line    0x00000000000042a7      0x4b9 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/hw.o
+ .debug_line    0x0000000000004760     0x24bb /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/lcd.o
+ .debug_line    0x0000000000006c1b      0x455 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/lcdc.o
+ .debug_line    0x0000000000007070      0x641 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/loader.o
+ .debug_line    0x00000000000076b1      0xcb7 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/mem.o
+ .debug_line    0x0000000000008368      0x7c8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/menu.o
+ .debug_line    0x0000000000008b30      0x4d4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/rbsound.o
+ .debug_line    0x0000000000009004      0x7fe /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/rockboy.o
+ .debug_line    0x0000000000009802      0x563 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/profiler.o
+ .debug_line    0x0000000000009d65      0x4eb /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/rtc.o
+ .debug_line    0x000000000000a250      0x46d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/save.o
+ .debug_line    0x000000000000a6bd     0x15b6 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/sound.o
+ .debug_line    0x000000000000bc73      0xadd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/sys_rockbox.o
+ .debug_line    0x000000000000c750      0x2bd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+ .debug_line    0x000000000000ca0d      0x2c0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+ .debug_line    0x000000000000cccd      0x2b4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
+ .debug_line    0x000000000000cf81      0xad8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(rockachievements.o)
+ .debug_line    0x000000000000da59      0x3eb /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(rockachievements_allocator.o)
+ .debug_line    0x000000000000de44     0x121d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_runtime.o)
+ .debug_line    0x000000000000f061     0x12b3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_runtime_progress.o)
+ .debug_line    0x0000000000010314     0x132b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_richpresence.o)
+ .debug_line    0x000000000001163f      0x568 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_trigger.o)
+ .debug_line    0x0000000000011ba7      0xc78 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_value.o)
+ .debug_line    0x000000000001281f      0x4e4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_md5.o)
+ .debug_line    0x0000000000012d03      0x3e2 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_util.o)
+ .debug_line    0x00000000000130e5       0x72 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(rockachievements_math.o)
+ .debug_line    0x0000000000013157      0x78d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_alloc.o)
+ .debug_line    0x00000000000138e4      0xd32 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_condition.o)
+ .debug_line    0x0000000000014616      0xbc7 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_condset.o)
+ .debug_line    0x00000000000151dd      0x52c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_format.o)
+ .debug_line    0x0000000000015709      0x4ce /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_lboard.o)
+ .debug_line    0x0000000000015bd7      0xd9f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_memref.o)
+ .debug_line    0x0000000000016976      0xabc /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_operand.o)
 
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0xbebe
+.debug_str      0x0000000000000000     0xc067
  *(.debug_str)
- .debug_str     0x0000000000000000     0xbebe /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/../../../firmware/libc/sscanf.o
-                                        0x21f (size before relaxing)
- .debug_str     0x000000000000bebe        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/cpu.o
-                                       0x5a5f (size before relaxing)
- .debug_str     0x000000000000bebe        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/emu.o
-                                       0x4e6d (size before relaxing)
- .debug_str     0x000000000000bebe        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/events.o
+ .debug_str     0x0000000000000000     0xc067 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/../../../firmware/libc/sscanf.o
+                                        0x247 (size before relaxing)
+ .debug_str     0x000000000000c067        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/cpu.o
+                                       0x5a75 (size before relaxing)
+ .debug_str     0x000000000000c067        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/emu.o
+                                       0x4e83 (size before relaxing)
+ .debug_str     0x000000000000c067        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/events.o
                                         0x95b (size before relaxing)
- .debug_str     0x000000000000bebe        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/fastmem.o
+ .debug_str     0x000000000000c067        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/fastmem.o
                                         0x6fc (size before relaxing)
- .debug_str     0x000000000000bebe        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/hw.o
-                                       0x523c (size before relaxing)
- .debug_str     0x000000000000bebe        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/lcd.o
-                                       0x5cee (size before relaxing)
- .debug_str     0x000000000000bebe        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/lcdc.o
-                                       0x4ac0 (size before relaxing)
- .debug_str     0x000000000000bebe        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/loader.o
-                                       0x581d (size before relaxing)
- .debug_str     0x000000000000bebe        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/mem.o
-                                       0x551e (size before relaxing)
- .debug_str     0x000000000000bebe        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/menu.o
-                                       0x5f20 (size before relaxing)
- .debug_str     0x000000000000bebe        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/rbsound.o
-                                       0x5846 (size before relaxing)
- .debug_str     0x000000000000bebe        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/rockboy.o
-                                       0x5bcb (size before relaxing)
- .debug_str     0x000000000000bebe        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/profiler.o
-                                       0x59d8 (size before relaxing)
- .debug_str     0x000000000000bebe        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/rtc.o
-                                       0x51b4 (size before relaxing)
- .debug_str     0x000000000000bebe        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/save.o
-                                       0x5402 (size before relaxing)
- .debug_str     0x000000000000bebe        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/sound.o
+ .debug_str     0x000000000000c067        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/hw.o
+                                       0x5252 (size before relaxing)
+ .debug_str     0x000000000000c067        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/lcd.o
+                                       0x5d04 (size before relaxing)
+ .debug_str     0x000000000000c067        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/lcdc.o
+                                       0x4ad6 (size before relaxing)
+ .debug_str     0x000000000000c067        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/loader.o
+                                       0x5833 (size before relaxing)
+ .debug_str     0x000000000000c067        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/mem.o
+                                       0x5534 (size before relaxing)
+ .debug_str     0x000000000000c067        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/menu.o
+                                       0x5f5b (size before relaxing)
+ .debug_str     0x000000000000c067        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/rbsound.o
+                                       0x585c (size before relaxing)
+ .debug_str     0x000000000000c067        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/rockboy.o
+                                       0x5c26 (size before relaxing)
+ .debug_str     0x000000000000c067        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/profiler.o
+                                       0x59ee (size before relaxing)
+ .debug_str     0x000000000000c067        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/rtc.o
+                                       0x51ca (size before relaxing)
+ .debug_str     0x000000000000c067        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/save.o
+                                       0x5418 (size before relaxing)
+ .debug_str     0x000000000000c067        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/sound.o
                                         0xec0 (size before relaxing)
- .debug_str     0x000000000000bebe        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/sys_rockbox.o
-                                       0x586c (size before relaxing)
- .debug_str     0x000000000000bebe        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
-                                       0x52f4 (size before relaxing)
- .debug_str     0x000000000000bebe        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
-                                       0x499b (size before relaxing)
- .debug_str     0x000000000000bebe        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
-                                       0x52eb (size before relaxing)
- .debug_str     0x000000000000bebe        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(rockachievements.o)
-                                       0x5b52 (size before relaxing)
- .debug_str     0x000000000000bebe        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(rockachievements_allocator.o)
-                                       0x5208 (size before relaxing)
- .debug_str     0x000000000000bebe        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_runtime.o)
+ .debug_str     0x000000000000c067        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/sys_rockbox.o
+                                       0x5882 (size before relaxing)
+ .debug_str     0x000000000000c067        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+                                       0x530a (size before relaxing)
+ .debug_str     0x000000000000c067        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+                                       0x49b1 (size before relaxing)
+ .debug_str     0x000000000000c067        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
+                                       0x5301 (size before relaxing)
+ .debug_str     0x000000000000c067        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(rockachievements.o)
+                                       0x5c1e (size before relaxing)
+ .debug_str     0x000000000000c067        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(rockachievements_allocator.o)
+                                       0x521e (size before relaxing)
+ .debug_str     0x000000000000c067        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_runtime.o)
                                        0x1b4c (size before relaxing)
- .debug_str     0x000000000000bebe        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_runtime_progress.o)
+ .debug_str     0x000000000000c067        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_runtime_progress.o)
                                        0x1556 (size before relaxing)
- .debug_str     0x000000000000bebe        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_richpresence.o)
-                                       0x6420 (size before relaxing)
- .debug_str     0x000000000000bebe        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_trigger.o)
+ .debug_str     0x000000000000c067        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_richpresence.o)
+                                       0x6436 (size before relaxing)
+ .debug_str     0x000000000000c067        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_trigger.o)
                                        0x1305 (size before relaxing)
- .debug_str     0x000000000000bebe        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_value.o)
+ .debug_str     0x000000000000c067        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_value.o)
                                        0x1acb (size before relaxing)
- .debug_str     0x000000000000bebe        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_md5.o)
+ .debug_str     0x000000000000c067        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_md5.o)
                                         0x22d (size before relaxing)
- .debug_str     0x000000000000bebe        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_util.o)
+ .debug_str     0x000000000000c067        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_util.o)
                                         0x639 (size before relaxing)
- .debug_str     0x000000000000bebe        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(rockachievements_math.o)
+ .debug_str     0x000000000000c067        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(rockachievements_math.o)
                                          0xec (size before relaxing)
- .debug_str     0x000000000000bebe        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_alloc.o)
+ .debug_str     0x000000000000c067        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_alloc.o)
                                        0x1479 (size before relaxing)
- .debug_str     0x000000000000bebe        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_condition.o)
-                                       0x6410 (size before relaxing)
- .debug_str     0x000000000000bebe        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_condset.o)
+ .debug_str     0x000000000000c067        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_condition.o)
+                                       0x6426 (size before relaxing)
+ .debug_str     0x000000000000c067        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_condset.o)
                                        0x1a3b (size before relaxing)
- .debug_str     0x000000000000bebe        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_format.o)
+ .debug_str     0x000000000000c067        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_format.o)
                                         0x5a4 (size before relaxing)
- .debug_str     0x000000000000bebe        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_lboard.o)
+ .debug_str     0x000000000000c067        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_lboard.o)
                                        0x1255 (size before relaxing)
- .debug_str     0x000000000000bebe        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_memref.o)
-                                       0x67c2 (size before relaxing)
- .debug_str     0x000000000000bebe        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_operand.o)
-                                       0x5f4d (size before relaxing)
+ .debug_str     0x000000000000c067        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_memref.o)
+                                       0x67d8 (size before relaxing)
+ .debug_str     0x000000000000c067        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_operand.o)
+                                       0x5f63 (size before relaxing)
 
 .debug_loc
  *(.debug_loc)
@@ -1638,202 +1643,202 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
  *(.debug_addr)
 
 .debug_line_str
-                0x0000000000000000     0x15b5
+                0x0000000000000000     0x156c
  *(.debug_line_str)
  .debug_line_str
-                0x0000000000000000     0x15b5 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/../../../firmware/libc/sscanf.o
-                                        0x191 (size before relaxing)
+                0x0000000000000000     0x156c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/../../../firmware/libc/sscanf.o
+                                        0x18b (size before relaxing)
  .debug_line_str
-                0x00000000000015b5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/cpu.o
+                0x000000000000156c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/cpu.o
                                         0x69d (size before relaxing)
  .debug_line_str
-                0x00000000000015b5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/emu.o
+                0x000000000000156c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/emu.o
                                         0x680 (size before relaxing)
  .debug_line_str
-                0x00000000000015b5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/events.o
+                0x000000000000156c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/events.o
                                         0x291 (size before relaxing)
  .debug_line_str
-                0x00000000000015b5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/fastmem.o
+                0x000000000000156c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/fastmem.o
                                         0x15f (size before relaxing)
  .debug_line_str
-                0x00000000000015b5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/hw.o
+                0x000000000000156c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/hw.o
                                         0x65e (size before relaxing)
  .debug_line_str
-                0x00000000000015b5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/lcd.o
+                0x000000000000156c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/lcd.o
                                         0x695 (size before relaxing)
  .debug_line_str
-                0x00000000000015b5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/lcdc.o
+                0x000000000000156c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/lcdc.o
                                         0x64e (size before relaxing)
  .debug_line_str
-                0x00000000000015b5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/loader.o
+                0x000000000000156c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/loader.o
                                         0x68a (size before relaxing)
  .debug_line_str
-                0x00000000000015b5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/mem.o
+                0x000000000000156c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/mem.o
                                         0x690 (size before relaxing)
  .debug_line_str
-                0x00000000000015b5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/menu.o
-                                        0x6c9 (size before relaxing)
+                0x000000000000156c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/menu.o
+                                        0x6dc (size before relaxing)
  .debug_line_str
-                0x00000000000015b5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/rbsound.o
+                0x000000000000156c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/rbsound.o
                                         0x679 (size before relaxing)
  .debug_line_str
-                0x00000000000015b5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/rockboy.o
+                0x000000000000156c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/rockboy.o
                                         0x6ec (size before relaxing)
  .debug_line_str
-                0x00000000000015b5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/profiler.o
+                0x000000000000156c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/profiler.o
                                         0x674 (size before relaxing)
  .debug_line_str
-                0x00000000000015b5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/rtc.o
+                0x000000000000156c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/rtc.o
                                         0x64b (size before relaxing)
  .debug_line_str
-                0x00000000000015b5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/save.o
+                0x000000000000156c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/save.o
                                         0x674 (size before relaxing)
  .debug_line_str
-                0x00000000000015b5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/sound.o
+                0x000000000000156c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/sound.o
                                         0x2c7 (size before relaxing)
  .debug_line_str
-                0x00000000000015b5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/sys_rockbox.o
+                0x000000000000156c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/sys_rockbox.o
                                         0x684 (size before relaxing)
  .debug_line_str
-                0x00000000000015b5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+                0x000000000000156c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
                                         0x68f (size before relaxing)
  .debug_line_str
-                0x00000000000015b5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+                0x000000000000156c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
                                         0x632 (size before relaxing)
  .debug_line_str
-                0x00000000000015b5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
+                0x000000000000156c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
                                         0x634 (size before relaxing)
  .debug_line_str
-                0x00000000000015b5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(rockachievements.o)
+                0x000000000000156c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(rockachievements.o)
                                         0x6f7 (size before relaxing)
  .debug_line_str
-                0x00000000000015b5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(rockachievements_allocator.o)
+                0x000000000000156c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(rockachievements_allocator.o)
                                         0x670 (size before relaxing)
  .debug_line_str
-                0x00000000000015b5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_runtime.o)
-                                        0x33e (size before relaxing)
+                0x000000000000156c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_runtime.o)
+                                        0x2fb (size before relaxing)
  .debug_line_str
-                0x00000000000015b5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_runtime_progress.o)
-                                        0x351 (size before relaxing)
+                0x000000000000156c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_runtime_progress.o)
+                                        0x30e (size before relaxing)
  .debug_line_str
-                0x00000000000015b5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_richpresence.o)
-                                        0x733 (size before relaxing)
+                0x000000000000156c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_richpresence.o)
+                                        0x6f0 (size before relaxing)
  .debug_line_str
-                0x00000000000015b5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_trigger.o)
-                                        0x283 (size before relaxing)
- .debug_line_str
-                0x00000000000015b5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_value.o)
-                                        0x29c (size before relaxing)
- .debug_line_str
-                0x00000000000015b5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_md5.o)
-                                        0x1d5 (size before relaxing)
- .debug_line_str
-                0x00000000000015b5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_util.o)
-                                        0x275 (size before relaxing)
- .debug_line_str
-                0x00000000000015b5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(rockachievements_math.o)
-                                        0x148 (size before relaxing)
- .debug_line_str
-                0x00000000000015b5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_alloc.o)
-                                        0x2a5 (size before relaxing)
- .debug_line_str
-                0x00000000000015b5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_condition.o)
-                                        0x71a (size before relaxing)
- .debug_line_str
-                0x00000000000015b5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_condset.o)
-                                        0x28e (size before relaxing)
- .debug_line_str
-                0x00000000000015b5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_format.o)
-                                        0x286 (size before relaxing)
- .debug_line_str
-                0x00000000000015b5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_lboard.o)
+                0x000000000000156c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_trigger.o)
                                         0x240 (size before relaxing)
  .debug_line_str
-                0x00000000000015b5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_memref.o)
-                                        0x748 (size before relaxing)
+                0x000000000000156c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_value.o)
+                                        0x259 (size before relaxing)
  .debug_line_str
-                0x00000000000015b5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_operand.o)
-                                        0x71c (size before relaxing)
+                0x000000000000156c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_md5.o)
+                                        0x1d5 (size before relaxing)
+ .debug_line_str
+                0x000000000000156c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_util.o)
+                                        0x232 (size before relaxing)
+ .debug_line_str
+                0x000000000000156c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(rockachievements_math.o)
+                                        0x148 (size before relaxing)
+ .debug_line_str
+                0x000000000000156c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_alloc.o)
+                                        0x262 (size before relaxing)
+ .debug_line_str
+                0x000000000000156c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_condition.o)
+                                        0x6d7 (size before relaxing)
+ .debug_line_str
+                0x000000000000156c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_condset.o)
+                                        0x24b (size before relaxing)
+ .debug_line_str
+                0x000000000000156c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_format.o)
+                                        0x243 (size before relaxing)
+ .debug_line_str
+                0x000000000000156c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_lboard.o)
+                                        0x1fd (size before relaxing)
+ .debug_line_str
+                0x000000000000156c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_memref.o)
+                                        0x705 (size before relaxing)
+ .debug_line_str
+                0x000000000000156c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_operand.o)
+                                        0x6d9 (size before relaxing)
 
 .debug_loclists
-                0x0000000000000000     0xea7d
+                0x0000000000000000     0xef88
  *(.debug_loclists)
  .debug_loclists
-                0x0000000000000000      0x581 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/../../../firmware/libc/sscanf.o
+                0x0000000000000000      0xa32 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/../../../firmware/libc/sscanf.o
  .debug_loclists
-                0x0000000000000581      0x8b7 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/cpu.o
+                0x0000000000000a32      0x8b7 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/cpu.o
  .debug_loclists
-                0x0000000000000e38      0x28d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/emu.o
+                0x00000000000012e9      0x28d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/emu.o
  .debug_loclists
-                0x00000000000010c5       0x14 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/events.o
+                0x0000000000001576       0x14 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/events.o
  .debug_loclists
-                0x00000000000010d9      0x24e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/fastmem.o
+                0x000000000000158a      0x24e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/fastmem.o
  .debug_loclists
-                0x0000000000001327      0x221 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/hw.o
+                0x00000000000017d8      0x215 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/hw.o
  .debug_loclists
-                0x0000000000001548     0x228f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/lcd.o
+                0x00000000000019ed     0x228f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/lcd.o
  .debug_loclists
-                0x00000000000037d7       0x8b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/lcdc.o
+                0x0000000000003c7c       0x8b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/lcdc.o
  .debug_loclists
-                0x0000000000003862      0x1ee /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/loader.o
+                0x0000000000003d07      0x1ee /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/loader.o
  .debug_loclists
-                0x0000000000003a50      0x818 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/mem.o
+                0x0000000000003ef5      0x818 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/mem.o
  .debug_loclists
-                0x0000000000004268      0x467 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/menu.o
+                0x000000000000470d      0x498 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/menu.o
  .debug_loclists
-                0x00000000000046cf       0x57 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/rbsound.o
+                0x0000000000004ba5       0x57 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/rbsound.o
  .debug_loclists
-                0x0000000000004726      0x2be /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/rockboy.o
+                0x0000000000004bfc      0x2be /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/rockboy.o
  .debug_loclists
-                0x00000000000049e4      0x217 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/profiler.o
+                0x0000000000004eba      0x217 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/profiler.o
  .debug_loclists
-                0x0000000000004bfb       0xfb /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/rtc.o
+                0x00000000000050d1       0xfb /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/rtc.o
  .debug_loclists
-                0x0000000000004cf6      0x1bd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/save.o
+                0x00000000000051cc      0x1bd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/save.o
  .debug_loclists
-                0x0000000000004eb3      0xb1d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/sound.o
+                0x0000000000005389      0xb1d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/sound.o
  .debug_loclists
-                0x00000000000059d0      0x278 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/sys_rockbox.o
+                0x0000000000005ea6      0x278 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/sys_rockbox.o
  .debug_loclists
-                0x0000000000005c48       0x9e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+                0x000000000000611e       0x9e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
  .debug_loclists
-                0x0000000000005ce6      0x1ad /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+                0x00000000000061bc      0x1ad /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
  .debug_loclists
-                0x0000000000005e93       0x5f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
+                0x0000000000006369       0x5f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
  .debug_loclists
-                0x0000000000005ef2      0x6bb /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(rockachievements.o)
+                0x00000000000063c8      0x6ef /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(rockachievements.o)
  .debug_loclists
-                0x00000000000065ad      0x20b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(rockachievements_allocator.o)
+                0x0000000000006ab7      0x20b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(rockachievements_allocator.o)
  .debug_loclists
-                0x00000000000067b8      0xd10 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_runtime.o)
+                0x0000000000006cc2      0xd10 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_runtime.o)
  .debug_loclists
-                0x00000000000074c8      0xf7b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_runtime_progress.o)
+                0x00000000000079d2      0xf7b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_runtime_progress.o)
  .debug_loclists
-                0x0000000000008443     0x1062 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_richpresence.o)
+                0x000000000000894d     0x1062 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_richpresence.o)
  .debug_loclists
-                0x00000000000094a5      0x500 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_trigger.o)
+                0x00000000000099af      0x500 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_trigger.o)
  .debug_loclists
-                0x00000000000099a5      0xa1e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_value.o)
+                0x0000000000009eaf      0xa1e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_value.o)
  .debug_loclists
-                0x000000000000a3c3      0x89c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_md5.o)
+                0x000000000000a8cd      0x89c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_md5.o)
  .debug_loclists
-                0x000000000000ac5f      0x2f5 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_util.o)
+                0x000000000000b169      0x2f5 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_util.o)
  .debug_loclists
-                0x000000000000af54       0x55 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(rockachievements_math.o)
+                0x000000000000b45e       0x55 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(rockachievements_math.o)
  .debug_loclists
-                0x000000000000afa9      0x95d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_alloc.o)
+                0x000000000000b4b3      0x95d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_alloc.o)
  .debug_loclists
-                0x000000000000b906      0x8c6 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_condition.o)
+                0x000000000000be10      0x8c6 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_condition.o)
  .debug_loclists
-                0x000000000000c1cc      0x9a7 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_condset.o)
+                0x000000000000c6d6      0x9a7 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_condset.o)
  .debug_loclists
-                0x000000000000cb73      0x6af /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_format.o)
+                0x000000000000d07d      0x6b0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_format.o)
  .debug_loclists
-                0x000000000000d222      0x2f7 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_lboard.o)
+                0x000000000000d72d      0x2f7 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_lboard.o)
  .debug_loclists
-                0x000000000000d519      0xd78 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_memref.o)
+                0x000000000000da24      0xd78 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_memref.o)
  .debug_loclists
-                0x000000000000e291      0x7ec /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_operand.o)
+                0x000000000000e79c      0x7ec /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_operand.o)
 
 .debug_macro
  *(.debug_macro)
@@ -1842,64 +1847,64 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
  *(.debug_names)
 
 .debug_rnglists
-                0x0000000000000000      0x93f
+                0x0000000000000000      0xab8
  *(.debug_rnglists)
  .debug_rnglists
-                0x0000000000000000       0x85 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/../../../firmware/libc/sscanf.o
+                0x0000000000000000      0x21c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/../../../firmware/libc/sscanf.o
  .debug_rnglists
-                0x0000000000000085       0x69 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/cpu.o
+                0x000000000000021c       0x69 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/cpu.o
  .debug_rnglists
-                0x00000000000000ee       0x1f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/emu.o
+                0x0000000000000285       0x1f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/emu.o
  .debug_rnglists
-                0x000000000000010d       0x26 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/fastmem.o
+                0x00000000000002a4       0x26 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/fastmem.o
  .debug_rnglists
-                0x0000000000000133       0x22 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/hw.o
+                0x00000000000002ca       0x22 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/hw.o
  .debug_rnglists
-                0x0000000000000155      0x15c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/lcd.o
+                0x00000000000002ec      0x15c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/lcd.o
  .debug_rnglists
-                0x00000000000002b1       0x6a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/loader.o
+                0x0000000000000448       0x6a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/loader.o
  .debug_rnglists
-                0x000000000000031b       0x5f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/mem.o
+                0x00000000000004b2       0x5f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/mem.o
  .debug_rnglists
-                0x000000000000037a       0x28 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/menu.o
+                0x0000000000000511       0x3a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/menu.o
  .debug_rnglists
-                0x00000000000003a2       0x17 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/rbsound.o
+                0x000000000000054b       0x17 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/rbsound.o
  .debug_rnglists
-                0x00000000000003b9       0x32 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/rockboy.o
+                0x0000000000000562       0x32 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/rockboy.o
  .debug_rnglists
-                0x00000000000003eb       0x69 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/profiler.o
+                0x0000000000000594       0x69 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/profiler.o
  .debug_rnglists
-                0x0000000000000454       0x62 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/sound.o
+                0x00000000000005fd       0x62 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/sound.o
  .debug_rnglists
-                0x00000000000004b6       0x29 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/sys_rockbox.o
+                0x000000000000065f       0x29 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/rockboy/sys_rockbox.o
  .debug_rnglists
-                0x00000000000004df       0xb0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(rockachievements.o)
+                0x0000000000000688       0x80 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(rockachievements.o)
  .debug_rnglists
-                0x000000000000058f       0x13 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(rockachievements_allocator.o)
+                0x0000000000000708       0x13 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(rockachievements_allocator.o)
  .debug_rnglists
-                0x00000000000005a2       0x17 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_runtime.o)
+                0x000000000000071b       0x17 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_runtime.o)
  .debug_rnglists
-                0x00000000000005b9       0xd5 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_runtime_progress.o)
+                0x0000000000000732       0xd5 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_runtime_progress.o)
  .debug_rnglists
-                0x000000000000068e       0x47 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_richpresence.o)
+                0x0000000000000807       0x47 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_richpresence.o)
  .debug_rnglists
-                0x00000000000006d5       0x17 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_trigger.o)
+                0x000000000000084e       0x17 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_trigger.o)
  .debug_rnglists
-                0x00000000000006ec       0x2a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_value.o)
+                0x0000000000000865       0x2a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_value.o)
  .debug_rnglists
-                0x0000000000000716       0x56 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_alloc.o)
+                0x000000000000088f       0x56 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_alloc.o)
  .debug_rnglists
-                0x000000000000076c       0xa9 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_condition.o)
+                0x00000000000008e5       0xa9 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_condition.o)
  .debug_rnglists
-                0x0000000000000815       0x4d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_condset.o)
+                0x000000000000098e       0x4d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_condset.o)
  .debug_rnglists
-                0x0000000000000862       0x17 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_format.o)
+                0x00000000000009db       0x17 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_format.o)
  .debug_rnglists
-                0x0000000000000879       0x17 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_lboard.o)
+                0x00000000000009f2       0x17 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_lboard.o)
  .debug_rnglists
-                0x0000000000000890       0x47 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_memref.o)
+                0x0000000000000a09       0x47 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_memref.o)
  .debug_rnglists
-                0x00000000000008d7       0x68 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_operand.o)
+                0x0000000000000a50       0x68 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(ra_operand.o)
 
 .debug_str_offsets
  *(.debug_str_offsets)

@@ -6,6 +6,7 @@ mount_path="${1:-}"
 build_dir="${2:-${repo_root}/build-hw-ipod6g}"
 firmware="${build_dir}/rockbox.ipod"
 package="${build_dir}/rockbox.zip"
+desktop_portable_bundle="${DESKTOP_MODE_PORTABLE_BUNDLE:-${repo_root}/.rockpod-private/desktop-mode-portable}"
 backup_dir=""
 had_database=0
 transaction_artifacts=()
@@ -223,6 +224,22 @@ cp "${firmware}" "${mount_path}/.rockbox/rockbox.ipod"
 cmp -s "${firmware}" "${mount_path}/rockbox.ipod"
 cmp -s "${firmware}" "${mount_path}/.rockbox/rockbox.ipod"
 verify_database
+
+# A release/developer bundle may carry native macOS and Windows simulator
+# runtimes. Install them beside (never over) the iPod's ARM plugins so the two
+# root-level shortcuts can run Desktop Mode directly from this mounted volume.
+# Private Snow Leopard assets already on the device are copied into each
+# native system overlay by the installer.
+if [ -d "${desktop_portable_bundle}/windows-x86_64" ] &&
+   [ -d "${desktop_portable_bundle}/macos-x86_64" ] &&
+   [ -d "${desktop_portable_bundle}/macos-arm64" ]; then
+    "${repo_root}/tools/install_desktop_mode_portable.py" \
+        --ipod-root "${mount_path}" \
+        --bundle-root "${desktop_portable_bundle}"
+    echo "portable Desktop Mode: macOS and Windows shortcuts installed"
+else
+    echo "portable Desktop Mode: no complete host-runtime bundle at ${desktop_portable_bundle}; skipped"
+fi
 
 sha256sum "${firmware}" \
     "${mount_path}/rockbox.ipod" \

@@ -215,9 +215,10 @@ def test_video_list_thumbnail_and_manifest_generated_for_ipod(tmp_dir):
         data = handle.read()
     assert "video_id\tthumb\tpreview\ttitle\tkind\tgroup_key\tdevice_path" in data
     assert f"{video_id}\tthumbs/{device_name}\tpreviews/{preview_name}\tReal Movie\tmovie" in data
-    assert data.startswith("# rockpod videolist v5\n")
+    assert data.startswith("# rockpod videolist v6\n")
     assert "\t1\t2007\tDrama\t4\tA concise synopsis." in data
-    assert data.rstrip().endswith(f"netflix-detail/{detail_name}")
+    # show_art_id, season_art_id and show_plot trail the poster columns.
+    assert f"netflix-detail/{detail_name}" in data
     assert os.path.basename(manifest_path) == "index.tsv"
     assert not [
         name for name in os.listdir(os.path.dirname(manifest_path))
@@ -279,9 +280,9 @@ def test_verified_imdb_catalog_drives_show_and_season_art(tmp_dir):
     )
     with open(manifest_path, "r", encoding="utf-8") as handle:
         rows = handle.read().splitlines()
-    assert rows[0] == "# rockpod videolist v5"
-    assert rows[1].endswith("show_art_id\tseason_art_id")
-    assert rows[2].endswith(f"\t{show_id}\t{season_id}")
+    assert rows[0] == "# rockpod videolist v6"
+    assert rows[1].endswith("show_art_id\tseason_art_id\tshow_plot")
+    assert rows[2].split("\t")[20:22] == [show_id, season_id]
 
 
 def test_video_heavy_fixture_records_thumbnail_manifest_profile(tmp_dir):

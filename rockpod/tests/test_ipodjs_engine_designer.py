@@ -16,6 +16,8 @@ def test_ipodjs_designer_defaults_to_stock_apple_holdscreen():
     assert settings["rockbox_ui_font_scale"] == "normal"
     assert settings["rockbox_ui_surface"] == "solid"
     assert settings["rockbox_ui_hold_effect"] == "lockscreen"
+    assert settings["rockbox_ui_extras_pane"] == "clock"
+    assert widget._extras_pane.currentText() == "Clock"
     assert widget._hold_effect.currentText() == "Lockscreen"
     assert widget._preview._screen == "home"
     assert app is not None

@@ -17,8 +17,10 @@ import socket
 import sqlite3
 import struct
 import subprocess
+import sys
 import tempfile
 import time
+import traceback
 import urllib.request
 import zipfile
 import zlib
@@ -45,7 +47,7 @@ BROWSER_USER_AGENT = (
 MAX_LIVE_ASSETS = 240
 MAX_LIVE_PAGES = 32
 MAX_LIVE_DEPTH = 1
-MAX_FIREFOX_CACHE_IMAGES = 36
+MAX_FIREFOX_CACHE_IMAGES = 181
 BROWSER_EXPORT_TIMEOUT = 60
 HTML_EXTS = {".html", ".htm", ".shtml", ".xhtml"}
 ASSET_EXTS = {
@@ -75,6 +77,9 @@ ASSET_EXTS = {
     ".mp3",
     ".m4a",
     ".mp4",
+    ".mpg",
+    ".mpeg",
+    ".m2v",
     ".webm",
     ".avif",
     ".bin",
@@ -101,6 +106,13 @@ OFFLINEWEB_CURSOR_SOURCE = (
     / "themes"
     / "scummmodern"
     / "cursor_small.bmp"
+)
+YOUTUBE_2006_LOGO_SOURCE = (
+    ROOT.parent / "assets" / "offlineweb" / "youtube" / "youtube-logo-2006.bmp"
+)
+YOUTUBE_2007_STARS_SOURCE = (
+    ROOT.parent / "assets" / "offlineweb" / "youtube"
+    / "youtube-stars-5-2007.bmp"
 )
 _ACTIVE_CACHE_FILES = None
 
@@ -290,6 +302,21 @@ def _extension_for_content(content_type):
     }.get(content_type, "")
 
 
+def _archive_relative_path_is_safe(host, relative):
+    """Keep archive paths addressable on both the host and Rockbox target."""
+    archive_relative = (Path(host) / relative).as_posix()
+    encoded_parts = [
+        part.encode("utf-8", "surrogatepass")
+        for part in Path(archive_relative).parts
+    ]
+    # Leave room for image ".bmp" sidecars under the 255-byte component
+    # ceiling and keep the complete Rockbox archive path below MAX_PATH.
+    return (
+        all(len(part) <= 240 for part in encoded_parts)
+        and len(archive_relative.encode("utf-8", "surrogatepass")) <= 220
+    )
+
+
 def _write_url_record(root, record_url, body, content_type=""):
     parts = urlsplit(record_url)
     host = parts.netloc.lower()
@@ -322,6 +349,8 @@ def _write_url_record(root, record_url, body, content_type=""):
             inferred = inferred or ".bin"
             relative = str(Path(relative).with_suffix(inferred))
             ext = inferred
+        if not _archive_relative_path_is_safe(host, relative):
+            continue
         destination = root / host / relative
         destination.parent.mkdir(parents=True, exist_ok=True)
         destination.write_bytes(body)
@@ -336,6 +365,14 @@ def _convert_image_sidecar(path):
     if ext not in IMAGE_EXTS or ext == ".bmp":
         return False
     sidecar = Path(str(path) + ".bmp")
+    try:
+        if (
+            sidecar.is_file()
+            and sidecar.stat().st_mtime_ns >= path.stat().st_mtime_ns
+        ):
+            return False
+    except OSError:
+        pass
     try:
         result = subprocess.run(
             [
@@ -637,6 +674,18 @@ def _install_runtime_assets(device_root):
             result = None
         if not result or result.returncode != 0 or not cursor_target.is_file():
             shutil.copy2(OFFLINEWEB_CURSOR_SOURCE, cursor_target)
+        saved += 1
+    if YOUTUBE_2006_LOGO_SOURCE.is_file():
+        shutil.copy2(
+            YOUTUBE_2006_LOGO_SOURCE,
+            assets_root / "youtube-logo-2006.bmp",
+        )
+        saved += 1
+    if YOUTUBE_2007_STARS_SOURCE.is_file():
+        shutil.copy2(
+            YOUTUBE_2007_STARS_SOURCE,
+            assets_root / "youtube-stars-5-2007.bmp",
+        )
         saved += 1
     return saved
 
@@ -1087,7 +1136,7 @@ def _copy_firefox_profile(profile_path, destination):
             pass
 
 
-def _browser_snapshot(url, work_root, profile_path):
+def _browser_snapshot(url, work_root, profile_path, oldest_date=""):
     firefox = shutil.which("firefox")
     if not firefox:
         return {}
@@ -1154,6 +1203,53 @@ JSON.stringify({
   })).filter((item) => item.url)
 })
 """
+        if oldest_date and any(
+            host in urlsplit(url).netloc.lower()
+            for host in ("instagram.com", "onlyfans.com")
+        ):
+            last_height = 0
+            stagnant = 0
+            for _index in range(240):
+                depth_result = client.command(
+                    "script.evaluate",
+                    {
+                        "expression": """
+JSON.stringify({
+  height: Math.max(
+    document.body ? document.body.scrollHeight : 0,
+    document.documentElement ? document.documentElement.scrollHeight : 0
+  ),
+  oldest: Array.from(document.querySelectorAll("time[datetime]"))
+    .map((item) => {
+      const parsed = new Date(item.getAttribute("datetime"));
+      return Number.isNaN(parsed.getTime())
+        ? "" : parsed.toISOString().slice(0, 10);
+    }).filter(Boolean).sort()[0] || ""
+})
+""",
+                        "target": {"context": context},
+                        "awaitPromise": True,
+                    },
+                )
+                remote = ((depth_result.get("result") or {}).get("result") or {})
+                depth = json.loads(remote.get("value") or "{}")
+                if depth.get("oldest") and depth["oldest"] <= oldest_date:
+                    break
+                height = int(depth.get("height") or 0)
+                stagnant = stagnant + 1 if height <= last_height else 0
+                last_height = max(last_height, height)
+                if stagnant >= 8:
+                    break
+                client.command(
+                    "script.evaluate",
+                    {
+                        "expression": "window.scrollTo(0, document.documentElement.scrollHeight); true",
+                        "target": {"context": context},
+                        "awaitPromise": False,
+                    },
+                )
+                time.sleep(0.35)
+
         def with_preview(data):
             previews = []
             try:
@@ -1218,9 +1314,11 @@ JSON.stringify({
 
 
 def _sync_browser_export(url, work_root, archive_root, profile_path,
-                         use_firefox_cookies=True):
+                         use_firefox_cookies=True, oldest_date=""):
     try:
-        snapshot = _browser_snapshot(url, work_root, profile_path)
+        snapshot = _browser_snapshot(
+            url, work_root, profile_path, oldest_date=oldest_date
+        )
     except Exception as exc:
         reason = str(exc).replace("\n", " ")
         return {
@@ -1234,6 +1332,7 @@ def _sync_browser_export(url, work_root, archive_root, profile_path,
     ):
         return {"success": False, "reason": "browser-export-empty"}
     cached_image_urls = []
+    cached_image_refs = []
     cache_assets_saved = 0
     preview_urls = []
     preview_paths = []
@@ -1278,12 +1377,22 @@ def _sync_browser_export(url, work_root, archive_root, profile_path,
             cache_assets_saved += 1
             _convert_image_sidecar(asset_written)
             cached_image_urls.append(str(record.get("url") or ""))
+            try:
+                relative = Path(asset_written).relative_to(archive_root)
+                cached_image_refs.append(
+                    "/.rockbox/offlineweb/archive/" + relative.as_posix()
+                )
+            except ValueError:
+                pass
 
+    cached_image_refs = _compact_social_image_refs(
+        archive_root, cached_image_refs, url
+    )
     logo_url = _browser_logo_url(snapshot, final_url)
     html_text = _browser_static_html(
         snapshot,
         url,
-        extra_images=cached_image_urls,
+        extra_images=cached_image_refs,
         logo_url=logo_url,
         preview_images=preview_urls,
     )
@@ -1301,6 +1410,25 @@ def _sync_browser_export(url, work_root, archive_root, profile_path,
     )
     if not written:
         return {"success": False, "reason": "browser-export-write-failed"}
+    _write_social_profile_pages(
+        archive_root,
+        url,
+        _browser_page_title(snapshot, url),
+        written,
+        cached_image_refs,
+        oldest_date,
+    )
+    if _social_site(url)[0]:
+        return {
+            "success": True,
+            "source": "firefox-browser-export",
+            "html_saved": 1,
+            "assets_saved": cache_assets_saved,
+            "cache_images_saved": cache_assets_saved,
+            "title": _browser_page_title(snapshot, url),
+            "entry_path": written,
+            "preview_path": preview_paths[0] if preview_paths else "",
+        }
 
     queued_assets = []
     seen_assets = set()
@@ -1373,6 +1501,7 @@ def _browser_logo_url(snapshot, fallback_url):
 
 def _browser_page_title(snapshot, fallback_url):
     title = str(snapshot.get("title") or "").strip()
+    title = re.sub(r"^\(\d+\+?\)\s*", "", title)
     parsed = urlsplit(str(fallback_url or ""))
     host = parsed.netloc.lower().removeprefix("www.")
     host_label = host.split(".", 1)[0]
@@ -1386,6 +1515,165 @@ def _browser_page_title(snapshot, fallback_url):
     return title or parsed.netloc or "Offline Page"
 
 
+def _compact_social_image_refs(archive_root, image_refs, page_url):
+    host = urlsplit(str(page_url or "")).netloc.lower()
+    if "instagram.com" not in host and "onlyfans.com" not in host:
+        return image_refs
+
+    site = "instagram" if "instagram.com" in host else "onlyfans"
+    profile_key = _safe_name(
+        Path(urlsplit(str(page_url or "")).path.rstrip("/")).name or "home"
+    )
+    target_root = Path(archive_root) / host / "_rockpod_media" / profile_key
+    target_root.mkdir(parents=True, exist_ok=True)
+    compact_refs = []
+    used_names = set()
+    post_index = 1
+
+    for ref in image_refs:
+        prefix = "/.rockbox/offlineweb/archive/"
+        if not str(ref).startswith(prefix):
+            continue
+        source = Path(archive_root) / str(ref)[len(prefix):]
+        if not source.is_file():
+            continue
+
+        source_sidecar = Path(str(source) + ".bmp")
+        if site == "instagram" and source_sidecar.is_file():
+            header = source_sidecar.read_bytes()[:26]
+            if len(header) == 26 and header[:2] == b"BM":
+                width = int.from_bytes(header[18:22], "little", signed=True)
+                height = abs(
+                    int.from_bytes(header[22:26], "little", signed=True)
+                )
+                if width <= 150 and height <= 150:
+                    if "avatar.jpg" not in used_names:
+                        name = "avatar.jpg"
+                    else:
+                        continue
+                else:
+                    name = ""
+            else:
+                name = ""
+        else:
+            name = ""
+
+        lower = str(source).lower()
+        if name:
+            pass
+        elif site == "onlyfans" and lower.endswith("/header.jpg"):
+            name = "cover.jpg"
+        elif site == "onlyfans" and lower.endswith("/avatar.jpg"):
+            name = "avatar.jpg"
+        else:
+            name = f"{post_index:02d}{source.suffix.lower() or '.jpg'}"
+            post_index += 1
+        if name in used_names:
+            continue
+        used_names.add(name)
+
+        target = target_root / name
+        target.write_bytes(source.read_bytes())
+        _track_cache_file(target)
+        if source_sidecar.is_file():
+            target_sidecar = Path(str(target) + ".bmp")
+            target_sidecar.write_bytes(source_sidecar.read_bytes())
+            _track_cache_file(target_sidecar)
+        compact_refs.append(
+            "/.rockbox/offlineweb/archive/"
+            + target.relative_to(archive_root).as_posix()
+        )
+        if len(compact_refs) >= 180:
+            break
+
+    return compact_refs or image_refs
+
+
+def _social_site(url):
+    host = urlsplit(str(url or "")).netloc.lower()
+    if "instagram.com" in host:
+        return "instagram", "Instagram"
+    if "onlyfans.com" in host:
+        return "onlyfans", "OnlyFans"
+    return "", ""
+
+
+def _write_social_profile_pages(
+    archive_root, page_url, title, entry_path, image_refs, oldest_date=""
+):
+    site, site_title = _social_site(page_url)
+    if not site:
+        return
+    host = urlsplit(page_url).netloc.lower()
+    root = Path(archive_root) / host
+    media_root = root / "_rockpod_media"
+    manifest_path = media_root / "profiles.json"
+    try:
+        profiles = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except (OSError, TypeError, ValueError):
+        profiles = []
+    if not isinstance(profiles, list):
+        profiles = []
+    handle = Path(urlsplit(page_url).path.rstrip("/")).name or title
+    avatar = next(
+        (ref for ref in image_refs if ref.lower().endswith("/avatar.jpg")),
+        "",
+    )
+    page_ref = (
+        "/.rockbox/offlineweb/archive/"
+        + Path(entry_path).relative_to(archive_root).as_posix()
+    )
+    profile = {
+        "url": page_url,
+        "title": title or handle,
+        "handle": handle,
+        "page": page_ref,
+        "avatar": avatar,
+        "oldest_date": oldest_date,
+    }
+    profiles = [
+        item for item in profiles
+        if isinstance(item, dict) and item.get("url") != page_url
+    ]
+    profiles.append(profile)
+    manifest_path.parent.mkdir(parents=True, exist_ok=True)
+    manifest_path.write_text(json.dumps(profiles, indent=2), encoding="utf-8")
+    _track_cache_file(manifest_path)
+
+    rows = []
+    for item in sorted(
+        profiles, key=lambda value: str(value.get("title") or "").casefold()
+    ):
+        if item.get("avatar"):
+            rows.append(
+                '<img src="{src}" alt="" width="52" height="52" data-static="1">'.format(
+                    src=html.escape(str(item["avatar"]), quote=True)
+                )
+            )
+        rows.append(
+            '<a href="{href}">{title}</a>'.format(
+                href=html.escape(str(item.get("page") or ""), quote=True),
+                title=html.escape(str(item.get("title") or item.get("handle") or "Profile")),
+            )
+        )
+        detail = "@" + str(item.get("handle") or "")
+        if item.get("oldest_date"):
+            detail += "  Posts since " + str(item["oldest_date"])
+        rows.append(f"<p>{html.escape(detail)}</p>")
+    library_path = root / "profiles.html"
+    library_path.write_text(
+        "<!DOCTYPE html><html><head>"
+        f"<title>{site_title}</title>"
+        f'<meta name="rockpod-render-mode" content="native-{site}-profiles">'
+        "</head><body>"
+        f"<h1>{site_title} Profiles</h1>"
+        + "\n".join(rows)
+        + "</body></html>\n",
+        encoding="utf-8",
+    )
+    _track_cache_file(library_path)
+
+
 def _browser_static_html(
     snapshot,
     fallback_url,
@@ -1395,31 +1683,16 @@ def _browser_static_html(
 ):
     title = _browser_page_title(snapshot, fallback_url)
     preview_images = [str(value or "") for value in (preview_images or []) if value]
-    if preview_images:
-        images = "\n".join(
-            '<img src="{src}" alt="{alt}" width="314" height="202">'.format(
-                src=html.escape(_offline_reference_url(src), quote=True),
-                alt=html.escape(title, quote=True),
-            )
-            for src in preview_images
-        )
-        return (
-            "<!DOCTYPE html>\n"
-            "<html><head>"
-            f"<title>{html.escape(title)}</title>"
-            '<meta name="rockpod-render-mode" content="visual-capture">'
-            "</head><body>"
-            f"{images}"
-            "</body></html>\n"
-        )
-
     body_text = str(snapshot.get("text") or "")
+    cached_refs = [
+        str(value or "").strip()
+        for value in (extra_images or [])
+        if str(value or "").strip()
+    ]
     image_urls = []
     seen = set()
 
-    if logo_url:
-        _append_unique(image_urls, seen, logo_url)
-    for value in snapshot.get("images") or []:
+    for value in extra_images or []:
         value = str(value or "").strip()
         if not value or value in seen:
             continue
@@ -1427,7 +1700,9 @@ def _browser_static_html(
             continue
         seen.add(value)
         image_urls.append(value)
-    for value in extra_images or []:
+    if logo_url:
+        _append_unique(image_urls, seen, logo_url)
+    for value in snapshot.get("images") or []:
         value = str(value or "").strip()
         if not value or value in seen:
             continue
@@ -1439,54 +1714,151 @@ def _browser_static_html(
     lines = []
     for raw in body_text.splitlines():
         line = re.sub(r"\s+", " ", raw).strip()
-        if not line:
+        if len(line) < 2:
             continue
-        if lines and lines[-1] == line:
+        if lines and lines[-1].casefold() == line.casefold():
             continue
-        lines.append(line)
-        if len(lines) >= 80:
+        lines.append(line[:240])
+        if len(lines) >= 48:
             break
 
+    lead_html = ""
+    if image_urls:
+        lead_html = (
+            '<img src="{src}" alt="{alt}" width="314" height="202">'
+        ).format(
+            src=html.escape(_offline_reference_url(image_urls[0]), quote=True),
+            alt=html.escape(title, quote=True),
+        )
     image_html = "\n".join(
         '<img src="{src}" alt="{alt}" width="314" height="202">'.format(
             src=html.escape(_offline_reference_url(src), quote=True),
             alt=html.escape(title, quote=True),
         )
-        for src in image_urls[:48]
+        for src in image_urls[1:17]
     )
-    nav_html = ""
-    if "onlyfans.com" in urlsplit(str(fallback_url or "")).netloc.lower():
-        nav_html = (
-            '<p><a href="https://onlyfans.com/">Home</a> '
-            '<a href="https://onlyfans.com/my/chats/">Messages</a> '
-            '<a href="https://onlyfans.com/my/bookmarks/">Bookmarks</a> '
-            '<a href="https://onlyfans.com/my/profile/">Profile</a></p>'
-        )
-    link_html = "\n".join(
-        '<li><a href="{url}">{text}</a></li>'.format(
-            url=html.escape(str(item.get("url") or ""), quote=True),
-            text=html.escape(str(item.get("text") or item.get("url") or "")),
-        )
-        for item in (snapshot.get("links") or [])[:40]
-        if str(item.get("url") or "").strip()
-    )
-    if link_html:
-        link_html = f"<h2>Links</h2><ul>{link_html}</ul>"
     text_html = "\n".join(
         f"<p>{html.escape(line)}</p>"
         for line in lines
     )
+    if "instagram.com" in urlsplit(str(fallback_url or "")).netloc.lower():
+        social_images = cached_refs or image_urls
+        avatar_images = [
+            src for src in social_images if src.lower().endswith("/avatar.jpg")
+        ]
+        feed_images = [
+            src for src in social_images
+            if not src.lower().endswith("/avatar.jpg")
+        ][:180]
+        handle = Path(urlsplit(str(fallback_url)).path.rstrip("/")).name
+        avatar_html = (
+            '<img src="{src}" alt="" width="56" height="56">'.format(
+                src=html.escape(_offline_reference_url(avatar_images[0]), quote=True)
+            )
+            if avatar_images else ""
+        )
+        feed_html = "\n".join(
+            '<img src="{src}" alt="" width="314" height="202">'.format(
+                src=html.escape(_offline_reference_url(src), quote=True),
+            )
+            for src in feed_images
+        )
+        return (
+            "<!DOCTYPE html>\n"
+            "<html><head>"
+            f"<title>{html.escape(title)}</title>"
+            '<meta name="rockpod-render-mode" content="native-feed">'
+            "</head><body>"
+            f"{avatar_html}"
+            f"<h1>{html.escape(title)}</h1>"
+            f"<p>@{html.escape(handle)}</p>"
+            f"{feed_html}"
+            "</body></html>\n"
+        )
+    if "onlyfans.com" in urlsplit(str(fallback_url or "")).netloc.lower():
+        creator = re.sub(r"\s+OnlyFans$", "", title, flags=re.I).strip()
+        started = False
+        profile_lines = []
+        ignored = {
+            "my profile", "collections", "settings", "dark mode", "english",
+            "log out", "help and support", "home", "notifications",
+            "messages", "bookmarks",
+        }
+        for line in lines:
+            if not started:
+                if line.casefold() == creator.casefold():
+                    started = True
+                else:
+                    continue
+            if line.casefold() in ignored:
+                continue
+            if re.fullmatch(r"[\d.,KkMm]+", line):
+                continue
+            if line.casefold() == creator.casefold() and profile_lines:
+                continue
+            profile_lines.append(line)
+            if len(profile_lines) >= 28:
+                break
+        profile_html = "\n".join(
+            f"<p>{html.escape(line)}</p>" for line in profile_lines
+        )
+        site_images = [
+            src for src in (cached_refs or image_urls)
+            if "of-logo" not in src.lower()
+        ]
+        cover_images = [
+            src for src in site_images
+            if urlsplit(src).path.lower().endswith("/header.jpg")
+        ]
+        avatar_images = [
+            src for src in site_images
+            if urlsplit(src).path.lower().endswith("/avatar.jpg")
+        ]
+        post_images = [
+            src for src in site_images
+            if src not in cover_images and src not in avatar_images
+        ][:180]
+
+        def onlyfans_image(src, alt, height=202):
+            return '<img src="{src}" alt="{alt}" width="314" height="{height}">'.format(
+                src=html.escape(_offline_reference_url(src), quote=True),
+                alt=html.escape(alt, quote=True),
+                height=height,
+            )
+
+        cover_html = onlyfans_image(cover_images[0], creator) if cover_images else ""
+        avatar_html = (
+            onlyfans_image(avatar_images[0], creator, 144)
+            if avatar_images else ""
+        )
+        posts_html = "\n".join(
+            onlyfans_image(src, creator) for src in post_images
+        )
+        return (
+            "<!DOCTYPE html>\n"
+            "<html><head>"
+            f"<title>{html.escape(title)}</title>"
+            '<meta name="rockpod-render-mode" content="native-profile">'
+            "</head><body>"
+            f"{cover_html}"
+            f"<h1>{html.escape(creator or title)}</h1>"
+            f"{avatar_html}"
+            f"{profile_html}"
+            f"{posts_html}"
+            "</body></html>\n"
+        )
     return (
         "<!DOCTYPE html>\n"
         "<html><head>"
         f"<title>{html.escape(title)}</title>"
-        f"<meta name=\"keywords\" content=\"OnlyFans {html.escape(title)}\">"
+        '<meta name="rockpod-render-mode" content="native-snapshot">'
         "</head><body>"
-        f"{image_html}"
+        f"{lead_html}"
         f"<h1>{html.escape(title)}</h1>"
-        f"{nav_html}"
+        f"{'<h2>Saved page</h2>' if text_html else ''}"
         f"{text_html}"
-        f"{link_html}"
+        f"{'<h2>Saved media</h2>' if image_html else ''}"
+        f"{image_html}"
         "</body></html>\n"
     )
 
@@ -1679,13 +2051,598 @@ def _try_snapshot_zip(snapshot_url, destination):
     return archive_id
 
 
-def _sync_single_url(url, work_root, archive_root, log_handle, firefox_profile=Path(), use_firefox_cookies=True):
+def _is_youtube_url(url):
+    parsed = urlsplit(str(url or ""))
+    host = parsed.netloc.lower().split(":", 1)[0]
+    if host in {"youtu.be", "youtube.com", "www.youtube.com", "m.youtube.com"}:
+        return host == "youtu.be" or parsed.path == "/watch" or parsed.path.startswith(
+            ("/shorts/", "/live/", "/embed/")
+        )
+    return False
+
+
+def _youtube_duration(value):
+    try:
+        seconds = max(0, int(float(value or 0)))
+    except (TypeError, ValueError):
+        return ""
+    hours, remainder = divmod(seconds, 3600)
+    minutes, seconds = divmod(remainder, 60)
+    return (
+        f"{hours}:{minutes:02d}:{seconds:02d}"
+        if hours else f"{minutes}:{seconds:02d}"
+    )
+
+
+def _youtube_archive_ref(archive_root, path):
+    try:
+        relative = Path(path).relative_to(archive_root)
+    except (TypeError, ValueError):
+        return ""
+    return "/.rockbox/offlineweb/archive/" + relative.as_posix()
+
+
+def _youtube_channel_key(metadata):
+    value = str(
+        metadata.get("channel_id")
+        or metadata.get("uploader_id")
+        or metadata.get("channel")
+        or metadata.get("uploader")
+        or "youtube-member"
+    )
+    value = re.sub(r"[^A-Za-z0-9_-]+", "-", value).strip("-")
+    return value[:48] or "youtube-member"
+
+
+def _youtube_channel_avatar(metadata, work_root, media_root, ffmpeg):
+    channel_key = _youtube_channel_key(metadata)
+    avatar_path = Path(media_root) / f"avatar-{channel_key}.jpg"
+    candidates = [
+        str(metadata.get("channel_thumbnail") or "").strip(),
+        str(metadata.get("uploader_avatar") or "").strip(),
+    ]
+    channel_url = str(metadata.get("channel_url") or "").strip()
+    if channel_url:
+        try:
+            page = _fetch_live_resource(channel_url, "", "")
+            page_text = (page.get("body") or b"").decode("utf-8", "ignore")
+        except Exception:
+            page_text = ""
+        for pattern in (
+            r'"avatar":\{"thumbnails":\[\{"url":"([^"]+)"',
+            r'"channelThumbnail":\{"thumbnails":\[\{"url":"([^"]+)"',
+        ):
+            match = re.search(pattern, page_text)
+            if not match:
+                continue
+            try:
+                candidates.append(json.loads(f'"{match.group(1)}"'))
+            except (TypeError, ValueError):
+                candidates.append(
+                    match.group(1).replace("\\u0026", "&").replace("\\/", "/")
+                )
+            break
+
+    avatar_url = next(
+        (value for value in candidates if value.startswith(("http://", "https://"))),
+        "",
+    )
+    if not avatar_url:
+        return None
+    try:
+        avatar = _fetch_live_resource(avatar_url, "", channel_url)
+    except Exception:
+        return None
+    if int(avatar.get("status") or 0) != 200 or not avatar.get("body"):
+        return None
+
+    source_path = Path(work_root) / f"avatar-{channel_key}.source"
+    source_path.write_bytes(avatar["body"])
+    result = subprocess.run(
+        [
+            ffmpeg,
+            "-hide_banner",
+            "-loglevel",
+            "error",
+            "-y",
+            "-i",
+            str(source_path),
+            "-vf",
+            (
+                "scale=64:64:force_original_aspect_ratio=increase,"
+                "crop=64:64"
+            ),
+            "-frames:v",
+            "1",
+            str(avatar_path),
+        ],
+        text=True,
+        capture_output=True,
+        timeout=120,
+        check=False,
+    )
+    if result.returncode != 0 or not avatar_path.is_file():
+        return None
+    _convert_image_sidecar(avatar_path)
+    return avatar_path
+
+
+def _youtube_page_header(title):
+    return (
+        "<!DOCTYPE html>\n"
+        "<html><head>"
+        f"<title>{html.escape(title)}</title>"
+        '<meta name="rockpod-render-mode" content="youtube-2007">'
+        "<style>"
+        "body{background:#fff;color:#000;font-family:Arial,sans-serif}"
+        "a{color:#03c}.nav{border-bottom:1px solid #ccc;color:#03c}"
+        "h1{color:#333;font-size:18px;border-bottom:1px solid #ccc}"
+        ".channel{background:#e6f1fa;border:1px solid #b8d4e8}"
+        ".video{border-bottom:1px solid #ddd}"
+        "</style></head><body>\n"
+        '<img src="/.rockbox/offlineweb/assets/youtube-logo-2006.bmp" '
+        'alt="YouTube" width="128" height="52" data-static="1">\n'
+        '<p class="nav">Videos | Categories | Channels | Community</p>\n'
+    )
+
+
+def _write_youtube_subscription_pages(
+    archive_root, metadata, entry_path, poster_path, avatar_path
+):
+    youtube_root = Path(archive_root) / "www.youtube.com"
+    media_root = youtube_root / "_rockpod_media"
+    manifest_path = media_root / "subscriptions.json"
+    try:
+        entries = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except (OSError, TypeError, ValueError):
+        entries = []
+    if not isinstance(entries, list):
+        entries = []
+
+    source_url = str(metadata.get("webpage_url") or "").strip()
+    channel_key = _youtube_channel_key(metadata)
+    channel_name = str(
+        metadata.get("channel") or metadata.get("uploader") or "YouTube Member"
+    ).strip()[:64]
+    item = {
+        "url": source_url,
+        "title": str(metadata.get("title") or "YouTube Video").strip()[:96],
+        "channel_key": channel_key,
+        "channel": channel_name,
+        "watch": _youtube_archive_ref(archive_root, entry_path),
+        "poster": _youtube_archive_ref(archive_root, poster_path),
+        "avatar": _youtube_archive_ref(archive_root, avatar_path),
+        "duration": _youtube_duration(metadata.get("duration")),
+        "upload_date": str(metadata.get("upload_date") or ""),
+    }
+    entries = [
+        value for value in entries
+        if isinstance(value, dict)
+        and str(value.get("url") or "") != source_url
+    ]
+    entries.append(item)
+    entries.sort(
+        key=lambda value: (
+            str(value.get("channel") or "").casefold(),
+            str(value.get("upload_date") or ""),
+            str(value.get("title") or "").casefold(),
+        )
+    )
+    manifest_path.write_text(
+        json.dumps(entries, indent=2, ensure_ascii=False),
+        encoding="utf-8",
+    )
+
+    channels = {}
+    for value in entries:
+        channels.setdefault(str(value.get("channel_key") or ""), []).append(value)
+
+    subscription_lines = [
+        _youtube_page_header("Subscriptions"),
+        "<h1>Subscriptions</h1>\n",
+        "<p>Channels saved on this iPod</p>\n",
+    ]
+    generated = [manifest_path]
+    for key, videos in sorted(
+        channels.items(),
+        key=lambda pair: str(pair[1][0].get("channel") or "").casefold(),
+    ):
+        first = videos[0]
+        channel_file = youtube_root / f"channel-{key}.html"
+        channel_ref = _youtube_archive_ref(archive_root, channel_file)
+        avatar_ref = next(
+            (str(video.get("avatar") or "") for video in videos
+             if video.get("avatar")),
+            "",
+        )
+        subscription_lines.append(
+            '<youtubelink href="{href}" label="{name}"></youtubelink>\n'.format(
+                href=html.escape(channel_ref, quote=True),
+                name=html.escape(
+                    str(first.get("channel") or "YouTube Member"), quote=True
+                ),
+            )
+        )
+        if avatar_ref:
+            subscription_lines.append(
+                '<img src="{src}" alt="{alt}" width="64" height="64" '
+                'data-static="1">\n'.format(
+                    src=html.escape(avatar_ref, quote=True),
+                    alt=html.escape(str(first.get("channel") or ""), quote=True),
+                )
+            )
+        subscription_lines.append(
+            f"<p>{len(videos)} synced video{'s' if len(videos) != 1 else ''}</p>\n"
+        )
+
+        channel_lines = [
+            _youtube_page_header(str(first.get("channel") or "Channel")),
+        ]
+        if avatar_ref:
+            channel_lines.append(
+                '<img src="{src}" alt="{alt}" width="64" height="64" '
+                'data-static="1">\n'.format(
+                    src=html.escape(avatar_ref, quote=True),
+                    alt=html.escape(str(first.get("channel") or ""), quote=True),
+                )
+            )
+        channel_lines.append(
+            f"<h1>{html.escape(str(first.get('channel') or 'YouTube Member'))}</h1>\n"
+        )
+        channel_lines.append("<h2>Videos</h2>\n")
+        for video in reversed(videos):
+            poster_ref = str(video.get("poster") or "")
+            if poster_ref:
+                channel_lines.append(
+                    '<img src="{src}" alt="{alt}" width="120" height="90" '
+                    'data-static="1">\n'.format(
+                        src=html.escape(poster_ref, quote=True),
+                        alt=html.escape(str(video.get("title") or ""), quote=True),
+                    )
+                )
+            channel_lines.append(
+                '<youtubelink href="{href}" label="{title}{duration}">'
+                "</youtubelink>\n".format(
+                    href=html.escape(str(video.get("watch") or ""), quote=True),
+                    title=html.escape(
+                        str(video.get("title") or "YouTube Video"), quote=True
+                    ),
+                    duration=(
+                        " (" +
+                        html.escape(str(video.get("duration")), quote=True) +
+                        ")"
+                        if video.get("duration") else ""
+                    ),
+                )
+            )
+        channel_lines.append("</body></html>\n")
+        channel_file.write_text("".join(channel_lines), encoding="utf-8")
+        generated.append(channel_file)
+
+    subscriptions_path = youtube_root / "subscriptions.html"
+    subscription_lines.append("</body></html>\n")
+    subscriptions_path.write_text(
+        "".join(subscription_lines),
+        encoding="utf-8",
+    )
+    generated.append(subscriptions_path)
+    for path in generated:
+        _track_cache_file(path)
+
+
+def _youtube_watch_html(metadata, video_ref, frame_file, frame_count):
+    title = str(metadata.get("title") or "YouTube Video").strip()[:72]
+    uploader = str(
+        metadata.get("uploader") or metadata.get("channel") or "YouTube Member"
+    ).strip()[:48]
+    upload_date = str(
+        metadata.get("upload_date") or metadata.get("release_date") or ""
+    )
+    if len(upload_date) == 8 and upload_date.isdigit():
+        upload_date = (
+            f"{upload_date[4:6]}/{upload_date[6:8]}/{upload_date[:4]}"
+        )
+    duration = _youtube_duration(metadata.get("duration"))
+    view_count = metadata.get("view_count")
+    try:
+        views = f"{int(view_count):,} views"
+    except (TypeError, ValueError):
+        views = ""
+    return (
+        "<!DOCTYPE html>\n"
+        "<html><head>"
+        f"<title>{html.escape(title)}</title>"
+        '<meta name="rockpod-render-mode" content="youtube-2007">'
+        "<style>"
+        "body{background:#fff;color:#000;font-family:Arial,sans-serif}"
+        ".topnav{color:#03c;border-bottom:1px solid #ccc}"
+        ".watch-meta{background:#e6f1fa;color:#333}"
+        "h1{font-size:18px}"
+        "</style></head><body>\n"
+        '<youtube2007 '
+        f'video="{html.escape(video_ref, quote=True)}" '
+        f'frame-file="{html.escape(frame_file, quote=True)}" '
+        f'frame-count="{int(frame_count)}" '
+        f'title="{html.escape(title, quote=True)}" '
+        f'uploader="{html.escape(uploader, quote=True)}" '
+        f'added="{html.escape(upload_date, quote=True)}" '
+        f'duration="{html.escape(duration, quote=True)}" '
+        f'views="{html.escape(views, quote=True)}">'
+        "</youtube2007>\n"
+        "</body></html>\n"
+    )
+
+
+def _sync_youtube_url(url, work_root, archive_root):
+    yt_dlp = shutil.which("yt-dlp")
+    ffmpeg = shutil.which("ffmpeg")
+    if not yt_dlp:
+        return {"success": False, "reason": "yt-dlp-not-found"}
+    if not ffmpeg:
+        return {"success": False, "reason": "ffmpeg-not-found"}
+
+    metadata_result = subprocess.run(
+        [
+            yt_dlp,
+            "--no-playlist",
+            "--dump-single-json",
+            "--skip-download",
+            url,
+        ],
+        text=True,
+        capture_output=True,
+        timeout=120,
+        check=False,
+    )
+    if metadata_result.returncode != 0:
+        reason = (metadata_result.stderr or metadata_result.stdout).strip()
+        return {
+            "success": False,
+            "reason": f"youtube-metadata-failed:{reason[-240:]}",
+        }
+    try:
+        metadata = json.loads(metadata_result.stdout)
+    except (TypeError, ValueError):
+        return {"success": False, "reason": "youtube-metadata-invalid"}
+
+    video_id = re.sub(r"[^A-Za-z0-9_-]+", "", str(metadata.get("id") or ""))
+    video_id = video_id[:24] or hashlib.sha1(url.encode("utf-8")).hexdigest()[:12]
+    download_root = Path(work_root) / "youtube-download"
+    download_root.mkdir(parents=True, exist_ok=True)
+    source_template = download_root / f"{video_id}.%(ext)s"
+    download_result = subprocess.run(
+        [
+            yt_dlp,
+            "--no-playlist",
+            "--merge-output-format",
+            "mp4",
+            "--write-thumbnail",
+            "--convert-thumbnails",
+            "jpg",
+            "-f",
+            "bv*[height<=480]+ba/b[height<=480]/best",
+            "-o",
+            str(source_template),
+            url,
+        ],
+        text=True,
+        capture_output=True,
+        timeout=1800,
+        check=False,
+    )
+    if download_result.returncode != 0:
+        reason = (download_result.stderr or download_result.stdout).strip()
+        return {
+            "success": False,
+            "reason": f"youtube-download-failed:{reason[-240:]}",
+        }
+
+    source_videos = [
+        path for path in download_root.glob(f"{video_id}.*")
+        if path.suffix.lower() in {".mp4", ".mkv", ".webm", ".mov", ".m4v"}
+    ]
+    source_posters = [
+        path for path in download_root.glob(f"{video_id}.*")
+        if path.suffix.lower() in {".jpg", ".jpeg", ".png", ".webp"}
+    ]
+    if not source_videos:
+        return {"success": False, "reason": "youtube-video-missing"}
+    if not source_posters:
+        return {"success": False, "reason": "youtube-thumbnail-missing"}
+
+    media_root = Path(archive_root) / "www.youtube.com" / "_rockpod_media"
+    media_root.mkdir(parents=True, exist_ok=True)
+    video_path = media_root / f"video-{video_id}.mpg"
+    poster_path = media_root / f"poster-{video_id}.jpg"
+    scale = (
+        "scale=320:240:force_original_aspect_ratio=decrease,"
+        "pad=320:240:(ow-iw)/2:(oh-ih)/2:black,fps=20"
+    )
+    transcode_result = subprocess.run(
+        [
+            ffmpeg,
+            "-hide_banner",
+            "-loglevel",
+            "error",
+            "-y",
+            "-i",
+            str(source_videos[-1]),
+            "-vf",
+            scale,
+            "-map",
+            "0:v:0",
+            "-map",
+            "0:a:0?",
+            "-c:v",
+            "mpeg2video",
+            "-pix_fmt",
+            "yuv420p",
+            "-bf",
+            "0",
+            "-g",
+            "12",
+            "-flags",
+            "+low_delay",
+            "-q:v",
+            "8",
+            "-maxrate",
+            "900k",
+            "-bufsize",
+            "512k",
+            "-c:a",
+            "mp2",
+            "-ar",
+            "44100",
+            "-ac",
+            "2",
+            "-b:a",
+            "96k",
+            str(video_path),
+        ],
+        text=True,
+        capture_output=True,
+        timeout=1800,
+        check=False,
+    )
+    if transcode_result.returncode != 0 or not video_path.is_file():
+        reason = (transcode_result.stderr or transcode_result.stdout).strip()
+        return {
+            "success": False,
+            "reason": f"youtube-transcode-failed:{reason[-240:]}",
+        }
+
+    shutil.copy2(source_posters[-1], poster_path)
+    _convert_image_sidecar(poster_path)
+    frame_path = media_root / f"inline-{video_id}.bin"
+    frame_result = subprocess.run(
+        [
+            ffmpeg,
+            "-hide_banner",
+            "-loglevel",
+            "error",
+            "-y",
+            "-i",
+            str(video_path),
+            "-vf",
+            (
+                "fps=24,scale=210:158:force_original_aspect_ratio=decrease,"
+                "pad=210:158:(ow-iw)/2:(oh-ih)/2:black"
+            ),
+            "-pix_fmt",
+            "rgb565le",
+            "-f",
+            "rawvideo",
+            str(frame_path),
+        ],
+        text=True,
+        capture_output=True,
+        timeout=180,
+        check=False,
+    )
+    frame_size = 210 * 158 * 2
+    frame_count = (
+        frame_path.stat().st_size // frame_size
+        if frame_path.is_file() else 0
+    )
+    if frame_result.returncode != 0 or frame_count <= 0:
+        reason = (frame_result.stderr or frame_result.stdout).strip()
+        return {
+            "success": False,
+            "reason": f"youtube-frames-failed:{reason[-240:]}",
+        }
+    video_ref = (
+        "/.rockbox/offlineweb/archive/www.youtube.com/_rockpod_media/"
+        + video_path.name
+    )
+    poster_ref = (
+        "/.rockbox/offlineweb/archive/www.youtube.com/_rockpod_media/"
+        + poster_path.name
+    )
+    frame_ref = (
+        "/.rockbox/offlineweb/archive/www.youtube.com/_rockpod_media/"
+        + frame_path.name
+    )
+    metadata_path = media_root / f"video-{video_id}.ytm"
+    uploader = str(
+        metadata.get("uploader") or metadata.get("channel") or "YouTube Member"
+    ).strip()
+    upload_date = str(
+        metadata.get("upload_date") or metadata.get("release_date") or ""
+    )
+    if len(upload_date) == 8 and upload_date.isdigit():
+        upload_date = (
+            f"{upload_date[4:6]}/{upload_date[6:8]}/{upload_date[:4]}"
+        )
+    try:
+        views = f"{int(metadata.get('view_count')):,} views"
+    except (TypeError, ValueError):
+        views = ""
+    metadata_path.write_text(
+        "\n".join(
+            (
+                "title=" + str(metadata.get("title") or "YouTube Video")[:63],
+                "uploader=" + uploader[:39],
+                "added=" + upload_date[:23],
+                "views=" + views[:31],
+                "duration=Time " + _youtube_duration(metadata.get("duration")),
+            )
+        ) + "\n",
+        encoding="utf-8",
+    )
+    html_text = _youtube_watch_html(
+        metadata, video_ref, frame_ref, frame_count
+    )
+    entry_path = _write_url_record(
+        archive_root,
+        url,
+        html_text.encode("utf-8"),
+        content_type="text/html",
+    )
+    if not entry_path:
+        return {"success": False, "reason": "youtube-page-write-failed"}
+    avatar_path = _youtube_channel_avatar(
+        metadata, work_root, media_root, ffmpeg
+    )
+    _write_youtube_subscription_pages(
+        archive_root,
+        metadata,
+        entry_path,
+        poster_path,
+        avatar_path,
+    )
+    _track_cache_file(video_path)
+    _track_cache_file(poster_path)
+    _track_cache_file(Path(str(poster_path) + ".bmp"))
+    if avatar_path:
+        _track_cache_file(avatar_path)
+        _track_cache_file(Path(str(avatar_path) + ".bmp"))
+    _track_cache_file(frame_path)
+    _track_cache_file(metadata_path)
+    return {
+        "success": True,
+        "source": "youtube-url",
+        "html_saved": 1,
+        "assets_saved": 7 if avatar_path else 5,
+        "title": str(metadata.get("title") or "YouTube Video"),
+        "entry_path": str(entry_path),
+        "preview_path": str(poster_path),
+    }
+
+
+def _sync_single_url(url, work_root, archive_root, log_handle,
+                     firefox_profile=Path(), use_firefox_cookies=True,
+                     oldest_date=""):
     normalized = _normalize_url(url)
     if not normalized:
         return {"url": str(url or ""), "success": False, "reason": "invalid-url"}
 
     parsed = urlsplit(normalized)
     _purge_url_records(archive_root, normalized)
+    if _is_youtube_url(normalized):
+        return {
+            "url": normalized,
+            **_sync_youtube_url(normalized, work_root, archive_root),
+        }
     hosts = {parsed.netloc.lower()}
     snapshot_url = ""
     archive_id = ""
@@ -1694,13 +2651,21 @@ def _sync_single_url(url, work_root, archive_root, log_handle, firefox_profile=P
     assets_saved = 0
 
     if shutil.which("firefox"):
-        browser_result = _sync_browser_export(
-            normalized,
-            work_root,
-            archive_root,
-            firefox_profile,
-            use_firefox_cookies=use_firefox_cookies,
-        )
+        try:
+            browser_result = _sync_browser_export(
+                normalized,
+                work_root,
+                archive_root,
+                firefox_profile,
+                use_firefox_cookies=use_firefox_cookies,
+                oldest_date=oldest_date,
+            )
+        except Exception as exc:
+            browser_result = {"success": False, "reason": f"exception:{exc}"}
+            log_handle.write(
+                f"browser export failed for {normalized}: {exc}\n"
+            )
+            traceback.print_exc(file=log_handle)
         if browser_result.get("success"):
             return {
                 "url": normalized,
@@ -1713,18 +2678,28 @@ def _sync_single_url(url, work_root, archive_root, log_handle, firefox_profile=P
                 "title": browser_result.get("title") or "",
                 "entry_path": browser_result.get("entry_path") or "",
                 "preview_path": browser_result.get("preview_path") or "",
+                "oldest_date": oldest_date,
             }
         log_handle.write(
             "browser export skipped for "
             f"{normalized}: {browser_result.get('reason', 'unknown')}\n"
         )
 
-    live_result = _sync_live_url(
-        normalized,
-        archive_root,
-        firefox_profile,
-        use_firefox_cookies=use_firefox_cookies,
-    )
+    try:
+        live_result = _sync_live_url(
+            normalized,
+            archive_root,
+            firefox_profile,
+            use_firefox_cookies=use_firefox_cookies,
+        )
+    except Exception as exc:
+        live_result = {
+            "success": False,
+            "reason": f"exception:{exc}",
+            "cookie_count": 0,
+        }
+        log_handle.write(f"live fetch failed for {normalized}: {exc}\n")
+        traceback.print_exc(file=log_handle)
     if live_result.get("success"):
         return {
             "url": normalized,
@@ -1743,12 +2718,23 @@ def _sync_single_url(url, work_root, archive_root, log_handle, firefox_profile=P
     )
 
     if use_firefox_cookies and firefox_profile and not live_result.get("cookie_count"):
-        live_result = _sync_live_url(
-            normalized,
-            archive_root,
-            firefox_profile,
-            use_firefox_cookies=False,
-        )
+        try:
+            live_result = _sync_live_url(
+                normalized,
+                archive_root,
+                firefox_profile,
+                use_firefox_cookies=False,
+            )
+        except Exception as exc:
+            live_result = {
+                "success": False,
+                "reason": f"exception:{exc}",
+                "cookie_count": 0,
+            }
+            log_handle.write(
+                f"public live fetch failed for {normalized}: {exc}\n"
+            )
+            traceback.print_exc(file=log_handle)
         if live_result.get("success"):
             return {
                 "url": normalized,
@@ -1862,7 +2848,166 @@ def _sync_single_url(url, work_root, archive_root, log_handle, firefox_profile=P
     }
 
 
-def sync_websites(urls, device_root, output_path, log_path, use_firefox_cookies=True, firefox_profile_path=""):
+def _merge_pages_catalog(pages_path, managed_entries, device_root):
+    header = (
+        "# title\turl\tpath\tsource\tneighborhood\t"
+        "author\tarchived\tkeywords\n"
+    )
+    rows = {}
+    order = []
+
+    try:
+        existing_lines = Path(pages_path).read_text(
+            encoding="utf-8", errors="ignore"
+        ).splitlines()
+    except OSError:
+        existing_lines = []
+
+    for line in existing_lines:
+        if not line or line.startswith("#"):
+            continue
+        fields = line.split("\t")
+        if len(fields) < 3 or not fields[2]:
+            continue
+        fields.extend([""] * (8 - len(fields)))
+        path = fields[2]
+        if path not in rows:
+            order.append(path)
+        rows[path] = fields[:8]
+
+    if managed_entries:
+        rows = {}
+        order = []
+
+    managed_paths = {
+        str(item.get("path") or "")
+        for item in managed_entries
+        if item.get("path")
+    }
+    managed_hosts = {
+        urlsplit(str(item.get("url") or "")).netloc.lower().removeprefix("www.")
+        for item in managed_entries
+        if item.get("url")
+    }
+    for path, fields in list(rows.items()):
+        row_host = urlsplit(str(fields[1] or "")).netloc.lower().removeprefix(
+            "www."
+        )
+        if row_host in managed_hosts and path not in managed_paths:
+            rows.pop(path, None)
+
+    youtube_entries = [
+        item for item in managed_entries
+        if _is_youtube_url(str(item.get("url") or ""))
+    ]
+    social_entries = {
+        site: [
+            item for item in managed_entries
+            if _social_site(str(item.get("url") or ""))[0] == site
+        ]
+        for site in ("instagram", "onlyfans")
+    }
+    for item in managed_entries:
+        if (
+            _is_youtube_url(str(item.get("url") or ""))
+            or _social_site(str(item.get("url") or ""))[0]
+        ):
+            continue
+        path = str(item.get("path") or "")
+        if not path:
+            continue
+        absolute = Path(device_root) / path.lstrip("/")
+        if not absolute.is_file():
+            continue
+        fields = [
+            str(item.get("title") or urlsplit(item.get("url") or "").netloc),
+            str(item.get("url") or ""),
+            path,
+            "Website Sync",
+            "",
+            "",
+            str(item.get("synced_at") or "")[:10],
+            "",
+        ]
+        if path not in rows:
+            order.append(path)
+        rows[path] = fields
+
+    if youtube_entries:
+        path = (
+            "/.rockbox/offlineweb/archive/www.youtube.com/"
+            "subscriptions.html"
+        )
+        absolute = Path(device_root) / path.lstrip("/")
+        if absolute.is_file():
+            fields = [
+                "YouTube",
+                "https://www.youtube.com/feed/subscriptions",
+                path,
+                "Website Sync",
+                "Subscriptions",
+                "",
+                max(
+                    str(item.get("synced_at") or "")[:10]
+                    for item in youtube_entries
+                ),
+                "youtube,video,channels",
+            ]
+            if path not in rows:
+                order.append(path)
+            rows[path] = fields
+
+    for site, entries in social_entries.items():
+        if not entries:
+            continue
+        first_url = str(entries[0].get("url") or "")
+        host = urlsplit(first_url).netloc.lower()
+        path = (
+            f"/.rockbox/offlineweb/archive/{host}/profiles.html"
+        )
+        absolute = Path(device_root) / path.lstrip("/")
+        if not absolute.is_file():
+            path = str(entries[0].get("path") or "")
+            absolute = Path(device_root) / path.lstrip("/")
+            if not path or not absolute.is_file():
+                continue
+        title = "Instagram" if site == "instagram" else "OnlyFans"
+        fields = [
+            title,
+            f"https://{host}/profiles",
+            path,
+            "Website Sync",
+            "Profiles",
+            "",
+            max(
+                str(item.get("synced_at") or "")[:10]
+                for item in entries
+            ),
+            f"{site},profiles,photos",
+        ]
+        if path not in rows:
+            order.append(path)
+        rows[path] = fields
+
+    Path(pages_path).parent.mkdir(parents=True, exist_ok=True)
+    with Path(pages_path).open("w", encoding="utf-8", newline="\n") as out:
+        out.write(header)
+        for path in order:
+            fields = rows.get(path)
+            if not fields:
+                continue
+            out.write(
+                "\t".join(
+                    str(value).replace("\t", " ").replace("\n", " ")
+                    for value in fields
+                )
+                + "\n"
+            )
+
+
+def sync_websites(urls, device_root, output_path, log_path,
+                  use_firefox_cookies=True, firefox_profile_path="",
+                  oldest_date=""):
     global _ACTIVE_CACHE_FILES
 
     device_root = os.path.abspath(os.path.expanduser(str(device_root or "").strip()))
@@ -1893,6 +3038,7 @@ def sync_websites(urls, device_root, output_path, log_path, use_firefox_cookies=
             if removed_bad:
                 log_handle.write(f"removed_bad_html_captures={removed_bad}\n")
             for raw in urls:
+                log_handle.write(f"sync_url={raw}\n")
                 _ACTIVE_CACHE_FILES = set()
                 try:
                     result = _sync_single_url(
@@ -1902,6 +3048,7 @@ def sync_websites(urls, device_root, output_path, log_path, use_firefox_cookies=
                         log_handle,
                         firefox_profile=firefox_profile,
                         use_firefox_cookies=use_firefox_cookies,
+                        oldest_date=oldest_date,
                     )
                     cached_files = []
                     for cached_path in sorted(_ACTIVE_CACHE_FILES):
@@ -1913,6 +3060,19 @@ def sync_websites(urls, device_root, output_path, log_path, use_firefox_cookies=
                             "/.rockbox/offlineweb/archive/" + relative.as_posix()
                         )
                     result["files"] = cached_files
+                except Exception as exc:
+                    normalized = _normalize_url(raw)
+                    result = {
+                        "url": normalized or str(raw or ""),
+                        "success": False,
+                        "source": "error",
+                        "reason": f"{type(exc).__name__}: {exc}",
+                        "files": [],
+                    }
+                    log_handle.write(
+                        f"sync failed for {normalized or raw}: {exc}\n"
+                    )
+                    traceback.print_exc(file=log_handle)
                 finally:
                     _ACTIVE_CACHE_FILES = None
                 results.append(result)
@@ -1998,6 +3158,7 @@ def sync_websites(urls, device_root, output_path, log_path, use_firefox_cookies=
                 ),
                 "source": item.get("source") or "",
                 "synced_at": time.strftime("%Y-%m-%d %H:%M:%S"),
+                "oldest_date": str(item.get("oldest_date") or ""),
                 "files": sorted(new_files),
             }
         cache_root.mkdir(parents=True, exist_ok=True)
@@ -2005,23 +3166,11 @@ def sync_websites(urls, device_root, output_path, log_path, use_firefox_cookies=
             json.dumps(list(by_url.values()), indent=2),
             encoding="utf-8",
         )
-        with (cache_root / "pages.tsv").open("w", encoding="utf-8", newline="\n") as out:
-            out.write(
-                "# title\turl\tpath\tsource\tneighborhood\tauthor\tarchived\tkeywords\n"
-            )
-            for item in by_url.values():
-                fields = (
-                    item.get("title") or urlsplit(item.get("url") or "").netloc,
-                    item.get("url") or "",
-                    item.get("path") or "",
-                    "Website Sync",
-                    "",
-                    "",
-                    str(item.get("synced_at") or "")[:10],
-                    "",
-                )
-                out.write("\t".join(clean.replace("\t", " ").replace("\n", " ")
-                                    for clean in map(str, fields)) + "\n")
+        _merge_pages_catalog(
+            cache_root / "pages.tsv",
+            list(by_url.values()),
+            device_root,
+        )
         runtime_assets_saved = _install_runtime_assets(device_root)
         removed_device_bad = _remove_bad_html_captures(
             Path(device_root) / ".rockbox" / "offlineweb" / "archive"
@@ -2055,6 +3204,7 @@ def main():
     parser.add_argument("--log-path", required=True)
     parser.add_argument("--use-firefox-cookies", action="store_true")
     parser.add_argument("--firefox-profile", default="")
+    parser.add_argument("--oldest-date", default="")
     args = parser.parse_args()
 
     summary = sync_websites(
@@ -2064,6 +3214,7 @@ def main():
         args.log_path,
         use_firefox_cookies=args.use_firefox_cookies,
         firefox_profile_path=args.firefox_profile,
+        oldest_date=args.oldest_date,
     )
     print(
         "Synced {completed}/{requested} websites (html={html_saved}, assets={assets_saved})".format(

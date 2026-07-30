@@ -45,6 +45,9 @@
 #include "storage.h"
 #include "shortcuts.h"
 #include "version.h"
+#ifdef IPOD_ACCESSORY_PROTOCOL
+#include "iap.h"
+#endif
 
 #ifdef HAVE_HOTSWAP
 #include "mv.h"
@@ -116,6 +119,8 @@ static bool root_menu_video_handle_tree_stop(int action, bool *redraw);
 static void root_menu_video_prepare_netflix_logo(void);
 static void root_menu_video_prepare_netflix_browser_logo(void);
 static struct bitmap *root_menu_video_netflix_logo_small_cached(void);
+static void root_menu_video_prepare_netflix_watched_badge(void);
+static struct bitmap *root_menu_video_netflix_watched_cached(void);
 static int ipodjs_video_wps(void);
 static bool ipodjs_video_wps_empty(const char *title, const char *message,
                                    bool allow_replay);
@@ -488,6 +493,11 @@ static int browser(void* param)
 #define VIDEO_LIST_ROOT ROCKBOX_DIR "/videolist"
 #define VIDEO_LIST_LOCK_PIN VIDEO_LIST_ROOT "/locked.pin"
 #define VIDEO_LIST_NETFLIX_LAST VIDEO_LIST_ROOT "/netflix-last.path"
+#define VIDEO_LIST_NETFLIX_WATCHED VIDEO_LIST_ROOT "/netflix-watched.tsv"
+/* Watched paths are held as CRCs, not strings: 256 CRCs cost 1 KiB where the
+ * paths themselves would cost well over 100 KiB. A collision would show one
+ * spurious checkmark, which is the cheapest possible failure here. */
+#define VIDEO_LIST_WATCHED_MAX 256
 #define VIDEO_LIST_MPEG_RESUME \
     ROCKBOX_DIR "/rocks/apps/mpegplayer.cfg"
 #define VIDEO_LIST_RVP_RESUME \
@@ -502,10 +512,15 @@ static int browser(void* param)
 #define VIDEO_LIST_NETFLIX_DETAIL_W 96
 #define VIDEO_LIST_NETFLIX_DETAIL_H 144
 #define VIDEO_LIST_NETFLIX_LANDING_CACHE 3
-/* Netflix brand red (#E50914) and a single derived gradient/shade family,
- * reused everywhere the Netflix appearance draws a red accent. */
-#define VIDEO_LIST_NETFLIX_RED       LCD_RGBPACK(229, 9, 20)
-#define VIDEO_LIST_NETFLIX_RED_DARK  LCD_RGBPACK(140, 6, 13)
+#define VIDEO_LIST_NETFLIX_WATCHED_SIZE 16
+/* Netflix brand red and a single derived gradient/shade family, reused
+ * everywhere the Netflix appearance draws a red accent. #B4131D is the
+ * dominant red measured across the shipped period wordmark
+ * netflix-logo-2001.150x70x24.bmp, so the top bar and the iPodJS home right
+ * pane match the logo drawn on them. The modern ribbon red #E50914 belongs to
+ * a later mark and is deliberately not used here. */
+#define VIDEO_LIST_NETFLIX_RED       LCD_RGBPACK(180, 19, 29)
+#define VIDEO_LIST_NETFLIX_RED_DARK  LCD_RGBPACK(112, 12, 18)
 #define VIDEO_LIST_ART_ID_LEN 25
 #define VIDEO_LIST_LOCK_ART_ID "__locked__"
 #define VIDEO_LIST_MOVIES_ART_ID "__netflix_movies__"
@@ -549,6 +564,7 @@ struct video_entry
     int year;
     bool is_resume;
     unsigned resume_percent;
+    bool watched;    /* Played to the end at least once */
 };
 
 struct video_rvp_resume_record
@@ -644,6 +660,9 @@ static unsigned char video_netflix_detail_data[
             FORMAT_NATIVE, false)];
 static bool video_netflix_detail_valid;
 static char video_netflix_detail_art_id[VIDEO_LIST_ART_ID_LEN];
+/* Description shown on the landing screen for the selected row, resolved at
+ * the bounded service point so the draw only reads cached text. */
+static char video_netflix_landing_plot[192];
 #endif
 
 #ifdef HAVE_IPODJS_UI
@@ -748,6 +767,27 @@ static bool video_parse_manifest_line_v5(const char *line, char *parsed,
 {
     strmemccpy(parsed, line, parsed_size);
     return video_split_tsv(parsed, fields, 22);
+}
+
+/* v6 appended show_plot. A device still holding a v5 manifest must keep
+ * working, so fall back to the shorter split and report an empty synopsis
+ * rather than losing the row's show and season art. */
+static bool video_parse_manifest_line_v6(const char *line, char *parsed,
+                                         size_t parsed_size,
+                                         char *fields[23])
+{
+    static char empty_field[] = "";
+
+    strmemccpy(parsed, line, parsed_size);
+    if (video_split_tsv(parsed, fields, 23))
+        return true;
+
+    strmemccpy(parsed, line, parsed_size);
+    if (!video_split_tsv(parsed, fields, 22))
+        return false;
+
+    fields[22] = empty_field;
+    return true;
 }
 
 static void video_manifest_hierarchy_art_id(
@@ -1696,6 +1736,71 @@ static bool video_netflix_resume_progress(struct video_entry *entry)
     entry->resume_percent = MAX(1u, MIN(percent, 94u));
     return true;
 }
+
+#if defined(HAVE_LCD_COLOR) && defined(HAVE_IPODJS_UI)
+static uint32_t video_netflix_watched_crc[VIDEO_LIST_WATCHED_MAX];
+static int video_netflix_watched_count;
+
+/* Read the completion record written by the players. mpegplayer clears its
+ * resume point at end of stream, so "finished" cannot be recovered from
+ * resume data and is tracked separately. */
+static void video_netflix_load_watched(void)
+{
+    char line[MAX_PATH];
+    int fd;
+
+    video_netflix_watched_count = 0;
+    fd = open(VIDEO_LIST_NETFLIX_WATCHED, O_RDONLY);
+    if (fd < 0)
+        return;
+
+    while (video_netflix_watched_count < VIDEO_LIST_WATCHED_MAX &&
+           read_line(fd, line, sizeof(line)) > 0)
+    {
+        video_trim_line(line);
+        if (line[0] != '/')
+            continue;
+        video_netflix_watched_crc[video_netflix_watched_count++] =
+            crc_32(line, strlen(line), 0xffffffff);
+    }
+    close(fd);
+}
+
+static bool video_netflix_path_watched(const char *path)
+{
+    uint32_t crc;
+    int i;
+
+    if (!path || path[0] != '/')
+        return false;
+    crc = crc_32(path, strlen(path), 0xffffffff);
+    for (i = 0; i < video_netflix_watched_count; i++)
+    {
+        if (video_netflix_watched_crc[i] == crc)
+            return true;
+    }
+    return false;
+}
+
+/* Stamp the loaded list once per scan. Draw callbacks then only read a bool,
+ * never the storage. */
+static void videos_netflix_apply_watched(struct video_browser_state *state)
+{
+    int i;
+
+    if (!state)
+        return;
+    for (i = 0; i < state->count; i++)
+    {
+        struct video_entry *entry = &state->entries[i];
+
+        /* Both players delete their resume record once a title is finished,
+         * so completion is only ever known from the shared watched list. */
+        entry->watched = !entry->is_directory && entry->playable &&
+                         video_netflix_path_watched(entry->path);
+    }
+}
+#endif
 
 static int video_launch_entry_at(const struct video_entry *entry,
                                  bool from_beginning)
@@ -2978,13 +3083,13 @@ static void video_load_netflix_detail(const struct video_entry *entry,
         while (read_line(fd, line, sizeof(line)) > 0)
         {
             char parsed[VIDEO_LIST_MANIFEST_LINE_MAX];
-            char *fields[20];
+            char *fields[23];
             const char *device_path;
 
             video_trim_line(line);
             if (line[0] == '#' || line[0] == '\0' ||
                 strncmp(line, "video_id\t", 9) == 0 ||
-                !video_parse_manifest_line_v4(line, parsed,
+                !video_parse_manifest_line_v6(line, parsed,
                                               sizeof(parsed), fields))
                 continue;
 
@@ -3000,6 +3105,10 @@ static void video_load_netflix_detail(const struct video_entry *entry,
                        sizeof(detail->plot));
             strmemccpy(detail->content_rating, fields[17],
                        sizeof(detail->content_rating));
+            /* A row with no plot of its own still describes its series, so
+             * every title ends up with something to read. */
+            if (!detail->plot[0])
+                strmemccpy(detail->plot, fields[22], sizeof(detail->plot));
             if (fields[19][0] &&
                 strcmp(entry->art_id, VIDEO_LIST_LOCK_ART_ID))
                 snprintf(poster_path, sizeof(poster_path), "%s/%s",
@@ -3232,15 +3341,31 @@ static int video_netflix_detail_screen(struct video_entry *entry)
     struct video_netflix_detail detail;
     struct viewport vp;
     int selected_action = 0;
+    bool repaint_pending = false;
 
     root_menu_video_prepare_netflix_browser_logo();
     video_load_netflix_detail(entry, &detail);
     viewportmanager_theme_enable(SCREEN_MAIN, false, &vp);
     video_draw_netflix_detail(entry, &detail, selected_action);
+    /* One update does not reliably reach the panel, which would leave the
+     * previous screen showing. Repaint once more on the first idle tick;
+     * everything it paints is already cached. */
+    repaint_pending = true;
 
     while (true)
     {
         int action = get_action(CONTEXT_STD, HZ / 4);
+
+        if (action == ACTION_NONE)
+        {
+            if (repaint_pending)
+            {
+                repaint_pending = false;
+                video_draw_netflix_detail(entry, &detail, selected_action);
+            }
+            continue;
+        }
+        repaint_pending = true;
 
         switch (action)
         {
@@ -3325,8 +3450,121 @@ static void video_draw_netflix_cover_placeholder(struct screen *display,
                        width - 8, "NETFLIX", true);
 }
 
+/* Corner badge for a title that has been played to the end. Cached pixels
+ * only; the asset is loaded when the browser is entered. */
+static void video_draw_netflix_watched_badge(struct screen *display,
+                                             const struct video_entry *entry,
+                                             int x, int y, int width)
+{
+    struct bitmap *badge;
+
+    if (!entry || !entry->watched)
+        return;
+    badge = root_menu_video_netflix_watched_cached();
+    if (!badge)
+        return;
+    display->bmp_part(badge, 0, 0,
+                      x + width - badge->width - 3, y + 3,
+                      badge->width, badge->height);
+}
+
+/* Wide "continue watching" card. Both actions live on it, side by side, and
+ * the wheel steps between them as two extra stops in the row carousel. */
+static void video_draw_netflix_resume_card(struct screen *display,
+                                           const struct video_entry *entry,
+                                           int resume_action)
+{
+    const int card_x = 8;
+    const int card_y = 50;
+    const int card_w = display->lcdwidth - 16;
+    const int card_h = 112;
+    const int poster_x = card_x + 4;
+    const int poster_y = card_y + 2;
+    const int text_x = poster_x + VIDEO_LIST_NETFLIX_LANDING_W + 10;
+    const int text_w = card_x + card_w - text_x - 6;
+    const int bar_y = card_y + 74;
+    const int pill_y = 174;
+    const int pill_w = (card_w - 8) / 2;
+    const int pill_h = 30;
+    const char * const pill_text[2] = { "RESUME", "PLAY FROM BEGINNING" };
+    struct bitmap *art;
+    char metadata[64];
+    int progress_width;
+    int pill;
+
+    display->set_foreground(LCD_RGBPACK(24, 24, 24));
+    display->fillrect(card_x, card_y, card_w, card_h);
+
+    art = video_netflix_landing_art(entry);
+    if (video_netflix_detail_valid &&
+        !strcmp(video_netflix_detail_art_id, entry->art_id))
+        display->bmp_part(&video_netflix_detail_bm, 0, 0,
+                          poster_x, poster_y,
+                          VIDEO_LIST_NETFLIX_LANDING_W,
+                          VIDEO_LIST_NETFLIX_LANDING_H);
+    else if (art)
+        display->bmp_part(art, 0, 0, poster_x, poster_y,
+                          art->width, art->height);
+    else
+        video_draw_netflix_cover_placeholder(
+            display, poster_x, poster_y,
+            VIDEO_LIST_NETFLIX_LANDING_W,
+            VIDEO_LIST_NETFLIX_LANDING_H);
+
+    display->setfont(ipodjs_ui_font());
+    display->set_foreground(LCD_WHITE);
+    display->set_background(LCD_RGBPACK(24, 24, 24));
+    ipodjs_ui_puts_fit(display, text_x, card_y + 8, text_w,
+                       entry->title, false);
+
+    progress_width = (text_w * entry->resume_percent) / 100;
+    display->set_foreground(LCD_RGBPACK(58, 58, 58));
+    display->fillrect(text_x, bar_y, text_w, 5);
+    display->set_foreground(VIDEO_LIST_NETFLIX_RED);
+    display->fillrect(text_x, bar_y, MAX(2, progress_width), 5);
+
+    snprintf(metadata, sizeof(metadata), "CONTINUE FROM %u%%",
+             entry->resume_percent);
+    display->setfont(FONT_SYSFIXED);
+    display->set_foreground(LCD_RGBPACK(178, 178, 178));
+    ipodjs_ui_puts_fit(display, text_x, bar_y + 10, text_w,
+                       metadata, false);
+
+    display->setfont(ipodjs_ui_font());
+    for (pill = 0; pill < 2; pill++)
+    {
+        int pill_x = card_x + pill * (pill_w + 8);
+
+        if (resume_action == pill)
+        {
+            display->set_foreground(LCD_WHITE);
+            display->fillrect(pill_x, pill_y, pill_w, pill_h);
+            display->set_foreground(LCD_BLACK);
+            display->set_background(LCD_WHITE);
+        }
+        else
+        {
+            display->set_foreground(LCD_RGBPACK(49, 49, 49));
+            display->fillrect(pill_x, pill_y, pill_w, pill_h);
+            display->set_foreground(LCD_RGBPACK(106, 106, 106));
+            display->drawrect(pill_x, pill_y, pill_w, pill_h);
+            display->set_foreground(LCD_WHITE);
+            display->set_background(LCD_RGBPACK(49, 49, 49));
+        }
+        ipodjs_ui_puts_fit(display, pill_x + 5, pill_y + 6,
+                           pill_w - 10, pill_text[pill], true);
+    }
+
+    display->setfont(FONT_SYSFIXED);
+    display->set_foreground(LCD_RGBPACK(165, 165, 165));
+    display->set_background(LCD_RGBPACK(11, 11, 11));
+    ipodjs_ui_puts_fit(display, 8, 222, display->lcdwidth - 16,
+                       "SCROLL  Choose     SELECT  Play", true);
+}
+
 static void video_draw_netflix_landing(
-    const struct video_browser_state *state, int selected)
+    const struct video_browser_state *state, int selected,
+    int resume_action)
 {
     struct screen *display = &screens[SCREEN_MAIN];
     struct bitmap *logo = root_menu_video_netflix_logo_small_cached();
@@ -3373,6 +3611,17 @@ static void video_draw_netflix_landing(
     }
 
     selected = MAX(0, MIN(selected, state->count - 1));
+
+    /* The resume title gets a wide card of its own with both actions on it.
+     * It replaces the carousel because it occupies the neighbours' columns. */
+    if (state->entries[selected].is_resume)
+    {
+        video_draw_netflix_resume_card(display, &state->entries[selected],
+                                       resume_action);
+        display->update();
+        return;
+    }
+
     if (state->count > 1)
     {
         int previous = (selected + state->count - 1) % state->count;
@@ -3386,6 +3635,9 @@ static void video_draw_netflix_landing(
                 display, left_x, side_y,
                 VIDEO_LIST_NETFLIX_LANDING_W,
                 VIDEO_LIST_NETFLIX_LANDING_H);
+        video_draw_netflix_watched_badge(
+            display, &state->entries[previous], left_x,
+            side_y, VIDEO_LIST_NETFLIX_LANDING_W);
     }
 
     if (state->count > 2)
@@ -3401,6 +3653,9 @@ static void video_draw_netflix_landing(
                 display, right_x, side_y,
                 VIDEO_LIST_NETFLIX_LANDING_W,
                 VIDEO_LIST_NETFLIX_LANDING_H);
+        video_draw_netflix_watched_badge(
+            display, &state->entries[next], right_x, side_y,
+            VIDEO_LIST_NETFLIX_LANDING_W);
     }
 
     display->set_foreground(VIDEO_LIST_NETFLIX_RED);
@@ -3430,27 +3685,9 @@ static void video_draw_netflix_landing(
                 art->width, art->height);
     }
 
-    if (state->entries[selected].is_resume)
-    {
-        int progress_width =
-            (VIDEO_LIST_NETFLIX_DETAIL_W *
-             state->entries[selected].resume_percent) / 100;
-
-        display->set_foreground(LCD_RGBPACK(18, 18, 18));
-        display->fillrect(center_x, center_y +
-                          VIDEO_LIST_NETFLIX_DETAIL_H - 5,
-                          VIDEO_LIST_NETFLIX_DETAIL_W, 5);
-        display->set_foreground(VIDEO_LIST_NETFLIX_RED);
-        display->fillrect(center_x, center_y +
-                          VIDEO_LIST_NETFLIX_DETAIL_H - 5,
-                          MAX(2, progress_width), 5);
-        display->fillrect(center_x + 5, center_y + 5, 47, 15);
-        display->setfont(FONT_SYSFIXED);
-        display->set_foreground(LCD_WHITE);
-        display->set_background(VIDEO_LIST_NETFLIX_RED);
-        ipodjs_ui_puts_fit(display, center_x + 8, center_y + 8,
-                           41, "RESUME", true);
-    }
+    video_draw_netflix_watched_badge(display, &state->entries[selected],
+                                     center_x, center_y,
+                                     VIDEO_LIST_NETFLIX_DETAIL_W);
 
     display->setfont(ipodjs_ui_font());
     display->set_foreground(LCD_WHITE);
@@ -3459,9 +3696,11 @@ static void video_draw_netflix_landing(
                        display->lcdwidth - 16,
                        state->entries[selected].title, true);
 
-    if (state->entries[selected].is_resume)
-        snprintf(metadata, sizeof(metadata), "CONTINUE FROM %u%%",
-                 state->entries[selected].resume_percent);
+    /* A show or season has no metadata row of its own, so its synopsis takes
+     * this line. Select-hold opens the full text. */
+    if (state->entries[selected].is_directory &&
+        video_netflix_landing_plot[0])
+        strmemccpy(metadata, video_netflix_landing_plot, sizeof(metadata));
     else if (state->entries[selected].is_directory)
         strmemccpy(metadata, "SELECT TO BROWSE", sizeof(metadata));
     else if (state->entries[selected].year > 0 &&
@@ -3482,19 +3721,185 @@ static void video_draw_netflix_landing(
     display->update();
 }
 
+/* Resolve the series synopsis for a show or season row, which has no manifest
+ * row of its own. Runs only from the bounded service point below.
+ *
+ * Deliberately not inlined. Its two manifest line buffers are over 2 KB, and
+ * the caller goes on to call video_load_netflix_detail(), whose frame is
+ * another 2.4 KB. Inlined, both are live at once against the 8 KB main stack
+ * and the browser panics with a stack overflow on hardware - the simulator's
+ * host stack is large enough to hide it. Kept separate, the frames are
+ * sequential and the peak is one of them, not their sum. */
+static void __attribute__((noinline))
+video_netflix_load_show_plot(const struct video_entry *entry,
+                             char *plot, size_t plot_size)
+{
+    char line[VIDEO_LIST_MANIFEST_LINE_MAX];
+    char show_buf[128];
+    const char *show_name;
+    int fd;
+
+    plot[0] = '\0';
+    if (!strncmp(entry->path, "virtual:show:", 13))
+        show_name = entry->path + 13;
+    else if (!strncmp(entry->path, "virtual:season:", 15))
+    {
+        /* virtual:season:<show>:<season>. The season scanner splits on the
+         * first colon too, so a show title containing one is already out of
+         * scope here. */
+        char *colon;
+
+        strmemccpy(show_buf, entry->path + 15, sizeof(show_buf));
+        colon = strchr(show_buf, ':');
+        if (!colon)
+            return;
+        *colon = '\0';
+        show_name = show_buf;
+    }
+    else
+        return;
+    if (!show_name[0])
+        return;
+
+    fd = open(VIDEO_LIST_INDEX, O_RDONLY);
+    if (fd < 0)
+        return;
+
+    while (read_line(fd, line, sizeof(line)) > 0)
+    {
+        char parsed[VIDEO_LIST_MANIFEST_LINE_MAX];
+        char *fields[23];
+
+        video_trim_line(line);
+        if (line[0] == '#' || line[0] == '\0' ||
+            strncmp(line, "video_id\t", 9) == 0 ||
+            !video_parse_manifest_line_v6(line, parsed, sizeof(parsed),
+                                          fields))
+            continue;
+        if (strcmp(fields[4], "show") || strcmp(fields[7], show_name))
+            continue;
+
+        /* Prefer the series blurb; fall back to an episode summary so a
+         * show is never left without a description. */
+        if (fields[22][0])
+        {
+            strmemccpy(plot, fields[22], plot_size);
+            break;
+        }
+        if (!plot[0])
+            strmemccpy(plot, fields[16][0] ? fields[16] : fields[15],
+                       plot_size);
+    }
+    close(fd);
+}
+
 static void videos_prepare_netflix_selection(
     struct video_browser_state *state, int selected)
 {
     struct video_netflix_detail detail;
+    struct video_entry *entry;
 
+    video_netflix_landing_plot[0] = '\0';
     if (!state || state->count <= 0)
     {
         video_netflix_detail_valid = false;
         return;
     }
     selected = MAX(0, MIN(selected, state->count - 1));
+    entry = &state->entries[selected];
     videos_cache_netflix_landing_window(state, selected);
-    video_load_netflix_detail(&state->entries[selected], &detail);
+
+    if (entry->is_directory)
+    {
+        video_netflix_detail_valid = false;
+        video_netflix_load_show_plot(entry, video_netflix_landing_plot,
+                                     sizeof(video_netflix_landing_plot));
+        return;
+    }
+
+    video_load_netflix_detail(entry, &detail);
+    strmemccpy(video_netflix_landing_plot, detail.plot,
+               sizeof(video_netflix_landing_plot));
+}
+
+/* Full synopsis for a show or season row. Everything it paints is already
+ * cached, so entering it performs no storage access. */
+static void video_netflix_show_info_screen(const struct video_entry *entry)
+{
+    struct screen *display = &screens[SCREEN_MAIN];
+    struct bitmap *logo = root_menu_video_netflix_logo_small_cached();
+    struct bitmap *art = video_netflix_landing_art(entry);
+    const int text_x = 8 + VIDEO_LIST_NETFLIX_LANDING_W + 12;
+    struct viewport vp;
+    bool repainted;
+
+    viewportmanager_theme_enable(SCREEN_MAIN, false, &vp);
+    display->set_viewport(NULL);
+    display->set_drawmode(DRMODE_SOLID);
+    display->set_background(LCD_RGBPACK(13, 13, 13));
+    display->set_foreground(LCD_RGBPACK(13, 13, 13));
+    display->clear_display();
+
+    display->set_foreground(VIDEO_LIST_NETFLIX_RED);
+    display->fillrect(0, 0, display->lcdwidth, 42);
+    if (logo)
+        display->bmp_part(logo, 0, 0, 7, 0, logo->width, logo->height);
+    display->setfont(FONT_SYSFIXED);
+    display->set_foreground(LCD_WHITE);
+    display->set_background(VIDEO_LIST_NETFLIX_RED);
+    ipodjs_ui_puts_fit(display, 112, 15, display->lcdwidth - 120,
+                       "ABOUT", true);
+
+    if (art)
+        display->bmp_part(art, 0, 0, 8, 52, art->width, art->height);
+    else
+        video_draw_netflix_cover_placeholder(
+            display, 8, 52, VIDEO_LIST_NETFLIX_LANDING_W,
+            VIDEO_LIST_NETFLIX_LANDING_H);
+
+    display->setfont(ipodjs_ui_font());
+    display->set_foreground(LCD_WHITE);
+    display->set_background(LCD_RGBPACK(13, 13, 13));
+    ipodjs_ui_puts_fit(display, text_x, 52,
+                       display->lcdwidth - text_x - 8, entry->title, false);
+
+    display->setfont(FONT_SYSFIXED);
+    display->set_foreground(LCD_RGBPACK(222, 222, 222));
+    video_draw_netflix_wrapped(
+        display,
+        video_netflix_landing_plot[0] ? video_netflix_landing_plot :
+                                        "No description available.",
+        text_x, 78, display->lcdwidth - text_x - 8, 5);
+
+    display->set_foreground(LCD_RGBPACK(140, 140, 140));
+    ipodjs_ui_puts_fit(display, 8, display->lcdheight - 16,
+                       display->lcdwidth - 16, "MENU  Back", true);
+    display->update();
+
+    /* As on the other Netflix screens, one update is not always enough to
+     * reach the panel; repaint once from cached pixels on the first idle
+     * tick so this screen cannot be left invisible. */
+    repainted = false;
+    while (true)
+    {
+        int action = get_action(CONTEXT_STD, HZ / 4);
+
+        if (action == ACTION_NONE)
+        {
+            if (!repainted)
+            {
+                repainted = true;
+                display->update();
+            }
+            continue;
+        }
+        if (action == ACTION_STD_CANCEL || action == ACTION_STD_MENU ||
+            action == ACTION_STD_OK)
+            break;
+        if (default_event_handler(action) == SYS_USB_CONNECTED)
+            break;
+    }
+    viewportmanager_theme_undo(SCREEN_MAIN, false);
 }
 
 static void videos_netflix_leave_level(struct video_browser_state *state)
@@ -3553,10 +3958,23 @@ static int videos_netflix_browser(struct video_browser_state *state)
     bool redraw = true;
     bool selection_pending = false;
     long selection_settle_tick = 0;
+    /* Which action the resume card has focused. The two pills are extra
+     * stops in this same carousel, so the wheel reaches both and then
+     * carries on to the next title without a second input mode. */
+    int resume_action = 0;
+    /* One update after an action does not reliably reach the panel on this
+     * screen, which leaves a stale frame after a focus change or a level
+     * change. Every action therefore schedules one extra repaint on the next
+     * idle tick. It repaints cached pixels only and never re-enters the
+     * artwork service point, so it costs no storage access. */
+    int pending_repaints = 0;
 
     state->selection = state->count > 0 ?
         MAX(0, MIN(state->selection, state->count - 1)) : 0;
     root_menu_video_prepare_netflix_browser_logo();
+    root_menu_video_prepare_netflix_watched_badge();
+    video_netflix_load_watched();
+    videos_netflix_apply_watched(state);
     videos_prepare_netflix_selection(state, state->selection);
     viewportmanager_theme_enable(SCREEN_MAIN, false, &vp);
     button_clear_queue();
@@ -3567,7 +3985,8 @@ static int videos_netflix_browser(struct video_browser_state *state)
 
         if (redraw)
         {
-            video_draw_netflix_landing(state, state->selection);
+            video_draw_netflix_landing(state, state->selection,
+                                       resume_action);
             redraw = false;
         }
         action = get_action(CONTEXT_TREE, HZ / 20);
@@ -3581,42 +4000,86 @@ static int videos_netflix_browser(struct video_browser_state *state)
                     videos_prepare_netflix_selection(state,
                                                      state->selection);
                     selection_pending = false;
+                    pending_repaints = 1;
+                    redraw = true;
+                }
+                else if (pending_repaints > 0 && button_queue_count() == 0)
+                {
+                    pending_repaints--;
                     redraw = true;
                 }
                 break;
 
             case ACTION_STD_PREV:
             case ACTION_STD_PREVREPEAT:
-                if (state->count > 0)
+                if (state->count <= 0)
+                    break;
+                /* Step back through the resume card's actions first. This
+                 * only moves focus, so it must not re-enter the artwork
+                 * service point. */
+                if (state->entries[state->selection].is_resume &&
+                    resume_action > 0)
                 {
-                    state->selection =
-                        (state->selection + state->count - 1) % state->count;
-                    selection_pending = true;
-                    selection_settle_tick = current_tick + MAX(1, HZ / 10);
+                    resume_action--;
                     redraw = true;
+                    break;
                 }
+                state->selection =
+                    (state->selection + state->count - 1) % state->count;
+                resume_action =
+                    state->entries[state->selection].is_resume ? 1 : 0;
+                selection_pending = true;
+                selection_settle_tick = current_tick + MAX(1, HZ / 10);
+                redraw = true;
                 break;
 
             case ACTION_STD_NEXT:
             case ACTION_STD_NEXTREPEAT:
-                if (state->count > 0)
+                if (state->count <= 0)
+                    break;
+                if (state->entries[state->selection].is_resume &&
+                    resume_action < 1)
                 {
-                    state->selection =
-                        (state->selection + 1) % state->count;
-                    selection_pending = true;
-                    selection_settle_tick = current_tick + MAX(1, HZ / 10);
+                    resume_action++;
                     redraw = true;
+                    break;
                 }
+                state->selection =
+                    (state->selection + 1) % state->count;
+                resume_action = 0;
+                selection_pending = true;
+                selection_settle_tick = current_tick + MAX(1, HZ / 10);
+                redraw = true;
                 break;
 
             case ACTION_STD_OK:
                 if (state->count <= 0)
                     break;
-                if (state->entries[state->selection].is_directory)
+                if (state->entries[state->selection].is_resume)
+                {
+                    /* Play the focused action straight from the card. */
+                    viewportmanager_theme_undo(SCREEN_MAIN, false);
+                    (void)video_launch_entry_at(
+                        &state->entries[state->selection],
+                        resume_action == 1);
+                    viewportmanager_theme_enable(SCREEN_MAIN, false, &vp);
+                    videos_scan_dir(state);
+                    state->selection = state->count > 0 ?
+                        MAX(0, MIN(state->selection, state->count - 1)) : 0;
+                    video_netflix_load_watched();
+                    videos_netflix_apply_watched(state);
+                    resume_action = 0;
+                    videos_prepare_netflix_selection(state,
+                                                     state->selection);
+                    selection_pending = false;
+                    redraw = true;
+                }
+                else if (state->entries[state->selection].is_directory)
                 {
                     if (videos_netflix_enter_level(state,
                                                    state->selection))
                     {
+                        videos_netflix_apply_watched(state);
                         videos_prepare_netflix_selection(state,
                                                          state->selection);
                         selection_pending = false;
@@ -3631,6 +4094,8 @@ static int videos_netflix_browser(struct video_browser_state *state)
                     (void)video_netflix_detail_screen(
                         &state->entries[state->selection]);
                     viewportmanager_theme_enable(SCREEN_MAIN, false, &vp);
+                    video_netflix_load_watched();
+                    videos_netflix_apply_watched(state);
                     videos_prepare_netflix_selection(state,
                                                      state->selection);
                     selection_pending = false;
@@ -3639,13 +4104,26 @@ static int videos_netflix_browser(struct video_browser_state *state)
                 break;
 
             case ACTION_STD_CONTEXT:
-                if (state->count > 0 &&
-                    !state->entries[state->selection].is_directory)
+                if (state->count <= 0)
+                    break;
+                if (state->entries[state->selection].is_directory)
+                {
+                    /* Shows and seasons have no detail screen of their own,
+                     * so this is where their full synopsis lives. */
+                    viewportmanager_theme_undo(SCREEN_MAIN, false);
+                    video_netflix_show_info_screen(
+                        &state->entries[state->selection]);
+                    viewportmanager_theme_enable(SCREEN_MAIN, false, &vp);
+                    redraw = true;
+                }
+                else
                 {
                     viewportmanager_theme_undo(SCREEN_MAIN, false);
                     (void)video_netflix_detail_screen(
                         &state->entries[state->selection]);
                     viewportmanager_theme_enable(SCREEN_MAIN, false, &vp);
+                    video_netflix_load_watched();
+                    videos_netflix_apply_watched(state);
                     videos_prepare_netflix_selection(state,
                                                      state->selection);
                     selection_pending = false;
@@ -3658,6 +4136,8 @@ static int videos_netflix_browser(struct video_browser_state *state)
                 if (state->depth > 0)
                 {
                     videos_netflix_leave_level(state);
+                    videos_netflix_apply_watched(state);
+                    resume_action = 0;
                     videos_prepare_netflix_selection(state,
                                                      state->selection);
                     selection_pending = false;
@@ -3675,6 +4155,12 @@ static int videos_netflix_browser(struct video_browser_state *state)
                 }
                 break;
         }
+
+        /* Any action-driven repaint gets one follow-up pass; the idle branch
+         * above consumes it. ACTION_NONE is excluded so this cannot re-arm
+         * itself and repaint forever. */
+        if (redraw && action != ACTION_NONE)
+            pending_repaints = 1;
     }
 
 done:
@@ -4574,6 +5060,16 @@ static int launch_weather_plugin(void *param)
     return GO_TO_ROOT;
 }
 
+static int launch_calm_plugin(void *param)
+{
+    (void)param;
+    return load_plugin_path_screen(PLUGIN_APPS_DIR "/calm.rock", NULL);
+}
+
+MENUITEM_FUNCTION(calm_item, MENU_FUNC_CHECK_RETVAL,
+                  "Calm", launch_calm_plugin,
+                  NULL, Icon_Plugin);
+
 static int launch_tamagotchi_plugin(void *param)
 {
     (void)param;
@@ -4725,7 +5221,7 @@ static int launch_pokemini(void *param);
     MAKE_MENU(applications_menu, "Extras", NULL, Icon_Plugin,
           &clock_item, &desktop_mode_item,
           &achievements_item, &livetv_item, &sitekick_item, &tamagotchi_item,
-          &maps_item, &weather_item,
+          &maps_item, &weather_item, &calm_item,
           &offlineweb_item, &pocketsky_item);
 
 static const struct browse_folder_info gameboy_folder = {"/gameboy/", SHOW_ALL};
@@ -6043,6 +6539,11 @@ static int root_menu_nano2g_dashboard(int *selectedp)
 #define IPODJS_ASSET_DIR        ROCKBOX_DIR "/ipodjs"
 #define IPODJS_APPLE_ASSET_DIR  ROCKBOX_DIR "/ipodjs/apple"
 #define IPODJS_PHOTOS_LOCKS     PLUGIN_APPS_DATA_DIR "/photos.locks"
+#define IPODJS_DESKTOP_PREVIEW  \
+    PLUGIN_APPS_DATA_DIR "/desktop_mode_snow_leopard/ipodjs/" \
+    "menu-preview.174x220x16.bmp"
+#define IPODJS_LIVETV_PREVIEW   \
+    IPODJS_ASSET_DIR "/previews/livetv.174x240x24.bmp"
 
 #if defined(LOGF_ENABLE) && defined(SIMULATOR)
 #define IPODJS_LOGF(...) logf(__VA_ARGS__)
@@ -6157,6 +6658,8 @@ static void root_menu_video_enter_native_screen(void)
     if (root_menu_video_theme_depth++ == 0)
     {
         bool direct_handoff = root_menu_video_native_handoff;
+
+        ipodjs_ui_prepare_bluetooth_indicator();
 
         if (root_menu_video_native_handoff)
             root_menu_video_native_handoff = false;
@@ -6580,6 +7083,12 @@ static unsigned char root_menu_video_netflix_logo_data[
     BM_SIZE(150, 70, FORMAT_NATIVE, false)];
 static bool root_menu_video_netflix_logo_tried;
 static bool root_menu_video_netflix_logo_valid;
+static struct bitmap root_menu_video_netflix_watched_bm;
+static unsigned char root_menu_video_netflix_watched_data[
+    BM_SIZE(VIDEO_LIST_NETFLIX_WATCHED_SIZE,
+            VIDEO_LIST_NETFLIX_WATCHED_SIZE, FORMAT_NATIVE, false)];
+static bool root_menu_video_netflix_watched_tried;
+static bool root_menu_video_netflix_watched_valid;
 static struct bitmap root_menu_video_netflix_logo_small_bm;
 static unsigned char root_menu_video_netflix_logo_small_data[
     BM_SIZE(91, 42, FORMAT_NATIVE, false)];
@@ -6631,6 +7140,29 @@ static struct bitmap *root_menu_video_netflix_logo_small_cached(void)
 {
     return root_menu_video_netflix_logo_small_valid ?
            &root_menu_video_netflix_logo_small_bm : NULL;
+}
+
+static void root_menu_video_prepare_netflix_watched_badge(void)
+{
+    if (global_settings.ui_engine_video_appearance !=
+        UI_ENGINE_VIDEO_NETFLIX)
+        return;
+
+    (void)root_menu_video_load_ui_bmp(
+        ROCKBOX_DIR "/ipodjs/netflix/watched.16x16x24.bmp",
+        &root_menu_video_netflix_watched_bm,
+        root_menu_video_netflix_watched_data,
+        sizeof(root_menu_video_netflix_watched_data),
+        VIDEO_LIST_NETFLIX_WATCHED_SIZE,
+        VIDEO_LIST_NETFLIX_WATCHED_SIZE,
+        &root_menu_video_netflix_watched_tried,
+        &root_menu_video_netflix_watched_valid);
+}
+
+static struct bitmap *root_menu_video_netflix_watched_cached(void)
+{
+    return root_menu_video_netflix_watched_valid ?
+           &root_menu_video_netflix_watched_bm : NULL;
 }
 
 static void root_menu_video_prepare_steam_logo(void)
@@ -8181,6 +8713,8 @@ static const char *root_menu_video_preview_asset_name(const char *title)
         return "games";
     if (!strcmp(title, "Clock"))
         return "clock";
+    if (!strcmp(title, "Desktop Mode"))
+        return "desktop-mode";
     if (!strcmp(title, "Applications"))
         return "applications";
     if (!strcmp(title, "Game Cover Flow"))
@@ -8261,7 +8795,7 @@ static bool root_menu_video_preview_asset_top_aligned(const char *title)
 {
     static const char * const top_aligned[] = {
         "Clock", "Applications", "PokeMini", "Files", "Playlists",
-        "Plugins", "Shortcuts", "System", "Extras",
+        "Plugins", "Shortcuts", "System", "Extras", "Live TV",
     };
 
     if (!title)
@@ -8276,15 +8810,24 @@ static bool root_menu_video_preview_asset_top_aligned(const char *title)
     return false;
 }
 
+static const char *root_menu_video_menu_preview_path(const char *title)
+{
+    if (title && !strcmp(title, "Desktop Mode"))
+        return IPODJS_DESKTOP_PREVIEW;
+    if (title && !strcmp(title, "Live TV"))
+        return IPODJS_LIVETV_PREVIEW;
+    return NULL;
+}
+
 static bool root_menu_video_preview_asset_is_verified(const char *title)
 {
     /*
      * The bundled menu-preview bitmaps are illustrative placeholders rather
-     * than captures from the stock firmware. Keep the loader available for a
-     * future verified set, but do not display approximated system artwork.
+     * than captures from the stock firmware. Desktop Mode comes from the
+     * checksum-verified, user-owned Snow Leopard pack; Live TV uses its
+     * commissioned photographic broadcast pane.
      */
-    (void)title;
-    return false;
+    return root_menu_video_menu_preview_path(title) != NULL;
 }
 
 static bool root_menu_video_menu_preview_recent_failure(const char *path,
@@ -8422,82 +8965,67 @@ static void root_menu_video_draw_menu_preview_slot(
                  MIN(w, slot->bm.width), MIN(h, slot->bm.height));
 }
 
-static bool root_menu_video_draw_menu_preview_asset(const char *title,
-                                                    int x, int y, int w,
-                                                    int h)
+static bool root_menu_video_draw_menu_preview_asset_cached(
+    const char *title, int x, int y, int w, int h)
 {
-    char path[MAX_PATH];
-    char fallback_path[MAX_PATH];
-    char themed_path[MAX_PATH];
     const char *load_path;
     int dark = root_menu_video_dark() ? 1 : 0;
-    bool top_aligned = root_menu_video_preview_asset_top_aligned(title);
-    int asset_h = top_aligned ? LCD_HEIGHT : 220;
+    struct root_menu_video_menu_preview_slot *slot;
+
+    if (!root_menu_video_preview_asset_is_verified(title))
+        return false;
+    load_path = root_menu_video_menu_preview_path(title);
+    slot = root_menu_video_menu_preview_find(load_path, dark);
+    if (!slot)
+        return false;
+
+    root_menu_video_draw_menu_preview_slot(slot, x, y, w, h, false);
+    return true;
+}
+
+/* Idle-service only: all file checks and decoding stay out of draw paths. */
+static bool root_menu_video_menu_preview_service(const char *title)
+{
+    const char *load_path;
+    int dark = root_menu_video_dark() ? 1 : 0;
     struct root_menu_video_menu_preview_slot *slot;
     int rc;
 
-    snprintf(path, sizeof(path), IPODJS_ASSET_DIR
-             "/previews/%s.174x%dx24.bmp",
-             root_menu_video_preview_asset_name(title), asset_h);
-    load_path = root_menu_video_asset_path(path, themed_path,
-                                           sizeof(themed_path));
+    if (!root_menu_video_preview_asset_is_verified(title))
+        return false;
+    load_path = root_menu_video_menu_preview_path(title);
     slot = root_menu_video_menu_preview_find(load_path, dark);
     if (slot)
+        return false;
+    if (root_menu_video_menu_preview_recent_failure(load_path, dark))
+        return false;
+    if (!file_exists(load_path))
     {
-        root_menu_video_draw_menu_preview_slot(slot, x, y, w, h,
-                                               top_aligned);
-        return true;
+        root_menu_video_menu_preview_record_failure(load_path, dark);
+        return false;
     }
 
-    if (top_aligned &&
-        (root_menu_video_menu_preview_recent_failure(load_path, dark) ||
-         !file_exists(load_path)))
+    slot = root_menu_video_menu_preview_victim();
+    memset(&slot->bm, 0, sizeof(slot->bm));
+    slot->valid = false;
+    slot->path[0] = '\0';
+    slot->dark = dark;
+    slot->bm.width = 174;
+    slot->bm.height = root_menu_video_preview_asset_top_aligned(title) ?
+                      LCD_HEIGHT : 220;
+    slot->bm.format = FORMAT_NATIVE;
+    slot->bm.data = slot->data;
+    rc = read_bmp_file(load_path, &slot->bm, sizeof(slot->data),
+                       FORMAT_NATIVE | FORMAT_TRANSPARENT, NULL);
+    if (rc < 0)
     {
-        if (!root_menu_video_menu_preview_recent_failure(load_path, dark))
-            root_menu_video_menu_preview_record_failure(load_path, dark);
-        snprintf(fallback_path, sizeof(fallback_path), IPODJS_ASSET_DIR
-                 "/previews/%s.174x220x24.bmp",
-                 root_menu_video_preview_asset_name(title));
-        load_path = root_menu_video_asset_path(fallback_path, themed_path,
-                                               sizeof(themed_path));
-        asset_h = 220;
-        top_aligned = false;
+        root_menu_video_menu_preview_record_failure(load_path, dark);
+        return false;
     }
 
-    slot = root_menu_video_menu_preview_find(load_path, dark);
-    if (!slot)
-    {
-        if (root_menu_video_menu_preview_recent_failure(load_path, dark))
-            return false;
-        if (!file_exists(load_path))
-        {
-            root_menu_video_menu_preview_record_failure(load_path, dark);
-            return false;
-        }
-
-        slot = root_menu_video_menu_preview_victim();
-        memset(&slot->bm, 0, sizeof(slot->bm));
-        slot->valid = false;
-        slot->path[0] = '\0';
-        slot->dark = dark;
-        slot->bm.width = 174;
-        slot->bm.height = asset_h;
-        slot->bm.format = FORMAT_NATIVE;
-        slot->bm.data = slot->data;
-        rc = read_bmp_file(load_path, &slot->bm, sizeof(slot->data),
-                           FORMAT_NATIVE | FORMAT_TRANSPARENT, NULL);
-        if (rc < 0)
-        {
-            root_menu_video_menu_preview_record_failure(load_path, dark);
-            return false;
-        }
-
-        strmemccpy(slot->path, load_path, sizeof(slot->path));
-        slot->valid = true;
-        root_menu_video_menu_preview_clear_failure(load_path, dark);
-    }
-
-    root_menu_video_draw_menu_preview_slot(slot, x, y, w, h, top_aligned);
+    strmemccpy(slot->path, load_path, sizeof(slot->path));
+    slot->valid = true;
+    root_menu_video_menu_preview_clear_failure(load_path, dark);
     return true;
 }
 
@@ -9945,56 +10473,6 @@ static bool root_menu_video_sitekick_animation_due(const char *title,
     return true;
 }
 
-/* Miniature of the Live TV guide, using the same colours sampled from the
- * DIRECTV receiver artwork that apps/plugins/mpegplayer/livetv_guide.c
- * uses. See docs/livetv-directv-guide-spec.md. */
-static void root_menu_video_draw_livetv_preview(int x, int y, int w, int h)
-{
-    const unsigned banner = LCD_RGBPACK(183, 214, 233);
-    const unsigned desc = LCD_RGBPACK(2, 111, 175);
-    const unsigned navy = LCD_RGBPACK(18, 37, 73);
-    const unsigned row = LCD_RGBPACK(9, 72, 113);
-    const unsigned gold = LCD_RGBPACK(254, 196, 37);
-    int inset = 6;
-    int gx = x + inset;
-    int gw = w - inset * 2;
-    int gy = y + (h - 108) / 2;
-    int row_h = 12;
-
-    lcd_set_foreground(navy);
-    lcd_fillrect(x, y, w, h);
-
-    lcd_set_foreground(banner);
-    lcd_fillrect(gx, gy, gw, 18);
-    lcd_set_foreground(desc);
-    lcd_fillrect(gx, gy + 18, gw, 18);
-    lcd_set_foreground(navy);
-    lcd_fillrect(gx, gy + 36, gw, 10);
-
-    for (int i = 0; i < 5; i++)
-    {
-        int ry = gy + 46 + i * row_h;
-
-        lcd_set_foreground(row);
-        lcd_fillrect(gx, ry, gw, row_h - 1);
-        lcd_set_foreground(navy);
-        lcd_fillrect(gx, ry, 22, row_h - 1);
-        if (i == 2)
-        {
-            lcd_set_foreground(gold);
-            lcd_fillrect(gx + 23, ry + 1, gw / 2, row_h - 3);
-        }
-    }
-
-    lcd_setfont(root_menu_video_font());
-    lcd_set_foreground(LCD_RGBPACK(0, 82, 155));
-    lcd_set_background(banner);
-    root_menu_video_puts_fit(gx + 4, gy + 3, gw - 8, "DIRECTV", false);
-    lcd_set_foreground(LCD_WHITE);
-    lcd_set_background(desc);
-    root_menu_video_puts_fit(gx + 4, gy + 21, gw - 8, "Live TV Guide", false);
-}
-
 static void root_menu_video_draw_preview_for_title(const char *title,
                                                    int x, int y, int w, int h)
 {
@@ -10023,12 +10501,6 @@ static void root_menu_video_draw_preview_for_title(const char *title,
         return;
     }
 
-    if (title && !strcmp(title, "Live TV"))
-    {
-        root_menu_video_draw_livetv_preview(x, y, w, h);
-        return;
-    }
-
     if (button_hold())
         source = IPODJS_PREVIEW_NONE;
 
@@ -10053,7 +10525,8 @@ static void root_menu_video_draw_preview_for_title(const char *title,
                                                             x, y, w, h);
 
     if (!drew && root_menu_video_preview_asset_is_verified(title))
-        drew = root_menu_video_draw_menu_preview_asset(title, x, y, w, h);
+        drew = root_menu_video_draw_menu_preview_asset_cached(title,
+                                                              x, y, w, h);
 
     if (drew && title && !strcmp(title, "Clock"))
         root_menu_video_draw_clock_date(x, y, w, h, false);
@@ -10443,13 +10916,31 @@ static bool root_menu_video_hold_update(bool *held, bool *redraw)
     return now;
 }
 
+static bool root_menu_video_status_bluetooth_valid;
+static bool root_menu_video_status_bluetooth_drawn;
+
+#ifdef IPOD_ACCESSORY_PROTOCOL
+static bool root_menu_video_bluetooth_ready(void)
+{
+    return iap_kokkia_present();
+}
+#endif
+
 static void root_menu_video_draw_status_title_width(const char *title,
-                                                    int width,
-                                                    bool pane_mode)
+                                                     int width,
+                                                     bool pane_mode)
 {
     int batt = battery_level();
     int batt_x = width - 31;
     int icon_x = batt_x - 19;
+    int bluetooth_x = icon_x - 16;
+    bool bluetooth = false;
+
+#ifdef IPOD_ACCESSORY_PROTOCOL
+    bluetooth = iap_kokkia_present();
+#endif
+    root_menu_video_status_bluetooth_drawn = bluetooth;
+    root_menu_video_status_bluetooth_valid = true;
 
     ipodjs_ui_draw_header_background(&screens[SCREEN_MAIN], width);
     if (root_menu_video_dark())
@@ -10464,7 +10955,8 @@ static void root_menu_video_draw_status_title_width(const char *title,
     if (pane_mode)
     {
         root_menu_video_puts_fit(6, 5 + root_menu_video_text_y_offset(),
-                                 icon_x - 10, "iPod", false);
+                                 bluetooth ? bluetooth_x - 10 : icon_x - 10,
+                                 "iPod", false);
 
         if (button_hold())
             ipodjs_ui_draw_hold_indicator(&screens[SCREEN_MAIN], icon_x, 4);
@@ -10475,7 +10967,8 @@ static void root_menu_video_draw_status_title_width(const char *title,
     else
     {
         root_menu_video_puts_fit(6, 5 + root_menu_video_text_y_offset(),
-                                 width - 52, title ? title : "iPod",
+                                 bluetooth ? bluetooth_x - 10 : width - 52,
+                                 title ? title : "iPod",
                                  false);
 
         if (button_hold())
@@ -10487,6 +10980,9 @@ static void root_menu_video_draw_status_title_width(const char *title,
         }
     }
 
+    if (bluetooth)
+        ipodjs_ui_draw_bluetooth_indicator(&screens[SCREEN_MAIN],
+                                           bluetooth_x, 2);
     root_menu_video_draw_battery(batt_x, 5, batt, charger_inserted());
 }
 
@@ -10499,6 +10995,14 @@ static void root_menu_video_draw_wps_status_title(const char *title)
 {
     int batt_x = LCD_WIDTH - 31;
     int icon_x = batt_x - 19;
+    int bluetooth_x = icon_x - 16;
+    bool bluetooth = false;
+
+#ifdef IPOD_ACCESSORY_PROTOCOL
+    bluetooth = iap_kokkia_present();
+#endif
+    root_menu_video_status_bluetooth_drawn = bluetooth;
+    root_menu_video_status_bluetooth_valid = true;
 
     ipodjs_ui_draw_header_background(&screens[SCREEN_MAIN], LCD_WIDTH);
     if (root_menu_video_dark())
@@ -10518,6 +11022,9 @@ static void root_menu_video_draw_wps_status_title(const char *title)
     else if (audio_status() & AUDIO_STATUS_PLAY)
         ipodjs_ui_draw_playback_indicator(&screens[SCREEN_MAIN], icon_x, 4);
 
+    if (bluetooth)
+        ipodjs_ui_draw_bluetooth_indicator(&screens[SCREEN_MAIN],
+                                           bluetooth_x, 2);
     root_menu_video_draw_battery(batt_x, 5, battery_level(),
                                  charger_inserted());
 }
@@ -11728,6 +12235,25 @@ static bool root_menu_video_handle_play_pause(bool allow_enter_wps,
 
 static bool root_menu_video_handle_tree_stop(int action, bool *redraw)
 {
+#ifdef IPOD_ACCESSORY_PROTOCOL
+    if (action == ACTION_NONE && !button_hold() &&
+        iap_take_kokkia_connection_event())
+    {
+        /* Connection animations belong to the Home dashboard only.  Consume
+         * the edge here so it cannot appear late after leaving another
+         * native screen. */
+        if (redraw)
+            *redraw = true;
+        return true;
+    }
+
+    if (root_menu_video_status_bluetooth_valid &&
+        root_menu_video_bluetooth_ready() !=
+            root_menu_video_status_bluetooth_drawn &&
+        redraw)
+        *redraw = true;
+#endif
+
     if (root_menu_video_tree_stop_pending)
     {
         if (action == ACTION_TREE_STOP ||
@@ -11779,6 +12305,7 @@ static int ipodjs_video_wps(void)
     int last_battery = -1;
     bool last_charging = false;
     bool last_paused = false;
+    bool last_bluetooth = false;
     char last_track_path[MAX_PATH] = "";
 
     root_menu_video_enter_native_screen();
@@ -11800,8 +12327,13 @@ static int ipodjs_video_wps(void)
         int status = audio_status();
         int battery = battery_level();
         bool charging = charger_inserted();
+        bool bluetooth = false;
+#ifdef IPOD_ACCESSORY_PROTOCOL
+        bluetooth = iap_kokkia_present();
+#endif
         bool status_redraw = battery != last_battery ||
-                             charging != last_charging;
+                             charging != last_charging ||
+                             bluetooth != last_bluetooth;
         bool paused;
 
         if (!(status & AUDIO_STATUS_PLAY))
@@ -11871,6 +12403,7 @@ static int ipodjs_video_wps(void)
         }
         last_battery = battery;
         last_charging = charging;
+        last_bluetooth = bluetooth;
 
         if (held)
         {
@@ -14908,6 +15441,7 @@ root_menu_video_application_items[] = {
     { "Tamagotchi", launch_tamagotchi_plugin },
     { "Maps", launch_maps_plugin },
     { "Weather", launch_weather_plugin },
+    { "Calm", launch_calm_plugin },
     { "Internet", launch_offlineweb_plugin },
     { "Pocket Sky", launch_pocketsky_plugin },
 };
@@ -14994,6 +15528,8 @@ static int root_menu_video_applications_menu(void)
     bool held = button_hold();
     long next_slideshow = 0;
     long next_hold_refresh = 0;
+    long preview_io_settle_tick =
+        current_tick + IPODJS_ROOT_PREVIEW_SETTLE_DELAY;
 
     root_menu_video_enter_native_screen();
     root_menu_video_prepare_sitekick_preview();
@@ -15030,21 +15566,28 @@ static int root_menu_video_applications_menu(void)
         {
             case ACTION_NONE:
             {
+                const char *title =
+                    root_menu_video_application_items[selected].label;
                 enum root_menu_video_preview_source source =
-                    root_menu_video_preview_source_for_title(
-                        root_menu_video_application_items[selected].label);
+                    root_menu_video_preview_source_for_title(title);
                 if (held && TIME_AFTER(current_tick, next_hold_refresh))
                 {
                     next_hold_refresh = current_tick + HZ;
                     redraw = true;
                 }
-                else if (!held && source > IPODJS_PREVIEW_MUSIC &&
+                else if (!held &&
+                         TIME_AFTER(current_tick, preview_io_settle_tick) &&
                          button_queue_count() == 0 &&
-                         root_menu_video_preview_service(source))
+                         ((source > IPODJS_PREVIEW_MUSIC &&
+                           root_menu_video_preview_service(source)) ||
+                          (source == IPODJS_PREVIEW_NONE &&
+                           root_menu_video_menu_preview_service(title))))
+                {
                     redraw = true;
+                }
                 else if (!held &&
                          root_menu_video_sitekick_animation_due(
-                             root_menu_video_application_items[selected].label,
+                             title,
                              &next_slideshow))
                     root_menu_video_draw_applications_preview_only(selected);
                 else if (!held &&
@@ -15063,6 +15606,9 @@ static int root_menu_video_applications_menu(void)
                     !strcmp(root_menu_video_application_items[selected].label,
                             "Sitekick"))
                     root_menu_video_prepare_sitekick_preview();
+                if (selected != previous_selected)
+                    preview_io_settle_tick =
+                        current_tick + IPODJS_ROOT_PREVIEW_SETTLE_DELAY;
                 redraw_rows = previous_selected != selected;
                 break;
             case ACTION_STD_NEXT:
@@ -15075,6 +15621,9 @@ static int root_menu_video_applications_menu(void)
                     !strcmp(root_menu_video_application_items[selected].label,
                             "Sitekick"))
                     root_menu_video_prepare_sitekick_preview();
+                if (selected != previous_selected)
+                    preview_io_settle_tick =
+                        current_tick + IPODJS_ROOT_PREVIEW_SETTLE_DELAY;
                 redraw_rows = previous_selected != selected;
                 break;
             case ACTION_STD_OK:
@@ -15280,6 +15829,9 @@ static const char *ipodjs_steam_platform_for_path(const char *path)
         return "Game & Watch";
     if (!strcasecmp(ext, ".mlp"))
         return "Maker Lite";
+    if (!strcasecmp(ext, ".zip") &&
+        path && strstr(path, "/games/cps1/roms/"))
+        return "CPS1 Arcade";
     return "Game";
 }
 
@@ -15505,6 +16057,7 @@ static void ipodjs_steam_load_library(void)
         ROCKBOX_DIR "/rocks/games/rockboy_launcher/games.tsv",
         ROCKBOX_DIR "/rocks/games/pokemini_launcher/games.tsv",
         ROCKBOX_DIR "/rocks/games/maker_lite/games.tsv",
+        ROCKBOX_DIR "/rocks/games/cps1/games.tsv",
     };
 
     ipodjs_steam_game_count = 0;
@@ -16282,6 +16835,9 @@ enum root_menu_video_qs_item {
     IPODJS_QS_HAPTICS,
 #endif
     IPODJS_QS_HOLD,
+#ifdef IPOD_ACCESSORY_PROTOCOL
+    IPODJS_QS_KOKKIA,
+#endif
     IPODJS_QS_CACHE_MEMORY,
     IPODJS_QS_COUNT,
 };
@@ -16330,6 +16886,10 @@ static const char *root_menu_video_qs_icon_path(int item)
 #endif
         case IPODJS_QS_HOLD:
             return IPODJS_ASSET_DIR "/qs/hold.18x18x24.bmp";
+#ifdef IPOD_ACCESSORY_PROTOCOL
+        case IPODJS_QS_KOKKIA:
+            return NULL;
+#endif
         case IPODJS_QS_CACHE_MEMORY:
             return IPODJS_ASSET_DIR "/qs/cache-memory.18x18x24.bmp";
         default:
@@ -16412,6 +16972,10 @@ static const char *root_menu_video_qs_label(int item)
 #endif
         case IPODJS_QS_HOLD:
             return "Hold";
+#ifdef IPOD_ACCESSORY_PROTOCOL
+        case IPODJS_QS_KOKKIA:
+            return "Kokkia";
+#endif
         case IPODJS_QS_CACHE_MEMORY:
             return "Cache & Memory";
         default:
@@ -16543,6 +17107,21 @@ static void root_menu_video_qs_value(int item, char *buf, size_t buf_size)
                        UI_ENGINE_HOLD_LOCKSCREEN ? "Lock" : "Dim",
                        buf_size);
             break;
+
+#ifdef IPOD_ACCESSORY_PROTOCOL
+        case IPODJS_QS_KOKKIA:
+        {
+            static const char * const states[] = {
+                "Disconnected", "Detecting", "Authenticating",
+                "Connected", "Retrying"
+            };
+            enum iap_connection_status status = iap_connection_status();
+
+            strmemccpy(buf, states[MAX(0, MIN((int)status,
+                       (int)ARRAYLEN(states) - 1))], buf_size);
+            break;
+        }
+#endif
 
         case IPODJS_QS_CACHE_MEMORY:
             strmemccpy(buf, "Open", buf_size);
@@ -16805,6 +17384,15 @@ static bool root_menu_video_draw_qs_icon(int x, int y, int item, bool active)
 
     (void)active;
 
+#ifdef IPOD_ACCESSORY_PROTOCOL
+    if (item == IPODJS_QS_KOKKIA)
+    {
+        ipodjs_ui_draw_bluetooth_indicator(&screens[SCREEN_MAIN],
+                                           x + 3, y);
+        return true;
+    }
+#endif
+
     if (item == IPODJS_QS_VOLUME)
     {
         bm = root_menu_video_apple_slider_asset(
@@ -16941,6 +17529,11 @@ static void root_menu_video_draw_qs_footer(int selected, bool adjusting)
     else if (selected == IPODJS_QS_EXTRAS_PANE)
         root_menu_video_draw_qs_footer_text(
             "Select to change the Extras preview");
+#ifdef IPOD_ACCESSORY_PROTOCOL
+    else if (selected == IPODJS_QS_KOKKIA)
+        root_menu_video_draw_qs_footer_text(
+            "Select for connection status");
+#endif
     else
         root_menu_video_draw_qs_footer_text(
             "Select Volume or Brightness to adjust");
@@ -17365,6 +17958,340 @@ static bool root_menu_video_cache_memory_menu(bool changed_settings,
     }
 }
 
+#ifdef IPOD_ACCESSORY_PROTOCOL
+enum root_menu_video_kokkia_item {
+    IPODJS_KOKKIA_STATUS = 0,
+    IPODJS_KOKKIA_ACTIVATION,
+    IPODJS_KOKKIA_SERIAL,
+    IPODJS_KOKKIA_TRAFFIC,
+    IPODJS_KOKKIA_RETRIES,
+    IPODJS_KOKKIA_RECONNECT,
+    IPODJS_KOKKIA_HELP,
+    IPODJS_KOKKIA_PAUSE_UNPLUG,
+    IPODJS_KOKKIA_BACK,
+    IPODJS_KOKKIA_COUNT,
+};
+
+static const char * const
+root_menu_video_kokkia_labels[IPODJS_KOKKIA_COUNT] = {
+    "Status",
+    "Activation",
+    "Serial",
+    "Traffic",
+    "Retries",
+    "Reconnect Now",
+    "Pairing Help",
+    "Pause on Unplug",
+    "Back",
+};
+
+static const char *root_menu_video_kokkia_state_name(
+    enum iap_connection_status status)
+{
+    static const char * const names[] = {
+        "Disconnected", "Detecting", "Authenticating",
+        "Connected", "Retrying"
+    };
+
+    return names[MAX(0, MIN((int)status, (int)ARRAYLEN(names) - 1))];
+}
+
+static const char *root_menu_video_kokkia_reason_name(
+    enum iap_reconnect_reason reason)
+{
+    static const char * const names[] = {
+        "None", "No data", "Autobaud", "Auth timeout",
+        "Activation", "Restart", "Manual", "Link errors"
+    };
+
+    return names[MAX(0, MIN((int)reason, (int)ARRAYLEN(names) - 1))];
+}
+
+static void root_menu_video_kokkia_value(
+    int item, const struct iap_connection_info *info,
+    char *value, size_t value_size)
+{
+    switch (item)
+    {
+        case IPODJS_KOKKIA_STATUS:
+            strmemccpy(value,
+                       root_menu_video_kokkia_state_name(info->status),
+                       value_size);
+            break;
+
+        case IPODJS_KOKKIA_ACTIVATION:
+            if (info->activated)
+                strmemccpy(value, "Activated", value_size);
+            else if (info->authenticated)
+                strmemccpy(value, "Waiting", value_size);
+            else if (info->kokkia_seen)
+                strmemccpy(value, "Authenticating", value_size);
+            else
+                strmemccpy(value, "Not detected", value_size);
+            break;
+
+        case IPODJS_KOKKIA_SERIAL:
+            if (info->bitrate > 0)
+                snprintf(value, value_size, "%d bps", info->bitrate);
+            else if (info->bitrate < 0)
+                snprintf(value, value_size, "Auto %d / %u ABR",
+                         -info->bitrate, info->autobaud_relaunches);
+            else
+                strmemccpy(value, "Auto waiting", value_size);
+            break;
+
+        case IPODJS_KOKKIA_TRAFFIC:
+            snprintf(value, value_size, "%u B / E%u / C%u",
+                     info->rx_bytes, info->uart_errors,
+                     info->checksum_errors);
+            break;
+
+        case IPODJS_KOKKIA_RETRIES:
+            if (info->retry_count)
+                snprintf(value, value_size, "%u - %s",
+                         info->retry_count,
+                         root_menu_video_kokkia_reason_name(info->reason));
+            else
+                strmemccpy(value,
+                           root_menu_video_kokkia_reason_name(info->reason),
+                           value_size);
+            break;
+
+        case IPODJS_KOKKIA_RECONNECT:
+            strmemccpy(value, "Run", value_size);
+            break;
+
+        case IPODJS_KOKKIA_HELP:
+            strmemccpy(value, "Open", value_size);
+            break;
+
+        case IPODJS_KOKKIA_PAUSE_UNPLUG:
+            strmemccpy(value,
+                       global_settings.kokkia_pause_on_unplug ?
+                       "On" : "Off", value_size);
+            break;
+
+        default:
+            value[0] = '\0';
+            break;
+    }
+}
+
+static void root_menu_video_draw_kokkia_status(
+    int selected, const struct iap_connection_info *info)
+{
+    const int row_h = 21;
+    const int start_y = IPODJS_HEADER_HEIGHT;
+    unsigned list_bg = root_menu_video_row_bg();
+
+    lcd_set_viewport(NULL);
+    lcd_set_drawmode(DRMODE_SOLID);
+    lcd_set_background(root_menu_video_screen_bg());
+    lcd_clear_display();
+    root_menu_video_draw_status_title("Kokkia");
+    lcd_set_foreground(list_bg);
+    lcd_fillrect(0, IPODJS_HEADER_HEIGHT, LCD_WIDTH,
+                 LCD_HEIGHT - IPODJS_HEADER_HEIGHT);
+    lcd_setfont(root_menu_video_font());
+
+    for (int item = 0; item < IPODJS_KOKKIA_COUNT; item++)
+    {
+        char value[64];
+        int y = start_y + item * row_h;
+        int text_y = y + MAX(1,
+            (row_h - font_get(root_menu_video_font())->height) / 2) +
+            root_menu_video_text_y_offset();
+        bool active = item == selected;
+        bool action = item >= IPODJS_KOKKIA_RECONNECT;
+
+        root_menu_video_kokkia_value(item, info, value, sizeof(value));
+        root_menu_video_draw_qs_row(0, y, LCD_WIDTH, row_h, active, false);
+        lcd_setfont(root_menu_video_font());
+        lcd_set_foreground(active ? IPODJS_PREVIEW_TEXT :
+                           root_menu_video_text());
+        lcd_set_background(active ? root_menu_video_accent() : list_bg);
+        root_menu_video_puts_fit(8, text_y, 150,
+                                 root_menu_video_kokkia_labels[item], false);
+        lcd_set_foreground(active ? LCD_RGBPACK(230, 245, 255) :
+                           root_menu_video_muted_text());
+        root_menu_video_puts_fit(158, text_y,
+                                 action ? 142 : 152, value, true);
+        if (active && action)
+            root_menu_video_draw_arrow(LCD_WIDTH - 9,
+                                       y + (row_h - 6) / 2);
+    }
+
+    if (selected == IPODJS_KOKKIA_RECONNECT)
+        root_menu_video_draw_qs_footer_text(
+            "Restarts dock handshake only");
+    else if (selected == IPODJS_KOKKIA_HELP)
+        root_menu_video_draw_qs_footer_text(
+            "AirPods pairing and memory help");
+    else if (selected == IPODJS_KOKKIA_PAUSE_UNPLUG)
+        root_menu_video_draw_qs_footer_text(
+            "Optional; disabled by default");
+    else
+        root_menu_video_draw_qs_footer_text(
+            "Live dock diagnostics");
+
+    ipodjs_video_draw_hold_overlay();
+    lcd_update();
+}
+
+static void root_menu_video_draw_kokkia_help(void)
+{
+    unsigned bg = root_menu_video_row_bg();
+
+    lcd_set_viewport(NULL);
+    lcd_set_drawmode(DRMODE_SOLID);
+    lcd_set_background(root_menu_video_screen_bg());
+    lcd_clear_display();
+    root_menu_video_draw_status_title("Pairing Help");
+    lcd_set_foreground(bg);
+    lcd_fillrect(0, IPODJS_HEADER_HEIGHT, LCD_WIDTH,
+                 LCD_HEIGHT - IPODJS_HEADER_HEIGHT);
+    lcd_setfont(root_menu_video_font());
+    lcd_set_background(bg);
+    lcd_set_foreground(root_menu_video_text());
+    root_menu_video_puts_fit(12, 39, LCD_WIDTH - 24,
+        "1. Keep Kokkia firmly seated.", false);
+    root_menu_video_puts_fit(12, 68, LCD_WIDTH - 24,
+        "2. Put AirPods in pairing mode.", false);
+    root_menu_video_puts_fit(12, 97, LCD_WIDTH - 24,
+        "3. Disable Bluetooth on devices", false);
+    root_menu_video_puts_fit(25, 116, LCD_WIDTH - 37,
+        "that may claim the AirPods.", false);
+    root_menu_video_puts_fit(12, 145, LCD_WIDTH - 24,
+        "4. Choose Reconnect Now.", false);
+    lcd_set_foreground(root_menu_video_muted_text());
+    root_menu_video_puts_fit(12, 174, LCD_WIDTH - 24,
+        "Pair memory is stored by Kokkia.", false);
+    root_menu_video_draw_qs_footer_text("Menu returns to Kokkia");
+    lcd_update();
+}
+
+static void root_menu_video_kokkia_help(void)
+{
+    bool redraw = true;
+
+    root_menu_wait_for_button_release();
+    button_clear_queue();
+    while (true)
+    {
+        int action;
+
+        if (redraw)
+        {
+            root_menu_video_draw_kokkia_help();
+            redraw = false;
+        }
+        action = get_action(CONTEXT_TREE, HZ/5);
+        if (ipodjs_ui_handle_system_event(action, &redraw))
+            continue;
+        if (root_menu_video_handle_tree_stop(action, &redraw))
+            continue;
+        if (action == ACTION_STD_CANCEL || action == ACTION_STD_MENU ||
+            action == ACTION_STD_OK)
+            return;
+    }
+}
+
+static void root_menu_video_kokkia_menu(void)
+{
+    struct iap_connection_info drawn_info;
+    int selected = 0;
+    bool redraw = true;
+    bool held = button_hold();
+
+    memset(&drawn_info, 0, sizeof(drawn_info));
+    root_menu_wait_for_button_release();
+    button_clear_queue();
+
+    while (true)
+    {
+        struct iap_connection_info info;
+        int action;
+
+        iap_get_connection_info(&info);
+        if (memcmp(&info, &drawn_info, sizeof(info)))
+            redraw = true;
+        root_menu_video_hold_update(&held, &redraw);
+        if (redraw)
+        {
+            root_menu_video_draw_kokkia_status(selected, &info);
+            drawn_info = info;
+            redraw = false;
+        }
+
+        action = get_action(CONTEXT_TREE, HZ/5);
+        if (ipodjs_ui_handle_system_event(action, &redraw))
+            continue;
+        if (root_menu_video_handle_tree_stop(action, &redraw))
+            continue;
+        switch (action)
+        {
+            case ACTION_STD_PREV:
+            case ACTION_STD_PREVREPEAT:
+                if (!root_menu_video_hold_update(&held, &redraw))
+                    selected = selected <= 0 ? IPODJS_KOKKIA_COUNT - 1 :
+                               selected - 1;
+                redraw = true;
+                break;
+
+            case ACTION_STD_NEXT:
+            case ACTION_STD_NEXTREPEAT:
+                if (!root_menu_video_hold_update(&held, &redraw))
+                    selected = selected >= IPODJS_KOKKIA_COUNT - 1 ? 0 :
+                               selected + 1;
+                redraw = true;
+                break;
+
+            case ACTION_STD_OK:
+                if (root_menu_video_hold_update(&held, &redraw))
+                    break;
+                if (selected == IPODJS_KOKKIA_RECONNECT)
+                {
+                    splash(HZ, iap_restart_kokkia() ?
+                           "Kokkia link restarting" :
+                           "No serial accessory");
+                    root_menu_wait_for_button_release();
+                    button_clear_queue();
+                    redraw = true;
+                }
+                else if (selected == IPODJS_KOKKIA_HELP)
+                {
+                    root_menu_video_kokkia_help();
+                    redraw = true;
+                }
+                else if (selected == IPODJS_KOKKIA_PAUSE_UNPLUG)
+                {
+                    global_settings.kokkia_pause_on_unplug =
+                        !global_settings.kokkia_pause_on_unplug;
+                    settings_save();
+                    redraw = true;
+                }
+                else if (selected == IPODJS_KOKKIA_BACK)
+                    return;
+                break;
+
+            case ACTION_TREE_WPS:
+                if (!root_menu_video_hold_update(&held, &redraw))
+                    (void)root_menu_video_handle_play_pause(false, NULL);
+                redraw = true;
+                break;
+
+            case ACTION_STD_CANCEL:
+            case ACTION_STD_CONTEXT:
+            case ACTION_STD_QUICKSCREEN:
+            case ACTION_STD_MENU:
+                if (!root_menu_video_hold_update(&held, &redraw))
+                    return;
+                break;
+        }
+    }
+}
+#endif
+
 static int root_menu_video_quick_settings(void)
 {
     int selected = 0;
@@ -17374,6 +18301,9 @@ static int root_menu_video_quick_settings(void)
     bool adjusting = false;
     bool held = button_hold();
     long next_hold_refresh = 0;
+#ifdef IPOD_ACCESSORY_PROTOCOL
+    enum iap_connection_status last_kokkia_status = -1;
+#endif
 
     root_menu_wait_for_button_release();
     button_clear_queue();
@@ -17382,10 +18312,17 @@ static int root_menu_video_quick_settings(void)
     {
         int action;
 
+#ifdef IPOD_ACCESSORY_PROTOCOL
+        if (iap_connection_status() != last_kokkia_status)
+            redraw = true;
+#endif
         root_menu_video_hold_update(&held, &redraw);
         if (redraw)
         {
             root_menu_video_draw_quick_settings(selected, adjusting);
+#ifdef IPOD_ACCESSORY_PROTOCOL
+            last_kokkia_status = iap_connection_status();
+#endif
             redraw = false;
         }
 
@@ -17460,6 +18397,14 @@ static int root_menu_video_quick_settings(void)
             case ACTION_STD_OK:
                 if (root_menu_video_hold_update(&held, &redraw))
                     break;
+#ifdef IPOD_ACCESSORY_PROTOCOL
+                if (selected == IPODJS_QS_KOKKIA)
+                {
+                    root_menu_video_kokkia_menu();
+                    redraw = true;
+                    break;
+                }
+#endif
                 if (selected == IPODJS_QS_CACHE_MEMORY)
                 {
                     if (root_menu_video_cache_memory_menu(changed_settings,
@@ -17782,6 +18727,7 @@ static int root_menu_video_dashboard(int *selectedp)
     bool redraw_list_only = false;
     bool held = button_hold();
     bool last_paused = false;
+    bool last_bluetooth = false;
     bool play_hold_stopped = false;
     long next_slideshow = 0;
     long preview_settle_tick = 0;
@@ -17802,9 +18748,14 @@ static int root_menu_video_dashboard(int *selectedp)
         int action;
         int count = root_menu_video_count();
         bool paused;
+        bool bluetooth = false;
         bool poweroff_hold;
         const struct menu_item_ex *item;
         enum root_menu_video_preview_source preview_source;
+
+#ifdef IPOD_ACCESSORY_PROTOCOL
+        bluetooth = iap_kokkia_present();
+#endif
 
         if (count <= 0)
             return root_menu_video_finish_native_screen(GO_TO_ROOT);
@@ -17835,6 +18786,27 @@ static int root_menu_video_dashboard(int *selectedp)
         if (!poweroff_hold && selected != drawn_selected && !redraw_list_only)
             redraw = true;
 
+        if (!poweroff_hold && bluetooth != last_bluetooth)
+        {
+            last_bluetooth = bluetooth;
+            if (!redraw && drawn_selected >= 0 && !held)
+            {
+                /* iAP state changes arrive independently of button events.
+                 * Refresh only the left-pane status bar so plugging or
+                 * unplugging Kokkia updates immediately without disturbing
+                 * the menu, preview, animation, or playback surfaces. */
+                lcd_set_viewport(NULL);
+                lcd_set_drawmode(DRMODE_SOLID);
+                root_menu_video_draw_status();
+                lcd_update_rect(0, 0, IPODJS_LIST_WIDTH,
+                                IPODJS_HEADER_HEIGHT);
+                ipodjs_trace_screen("Home", "status", selected,
+                                    draw_state.valid ? draw_state.top : 0,
+                                    count, 0, 0, IPODJS_LIST_WIDTH,
+                                    IPODJS_HEADER_HEIGHT);
+            }
+        }
+
         if (redraw)
         {
             root_menu_video_draw_home(selected, preview_selected,
@@ -17860,6 +18832,16 @@ static int root_menu_video_dashboard(int *selectedp)
                             paused ? HZ/5 : HZ/20);
         if (ipodjs_ui_handle_system_event(action, &redraw))
             continue;
+#ifdef IPOD_ACCESSORY_PROTOCOL
+        if (action == ACTION_NONE && !button_hold() &&
+            iap_take_kokkia_connection_event())
+        {
+            ipodjs_ui_airpods_connected_animation();
+            redraw = true;
+            redraw_list_only = false;
+            continue;
+        }
+#endif
         poweroff_hold = (button_status() & BUTTON_PLAY) != 0;
         if (poweroff_hold)
         {
@@ -17920,6 +18902,13 @@ static int root_menu_video_dashboard(int *selectedp)
                     else if (preview_source > IPODJS_PREVIEW_MUSIC)
                         loaded = root_menu_video_preview_service(
                             preview_source);
+                    else
+                    {
+                        const char *title = root_menu_video_preview(
+                            root_menu_video_item(preview_selected));
+
+                        loaded = root_menu_video_menu_preview_service(title);
+                    }
 
                     if (loaded)
                         root_menu_video_draw_home_preview_only(

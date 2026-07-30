@@ -193,8 +193,6 @@ namespace gameswf
 	{
 		sprite_instance* sprite = sprite_getptr(fn);
 		int bytes = sprite->get_loaded_bytes();
-		flashplayer_trace_movie_state("getBytesLoaded", bytes,
-			sprite->get_current_frame(), sprite->get_frame_count());
 		fn.result->set_int(bytes);
 	}
 
@@ -202,8 +200,6 @@ namespace gameswf
 	{
 		sprite_instance* sprite = sprite_getptr(fn);
 		int bytes = sprite->get_file_bytes();
-		flashplayer_trace_movie_state("getBytesTotal", bytes,
-			sprite->get_current_frame(), sprite->get_frame_count());
 		fn.result->set_int(bytes);
 	}
 

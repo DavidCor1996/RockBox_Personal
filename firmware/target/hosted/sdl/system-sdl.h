@@ -61,6 +61,7 @@ void sdl_sys_quit(void);
 extern bool background;  /* True if the background image is enabled */
 extern bool showremote;
 extern double display_zoom;
+extern bool sdl_fullscreen; /* True when --fullscreen fills the host display */
 extern long start_tick;
 
 #endif /* _SYSTEM_SDL_H_ */

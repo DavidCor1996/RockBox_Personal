@@ -155,6 +155,8 @@ struct device_t {
     uint32_t idps_options;          /* Options from IDPS IdentifyToken */
     uint32_t idps_deviceid;         /* DeviceID from IDPS IdentifyToken */
     uint16_t ipod_trans_id;         /* Transaction ID for iPod-originated cmds */
+    bool serial_activation_sent;    /* Post-auth dock activation was sent */
+    bool kokkia_detected;           /* Kokkia activation signature received */
 };
 
 extern struct device_t device;
@@ -260,6 +262,16 @@ void iap_fill_power_state(void);
 
 void iap_send_tx(void);
 void iap_set_remote_volume(void);
+
+/* Convert between the player's dB volume and the 0..255 iAP byte using
+ * the codec's actual range. */
+unsigned char iap_volume_byte(void);
+int iap_volume_from_byte(unsigned char raw);
+
+/* Called when a Kokkia-style activation exchange is observed. */
+void iap_note_kokkia_candidate(void);
+void iap_note_kokkia_peer_connection(void);
+void iap_note_accessory_restart(void);
 
 extern enum interface_state interface_state;
 void iap_interface_state_change(const enum interface_state new);

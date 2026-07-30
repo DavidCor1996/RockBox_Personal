@@ -289,8 +289,14 @@ static inline int ipod_4g_button_read(void)
 #endif
 
 #ifdef HAVE_WHEEL_POSITION
-    /* Save the new absolute wheel position */
-    wheel_position = whl;
+    /* Keep reporting the last absolute position while the capacitive wheel
+     * remains touched. Most button scans carry no new wheel packet, so
+     * replacing the position with -1 on every such scan made a stationary
+     * finger indistinguishable from a lift to plugin users. */
+    if (whl >= 0)
+        wheel_position = whl;
+    else if (!wheel_is_touched)
+        wheel_position = -1;
 #endif
     return btn;
 }

@@ -1,12 +1,12 @@
 # iPod 6G Android qualification report
 
-Date: 2026-07-21
+Date: 2026-07-28
 
 Scope: host builds, sparse regular-file installer tests, ARM user-mode tests,
 64 MiB ARM926 full-system and instruction emulation, static N25 artifact
 qualification, and the results of the volatile direct-boot attempts to date
 
-Physical hardware actions: create-only payload staging under
+Physical hardware actions to date: historical create-only payload staging under
 `.rockbox/android` and volatile DFU execution. Earlier attempts stopped with
 the Rockbox legend displayed at `3 BANDS = PID 1`; `diagnostic-trace1` changed
 from that text to a full white screen. No Rockbox
@@ -15,10 +15,33 @@ TRACE2 retained the `3 BANDS = PID 1` legend. A later direct U-Boot transfer
 failed at wInd3x block 129 with status 3 before payload execution and left the
 device in Apple Boot ROM DFU.
 
+On 2026-07-28 the exact forced-Android transient loader
+`834a80e3833e367b98e1b513744d45240c309f4892252d60943b4fc3805fc443`
+completed its DFU upload and visibly reached `Verified; starting Android`.
+Linux then reset repeatedly and ultimately returned to a black Boot ROM DFU
+screen. This is a failed post-handoff hardware result; it does not qualify
+Linux, Android, or the persistent Select+Right installer. No NOR command was
+run. The ordinary transient Rockbox loader recovered the device to `05ac:1261`.
+Both Rockbox firmware copies, every database/tagcache file, all staged Android
+payloads, and all historical diagnostics retained their pre-test checksums.
+Normal Rockbox recovery rotated its resume-state files and refreshed nine cache
+timestamps, so the report does not claim byte-for-byte immutability for those
+ordinary runtime files.
+
+The subsequent storage-free Stage-A packet
+`ebff6e3f0c7cd3c7293d3c09ea081801fde81246493d9c4b5ff289ce71b521b1`
+also completed its Boot ROM upload but did not enumerate U-Boot's expected
+`05ac:8007` endpoint; the stale `05ac:1223` endpoint became unresponsive.
+No Linux FIT was sent. A physical reset recovered `05ac:1261`. After that
+abnormal reset the host repeatedly remounted FAT read-only. Diagnostic staging
+stopped without creating files, and no filesystem repair was attempted.
+
 ## Decision
 
 The official AOSP `android-2.0_r1` userspace passes its host-emulation gates.
-The N25 Linux boot is **not hardware-qualified**. The timer-only,
+The N25 Linux boot is **not hardware-qualified**. The current Select+Right
+candidate failed its first volatile direct-boot test after the visible
+Rockbox-to-Linux handoff and is disqualified for installation. The timer-only,
 `diagnostic-vic1`, `diagnostic-lcd1`, and `diagnostic-trace1` packets are
 disqualified. TRACE1's full-white transition proves that its result differs
 from the earlier frozen-text result, but its model did not represent the panel
@@ -109,12 +132,23 @@ for this first test.
 
 Rockpod verifies and reports the qualified bundles. Its image-layout helper
 still operates only on regular disk-image files, while a separate narrow
-stager may create only the three checksum-wrapped RAM-boot files under an
-existing `.rockbox/android` directory. It refuses symlinks, unexpected files,
-or mismatched destinations; verifies both installed Rockbox firmware copies;
-hashes database/tagcache files before and after; and performs no USB/DFU,
-partition, filesystem-resize, Rockbox-firmware, or NOR action. The Eclair
-report retains `persistent_storage_available: false` for Linux.
+stager manages only the three checksum-wrapped RAM-boot files under
+`.rockbox/android`. It replaces an older set only when all three files exactly
+match their own canonical manifest, uses staged files and rollback copies for
+the update, and rejects symlinks, unexpected files, partial sets, or modified
+payloads. Six frozen historical diagnostic directories are explicitly
+allowlisted, recursively checksum-snapshotted, and left untouched. It verifies
+both installed Rockbox firmware copies, hashes
+database/tagcache files before and after, and performs no USB/DFU, partition,
+filesystem-resize, Rockbox-firmware, or NOR action. The Eclair report retains
+`persistent_storage_available: false` for Linux.
+
+A no-device-write rehearsal copied the connected iPod's actual two Rockbox
+firmware files, database files, old three-file Eclair manifest, and all six
+historical diagnostic trees into `/tmp`. The stager recognized the old
+manifest, transactionally replaced only the three canonical root payloads,
+preserved every protected checksum, reported all six historical directories
+unchanged, and then passed an idempotent second run as `already_current`.
 
 ## What the existing iPod work solves—and what it does not
 
@@ -194,7 +228,7 @@ the fallback marker; the N25 artifact separately proves that the Classic fbdev
 driver, panel initialisation, narrow PCF50635 display-power path, and
 device-tree nodes are linked. Neither proves physical panel output.
 
-## Previously software-qualified N25 RAM-only Android packet
+## Current software-qualified Select+Right Android packet
 
 The N25 cross-build uses pinned upstream revisions:
 
@@ -209,20 +243,42 @@ identities are:
 | Artifact | Size | SHA-256 |
 |---|---:|---|
 | `n25-eclair-native-initramfs.cpio.gz` | 13,842,301 | `2e8134f8b496ea1d8c93523f364664abdf26c8defdccfa67ce72756e543cd10d` |
-| `n25-eclair-native.itb` | 15,530,936 | `678ef70c56f503e432e7b5f5b9083fe3af9869f6a7005d9bd872decbe9c065ec` |
+| `n25-boot-chord-emulation.json` | 8,690 | `d812e31ffafbc8984744c39e6fb137f545c280d5fc1172f0cff6211b35590453` |
+| `n25-select-right-chain-emulation.json` | 3,123 | `1ca4938c16901777d2cb6113d3caa46a116b0acd5e2dcc7d39dd9568c523c2bd` |
+| `n25-eclair-native.itb` | 15,531,704 | `e8c8413f78190e32965799a7b910e828f965a46a50691a74a19e5dc9863d8218` |
 | `n25-eclair-native-uboot.dfu` | 195,136 | `c2d88f752900734da7ee946bab00ef43cd60502e4f68d81fb1217e2b59ecb00e` |
-| `n25-eclair-menu-play-bootloader.dfu` | 100,480 | `08646a1f20c18cfa95c2faebc54ea2be0d1985f5bcce368cd0a78b8e2a2464d4` |
-| `n25-eclair-menu-play-bootloader.ipod` | 98,440 | `88ba5df71ba44bc2b968f5a0bea6688a4d36d924b2a7844710a72fc34631c676` |
-| `n25-eclair-kernel.ipod` | 1,683,488 | `aba83932dcb54cc342d008c28e684212a7ba04627bc871c5f00bb0aedc06dc9b` |
+| `n25-eclair-select-right-bootloader.dfu` | 100,960 | `8c2ea99f44f3b2aa1f59bd5e83aeeea54fcf41268b8209e07583366107146402` |
+| `n25-eclair-select-right-bootloader.ipod` | 98,920 | `820940476b35cd96d3e4c2f2c22b145ed8ff158b35501ac3733b487ef48cd694` |
+| `n25-eclair-select-right-nor-installer.dfu` | 107,056 | `f527887329ae31de664d60d0e447f50192c13f4e003625e4765d6800640abb85` |
+| `n25-eclair-select-right-nor-uninstaller.dfu` | 5,856 | `203e836412b71d3a16b3b57a5bf7ef034a0f5dcae1ca193685b8bfee33868a3a` |
+| `n25-eclair-kernel.ipod` | 1,684,232 | `7978b2e6ddff0b65f2170aec03f516852f7ddf0e963bfd6a6f1a4c1ae06299d9` |
 | `n25-eclair-initramfs.ipod` | 13,842,312 | `959c8ff59013c98ab6bdd80129e0fe70888079920902e6a8c8ec3e2b03fba372` |
-| `n25-eclair-dtb.ipod` | 3,032 | `64112d9058839b8e0dd5856d6eb2a9762166df4795148d6331d3b9069f73d81c` |
+| `n25-eclair-dtb.ipod` | 3,056 | `83285c5c03d37d9cc70e00b9e521c13bfe2152d85fda30c2dea766d990b0dad7` |
 
-The modified Classic bootloader reserves the previously unused exact
-Menu+Play chord. It model/checksum-verifies fixed component names and sizes,
-loads zImage at `0x08008000`, the padded initramfs at `0x09c00000`, and DTB at
-`0x0ad00000`, unmounts/sleeps storage, applies the ARM Linux SVC/cache/MMU
-handoff contract, and jumps. Its BSS ends at `0x088a9440`, below the RAM root.
-The DTB carries fixed initrd bounds and still describes no storage bus.
+The modified Classic bootloader reserves exact Select+Right for Android and
+moves bootloader USB to exact Menu+Play. Exact-binary emulation executes all
+128 main-button patterns: only `0x09` selects Android, only `0x42` selects USB,
+and no superset chord selects either. The linked payload-size contract is
+`1,684,224 / 13,842,304 / 3,048` bytes and matches the three wrapped bodies.
+It loads zImage at `0x08008000`, the padded initramfs at `0x09c00000`, and DTB
+at `0x0ad00000`, unmounts/sleeps storage, applies the ARM Linux
+SVC/cache/MMU handoff contract, and jumps.
+
+The exact compressed zImage—not a substituted raw Image—then passes 91,242,967
+ARM926 instructions from `n25_android_handoff` through zImage relocation and
+decompression, `start_kernel`, platform population, and `s5l_lcd_probe`. The
+model observes 2,596 Timer E reads, 616 injected and acknowledged Timer B
+interrupts, and 2,464 reads plus 2,464 completions across the two PL192
+VICADDRESS registers. The report is checksum-bound to the bootloader, zImage,
+DTB, and initramfs.
+
+The preservation-mode NOR installer embeds that exact bootloader body and has
+a zero single-boot flag; static parsing rejects an installer that would discard
+the original Apple firmware. Packaging is not physical installation, and NOR
+remains untouched until the volatile candidate passes its device test. The
+5,856-byte dual-boot uninstaller is independently regenerated during every
+qualification and accepted only when it matches mks5lboot's exact iPod 6G
+uninstaller byte-for-byte.
 
 The FIT is staged at `0x08800000`. The earlier `0x09000000` staging choice was
 rejected because a larger Android FIT can overlap its own loaded kernel. The
@@ -339,17 +395,16 @@ deprecation warnings from the test environment; no Android test failed.
 
 1. The N25-specific PL192 VIC implementation, generic-compatible rejection,
    exact Rockbox trampoline, four-panel full-frame model, and binary handoff
-   gates are complete.
-2. Create and read-back-verify only the new
-   `.rockbox/android/diagnostic-trace2` component directory, then unmount cleanly.
-3. Execute TRACE2 once and record the cumulative horizontal pattern: no red
-   band means the post-cache loader stage failed; red only means raw kernel
-   entry failed; red+green means Timer E failed; adding yellow means no Timer B
-   IRQ; adding blue means later Linux/LCD probe failed; all five bands ending
-   amber mean LCD probe completed; three large PID 1 bands mean userspace
-   completed. Then verify recovery and unchanged Rockbox preservation hashes.
-4. Only after a successful visible probe, rebuild the Eclair packet with the proven
-   timer path, then boot it and physically
+   gates are complete, but the production hardware run reset after handoff.
+   Persistent installation remains locked.
+2. Run the already-qualified storage-free Stage-A U-Boot enumeration test,
+   followed only after success by the headless Linux USB-serial heartbeat.
+   This isolates the physical timer/VIC/USB substrate without framebuffer,
+   I2C, input, Android, or storage code.
+3. If the headless heartbeat passes, add a bounded USB-observable probe around
+   the first failing production initcalls and fix the physical-only fault
+   before rebuilding Eclair.
+4. Only after a successful corrected volatile boot, physically
    qualify panel output, button/wheel mapping, Hold lockout, and both reset
    paths. Repeat on other panel revisions only with appropriate spares.
 5. Add battery/charger/thermal telemetry and controlled power-off before any

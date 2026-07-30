@@ -73,7 +73,7 @@ void stream_generate_event(struct stream *str, long id, intptr_t data);
 /** Main control functions **/
 
 /* Initialize the playback engine */
-int stream_init(void);
+int stream_init(bool play_netflix_intro);
 
 /* Close the playback engine */
 void stream_exit(void);

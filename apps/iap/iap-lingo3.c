@@ -305,7 +305,7 @@ void iap_handlepkt_mode3(const unsigned int len, const unsigned char *buf)
             device.play_status = audio_status();
             /* TODO: Fix this */
             device.mute = false;
-            device.volume = global_status.volume;
+            device.volume = iap_volume_byte();
             device.power_state = charger_input_state;
             device.battery_level = battery_level();
             /* TODO: Fix this */
@@ -488,7 +488,7 @@ void iap_handlepkt_mode3(const unsigned int len, const unsigned char *buf)
                             IAP_TX_PUT(0xFF);
                         else
 #endif
-                            IAP_TX_PUT(0xFF & (int)((global_status.volume + 90) * 2.65625));
+                            IAP_TX_PUT(iap_volume_byte());
 
                     } else {
                         /* Mute status True*/
@@ -686,8 +686,8 @@ void iap_handlepkt_mode3(const unsigned int len, const unsigned char *buf)
                         else
 #endif
                         {
-                            IAP_TX_PUT(0xFF & (int)((global_status.volume + 90) * 2.65625));
-                            IAP_TX_PUT(0xFF & (int)((global_status.volume + 90) * 2.65625));
+                            IAP_TX_PUT(iap_volume_byte());
+                            IAP_TX_PUT(iap_volume_byte());
                         }
 
                     } else {
@@ -832,7 +832,7 @@ void iap_handlepkt_mode3(const unsigned int len, const unsigned char *buf)
 #endif
                     if (buf[0x03 + doff]==0x00){
                         /* Not Muted */
-                        global_status.volume = (int) (buf[0x04 + doff]/2.65625)-90;
+                        global_status.volume = iap_volume_from_byte(buf[0x04 + doff]);
                         device.mute = false;
                     }
                     else {
@@ -1013,7 +1013,7 @@ void iap_handlepkt_mode3(const unsigned int len, const unsigned char *buf)
 #endif
                     if (buf[0x03 + doff]==0x00){
                         /* Not Muted */
-                        global_status.volume = (int) (buf[0x04 + doff]/2.65625)-90;
+                        global_status.volume = iap_volume_from_byte(buf[0x04 + doff]);
                         device.mute = false;
                     }
                     else {

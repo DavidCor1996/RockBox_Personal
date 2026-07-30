@@ -25,10 +25,47 @@ def test_video_sync_panel_selects_missing_videos():
 
     panel.select_missing()
 
-    assert panel.selected_track_ids() == {2}
+    assert panel.selected_track_ids() == {1, 2}
+    assert panel.syncable_track_ids() == {2}
     assert "2 videos in library" in panel._subhead.text()
     assert "1 not on iPod" in panel._subhead.text()
-    assert "1 selected" in panel._subhead.text()
+    assert "2 selected; 1 new to sync" in panel._subhead.text()
+
+
+def test_video_sync_panel_prechecks_existing_and_emits_distinct_formats():
+    QApplication.instance() or QApplication([])
+    panel = VideoSyncPanel()
+    panel.set_videos(
+        [
+            {
+                "id": 1,
+                "title": "Already Synced",
+                "synced_to_device": False,
+                "device_path": "Videos/Already Synced.mpg",
+            },
+            {"id": 2, "title": "New Video", "synced_to_device": False},
+        ]
+    )
+    panel.select_all()
+
+    requests = []
+    previews = []
+    panel.sync_requested.connect(
+        lambda ids, profile: requests.append((ids, profile))
+    )
+    panel.preview_requested.connect(lambda ids: previews.append(ids))
+
+    panel._preview_btn.click()
+    panel._sync_rvp_btn.click()
+    panel._sync_mpeg_btn.click()
+
+    assert panel.selected_track_ids() == {1, 2}
+    assert requests == [
+        ({2}, "native_raw"),
+        ({2}, "quality"),
+    ]
+    assert previews == [{2}]
+    assert not hasattr(panel, "_repair_btn")
 
 
 def test_video_sync_panel_emits_remove_and_delete_for_selected_videos():
@@ -91,25 +128,6 @@ def test_video_sync_panel_emits_hide_and_lock_and_shows_privacy_status():
     panel._lock_btn.click()
     assert hidden == [{7}]
     assert locked == [{7}]
-
-
-def test_video_sync_panel_emits_repair_for_selected_videos():
-    QApplication.instance() or QApplication([])
-    panel = VideoSyncPanel()
-    panel.set_videos(
-        [
-            {"id": 1, "title": "Repairable", "video_kind": "movie", "synced_to_device": False},
-            {"id": 2, "title": "Also Repairable", "video_kind": "movie", "synced_to_device": False},
-        ]
-    )
-    panel.select_all()
-
-    repaired = []
-    panel.force_repair_requested.connect(lambda ids: repaired.append(ids))
-
-    panel._repair_btn.click()
-
-    assert repaired == [{1, 2}]
 
 
 def test_video_sync_screen_routes_from_sidebar(config, monkeypatch):

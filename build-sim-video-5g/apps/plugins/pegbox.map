@@ -588,15 +588,15 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x29ea1
+.debug_info     0x0000000000000000    0x29eec
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x8bcc /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pegbox.o
- .debug_info    0x0000000000008bcc     0x7dde /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
- .debug_info    0x00000000000109aa     0x7e27 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(configfile.o)
- .debug_info    0x00000000000187d1     0x9b0d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
- .debug_info    0x00000000000222de     0x793d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(display_text.o)
- .debug_info    0x0000000000029c1b      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(pegbox_pieces.24x24x16.o)
- .debug_info    0x0000000000029d5e      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(pegbox_header.320x40x16.o)
+ .debug_info    0x0000000000000000     0x8bdb /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pegbox.o
+ .debug_info    0x0000000000008bdb     0x7ded /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+ .debug_info    0x00000000000109c8     0x7e36 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(configfile.o)
+ .debug_info    0x00000000000187fe     0x9b1c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
+ .debug_info    0x000000000002231a     0x794c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(display_text.o)
+ .debug_info    0x0000000000029c66      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(pegbox_pieces.24x24x16.o)
+ .debug_info    0x0000000000029da9      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(pegbox_header.320x40x16.o)
 
 .debug_abbrev   0x0000000000000000     0x1620
  *(.debug_abbrev)
@@ -621,21 +621,21 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0xb73b
+.debug_str      0x0000000000000000     0xb751
  *(.debug_str)
- .debug_str     0x0000000000000000     0xb73b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pegbox.o
-                                       0x687a (size before relaxing)
- .debug_str     0x000000000000b73b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
-                                       0x52f4 (size before relaxing)
- .debug_str     0x000000000000b73b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(configfile.o)
-                                       0x4a6a (size before relaxing)
- .debug_str     0x000000000000b73b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
-                                       0xa64b (size before relaxing)
- .debug_str     0x000000000000b73b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(display_text.o)
-                                       0x4a7e (size before relaxing)
- .debug_str     0x000000000000b73b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(pegbox_pieces.24x24x16.o)
+ .debug_str     0x0000000000000000     0xb751 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pegbox.o
+                                       0x6890 (size before relaxing)
+ .debug_str     0x000000000000b751        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+                                       0x530a (size before relaxing)
+ .debug_str     0x000000000000b751        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(configfile.o)
+                                       0x4a80 (size before relaxing)
+ .debug_str     0x000000000000b751        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
+                                       0xa661 (size before relaxing)
+ .debug_str     0x000000000000b751        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(display_text.o)
+                                       0x4a94 (size before relaxing)
+ .debug_str     0x000000000000b751        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(pegbox_pieces.24x24x16.o)
                                         0x16e (size before relaxing)
- .debug_str     0x000000000000b73b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(pegbox_header.320x40x16.o)
+ .debug_str     0x000000000000b751        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(pegbox_header.320x40x16.o)
                                         0x16e (size before relaxing)
 
 .debug_loc

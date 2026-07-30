@@ -1,0 +1,51 @@
+{
+  "format_version": 1,
+  "project_id": "brawl-test-arena",
+  "kit_id": "mario-test-kit",
+  "ruleset": "mario",
+  "gameplay": "brawl",
+  "title": "Maker Brawl Test Arena",
+  "view": [320, 224],
+  "size": [24, 15],
+  "tile_size": 16,
+  "terrain": [
+    {
+      "rect": [2, 12, 20, 2],
+      "tile": 20,
+      "collision": ["solid"]
+    },
+    {
+      "rect": [6, 8, 5, 1],
+      "tile": 20,
+      "collision": ["one_way"]
+    },
+    {
+      "rect": [13, 8, 5, 1],
+      "tile": 20,
+      "collision": ["one_way"]
+    }
+  ],
+  "entities": [
+    {
+      "kind": "player",
+      "x": 96,
+      "y": 192
+    },
+    {
+      "kind": "enemy",
+      "x": 160,
+      "y": 192,
+      "render_cell": 34,
+      "flags": 1024,
+      "params": [14, 26, 65, 1]
+    }
+  ],
+  "events": [],
+  "paths": [],
+  "metadata": {
+    "show_in_steam": false,
+    "genre": "Platform fighter",
+    "author": "Maker Lite diagnostic",
+    "description": "Non-shipping deterministic brawl simulator fixture"
+  }
+}

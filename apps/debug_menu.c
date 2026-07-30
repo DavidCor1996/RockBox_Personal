@@ -3064,6 +3064,18 @@ static bool view_ram_info(void)
 #endif
 
 /****** The menu *********/
+#if defined(IPOD_ACCESSORY_PROTOCOL)
+static bool dbg_restart_kokkia(void)
+{
+    if (iap_restart_kokkia())
+        splash(HZ, "Kokkia link restarting");
+    else
+        splash(HZ, "No serial accessory connected");
+
+    return false;
+}
+#endif
+
 static const struct {
     unsigned char *desc; /* string or ID */
     bool (*function) (void); /* return true if USB was connected */
@@ -3178,6 +3190,7 @@ static const struct {
 #endif
 #if defined(IPOD_ACCESSORY_PROTOCOL)
         {"Debug IAP", dbg_iap },
+        {"Restart Kokkia link", dbg_restart_kokkia },
 #endif
         {"Talk engine stats", dbg_talk },
 #if defined(HAVE_BOOTDATA) && !defined(SIMULATOR)

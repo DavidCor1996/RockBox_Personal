@@ -459,10 +459,10 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000     0xff1a
+.debug_info     0x0000000000000000     0xff38
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x813c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/windows_lnk.o
- .debug_info    0x000000000000813c     0x7dde /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+ .debug_info    0x0000000000000000     0x814b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/windows_lnk.o
+ .debug_info    0x000000000000814b     0x7ded /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
 
 .debug_abbrev   0x0000000000000000      0x92c
  *(.debug_abbrev)
@@ -477,12 +477,12 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x4d4b
+.debug_str      0x0000000000000000     0x4d61
  *(.debug_str)
- .debug_str     0x0000000000000000     0x4d4b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/windows_lnk.o
-                                       0x4b2d (size before relaxing)
- .debug_str     0x0000000000004d4b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
-                                       0x52f4 (size before relaxing)
+ .debug_str     0x0000000000000000     0x4d61 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/windows_lnk.o
+                                       0x4b43 (size before relaxing)
+ .debug_str     0x0000000000004d61        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+                                       0x530a (size before relaxing)
 
 .debug_loc
  *(.debug_loc)

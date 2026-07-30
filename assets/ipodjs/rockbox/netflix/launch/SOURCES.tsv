@@ -1,0 +1,5 @@
+asset	source	publisher	source_sha256	use
+frame-*.320x180x24.bmp	https://www.youtube.com/watch?v=GV3HUDMQ-F8	Netflix	dea06e060d58c1dfb4eb052ac3259315b6ce8c518b9edf3434ca82d26b43401a	personal-offline-build
+intro-44100-stereo.pcm	https://www.youtube.com/watch?v=GV3HUDMQ-F8	Netflix	dea06e060d58c1dfb4eb052ac3259315b6ce8c518b9edf3434ca82d26b43401a	personal-offline-build
+intro-320x180.nfx	derived-from:frame-*.320x180x24.bmp	Netflix	dea06e060d58c1dfb4eb052ac3259315b6ce8c518b9edf3434ca82d26b43401a	personal-offline-build
+intro-20000-mono.mulaw	derived-from:intro-44100-stereo.pcm	Netflix	dea06e060d58c1dfb4eb052ac3259315b6ce8c518b9edf3434ca82d26b43401a	personal-offline-build

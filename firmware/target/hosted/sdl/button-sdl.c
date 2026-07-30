@@ -114,6 +114,109 @@ static void button_event(int key, bool pressed);
 extern bool debug_wps;
 extern bool mapping;
 
+#ifdef SIMULATOR
+/* Rockpod host-pointer bridge.
+ *
+ * When Rockpod displays this iPod on the computer, the person driving it has
+ * a real mouse.  Making them steer a virtual pointer with the simulated click
+ * wheel would be absurd, so the simulator publishes the host pointer in panel
+ * coordinates and Desktop Mode reads it directly.
+ *
+ * It goes through a small file rather than a new plugin API entry because the
+ * plugin loader compares PLUGIN_API_VERSION for exact equality: adding an
+ * entry would invalidate every .rock already on the user's device.  The file
+ * is rewritten in place, holds one fixed-width record, and exists only in
+ * simulator builds.
+ */
+static FILE *rockpod_pointer_file;
+static bool rockpod_pointer_checked;
+static bool rockpod_pointer_debug;
+static int rockpod_pointer_x = -1;
+static int rockpod_pointer_y = -1;
+static unsigned rockpod_pointer_buttons;
+
+static void rockpod_pointer_publish(void)
+{
+    if (!rockpod_pointer_checked)
+    {
+        const char *path = getenv("ROCKPOD_SIM_HOST_POINTER");
+
+        rockpod_pointer_checked = true;
+        rockpod_pointer_debug = getenv("ROCKPOD_SIM_POINTER_DEBUG") != NULL;
+        if (path && *path)
+            rockpod_pointer_file = fopen(path, "w+b");
+    }
+    if (!rockpod_pointer_file)
+        return;
+    rewind(rockpod_pointer_file);
+    fprintf(rockpod_pointer_file, "%04d %04d %02u\n",
+            rockpod_pointer_x, rockpod_pointer_y, rockpod_pointer_buttons);
+    fflush(rockpod_pointer_file);
+}
+
+/* Map a host window position onto the 320x240 panel, undoing whatever scale
+ * the renderer is using so fullscreen and zoomed windows both land true. */
+static void rockpod_pointer_motion(int window_x, int window_y)
+{
+    float logical_x = window_x;
+    float logical_y = window_y;
+    int x;
+    int y;
+
+    if (!rockpod_pointer_checked)
+        rockpod_pointer_publish();
+    if (rockpod_pointer_file)
+    {
+        sdl_window_to_panel(window_x, window_y, &logical_x, &logical_y);
+        x = (int)logical_x;
+        y = (int)logical_y;
+        if (background)
+        {
+            x -= UI_LCD_POSX;
+            y -= UI_LCD_POSY;
+        }
+        if (x < 0)
+            x = 0;
+        else if (x >= SIM_LCD_WIDTH)
+            x = SIM_LCD_WIDTH - 1;
+        if (y < 0)
+            y = 0;
+        else if (y >= SIM_LCD_HEIGHT)
+            y = SIM_LCD_HEIGHT - 1;
+        if (rockpod_pointer_debug)
+            fprintf(stderr, "ptr win=%d,%d logical=%.1f,%.1f panel=%d,%d\n",
+                    window_x, window_y, logical_x, logical_y, x, y);
+        if (x == rockpod_pointer_x && y == rockpod_pointer_y)
+            return;
+        rockpod_pointer_x = x;
+        rockpod_pointer_y = y;
+        rockpod_pointer_publish();
+    }
+}
+
+static void rockpod_pointer_button(int sdl_button, bool pressed)
+{
+    unsigned mask;
+
+    switch (sdl_button)
+    {
+        case SDL_BUTTON_LEFT:
+            mask = 1;
+            break;
+        case SDL_BUTTON_RIGHT:
+            mask = 2;
+            break;
+        default:
+            return;
+    }
+    if (pressed)
+        rockpod_pointer_buttons |= mask;
+    else
+        rockpod_pointer_buttons &= ~mask;
+    rockpod_pointer_publish();
+}
+#endif /* SIMULATOR */
+
 #ifdef HAVE_TOUCHSCREEN
 static void touchscreen_event(int x, int y)
 {
@@ -367,6 +470,9 @@ static bool event_handler(SDL_Event *event)
             next_check = event->motion.timestamp + 10; /* ms */
         }
 #endif
+#ifdef SIMULATOR
+        rockpod_pointer_motion(event->motion.x, event->motion.y);
+#endif
 #ifdef HAVE_TOUCHSCREEN
         if (event->motion.state & SDL_BUTTON(1))
         {
@@ -382,6 +488,10 @@ static bool event_handler(SDL_Event *event)
     case SDL_MOUSEBUTTONDOWN:
     {
         SDL_MouseButtonEvent *mev = &event->button;
+#ifdef SIMULATOR
+        rockpod_pointer_motion(mev->x, mev->y);
+        rockpod_pointer_button(mev->button, event->type == SDL_MOUSEBUTTONDOWN);
+#endif
         mouse_event(mev, event->type == SDL_MOUSEBUTTONUP);
         break;
     }
