@@ -298,7 +298,7 @@ def wait_for_native_weather_panel(frame: Path, timeout: float = 70.0,
 
 
 def wait_for_presenter_video(frame: Path, timeout: float = 24.0) -> None:
-    """Presenter IDs are solid red and green in this fixture."""
+    """Presenter IDs are red/green and the report is yellow in this fixture."""
     wait_for_file(frame)
     deadline = time.monotonic() + timeout
     while time.monotonic() < deadline:
@@ -306,7 +306,8 @@ def wait_for_presenter_video(frame: Path, timeout: float = 24.0) -> None:
         if sample is not None:
             red = sample[0] > 180 and sample[1] < 80 and sample[2] < 80
             green = sample[1] > 80 and sample[0] < 80 and sample[2] < 80
-            if red or green:
+            report = sample[0] > 180 and sample[1] > 180 and sample[2] < 80
+            if red or green or report:
                 return
         time.sleep(0.2)
     raise SystemExit("the Weather presenter video phase never appeared")
