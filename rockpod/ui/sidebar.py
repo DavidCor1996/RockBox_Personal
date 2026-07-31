@@ -15,6 +15,10 @@ from ui.track_table import TRACK_IDS_MIME
 # Sidebar icon size matching iTunes 7
 ICON_SIZE = QSize(16, 16)
 LINUX_ICON_PATH = Path(__file__).resolve().parents[1] / "assets" / "icons" / "rockpod-linux.svg"
+COMICS_ICON_PATH = (
+    Path(__file__).resolve().parents[1]
+    / "assets" / "icons" / "comics-book-sidebar@2x.png"
+)
 
 
 def _asset_icon(path):
@@ -120,6 +124,8 @@ class Sidebar(QWidget):
     ROCKBOX_LIVETV = "rockbox_livetv"
     ROCKBOX_GAMES = "rockbox_games"
     ROCKBOX_PHOTOS = "rockbox_photos"
+    ROCKBOX_MAGAZINES = "rockbox_magazines"
+    ROCKBOX_COMICS = "rockbox_comics"
     ROCKBOX_LINUX = "rockbox_linux"
     ROCKBOX_ANDROID = "rockbox_android"
     ROCKBOX_BROWSER = "rockbox_browser"
@@ -267,6 +273,14 @@ class Sidebar(QWidget):
         self._photos_item = self._add_item(
             self._rockbox_header, "Photos", self.ROCKBOX_PHOTOS,
             _make_icon("#8c9f6f", "album")
+        )
+        self._magazines_item = self._add_item(
+            self._rockbox_header, "Magazine Sync", self.ROCKBOX_MAGAZINES,
+            _make_icon("#b28358", "album")
+        )
+        self._comics_item = self._add_item(
+            self._rockbox_header, "Comic / Manga Sync", self.ROCKBOX_COMICS,
+            _asset_icon(COMICS_ICON_PATH) or _make_icon("#c14b4b", "album")
         )
         self._linux_item = self._add_item(
             self._rockbox_header, "Linux", self.ROCKBOX_LINUX,

@@ -20,7 +20,7 @@ extern "C" {
 #undef strrchr
 #undef strstr
 
-#define CPS1_AUDIO_RATE 22050
+#define CPS1_AUDIO_RATE 11025
 #define CPS1_AUDIO_BLOCK_FRAMES 512
 #define CPS1_AUDIO_BLOCKS 6
 #define CPS1_AUDIO_START_BLOCKS 2
@@ -79,6 +79,7 @@ static volatile int audio_read;
 static int audio_write;
 static int audio_write_frames;
 static bool audio_started;
+static volatile unsigned long audio_underruns;
 static unsigned old_frequency;
 static bool quit_requested;
 static bool menu_requested;
@@ -466,6 +467,8 @@ static void poll_inputs(void)
     bool coin;
     bool fire5;
     bool fire6;
+    bool select_down = false;
+    bool play_down = false;
 
     menu = false;
 #ifdef BUTTON_MENU
@@ -476,10 +479,12 @@ static void poll_inputs(void)
     fire5 = menu;
     fire6 = menu;
 #ifdef BUTTON_SELECT
+    select_down = (held & BUTTON_SELECT) != 0;
     start = start && (held & BUTTON_SELECT);
 #endif
 #ifdef BUTTON_PLAY
-    coin = coin && (held & BUTTON_PLAY);
+    play_down = (held & BUTTON_PLAY) != 0;
+    coin = (coin && play_down) || (select_down && play_down);
 #endif
 #ifdef BUTTON_LEFT
     fire5 = fire5 && (held & BUTTON_LEFT);
@@ -499,10 +504,10 @@ static void poll_inputs(void)
     set_control(p1_controls.left,
                 direction & ((1u << 5) | (1u << 6) | (1u << 7)));
 #ifdef BUTTON_SELECT
-    set_control(p1_controls.fire[0], (held & BUTTON_SELECT) && !start);
+    set_control(p1_controls.fire[0], select_down && !start && !coin);
 #endif
 #ifdef BUTTON_PLAY
-    set_control(p1_controls.fire[1], (held & BUTTON_PLAY) && !coin);
+    set_control(p1_controls.fire[1], play_down && !coin);
 #endif
 #ifdef BUTTON_LEFT
     set_control(p1_controls.fire[2], (held & BUTTON_LEFT) && !fire5);
@@ -670,7 +675,7 @@ static void pause_menu(void)
         else if (selected == 3)
             rb->splash(HZ * 3,
                        "Wheel: move  Select/Play/Prev/Next: attacks  "
-                       "Pause menu: coin/start");
+                       "Select+Play: coin  Pause menu: start");
         else if (selected == 4)
             render_frameskip = (render_frameskip + 1) % 5;
         else if (selected == 5)
@@ -699,6 +704,8 @@ static void audio_get_more(const void **start, size_t *size)
     }
     else
     {
+        if (audio_started)
+            audio_underruns++;
         *start = audio_silence;
         *size = sizeof(audio_silence);
     }
@@ -1037,7 +1044,8 @@ enum plugin_status plugin_start(const void *parameter)
 #endif
     audio_queued = audio_read = audio_write = audio_write_frames = 0;
     audio_started = false;
-    rb->splash(HZ, "Menu: pause, coin and start");
+    audio_underruns = 0;
+    rb->splash(HZ, "Select+Play: coin  Menu: pause");
     performance_start_tick = *rb->current_tick;
     frame_deadline = performance_start_tick;
     frame_tick_fraction = 0;
@@ -1201,13 +1209,15 @@ cleanup:
                      "allocation_failed=%d last_allocation=%lu "
                      "frames=%lu rendered=%lu emulated_fps=%lu "
                      "display_fps=%lu render_skip=%d "
-                     "core_ticks=%lu audio_ticks=%lu display_ticks=%lu\n",
+                     "core_ticks=%lu audio_ticks=%lu display_ticks=%lu "
+                     "audio_underruns=%lu\n",
                      status, driver_started ? 1 : 0,
                      cps1_platform_allocation_failed() ? 1 : 0,
                      (unsigned long)cps1_platform_last_allocation_size(),
                      emulated_frames, rendered_frames, emulated_fps,
                      display_fps, render_frameskip,
-                     core_ticks, audio_ticks, display_ticks);
+                     core_ticks, audio_ticks, display_ticks,
+                     audio_underruns);
         rb->close(diagnostic_fd);
         diagnostic_fd = -1;
     }

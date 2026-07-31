@@ -32,6 +32,7 @@ _HOME_VIDEO_KEYWORDS = {
     "birthday", "wedding", "family", "home video", "home videos", "clip", "clips",
 }
 _MUSIC_VIDEO_KEYWORDS = {"music video", "music videos"}
+_CONCERT_KEYWORDS = {"concert", "concerts", "live concert", "live performance"}
 _NOISE_TOKENS = {
     "2160p", "1080p", "720p", "480p", "x264", "x265", "h264", "h265", "hevc",
     "xvid", "divx", "bluray", "brrip", "dvdrip", "webrip", "webdl", "web-dl",
@@ -419,6 +420,8 @@ def _normalize_video_kind(value):
         return ""
     if text == "6" or "music video" in text:
         return "music_video"
+    if any(token in text for token in ("concert", "live performance")):
+        return "concert"
     if text == "10":
         return "show"
     if text == "9":
@@ -810,6 +813,8 @@ def _apply_video_path_fallback(track, filepath):
             track.video_kind = "show"
         elif any(keyword in text for keyword in _MUSIC_VIDEO_KEYWORDS):
             track.video_kind = "music_video"
+        elif any(keyword in text for keyword in _CONCERT_KEYWORDS):
+            track.video_kind = "concert"
         elif any(keyword in text for keyword in _HOME_VIDEO_KEYWORDS) or _CAMERA_FILENAME_RE.match(path.stem):
             track.video_kind = "home_video"
         else:

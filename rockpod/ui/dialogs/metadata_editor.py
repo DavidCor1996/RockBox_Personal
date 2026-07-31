@@ -161,6 +161,7 @@ class MetadataEditor(QDialog):
             self._video_kind_combo.addItem("", "")
             self._video_kind_combo.addItem("TV Show", "show")
             self._video_kind_combo.addItem("Movie", "movie")
+            self._video_kind_combo.addItem("Concert", "concert")
             self._video_kind_combo.addItem("Music Video", "music_video")
             self._video_kind_combo.addItem("Home Video", "home_video")
             current_kind = str(self._track.get("video_kind", "") or "")

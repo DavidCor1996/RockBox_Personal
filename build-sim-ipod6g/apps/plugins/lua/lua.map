@@ -1624,52 +1624,52 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000   0x116487
+.debug_info     0x0000000000000000   0x116523
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0xbac3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/lauxlib.o
- .debug_info    0x000000000000bac3     0xbb23 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/lapi.o
- .debug_info    0x00000000000175e6     0xb152 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/lbaselib.o
- .debug_info    0x0000000000022738      0xb57 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/lbitlib.o
- .debug_info    0x000000000002328f     0x40f0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/lcode.o
- .debug_info    0x000000000002737f     0x9ce7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/ldebug.o
- .debug_info    0x0000000000031066     0x26d1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/ldo.o
- .debug_info    0x0000000000033737      0xec5 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/ldump.o
- .debug_info    0x00000000000345fc     0x159b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/lfunc.o
- .debug_info    0x0000000000035b97     0x9a93 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/lgc.o
- .debug_info    0x000000000003f62a     0x9dbb /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/liolib.o
- .debug_info    0x00000000000493e5     0x9e85 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/llex.o
- .debug_info    0x000000000005326a     0x8188 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/lmathlib.o
- .debug_info    0x000000000005b3f2     0x1050 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/lmem.o
- .debug_info    0x000000000005c442     0x954c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/loadlib.o
- .debug_info    0x000000000006598e     0x9068 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/lobject.o
- .debug_info    0x000000000006e9f6      0x60e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/lopcodes.o
- .debug_info    0x000000000006f004     0x8481 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/loslib.o
- .debug_info    0x0000000000077485     0x6cf4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/lparser.o
- .debug_info    0x000000000007e179     0x170c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/lstate.o
- .debug_info    0x000000000007f885     0x8816 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/lstring.o
- .debug_info    0x000000000008809b     0xae16 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/lstrlib.o
- .debug_info    0x0000000000092eb1     0x2aff /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/ltable.o
- .debug_info    0x00000000000959b0     0x1c1a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/ltablib.o
- .debug_info    0x00000000000975ca     0x1451 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/ltm.o
- .debug_info    0x0000000000098a1b      0xf12 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/lundump.o
- .debug_info    0x000000000009992d     0x1288 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/lua_user.o
- .debug_info    0x000000000009abb5     0xb374 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/lvm.o
- .debug_info    0x00000000000a5f29     0x10f9 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/lzio.o
- .debug_info    0x00000000000a7022     0x8493 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/rockaux.o
- .debug_info    0x00000000000af4b5     0xbb3a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/rocklib.o
- .debug_info    0x00000000000bafef     0xda27 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/rocklib_img.o
- .debug_info    0x00000000000c8a16     0x78ea /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/tlsf_helper.o
- .debug_info    0x00000000000d0300      0x177 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/strpbrk.o
- .debug_info    0x00000000000d0477     0x8d1a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/rocklua.o
- .debug_info    0x00000000000d9191     0x838e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/luadir.o
- .debug_info    0x00000000000e151f     0x9cbf /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/rocklib_events.o
- .debug_info    0x00000000000eb1de     0xa5ae /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/rocklib_aux.o
- .debug_info    0x00000000000f578c     0x7da2 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
- .debug_info    0x00000000000fd52e     0x1b6b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libtlsf.a(tlsf.o)
- .debug_info    0x00000000000ff099     0x77d2 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
- .debug_info    0x000000000010686b     0x7f58 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(pluginlib_actions.o)
- .debug_info    0x000000000010e7c3     0x7b9a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(helper.o)
- .debug_info    0x000000000011635d      0x12a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(strncpy.o)
+ .debug_info    0x0000000000000000     0xbac9 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/lauxlib.o
+ .debug_info    0x000000000000bac9     0xbb29 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/lapi.o
+ .debug_info    0x00000000000175f2     0xb158 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/lbaselib.o
+ .debug_info    0x000000000002274a      0xb57 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/lbitlib.o
+ .debug_info    0x00000000000232a1     0x40f0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/lcode.o
+ .debug_info    0x0000000000027391     0x9ced /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/ldebug.o
+ .debug_info    0x000000000003107e     0x26d1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/ldo.o
+ .debug_info    0x000000000003374f      0xec5 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/ldump.o
+ .debug_info    0x0000000000034614     0x159b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/lfunc.o
+ .debug_info    0x0000000000035baf     0x9a99 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/lgc.o
+ .debug_info    0x000000000003f648     0x9dc1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/liolib.o
+ .debug_info    0x0000000000049409     0x9e8b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/llex.o
+ .debug_info    0x0000000000053294     0x818e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/lmathlib.o
+ .debug_info    0x000000000005b422     0x1050 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/lmem.o
+ .debug_info    0x000000000005c472     0x9552 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/loadlib.o
+ .debug_info    0x00000000000659c4     0x906e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/lobject.o
+ .debug_info    0x000000000006ea32      0x60e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/lopcodes.o
+ .debug_info    0x000000000006f040     0x8487 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/loslib.o
+ .debug_info    0x00000000000774c7     0x6cf4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/lparser.o
+ .debug_info    0x000000000007e1bb     0x170c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/lstate.o
+ .debug_info    0x000000000007f8c7     0x881c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/lstring.o
+ .debug_info    0x00000000000880e3     0xae1c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/lstrlib.o
+ .debug_info    0x0000000000092eff     0x2aff /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/ltable.o
+ .debug_info    0x00000000000959fe     0x1c1a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/ltablib.o
+ .debug_info    0x0000000000097618     0x1451 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/ltm.o
+ .debug_info    0x0000000000098a69      0xf12 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/lundump.o
+ .debug_info    0x000000000009997b     0x1288 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/lua_user.o
+ .debug_info    0x000000000009ac03     0xb37a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/lvm.o
+ .debug_info    0x00000000000a5f7d     0x10f9 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/lzio.o
+ .debug_info    0x00000000000a7076     0x8499 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/rockaux.o
+ .debug_info    0x00000000000af50f     0xbb40 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/rocklib.o
+ .debug_info    0x00000000000bb04f     0xda2d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/rocklib_img.o
+ .debug_info    0x00000000000c8a7c     0x78f0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/tlsf_helper.o
+ .debug_info    0x00000000000d036c      0x177 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/strpbrk.o
+ .debug_info    0x00000000000d04e3     0x8d20 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/rocklua.o
+ .debug_info    0x00000000000d9203     0x8394 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/luadir.o
+ .debug_info    0x00000000000e1597     0x9cc5 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/rocklib_events.o
+ .debug_info    0x00000000000eb25c     0xa5b4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/rocklib_aux.o
+ .debug_info    0x00000000000f5810     0x7da8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+ .debug_info    0x00000000000fd5b8     0x1b6b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libtlsf.a(tlsf.o)
+ .debug_info    0x00000000000ff123     0x77d8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
+ .debug_info    0x00000000001068fb     0x7f5e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(pluginlib_actions.o)
+ .debug_info    0x000000000010e859     0x7ba0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(helper.o)
+ .debug_info    0x00000000001163f9      0x12a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(strncpy.o)
 
 .debug_abbrev   0x0000000000000000     0xcf9e
  *(.debug_abbrev)
@@ -1768,95 +1768,95 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0xa600
+.debug_str      0x0000000000000000     0xa60c
  *(.debug_str)
- .debug_str     0x0000000000000000     0xa600 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/lauxlib.o
-                                       0x5399 (size before relaxing)
- .debug_str     0x000000000000a600        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/lapi.o
-                                       0x5c0e (size before relaxing)
- .debug_str     0x000000000000a600        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/lbaselib.o
-                                       0x5820 (size before relaxing)
- .debug_str     0x000000000000a600        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/lbitlib.o
+ .debug_str     0x0000000000000000     0xa60c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/lauxlib.o
+                                       0x53a5 (size before relaxing)
+ .debug_str     0x000000000000a60c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/lapi.o
+                                       0x5c1a (size before relaxing)
+ .debug_str     0x000000000000a60c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/lbaselib.o
+                                       0x582c (size before relaxing)
+ .debug_str     0x000000000000a60c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/lbitlib.o
                                         0xa0e (size before relaxing)
- .debug_str     0x000000000000a600        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/lcode.o
+ .debug_str     0x000000000000a60c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/lcode.o
                                         0xc93 (size before relaxing)
- .debug_str     0x000000000000a600        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/ldebug.o
-                                       0x51d2 (size before relaxing)
- .debug_str     0x000000000000a600        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/ldo.o
+ .debug_str     0x000000000000a60c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/ldebug.o
+                                       0x51de (size before relaxing)
+ .debug_str     0x000000000000a60c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/ldo.o
                                         0x9ba (size before relaxing)
- .debug_str     0x000000000000a600        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/ldump.o
+ .debug_str     0x000000000000a60c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/ldump.o
                                         0x5f3 (size before relaxing)
- .debug_str     0x000000000000a600        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/lfunc.o
+ .debug_str     0x000000000000a60c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/lfunc.o
                                         0x6ca (size before relaxing)
- .debug_str     0x000000000000a600        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/lgc.o
-                                       0x5099 (size before relaxing)
- .debug_str     0x000000000000a600        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/liolib.o
-                                       0x551f (size before relaxing)
- .debug_str     0x000000000000a600        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/llex.o
-                                       0x593f (size before relaxing)
- .debug_str     0x000000000000a600        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/lmathlib.o
-                                       0x51fd (size before relaxing)
- .debug_str     0x000000000000a600        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/lmem.o
+ .debug_str     0x000000000000a60c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/lgc.o
+                                       0x50a5 (size before relaxing)
+ .debug_str     0x000000000000a60c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/liolib.o
+                                       0x552b (size before relaxing)
+ .debug_str     0x000000000000a60c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/llex.o
+                                       0x594b (size before relaxing)
+ .debug_str     0x000000000000a60c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/lmathlib.o
+                                       0x5209 (size before relaxing)
+ .debug_str     0x000000000000a60c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/lmem.o
                                         0x646 (size before relaxing)
- .debug_str     0x000000000000a600        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/loadlib.o
-                                       0x5473 (size before relaxing)
- .debug_str     0x000000000000a600        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/lobject.o
-                                       0x5705 (size before relaxing)
- .debug_str     0x000000000000a600        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/lopcodes.o
+ .debug_str     0x000000000000a60c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/loadlib.o
+                                       0x547f (size before relaxing)
+ .debug_str     0x000000000000a60c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/lobject.o
+                                       0x5711 (size before relaxing)
+ .debug_str     0x000000000000a60c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/lopcodes.o
                                         0xac3 (size before relaxing)
- .debug_str     0x000000000000a600        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/loslib.o
-                                       0x52b2 (size before relaxing)
- .debug_str     0x000000000000a600        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/lparser.o
+ .debug_str     0x000000000000a60c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/loslib.o
+                                       0x52be (size before relaxing)
+ .debug_str     0x000000000000a60c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/lparser.o
                                        0x18ba (size before relaxing)
- .debug_str     0x000000000000a600        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/lstate.o
+ .debug_str     0x000000000000a60c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/lstate.o
                                         0x6f7 (size before relaxing)
- .debug_str     0x000000000000a600        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/lstring.o
-                                       0x4dd6 (size before relaxing)
- .debug_str     0x000000000000a600        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/lstrlib.o
-                                       0x565e (size before relaxing)
- .debug_str     0x000000000000a600        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/ltable.o
+ .debug_str     0x000000000000a60c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/lstring.o
+                                       0x4de2 (size before relaxing)
+ .debug_str     0x000000000000a60c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/lstrlib.o
+                                       0x566a (size before relaxing)
+ .debug_str     0x000000000000a60c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/ltable.o
                                        0x1032 (size before relaxing)
- .debug_str     0x000000000000a600        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/ltablib.o
+ .debug_str     0x000000000000a60c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/ltablib.o
                                         0xb6b (size before relaxing)
- .debug_str     0x000000000000a600        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/ltm.o
+ .debug_str     0x000000000000a60c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/ltm.o
                                         0xe57 (size before relaxing)
- .debug_str     0x000000000000a600        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/lundump.o
+ .debug_str     0x000000000000a60c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/lundump.o
                                         0x5f6 (size before relaxing)
- .debug_str     0x000000000000a600        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/lua_user.o
+ .debug_str     0x000000000000a60c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/lua_user.o
                                         0xe07 (size before relaxing)
- .debug_str     0x000000000000a600        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/lvm.o
-                                       0x524d (size before relaxing)
- .debug_str     0x000000000000a600        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/lzio.o
+ .debug_str     0x000000000000a60c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/lvm.o
+                                       0x5259 (size before relaxing)
+ .debug_str     0x000000000000a60c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/lzio.o
                                         0x64d (size before relaxing)
- .debug_str     0x000000000000a600        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/rockaux.o
-                                       0x5f91 (size before relaxing)
- .debug_str     0x000000000000a600        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/rocklib.o
-                                       0x71db (size before relaxing)
- .debug_str     0x000000000000a600        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/rocklib_img.o
-                                       0x5acb (size before relaxing)
- .debug_str     0x000000000000a600        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/tlsf_helper.o
-                                       0x4a0c (size before relaxing)
- .debug_str     0x000000000000a600        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/strpbrk.o
+ .debug_str     0x000000000000a60c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/rockaux.o
+                                       0x5f9d (size before relaxing)
+ .debug_str     0x000000000000a60c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/rocklib.o
+                                       0x71e7 (size before relaxing)
+ .debug_str     0x000000000000a60c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/rocklib_img.o
+                                       0x5ad7 (size before relaxing)
+ .debug_str     0x000000000000a60c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/tlsf_helper.o
+                                       0x4a18 (size before relaxing)
+ .debug_str     0x000000000000a60c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/strpbrk.o
                                         0x18f (size before relaxing)
- .debug_str     0x000000000000a600        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/rocklua.o
-                                       0x553b (size before relaxing)
- .debug_str     0x000000000000a600        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/luadir.o
-                                       0x52b8 (size before relaxing)
- .debug_str     0x000000000000a600        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/rocklib_events.o
-                                       0x69ce (size before relaxing)
- .debug_str     0x000000000000a600        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/rocklib_aux.o
-                                       0x5a12 (size before relaxing)
- .debug_str     0x000000000000a600        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
-                                       0x52b3 (size before relaxing)
- .debug_str     0x000000000000a600        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libtlsf.a(tlsf.o)
+ .debug_str     0x000000000000a60c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/rocklua.o
+                                       0x5547 (size before relaxing)
+ .debug_str     0x000000000000a60c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/luadir.o
+                                       0x52c4 (size before relaxing)
+ .debug_str     0x000000000000a60c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/rocklib_events.o
+                                       0x69da (size before relaxing)
+ .debug_str     0x000000000000a60c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lua/rocklib_aux.o
+                                       0x5a1e (size before relaxing)
+ .debug_str     0x000000000000a60c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+                                       0x52bf (size before relaxing)
+ .debug_str     0x000000000000a60c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libtlsf.a(tlsf.o)
                                         0x410 (size before relaxing)
- .debug_str     0x000000000000a600        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
-                                       0x495a (size before relaxing)
- .debug_str     0x000000000000a600        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(pluginlib_actions.o)
-                                       0x6404 (size before relaxing)
- .debug_str     0x000000000000a600        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(helper.o)
-                                       0x52aa (size before relaxing)
- .debug_str     0x000000000000a600        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(strncpy.o)
+ .debug_str     0x000000000000a60c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
+                                       0x4966 (size before relaxing)
+ .debug_str     0x000000000000a60c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(pluginlib_actions.o)
+                                       0x6410 (size before relaxing)
+ .debug_str     0x000000000000a60c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(helper.o)
+                                       0x52b6 (size before relaxing)
+ .debug_str     0x000000000000a60c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(strncpy.o)
                                         0x19c (size before relaxing)
 
 .debug_loc

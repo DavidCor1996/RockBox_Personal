@@ -625,15 +625,15 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x32b67
+.debug_info     0x0000000000000000    0x32b8b
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x885b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/midi/midifile.o
- .debug_info    0x000000000000885b     0x8049 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/midi/midiutil.o
- .debug_info    0x00000000000108a4     0x1415 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/midi/sequencer.o
- .debug_info    0x0000000000011cb9     0x8632 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/midi/guspat.o
- .debug_info    0x000000000001a2eb     0x8456 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/midi/synth.o
- .debug_info    0x0000000000022741     0x8684 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/midi/midiplay.o
- .debug_info    0x000000000002adc5     0x7da2 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+ .debug_info    0x0000000000000000     0x8861 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/midi/midifile.o
+ .debug_info    0x0000000000008861     0x804f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/midi/midiutil.o
+ .debug_info    0x00000000000108b0     0x1415 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/midi/sequencer.o
+ .debug_info    0x0000000000011cc5     0x8638 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/midi/guspat.o
+ .debug_info    0x000000000001a2fd     0x845c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/midi/synth.o
+ .debug_info    0x0000000000022759     0x868a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/midi/midiplay.o
+ .debug_info    0x000000000002ade3     0x7da8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
 
 .debug_abbrev   0x0000000000000000     0x2132
  *(.debug_abbrev)
@@ -658,22 +658,22 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x55f1
+.debug_str      0x0000000000000000     0x55fd
  *(.debug_str)
- .debug_str     0x0000000000000000     0x55f1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/midi/midifile.o
-                                       0x5224 (size before relaxing)
- .debug_str     0x00000000000055f1        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/midi/midiutil.o
-                                       0x525e (size before relaxing)
- .debug_str     0x00000000000055f1        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/midi/sequencer.o
+ .debug_str     0x0000000000000000     0x55fd /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/midi/midifile.o
+                                       0x5230 (size before relaxing)
+ .debug_str     0x00000000000055fd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/midi/midiutil.o
+                                       0x526a (size before relaxing)
+ .debug_str     0x00000000000055fd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/midi/sequencer.o
                                         0xd46 (size before relaxing)
- .debug_str     0x00000000000055f1        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/midi/guspat.o
-                                       0x530a (size before relaxing)
- .debug_str     0x00000000000055f1        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/midi/synth.o
-                                       0x4d4f (size before relaxing)
- .debug_str     0x00000000000055f1        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/midi/midiplay.o
-                                       0x56af (size before relaxing)
- .debug_str     0x00000000000055f1        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
-                                       0x52b3 (size before relaxing)
+ .debug_str     0x00000000000055fd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/midi/guspat.o
+                                       0x5316 (size before relaxing)
+ .debug_str     0x00000000000055fd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/midi/synth.o
+                                       0x4d5b (size before relaxing)
+ .debug_str     0x00000000000055fd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/midi/midiplay.o
+                                       0x56bb (size before relaxing)
+ .debug_str     0x00000000000055fd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+                                       0x52bf (size before relaxing)
 
 .debug_loc
  *(.debug_loc)

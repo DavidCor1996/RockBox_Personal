@@ -65,7 +65,7 @@ reused completely unmodified**. The only genuinely new code is:
   the existing lineup/scheduler.
 
 The carrier alternates flat panel backing with full-screen presenter and
-report inserts on the 64-second clock in section 5.7. The guide's
+report inserts on the 120-second clock in section 5.7. The guide's
 picture-in-guide is unaffected and continues to show the decoded carrier.
 
 ## 3. Slot budget
@@ -311,21 +311,18 @@ synced once but has gone stale must still say so rather than looping garbage.
 
 ### 5.7 Broadcast flow and video inserts
 
-Forecast shows use a repeating 64-second carrier clock. The mpegplayer
+Forecast shows use a repeating 120-second carrier clock. The mpegplayer
 audio-master stream timestamp, rather than UI-entry time or a separate wall
 clock, selects the phase. This keeps decoded speech and the report picture
 locked across stream-open and seek latency, while tuning in midway through an
 hour still lands on the content the carrier is currently showing:
 
-| Seconds | Presentation |
+| Clock type | Presentation |
 | --- | --- |
-| 0–8 | Current Conditions native panel |
-| 8–16 | Today's Forecast native panel |
-| 16–24 | Presenter image ID, decoded full screen |
-| 24–32 | Extended Outlook native panel |
-| 32–40 | Second presenter image ID, decoded full screen |
-| 40–48 | Almanac native panel |
-| 48–64 | Full report/interstitial video, decoded full screen |
+| Panel clock | Every available forecast/presenter board, with short radar holds and one-second fade, wipe, smooth-push, or slide transitions |
+| Report clock, opening | Forecast panels through second 48 (or earlier only when a longer complete report needs the room) |
+| Report clock, insert | The complete source clip, with video and speech beginning on the same decoded timestamp |
+| Report clock, return | Three-second forecast-continuation card, then the changing panel clock for the remainder |
 
 The host builds this sequence from clean, text-free artwork in
 `~/Documents/Weather Channel/presenter-backplates` (falling back to
@@ -349,25 +346,111 @@ seasonal folder falls back to `general`. A changed forecast, backplate, or
 selected insert invalidates the rendered still and carrier caches on the next
 sync.
 
-Each hour cycles through every distinct active report instead of repeating
-one report for all 56 carrier clocks. Condition-matched clips lead the pool;
+The hour is not thirty back-to-back presenter reports. Three clocks spaced
+twenty minutes apart carry the condition-matched forecast reports, five carry
+distinct news breaks, one
+near the half hour carries viewer comments when available, and the remaining
+twenty-one clocks are the changing local-data panel service with music. This
+gives the channel a believable forecast/music cadence without repeating the
+same presenter every two minutes. Condition-matched clips lead the pool;
 when that pool is thin, byte-distinct Carissa Codel anchor and field segments
 from the season-appropriate general library fill the rotation to at least
 three clips. Exact duplicate files are ignored. Clips without an audio stream
-are omitted until they are recut with audio.
+or shorter than 45 seconds are omitted until they are recut as a complete,
+natural report.
 
-The decoded report receives the entire 16-second video phase rather than
-losing its first and last two seconds to separate transition slates. It also
-receives a small original `WX 102` channel bug
+If no condition-matched report clears that floor, those three clocks remain
+changing local-data panel service. News and viewer-comment breaks continue
+normally; a thin forecast pool does not disable the rest of the broadcast
+layer or force a short or mismatched weather clip on air.
+
+The panel service is not a presenter slideshow. RockPod interleaves the
+forecast-aware presenter backplates with presenter-free next-24-hours,
+seven-day, precipitation-timeline, and wind-outlook boards. Every plotted
+value comes from the synced hourly/daily rows. When online map refresh
+succeeds, four current radar frames are rendered from an OpenStreetMap base
+and RainViewer radar tiles. Those frames run as a compact twelve-second radar
+animation with one-second dissolves; ordinary boards rotate through
+restrained fade, wipe-left, smooth-left, and slide-up broadcast transitions.
+The radar board prints both providers and the radar observation time. If map
+refresh fails, cached radar may remain available, but the forecast boards
+continue without inventing map data.
+
+News inserts are a separate format break. Complete clips placed in
+`interstitials/news` must be 24–300 seconds, are labelled `NEWS BREAK`, and
+are placed at five spaced opportunities per hour. A source longer than 112
+seconds receives one continuous 240- or 360-second carrier clock; the hour
+advances by the matching number of 120-second blocks, so the report is never
+split or interrupted. News never replaces or pretends to supply the current
+forecast: the long-form condition-matched report rules above remain
+unchanged, music is side-chain ducked just before speech and recovers after
+the exact end of the clip. The source video fills the upper 320×176 content
+window while a host-baked 64-pixel ribbon shows the actual synced location,
+Celsius temperature, condition, precipitation, wind, and high/low using the
+dimensional broadcast icon atlas. This is the same size and information
+hierarchy as the commercial ribbon, not an unrelated pasted graphic.
+
+An optional `interstitials/news/clips.json` manifest selects `lower-third` or
+`sidebar` per clip. The alternate sidebar retains that exact bottom ribbon,
+shrinks the source without stretching into a 216×176 program window, and
+uses the remaining 104-pixel right column for the next three real forecast
+hours: time, temperature, precipitation probability, wind direction, and
+wind speed. Conditional weather-news rules use the same `overlay_style`
+field. Missing or invalid values fall back to `lower-third`; general news
+without a manifest alternates both layouts in stable filename order.
+
+Weather-news reports such as tornado coverage remain in the conditional
+manifest, not the general news folder. A `weather_overlay` rule marks them
+for the same live-data ribbon, while the existing condition, precipitation,
+temperature, and month checks still decide whether sync activates them.
+Tornado reports use the `thunder` condition gate and cannot appear in clear,
+ordinary rain, or winter rotations.
+
+The decoded report uses its measured full duration and ends at its source
+sentence boundary. It is never padded with a frozen presenter or arbitrarily
+cut to a nominal report length. A brief forecast-aware continuation slate
+bridges directly back to the changing panels. The report also receives a
+small original
+`WX 102` channel bug
 labelled `RECORDED REPORT`. This keeps the station identity continuous while
 making it unambiguous that an archival presenter clip is not the source of
 the current Moncton observations shown on the surrounding live-data panels.
+No end fade is applied to report speech. Forecast reports longer than 112
+seconds are rejected instead of being shortened. At that ceiling the host
+uses a four-second station lead-in and a four-second return, preserving the
+entire source inside the 120-second clock rather than trimming its final
+sentence.
 
-Carrier framebuffer blits are suppressed only for native-panel phases; decode
-continues on the normal full-screen output rectangle. Changing phase flips
-that presentation flag and redraws the current frame. It does not reconfigure,
-stop, reopen, seek, or take ownership of audio. Commercial slots on the
-Weather channel are never hidden and play as ordinary full-screen video.
+The carrier is a single continuously decoded full-screen timeline, including
+the rendered forecast panels. No native overlay is allowed to cover the
+decoded picture, so report speech cannot begin under a blue framebuffer.
+Changing phase does not reconfigure, stop, reopen, seek, or take ownership of
+audio.
+
+Weather commercials use only the channel-specific
+`Live/ADS/Weather/<season>` and `Live/ADS/Weather/general` pools. Seasonal
+safety spots and general local-cable-style advertising can coexist; unrelated
+shared-channel ads never leak into the Weather schedule. During an ad, the
+decoder is clipped above a 64-pixel broadcast lower-third showing a
+dimensional condition icon from the synced weather artwork plus the current
+location, temperature, condition, precipitation, wind, and high/low. The
+commercial audio/video is otherwise untouched. The lower-third is restored after
+volume, information-banner, and guide overlays without reopening, seeking, or
+changing the audio path. On hardware, the opaque strip is composited into the
+same YUV presentation buffer as the decoded frame. It does not depend on an
+ordinary framebuffer update while the iPod LCD is in YUV mode, which would
+leave the deliberately clipped bottom band black on native targets.
+
+The final host mix does not rely on repeated-file concat timestamps for
+audio. RockPod creates one normalized music bed and loops it by decoded sample
+count; the 30 clock audio tracks are concatenated as explicit filter inputs.
+The acceptance check requires the last audio packet, not merely the container
+duration, to reach the end of the 3600-second carrier.
+
+While the Weather channel is active, the green volume strip uses an
+opaque Weather-navy base rather than copying pixels from the decoded carrier.
+This prevents a presenter or previous carrier frame from appearing
+behind the volume meter; the panel is redrawn when the strip closes.
 
 ## 6. Assets
 

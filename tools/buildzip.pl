@@ -678,6 +678,76 @@ sub buildzip {
         }
     }
 
+    # Maps ships with its fixed-size, offline satellite frames.  They are
+    # loaded once by the plugin and never fetched at runtime.
+    if($width == 320 && $height == 240 &&
+       -e "$temp_dir/rocks/apps/nb_maps.rock") {
+        mkpath("$temp_dir/maps", $verbose, 0777);
+        copy("$ROOT/assets/nb_maps/world_satellite.r16",
+             "$temp_dir/maps/world_satellite.r16");
+        foreach my $globe_frame (glob("$ROOT/assets/nb_maps/world_globe_*.r16")) {
+            my $globe_name = $globe_frame;
+            $globe_name =~ s!^.*/!!;
+            copy($globe_frame, "$temp_dir/maps/$globe_name");
+        }
+        copy("$ROOT/assets/nb_maps/maritime_satellite.r16",
+             "$temp_dir/maps/maritime_satellite.r16");
+        copy("$ROOT/assets/nb_maps/moncton_imagery.rgb",
+             "$temp_dir/maps/moncton_imagery.rgb");
+        copy("$ROOT/assets/nb_maps/fredericton_imagery.rgb",
+             "$temp_dir/maps/fredericton_imagery.rgb");
+        copy("$ROOT/assets/nb_maps/fredericton_panoramax_0.rgb",
+             "$temp_dir/maps/fredericton_panoramax_0.rgb");
+        copy("$ROOT/assets/nb_maps/fredericton_panoramax_1.rgb",
+             "$temp_dir/maps/fredericton_panoramax_1.rgb");
+        copy("$ROOT/assets/nb_maps/saint_john_imagery.rgb",
+             "$temp_dir/maps/saint_john_imagery.rgb");
+        copy("$ROOT/assets/nb_maps/times_square_north.rgb",
+             "$temp_dir/maps/times_square_north.rgb");
+        copy("$ROOT/assets/nb_maps/times_square_east.rgb",
+             "$temp_dir/maps/times_square_east.rgb");
+        copy("$ROOT/assets/nb_maps/times_square_south.rgb",
+             "$temp_dir/maps/times_square_south.rgb");
+        copy("$ROOT/assets/nb_maps/times_square_west.rgb",
+             "$temp_dir/maps/times_square_west.rgb");
+        copy("$ROOT/assets/nb_maps/toronto_360_north.rgb",
+             "$temp_dir/maps/toronto_360_north.rgb");
+        copy("$ROOT/assets/nb_maps/toronto_360_east.rgb",
+             "$temp_dir/maps/toronto_360_east.rgb");
+        copy("$ROOT/assets/nb_maps/toronto_360_south.rgb",
+             "$temp_dir/maps/toronto_360_south.rgb");
+        copy("$ROOT/assets/nb_maps/toronto_360_west.rgb",
+             "$temp_dir/maps/toronto_360_west.rgb");
+        copy("$ROOT/assets/nb_maps/london_kartaview.rgb",
+             "$temp_dir/maps/london_kartaview.rgb");
+        copy("$ROOT/assets/nb_maps/berlin_kartaview.rgb",
+             "$temp_dir/maps/berlin_kartaview.rgb");
+        copy("$ROOT/assets/nb_maps/paris_panoramax.rgb",
+             "$temp_dir/maps/paris_panoramax.rgb");
+        copy("$ROOT/assets/nb_maps/toronto_panoramax_0.rgb",
+             "$temp_dir/maps/toronto_panoramax_0.rgb");
+        copy("$ROOT/assets/nb_maps/toronto_panoramax_1.rgb",
+             "$temp_dir/maps/toronto_panoramax_1.rgb");
+        copy("$ROOT/assets/nb_maps/toronto_panoramax_2.rgb",
+             "$temp_dir/maps/toronto_panoramax_2.rgb");
+        copy("$ROOT/assets/nb_maps/tokyo_panoramax.rgb",
+             "$temp_dir/maps/tokyo_panoramax.rgb");
+        my @world_tiles;
+        find(sub {
+            push @world_tiles, $File::Find::name
+                if -f $_ && $_ =~ /\.r16$/;
+        }, "$ROOT/assets/nb_maps/world_tiles");
+        foreach my $source (@world_tiles) {
+            my $relative = $source;
+            $relative =~ s!^\Q$ROOT/assets/nb_maps/world_tiles/\E!!;
+            my $destination = "$temp_dir/maps/world/$relative";
+            my $directory = $destination;
+            $directory =~ s!/[^/]+$!!;
+            mkpath($directory, $verbose, 0777);
+            copy($source, $destination);
+        }
+    }
+
     glob_unlink("$temp_dir/rocks/*.lua"); # Clean up unwanted *.lua files (e.g. actions.lua, buttons.lua)
 
     copy("$ROOT/apps/tagnavi.config", "$temp_dir/");

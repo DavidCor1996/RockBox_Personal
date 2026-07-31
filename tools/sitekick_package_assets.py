@@ -74,6 +74,13 @@ SITEKICK_BACKGROUNDS = (
     ("beatles-crosswalk", "beatles-crosswalk.png"),
     ("beatles-pepperland", "beatles-pepperland.png"),
     ("beatles-rooftop", "beatles-rooftop.png"),
+    ("hasan-news-studio", "hasan-news-studio.png"),
+    ("qtc-spotlight-stage", "qtc-spotlight-stage.png"),
+    ("maya-wildlife-perch", "maya-wildlife-perch.png"),
+    ("habs-home-ice", "habs-home-ice.png"),
+    ("polaroid-darkroom", "polaroid-darkroom.png"),
+    ("ki-arena-lightning", "ki-arena-lightning.png"),
+    ("cyberpunk-night-city", "cyberpunk-night-city-bg.png"),
 )
 BASE_PARTS = (
     ("body", "sitekick_body"),
@@ -259,6 +266,178 @@ IPOD_EXCLUSIVE_CHIPS = (
      "pokemon-great-ball", "generated/pokemon-great-ball.png"),
     (968, "aura", -3, -75, -42, "legendary", "GO Map Explorer",
      "pokemongo-map-aura", "generated/pokemongo-map-aura.png"),
+    # RockPod media wave 2. The dive/fast-food set is a purely thematic
+    # cartoon interpretation (mask, fins, wetsuit, bubbles) with no name or
+    # likeness attached. The doll set follows the "Dollhouse" video's
+    # porcelain-doll aesthetic (space buns, asymmetric doll eyes, pinafore,
+    # cracked porcelain) rather than any performer's name.
+    (969, "eyes", 5, -24, -19, "common", "Dive Mask Visor",
+     "dive-mask-visor", "generated/dive-mask-visor.png"),
+    (970, "arms", 2, -56, 10, "rare", "Fry Basket Fins",
+     "fry-basket-fins", "generated/fry-basket-fins.png"),
+    (971, "shell", -1, -48, -4, "rare", "Drive-Thru Wetsuit",
+     "drive-thru-wetsuit", "generated/drive-thru-wetsuit.png"),
+    (972, "aura", -3, -72, -46, "legendary", "Bubble Trail Aura",
+     "bubble-trail-aura", "generated/bubble-trail-aura.png"),
+    (973, "hair", 4, -50, -46, "common", "Doll Space Buns",
+     "doll-space-buns", "generated/doll-space-buns.png"),
+    (974, "eyes", 5, -24, -19, "rare", "Cracked Doll Eyes",
+     "cracked-doll-eyes", "generated/cracked-doll-eyes.png"),
+    (975, "shell", -1, -46, -3, "rare", "Dollhouse Pinafore",
+     "dollhouse-pinafore", "generated/dollhouse-pinafore.png"),
+    (976, "aura", -3, -70, -46, "legendary", "Cracked Porcelain",
+     "porcelain-crack-halo", "generated/porcelain-crack-halo.png"),
+    (977, "aura", -3, -80, -56, "legendary", "Polaroid Frame",
+     "polaroid-frame-backdrop", "generated/polaroid-frame-backdrop.png"),
+    (978, "eyes", 5, -23, -18, "common", "Flash Pop Shades",
+     "flash-pop-shades", "generated/flash-pop-shades.png"),
+    (979, "accessory", 3, 20, -18, "rare", "Instant Print Fan",
+     "instant-print-fan", "generated/instant-print-fan.png"),
+    # RockPod media wave 3: a "hero of time" homage built from generic
+    # fantasy-adventurer shapes (pointed cap, tunic, shield/sword,
+    # ocarina, heart, triforce, fairy) -- an original cartoon
+    # interpretation, no copied logos or ripped game assets.
+    (980, "hair", 4, -43, -45, "common", "Hero Cap",
+     "hero-cap", "generated/hero-cap.png"),
+    (981, "shell", -1, -48, -4, "rare", "Hero Tunic",
+     "hero-tunic", "generated/hero-tunic.png"),
+    (982, "accessory", 3, 21, -18, "legendary", "Hylian Shield",
+     "hylian-shield", "generated/hylian-shield.png"),
+    (983, "eyes", 5, -23, -19, "common", "Forest Eye Mask",
+     "forest-eye-mask", "generated/forest-eye-mask.png"),
+    (984, "accessory", 3, 22, -16, "rare", "Ocarina Charm",
+     "ocarina-charm", "generated/ocarina-charm.png"),
+    (985, "accessory", 3, 20, -17, "legendary", "Heart Container",
+     "heart-container", "generated/heart-container.png"),
+    (986, "aura", -3, -70, -46, "legendary", "Triforce Halo",
+     "triforce-halo", "generated/triforce-halo.png"),
+    (987, "aura", -3, -70, -30, "rare", "Fairy Companion",
+     "fairy-companion", "generated/fairy-companion.png"),
+    # RockPod media wave 4: two streamer homages built from generic props
+    # (backwards cap, headset, hoodie, news-ticker glow for one; ponytail,
+    # cat-eye visor, awards trophy, spotlight glow for the other) -- no
+    # portraits, no likenesses, same restraint as every prior wave.
+    (988, "hair", 4, -43, -46, "common", "Hasan Backward Cap",
+     "hasan-cap", "generated/hasan-cap.png"),
+    (989, "accessory", 3, 22, -18, "rare", "Hasan Headset Mic",
+     "hasan-headset", "generated/hasan-headset.png"),
+    (990, "shell", -1, -48, -4, "rare", "Hasan News Hoodie",
+     "hasan-hoodie", "generated/hasan-hoodie.png"),
+    (991, "aura", -3, -75, -45, "legendary", "Breaking News Aura",
+     "hasan-news-aura", "generated/hasan-news-aura.png"),
+    (992, "hair", 4, -50, -48, "common", "QTC Ponytail",
+     "qtc-ponytail", "generated/qtc-ponytail.png"),
+    (993, "eyes", 5, -23, -18, "rare", "QTC Cat-Eye Visor",
+     "qtc-visor", "generated/qtc-visor.png"),
+    (994, "accessory", 3, 22, -17, "legendary", "QTC Awards Trophy",
+     "qtc-trophy", "generated/qtc-trophy.png"),
+    (995, "aura", -3, -70, -50, "legendary", "QTC Stage Glow",
+     "qtc-spotlight-aura", "generated/qtc-spotlight-aura.png"),
+    # RockPod media wave 5: Maya Higa (generic ranger/falconry props, no
+    # likeness), Montreal Canadiens (colors + rink motifs only, no crest),
+    # and five original pet-companion critters that sit beside the body
+    # rather than on it -- same eight generic equip positions, just an
+    # anchor placed off to the side (see chip 987 Fairy Companion for the
+    # existing precedent of a beside-the-body chip).
+    (996, "hair", 4, -44, -44, "common", "Maya Ranger Hat",
+     "maya-ranger-hat", "generated/maya-ranger-hat.png"),
+    (997, "arms", 2, -55, -8, "rare", "Maya Falcon Glove",
+     "maya-falcon-glove", "generated/maya-falcon-glove.png"),
+    (998, "shell", -1, -48, -4, "rare", "Maya Field Vest",
+     "maya-field-vest", "generated/maya-field-vest.png"),
+    (999, "aura", -3, -75, -48, "legendary", "Maya Forest Aura",
+     "maya-forest-aura", "generated/maya-forest-aura.png"),
+    (1000, "shell", -1, -48, -4, "rare", "Habs Home Jersey",
+     "habs-home-jersey", "generated/habs-home-jersey.png"),
+    (1001, "arms", 2, -50, -6, "rare", "Habs Hockey Stick",
+     "habs-hockey-stick", "generated/habs-hockey-stick.png"),
+    (1002, "hair", 4, -43, -46, "common", "Habs Winter Toque",
+     "habs-winter-toque", "generated/habs-winter-toque.png"),
+    (1003, "aura", -3, -75, -46, "legendary", "Habs Rink Aura",
+     "habs-rink-aura", "generated/habs-rink-aura.png"),
+    (1004, "accessory", 3, 34, -20, "legendary", "Spyro Companion",
+     "spyro-companion", "generated/spyro-companion.png"),
+    (1005, "accessory", 3, 36, -8, "common", "Cat Companion",
+     "cat-companion", "generated/cat-companion.png"),
+    (1006, "accessory", 3, -92, -8, "common", "Dog Companion",
+     "dog-companion", "generated/dog-companion.png"),
+    (1007, "accessory", 3, -88, 6, "rare", "Turtle Companion",
+     "turtle-companion", "generated/turtle-companion.png"),
+    (1008, "aura", -3, 30, -46, "legendary", "Navi Companion",
+     "navi-companion", "generated/navi-companion.png"),
+    # RockPod media wave 6: Pink Floyd (generic floating pig, prism/
+    # spectrum beam, crossed hammers -- no album art traced), Portal 2
+    # (generic ray-gun, heart-marked cube, chunky boots, companion
+    # turret -- no game textures traced), and Old School RuneScape armor/
+    # weapon silhouettes in the games' iconic color schemes rather than
+    # copied game art.
+    (1009, "aura", -3, -70, -55, "legendary", "Flying Pig Aura",
+     "pink-floyd-pig", "generated/pink-floyd-pig.png"),
+    (1010, "aura", -3, -75, -48, "legendary", "Prism Spectrum",
+     "pink-floyd-prism", "generated/pink-floyd-prism.png"),
+    (1011, "accessory", 3, 22, -18, "rare", "Marching Hammers",
+     "pink-floyd-hammers", "generated/pink-floyd-hammers.png"),
+    (1012, "accessory", 3, 20, -14, "legendary", "Portal Gun",
+     "portal-gun", "generated/portal-gun.png"),
+    (1013, "accessory", 3, 36, -6, "rare", "Companion Cube",
+     "companion-cube", "generated/companion-cube.png"),
+    (1014, "arms", 2, -58, 10, "common", "Long Fall Boots",
+     "long-fall-boots", "generated/long-fall-boots.png"),
+    (1015, "accessory", 3, -90, -14, "legendary", "Aperture Turret",
+     "aperture-turret", "generated/aperture-turret.png"),
+    (1016, "shell", -1, -48, -4, "rare", "Rune Platebody",
+     "osrs-rune-platebody", "generated/osrs-rune-platebody.png"),
+    (1017, "shell", -1, -48, -4, "legendary", "Dragon Platebody",
+     "osrs-dragon-platebody", "generated/osrs-dragon-platebody.png"),
+    (1018, "arms", 2, -50, -40, "legendary", "Ornate Godsword",
+     "osrs-godsword", "generated/osrs-godsword.png"),
+    (1019, "accessory", 3, 24, -20, "legendary", "Abyssal Whip",
+     "osrs-abyssal-whip", "generated/osrs-abyssal-whip.png"),
+    (1020, "arms", 2, -55, -10, "legendary", "Dragon Claws",
+     "osrs-dragon-claws", "generated/osrs-dragon-claws.png"),
+    # RockPod media wave 7: more popular OSRS items for the "Runes" set --
+    # original silhouettes in each item's iconic color scheme, no traced
+    # game icons.
+    (1021, "hair", 4, -35, -50, "legendary", "OSRS Party Hat",
+     "osrs-party-hat", "generated/osrs-party-hat.png"),
+    (1022, "hair", 4, -38, -50, "legendary", "OSRS Santa Hat",
+     "osrs-santa-hat", "generated/osrs-santa-hat.png"),
+    (1023, "shell", -1, -48, -4, "legendary", "OSRS Fire Cape",
+     "osrs-fire-cape", "generated/osrs-fire-cape.png"),
+    (1024, "shell", -1, -48, -4, "legendary", "OSRS Max Cape",
+     "osrs-max-cape", "generated/osrs-max-cape.png"),
+    (1025, "accessory", 3, 22, -30, "legendary", "Twisted Bow",
+     "osrs-twisted-bow", "generated/osrs-twisted-bow.png"),
+    (1026, "arms", 2, -45, -35, "legendary", "Dragon Scimitar",
+     "osrs-dragon-scimitar", "generated/osrs-dragon-scimitar.png"),
+    (1027, "accessory", 3, -20, -22, "legendary", "Amulet of Fury",
+     "osrs-amulet-of-fury", "generated/osrs-amulet-of-fury.png"),
+    (1028, "arms", 2, -55, -8, "legendary", "Barrows Gloves",
+     "osrs-barrows-gloves", "generated/osrs-barrows-gloves.png"),
+    # RockPod media wave 8: more Polaroid pieces, Killer Instinct (generic
+    # lightning "combo" burst, glowing ninja visor, energy blades -- no
+    # character likeness), and Cyberpunk 2077 (generic neon visor, chrome
+    # arm, retractable arm blades, neon skyline -- no game textures/logos).
+    (1029, "accessory", 3, 22, -18, "rare", "Polaroid Camera",
+     "polaroid-camera", "generated/polaroid-camera.png"),
+    (1030, "accessory", 3, -20, -20, "common", "Photo Strip",
+     "photo-strip", "generated/photo-strip.png"),
+    (1031, "aura", -3, -75, -48, "legendary", "Retro Filmstrip",
+     "retro-filmstrip", "generated/retro-filmstrip.png"),
+    (1032, "aura", -3, -75, -46, "legendary", "Ultra Combo Aura",
+     "ki-ultra-combo", "generated/ki-ultra-combo.png"),
+    (1033, "eyes", 5, -23, -18, "rare", "Cyber Ninja Visor",
+     "ki-ninja-visor", "generated/ki-ninja-visor.png"),
+    (1034, "arms", 2, -55, -10, "legendary", "Energy Blades",
+     "ki-energy-blades", "generated/ki-energy-blades.png"),
+    (1035, "eyes", 5, -23, -18, "rare", "Neon Visor",
+     "cyberpunk-neon-visor", "generated/cyberpunk-neon-visor.png"),
+    (1036, "arms", 2, -30, -8, "legendary", "Chrome Cyberarm",
+     "cyberpunk-cyberarm", "generated/cyberpunk-cyberarm.png"),
+    (1037, "accessory", 3, 20, -10, "legendary", "Mantis Blades",
+     "cyberpunk-mantis-blades", "generated/cyberpunk-mantis-blades.png"),
+    (1038, "aura", -3, -75, -45, "legendary", "Night City Neon",
+     "cyberpunk-night-city", "generated/cyberpunk-night-city.png"),
 )
 
 SECRET_CODE_GRANTS = (
@@ -278,6 +457,19 @@ SECRET_CODE_GRANTS = (
     ("BLACKERY", 920, "Villains Ringer Tee"),
     ("BLACKERY", 921, "Box Pigtails"),
     ("BLACKERY", 922, "Box Stripe Sweater"),
+    ("RUNES", 1016, "Rune Platebody"),
+    ("RUNES", 1017, "Dragon Platebody"),
+    ("RUNES", 1018, "Ornate Godsword"),
+    ("RUNES", 1019, "Abyssal Whip"),
+    ("RUNES", 1020, "Dragon Claws"),
+    ("RUNES", 1021, "OSRS Party Hat"),
+    ("RUNES", 1022, "OSRS Santa Hat"),
+    ("RUNES", 1023, "OSRS Fire Cape"),
+    ("RUNES", 1024, "OSRS Max Cape"),
+    ("RUNES", 1025, "Twisted Bow"),
+    ("RUNES", 1026, "Dragon Scimitar"),
+    ("RUNES", 1027, "Amulet of Fury"),
+    ("RUNES", 1028, "Barrows Gloves"),
 )
 
 
@@ -497,6 +689,26 @@ def classify(ax: int, ay: int, w: int, h: int, body_w: int, body_h: int) -> str:
     return "shell"
 
 
+def assert_stage_fit(cid: int, name: str, ax: int, ay: int,
+                     w: int, h: int) -> None:
+    """Fail loudly instead of shipping pixels sitekick.c silently clips.
+
+    The runtime draws every chip relative to the body origin and never
+    scrolls the stage, so anything outside this box is truncated at blit
+    time rather than at build time (see the preserved-catalogue crop a few
+    lines up).  The iPod-exclusive series bypasses that crop entirely, so it
+    must be checked explicitly here.
+    """
+    vis_l, vis_t = -BODY_ORIGIN_X, -BODY_ORIGIN_Y
+    vis_r, vis_b = vis_l + STAGE_W, vis_t + STAGE_H
+    if not (ax >= vis_l and ay >= vis_t and ax + w <= vis_r and ay + h <= vis_b):
+        raise ValueError(
+            f"chip {cid} ({name!r}) does not fit the stage: "
+            f"anchor=({ax},{ay}) size=({w},{h}) stage="
+            f"[{vis_l},{vis_t}..{vis_r},{vis_b}]"
+        )
+
+
 def rarity_for(cid: int) -> str:
     digest = hashlib.sha256(f"sitekick-chip-{cid}".encode()).digest()
     return RARITIES[digest[0] % len(RARITIES)]
@@ -556,6 +768,21 @@ def clear_alpha_ellipse(img: Image.Image,
     result = img.copy()
     alpha = result.getchannel("A")
     ImageDraw.Draw(alpha).ellipse(box, fill=0)
+    result.putalpha(alpha)
+    return result
+
+
+def snap_alpha(img: Image.Image, threshold: int = 4) -> Image.Image:
+    """Zero out near-invisible LANCZOS ringing so corners stay true alpha.
+
+    contain_alpha's thumbnail resize can leave a 1-3/255 alpha residue at
+    otherwise-transparent corners of large flat shapes (e.g. a near-full-
+    canvas rounded rectangle). It is invisible but fails a strict "no
+    corner matte" check and doesn't match the rest of the catalogue, which
+    has exact zero there.
+    """
+    alpha = img.getchannel("A").point(lambda a: 0 if a < threshold else a)
+    result = img.copy()
     result.putalpha(alpha)
     return result
 
@@ -946,6 +1173,352 @@ def build_ipod_exclusive_image(kind: str, out_root: Path) -> Image.Image:
         return contain_alpha(
             Image.open(generated / "pokemongo-map-aura.png"), (150, 120)
         )
+    if kind == "dive-mask-visor":
+        return snap_alpha(contain_alpha(
+            Image.open(generated / "dive-mask-visor.png"), (48, 22)
+        ))
+    if kind == "fry-basket-fins":
+        return snap_alpha(contain_alpha(
+            Image.open(generated / "fry-basket-fins.png"), (112, 52)
+        ))
+    if kind == "drive-thru-wetsuit":
+        wetsuit = contain_alpha(
+            Image.open(generated / "drive-thru-wetsuit.png"), (96, 80)
+        )
+        return snap_alpha(clear_alpha_ellipse(wetsuit, (34, 0, 62, 24)))
+    if kind == "bubble-trail-aura":
+        return snap_alpha(contain_alpha(
+            Image.open(generated / "bubble-trail-aura.png"), (144, 112)
+        ))
+    if kind == "doll-space-buns":
+        buns = contain_alpha(
+            Image.open(generated / "doll-space-buns.png"), (100, 74)
+        )
+        return snap_alpha(clear_alpha_ellipse(buns, (30, 18, 70, 76)))
+    if kind == "cracked-doll-eyes":
+        return snap_alpha(contain_alpha(
+            Image.open(generated / "cracked-doll-eyes.png"), (48, 20)
+        ))
+    if kind == "dollhouse-pinafore":
+        pinafore = contain_alpha(
+            Image.open(generated / "dollhouse-pinafore.png"), (92, 76)
+        )
+        return snap_alpha(clear_alpha_ellipse(pinafore, (32, 3, 60, 17)))
+    if kind == "porcelain-crack-halo":
+        return snap_alpha(contain_alpha(
+            Image.open(generated / "porcelain-crack-halo.png"), (140, 120)
+        ))
+    if kind == "polaroid-frame-backdrop":
+        return snap_alpha(contain_alpha(
+            Image.open(generated / "polaroid-frame-backdrop.png"), (160, 140)
+        ))
+    if kind == "flash-pop-shades":
+        return snap_alpha(contain_alpha(
+            Image.open(generated / "flash-pop-shades.png"), (46, 18)
+        ))
+    if kind == "instant-print-fan":
+        canvas = Image.new("RGBA", (60, 74), (0, 0, 0, 0))
+        fan = contain_alpha(
+            Image.open(generated / "instant-print-fan.png"), (50, 70)
+        )
+        hands = read_bmp32_alpha(out_root / "chips" / "0406.bmp")
+        hands, _, _ = trim(hands)
+        left_hand = hands.crop((0, 0, hands.width // 2, hands.height))
+        canvas.alpha_composite(fan, (10, 0))
+        canvas.alpha_composite(left_hand, (0, 44))
+        return snap_alpha(canvas)
+    if kind == "hero-cap":
+        cap = contain_alpha(Image.open(generated / "hero-cap.png"), (84, 56))
+        return snap_alpha(clear_alpha_ellipse(cap, (22, 24, 62, 60)))
+    if kind == "hero-tunic":
+        tunic = contain_alpha(
+            Image.open(generated / "hero-tunic.png"), (96, 80)
+        )
+        return snap_alpha(clear_alpha_ellipse(tunic, (34, 0, 62, 24)))
+    if kind == "hylian-shield":
+        canvas = Image.new("RGBA", (62, 76), (0, 0, 0, 0))
+        shield = contain_alpha(
+            Image.open(generated / "hylian-shield.png"), (52, 70)
+        )
+        hands = read_bmp32_alpha(out_root / "chips" / "0406.bmp")
+        hands, _, _ = trim(hands)
+        left_hand = hands.crop((0, 0, hands.width // 2, hands.height))
+        canvas.alpha_composite(shield, (8, 0))
+        canvas.alpha_composite(left_hand, (0, 44))
+        return snap_alpha(canvas)
+    if kind == "forest-eye-mask":
+        return snap_alpha(contain_alpha(
+            Image.open(generated / "forest-eye-mask.png"), (46, 20)
+        ))
+    if kind == "ocarina-charm":
+        canvas = Image.new("RGBA", (58, 66), (0, 0, 0, 0))
+        ocarina = contain_alpha(
+            Image.open(generated / "ocarina-charm.png"), (46, 54)
+        )
+        hands = read_bmp32_alpha(out_root / "chips" / "0406.bmp")
+        hands, _, _ = trim(hands)
+        left_hand = hands.crop((0, 0, hands.width // 2, hands.height))
+        canvas.alpha_composite(ocarina, (10, 0))
+        canvas.alpha_composite(left_hand, (0, 36))
+        return snap_alpha(canvas)
+    if kind == "heart-container":
+        canvas = Image.new("RGBA", (54, 78), (0, 0, 0, 0))
+        heart = contain_alpha(
+            Image.open(generated / "heart-container.png"), (44, 58)
+        )
+        hands = read_bmp32_alpha(out_root / "chips" / "0406.bmp")
+        hands, _, _ = trim(hands)
+        left_hand = hands.crop((0, 0, hands.width // 2, hands.height))
+        canvas.alpha_composite(heart, (8, 0))
+        canvas.alpha_composite(left_hand, (0, 40))
+        return snap_alpha(canvas)
+    if kind == "triforce-halo":
+        return snap_alpha(contain_alpha(
+            Image.open(generated / "triforce-halo.png"), (140, 96)
+        ))
+    if kind == "fairy-companion":
+        return snap_alpha(contain_alpha(
+            Image.open(generated / "fairy-companion.png"), (100, 86)
+        ))
+    if kind == "hasan-cap":
+        return snap_alpha(contain_alpha(
+            Image.open(generated / "hasan-cap.png"), (84, 58)
+        ))
+    if kind == "hasan-headset":
+        canvas = Image.new("RGBA", (60, 74), (0, 0, 0, 0))
+        headset = contain_alpha(
+            Image.open(generated / "hasan-headset.png"), (54, 66)
+        )
+        hands = read_bmp32_alpha(out_root / "chips" / "0406.bmp")
+        hands, _, _ = trim(hands)
+        left_hand = hands.crop((0, 0, hands.width // 2, hands.height))
+        canvas.alpha_composite(headset, (4, 0))
+        canvas.alpha_composite(left_hand, (0, 40))
+        return snap_alpha(canvas)
+    if kind == "hasan-hoodie":
+        hoodie = contain_alpha(
+            Image.open(generated / "hasan-hoodie.png"), (96, 80)
+        )
+        return snap_alpha(clear_alpha_ellipse(hoodie, (34, 0, 62, 24)))
+    if kind == "hasan-news-aura":
+        return snap_alpha(contain_alpha(
+            Image.open(generated / "hasan-news-aura.png"), (150, 90)
+        ))
+    if kind == "qtc-ponytail":
+        hair = contain_alpha(
+            Image.open(generated / "qtc-ponytail.png"), (100, 94)
+        )
+        return snap_alpha(clear_alpha_ellipse(hair, (29, 31, 71, 95)))
+    if kind == "qtc-visor":
+        return snap_alpha(contain_alpha(
+            Image.open(generated / "qtc-visor.png"), (46, 20)
+        ))
+    if kind == "qtc-trophy":
+        canvas = Image.new("RGBA", (58, 76), (0, 0, 0, 0))
+        trophy = contain_alpha(
+            Image.open(generated / "qtc-trophy.png"), (46, 58)
+        )
+        hands = read_bmp32_alpha(out_root / "chips" / "0406.bmp")
+        hands, _, _ = trim(hands)
+        left_hand = hands.crop((0, 0, hands.width // 2, hands.height))
+        canvas.alpha_composite(trophy, (6, 0))
+        canvas.alpha_composite(left_hand, (0, 42))
+        return snap_alpha(canvas)
+    if kind == "qtc-spotlight-aura":
+        return snap_alpha(contain_alpha(
+            Image.open(generated / "qtc-spotlight-aura.png"), (140, 110)
+        ))
+    if kind == "maya-ranger-hat":
+        return snap_alpha(contain_alpha(
+            Image.open(generated / "maya-ranger-hat.png"), (88, 52)
+        ))
+    if kind == "maya-falcon-glove":
+        return snap_alpha(contain_alpha(
+            Image.open(generated / "maya-falcon-glove.png"), (110, 64)
+        ))
+    if kind == "maya-field-vest":
+        vest = contain_alpha(
+            Image.open(generated / "maya-field-vest.png"), (96, 80)
+        )
+        return snap_alpha(clear_alpha_ellipse(vest, (34, 0, 62, 24)))
+    if kind == "maya-forest-aura":
+        return snap_alpha(contain_alpha(
+            Image.open(generated / "maya-forest-aura.png"), (150, 100)
+        ))
+    if kind == "habs-home-jersey":
+        jersey = contain_alpha(
+            Image.open(generated / "habs-home-jersey.png"), (96, 80)
+        )
+        return snap_alpha(clear_alpha_ellipse(jersey, (34, 0, 62, 24)))
+    if kind == "habs-hockey-stick":
+        return snap_alpha(contain_alpha(
+            Image.open(generated / "habs-hockey-stick.png"), (100, 90)
+        ))
+    if kind == "habs-winter-toque":
+        return snap_alpha(contain_alpha(
+            Image.open(generated / "habs-winter-toque.png"), (84, 58)
+        ))
+    if kind == "habs-rink-aura":
+        return snap_alpha(contain_alpha(
+            Image.open(generated / "habs-rink-aura.png"), (150, 100)
+        ))
+    if kind == "spyro-companion":
+        return snap_alpha(contain_alpha(
+            Image.open(generated / "spyro-companion.png"), (60, 48)
+        ))
+    if kind == "cat-companion":
+        return snap_alpha(contain_alpha(
+            Image.open(generated / "cat-companion.png"), (50, 40)
+        ))
+    if kind == "dog-companion":
+        return snap_alpha(contain_alpha(
+            Image.open(generated / "dog-companion.png"), (54, 42)
+        ))
+    if kind == "turtle-companion":
+        return snap_alpha(contain_alpha(
+            Image.open(generated / "turtle-companion.png"), (52, 34)
+        ))
+    if kind == "navi-companion":
+        return snap_alpha(contain_alpha(
+            Image.open(generated / "navi-companion.png"), (40, 40)
+        ))
+    if kind == "pink-floyd-pig":
+        return snap_alpha(contain_alpha(
+            Image.open(generated / "pink-floyd-pig.png"), (140, 90)
+        ))
+    if kind == "pink-floyd-prism":
+        return snap_alpha(contain_alpha(
+            Image.open(generated / "pink-floyd-prism.png"), (150, 100)
+        ))
+    if kind == "pink-floyd-hammers":
+        return snap_alpha(contain_alpha(
+            Image.open(generated / "pink-floyd-hammers.png"), (64, 64)
+        ))
+    if kind == "portal-gun":
+        canvas = Image.new("RGBA", (70, 60), (0, 0, 0, 0))
+        gun = contain_alpha(Image.open(generated / "portal-gun.png"),
+                            (60, 50))
+        hands = read_bmp32_alpha(out_root / "chips" / "0406.bmp")
+        hands, _, _ = trim(hands)
+        left_hand = hands.crop((0, 0, hands.width // 2, hands.height))
+        canvas.alpha_composite(gun, (6, 0))
+        canvas.alpha_composite(left_hand, (2, 32))
+        return snap_alpha(canvas)
+    if kind == "companion-cube":
+        return snap_alpha(contain_alpha(
+            Image.open(generated / "companion-cube.png"), (56, 56)
+        ))
+    if kind == "long-fall-boots":
+        return snap_alpha(contain_alpha(
+            Image.open(generated / "long-fall-boots.png"), (110, 60)
+        ))
+    if kind == "aperture-turret":
+        return snap_alpha(contain_alpha(
+            Image.open(generated / "aperture-turret.png"), (54, 54)
+        ))
+    if kind == "osrs-rune-platebody":
+        armor = contain_alpha(
+            Image.open(generated / "osrs-rune-platebody.png"), (96, 80)
+        )
+        return snap_alpha(clear_alpha_ellipse(armor, (34, 0, 62, 24)))
+    if kind == "osrs-dragon-platebody":
+        armor = contain_alpha(
+            Image.open(generated / "osrs-dragon-platebody.png"), (96, 80)
+        )
+        return snap_alpha(clear_alpha_ellipse(armor, (34, 0, 62, 24)))
+    if kind == "osrs-godsword":
+        return snap_alpha(contain_alpha(
+            Image.open(generated / "osrs-godsword.png"), (100, 90)
+        ))
+    if kind == "osrs-abyssal-whip":
+        return snap_alpha(contain_alpha(
+            Image.open(generated / "osrs-abyssal-whip.png"), (60, 80)
+        ))
+    if kind == "osrs-dragon-claws":
+        return snap_alpha(contain_alpha(
+            Image.open(generated / "osrs-dragon-claws.png"), (110, 64)
+        ))
+    if kind == "osrs-party-hat":
+        return snap_alpha(contain_alpha(
+            Image.open(generated / "osrs-party-hat.png"), (70, 60)
+        ))
+    if kind == "osrs-santa-hat":
+        return snap_alpha(contain_alpha(
+            Image.open(generated / "osrs-santa-hat.png"), (76, 66)
+        ))
+    if kind == "osrs-fire-cape":
+        cape = contain_alpha(
+            Image.open(generated / "osrs-fire-cape.png"), (96, 80)
+        )
+        return snap_alpha(clear_alpha_ellipse(cape, (34, 0, 62, 24)))
+    if kind == "osrs-max-cape":
+        cape = contain_alpha(
+            Image.open(generated / "osrs-max-cape.png"), (96, 80)
+        )
+        return snap_alpha(clear_alpha_ellipse(cape, (34, 0, 62, 24)))
+    if kind == "osrs-twisted-bow":
+        return snap_alpha(contain_alpha(
+            Image.open(generated / "osrs-twisted-bow.png"), (60, 90)
+        ))
+    if kind == "osrs-dragon-scimitar":
+        return snap_alpha(contain_alpha(
+            Image.open(generated / "osrs-dragon-scimitar.png"), (90, 80)
+        ))
+    if kind == "osrs-amulet-of-fury":
+        return snap_alpha(contain_alpha(
+            Image.open(generated / "osrs-amulet-of-fury.png"), (40, 45)
+        ))
+    if kind == "osrs-barrows-gloves":
+        return snap_alpha(contain_alpha(
+            Image.open(generated / "osrs-barrows-gloves.png"), (110, 64)
+        ))
+    if kind == "polaroid-camera":
+        canvas = Image.new("RGBA", (60, 74), (0, 0, 0, 0))
+        camera = contain_alpha(
+            Image.open(generated / "polaroid-camera.png"), (54, 60)
+        )
+        hands = read_bmp32_alpha(out_root / "chips" / "0406.bmp")
+        hands, _, _ = trim(hands)
+        left_hand = hands.crop((0, 0, hands.width // 2, hands.height))
+        canvas.alpha_composite(camera, (4, 0))
+        canvas.alpha_composite(left_hand, (0, 42))
+        return snap_alpha(canvas)
+    if kind == "photo-strip":
+        return snap_alpha(contain_alpha(
+            Image.open(generated / "photo-strip.png"), (40, 70)
+        ))
+    if kind == "retro-filmstrip":
+        return snap_alpha(contain_alpha(
+            Image.open(generated / "retro-filmstrip.png"), (150, 100)
+        ))
+    if kind == "ki-ultra-combo":
+        return snap_alpha(contain_alpha(
+            Image.open(generated / "ki-ultra-combo.png"), (150, 100)
+        ))
+    if kind == "ki-ninja-visor":
+        return snap_alpha(contain_alpha(
+            Image.open(generated / "ki-ninja-visor.png"), (46, 20)
+        ))
+    if kind == "ki-energy-blades":
+        return snap_alpha(contain_alpha(
+            Image.open(generated / "ki-energy-blades.png"), (110, 70)
+        ))
+    if kind == "cyberpunk-neon-visor":
+        return snap_alpha(contain_alpha(
+            Image.open(generated / "cyberpunk-neon-visor.png"), (46, 20)
+        ))
+    if kind == "cyberpunk-cyberarm":
+        return snap_alpha(contain_alpha(
+            Image.open(generated / "cyberpunk-cyberarm.png"), (60, 90)
+        ))
+    if kind == "cyberpunk-mantis-blades":
+        return snap_alpha(contain_alpha(
+            Image.open(generated / "cyberpunk-mantis-blades.png"), (70, 60)
+        ))
+    if kind == "cyberpunk-night-city":
+        return snap_alpha(contain_alpha(
+            Image.open(generated / "cyberpunk-night-city.png"), (150, 100)
+        ))
     raise ValueError(f"unknown iPod-exclusive composition: {kind}")
 
 
@@ -1472,6 +2045,7 @@ def build(art_root: Path, out_root: Path) -> int:
     for (cid, slot, z, ax, ay, rarity, name, kind,
          primary_source) in IPOD_EXCLUSIVE_CHIPS:
         composed = build_ipod_exclusive_image(kind, out_root)
+        assert_stage_fit(cid, name, ax, ay, composed.width, composed.height)
         write_bmp32(chip_dir / f"{cid:04d}.bmp", composed)
         tile, _, _ = trim(composed)
         tile.thumbnail((ICON_PX, ICON_PX), Image.LANCZOS)
@@ -1568,6 +2142,15 @@ def build(art_root: Path, out_root: Path) -> int:
     )
     series.append(
         "pokemon-go\tPokemon GO\t960,961,962,964,965,968"
+    )
+    series.append(
+        "fast-food-dive\tFast Food House Dive\t969,970,971,972"
+    )
+    series.append(
+        "dollhouse\tDollhouse\t973,974,975,976"
+    )
+    series.append(
+        "polaroid\tPolaroid\t977,978,979"
     )
     (data_dir / "series.v1.tsv").write_text("\n".join(series) + "\n")
 

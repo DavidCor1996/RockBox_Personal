@@ -159,6 +159,15 @@ static void vo_draw_yuv_overlay(uint8_t * const *buf)
     int screen_y;
     int x;
     int y;
+    bool weather_panel =
+        mpegplayer_livetv_launch &&
+        mpegplayer_livetv_weather_active &&
+        !mpegplayer_livetv_desktop &&
+        !mpegplayer_livetv_pig;
+    /* BT.601 limited-range YUV for the Weather panel navy #031637. */
+    const unsigned char panel_y = 33;
+    const unsigned char panel_u = 145;
+    const unsigned char panel_v = 117;
 
     if (buf == NULL || height <= 0 || height > VO_YUV_OVERLAY_MAX_H)
         return;
@@ -172,7 +181,11 @@ static void vo_draw_yuv_overlay(uint8_t * const *buf)
 
         for (x = 0; x < LCD_WIDTH; x++)
         {
-            if (x >= vo.output_x &&
+            if (weather_panel)
+            {
+                overlay[0][y * LCD_WIDTH + x] = panel_y;
+            }
+            else if (x >= vo.output_x &&
                 x < vo.output_x + vo.output_width &&
                 display_y >= vo.output_y &&
                 display_y < vo.output_y + vo.output_height)
@@ -199,7 +212,12 @@ static void vo_draw_yuv_overlay(uint8_t * const *buf)
             int display_x = x * 2;
             int index = y * (LCD_WIDTH / 2) + x;
 
-            if (display_x >= vo.output_x &&
+            if (weather_panel)
+            {
+                overlay[1][index] = panel_u;
+                overlay[2][index] = panel_v;
+            }
+            else if (display_x >= vo.output_x &&
                 display_x < vo.output_x + vo.output_width &&
                 display_y >= vo.output_y &&
                 display_y < vo.output_y + vo.output_height)
@@ -319,6 +337,12 @@ void vo_draw_frame(uint8_t * const * buf)
         DEBUGF("vo hidden\n");
     }
 #ifdef HAVE_LCD_COLOR
+    else if (mpegplayer_livetv_launch && mpegplayer_livetv_pin_active)
+    {
+        /* Keep decoding normally, but the PIN prompt owns the framebuffer
+         * until entry completes. This prevents picture-in-guide frames from
+         * punching through the password screen. */
+    }
     else if (mpegplayer_livetv_launch &&
              mpegplayer_livetv_weather_hidden &&
              !mpegplayer_livetv_pig)

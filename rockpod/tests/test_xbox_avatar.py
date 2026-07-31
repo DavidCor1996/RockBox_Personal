@@ -428,6 +428,11 @@ def test_bundled_mspl_avatar_assets_decode_and_sync(tmp_path):
     assert "gamerscore\t640" in profile_text
     assert "skin_colour\tmedium" in profile_text
     assert "decal\trockbox" in profile_text
+    menu_frames = sorted((generation_root / "menu").glob("frame-*.bmp"))
+    # "throw" is a ten-frame Microsoft XNA emote.  The menu must preserve
+    # that animation rather than replacing it with twelve turntable angles.
+    assert len(menu_frames) == len(service.frames("throw", "preview")) == 10
+    assert len({frame.read_bytes() for frame in menu_frames}) > 1
 
     for clip in CLIPS:
         payload = (generation_root / "clips" / f"{clip}.rav").read_bytes()

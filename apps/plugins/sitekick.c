@@ -29,6 +29,24 @@
 
 static const struct button_mapping *plugin_contexts[] = { pla_main_ctx };
 
+enum sk_preset_name_action
+{
+    SK_ACTION_PRESET_SAVE = LAST_PLUGINLIB_ACTION + 1,
+    SK_ACTION_PRESET_CANCEL
+};
+
+static const struct button_mapping sk_preset_name_ctx[] =
+{
+    { SK_ACTION_PRESET_SAVE, BUTTON_PLAY, BUTTON_NONE },
+    { SK_ACTION_PRESET_CANCEL, BUTTON_MENU, BUTTON_NONE },
+    LAST_ITEM_IN_LIST__NEXTLIST(CONTEXT_PLUGIN),
+};
+
+static const struct button_mapping *sk_preset_name_contexts[] =
+{
+    sk_preset_name_ctx, pla_main_ctx
+};
+
 #define SK_ROOT         ROCKBOX_DIR "/sitekick"
 #define SK_BASE_DIR     SK_ROOT "/base"
 #define SK_CHIP_DIR     SK_ROOT "/chips"
@@ -101,7 +119,7 @@ static const struct button_mapping *plugin_contexts[] = { pla_main_ctx };
 #define SK_ICON_ROWS    10
 #define SK_ICONS_PER_PAGE (SK_ICONS_PER_ROW * SK_ICON_ROWS)
 
-#define SK_MAX_CHIPS    512
+#define SK_MAX_CHIPS    1024
 #define SK_NAME_MAX     20
 #define SK_TEXT_BUF     4096
 
@@ -141,8 +159,15 @@ enum sk_scene
     SK_SCENE_BACKGROUND,
     SK_SCENE_GAMES,
     SK_SCENE_STATS,
-    SK_SCENE_INBOX
+    SK_SCENE_INBOX,
+    SK_SCENE_SHOP,
+    SK_SCENE_PRESETS
 };
+
+#define SK_WORKSHOP_PRESETS      (SK_SLOT_COUNT + 8)
+#define SK_WORKSHOP_SAVE_PRESET  (SK_SLOT_COUNT + 9)
+#define SK_WORKSHOP_CLEAR         (SK_SLOT_COUNT + 10)
+#define SK_WORKSHOP_ITEMS         (SK_SLOT_COUNT + 11)
 
 struct sk_chip
 {
@@ -223,17 +248,27 @@ static bool sk_chips_truncated;
 #define SK_OWNED_WORDS  ((SK_MAX_CHIPS + 31) / 32)
 #define SK_SAVE1_MAGIC  "SKS1"
 #define SK_SAVE2_MAGIC  "SKS2"
+#define SK_SAVE3_MAGIC  "SKS3"
 #define SK_SAVE1_BYTES  (16 + SK_OWNED_WORDS * 4 + SK_SLOT_COUNT * 2)
 #define SK_SAVE2_BASE_HEADER (16 + SK_SLOT_COUNT * 2)
 #define SK_SAVE2_DUMP_HEADER (SK_SAVE2_BASE_HEADER + 8)
 #define SK_SAVE2_HEADER (SK_SAVE2_DUMP_HEADER + 8)
-#define SK_SAVE2_BYTES  (SK_SAVE2_HEADER + SK_MAX_CHIPS * 2)
+#define SK_SHOP_SLOTS   6
+#define SK_SAVE2_SHOP_HEADER (SK_SAVE2_HEADER + 4 + SK_SHOP_SLOTS * 2)
+#define SK_SAVE2_BYTES  (SK_SAVE2_SHOP_HEADER + SK_MAX_CHIPS * 2)
+#define SK_PRESET_COUNT 8
+#define SK_PRESET_NAME_MAX 21
+#define SK_PRESET_BYTES (3 + SK_PRESET_NAME_MAX + SK_SLOT_COUNT * 2)
+#define SK_SAVE3_HEADER (SK_SAVE2_SHOP_HEADER + 2 + \
+                         SK_PRESET_COUNT * SK_PRESET_BYTES)
+#define SK_SAVE3_BYTES  (SK_SAVE3_HEADER + SK_MAX_CHIPS * 2)
 #define SK_NO_CHIP_ID   0xffff
+#define SK_SHOP_PERIOD_SEC (2 * 60 * 60)
 
 static uint32_t sk_owned[SK_OWNED_WORDS];
 static int16_t sk_equipped[SK_SLOT_COUNT];   /* chip index, -1 = empty */
 static uint16_t sk_owned_ids[SK_MAX_CHIPS];
-static unsigned char sk_save_data[SK_SAVE2_BYTES];
+static unsigned char sk_save_data[SK_SAVE3_BYTES];
 static uint32_t sk_xp;
 static uint32_t sk_coins;
 static bool sk_dirty;
@@ -241,6 +276,21 @@ static int16_t sk_dump_index = -1;
 static uint32_t sk_dump_ready_at;
 static uint8_t sk_body_color;
 static uint8_t sk_background;
+static int16_t sk_shop_stock[SK_SHOP_SLOTS];   /* chip index, -1 = sold */
+static uint32_t sk_shop_ready_at;
+static const uint32_t sk_shop_prices[SK_RARITY_COUNT] = { 60, 180, 500 };
+
+struct sk_preset
+{
+    bool active;
+    uint8_t body_color;
+    uint8_t background;
+    uint16_t equipped_ids[SK_SLOT_COUNT];
+    char name[SK_PRESET_NAME_MAX];
+};
+
+static struct sk_preset sk_presets[SK_PRESET_COUNT];
+static int sk_preset_index = -1;
 
 /* --- ui state ----------------------------------------------------------- */
 static enum sk_scene sk_scene = SK_SCENE_WORKSHOP;
@@ -255,6 +305,11 @@ static int sk_game_icons[3] = { -1, -1, -1 };
 
 static bool sk_sounds_on = true;
 static bool sk_sounds_over_music = true;
+
+static bool sk_preset_name_input(char *name, size_t size);
+static void sk_draw_workshop(void);
+static void sk_center_text(int y, const char *text, unsigned color);
+static void sk_clear_loadout(void);
 
 #if LCD_WIDTH >= 1920
 static bool sk_desktop_mode;
@@ -291,7 +346,7 @@ static int sk_dm_drag_source_slot = -1;
 #define SK_COL_RULE         LCD_RGBPACK(0x4c, 0x0b, 0x64)
 
 #define SK_BODY_COLOR_COUNT 7
-#define SK_BACKGROUND_COUNT 12
+#define SK_BACKGROUND_COUNT 19
 
 static const char * const sk_body_color_names[SK_BODY_COLOR_COUNT] =
 {
@@ -304,7 +359,10 @@ static const char * const sk_background_names[SK_BACKGROUND_COUNT] =
     "Sitekick Splash", "Butterfly", "Purple Gear",
     "Blue Gear", "Aqua Leaf", "Ooze Grid",
     "Oliver Scrapyard", "Emma Neon Box", "Oliver Alone Crowd",
-    "Beatles Crosswalk", "Beatles Pepperland", "Beatles Rooftop"
+    "Beatles Crosswalk", "Beatles Pepperland", "Beatles Rooftop",
+    "Hasan News Studio", "QTC Spotlight Stage", "Maya Wildlife Perch",
+    "Habs Home Ice", "Polaroid Darkroom", "KI Arena Lightning",
+    "Cyberpunk Night City"
 };
 
 static const unsigned sk_background_colors[SK_BACKGROUND_COUNT] =
@@ -321,6 +379,13 @@ static const unsigned sk_background_colors[SK_BACKGROUND_COUNT] =
     LCD_RGBPACK(0x54, 0x3e, 0x78),
     LCD_RGBPACK(0x09, 0x83, 0xde),
     LCD_RGBPACK(0xc5, 0x62, 0x28),
+    LCD_RGBPACK(0x53, 0x15, 0x27),
+    LCD_RGBPACK(0x52, 0x33, 0x4a),
+    LCD_RGBPACK(0x70, 0xb0, 0x91),
+    LCD_RGBPACK(0xc6, 0xd4, 0xe3),
+    LCD_RGBPACK(0x35, 0x1c, 0x17),
+    LCD_RGBPACK(0x39, 0x17, 0x21),
+    LCD_RGBPACK(0x1c, 0x11, 0x2a),
 };
 
 #if LCD_WIDTH >= 1920
@@ -343,6 +408,13 @@ enum sk_sound
     SK_SND_REWARD,
     SK_SND_COUNT
 };
+
+/* The source clips (original Ooze install button sounds) are mastered
+ * hotter than typical music, so unity gain on the BEEP channel made them
+ * jump out over whatever the user was listening to. Half amplitude keeps
+ * them at a steady, audible-but-polite level whether or not music is
+ * playing, instead of spiking above it. */
+#define SK_SND_AMPLITUDE (MIX_AMP_UNITY / 2)
 
 #ifndef HAVE_HARDWARE_BEEP
 static unsigned char sk_sound_data[SK_SOUND_BYTES] CACHEALIGN_ATTR;
@@ -395,7 +467,7 @@ static bool sk_load_sounds(void)
             return false;
     }
     sk_sound_loaded = true;
-    rb->mixer_channel_set_amplitude(PCM_MIXER_CHAN_BEEP, MIX_AMP_UNITY);
+    rb->mixer_channel_set_amplitude(PCM_MIXER_CHAN_BEEP, SK_SND_AMPLITUDE);
     return true;
 }
 
@@ -1040,7 +1112,8 @@ static bool sk_load_save2(int got)
     if (owned_count < 0 || owned_count > SK_MAX_CHIPS ||
         (header != SK_SAVE2_BASE_HEADER &&
          header != SK_SAVE2_DUMP_HEADER &&
-         header != SK_SAVE2_HEADER) ||
+         header != SK_SAVE2_HEADER &&
+         header != SK_SAVE2_SHOP_HEADER) ||
         got < header + owned_count * 2)
         return false;
 
@@ -1064,6 +1137,20 @@ static bool sk_load_save2(int got)
         if (sk_background >= SK_BACKGROUND_COUNT)
             sk_background = 0;
     }
+    if (header >= SK_SAVE2_SHOP_HEADER)
+    {
+        int shop_slot;
+
+        sk_shop_ready_at = sk_le32(sk_save_data + SK_SAVE2_HEADER);
+        for (shop_slot = 0; shop_slot < SK_SHOP_SLOTS; ++shop_slot)
+        {
+            uint16_t id = sk_le16(sk_save_data + SK_SAVE2_HEADER + 4 +
+                                  shop_slot * 2);
+
+            sk_shop_stock[shop_slot] = id == SK_NO_CHIP_ID ?
+                                       -1 : sk_find_chip(id);
+        }
+    }
     for (i = 0; i < owned_count; ++i)
     {
         int index = sk_find_chip(sk_le16(sk_save_data + header +
@@ -1083,6 +1170,85 @@ static bool sk_load_save2(int got)
     return true;
 }
 
+static bool sk_load_save3(int got)
+{
+    int owned_count, slot, i;
+    int preset_count;
+
+    if (got < SK_SAVE3_HEADER ||
+        rb->memcmp(sk_save_data, SK_SAVE3_MAGIC, 4))
+        return false;
+
+    owned_count = sk_le16(sk_save_data + 12);
+    if (sk_le16(sk_save_data + 14) != SK_SAVE3_HEADER ||
+        owned_count < 0 || owned_count > SK_MAX_CHIPS ||
+        got < SK_SAVE3_HEADER + owned_count * 2)
+        return false;
+
+    sk_xp = sk_le32(sk_save_data + 4);
+    sk_coins = sk_le32(sk_save_data + 8);
+    {
+        uint16_t id = sk_le16(sk_save_data + SK_SAVE2_BASE_HEADER);
+
+        sk_dump_index = id == SK_NO_CHIP_ID ? -1 : sk_find_chip(id);
+        sk_dump_ready_at = sk_le32(sk_save_data + SK_SAVE2_BASE_HEADER + 4);
+    }
+    sk_body_color = sk_save_data[SK_SAVE2_DUMP_HEADER];
+    sk_background = sk_save_data[SK_SAVE2_DUMP_HEADER + 1];
+    if (sk_body_color >= SK_BODY_COLOR_COUNT)
+        sk_body_color = 0;
+    if (sk_background >= SK_BACKGROUND_COUNT)
+        sk_background = 0;
+    sk_shop_ready_at = sk_le32(sk_save_data + SK_SAVE2_HEADER);
+    for (slot = 0; slot < SK_SHOP_SLOTS; ++slot)
+    {
+        uint16_t id = sk_le16(sk_save_data + SK_SAVE2_HEADER + 4 +
+                              slot * 2);
+
+        sk_shop_stock[slot] = id == SK_NO_CHIP_ID ? -1 : sk_find_chip(id);
+    }
+    for (i = 0; i < owned_count; ++i)
+    {
+        int index = sk_find_chip(sk_le16(sk_save_data + SK_SAVE3_HEADER +
+                                         i * 2));
+
+        if (index >= 0)
+            sk_owned_set(index, true);
+    }
+    for (slot = 0; slot < SK_SLOT_COUNT; ++slot)
+    {
+        uint16_t id = sk_le16(sk_save_data + 16 + slot * 2);
+        int index = id == SK_NO_CHIP_ID ? -1 : sk_find_chip(id);
+
+        if (index >= 0 && sk_chips[index].worn && sk_owned_get(index))
+            sk_equipped[slot] = index;
+    }
+
+    /* Presets contain stable chip IDs, so catalogue reordering is harmless. */
+    preset_count = sk_le16(sk_save_data + SK_SAVE2_SHOP_HEADER);
+    preset_count = MIN(preset_count, SK_PRESET_COUNT);
+    for (i = 0; i < preset_count; ++i)
+    {
+        unsigned char *data = sk_save_data + SK_SAVE2_SHOP_HEADER + 2 +
+                              i * SK_PRESET_BYTES;
+        struct sk_preset *preset = &sk_presets[i];
+
+        if (!data[0])
+            continue;
+        preset->active = true;
+        preset->body_color = data[1] < SK_BODY_COLOR_COUNT ? data[1] : 0;
+        preset->background = data[2] < SK_BACKGROUND_COUNT ? data[2] : 0;
+        rb->memcpy(preset->name, data + 3, SK_PRESET_NAME_MAX);
+        preset->name[SK_PRESET_NAME_MAX - 1] = '\0';
+        if (!preset->name[0])
+            preset->active = false;
+        for (slot = 0; slot < SK_SLOT_COUNT; ++slot)
+            preset->equipped_ids[slot] = sk_le16(data + 3 +
+                SK_PRESET_NAME_MAX + slot * 2);
+    }
+    return true;
+}
+
 static void sk_load_save(void)
 {
     int fd, got, slot;
@@ -1096,6 +1262,11 @@ static void sk_load_save(void)
     sk_dump_ready_at = 0;
     sk_body_color = 0;
     sk_background = 0;
+    for (slot = 0; slot < SK_SHOP_SLOTS; ++slot)
+        sk_shop_stock[slot] = -1;
+    sk_shop_ready_at = 0;
+    rb->memset(sk_presets, 0, sizeof(sk_presets));
+    sk_preset_index = -1;
 
     fd = rb->open(SK_SAVE_FILE, O_RDONLY);
     if (fd < 0)
@@ -1107,7 +1278,7 @@ static void sk_load_save(void)
     got = rb->read(fd, sk_save_data, sizeof(sk_save_data));
     rb->close(fd);
 
-    if (sk_load_save2(got) || sk_load_save1(got))
+    if (sk_load_save3(got) || sk_load_save2(got) || sk_load_save1(got))
         return;
 
     sk_seed_starter();
@@ -1131,7 +1302,7 @@ static void sk_put16(unsigned char *p, uint16_t v)
  * half written save behind. */
 static bool sk_write_save(void)
 {
-    int fd, slot, i, owned_count = 0;
+    int fd, slot, i, owned_count = 0, preset_count = 0;
     size_t bytes;
 
     for (i = 0; i < sk_chip_count; ++i)
@@ -1152,13 +1323,13 @@ static bool sk_write_save(void)
         owned_count++;
     }
 
-    bytes = SK_SAVE2_HEADER + owned_count * 2;
+    bytes = SK_SAVE3_HEADER + owned_count * 2;
     rb->memset(sk_save_data, 0, bytes);
-    rb->memcpy(sk_save_data, SK_SAVE2_MAGIC, 4);
+    rb->memcpy(sk_save_data, SK_SAVE3_MAGIC, 4);
     sk_put32(sk_save_data + 4, sk_xp);
     sk_put32(sk_save_data + 8, sk_coins);
     sk_put16(sk_save_data + 12, (uint16_t)owned_count);
-    sk_put16(sk_save_data + 14, SK_SAVE2_HEADER);
+    sk_put16(sk_save_data + 14, SK_SAVE3_HEADER);
     for (slot = 0; slot < SK_SLOT_COUNT; ++slot)
     {
         int index = sk_equipped[slot];
@@ -1173,8 +1344,36 @@ static bool sk_write_save(void)
     sk_put32(sk_save_data + SK_SAVE2_BASE_HEADER + 4, sk_dump_ready_at);
     sk_save_data[SK_SAVE2_DUMP_HEADER] = sk_body_color;
     sk_save_data[SK_SAVE2_DUMP_HEADER + 1] = sk_background;
+    sk_put32(sk_save_data + SK_SAVE2_HEADER, sk_shop_ready_at);
+    for (slot = 0; slot < SK_SHOP_SLOTS; ++slot)
+    {
+        int index = sk_shop_stock[slot];
+        uint16_t id = index >= 0 && index < sk_chip_count ?
+                      sk_chips[index].id : SK_NO_CHIP_ID;
+
+        sk_put16(sk_save_data + SK_SAVE2_HEADER + 4 + slot * 2, id);
+    }
+    for (i = 0; i < SK_PRESET_COUNT; ++i)
+    {
+        const struct sk_preset *preset = &sk_presets[i];
+        unsigned char *data = sk_save_data + SK_SAVE2_SHOP_HEADER + 2 +
+                              i * SK_PRESET_BYTES;
+
+        if (!preset->active)
+            continue;
+        preset_count++;
+        data[0] = 1;
+        data[1] = preset->body_color;
+        data[2] = preset->background;
+        rb->strlcpy((char *)data + 3, preset->name, SK_PRESET_NAME_MAX);
+        for (slot = 0; slot < SK_SLOT_COUNT; ++slot)
+            sk_put16(data + 3 + SK_PRESET_NAME_MAX + slot * 2,
+                     preset->equipped_ids[slot]);
+    }
+    sk_put16(sk_save_data + SK_SAVE2_SHOP_HEADER, preset_count);
     for (i = 0; i < owned_count; ++i)
-        sk_put16(sk_save_data + SK_SAVE2_HEADER + i * 2, sk_owned_ids[i]);
+        sk_put16(sk_save_data + SK_SAVE3_HEADER + i * 2,
+                sk_owned_ids[i]);
 
     rb->mkdir(SK_ROOT "/state");
     fd = rb->open(SK_SAVE_TMP, O_WRONLY | O_CREAT | O_TRUNC, 0666);
@@ -1192,6 +1391,129 @@ static bool sk_write_save(void)
         return false;
     sk_dirty = false;
     return true;
+}
+
+static int sk_preset_total(void)
+{
+    int i, count = 0;
+
+    for (i = 0; i < SK_PRESET_COUNT; ++i)
+        if (sk_presets[i].active)
+            count++;
+    return count;
+}
+
+static int sk_preset_at(int position)
+{
+    int i;
+
+    for (i = 0; i < SK_PRESET_COUNT; ++i)
+    {
+        if (!sk_presets[i].active)
+            continue;
+        if (position-- == 0)
+            return i;
+    }
+    return -1;
+}
+
+static void sk_apply_preset(int index)
+{
+    struct sk_preset *preset;
+    int slot;
+
+    if (index < 0 || index >= SK_PRESET_COUNT || !sk_presets[index].active)
+        return;
+    preset = &sk_presets[index];
+    sk_body_color = preset->body_color;
+    sk_background = preset->background;
+    for (slot = 0; slot < SK_SLOT_COUNT; ++slot)
+    {
+        int chip = sk_find_chip(preset->equipped_ids[slot]);
+
+        sk_equipped[slot] = chip >= 0 && sk_chips[chip].worn &&
+                            sk_owned_get(chip) ? chip : -1;
+    }
+    sk_preset_index = index;
+    sk_dirty = true;
+    sk_reload_stage();
+    sk_publish_preview(true);
+    sk_set_message(preset->name);
+}
+
+static void sk_save_preset(void)
+{
+    char name[SK_PRESET_NAME_MAX];
+    int index = -1;
+    int slot;
+
+    rb->snprintf(name, sizeof(name), "Preset %d", sk_preset_total() + 1);
+    if (!sk_preset_name_input(name, sizeof(name)) || !name[0])
+        return;
+
+    for (slot = 0; slot < SK_PRESET_COUNT; ++slot)
+    {
+        if (sk_presets[slot].active && !rb->strcmp(sk_presets[slot].name,
+                                                    name))
+        {
+            index = slot;
+            break;
+        }
+        if (index < 0 && !sk_presets[slot].active)
+            index = slot;
+    }
+    if (index < 0)
+    {
+        sk_set_message("Preset list is full");
+        sk_play(SK_SND_BACK);
+        return;
+    }
+
+    rb->memset(&sk_presets[index], 0, sizeof(sk_presets[index]));
+    sk_presets[index].active = true;
+    sk_presets[index].body_color = sk_body_color;
+    sk_presets[index].background = sk_background;
+    rb->strlcpy(sk_presets[index].name, name, SK_PRESET_NAME_MAX);
+    for (slot = 0; slot < SK_SLOT_COUNT; ++slot)
+    {
+        int chip = sk_equipped[slot];
+
+        sk_presets[index].equipped_ids[slot] =
+            chip >= 0 && chip < sk_chip_count ? sk_chips[chip].id :
+            SK_NO_CHIP_ID;
+    }
+    sk_preset_index = index;
+    sk_dirty = true;
+    sk_write_save();
+    sk_publish_preview(true);
+    sk_set_message(name);
+    sk_play(SK_SND_SELECT);
+}
+
+static void sk_cycle_preset(int direction)
+{
+    int count = sk_preset_total();
+    int position = 0;
+    int index;
+
+    if (!count)
+    {
+        sk_set_message("No saved presets");
+        sk_play(SK_SND_BACK);
+        return;
+    }
+    if (sk_preset_index >= 0)
+    {
+        for (position = 0; position < count; ++position)
+            if (sk_preset_at(position) == sk_preset_index)
+                break;
+        position = (position + direction + count) % count;
+    }
+    else if (direction < 0)
+        position = count - 1;
+    index = sk_preset_at(position);
+    sk_apply_preset(index);
+    sk_play(SK_SND_NAVIGATE);
 }
 
 /* ---------------------------------------------------------------------- */
@@ -1369,8 +1691,13 @@ static void sk_draw_status(void)
     }
     sk_message[0] = '\0';
 
-    rb->snprintf(buf, sizeof(buf), "Chips %d/%d", sk_owned_count(),
-                 sk_chip_count);
+    if (sk_preset_index >= 0 && sk_preset_index < SK_PRESET_COUNT &&
+        sk_presets[sk_preset_index].active)
+        rb->snprintf(buf, sizeof(buf), "Preset: %s",
+                     sk_presets[sk_preset_index].name);
+    else
+        rb->snprintf(buf, sizeof(buf), "Chips %d/%d", sk_owned_count(),
+                     sk_chip_count);
     sk_putsxy(6, y + 3, (const unsigned char *)buf);
 
     rb->snprintf(buf, sizeof(buf), "XP %lu", (unsigned long)sk_xp);
@@ -1383,26 +1710,200 @@ static void sk_draw_status(void)
  * playback-memory ownership occurs in this frame path. */
 static void sk_draw_stage(int x, int y)
 {
-    static const signed char bob[8] = { 0, -1, -2, -1, 0, 1, 2, 1 };
-    int phase = (int)((*rb->current_tick * 8 / MAX(1, 2 * HZ)) & 7);
-    int offset = bob[phase];
-    int src_y = offset < 0 ? -offset : 0;
-    int dst_y = y + (offset > 0 ? offset : 0);
-    int height = SK_STAGE_H - (offset < 0 ? -offset : offset);
+    static const signed char float_y[24] = {
+         0, -1, -2, -3, -4, -5, -5, -4, -3, -2, -1,  0,
+         1,  2,  3,  4,  4,  3,  2,  1,  0, -1, -2, -1,
+    };
+    static const signed char float_x[24] = {
+         0,  0,  1,  1,  2,  2,  2,  1,  1,  0,  0, -1,
+        -1, -2, -2, -2, -1, -1,  0,  0,  1,  1,  1,  0,
+    };
+    int phase = (int)(*rb->current_tick / MAX(1, HZ / 12)) %
+                (int)ARRAYLEN(float_y);
+    int offset_y = float_y[phase];
+    int offset_x = float_x[phase];
+    int src_y = offset_y < 0 ? -offset_y : 0;
+    int dst_y = y + (offset_y > 0 ? offset_y : 0);
+    int height = SK_STAGE_H - (offset_y < 0 ? -offset_y : offset_y);
+    int shadow_w = 50 - (offset_y < 0 ? -offset_y : offset_y) * 2;
+    int shadow_x = x + (SK_STAGE_W - shadow_w) / 2 + offset_x;
+    int shadow_y = y + SK_STAGE_H - 21;
 
     if (sk_stage_loaded)
     {
         rb->lcd_bitmap_part(sk_stage_background_data, 0, 0,
                             STRIDE_MAIN(SK_STAGE_W, SK_STAGE_H),
                             x, y, SK_STAGE_W, SK_STAGE_H);
+        /* The stage is restored from the fixed cache every frame, then this
+         * small contact shadow and a 24-frame orbit are painted. No frame
+         * reads assets or allocates, so active music remains untouched. */
+        rb->lcd_set_foreground(SK_COL_RULE);
+        rb->lcd_hline(shadow_x + 6, shadow_x + shadow_w - 7, shadow_y);
+        rb->lcd_hline(shadow_x + 2, shadow_x + shadow_w - 3, shadow_y + 1);
+        rb->lcd_hline(shadow_x, shadow_x + shadow_w - 1, shadow_y + 2);
         rb->lcd_set_foreground(REPLACEWITHFG_COLOR);
         rb->lcd_bitmap_transparent_part(
             sk_float_data, 0, src_y,
             STRIDE_MAIN(SK_STAGE_W, SK_STAGE_H),
-            x, dst_y, SK_STAGE_W, height);
+            x + offset_x, dst_y, SK_STAGE_W, height);
     }
     rb->lcd_set_foreground(SK_COL_RULE);
     rb->lcd_drawrect(x, y, SK_STAGE_W, SK_STAGE_H);
+}
+
+static void sk_clear_loadout(void)
+{
+    int slot;
+
+    for (slot = 0; slot < SK_SLOT_COUNT; ++slot)
+        sk_equipped[slot] = -1;
+    sk_body_color = 0;
+    sk_background = 0;
+    sk_preset_index = -1;
+    sk_dirty = true;
+    sk_reload_stage();
+    sk_write_save();
+    sk_set_message("Sitekick cleared");
+    sk_play(SK_SND_BACK);
+}
+
+/* Match the iPodJS Music Search alphabet carousel instead of opening the
+ * generic Rockbox keyboard. The wheel scrolls the selected letter, Select
+ * appends it, Left deletes and Right inserts a space. */
+static void sk_draw_preset_name_input(const char *name, int character)
+{
+    static const char alphabet[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    const int panel_x = 12;
+    const int panel_y = LCD_HEIGHT - SK_STATUS_H - 58;
+    const int panel_w = LCD_WIDTH - 24;
+    const int center_x = LCD_WIDTH / 2;
+    int offset;
+    int tw, th;
+
+    sk_draw_title("Name Preset");
+    sk_draw_workshop();
+    sk_vgradient(panel_x, panel_y, panel_w, 58,
+                 SK_COL_TITLE_TOP, SK_COL_TITLE_BOT);
+    rb->lcd_set_foreground(SK_COL_YELLOW);
+    rb->lcd_drawrect(panel_x, panel_y, panel_w, 58);
+    rb->lcd_set_foreground(SK_COL_WHITE);
+    rb->lcd_getstringsize((const unsigned char *)name, &tw, &th);
+    sk_putsxy(MAX(panel_x + 8, panel_x + panel_w - tw - 8), panel_y + 5,
+              (const unsigned char *)name);
+
+    for (offset = -5; offset <= 5; ++offset)
+    {
+        int index = character + offset;
+        int x = center_x + offset * 22;
+        char glyph[2];
+
+        while (index < 0)
+            index += (int)sizeof(alphabet) - 1;
+        glyph[0] = alphabet[index % ((int)sizeof(alphabet) - 1)];
+        glyph[1] = '\0';
+        if (offset == 0)
+        {
+            rb->lcd_set_foreground(SK_COL_SEL_TOP);
+            rb->lcd_fillrect(x - 9, panel_y + 25, 18, 20);
+            rb->lcd_set_foreground(SK_COL_SEL_TEXT);
+        }
+        else
+            rb->lcd_set_foreground(SK_COL_WHITE);
+        sk_putsxy(x - 3, panel_y + 29, (const unsigned char *)glyph);
+    }
+    rb->lcd_set_foreground(SK_COL_TEXT);
+    sk_center_text(panel_y + 47, "WHEEL scroll  PLAY saves", SK_COL_TEXT);
+    sk_draw_status();
+    rb->lcd_update();
+}
+
+static bool sk_preset_name_input(char *name, size_t size)
+{
+    static const char alphabet[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    int character = 0;
+    bool redraw = true;
+
+    while (true)
+    {
+        int button;
+
+        if (redraw)
+        {
+            sk_draw_preset_name_input(name, character);
+            redraw = false;
+        }
+        button = pluginlib_getaction(HZ / 20, sk_preset_name_contexts,
+                                     ARRAYLEN(sk_preset_name_contexts));
+        switch (button)
+        {
+        case PLA_UP:
+        case PLA_UP_REPEAT:
+        case PLA_SCROLL_BACK:
+        case PLA_SCROLL_BACK_REPEAT:
+            character = character <= 0 ? (int)sizeof(alphabet) - 2 :
+                        character - 1;
+            sk_play(SK_SND_NAVIGATE);
+            redraw = true;
+            break;
+
+        case PLA_DOWN:
+        case PLA_DOWN_REPEAT:
+        case PLA_SCROLL_FWD:
+        case PLA_SCROLL_FWD_REPEAT:
+            character = (character + 1) % ((int)sizeof(alphabet) - 1);
+            sk_play(SK_SND_NAVIGATE);
+            redraw = true;
+            break;
+
+        case PLA_SELECT:
+            if (rb->strlen(name) + 1 < size)
+            {
+                size_t length = rb->strlen(name);
+
+                name[length] = alphabet[character];
+                name[length + 1] = '\0';
+                sk_play(SK_SND_SELECT);
+                redraw = true;
+            }
+            break;
+
+        case PLA_LEFT:
+            if (name[0])
+            {
+                name[rb->strlen(name) - 1] = '\0';
+                sk_play(SK_SND_BACK);
+                redraw = true;
+            }
+            break;
+
+        case PLA_RIGHT:
+            if (rb->strlen(name) + 1 < size)
+            {
+                size_t length = rb->strlen(name);
+
+                name[length] = ' ';
+                name[length + 1] = '\0';
+                sk_play(SK_SND_SELECT);
+                redraw = true;
+            }
+            break;
+
+        case SK_ACTION_PRESET_SAVE:
+            return name[0];
+
+        case SK_ACTION_PRESET_CANCEL:
+        case PLA_CANCEL:
+            return false;
+
+        case PLA_EXIT:
+            return false;
+
+        default:
+            if (rb->default_event_handler(button) == SYS_USB_CONNECTED)
+                return false;
+            break;
+        }
+    }
 }
 
 static void sk_draw_cached_icon(int chip_index, int x, int y)
@@ -1671,7 +2172,8 @@ static void sk_dm_draw_workshop(void)
         "Equip 1", "Equip 2", "Equip 3", "Equip 4",
         "Equip 5", "Equip 6", "Equip 7", "Equip 8",
         "Collection", "Chip Dump", "Trading Post", "Body Color",
-        "Background", "Minigames", "Stats"
+        "Background", "Minigames", "Chip Shop", "Stats", "Presets",
+        "Save Preset", "+ Clear Sitekick"
     };
     const int sidebar_x = SK_DM_BODY_X + 16;
     const int sidebar_y = SK_DM_CONTENT_Y + 10;
@@ -1870,13 +2372,14 @@ static void sk_dm_draw_information(void)
     else if (sk_scene == SK_SCENE_GAMES)
     {
         static const char * const games[] =
-            { "Beat Bounce", "Chip Match" };
+            { "Beat Bounce", "Chip Match", "Ooze Catch" };
+        static const char * const kinds[] =
+            { "TIMING", "MEMORY", "CATCHING" };
 
-        for (index = 0; index < 2; ++index)
+        for (index = 0; index < 3; ++index)
             sk_dm_row(SK_DM_BODY_X + 120, y + index * 74,
                       SK_DM_BODY_W - 240, games[index],
-                      index == 0 ? "TIMING" : "MEMORY",
-                      sk_sel == index);
+                      kinds[index], sk_sel == index);
         return;
     }
     else
@@ -1965,7 +2468,7 @@ static void sk_dm_activate_pointer_target(int x, int y)
         int row = (y - top) / 28;
 
         if (x >= SK_DM_BODY_X + 16 && x < SK_DM_BODY_X + 264 &&
-            y >= top && row >= 0 && row < SK_SLOT_COUNT + 7)
+            y >= top && row >= 0 && row < SK_WORKSHOP_ITEMS)
         {
             sk_sel = row;
             sk_handle_select();
@@ -2314,16 +2817,158 @@ static void sk_dump_claim(void)
     sk_play(SK_SND_REWARD);
 }
 
+/* The shop rerolls its whole rack together every SK_SHOP_PERIOD_SEC, unlike
+ * the Dump's one-at-a-time trickle. Each slot rolls a rarity with the same
+ * weights as the Dump, then picks a chip the player doesn't already own and
+ * that isn't already sitting in an earlier slot this rotation. */
+static bool sk_shop_pick_unique(int rarity, int filled)
+{
+    int index, count = 0, pick, slot;
+
+    for (index = 0; index < sk_chip_count; ++index)
+    {
+        if (sk_owned_get(index) ||
+            (rarity >= 0 && sk_chips[index].rarity != rarity))
+            continue;
+        for (slot = 0; slot < filled; ++slot)
+            if (sk_shop_stock[slot] == index)
+                goto skip;
+        count++;
+skip:
+        ;
+    }
+    if (count == 0)
+        return false;
+
+    pick = rb->rand() % count;
+    for (index = 0; index < sk_chip_count; ++index)
+    {
+        if (sk_owned_get(index) ||
+            (rarity >= 0 && sk_chips[index].rarity != rarity))
+            continue;
+        for (slot = 0; slot < filled; ++slot)
+            if (sk_shop_stock[slot] == index)
+                goto skip2;
+        if (pick-- == 0)
+        {
+            sk_shop_stock[filled] = index;
+            return true;
+        }
+skip2:
+        ;
+    }
+    return false;
+}
+
+static void sk_shop_rotate(bool force)
+{
+    uint32_t now = sk_now();
+    int slot;
+
+    if (!force && sk_shop_ready_at && now && now < sk_shop_ready_at)
+        return;
+
+    for (slot = 0; slot < SK_SHOP_SLOTS; ++slot)
+    {
+        int roll = rb->rand() % 100;
+        int rarity = roll < 70 ? SK_RARITY_COMMON :
+                     (roll < 95 ? SK_RARITY_RARE : SK_RARITY_LEGENDARY);
+
+        sk_shop_stock[slot] = -1;
+        if (!sk_shop_pick_unique(rarity, slot))
+            sk_shop_pick_unique(-1, slot);
+    }
+    sk_shop_ready_at = now ? now + SK_SHOP_PERIOD_SEC : 0;
+    sk_dirty = true;
+    sk_write_save();
+}
+
+static void sk_shop_buy(int slot)
+{
+    int index;
+    uint32_t price;
+
+    if (slot < 0 || slot >= SK_SHOP_SLOTS)
+        return;
+
+    index = sk_shop_stock[slot];
+    if (index < 0 || index >= sk_chip_count || sk_owned_get(index))
+    {
+        sk_set_message("Sold out");
+        sk_play(SK_SND_BACK);
+        return;
+    }
+
+    price = sk_shop_prices[sk_chips[index].rarity];
+    if (sk_coins < price)
+    {
+        sk_set_message("Not enough coins");
+        sk_play(SK_SND_BACK);
+        return;
+    }
+
+    sk_coins -= price;
+    sk_owned_set(index, true);
+    sk_shop_stock[slot] = -1;
+    sk_dirty = true;
+    sk_write_save();
+    sk_publish_preview(true);
+    sk_set_message(sk_chips[index].name);
+    sk_play(SK_SND_REWARD);
+}
+
 static void sk_draw_workshop(void)
 {
     unsigned background = sk_background_colors[
         sk_background < SK_BACKGROUND_COUNT ? sk_background : 0];
+    int clear_x = LCD_WIDTH - 92;
+    int clear_y = LCD_HEIGHT - SK_STATUS_H - 27;
+    bool clear_selected = sk_sel == SK_WORKSHOP_CLEAR;
 
     sk_clear_content();
     rb->lcd_set_foreground(background);
     rb->lcd_fillrect(0, SK_CONTENT_Y, LCD_WIDTH, SK_CONTENT_H);
-    sk_scroll_into_view(SK_SLOT_COUNT + 7, SK_SLOT_COUNT + 7);
+    sk_scroll_into_view(SK_WORKSHOP_ITEMS, SK_WORKSHOP_ITEMS);
     sk_draw_stage((LCD_WIDTH - SK_STAGE_W) / 2, SK_CONTENT_Y);
+    if (clear_selected)
+    {
+        sk_vgradient(clear_x, clear_y, 84, 20, SK_COL_SEL_TOP,
+                    SK_COL_SEL_BOT);
+        rb->lcd_set_foreground(SK_COL_SEL_TEXT);
+        sk_putsxy(clear_x + 12, clear_y + 5,
+                  (const unsigned char *)"+ CLEAR");
+    }
+}
+
+static void sk_draw_presets(void)
+{
+    int count = sk_preset_total();
+    int rows = SK_ROWS_MAX;
+    int i;
+
+    sk_clear_content();
+    sk_scroll_into_view(count + (count < SK_PRESET_COUNT), rows);
+    for (i = 0; i < rows; ++i)
+    {
+        int item = sk_top + i;
+        int y = SK_CONTENT_Y + i * SK_ROW_H;
+        int index;
+
+        if (item < count)
+        {
+            index = sk_preset_at(item);
+            sk_draw_row(0, y, LCD_WIDTH, sk_presets[index].name,
+                        index == sk_preset_index ? "*" : NULL,
+                        item == sk_sel, false, false);
+        }
+        else if (item == count && count < SK_PRESET_COUNT)
+        {
+            sk_draw_row(0, y, LCD_WIDTH, "Save new preset", NULL,
+                        item == sk_sel, false, false);
+        }
+        else
+            break;
+    }
 }
 
 static void sk_draw_appearance_picker(bool background_picker)
@@ -2594,17 +3239,93 @@ static void sk_draw_inbox(void)
 static void sk_draw_games(void)
 {
     sk_clear_content();
-    sk_scroll_into_view(2, 2);
+    sk_scroll_into_view(3, 3);
     sk_draw_row(0, SK_CONTENT_Y, LCD_WIDTH, "Beat Bounce",
                 "Timing", sk_sel == 0, true, false);
     sk_draw_row(0, SK_CONTENT_Y + SK_ROW_H, LCD_WIDTH, "Chip Match",
                 "Memory", sk_sel == 1, true, false);
+    sk_draw_row(0, SK_CONTENT_Y + SK_ROW_H * 2, LCD_WIDTH, "Ooze Catch",
+                "Catching", sk_sel == 2, true, false);
 
     rb->lcd_set_foreground(SK_COL_DIM);
-    sk_putsxy(10, SK_CONTENT_Y + SK_ROW_H * 2 + 14,
+    sk_putsxy(10, SK_CONTENT_Y + SK_ROW_H * 3 + 14,
               (const unsigned char *)"Play for XP + coins");
-    sk_putsxy(10, SK_CONTENT_Y + SK_ROW_H * 2 + 32,
+    sk_putsxy(10, SK_CONTENT_Y + SK_ROW_H * 3 + 32,
               (const unsigned char *)"Rewards update the right pane");
+}
+
+static void sk_draw_shop(void)
+{
+    char status[24];
+    int rows = MIN(SK_SHOP_SLOTS, SK_ROWS_MAX - 1);
+    int i;
+
+    sk_clear_content();
+    sk_scroll_into_view(SK_SHOP_SLOTS, rows);
+
+    for (i = 0; i < rows; ++i)
+    {
+        int slot = sk_top + i;
+        int y = SK_CONTENT_Y + i * SK_ROW_H;
+        bool sel = (slot == sk_sel);
+        int index;
+
+        if (slot >= SK_SHOP_SLOTS)
+            break;
+        index = sk_shop_stock[slot];
+
+        if (sel)
+            sk_vgradient(0, y, LCD_WIDTH, SK_ROW_H,
+                         SK_COL_SEL_TOP, SK_COL_SEL_BOT);
+
+        if (index >= 0 && index < sk_chip_count && !sk_owned_get(index))
+        {
+            sk_draw_icon(index, 4, y + (SK_ROW_H - SK_ICON_PX) / 2);
+            rb->lcd_set_foreground(sel ? SK_COL_SEL_TEXT : SK_COL_TEXT);
+            sk_putsxy(SK_ICON_PX + 14, y + 10,
+                      (const unsigned char *)sk_chips[index].name);
+            rb->snprintf(status, sizeof(status), "%lu coins",
+                         (unsigned long)sk_shop_prices[
+                             sk_chips[index].rarity]);
+        }
+        else
+        {
+            rb->lcd_set_foreground(sel ? SK_COL_SEL_TEXT : SK_COL_DIM);
+            sk_putsxy(SK_ICON_PX + 14, y + 10,
+                      (const unsigned char *)"Sold out");
+            status[0] = '\0';
+        }
+        if (status[0])
+        {
+            int vw, th;
+
+            rb->lcd_getstringsize((const unsigned char *)status, &vw, &th);
+            sk_putsxy(LCD_WIDTH - vw - 8, y + 10,
+                      (const unsigned char *)status);
+        }
+        if (!sel)
+        {
+            rb->lcd_set_foreground(SK_COL_RULE);
+            rb->lcd_hline(6, LCD_WIDTH - 6, y + SK_ROW_H - 1);
+        }
+    }
+
+    {
+        uint32_t now = sk_now();
+        uint32_t wait = sk_shop_ready_at && now < sk_shop_ready_at ?
+                        sk_shop_ready_at - now : 0;
+        char footer[40];
+
+        if (wait)
+            rb->snprintf(footer, sizeof(footer), "Restocks in %luh %02lum",
+                         (unsigned long)(wait / 3600),
+                         (unsigned long)((wait / 60) % 60));
+        else
+            rb->strlcpy(footer, "Restocking...", sizeof(footer));
+        rb->lcd_set_foreground(SK_COL_DIM);
+        sk_putsxy(10, SK_CONTENT_Y + rows * SK_ROW_H + 12,
+                  (const unsigned char *)footer);
+    }
 }
 
 static void sk_center_text(int y, const char *text, unsigned color)
@@ -2724,20 +3445,30 @@ static void sk_draw_beat_bounce(int round, int score, int combo,
     sk_center_text(SK_CONTENT_Y + 38, text,
                    combo ? SK_COL_ORANGE : SK_COL_DIM);
 
+    /* Ooze rail: a cel-shaded gradient tube with a chunky outline and a
+     * highlight line, instead of a flat filled bar. */
+    sk_vgradient(rail_x, rail_y, rail_w, 10, SK_COL_STATUS_TOP,
+                SK_COL_STATUS_BOT);
     rb->lcd_set_foreground(SK_COL_RULE);
-    rb->lcd_fillrect(rail_x, rail_y, rail_w, 8);
-    rb->lcd_set_foreground(SK_COL_YELLOW);
-    rb->lcd_fillrect(target_x, rail_y - 9, target_w, 26);
-    rb->lcd_set_foreground(SK_COL_ORANGE);
-    rb->lcd_drawrect(target_x, rail_y - 9, target_w, 26);
+    rb->lcd_drawrect(rail_x, rail_y, rail_w, 10);
+    rb->lcd_set_foreground(SK_COL_WHITE);
+    rb->lcd_hline(rail_x + 2, rail_x + rail_w - 3, rail_y + 2);
+
+    sk_vgradient(target_x, rail_y - 10, target_w, 28, SK_COL_SEL_TOP,
+                SK_COL_SEL_BOT);
+    rb->lcd_set_foreground(SK_COL_RULE);
+    rb->lcd_drawrect(target_x, rail_y - 10, target_w, 28);
+
     if (authentic_icons)
         sk_draw_cached_icon(sk_game_icons[0], marker_x - 12, rail_y - 12);
     else
     {
         rb->lcd_set_foreground(SK_COL_TITLE_TOP);
-        rb->lcd_fillrect(marker_x, rail_y - 13, 9, 34);
+        rb->lcd_fillrect(marker_x - 4, rail_y - 12, 16, 32);
+        rb->lcd_set_foreground(SK_COL_RULE);
+        rb->lcd_drawrect(marker_x - 4, rail_y - 12, 16, 32);
         rb->lcd_set_foreground(SK_COL_WHITE);
-        rb->lcd_vline(marker_x + 4, rail_y - 9, rail_y + 15);
+        rb->lcd_fillrect(marker_x - 1, rail_y - 8, 5, 5);
     }
 
     sk_center_text(SK_CONTENT_Y + 132, "Hit SELECT in the ooze zone",
@@ -2836,9 +3567,13 @@ static void sk_draw_match_card(int index, int selected, int value,
                                bool visible, bool matched,
                                bool authentic_icons)
 {
-    static const unsigned face_colors[3] =
+    static const unsigned face_top[3] =
     {
-        SK_COL_ORANGE, SK_COL_TITLE_TOP, SK_COL_PANE
+        SK_COL_SEL_TOP, SK_COL_TITLE_TOP, SK_COL_STATUS_TOP
+    };
+    static const unsigned face_bot[3] =
+    {
+        SK_COL_SEL_BOT, SK_COL_TITLE_BOT, SK_COL_STATUS_BOT
     };
     int card_w = 84;
     int card_h = 58;
@@ -2864,8 +3599,13 @@ static void sk_draw_match_card(int index, int selected, int value,
     rb->lcd_fillrect(x - 3, y - 3, card_w + 6, card_h + 6);
     if (visible || matched)
     {
-        rb->lcd_set_foreground(face_colors[value]);
-        rb->lcd_fillrect(x, y, card_w, card_h);
+        /* Cel-shaded gradient face plus a bright highlight strip, instead
+         * of a single flat fill. */
+        sk_vgradient(x, y, card_w, card_h, face_top[value], face_bot[value]);
+        rb->lcd_set_foreground(SK_COL_RULE);
+        rb->lcd_drawrect(x, y, card_w, card_h);
+        rb->lcd_set_foreground(SK_COL_WHITE);
+        rb->lcd_hline(x + 3, x + card_w - 4, y + 3);
         if (authentic_icons)
             sk_draw_cached_icon(
                 sk_game_icons[value],
@@ -2876,6 +3616,8 @@ static void sk_draw_match_card(int index, int selected, int value,
     {
         sk_vgradient(x, y, card_w, card_h,
                      SK_COL_TITLE_TOP, SK_COL_TITLE_BOT);
+        rb->lcd_set_foreground(SK_COL_RULE);
+        rb->lcd_drawrect(x, y, card_w, card_h);
         if (sk_logo_loaded)
         {
             old_mode = rb->lcd_get_drawmode();
@@ -2889,10 +3631,14 @@ static void sk_draw_match_card(int index, int selected, int value,
         }
         else
         {
+            int cx = x + card_w / 2, cy = y + card_h / 2;
+
             rb->lcd_set_foreground(SK_COL_PANE);
-            rb->lcd_fillrect(x + 28, y + 18, 28, 22);
+            rb->lcd_fillrect(cx - 14, cy - 11, 28, 22);
+            rb->lcd_set_foreground(SK_COL_RULE);
+            rb->lcd_drawrect(cx - 14, cy - 11, 28, 22);
             rb->lcd_set_foreground(SK_COL_YELLOW);
-            rb->lcd_drawrect(x + 26, y + 16, 32, 26);
+            rb->lcd_fillrect(cx - 4, cy - 4, 8, 8);
         }
     }
 }
@@ -3036,6 +3782,171 @@ static void sk_run_chip_match(void)
     }
 }
 
+#define SK_OOZE_LANES   5
+#define SK_OOZE_ROUNDS  12
+
+/* A drop kind's fill gradient, catch value and label. Bad ooze costs the
+ * player points and combo if caught, unlike a missed common/rare drop
+ * which only breaks combo. */
+static const unsigned sk_ooze_top[3] =
+{
+    SK_COL_STATUS_TOP, SK_COL_SEL_TOP, SK_COL_TITLE_TOP
+};
+static const unsigned sk_ooze_bot[3] =
+{
+    SK_COL_STATUS_BOT, SK_COL_SEL_BOT, SK_COL_TITLE_BOT
+};
+static const int sk_ooze_value[3] = { 2, 5, -3 };
+
+static void sk_draw_ooze_catch(int round, int score, int combo,
+                               int catcher_lane, int drop_lane, int drop_kind,
+                               int drop_y, bool active, bool authentic_icons)
+{
+    char text[64];
+    int margin = 20;
+    int lane_w = (LCD_WIDTH - margin * 2) / SK_OOZE_LANES;
+    int lane_top = SK_CONTENT_Y + 44;
+    int lane_bottom = SK_CONTENT_Y + 150;
+    int catcher_w = lane_w - 10;
+    int catcher_h = 12;
+    int catcher_x = margin + catcher_lane * lane_w + (lane_w - catcher_w) / 2;
+    int lane;
+
+    sk_draw_title("Ooze Catch");
+    sk_clear_content();
+
+    rb->snprintf(text, sizeof(text), "DROP %d/%d   SCORE %d", round + 1,
+                 SK_OOZE_ROUNDS, score);
+    sk_center_text(SK_CONTENT_Y + 12, text, SK_COL_TEXT);
+    rb->snprintf(text, sizeof(text), "COMBO x%d", combo);
+    sk_center_text(SK_CONTENT_Y + 30, text,
+                   combo ? SK_COL_ORANGE : SK_COL_DIM);
+
+    rb->lcd_set_foreground(SK_COL_RULE);
+    for (lane = 0; lane <= SK_OOZE_LANES; ++lane)
+        rb->lcd_vline(margin + lane * lane_w, lane_top - 6,
+                      lane_bottom + catcher_h + 4);
+
+    if (active)
+    {
+        int drop_w = lane_w - 12;
+        int drop_x = margin + drop_lane * lane_w + (lane_w - drop_w) / 2;
+
+        sk_vgradient(drop_x, drop_y, drop_w, 20, sk_ooze_top[drop_kind],
+                    sk_ooze_bot[drop_kind]);
+        rb->lcd_set_foreground(SK_COL_RULE);
+        rb->lcd_drawrect(drop_x, drop_y, drop_w, 20);
+        if (authentic_icons)
+            sk_draw_cached_icon(sk_game_icons[drop_kind],
+                                drop_x + (drop_w - SK_ICON_PX) / 2,
+                                drop_y + (20 - SK_ICON_PX) / 2);
+    }
+
+    sk_vgradient(catcher_x, lane_bottom, catcher_w, catcher_h,
+                SK_COL_SEL_TOP, SK_COL_WHITE);
+    rb->lcd_set_foreground(SK_COL_RULE);
+    rb->lcd_drawrect(catcher_x, lane_bottom, catcher_w, catcher_h);
+
+    sk_draw_game_footer("LEFT/RIGHT move - completed games pay");
+    rb->lcd_update();
+}
+
+static void sk_run_ooze_catch(void)
+{
+    const long period = HZ * 9 / 10;
+    int lane_top = SK_CONTENT_Y + 44;
+    int lane_bottom = SK_CONTENT_Y + 150;
+    int catcher_lane = SK_OOZE_LANES / 2;
+    int round = 0;
+    int score = 0;
+    int combo = 0;
+    bool authentic_icons = sk_prepare_game_icons();
+    int drop_lane = rb->rand() % SK_OOZE_LANES;
+    int drop_kind;
+    long round_start = *rb->current_tick;
+
+    {
+        int roll = rb->rand() % 100;
+        drop_kind = roll < 55 ? 0 : (roll < 85 ? 1 : 2);
+    }
+
+    while (round < SK_OOZE_ROUNDS)
+    {
+        long elapsed = *rb->current_tick - round_start;
+        int drop_y;
+        int button;
+
+        if (elapsed >= period)
+        {
+            bool caught = (drop_lane == catcher_lane);
+
+            if (caught && drop_kind == 2)
+            {
+                score += sk_ooze_value[2];
+                combo = 0;
+                sk_play(SK_SND_BACK);
+            }
+            else if (caught)
+            {
+                combo++;
+                score += sk_ooze_value[drop_kind] + MIN(combo, 4);
+                sk_play(SK_SND_SELECT);
+            }
+            else if (drop_kind != 2)
+            {
+                combo = 0;
+                sk_play(SK_SND_BACK);
+            }
+
+            round++;
+            round_start = *rb->current_tick;
+            drop_lane = rb->rand() % SK_OOZE_LANES;
+            {
+                int roll = rb->rand() % 100;
+                drop_kind = roll < 55 ? 0 : (roll < 85 ? 1 : 2);
+            }
+            continue;
+        }
+
+        drop_y = lane_top +
+            (int)(elapsed * (lane_bottom - lane_top) / period);
+        sk_draw_ooze_catch(round, score, combo, catcher_lane, drop_lane,
+                           drop_kind, drop_y, true, authentic_icons);
+        button = pluginlib_getaction(MAX(1, HZ / 30), plugin_contexts,
+                                     ARRAYLEN(plugin_contexts));
+
+        if (button == PLA_LEFT || button == PLA_LEFT_REPEAT)
+        {
+            if (catcher_lane > 0)
+                catcher_lane--;
+            sk_play(SK_SND_NAVIGATE);
+        }
+        else if (button == PLA_RIGHT || button == PLA_RIGHT_REPEAT)
+        {
+            if (catcher_lane < SK_OOZE_LANES - 1)
+                catcher_lane++;
+            sk_play(SK_SND_NAVIGATE);
+        }
+        else if (button == PLA_CANCEL || button == PLA_EXIT)
+        {
+            sk_set_message("Ooze Catch cancelled");
+            sk_play(SK_SND_BACK);
+            return;
+        }
+        else if (rb->default_event_handler(button) == SYS_USB_CONNECTED)
+        {
+            sk_game_usb_connected = true;
+            return;
+        }
+    }
+
+    {
+        int reward = score > 0 ? score : 0;
+
+        sk_award_game("Ooze Catch", 8 + reward, 14 + reward * 2);
+    }
+}
+
 static const char *sk_scene_title(void)
 {
     if (sk_scene == SK_SCENE_WORKSHOP)
@@ -3054,6 +3965,14 @@ static const char *sk_scene_title(void)
             return "Background";
         if (sk_sel == SK_SLOT_COUNT + 5)
             return "Minigames";
+        if (sk_sel == SK_SLOT_COUNT + 6)
+            return "Chip Shop";
+        if (sk_sel == SK_WORKSHOP_PRESETS)
+            return "Presets";
+        if (sk_sel == SK_WORKSHOP_SAVE_PRESET)
+            return "Save Preset";
+        if (sk_sel == SK_WORKSHOP_CLEAR)
+            return "Clear Sitekick";
         return "Stats";
     }
 
@@ -3071,10 +3990,14 @@ static const char *sk_scene_title(void)
         return "Background";
     case SK_SCENE_GAMES:
         return "Minigames";
+    case SK_SCENE_SHOP:
+        return "Chip Shop";
     case SK_SCENE_STATS:
         return "Stats";
     case SK_SCENE_INBOX:
         return "Trading Post";
+    case SK_SCENE_PRESETS:
+        return "Presets";
     default:
         break;
     }
@@ -3111,11 +4034,17 @@ static void sk_draw(void)
     case SK_SCENE_GAMES:
         sk_draw_games();
         break;
+    case SK_SCENE_SHOP:
+        sk_draw_shop();
+        break;
     case SK_SCENE_STATS:
         sk_draw_stats();
         break;
     case SK_SCENE_INBOX:
         sk_draw_inbox();
+        break;
+    case SK_SCENE_PRESETS:
+        sk_draw_presets();
         break;
     default:
         sk_draw_workshop();
@@ -3200,6 +4129,7 @@ static void sk_equip(int slot, int chip_index)
         if (other != slot && sk_equipped[other] == chip_index)
             sk_equipped[other] = -1;
     sk_equipped[slot] = chip_index;
+    sk_preset_index = -1;
     sk_dirty = true;
     sk_reload_stage();
     if (chip_index >= 0)
@@ -3211,7 +4141,8 @@ static void sk_equip(int slot, int chip_index)
     {
         sk_set_message("Slot cleared");
     }
-    sk_publish_preview(true);
+    /* The Home pane continues to show the last explicitly selected preset.
+     * Workshop edits become a new pane only when the user saves a preset. */
 }
 
 static bool sk_handle_select(void)
@@ -3261,6 +4192,27 @@ static bool sk_handle_select(void)
             sk_scene = SK_SCENE_GAMES;
             sk_sel = 0;
             sk_top = 0;
+        }
+        else if (sk_sel == SK_SLOT_COUNT + 6)
+        {
+            sk_scene = SK_SCENE_SHOP;
+            sk_shop_rotate(false);
+            sk_sel = 0;
+            sk_top = 0;
+        }
+        else if (sk_sel == SK_WORKSHOP_PRESETS)
+        {
+            sk_scene = SK_SCENE_PRESETS;
+            sk_sel = 0;
+            sk_top = 0;
+        }
+        else if (sk_sel == SK_WORKSHOP_SAVE_PRESET)
+        {
+            sk_save_preset();
+        }
+        else if (sk_sel == SK_WORKSHOP_CLEAR)
+        {
+            sk_clear_loadout();
         }
         else
         {
@@ -3315,9 +4267,9 @@ static bool sk_handle_select(void)
         if (sk_sel >= 0 && sk_sel < SK_BODY_COLOR_COUNT)
         {
             sk_body_color = sk_sel;
+            sk_preset_index = -1;
             sk_dirty = true;
             sk_reload_stage();
-            sk_publish_preview(false);
             sk_write_save();
             sk_set_message(sk_body_color_names[sk_body_color]);
             sk_play(SK_SND_SELECT);
@@ -3329,9 +4281,9 @@ static bool sk_handle_select(void)
         if (sk_sel >= 0 && sk_sel < SK_BACKGROUND_COUNT)
         {
             sk_background = sk_sel;
+            sk_preset_index = -1;
             sk_dirty = true;
             sk_reload_stage();
-            sk_publish_preview(true);
             sk_write_save();
             sk_set_message(sk_background_names[sk_background]);
             sk_play(SK_SND_SELECT);
@@ -3350,7 +4302,25 @@ static bool sk_handle_select(void)
             sk_run_beat_bounce();
         else if (sk_sel == 1)
             sk_run_chip_match();
+        else if (sk_sel == 2)
+            sk_run_ooze_catch();
         return true;
+
+    case SK_SCENE_SHOP:
+        sk_shop_buy(sk_sel);
+        return true;
+
+    case SK_SCENE_PRESETS:
+    {
+        int count = sk_preset_total();
+
+        if (sk_sel < count)
+            sk_apply_preset(sk_preset_at(sk_sel));
+        else if (sk_sel == count && count < SK_PRESET_COUNT)
+            sk_save_preset();
+        sk_play(SK_SND_SELECT);
+        return true;
+    }
 
     default:
         break;
@@ -3376,8 +4346,12 @@ static bool sk_handle_back(void)
         sk_sel = SK_SLOT_COUNT + 4;
     else if (sk_scene == SK_SCENE_GAMES)
         sk_sel = SK_SLOT_COUNT + 5;
-    else
+    else if (sk_scene == SK_SCENE_SHOP)
         sk_sel = SK_SLOT_COUNT + 6;
+    else if (sk_scene == SK_SCENE_PRESETS)
+        sk_sel = SK_WORKSHOP_PRESETS;
+    else
+        sk_sel = SK_SLOT_COUNT + 7;
     sk_scene = SK_SCENE_WORKSHOP;
     sk_top = 0;
     sk_play(SK_SND_BACK);
@@ -3389,7 +4363,7 @@ static int sk_list_length(void)
     switch (sk_scene)
     {
     case SK_SCENE_WORKSHOP:
-        return SK_SLOT_COUNT + 7;
+        return SK_WORKSHOP_ITEMS;
     case SK_SCENE_SLOT:
         return sk_slot_chip_count(sk_slot_filter) + 1;
     case SK_SCENE_COLLECTION:
@@ -3399,7 +4373,12 @@ static int sk_list_length(void)
     case SK_SCENE_BACKGROUND:
         return SK_BACKGROUND_COUNT;
     case SK_SCENE_GAMES:
-        return 2;
+        return 3;
+    case SK_SCENE_SHOP:
+        return SK_SHOP_SLOTS;
+    case SK_SCENE_PRESETS:
+        return sk_preset_total() +
+               (sk_preset_total() < SK_PRESET_COUNT ? 1 : 0);
     default:
         break;
     }
@@ -3598,9 +4577,11 @@ enum plugin_status plugin_start(const void *parameter)
     }
 #endif
     sk_reload_stage();
-    /* Reconcile the pane with the persisted background on every launch.
-     * This also repairs an older/default preview after a firmware install. */
-    sk_publish_preview(true);
+    /* Preserve the Home pane's last selected preset. A first install has no
+     * preview yet, so seed one from the current starter loadout. */
+    if (!rb->file_exists(SK_PREVIEW_PANE) ||
+        !rb->file_exists(SK_PREVIEW_FLOAT))
+        sk_publish_preview(true);
 #ifdef SIMULATOR
     if (self_test_only || dump_view)
         sk_dump_service();
@@ -3657,13 +4638,35 @@ enum plugin_status plugin_start(const void *parameter)
             break;
 
         case PLA_SELECT:
-        case PLA_RIGHT:
             redraw = sk_handle_select();
             break;
 
+        case PLA_RIGHT:
+        case PLA_RIGHT_REPEAT:
+            if (sk_scene == SK_SCENE_WORKSHOP)
+            {
+                sk_cycle_preset(1);
+                redraw = true;
+            }
+            else
+                redraw = sk_handle_select();
+            break;
+
         case PLA_CANCEL:
-        case PLA_LEFT:
             if (!sk_handle_back())
+                quit = true;
+            else
+                redraw = true;
+            break;
+
+        case PLA_LEFT:
+        case PLA_LEFT_REPEAT:
+            if (sk_scene == SK_SCENE_WORKSHOP)
+            {
+                sk_cycle_preset(-1);
+                redraw = true;
+            }
+            else if (!sk_handle_back())
                 quit = true;
             else
                 redraw = true;

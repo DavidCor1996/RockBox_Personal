@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import math
 import os
 import shutil
 import time
@@ -20,6 +21,12 @@ WEATHER_REL_DIR = os.path.join(".rockbox", "rockpod", "weather")
 BACKGROUND_NAMES = ("clear_day.bmp", "rain_day.bmp", "snow_day.bmp", "night.bmp")
 ASSET_BACKGROUND_DIR = Path(__file__).resolve().parents[1] / "assets" / "weather" / "backgrounds"
 ASSET_ICON_DIR = Path(__file__).resolve().parents[1] / "assets" / "weather" / "icons"
+RADAR_FRAME_COUNT = 4
+RADAR_ZOOM = 7
+RADAR_WIDTH = 640
+RADAR_HEIGHT = 480
+IPODJS_WEATHER_PREVIEW_FRAMES = 4
+IPODJS_WEATHER_PREVIEW_SIZE = (174, 240)
 
 
 @dataclass
@@ -200,6 +207,248 @@ def _copy_icons(bundle_dir):
     return copied
 
 
+def _download_rgba(url):
+    from io import BytesIO
+
+    from PIL import Image
+
+    request = urllib.request.Request(
+        url, headers={"User-Agent": "RockPod Weather personal display"})
+    with urllib.request.urlopen(request, timeout=20) as response:
+        return Image.open(BytesIO(response.read())).convert("RGBA")
+
+
+def _slippy_pixel(latitude, longitude, zoom):
+    latitude = max(-85.05112878, min(85.05112878, float(latitude)))
+    scale = 256.0 * (2 ** int(zoom))
+    x = (float(longitude) + 180.0) / 360.0 * scale
+    lat_rad = math.radians(latitude)
+    y = (
+        1.0 - math.asinh(math.tan(lat_rad)) / math.pi
+    ) / 2.0 * scale
+    return x, y
+
+
+def _fetch_radar_maps(bundle_dir, latitude, longitude):
+    """Cache four real radar/map frames centred on the synced location.
+
+    OpenStreetMap supplies the geographic base and RainViewer supplies the
+    time-stamped radar overlay. Fixed filenames keep the device manifest
+    stable while every Weather Sync replaces their contents with the latest
+    available frames.
+    """
+    from PIL import Image
+
+    map_dir = bundle_dir / "maps"
+    map_dir.mkdir(parents=True, exist_ok=True)
+    metadata_path = map_dir / "radar.json"
+    base_path = map_dir / "base-map.png"
+    request = urllib.request.Request(
+        "https://api.rainviewer.com/public/weather-maps.json",
+        headers={"User-Agent": "RockPod Weather personal display"})
+    with urllib.request.urlopen(request, timeout=20) as response:
+        radar_payload = json.loads(response.read().decode("utf-8"))
+
+    host = str(radar_payload.get("host") or "").rstrip("/")
+    frames = list((radar_payload.get("radar") or {}).get("past") or [])
+    frames = frames[-RADAR_FRAME_COUNT:]
+    if not host or not frames:
+        raise ValueError("radar service returned no current frames")
+
+    center_x, center_y = _slippy_pixel(latitude, longitude, RADAR_ZOOM)
+    left = int(round(center_x - RADAR_WIDTH / 2))
+    top = int(round(center_y - RADAR_HEIGHT / 2))
+    first_x = math.floor(left / 256)
+    last_x = math.floor((left + RADAR_WIDTH - 1) / 256)
+    first_y = math.floor(top / 256)
+    last_y = math.floor((top + RADAR_HEIGHT - 1) / 256)
+    tile_count = 2 ** RADAR_ZOOM
+
+    tile_positions = []
+    for tile_y in range(first_y, last_y + 1):
+        if tile_y < 0 or tile_y >= tile_count:
+            continue
+        for tile_x in range(first_x, last_x + 1):
+            wrapped_x = tile_x % tile_count
+            paste_x = tile_x * 256 - left
+            paste_y = tile_y * 256 - top
+            tile_positions.append((wrapped_x, tile_y, paste_x, paste_y))
+
+    base = None
+    try:
+        previous = json.loads(metadata_path.read_text(encoding="utf-8"))
+        same_map = (
+            abs(float(previous.get("latitude")) - float(latitude)) < 0.0001
+            and abs(float(previous.get("longitude")) -
+                    float(longitude)) < 0.0001
+            and int(previous.get("zoom")) == RADAR_ZOOM
+        )
+        if same_map and base_path.is_file():
+            base = Image.open(base_path).convert("RGBA")
+    except (OSError, TypeError, ValueError):
+        base = None
+    if base is None or base.size != (RADAR_WIDTH, RADAR_HEIGHT):
+        base = Image.new(
+            "RGBA", (RADAR_WIDTH, RADAR_HEIGHT), (17, 34, 49, 255))
+        for tile_x, tile_y, paste_x, paste_y in tile_positions:
+            tile = _download_rgba(
+                "https://tile.openstreetmap.org/"
+                f"{RADAR_ZOOM}/{tile_x}/{tile_y}.png")
+            base.alpha_composite(tile, (paste_x, paste_y))
+        temporary = base_path.with_suffix(".png.tmp")
+        base.convert("RGB").save(temporary, "PNG", optimize=True)
+        os.replace(temporary, base_path)
+
+    outputs = []
+    metadata_frames = []
+    for index, frame in enumerate(frames):
+        path = str(frame.get("path") or "")
+        stamp = int(frame.get("time") or 0)
+        if not path or stamp <= 0:
+            continue
+        composite = base.copy()
+        for tile_x, tile_y, paste_x, paste_y in tile_positions:
+            radar = _download_rgba(
+                f"{host}{path}/256/{RADAR_ZOOM}/"
+                f"{tile_x}/{tile_y}/2/1_1.png")
+            composite.alpha_composite(radar, (paste_x, paste_y))
+        target = map_dir / f"radar-{index}.png"
+        temporary = target.with_suffix(".png.tmp")
+        composite.convert("RGB").save(temporary, "PNG", optimize=True)
+        os.replace(temporary, target)
+        outputs.append(target)
+        metadata_frames.append({
+            "file": target.name,
+            "time": stamp,
+            "generated_utc": datetime.fromtimestamp(
+                stamp, timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        })
+
+    if not outputs:
+        raise ValueError("radar service returned no usable frames")
+    atomic_write_json(metadata_path, {
+        "version": 1,
+        "provider": "RainViewer",
+        "base_map": "OpenStreetMap",
+        "latitude": float(latitude),
+        "longitude": float(longitude),
+        "zoom": RADAR_ZOOM,
+        "frames": metadata_frames,
+    })
+    return outputs + [metadata_path]
+
+
+def _weather_preview_font(size, bold=False):
+    from PIL import ImageFont
+
+    candidates = (
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
+        if bold else
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+        "/usr/share/fonts/TTF/DejaVuSans-Bold.ttf"
+        if bold else
+        "/usr/share/fonts/TTF/DejaVuSans.ttf",
+    )
+    for candidate in candidates:
+        try:
+            return ImageFont.truetype(candidate, size)
+        except OSError:
+            continue
+    return ImageFont.load_default()
+
+
+def _render_ipodjs_weather_previews(
+        cache_root, radar_files, location, units, rows, hourly_rows):
+    """Render the current real radar loop as the iPodJS forecast pane.
+
+    These are sync-time assets. Firmware only decodes one prefetched 174x240
+    BMP at an idle service point and paints cached pixels during animation.
+    """
+    from PIL import Image, ImageDraw
+
+    sources = [
+        Path(path) for path in radar_files
+        if Path(path).suffix.lower() == ".png" and Path(path).is_file()
+    ]
+    output_dir = (
+        Path(cache_root) / ".rockbox" / "ipodjs" / "previews" /
+        "weather-loop"
+    )
+    output_dir.mkdir(parents=True, exist_ok=True)
+    if not sources:
+        return sorted(output_dir.glob("frame-*.bmp"))
+
+    hourly = hourly_rows[0] if hourly_rows else []
+    daily = rows[0] if rows else []
+    condition = str(
+        (hourly[3] if len(hourly) > 3 else "") or
+        (daily[2] if len(daily) > 2 else "") or "Forecast"
+    )
+    temperature = str(
+        hourly[4] if len(hourly) > 4 else
+        (daily[4] if len(daily) > 4 else "")
+    )
+    precipitation = str(
+        hourly[5] if len(hourly) > 5 else
+        (daily[5] if len(daily) > 5 else "")
+    )
+    high = str(daily[4] if len(daily) > 4 else "")
+    low = str(daily[3] if len(daily) > 3 else "")
+    unit = "F" if units == "imperial" else "C"
+    generated = []
+    title_font = _weather_preview_font(13, bold=True)
+    location_font = _weather_preview_font(10)
+    temp_font = _weather_preview_font(27, bold=True)
+    detail_font = _weather_preview_font(11, bold=True)
+    small_font = _weather_preview_font(9)
+
+    for index in range(IPODJS_WEATHER_PREVIEW_FRAMES):
+        with Image.open(sources[index % len(sources)]) as source:
+            image = source.convert("RGB")
+        src_w, src_h = image.size
+        crop_w = max(1, int(round(src_h * 174 / 240)))
+        left = max(0, (src_w - crop_w) // 2)
+        image = image.crop((left, 0, min(src_w, left + crop_w), src_h))
+        image = image.resize(
+            IPODJS_WEATHER_PREVIEW_SIZE, Image.Resampling.LANCZOS)
+        image = image.convert("RGBA")
+        overlay = Image.new(
+            "RGBA", IPODJS_WEATHER_PREVIEW_SIZE, (0, 0, 0, 0))
+        draw = ImageDraw.Draw(overlay)
+        draw.rectangle((0, 0, 173, 49), fill=(4, 28, 51, 232))
+        draw.rectangle((0, 159, 173, 239), fill=(3, 23, 42, 238))
+        draw.rectangle((0, 48, 173, 51), fill=(32, 181, 226, 255))
+        draw.rectangle((0, 158, 173, 161), fill=(32, 181, 226, 255))
+        draw.text((10, 6), "LOCAL FORECAST", font=title_font,
+                  fill=(242, 249, 255, 255))
+        draw.text((10, 27), location[:25], font=location_font,
+                  fill=(164, 215, 240, 255))
+        temp_text = f"{temperature}°{unit}" if temperature else f"°{unit}"
+        draw.text((10, 166), temp_text, font=temp_font,
+                  fill=(255, 255, 255, 255))
+        draw.text((10, 200), condition[:23], font=detail_font,
+                  fill=(205, 235, 249, 255))
+        details = (
+            f"H {high}°  L {low}°  RAIN {precipitation}%"
+            if high or low or precipitation else "CURRENT RADAR"
+        )
+        draw.text((10, 221), details, font=small_font,
+                  fill=(137, 199, 229, 255))
+        draw.ellipse((80, 96, 94, 110), fill=(255, 255, 255, 255),
+                     outline=(12, 80, 120, 255), width=2)
+        draw.line((87, 86, 87, 120), fill=(255, 255, 255, 225), width=1)
+        draw.line((77, 103, 97, 103), fill=(255, 255, 255, 225), width=1)
+        image = Image.alpha_composite(image, overlay).convert("RGB")
+
+        target = output_dir / f"frame-{index:02d}.bmp"
+        temporary = target.with_suffix(".bmp.tmp")
+        image.save(temporary, "BMP")
+        os.replace(temporary, target)
+        generated.append(target)
+
+    return generated
+
+
 def build_weather_bundle(config, output_root=None, device=None, force=False):
     errors = []
     enabled = bool(_config_value(config, "weather_enabled", True, device=device))
@@ -252,8 +501,22 @@ def build_weather_bundle(config, output_root=None, device=None, force=False):
 
     copied_backgrounds = _copy_backgrounds(bundle_dir)
     copied_icons = _copy_icons(bundle_dir)
+    radar_files = []
+    if bool(_config_value(
+            config, "weather_maps_enabled", True, device=device)):
+        try:
+            radar_files = _fetch_radar_maps(
+                bundle_dir, latitude, longitude)
+        except Exception as exc:
+            errors.append(f"Weather radar update failed: {exc}")
+            radar_dir = bundle_dir / "maps"
+            radar_files = sorted(radar_dir.glob("radar-*.png"))
+            if (radar_dir / "radar.json").is_file():
+                radar_files.append(radar_dir / "radar.json")
+    preview_files = _render_ipodjs_weather_previews(
+        cache_root, radar_files, location, units, rows, hourly_rows)
     manifest = {
-        "version": 1,
+        "version": 2,
         "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "provider": "open-meteo",
         "location_name": location,
@@ -262,12 +525,18 @@ def build_weather_bundle(config, output_root=None, device=None, force=False):
         "units": units,
         "forecast_rows": len(rows),
         "hourly_rows": len(hourly_rows),
+        "radar_frames": len([
+            path for path in radar_files if path.suffix.lower() == ".png"
+        ]),
+        "right_pane_frames": len(preview_files),
         "warnings": errors,
     }
     atomic_write_json(manifest_path, manifest)
 
     files = []
-    for path in [forecast_path, manifest_path] + copied_backgrounds + copied_icons:
+    for path in (
+            [forecast_path, manifest_path] + copied_backgrounds +
+            copied_icons + radar_files + preview_files):
         if not path.is_file():
             continue
         rel = path.relative_to(cache_root).as_posix()

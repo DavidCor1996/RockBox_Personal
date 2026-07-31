@@ -59,11 +59,9 @@ MAX_RAV_WIDTH = 104
 MAX_RAV_HEIGHT = 168
 MAX_RAV_FRAMES = 24
 MAX_RAV_BYTES = 1024 * 1024
-# The iPodJS Extras pane is half the 320x240 screen, and steps through these
-# pre-rendered turntable angles so hovering Achievements shows the avatar
-# turning rather than a still image.
+# The iPodJS Extras pane is half the 320x240 screen.  It plays the profile's
+# selected emote instead of reusing the creator's turntable preview.
 MENU_PREVIEW_SIZE = (160, 240)
-MENU_PREVIEW_FRAMES = 12
 EMOTE_CLIPS = (
     "jump", "throw", "faint", "sit-idle", "punch", "kick", "walk",
 )
@@ -687,15 +685,13 @@ class XboxAvatarService:
         )
 
     def menu_preview_frames(self):
-        """Render the turntable angles the Extras menu pane steps through."""
+        """Render the profile's selected emote for the Achievements pane."""
         rig = self._rig()
         if not rig.available():
             raise FileNotFoundError(rig.root)
-        step = 360.0 / MENU_PREVIEW_FRAMES
         frames = render_frames(
-            rig, self.profile.render_mapping(), TURNTABLE_CLIP,
+            rig, self.profile.render_mapping(), self.profile.favorite_clip,
             MENU_PREVIEW_SIZE, repo_root=self.repo_root, supersample=2,
-            angles=[index * step for index in range(MENU_PREVIEW_FRAMES)],
         )
         background = _menu_stage_background(MENU_PREVIEW_SIZE)
         return [Image.alpha_composite(background, frame).convert("RGB")

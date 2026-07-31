@@ -4,6 +4,7 @@
 /build-sim/
 /sim*
 /output
+/tools/.vendor-cache/
 *.elf
 *.exe
 *.so
@@ -92,8 +93,15 @@ __pycache__
 *.pce
 *.cue
 *.iso
+*.gcm
+*.ciso
+*.assets.pack
 !/docs/*.md
 !/docs/**/*.md
+
+# User-owned Animal Crossing media and generated runtime data
+/animalcrossing-assets/
+/apps/plugins/animalcrossing/private/
 
 # Local Rockboy LCD reference test inputs
 /tmp/rockboy-lcd-reference-assets/

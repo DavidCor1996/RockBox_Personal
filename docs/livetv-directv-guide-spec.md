@@ -141,11 +141,18 @@ list and from Netflix browsing):
 `channels.tsv` (tab separated, `#` comments allowed):
 
 ```
-number  callsign  name                 category  logo
-100     RTRO      Retro Classics       Series    logos/RTRO.bmp
-200     GAME      Game Show Network    Variety
-300     SPRT      Sports Time          Sports
+number  callsign  name                 category  logo             favourite  parental_locked
+100     RTRO      Retro Classics       Series    logos/RTRO.bmp   1          0
+200     GAME      Game Show Network    Variety                      1          1
+300     SPRT      Sports Time          Sports                       0          0
 ```
+
+`parental_locked` is `1` for a channel that must be omitted from the guide
+and channel stepping. Holding Select in the guide opens the same four-digit
+Settings-password entry used by the home screen; a successful entry reveals
+locked channels for that Live TV session. Menu cancels password entry. RockPod
+keeps at least one channel unlocked so startup never exposes a locked current
+channel or leaves the guide without a safe row.
 
 `guide.tsv` (tab separated, sorted by channel then day then start):
 

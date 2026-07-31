@@ -55,6 +55,16 @@ def test_classify_music_video_as_its_own_type():
     assert info["sub_label"] == "The Band"
 
 
+def test_classify_concert_as_its_own_type():
+    info = classify_video_track(
+        {"id": 4, "title": "Live at Red Rocks", "artist": "The Band",
+         "video_kind": "concert"}
+    )
+
+    assert info["kind"] == "concert"
+    assert info["sub_label"] == "The Band"
+
+
 def test_build_video_browser_groups_collapses_show_to_one_group():
     tracks = [
         {"id": 1, "title": "Pilot", "show_title": "The Show", "season_number": 1, "episode_number": 1, "video_kind": "show"},
@@ -81,6 +91,15 @@ def test_build_video_browser_groups_keeps_music_videos_separate():
 
     assert [track["title"] for track in grouped["movie"]] == ["Movie"]
     assert [track["title"] for track in grouped["music_video"]] == ["Performance"]
+
+
+def test_build_video_browser_groups_keeps_concerts_separate():
+    grouped = build_video_browser_groups(
+        [{"id": 1, "title": "Movie", "video_kind": "movie"},
+         {"id": 2, "title": "Live Set", "video_kind": "concert"}]
+    )
+
+    assert [track["title"] for track in grouped["concert"]] == ["Live Set"]
 
 
 def test_video_grid_view_shows_one_cover_per_show_until_opened():

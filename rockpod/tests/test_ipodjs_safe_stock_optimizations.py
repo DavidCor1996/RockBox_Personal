@@ -354,6 +354,48 @@ def test_music_preview_always_keeps_default_album_slideshow():
         assert forbidden not in preview
 
 
+def test_app_weather_calm_and_maps_use_real_cached_preview_assets():
+    source = _text("apps/root_menu.c")
+
+    assert '"weather-loop"' in source
+    assert '"maps-globe"' in source
+    assert '"/calm/calm-icon.64x64x24.bmp"' in source
+    assert "root_menu_video_draw_weather_preview" in source
+    assert "root_menu_video_draw_calm_preview" in source
+    assert "root_menu_video_draw_maps_preview" in source
+    assert "root_menu_video_custom_preview_animation_due" in source
+
+    service = source.rsplit(
+        "static bool root_menu_video_animated_preview_service", 1
+    )[1].split(
+        "static struct root_menu_video_menu_preview_slot *", 1
+    )[0]
+    assert "read_bmp_file" in service
+    missing = service.split("if (!file_exists(path))", 1)[1].split(
+        "if (root_menu_video_menu_preview_recent_failure", 1
+    )[0]
+    assert "root_menu_video_menu_preview_record_failure" not in missing
+    assert "Sync Weather for radar" not in source
+    for draw_name, next_name in (
+        ("static void root_menu_video_draw_weather_preview",
+         "static void root_menu_video_draw_calm_preview"),
+        ("static void root_menu_video_draw_calm_preview",
+         "static void root_menu_video_draw_maps_preview"),
+        ("static void root_menu_video_draw_maps_preview",
+         "static bool root_menu_video_custom_preview_animation_due"),
+    ):
+        draw = source.rsplit(draw_name, 1)[1].split(next_name, 1)[0]
+        assert "read_bmp_file" not in draw
+        assert "file_exists" not in draw
+        assert "core_alloc" not in draw
+
+    assert (
+        REPO / "assets/ipodjs/rockbox/calm/calm-icon.64x64x24.bmp"
+    ).is_file()
+    globe = REPO / "assets/ipodjs/rockbox/previews/maps-globe"
+    assert len(list(globe.glob("frame-*.bmp"))) == 12
+
+
 def test_ipodjs_album_browser_keeps_stock_sized_cover_rows():
     source = _text("apps/gui/albumlist_art.c")
     setup = source.split("void albumlist_setup_list", 1)[1]

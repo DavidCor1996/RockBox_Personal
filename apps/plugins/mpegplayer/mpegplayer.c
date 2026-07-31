@@ -120,8 +120,10 @@ bool mpegplayer_livetv_launch;
 bool mpegplayer_livetv_pig;
 bool mpegplayer_livetv_desktop;
 bool mpegplayer_livetv_guide_active;
+bool mpegplayer_livetv_pin_active;
 bool mpegplayer_livetv_weather_hidden;
-static bool mpegplayer_livetv_weather_active;
+bool mpegplayer_livetv_weather_active;
+static bool mpegplayer_livetv_weather_commercial;
 
 #if defined(HAVE_LCD_COLOR) && (LCD_WIDTH >= 320) && (LCD_HEIGHT >= 240)
 /* Desktop Mode and mpegplayer cannot remain loaded together. Preserve the
@@ -4157,6 +4159,9 @@ int mpegplayer_yuv_overlay_height(void)
     if ((mpegplayer_livetv_launch || mpegplayer_netflix_launch) &&
         !mpegplayer_livetv_desktop && livetv_volume_until != 0)
         return LIVETV_VOLUME_H;
+    if (mpegplayer_livetv_launch && !mpegplayer_livetv_desktop &&
+        mpegplayer_livetv_weather_commercial)
+        return LIVETV_WEATHER_COMMERCIAL_OVERLAY_H;
 #if MPEG_STOCK_CONTROLS
     if (osd.netflix_layout && (osd.flags & OSD_SHOW))
         return MPEG_NETFLIX_OVERLAY_H;
@@ -4233,6 +4238,40 @@ void mpegplayer_yuv_overlay_draw(uint8_t * const *planes,
                 mpeg_yuv_rect(planes, width, height, x, bar_y,
                               segment_w, 14, 12, 72, 28);
         }
+        return;
+    }
+
+    if (mpegplayer_livetv_launch &&
+        mpegplayer_livetv_weather_commercial)
+    {
+        char primary[64];
+        char secondary[64];
+        char tertiary[64];
+        int copy_x = 68;
+
+        livetv_weather_commercial_text(
+            primary, sizeof(primary), secondary, sizeof(secondary),
+            tertiary, sizeof(tertiary));
+        mpeg_yuv_rect(planes, width, height, 0, 0, width, height,
+                      3, 22, 55);
+        mpeg_yuv_rect(planes, width, height, 0, 0, width, 3,
+                      47, 190, 244);
+        mpeg_yuv_rect(planes, width, height, 0, 3, 62, height - 3,
+                      7, 66, 122);
+        mpeg_yuv_rect(planes, width, height, 62, 3, 2, height - 3,
+                      47, 147, 210);
+        mpeg_yuv_text(planes, width, height, 6, 10, "WX 102",
+                      255, 255, 255);
+        mpeg_yuv_text(planes, width, height, 6, 27, "LOCAL",
+                      105, 214, 255);
+        mpeg_yuv_text(planes, width, height, 6, 44, "LIVE",
+                      219, 235, 245);
+        mpeg_yuv_text(planes, width, height, copy_x, 7, primary,
+                      255, 255, 255);
+        mpeg_yuv_text(planes, width, height, copy_x, 25, secondary,
+                      166, 218, 247);
+        mpeg_yuv_text(planes, width, height, copy_x, 43, tertiary,
+                      219, 235, 245);
         return;
     }
 
@@ -4322,6 +4361,16 @@ static void livetv_volume_hide(void)
     stream_draw_frame(false);
     if (mpegplayer_livetv_weather_hidden)
         livetv_weather_draw();
+    else if (mpegplayer_livetv_weather_commercial)
+    {
+        struct vo_rect rc = {
+            0, 0, LCD_WIDTH,
+            LCD_HEIGHT - LIVETV_WEATHER_COMMERCIAL_OVERLAY_H
+        };
+        stream_vo_set_clip(&rc);
+        stream_draw_frame(false);
+        livetv_weather_draw_commercial_overlay();
+    }
 }
 
 static void livetv_overlay_show(bool mini)
@@ -4358,6 +4407,16 @@ static void livetv_overlay_hide(void)
      * needs its own repaint once the strip is gone. */
     if (mpegplayer_livetv_weather_hidden)
         livetv_weather_draw();
+    else if (mpegplayer_livetv_weather_commercial)
+    {
+        struct vo_rect rc = {
+            0, 0, LCD_WIDTH,
+            LCD_HEIGHT - LIVETV_WEATHER_COMMERCIAL_OVERLAY_H
+        };
+        stream_vo_set_clip(&rc);
+        stream_draw_frame(false);
+        livetv_weather_draw_commercial_overlay();
+    }
 }
 
 /* Select between native forecast panels and the carrier's presenter/video
@@ -4369,6 +4428,11 @@ static void livetv_update_weather_view(uint32_t stream_seconds, bool entering)
     bool active = mpegplayer_livetv_launch &&
                   !mpegplayer_livetv_desktop &&
                   livetv_weather_program_active();
+    bool commercial = mpegplayer_livetv_launch &&
+                      !mpegplayer_livetv_desktop &&
+                      livetv_weather_commercial_active();
+    bool commercial_changed =
+        commercial != mpegplayer_livetv_weather_commercial;
     bool hidden = active && !livetv_weather_wants_video(stream_seconds);
     bool changed = hidden != mpegplayer_livetv_weather_hidden;
     int phase = (stream_seconds % 64) / 8;
@@ -4380,10 +4444,11 @@ static void livetv_update_weather_view(uint32_t stream_seconds, bool entering)
         logged_phase = phase;
     }
 
-    if (entering && active)
+    if (entering && (active || commercial))
         livetv_weather_enter(stream_seconds);
 
     mpegplayer_livetv_weather_active = active;
+    mpegplayer_livetv_weather_commercial = commercial;
     if (changed)
         mpegplayer_livetv_weather_hidden = hidden;
 
@@ -4393,6 +4458,22 @@ static void livetv_update_weather_view(uint32_t stream_seconds, bool entering)
             livetv_weather_draw();
         else if (active && changed)
             stream_draw_frame(false);
+    }
+
+    if (commercial && (entering || commercial_changed) &&
+        livetv_overlay_until == 0 && livetv_volume_until == 0)
+    {
+        struct vo_rect rc = {
+            0, 0, LCD_WIDTH,
+            LCD_HEIGHT - LIVETV_WEATHER_COMMERCIAL_OVERLAY_H
+        };
+        stream_vo_set_clip(&rc);
+        stream_draw_frame(false);
+        livetv_weather_draw_commercial_overlay();
+    }
+    else if (entering && !active)
+    {
+        stream_vo_set_clip(NULL);
     }
 }
 
@@ -4482,6 +4563,16 @@ static int livetv_guide_session(void)
         stream_draw_frame(false);
         if (mpegplayer_livetv_weather_hidden)
             livetv_weather_draw();
+        else if (mpegplayer_livetv_weather_commercial)
+        {
+            struct vo_rect rc = {
+                0, 0, LCD_WIDTH,
+                LCD_HEIGHT - LIVETV_WEATHER_COMMERCIAL_OVERLAY_H
+            };
+            stream_vo_set_clip(&rc);
+            stream_draw_frame(false);
+            livetv_weather_draw_commercial_overlay();
+        }
         return -1;
     }
 }

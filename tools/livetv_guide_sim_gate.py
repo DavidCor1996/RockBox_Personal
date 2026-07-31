@@ -24,6 +24,7 @@ from rockachievements_ui_sim_gate import (
     BUTTON_GATES,
     capture,
     changed_pixels,
+    hold,
     start_screen_lang_id,
     tap,
     wait_for_file,
@@ -59,10 +60,17 @@ PALETTE_PROBES = (
 SELECTED_ROW_Y = 100  # first grid row, which the guide opens on
 
 
-def build_channels(root: Path, channels) -> None:
-    lines = ["# number\tcallsign\tname\tcategory\tlogo\tfavourite"]
+def build_channels(root: Path, channels, parental_locked=()) -> None:
+    locked = set(parental_locked)
+    lines = [
+        "# number\tcallsign\tname\tcategory\tlogo\tfavourite"
+        "\tparental_locked"
+    ]
     for number, callsign, name in channels:
-        lines.append(f"{number}\t{callsign}\t{name}\tSeries\t\t1")
+        lines.append(
+            f"{number}\t{callsign}\t{name}\tSeries\t\t1"
+            f"\t{1 if number in locked else 0}"
+        )
     (root / "channels.tsv").write_text("\n".join(lines) + "\n",
                                        encoding="utf-8")
 
@@ -144,13 +152,18 @@ def prepare_root(repo: Path, build_dir: Path, root: Path) -> None:
     channels = [
         (100, "RTRO", "Retro Classics"),
         (101, "GAME", "Game Show Time"),
-        (102, "SPRT", "Sports Tonight"),
+        (112, "PBTV", "Playboy TV"),
         (103, "MOVI", "Movie Channel"),
         (104, "NEWS", "News Around"),
         (105, "KIDS", "Kids Corner"),
     ]
-    build_channels(livetv, channels)
+    # The middle channel exercises both guide filtering and live channel
+    # stepping without making the first safe startup channel disappear.
+    build_channels(livetv, channels, parental_locked=(112,))
     build_guide(livetv, channels, "shows/gate.mpg")
+    videolist = rockbox / "videolist"
+    videolist.mkdir(parents=True, exist_ok=True)
+    (videolist / "locked.pin").write_text("0000\n", encoding="ascii")
 
     # Install the real DIRECTV wordmark when rockpod has already fetched it,
     # so the gate exercises the artwork path rather than the text fallback.
@@ -267,6 +280,24 @@ def volume_green_pixels(frame: Path) -> int:
         ["magick", str(frame), "-crop", "320x50+0+190", "+repage",
          "-fuzz", "8%", "-fill", "black", "+opaque", "#20FF50",
          "-fill", "white", "-opaque", "#20FF50",
+         "-format", "%[fx:int(mean*w*h)]", "info:"],
+        check=False, capture_output=True, text=True,
+    )
+    try:
+        return int(result.stdout.strip())
+    except ValueError:
+        return 0
+
+
+def pin_panel_white_pixels(frame: Path) -> int:
+    """Pure-white coverage in the dark PIN strip.
+
+    Digits contribute only thin strokes. A SOLID-mode font regression paints
+    every glyph cell white and produces the broken row-of-boxes appearance.
+    """
+    result = subprocess.run(
+        ["magick", str(frame), "-crop", "278x50+20+171", "+repage",
+         "-colorspace", "gray", "-threshold", "98%",
          "-format", "%[fx:int(mean*w*h)]", "info:"],
         check=False, capture_output=True, text=True,
     )
@@ -396,9 +427,9 @@ def main() -> int:
             time.sleep(2.5)
             capture(frame, args.output / "livetv-channel-up.png")
             stepped_up = tuned_channel(root)
-            if stepped_up != started_on + 1:
+            if stepped_up != 103:
                 failures.append(
-                    f"Right did not step up a channel "
+                    f"Right did not skip the parental-locked channel "
                     f"({started_on} -> {stepped_up})")
 
             tap(process.pid, "Left")
@@ -407,7 +438,7 @@ def main() -> int:
             stepped_down = tuned_channel(root)
             if stepped_down != started_on:
                 failures.append(
-                    f"Left did not step back a channel "
+                    f"Left did not skip back over the parental-locked channel "
                     f"({stepped_up} -> {stepped_down})")
 
             tap(process.pid, "KP_Decimal")
@@ -416,6 +447,54 @@ def main() -> int:
             capture(frame, back)
             if not close_enough(pixel(back, 8, 60), (2, 111, 175), 30):
                 failures.append("MENU did not return to the guide")
+
+            # Holding SELECT uses the shared Settings PIN. MENU must cancel the
+            # entry without leaving the guide or revealing locked channels.
+            hold(process.pid, "KP_5")
+            time.sleep(0.5)
+            pin = args.output / "livetv-parental-pin.png"
+            capture(frame, pin)
+            if changed_pixels(back, pin) < 5_000:
+                failures.append(
+                    "holding SELECT did not open Settings PIN entry")
+            white_pixels = pin_panel_white_pixels(pin)
+            if white_pixels > 250:
+                failures.append(
+                    "Settings PIN entry contains white glyph boxes "
+                    f"({white_pixels} white panel pixels)")
+            tap(process.pid, "KP_Decimal")
+            time.sleep(0.5)
+            cancelled = args.output / "livetv-parental-cancelled.png"
+            capture(frame, cancelled)
+            if not close_enough(pixel(cancelled, 8, 60),
+                                (2, 111, 175), 30):
+                failures.append("MENU did not cancel Settings PIN entry")
+
+            hold(process.pid, "KP_5")
+            time.sleep(0.4)
+            for _ in range(4):
+                tap(process.pid, "KP_5")
+                time.sleep(0.15)
+            time.sleep(0.6)
+            unlocked = args.output / "livetv-parental-unlocked.png"
+            capture(frame, unlocked)
+            if not close_enough(pixel(unlocked, 8, 60),
+                                (2, 111, 175), 30):
+                failures.append("the valid Settings PIN did not restore guide")
+
+            # Move onto the formerly hidden row and tune it directly. This
+            # proves that the valid PIN rebuilt the selectable guide view.
+            tap(process.pid, "KP_2")
+            time.sleep(0.4)
+            tap(process.pid, "KP_5")
+            time.sleep(1.5)
+            unlocked_channel = tuned_channel(root)
+            if unlocked_channel != 112:
+                failures.append(
+                    "the locked channel was not revealed after the valid "
+                    f"Settings PIN (tuned {unlocked_channel})")
+            tap(process.pid, "KP_Decimal")
+            time.sleep(1.0)
 
             # The corner window must keep decoding while the guide is up:
             # that is the whole point of picture in guide.

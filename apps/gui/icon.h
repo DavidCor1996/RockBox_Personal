@@ -63,6 +63,12 @@ enum themable_icons {
     Icon_file_view_menu,
     Icon_EQ,
     Icon_Rockbox,
+    /* Appended at the end of the enum (and as the last row of
+       apps/bitmaps/mono/default_icons.bmp) so every earlier icon keeps its
+       existing numeric value/bitmap offset. See apps/gui/icon.c: the
+       per-icon height is bmp.height / Icon_Last_Themeable, so growing both
+       the bitmap and this count together preserves all prior offsets. */
+    Icon_Comics,
     Icon_Last_Themeable,
 };
 

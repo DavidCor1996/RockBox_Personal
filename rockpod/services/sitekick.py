@@ -35,7 +35,7 @@ PREVIEW_FILE = "preview/current.bmp"
 STAGE_FILE = "data/stage.v1.tsv"
 
 RARITIES = ("common", "rare", "legendary")
-MAX_CHIPS = 512
+MAX_CHIPS = 1024
 SLOTS = ("aura", "shell", "arms", "face", "eyes", "hair", "antenna",
          "accessory", "none")
 BODY_COLORS = (
@@ -60,6 +60,13 @@ BACKGROUNDS = (
     ("Beatles Crosswalk", "beatles-crosswalk"),
     ("Beatles Pepperland", "beatles-pepperland"),
     ("Beatles Rooftop", "beatles-rooftop"),
+    ("Hasan News Studio", "hasan-news-studio"),
+    ("QTC Spotlight Stage", "qtc-spotlight-stage"),
+    ("Maya Wildlife Perch", "maya-wildlife-perch"),
+    ("Habs Home Ice", "habs-home-ice"),
+    ("Polaroid Darkroom", "polaroid-darkroom"),
+    ("KI Arena Lightning", "ki-arena-lightning"),
+    ("Cyberpunk Night City", "cyberpunk-night-city"),
 )
 
 # Chip counts per drop, mirroring the original game's cadence.
@@ -237,13 +244,44 @@ def apply_overrides(root) -> int:
 # mounted-device state and preview
 # ---------------------------------------------------------------------------
 
+
+# SKS3 header layout, mirroring apps/plugins/sitekick.c's SK_SAVE3_* macros
+# exactly (SK_SLOT_COUNT=8 equip positions, SK_SHOP_SLOTS=6, SK_PRESET_COUNT=8,
+# SK_PRESET_NAME_MAX=21). SKS3 adds shop stock + presets after SKS2's
+# equipment/dump/appearance header; the device has written SKS3 (never SKS2)
+# since presets shipped, so it must be understood here too.
+_SK_SLOT_COUNT = 8
+_SAVE2_BASE_HEADER = 16 + _SK_SLOT_COUNT * 2                    # 32
+_SAVE2_DUMP_HEADER = _SAVE2_BASE_HEADER + 8                     # 40
+_SAVE2_HEADER = _SAVE2_DUMP_HEADER + 8                           # 48
+_SHOP_SLOTS = 6
+_SAVE2_SHOP_HEADER = _SAVE2_HEADER + 4 + _SHOP_SLOTS * 2         # 64
+_PRESET_COUNT = 8
+_PRESET_NAME_MAX = 21
+_PRESET_BYTES = 3 + _PRESET_NAME_MAX + _SK_SLOT_COUNT * 2        # 40
+_SAVE3_HEADER = _SAVE2_SHOP_HEADER + 2 + _PRESET_COUNT * _PRESET_BYTES  # 386
+
+
 def load_state(root) -> SitekickState:
-    """Read the current ID-based Sitekick save from a packaged asset root."""
+    """Read the current ID-based Sitekick save from a packaged asset root.
+
+    The device writes SKS3 (adds shop stock + presets on top of SKS2's
+    equipment/dump/appearance header); SKS2 is still accepted for saves
+    written before presets existed.
+    """
     path = Path(root) / SAVE_FILE
     if not path.is_file():
         return SitekickState()
     data = path.read_bytes()
-    if len(data) < 32 or data[:4] != b"SKS2":
+    if len(data) >= 4 and data[:4] == b"SKS3":
+        return _load_state_v3(data, path)
+    if len(data) >= 4 and data[:4] == b"SKS2":
+        return _load_state_v2(data, path)
+    raise SitekickError(f"unsupported Sitekick save {path}")
+
+
+def _load_state_v2(data: bytes, path: Path) -> SitekickState:
+    if len(data) < 32:
         raise SitekickError(f"unsupported Sitekick save {path}")
 
     xp, coins = struct.unpack_from("<II", data, 4)
@@ -271,6 +309,42 @@ def load_state(root) -> SitekickState:
         background = min(data[41], len(BACKGROUNDS) - 1)
     owned = tuple(
         struct.unpack_from("<H", data, header_size + index * 2)[0]
+        for index in range(owned_count)
+    )
+    return SitekickState(
+        xp=xp,
+        coins=coins,
+        owned=owned,
+        equipped=equipped,
+        dump_id=dump_id,
+        dump_ready_at=dump_ready_at,
+        body_color=body_color,
+        background=background,
+        exists=True,
+    )
+
+
+def _load_state_v3(data: bytes, path: Path) -> SitekickState:
+    if len(data) < _SAVE3_HEADER:
+        raise SitekickError(f"unsupported Sitekick save {path}")
+
+    xp, coins = struct.unpack_from("<II", data, 4)
+    owned_count, header_size = struct.unpack_from("<HH", data, 12)
+    if (header_size != _SAVE3_HEADER or owned_count > MAX_CHIPS or
+            len(data) < _SAVE3_HEADER + owned_count * 2):
+        raise SitekickError(f"truncated Sitekick save {path}")
+
+    equipped = tuple(
+        None if chip_id == 0xffff else chip_id
+        for chip_id in struct.unpack_from("<8H", data, 16)
+    )
+    raw_dump = struct.unpack_from("<H", data, _SAVE2_BASE_HEADER)[0]
+    dump_id = None if raw_dump == 0xffff else raw_dump
+    dump_ready_at = struct.unpack_from("<I", data, _SAVE2_BASE_HEADER + 4)[0]
+    body_color = min(data[_SAVE2_DUMP_HEADER], len(BODY_COLORS) - 1)
+    background = min(data[_SAVE2_DUMP_HEADER + 1], len(BACKGROUNDS) - 1)
+    owned = tuple(
+        struct.unpack_from("<H", data, _SAVE3_HEADER + index * 2)[0]
         for index in range(owned_count)
     )
     return SitekickState(

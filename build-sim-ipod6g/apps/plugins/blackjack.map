@@ -604,15 +604,15 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x2b523
+.debug_info     0x0000000000000000    0x2b541
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0xa14d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/blackjack.o
- .debug_info    0x000000000000a14d     0x7da2 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
- .debug_info    0x0000000000011eef     0x99ba /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
- .debug_info    0x000000000001b8a9     0x80f2 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(highscore.o)
- .debug_info    0x000000000002399b     0x7901 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(display_text.o)
- .debug_info    0x000000000002b29c      0x142 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(card_back.37x49x16.o)
- .debug_info    0x000000000002b3de      0x145 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(card_deck.481x196x16.o)
+ .debug_info    0x0000000000000000     0xa153 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/blackjack.o
+ .debug_info    0x000000000000a153     0x7da8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+ .debug_info    0x0000000000011efb     0x99c0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
+ .debug_info    0x000000000001b8bb     0x80f8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(highscore.o)
+ .debug_info    0x00000000000239b3     0x7907 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(display_text.o)
+ .debug_info    0x000000000002b2ba      0x142 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(card_back.37x49x16.o)
+ .debug_info    0x000000000002b3fc      0x145 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(card_deck.481x196x16.o)
 
 .debug_abbrev   0x0000000000000000     0x1693
  *(.debug_abbrev)
@@ -637,21 +637,21 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0xb512
+.debug_str      0x0000000000000000     0xb51e
  *(.debug_str)
- .debug_str     0x0000000000000000     0xb512 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/blackjack.o
-                                       0x69c9 (size before relaxing)
- .debug_str     0x000000000000b512        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
-                                       0x52b3 (size before relaxing)
- .debug_str     0x000000000000b512        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
-                                       0xa321 (size before relaxing)
- .debug_str     0x000000000000b512        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(highscore.o)
-                                       0x51ba (size before relaxing)
- .debug_str     0x000000000000b512        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(display_text.o)
-                                       0x4a3d (size before relaxing)
- .debug_str     0x000000000000b512        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(card_back.37x49x16.o)
+ .debug_str     0x0000000000000000     0xb51e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/blackjack.o
+                                       0x69d5 (size before relaxing)
+ .debug_str     0x000000000000b51e        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+                                       0x52bf (size before relaxing)
+ .debug_str     0x000000000000b51e        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
+                                       0xa32d (size before relaxing)
+ .debug_str     0x000000000000b51e        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(highscore.o)
+                                       0x51c6 (size before relaxing)
+ .debug_str     0x000000000000b51e        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(display_text.o)
+                                       0x4a49 (size before relaxing)
+ .debug_str     0x000000000000b51e        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(card_back.37x49x16.o)
                                         0x166 (size before relaxing)
- .debug_str     0x000000000000b512        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(card_deck.481x196x16.o)
+ .debug_str     0x000000000000b51e        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(card_deck.481x196x16.o)
                                         0x166 (size before relaxing)
 
 .debug_loc

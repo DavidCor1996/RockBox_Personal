@@ -459,10 +459,10 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x100a5
+.debug_info     0x0000000000000000    0x100b1
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x8303 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/stopwatch.o
- .debug_info    0x0000000000008303     0x7da2 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+ .debug_info    0x0000000000000000     0x8309 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/stopwatch.o
+ .debug_info    0x0000000000008309     0x7da8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
 
 .debug_abbrev   0x0000000000000000      0x881
  *(.debug_abbrev)
@@ -477,12 +477,12 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x4d76
+.debug_str      0x0000000000000000     0x4d82
  *(.debug_str)
- .debug_str     0x0000000000000000     0x4d76 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/stopwatch.o
-                                       0x530b (size before relaxing)
- .debug_str     0x0000000000004d76        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
-                                       0x52b3 (size before relaxing)
+ .debug_str     0x0000000000000000     0x4d82 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/stopwatch.o
+                                       0x5317 (size before relaxing)
+ .debug_str     0x0000000000004d82        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+                                       0x52bf (size before relaxing)
 
 .debug_loc
  *(.debug_loc)

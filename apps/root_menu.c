@@ -62,6 +62,9 @@
 #include "core_alloc.h"
 #include "rbpaths.h"
 #include "bmp.h"
+#ifdef HAVE_JPEG
+#include "recorder/jpeg_load.h"
+#endif
 
 #include "tree.h"
 #if CONFIG_TUNER
@@ -526,6 +529,7 @@ static int browser(void* param)
 #define VIDEO_LIST_MOVIES_ART_ID "__netflix_movies__"
 #define VIDEO_LIST_SHOWS_ART_ID "__netflix_shows__"
 #define VIDEO_LIST_MUSIC_ART_ID "__netflix_music__"
+#define VIDEO_LIST_CONCERTS_ART_ID "__netflix_concerts__"
 #define VIDEO_LIST_HOME_ART_ID "__netflix_home__"
 #define VIDEO_LIST_MANIFEST_LINE_MAX 1024
 #define VIDEO_LIST_BITMAP_MAX_H VIDEO_LIST_NETFLIX_POSTER_H
@@ -606,6 +610,8 @@ enum root_menu_video_preview_source {
     IPODJS_PREVIEW_PHOTOS,
     IPODJS_PREVIEW_GAMES,
     IPODJS_PREVIEW_POKEMINI,
+    IPODJS_PREVIEW_MAGAZINES,
+    IPODJS_PREVIEW_COMICS,
     IPODJS_PREVIEW_AVATAR,
 };
 
@@ -1451,6 +1457,8 @@ static const char *video_netflix_category_asset(const char *art_id)
     if (!strcmp(art_id, VIDEO_LIST_SHOWS_ART_ID))
         return "tv-shows";
     if (!strcmp(art_id, VIDEO_LIST_MUSIC_ART_ID))
+        return "music-videos";
+    if (!strcmp(art_id, VIDEO_LIST_CONCERTS_ART_ID))
         return "music-videos";
     if (!strcmp(art_id, VIDEO_LIST_HOME_ART_ID))
         return "home-videos";
@@ -2485,6 +2493,7 @@ static void videos_scan_virtual_dir(struct video_browser_state *state)
         /* Top Level Categories */
         videos_add_virtual_dir(state, "virtual:movies", "Movies");
         videos_add_virtual_dir(state, "virtual:shows", "TV Shows");
+        videos_add_virtual_dir(state, "virtual:concerts", "Concerts");
         videos_add_virtual_dir(state, "virtual:music_videos", "Music Videos");
         videos_add_virtual_dir(state, "virtual:home_videos", "Home Videos");
         videos_add_virtual_dir(state, "virtual:locked", "Locked Videos");
@@ -2492,12 +2501,14 @@ static void videos_scan_virtual_dir(struct video_browser_state *state)
                    sizeof(state->entries[0].art_id));
         strmemccpy(state->entries[1].art_id, VIDEO_LIST_SHOWS_ART_ID,
                    sizeof(state->entries[1].art_id));
-        strmemccpy(state->entries[2].art_id, VIDEO_LIST_MUSIC_ART_ID,
+        strmemccpy(state->entries[2].art_id, VIDEO_LIST_CONCERTS_ART_ID,
                    sizeof(state->entries[2].art_id));
-        strmemccpy(state->entries[3].art_id, VIDEO_LIST_HOME_ART_ID,
+        strmemccpy(state->entries[3].art_id, VIDEO_LIST_MUSIC_ART_ID,
                    sizeof(state->entries[3].art_id));
-        strmemccpy(state->entries[4].art_id, VIDEO_LIST_LOCK_ART_ID,
+        strmemccpy(state->entries[4].art_id, VIDEO_LIST_HOME_ART_ID,
                    sizeof(state->entries[4].art_id));
+        strmemccpy(state->entries[5].art_id, VIDEO_LIST_LOCK_ART_ID,
+                   sizeof(state->entries[5].art_id));
 
         /* Resolve the last title while the manifest is already open. Artwork
          * decoding remains in the browser's bounded service point. */
@@ -2739,6 +2750,29 @@ static void videos_scan_virtual_dir(struct video_browser_state *state)
                                          hierarchy_art_id,
                                          video_manifest_year(line));
             }
+        }
+    }
+    else if (strcmp(state->current_path, "virtual:concerts") == 0)
+    {
+        while (state->count < VIDEO_BROWSER_MAX_FILES &&
+               read_line(fd, line, sizeof(line)) > 0)
+        {
+            char parsed[VIDEO_LIST_MANIFEST_LINE_MAX];
+            char *fields[12];
+
+            video_trim_line(line);
+            if (line[0] == '#' || line[0] == '\0' ||
+                strncmp(line, "video_id\t", 9) == 0)
+                continue;
+            if (!video_parse_manifest_line(line, parsed, sizeof(parsed),
+                                           fields) ||
+                (video_manifest_entry_locked(fields) &&
+                 strcmp(state->current_path, "virtual:locked") != 0) ||
+                strcmp(fields[4], "concert") != 0)
+                continue;
+            videos_add_virtual_video(state, fields[6], fields[3],
+                                     (unsigned)atoi(fields[10]), fields[0],
+                                     video_manifest_year(line));
         }
     }
     else if (strcmp(state->current_path, "virtual:music_videos") == 0)
@@ -3414,6 +3448,8 @@ static const char *videos_netflix_rail_title(
         return "MOVIES";
     if (!strcmp(state->current_path, "virtual:shows"))
         return "TV SHOWS";
+    if (!strcmp(state->current_path, "virtual:concerts"))
+        return "CONCERTS";
     if (!strcmp(state->current_path, "virtual:music_videos"))
         return "MUSIC VIDEOS";
     if (!strcmp(state->current_path, "virtual:home_videos"))
@@ -5031,7 +5067,7 @@ static int launch_livetv_plugin(void *param)
 }
 
 MENUITEM_FUNCTION(livetv_item, MENU_FUNC_CHECK_RETVAL,
-                  "Live TV", launch_livetv_plugin,
+                  "DIRECTV", launch_livetv_plugin,
                   NULL, Icon_Plugin);
 
 static int launch_weather_plugin(void *param)
@@ -5057,6 +5093,28 @@ static int launch_weather_plugin(void *param)
     }
 
     splash(HZ, "Weather plugin missing\nInstall to .rockbox/rocks/apps/weather.rock");
+    return GO_TO_ROOT;
+}
+
+static int launch_pokedex_plugin(void *param)
+{
+    (void)param;
+    char path[MAX_PATH];
+    static const char *paths[] = {
+        PLUGIN_APPS_DIR "/pokedex.rock",
+        PLUGIN_DIR "/pokedex.rock",
+        ROCKBOX_DIR "/rocks/apps/pokedex.rock",
+        ROCKBOX_DIR "/rocks/pokedex.rock",
+    };
+
+    for (size_t i = 0; i < sizeof(paths) / sizeof(paths[0]); i++)
+    {
+        strcpy(path, paths[i]);
+        if (file_exists(path))
+            return load_plugin_path_screen(path, NULL);
+    }
+
+    splash(HZ, "Pokedex plugin missing\nInstall to .rockbox/rocks/apps/pokedex.rock");
     return GO_TO_ROOT;
 }
 
@@ -5207,6 +5265,38 @@ static int launch_pocketsky_plugin(void *param)
     return GO_TO_ROOT;
 }
 
+static int launch_magazines_plugin(void *param)
+{
+    int result;
+
+    (void)param;
+    if (!file_exists(PLUGIN_APPS_DIR "/magazines.rock"))
+    {
+        splash(HZ * 2, "Magazines plugin missing");
+        return GO_TO_ROOT;
+    }
+    result = load_plugin_path_screen(PLUGIN_APPS_DIR "/magazines.rock", NULL);
+    root_menu_video_preview_invalidate_source_cache(
+        IPODJS_PREVIEW_MAGAZINES);
+    return result;
+}
+
+static int launch_comics_plugin(void *param)
+{
+    int result;
+
+    (void)param;
+    if (!file_exists(PLUGIN_APPS_DIR "/comics.rock"))
+    {
+        splash(HZ * 2, "Comics plugin missing");
+        return GO_TO_ROOT;
+    }
+    result = load_plugin_path_screen(PLUGIN_APPS_DIR "/comics.rock", NULL);
+    root_menu_video_preview_invalidate_source_cache(
+        IPODJS_PREVIEW_COMICS);
+    return result;
+}
+
 static int launch_pokemini(void *param);
 
     MENUITEM_FUNCTION(weather_item, MENU_FUNC_CHECK_RETVAL,
@@ -5218,11 +5308,21 @@ static int launch_pokemini(void *param);
     MENUITEM_FUNCTION(pocketsky_item, MENU_FUNC_CHECK_RETVAL,
                   "Pocket Sky", launch_pocketsky_plugin,
                   NULL, Icon_Plugin);
+    MENUITEM_FUNCTION(magazines_item, MENU_FUNC_CHECK_RETVAL,
+                  "Magazines", launch_magazines_plugin,
+                  NULL, Icon_Folder);
+    MENUITEM_FUNCTION(comics_item, MENU_FUNC_CHECK_RETVAL,
+                  "Comics", launch_comics_plugin,
+                  NULL, Icon_Comics);
+    MENUITEM_FUNCTION(pokedex_item, MENU_FUNC_CHECK_RETVAL,
+                  "Pokedex", launch_pokedex_plugin,
+                  NULL, Icon_Plugin);
     MAKE_MENU(applications_menu, "Extras", NULL, Icon_Plugin,
           &clock_item, &desktop_mode_item,
           &achievements_item, &livetv_item, &sitekick_item, &tamagotchi_item,
           &maps_item, &weather_item, &calm_item,
-          &offlineweb_item, &pocketsky_item);
+          &offlineweb_item, &magazines_item, &comics_item, &pocketsky_item,
+          &pokedex_item);
 
 static const struct browse_folder_info gameboy_folder = {"/gameboy/", SHOW_ALL};
 static const struct browse_folder_info pokemini_folder = {"/PokeMini/", SHOW_ALL};
@@ -5607,6 +5707,7 @@ static struct menu_table menu_table[] = {
     { "database", &db_browser },
 #endif
     { "videos", &videos },
+    { "directv", &livetv_item },
     { "applications", &applications_menu },
     { "internet", &offlineweb_item },
     { "photos", &photos_item },
@@ -5634,6 +5735,7 @@ static const struct menu_item_ex * const root_menu_ipodjs_default_items[] = {
     &db_browser,
 #endif
     &videos,
+    &livetv_item,
     &photos_item,
     &applications_menu,
     &menu_,
@@ -5990,6 +6092,8 @@ static const char *root_menu_nano2g_label(const struct menu_item_ex *item)
         return "Photos";
     if (item == &applications_menu)
         return "Apps";
+    if (item == &livetv_item)
+        return "DIRECTV";
 
     return "Menu";
 }
@@ -6534,6 +6638,8 @@ static int root_menu_nano2g_dashboard(int *selectedp)
 #define IPODJS_SLIDESHOW_AUDIO_DELAY MAX(1, HZ / 10)
 #define IPODJS_PREVIEW_DECODE_INTERVAL (HZ / 6)
 #define IPODJS_PREVIEW_DECODE_BURST 2
+#define IPODJS_WEATHER_PREVIEW_FRAMES 4
+#define IPODJS_MAPS_PREVIEW_FRAMES 12
 #define IPODJS_DB_ALBUM_CACHE_TTL (HZ * 120)
 #define IPODJS_DB_PLAYPAUSE_DEBOUNCE MAX(1, HZ / 5)
 #define IPODJS_ASSET_DIR        ROCKBOX_DIR "/ipodjs"
@@ -6898,6 +7004,8 @@ static const char *root_menu_video_label(const struct menu_item_ex *item)
         return "Internet";
     if (item == &desktop_mode_item)
         return "Desktop Mode";
+    if (item == &livetv_item)
+        return "DIRECTV";
     if (item == &podemon_go_item)
         return "Podemon Go";
 #if defined(HAVE_LCD_COLOR) && (LCD_WIDTH >= 220)
@@ -8715,6 +8823,8 @@ static const char *root_menu_video_preview_asset_name(const char *title)
         return "clock";
     if (!strcmp(title, "Desktop Mode"))
         return "desktop-mode";
+    if (!strcmp(title, "DIRECTV"))
+        return "livetv";
     if (!strcmp(title, "Applications"))
         return "applications";
     if (!strcmp(title, "Game Cover Flow"))
@@ -8780,6 +8890,10 @@ root_menu_video_preview_source_for_title(const char *title)
         return IPODJS_PREVIEW_VIDEOS;
     if (!strcmp(title, "Photos"))
         return IPODJS_PREVIEW_PHOTOS;
+    if (!strcmp(title, "Magazines"))
+        return IPODJS_PREVIEW_MAGAZINES;
+    if (!strcmp(title, "Comics"))
+        return IPODJS_PREVIEW_COMICS;
     if (!strcmp(title, "Music") || !strcmp(title, "Cover Flow") ||
         !strcmp(title, "Now Playing"))
         return IPODJS_PREVIEW_MUSIC;
@@ -8795,7 +8909,7 @@ static bool root_menu_video_preview_asset_top_aligned(const char *title)
 {
     static const char * const top_aligned[] = {
         "Clock", "Applications", "PokeMini", "Files", "Playlists",
-        "Plugins", "Shortcuts", "System", "Extras", "Live TV",
+        "Plugins", "Shortcuts", "System", "Extras", "DIRECTV",
     };
 
     if (!title)
@@ -8814,8 +8928,10 @@ static const char *root_menu_video_menu_preview_path(const char *title)
 {
     if (title && !strcmp(title, "Desktop Mode"))
         return IPODJS_DESKTOP_PREVIEW;
-    if (title && !strcmp(title, "Live TV"))
+    if (title && !strcmp(title, "DIRECTV"))
         return IPODJS_LIVETV_PREVIEW;
+    if (title && !strcmp(title, "Calm"))
+        return IPODJS_ASSET_DIR "/calm/calm-icon.64x64x24.bmp";
     return NULL;
 }
 
@@ -8983,6 +9099,13 @@ static bool root_menu_video_draw_menu_preview_asset_cached(
     return true;
 }
 
+static bool root_menu_video_animated_preview_service(const char *title);
+static bool root_menu_video_custom_preview_animation_due(
+    const char *title, long *next_tick);
+static void root_menu_video_draw_weather_preview(int x, int y, int w, int h);
+static void root_menu_video_draw_calm_preview(int x, int y, int w, int h);
+static void root_menu_video_draw_maps_preview(int x, int y, int w, int h);
+
 /* Idle-service only: all file checks and decoding stay out of draw paths. */
 static bool root_menu_video_menu_preview_service(const char *title)
 {
@@ -8990,6 +9113,9 @@ static bool root_menu_video_menu_preview_service(const char *title)
     int dark = root_menu_video_dark() ? 1 : 0;
     struct root_menu_video_menu_preview_slot *slot;
     int rc;
+
+    if (root_menu_video_animated_preview_service(title))
+        return true;
 
     if (!root_menu_video_preview_asset_is_verified(title))
         return false;
@@ -9010,9 +9136,10 @@ static bool root_menu_video_menu_preview_service(const char *title)
     slot->valid = false;
     slot->path[0] = '\0';
     slot->dark = dark;
-    slot->bm.width = 174;
-    slot->bm.height = root_menu_video_preview_asset_top_aligned(title) ?
-                      LCD_HEIGHT : 220;
+    slot->bm.width = title && !strcmp(title, "Calm") ? 64 : 174;
+    slot->bm.height = title && !strcmp(title, "Calm") ? 64 :
+        (root_menu_video_preview_asset_top_aligned(title) ?
+         LCD_HEIGHT : 220);
     slot->bm.format = FORMAT_NATIVE;
     slot->bm.data = slot->data;
     rc = read_bmp_file(load_path, &slot->bm, sizeof(slot->data),
@@ -9907,6 +10034,131 @@ static void root_menu_video_preview_load_game_paths(void)
     }
 }
 
+static bool root_menu_video_preview_safe_magazine_name(const char *name)
+{
+    const unsigned char *cursor = (const unsigned char *)name;
+
+    if (!name || !name[0] || !strcmp(name, ".") || !strcmp(name, ".."))
+        return false;
+    while (*cursor)
+    {
+        if (*cursor == '/' || *cursor == '\\' || *cursor < 32)
+            return false;
+        cursor++;
+    }
+    return true;
+}
+
+static bool root_menu_video_preview_magazine_unlocked(
+    const char *directory)
+{
+    char path[MAX_PATH];
+    char line[256];
+    int fd;
+
+    snprintf(path, sizeof(path), "/Magazines/%s/issue.mgi", directory);
+    fd = open(path, O_RDONLY);
+    if (fd < 0)
+        return false;
+    while (read_line(fd, line, sizeof(line)) > 0)
+    {
+        char *cursor = line;
+
+        video_trim_line(cursor);
+        while (*cursor == ' ' || *cursor == '\t')
+            cursor++;
+        if (!strncmp(cursor, "locked=", 7) && atoi(cursor + 7) != 0)
+        {
+            close(fd);
+            return false;
+        }
+    }
+    close(fd);
+    return true;
+}
+
+static void root_menu_video_preview_load_magazine_paths(void)
+{
+    char directory[256];
+    char cover[MAX_PATH];
+    int fd = open("/Magazines/catalog.mgi", O_RDONLY);
+
+    while (fd >= 0 &&
+           root_menu_video_preview_path_count < IPODJS_PREVIEW_MAX_ITEMS &&
+           read_line(fd, directory, sizeof(directory)) > 0)
+    {
+        video_trim_line(directory);
+        if (!directory[0] || directory[0] == '#' ||
+            !root_menu_video_preview_safe_magazine_name(directory) ||
+            !root_menu_video_preview_magazine_unlocked(directory))
+            continue;
+        snprintf(cover, sizeof(cover), "/Magazines/%s/cover-pane.jpg",
+                 directory);
+        if (!file_exists(cover))
+            snprintf(cover, sizeof(cover), "/Magazines/%s/cover.jpg",
+                     directory);
+        if (file_exists(cover))
+            root_menu_video_preview_add_path(cover);
+    }
+    if (fd >= 0)
+        close(fd);
+}
+
+static bool root_menu_video_preview_comics_unlocked(
+    const char *directory)
+{
+    char path[MAX_PATH];
+    char line[256];
+    int fd;
+
+    snprintf(path, sizeof(path), "/Comics/%s/issue.mgi", directory);
+    fd = open(path, O_RDONLY);
+    if (fd < 0)
+        return false;
+    while (read_line(fd, line, sizeof(line)) > 0)
+    {
+        char *cursor = line;
+
+        video_trim_line(cursor);
+        while (*cursor == ' ' || *cursor == '\t')
+            cursor++;
+        if (!strncmp(cursor, "locked=", 7) && atoi(cursor + 7) != 0)
+        {
+            close(fd);
+            return false;
+        }
+    }
+    close(fd);
+    return true;
+}
+
+static void root_menu_video_preview_load_comics_paths(void)
+{
+    char directory[256];
+    char cover[MAX_PATH];
+    int fd = open("/Comics/catalog.mgi", O_RDONLY);
+
+    while (fd >= 0 &&
+           root_menu_video_preview_path_count < IPODJS_PREVIEW_MAX_ITEMS &&
+           read_line(fd, directory, sizeof(directory)) > 0)
+    {
+        video_trim_line(directory);
+        if (!directory[0] || directory[0] == '#' ||
+            !root_menu_video_preview_safe_magazine_name(directory) ||
+            !root_menu_video_preview_comics_unlocked(directory))
+            continue;
+        snprintf(cover, sizeof(cover), "/Comics/%s/cover-pane.jpg",
+                 directory);
+        if (!file_exists(cover))
+            snprintf(cover, sizeof(cover), "/Comics/%s/cover.jpg",
+                     directory);
+        if (file_exists(cover))
+            root_menu_video_preview_add_path(cover);
+    }
+    if (fd >= 0)
+        close(fd);
+}
+
 static void root_menu_video_preview_load_pokemini_paths(void)
 {
     static const char * const cover_dirs[] = {
@@ -10057,6 +10309,10 @@ static void root_menu_video_preview_ensure_paths(
         root_menu_video_preview_load_game_paths();
     else if (source == IPODJS_PREVIEW_POKEMINI)
         root_menu_video_preview_load_pokemini_paths();
+    else if (source == IPODJS_PREVIEW_MAGAZINES)
+        root_menu_video_preview_load_magazine_paths();
+    else if (source == IPODJS_PREVIEW_COMICS)
+        root_menu_video_preview_load_comics_paths();
     else if (source == IPODJS_PREVIEW_AVATAR)
         root_menu_video_preview_load_avatar_paths();
 
@@ -10170,7 +10426,16 @@ root_menu_video_preview_get_slot(enum root_menu_video_preview_source source,
     slot->bm.format = FORMAT_NATIVE;
     slot->bm.data = slot->data;
 
-    int rc = read_bmp_file(path, &slot->bm, sizeof(slot->data),
+    int rc;
+
+#ifdef HAVE_JPEG
+    if (source == IPODJS_PREVIEW_MAGAZINES || source == IPODJS_PREVIEW_COMICS)
+        rc = read_jpeg_file(path, &slot->bm, sizeof(slot->data),
+                            FORMAT_NATIVE | FORMAT_RESIZE |
+                            FORMAT_KEEP_ASPECT, NULL);
+    else
+#endif
+        rc = read_bmp_file(path, &slot->bm, sizeof(slot->data),
                            FORMAT_NATIVE | FORMAT_RESIZE |
                            FORMAT_KEEP_ASPECT | FORMAT_DITHER, NULL);
     if (rc < 0)
@@ -10196,7 +10461,7 @@ static long root_menu_video_source_slideshow_period(
     enum root_menu_video_preview_source source)
 {
     if (source == IPODJS_PREVIEW_AVATAR)
-        return MAX(1, HZ / 2);
+        return MAX(1, HZ / 6);
     if (source == IPODJS_PREVIEW_PHOTOS)
         return HZ * 6;
     return HZ * 3;
@@ -10210,8 +10475,8 @@ static long root_menu_video_source_slideshow_pan_duration(
     return HZ * 2;
 }
 
-/* The avatar pane steps through pre-rendered turntable angles, so panning it
- * would fight the rotation instead of adding motion. */
+/* The avatar pane plays pre-rendered emote frames.  Panning would move the
+ * stage underneath the character and make the emote look unstable. */
 static bool root_menu_video_preview_pans(
     enum root_menu_video_preview_source source)
 {
@@ -10221,6 +10486,8 @@ static bool root_menu_video_preview_pans(
 static long root_menu_video_source_slideshow_prefetch_phase(
     enum root_menu_video_preview_source source)
 {
+    if (source == IPODJS_PREVIEW_AVATAR)
+        return MAX(1, root_menu_video_source_slideshow_period(source) / 2);
     if (source == IPODJS_PREVIEW_PHOTOS)
         return root_menu_video_source_slideshow_period(source) / 2;
     return HZ;
@@ -10485,6 +10752,25 @@ static void root_menu_video_draw_preview_for_title(const char *title,
     lcd_set_foreground(IPODJS_PREVIEW_TEXT);
     lcd_set_background(IPODJS_PREVIEW_BOTTOM);
 
+    if (title && (!strcmp(title, "Applications") ||
+                  !strcmp(title, "Weather")))
+    {
+        root_menu_video_draw_weather_preview(x, y, w, h);
+        return;
+    }
+
+    if (title && !strcmp(title, "Calm"))
+    {
+        root_menu_video_draw_calm_preview(x, y, w, h);
+        return;
+    }
+
+    if (title && !strcmp(title, "Maps"))
+    {
+        root_menu_video_draw_maps_preview(x, y, w, h);
+        return;
+    }
+
     if (root_menu_video_sitekick_title(title) &&
         root_menu_video_draw_sitekick_preview(x, y, w, h))
         return;
@@ -10520,6 +10806,8 @@ static void root_menu_video_draw_preview_for_title(const char *title,
              source == IPODJS_PREVIEW_PHOTOS ||
              source == IPODJS_PREVIEW_GAMES ||
              source == IPODJS_PREVIEW_POKEMINI ||
+             source == IPODJS_PREVIEW_MAGAZINES ||
+             source == IPODJS_PREVIEW_COMICS ||
              source == IPODJS_PREVIEW_AVATAR)
         drew = root_menu_video_draw_source_slideshow_cached(source,
                                                             x, y, w, h);
@@ -10602,6 +10890,236 @@ static void root_menu_video_fill_circle(int cx, int cy, int radius,
             decision += 4 * x + 6;
         x++;
     }
+}
+
+static bool root_menu_video_animated_preview_info(
+    const char *title, const char **directory, int *frame_count,
+    long *frame_period)
+{
+    if (title && (!strcmp(title, "Applications") ||
+                  !strcmp(title, "Weather")))
+    {
+        *directory = "weather-loop";
+        *frame_count = IPODJS_WEATHER_PREVIEW_FRAMES;
+        *frame_period = HZ;
+        return true;
+    }
+    if (title && !strcmp(title, "Maps"))
+    {
+        *directory = "maps-globe";
+        *frame_count = IPODJS_MAPS_PREVIEW_FRAMES;
+        *frame_period = MAX(1, HZ / 2);
+        return true;
+    }
+    return false;
+}
+
+static bool root_menu_video_animated_preview_path(
+    const char *title, int frame, char *path, size_t path_size)
+{
+    const char *directory;
+    int frame_count;
+    long frame_period;
+
+    if (!root_menu_video_animated_preview_info(
+            title, &directory, &frame_count, &frame_period))
+        return false;
+
+    (void)frame_period;
+    frame %= frame_count;
+    if (frame < 0)
+        frame += frame_count;
+    return snprintf(path, path_size,
+                    IPODJS_ASSET_DIR "/previews/%s/frame-%02d.bmp",
+                    directory, frame) < (int)path_size;
+}
+
+static int root_menu_video_animated_preview_frame(const char *title)
+{
+    const char *directory;
+    int frame_count;
+    long frame_period;
+
+    if (!root_menu_video_animated_preview_info(
+            title, &directory, &frame_count, &frame_period))
+        return 0;
+
+    (void)directory;
+    return (current_tick / frame_period) % frame_count;
+}
+
+/* Load at most one fixed-size frame from an idle service point. The draw
+ * functions below only look up and paint these two existing menu-cache slots;
+ * they never touch storage or allocate playback memory. */
+static bool root_menu_video_animated_preview_service(const char *title)
+{
+    char path[MAX_PATH];
+    int dark = root_menu_video_dark() ? 1 : 0;
+    int current;
+
+    if (!root_menu_video_animated_preview_path(title, 0,
+                                               path, sizeof(path)))
+        return false;
+
+    current = root_menu_video_animated_preview_frame(title);
+    for (int offset = 0; offset < 2; offset++)
+    {
+        struct root_menu_video_menu_preview_slot *slot;
+        int wanted = current + offset;
+        int rc;
+
+        if (!root_menu_video_animated_preview_path(
+                title, wanted, path, sizeof(path)))
+            return false;
+        slot = root_menu_video_menu_preview_find(path, dark);
+        if (slot)
+            continue;
+
+        /* Weather Sync may install these frames while Rockbox is running.
+         * Do not negative-cache an absent live asset: that made a completed
+         * sync continue to look missing for up to a minute.  Decode failures
+         * are still throttled below so a corrupt BMP cannot cause an I/O
+         * retry loop. */
+        if (!file_exists(path))
+            continue;
+        if (root_menu_video_menu_preview_recent_failure(path, dark))
+            continue;
+
+        slot = root_menu_video_menu_preview_victim();
+        memset(&slot->bm, 0, sizeof(slot->bm));
+        slot->valid = false;
+        slot->path[0] = '\0';
+        slot->dark = dark;
+        slot->bm.width = 174;
+        slot->bm.height = LCD_HEIGHT;
+        slot->bm.format = FORMAT_NATIVE;
+        slot->bm.data = slot->data;
+        rc = read_bmp_file(path, &slot->bm, sizeof(slot->data),
+                           FORMAT_NATIVE, NULL);
+        if (rc < 0)
+        {
+            root_menu_video_menu_preview_record_failure(path, dark);
+            return false;
+        }
+        strmemccpy(slot->path, path, sizeof(slot->path));
+        slot->valid = true;
+        root_menu_video_menu_preview_clear_failure(path, dark);
+        return true;
+    }
+
+    return false;
+}
+
+static struct root_menu_video_menu_preview_slot *
+root_menu_video_animated_preview_cached(const char *title)
+{
+    char path[MAX_PATH];
+    int dark = root_menu_video_dark() ? 1 : 0;
+    int current = root_menu_video_animated_preview_frame(title);
+    struct root_menu_video_menu_preview_slot *slot;
+
+    if (!root_menu_video_animated_preview_path(
+            title, current, path, sizeof(path)))
+        return NULL;
+    slot = root_menu_video_menu_preview_find(path, dark);
+    if (slot)
+        return slot;
+
+    /* A frame boundary can arrive before the idle service has decoded its
+     * prefetched successor. Hold the immediately previous photographic frame
+     * instead of flashing a placeholder. */
+    if (!root_menu_video_animated_preview_path(
+            title, current - 1, path, sizeof(path)))
+        return NULL;
+    return root_menu_video_menu_preview_find(path, dark);
+}
+
+static void root_menu_video_draw_weather_preview(int x, int y, int w, int h)
+{
+    struct root_menu_video_menu_preview_slot *slot =
+        root_menu_video_animated_preview_cached("Weather");
+
+    if (slot)
+    {
+        root_menu_video_draw_menu_preview_slot(slot, x, y, w, h, true);
+        return;
+    }
+
+    root_menu_video_gradient(x, y, w, h,
+                             LCD_RGBPACK(20, 67, 104),
+                             LCD_RGBPACK(5, 23, 42));
+    lcd_setfont(root_menu_video_font());
+    lcd_set_foreground(LCD_RGBPACK(233, 245, 255));
+    lcd_set_background(LCD_RGBPACK(5, 23, 42));
+    root_menu_video_puts_fit(x + 12, y + 88, w - 24,
+                             "LOCAL FORECAST", true);
+    lcd_set_foreground(LCD_RGBPACK(116, 190, 233));
+    root_menu_video_puts_fit(x + 12, y + 111, w - 24,
+                             "Loading synced forecast", true);
+}
+
+static void root_menu_video_draw_calm_preview(int x, int y, int w, int h)
+{
+    const char *path = IPODJS_ASSET_DIR
+        "/calm/calm-icon.64x64x24.bmp";
+    struct root_menu_video_menu_preview_slot *logo =
+        root_menu_video_menu_preview_find(
+            path, root_menu_video_dark() ? 1 : 0);
+
+    root_menu_video_glass_gradient(x, y, w, h,
+                                   LCD_RGBPACK(71, 202, 235),
+                                   LCD_RGBPACK(54, 153, 232),
+                                   LCD_RGBPACK(37, 91, 192));
+    if (logo)
+        lcd_bmp(&logo->bm, x + (w - logo->bm.width) / 2, y + 58);
+
+    lcd_setfont(root_menu_video_font());
+    lcd_set_foreground(LCD_RGBPACK(255, 255, 255));
+    lcd_set_background(LCD_RGBPACK(37, 91, 192));
+    root_menu_video_puts_fit(x + 14, y + 139, w - 28,
+                             "Sleep  Relax  Focus", true);
+    lcd_set_foreground(LCD_RGBPACK(211, 239, 255));
+    root_menu_video_puts_fit(x + 14, y + 165, w - 28,
+                             "Your calm library", true);
+}
+
+static void root_menu_video_draw_maps_preview(int x, int y, int w, int h)
+{
+    struct root_menu_video_menu_preview_slot *slot =
+        root_menu_video_animated_preview_cached("Maps");
+
+    if (slot)
+    {
+        root_menu_video_draw_menu_preview_slot(slot, x, y, w, h, true);
+        return;
+    }
+
+    lcd_set_foreground(LCD_RGBPACK(0, 0, 0));
+    lcd_fillrect(x, y, w, h);
+    lcd_setfont(root_menu_video_font());
+    lcd_set_foreground(LCD_RGBPACK(173, 211, 238));
+    lcd_set_background(LCD_RGBPACK(0, 0, 0));
+    root_menu_video_puts_fit(x + 12, y + 104, w - 24,
+                             "LOADING EARTH", true);
+}
+
+static bool root_menu_video_custom_preview_animation_due(
+    const char *title, long *next_tick)
+{
+    const char *directory;
+    int frame_count;
+    long frame_period;
+
+    if (!root_menu_video_animated_preview_info(
+            title, &directory, &frame_count, &frame_period) ||
+        button_hold() || root_menu_video_hold_storm_active() ||
+        !TIME_AFTER(current_tick, *next_tick))
+        return false;
+
+    (void)directory;
+    (void)frame_count;
+    *next_tick = current_tick + frame_period;
+    return true;
 }
 
 static void root_menu_video_clock_hand(int cx, int cy, int position,
@@ -14909,6 +15427,8 @@ enum {
     IPODJS_EXTRAS_GAMES,
     IPODJS_EXTRAS_ACHIEVEMENTS,
     IPODJS_EXTRAS_APPLICATIONS,
+    IPODJS_EXTRAS_MAGAZINES,
+    IPODJS_EXTRAS_COMICS,
 };
 
 static const struct root_menu_video_extras_item root_menu_video_extras_items[] = {
@@ -14916,6 +15436,8 @@ static const struct root_menu_video_extras_item root_menu_video_extras_items[] =
     { "Games", IPODJS_EXTRAS_GAMES },
     { "Achievements", IPODJS_EXTRAS_ACHIEVEMENTS },
     { "Applications", IPODJS_EXTRAS_APPLICATIONS },
+    { "Magazines", IPODJS_EXTRAS_MAGAZINES },
+    { "Comics", IPODJS_EXTRAS_COMICS },
     { "Files", GO_TO_FILEBROWSER },
     { "Playlists", GO_TO_PLAYLISTS_SCREEN },
     { "Plugins", GO_TO_BROWSEPLUGINS },
@@ -15415,6 +15937,36 @@ static int root_menu_video_extras_menu(void)
                     redraw = true;
                     break;
                 }
+                if (root_menu_video_extras_items[selected].screen ==
+                    IPODJS_EXTRAS_MAGAZINES)
+                {
+                    int ret;
+
+                    ipodjs_ui_transition_begin(1);
+                    root_menu_video_finish_native_screen(0);
+                    ret = launch_magazines_plugin(NULL);
+                    root_menu_video_enter_native_screen();
+                    if (ret == MENU_ATTACHED_USB)
+                        return root_menu_video_finish_native_screen(ret);
+                    ipodjs_ui_transition_begin(-1);
+                    redraw = true;
+                    break;
+                }
+                if (root_menu_video_extras_items[selected].screen ==
+                    IPODJS_EXTRAS_COMICS)
+                {
+                    int ret;
+
+                    ipodjs_ui_transition_begin(1);
+                    root_menu_video_finish_native_screen(0);
+                    ret = launch_comics_plugin(NULL);
+                    root_menu_video_enter_native_screen();
+                    if (ret == MENU_ATTACHED_USB)
+                        return root_menu_video_finish_native_screen(ret);
+                    ipodjs_ui_transition_begin(-1);
+                    redraw = true;
+                    break;
+                }
                 return root_menu_video_finish_native_screen(
                     root_menu_video_extras_items[selected].screen);
             case ACTION_STD_MENU:
@@ -15436,7 +15988,7 @@ root_menu_video_application_items[] = {
     { "Clock", launch_clock_plugin },
     { "Desktop Mode", launch_desktop_mode },
     { "Achievements", launch_achievements_plugin },
-    { "Live TV", launch_livetv_plugin },
+    { "DIRECTV", launch_livetv_plugin },
     { "Sitekick", launch_sitekick_plugin },
     { "Tamagotchi", launch_tamagotchi_plugin },
     { "Maps", launch_maps_plugin },
@@ -15444,6 +15996,7 @@ root_menu_video_application_items[] = {
     { "Calm", launch_calm_plugin },
     { "Internet", launch_offlineweb_plugin },
     { "Pocket Sky", launch_pocketsky_plugin },
+    { "Pokedex", launch_pokedex_plugin },
 };
 
 static void root_menu_video_draw_applications_menu(int selected)
@@ -15589,6 +16142,10 @@ static int root_menu_video_applications_menu(void)
                          root_menu_video_sitekick_animation_due(
                              title,
                              &next_slideshow))
+                    root_menu_video_draw_applications_preview_only(selected);
+                else if (!held &&
+                         root_menu_video_custom_preview_animation_due(
+                             title, &next_slideshow))
                     root_menu_video_draw_applications_preview_only(selected);
                 else if (!held &&
                          root_menu_video_should_animate(source,
@@ -18918,6 +19475,17 @@ static int root_menu_video_dashboard(int *selectedp)
                 if (!held &&
                     root_menu_video_sitekick_animation_due(
                         root_menu_video_label(
+                            root_menu_video_item(preview_selected)),
+                        &next_slideshow))
+                {
+                    root_menu_video_draw_home_preview_only(preview_selected,
+                                                           false);
+                    break;
+                }
+
+                if (!held &&
+                    root_menu_video_custom_preview_animation_due(
+                        root_menu_video_preview(
                             root_menu_video_item(preview_selected)),
                         &next_slideshow))
                 {

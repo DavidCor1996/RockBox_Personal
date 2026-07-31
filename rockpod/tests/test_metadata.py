@@ -18,6 +18,10 @@ def test_normalize_music_video_kind_from_text_and_mp4_stik():
     assert _normalize_video_kind(6) == "music_video"
 
 
+def test_normalize_concert_kind_from_text():
+    assert _normalize_video_kind("Live Concert") == "concert"
+
+
 class TestMetadataHash:
     """Test metadata fingerprint computation."""
 

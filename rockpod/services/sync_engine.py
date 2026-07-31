@@ -359,6 +359,8 @@ def _video_manifest_group_key(row):
         return "home_video"
     if kind == "music_video":
         return "music_video"
+    if kind == "concert":
+        return "concert"
     title = _clean_inferred_show_title(item.get("title") or Path(str(item.get("file_path") or "")).stem)
     if title:
         return "movie:" + re.sub(r"[^a-z0-9]+", "-", title.casefold()).strip("-")
@@ -428,6 +430,7 @@ def build_device_path(track_row, dir_template, file_template):
     video_kind_label = {
         "movie": "Movies",
         "show": "TV Shows",
+        "concert": "Concerts",
         "music_video": "Music Videos",
         "home_video": "Home Videos",
     }.get(str(d.get("video_kind") or "movie"), "Movies")
@@ -533,6 +536,8 @@ def _normalize_video_kind_value(value):
         return "home_video"
     if re.search(r"\b(music video|music videos|musicvideo)\b", text):
         return "music_video"
+    if re.search(r"\b(concert|concerts|live concert|live performance)\b", text):
+        return "concert"
     if re.search(r"\b(movie|film)\b", text):
         return "movie"
     return text
@@ -1059,6 +1064,8 @@ def _fallback_video_manifest_entry(rel_path):
         )
     elif len(parts) >= 2 and parts[1].casefold() == "music videos":
         entry.update(kind="music_video", group_key="music_video")
+    elif len(parts) >= 2 and parts[1].casefold() == "concerts":
+        entry.update(kind="concert", group_key="concert")
     elif len(parts) >= 2 and parts[1].casefold() == "home videos":
         entry.update(kind="home_video", group_key="home_video")
     return entry

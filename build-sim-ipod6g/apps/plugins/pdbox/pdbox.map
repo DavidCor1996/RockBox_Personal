@@ -3788,130 +3788,130 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000   0x1fd6cc
+.debug_info     0x0000000000000000   0x1fd7c8
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x83c8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/pdbox.o
- .debug_info    0x00000000000083c8     0x7c95 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/pdbox-net.o
- .debug_info    0x000000000001005d     0x9aff /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/pdbox-func.o
- .debug_info    0x0000000000019b5c     0x94c2 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/pdbox-gui.o
- .debug_info    0x000000000002301e     0x7c12 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/s_audio_rockbox.o
- .debug_info    0x000000000002ac30     0x3ffb /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/d_arithmetic.o
- .debug_info    0x000000000002ec2b      0xb80 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/d_ctl.o
- .debug_info    0x000000000002f7ab     0x13e4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/d_dac.o
- .debug_info    0x0000000000030b8f     0x17d0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/d_fft.o
- .debug_info    0x000000000003235f     0x16b7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/d_fftroutine.o
- .debug_info    0x0000000000033a16     0x8e49 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/d_global.o
- .debug_info    0x000000000003c85f      0xd62 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/d_imayer_fft.o
- .debug_info    0x000000000003d5c1      0x9ac /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/d_mayer_fft.o
- .debug_info    0x000000000003df6d     0x1adb /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/d_misc.o
- .debug_info    0x000000000003fa48      0x8b8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/d_resample.o
- .debug_info    0x0000000000040300     0xb057 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/d_soundfile.o
- .debug_info    0x000000000004b357     0x2d5d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/d_ugen.o
- .debug_info    0x000000000004e0b4     0xa31b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_all_guis.o
- .debug_info    0x00000000000583cf     0xd222 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_array.o
- .debug_info    0x00000000000655f1     0xabbc /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_bang.o
- .debug_info    0x00000000000701ad     0xdd5a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_canvas.o
- .debug_info    0x000000000007df07    0x1016f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_editor.o
- .debug_info    0x000000000008e076     0xbf9a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_graph.o
- .debug_info    0x000000000009a010     0x11a5 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_guiconnect.o
- .debug_info    0x000000000009b1b5     0xb2d4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_hdial.o
- .debug_info    0x00000000000a6489     0xadc6 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_hslider.o
- .debug_info    0x00000000000b124f     0xa081 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_io.o
- .debug_info    0x00000000000bb2d0     0xa04c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_mycanvas.o
- .debug_info    0x00000000000c531c     0xb55f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_numbox.o
- .debug_info    0x00000000000d087b     0xac4f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_readwrite.o
- .debug_info    0x00000000000db4ca     0x927b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_rtext.o
- .debug_info    0x00000000000e4745     0x2aa3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_scalar.o
- .debug_info    0x00000000000e71e8     0xdb67 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_template.o
- .debug_info    0x00000000000f4d4f     0xdf03 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_text.o
- .debug_info    0x0000000000102c52     0xa689 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_toggle.o
- .debug_info    0x000000000010d2db     0x40f4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_traversal.o
- .debug_info    0x00000000001113cf     0xb175 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_vdial.o
- .debug_info    0x000000000011c544     0xad71 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_vslider.o
- .debug_info    0x00000000001272b5     0xa33a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_vumeter.o
- .debug_info    0x00000000001315ef     0x7dfd /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/m_atom.o
- .debug_info    0x00000000001393ec     0xb53b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/m_binbuf.o
- .debug_info    0x0000000000144927     0xa13d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/m_class.o
- .debug_info    0x000000000014ea64      0x340 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/m_conf.o
- .debug_info    0x000000000014eda4     0x8602 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/m_fixed.o
- .debug_info    0x00000000001573a6     0x1213 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/m_glob.o
- .debug_info    0x00000000001585b9     0x78a7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/m_memory.o
- .debug_info    0x000000000015fe60     0x28b7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/m_obj.o
- .debug_info    0x0000000000162717     0x18f2 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/m_pd.o
- .debug_info    0x0000000000164009      0xd4b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/m_sched.o
- .debug_info    0x0000000000164d54     0x8b77 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/s_audio.o
- .debug_info    0x000000000016d8cb     0x767d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/s_file.o
- .debug_info    0x0000000000174f48       0xdc /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/s_loader.o
- .debug_info    0x0000000000175024     0x8bc0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/s_path.o
- .debug_info    0x000000000017dbe4      0xf52 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/s_print.o
- .debug_info    0x000000000017eb36     0x12f7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/x_acoustics.o
- .debug_info    0x000000000017fe2d     0x3c64 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/x_arithmetic.o
- .debug_info    0x0000000000183a91     0xd18f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/x_connective.o
- .debug_info    0x0000000000190c20      0xd96 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/x_interface.o
- .debug_info    0x00000000001919b6     0x1508 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/x_misc.o
- .debug_info    0x0000000000192ebe     0x86e4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/x_net.o
- .debug_info    0x000000000019b5a2     0x92ac /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/x_qlist.o
- .debug_info    0x00000000001a484e     0x26cd /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/x_time.o
- .debug_info    0x00000000001a6f1b     0x10f0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/biquad~.o
- .debug_info    0x00000000001a800b      0xfa9 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/bp~.o
- .debug_info    0x00000000001a8fb4      0xb3d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/clip~.o
- .debug_info    0x00000000001a9af1      0xad8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/cos~.o
- .debug_info    0x00000000001aa5c9      0x487 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/cos_table.o
- .debug_info    0x00000000001aaa50      0xaae /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/dbtopow~.o
- .debug_info    0x00000000001ab4fe      0xaae /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/dbtorms~.o
- .debug_info    0x00000000001abfac      0xda7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/delread~.o
- .debug_info    0x00000000001acd53      0xd13 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/delwrite~.o
- .debug_info    0x00000000001ada66      0xe5f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/env~.o
- .debug_info    0x00000000001ae8c5      0xaa9 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/ftom~.o
- .debug_info    0x00000000001af36e      0xd37 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/hip~.o
- .debug_info    0x00000000001b00a5      0x3d8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/intern_setup.o
- .debug_info    0x00000000001b047d      0xbf7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/line~.o
- .debug_info    0x00000000001b1074      0xce7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/lop~.o
- .debug_info    0x00000000001b1d5b      0xa9d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/mtof~.o
- .debug_info    0x00000000001b27f8      0x9ec /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/noise~.o
- .debug_info    0x00000000001b31e4      0xc5b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/osc~.o
- .debug_info    0x00000000001b3e3f      0xbeb /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/phasor~.o
- .debug_info    0x00000000001b4a2a      0xab4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/powtodb~.o
- .debug_info    0x00000000001b54de      0xbaf /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/print~.o
- .debug_info    0x00000000001b608d      0xad1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/rmstodb~.o
- .debug_info    0x00000000001b6b5e      0xda3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/rsqrt~.o
- .debug_info    0x00000000001b7901      0xc0a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/samphold~.o
- .debug_info    0x00000000001b850b     0x8f3f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/sfread~.o
- .debug_info    0x00000000001c144a     0x8de3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/sfwrite~.o
- .debug_info    0x00000000001ca22d      0xb46 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/snapshot~.o
- .debug_info    0x00000000001cad73      0xbfd /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/sqrt~.o
- .debug_info    0x00000000001cb970      0xe71 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/tabosc4~.o
- .debug_info    0x00000000001cc7e1     0x1131 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/tabplay~.o
- .debug_info    0x00000000001cd912      0xa8a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/tabread.o
- .debug_info    0x00000000001ce39c      0xcd7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/tabread4~.o
- .debug_info    0x00000000001cf073      0xc98 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/tabread~.o
- .debug_info    0x00000000001cfd0b      0xb91 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/tabreceive~.o
- .debug_info    0x00000000001d089c      0xdb0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/tabsend~.o
- .debug_info    0x00000000001d164c      0xc7c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/tabwrite.o
- .debug_info    0x00000000001d22c8      0xfc5 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/tabwrite~.o
- .debug_info    0x00000000001d328d      0xe6c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/threshold~.o
- .debug_info    0x00000000001d40f9      0xde6 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/vcf~.o
- .debug_info    0x00000000001d4edf      0xd44 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/vd~.o
- .debug_info    0x00000000001d5c23      0xe5e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/vline~.o
- .debug_info    0x00000000001d6a81      0xc04 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/vsnapshot~.o
- .debug_info    0x00000000001d7685      0xa19 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/wrap~.o
- .debug_info    0x00000000001d809e      0xdba /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/extra/bandpass.o
- .debug_info    0x00000000001d8e58      0xe93 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/extra/equalizer.o
- .debug_info    0x00000000001d9ceb     0x2132 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/extra/gcanvas.o
- .debug_info    0x00000000001dbe1d      0xdd5 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/extra/highpass.o
- .debug_info    0x00000000001dcbf2      0xe3f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/extra/highshelf.o
- .debug_info    0x00000000001dda31     0x1194 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/extra/hlshelf.o
- .debug_info    0x00000000001debc5     0x1677 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/extra/image.o
- .debug_info    0x00000000001e023c      0xdd5 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/extra/lowpass.o
- .debug_info    0x00000000001e1011      0xe3f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/extra/lowshelf.o
- .debug_info    0x00000000001e1e50     0x1215 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/extra/moog~.o
- .debug_info    0x00000000001e3065      0xdd3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/extra/notch.o
- .debug_info    0x00000000001e3e38      0xaf1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/extra/zerox~.o
- .debug_info    0x00000000001e4929     0x7da2 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
- .debug_info    0x00000000001ec6cb     0x1b6b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libtlsf.a(tlsf.o)
- .debug_info    0x00000000001ee236     0x77d2 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
- .debug_info    0x00000000001f5a08     0x7b9a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(helper.o)
- .debug_info    0x00000000001fd5a2      0x12a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(strncpy.o)
+ .debug_info    0x0000000000000000     0x83ce /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/pdbox.o
+ .debug_info    0x00000000000083ce     0x7c9b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/pdbox-net.o
+ .debug_info    0x0000000000010069     0x9b05 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/pdbox-func.o
+ .debug_info    0x0000000000019b6e     0x94c8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/pdbox-gui.o
+ .debug_info    0x0000000000023036     0x7c18 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/s_audio_rockbox.o
+ .debug_info    0x000000000002ac4e     0x3ffb /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/d_arithmetic.o
+ .debug_info    0x000000000002ec49      0xb80 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/d_ctl.o
+ .debug_info    0x000000000002f7c9     0x13e4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/d_dac.o
+ .debug_info    0x0000000000030bad     0x17d0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/d_fft.o
+ .debug_info    0x000000000003237d     0x16b7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/d_fftroutine.o
+ .debug_info    0x0000000000033a34     0x8e4f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/d_global.o
+ .debug_info    0x000000000003c883      0xd62 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/d_imayer_fft.o
+ .debug_info    0x000000000003d5e5      0x9ac /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/d_mayer_fft.o
+ .debug_info    0x000000000003df91     0x1adb /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/d_misc.o
+ .debug_info    0x000000000003fa6c      0x8b8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/d_resample.o
+ .debug_info    0x0000000000040324     0xb05d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/d_soundfile.o
+ .debug_info    0x000000000004b381     0x2d5d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/d_ugen.o
+ .debug_info    0x000000000004e0de     0xa321 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_all_guis.o
+ .debug_info    0x00000000000583ff     0xd228 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_array.o
+ .debug_info    0x0000000000065627     0xabc2 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_bang.o
+ .debug_info    0x00000000000701e9     0xdd60 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_canvas.o
+ .debug_info    0x000000000007df49    0x10175 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_editor.o
+ .debug_info    0x000000000008e0be     0xbfa0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_graph.o
+ .debug_info    0x000000000009a05e     0x11a5 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_guiconnect.o
+ .debug_info    0x000000000009b203     0xb2da /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_hdial.o
+ .debug_info    0x00000000000a64dd     0xadcc /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_hslider.o
+ .debug_info    0x00000000000b12a9     0xa087 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_io.o
+ .debug_info    0x00000000000bb330     0xa052 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_mycanvas.o
+ .debug_info    0x00000000000c5382     0xb565 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_numbox.o
+ .debug_info    0x00000000000d08e7     0xac55 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_readwrite.o
+ .debug_info    0x00000000000db53c     0x9281 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_rtext.o
+ .debug_info    0x00000000000e47bd     0x2aa3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_scalar.o
+ .debug_info    0x00000000000e7260     0xdb6d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_template.o
+ .debug_info    0x00000000000f4dcd     0xdf09 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_text.o
+ .debug_info    0x0000000000102cd6     0xa68f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_toggle.o
+ .debug_info    0x000000000010d365     0x40f4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_traversal.o
+ .debug_info    0x0000000000111459     0xb17b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_vdial.o
+ .debug_info    0x000000000011c5d4     0xad77 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_vslider.o
+ .debug_info    0x000000000012734b     0xa340 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_vumeter.o
+ .debug_info    0x000000000013168b     0x7e03 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/m_atom.o
+ .debug_info    0x000000000013948e     0xb541 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/m_binbuf.o
+ .debug_info    0x00000000001449cf     0xa143 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/m_class.o
+ .debug_info    0x000000000014eb12      0x340 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/m_conf.o
+ .debug_info    0x000000000014ee52     0x8608 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/m_fixed.o
+ .debug_info    0x000000000015745a     0x1213 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/m_glob.o
+ .debug_info    0x000000000015866d     0x78ad /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/m_memory.o
+ .debug_info    0x000000000015ff1a     0x28b7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/m_obj.o
+ .debug_info    0x00000000001627d1     0x18f2 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/m_pd.o
+ .debug_info    0x00000000001640c3      0xd4b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/m_sched.o
+ .debug_info    0x0000000000164e0e     0x8b7d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/s_audio.o
+ .debug_info    0x000000000016d98b     0x7683 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/s_file.o
+ .debug_info    0x000000000017500e       0xdc /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/s_loader.o
+ .debug_info    0x00000000001750ea     0x8bc6 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/s_path.o
+ .debug_info    0x000000000017dcb0      0xf52 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/s_print.o
+ .debug_info    0x000000000017ec02     0x12f7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/x_acoustics.o
+ .debug_info    0x000000000017fef9     0x3c64 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/x_arithmetic.o
+ .debug_info    0x0000000000183b5d     0xd195 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/x_connective.o
+ .debug_info    0x0000000000190cf2      0xd96 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/x_interface.o
+ .debug_info    0x0000000000191a88     0x1508 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/x_misc.o
+ .debug_info    0x0000000000192f90     0x86ea /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/x_net.o
+ .debug_info    0x000000000019b67a     0x92b2 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/x_qlist.o
+ .debug_info    0x00000000001a492c     0x26cd /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/x_time.o
+ .debug_info    0x00000000001a6ff9     0x10f0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/biquad~.o
+ .debug_info    0x00000000001a80e9      0xfa9 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/bp~.o
+ .debug_info    0x00000000001a9092      0xb3d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/clip~.o
+ .debug_info    0x00000000001a9bcf      0xad8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/cos~.o
+ .debug_info    0x00000000001aa6a7      0x487 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/cos_table.o
+ .debug_info    0x00000000001aab2e      0xaae /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/dbtopow~.o
+ .debug_info    0x00000000001ab5dc      0xaae /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/dbtorms~.o
+ .debug_info    0x00000000001ac08a      0xda7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/delread~.o
+ .debug_info    0x00000000001ace31      0xd13 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/delwrite~.o
+ .debug_info    0x00000000001adb44      0xe5f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/env~.o
+ .debug_info    0x00000000001ae9a3      0xaa9 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/ftom~.o
+ .debug_info    0x00000000001af44c      0xd37 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/hip~.o
+ .debug_info    0x00000000001b0183      0x3d8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/intern_setup.o
+ .debug_info    0x00000000001b055b      0xbf7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/line~.o
+ .debug_info    0x00000000001b1152      0xce7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/lop~.o
+ .debug_info    0x00000000001b1e39      0xa9d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/mtof~.o
+ .debug_info    0x00000000001b28d6      0x9ec /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/noise~.o
+ .debug_info    0x00000000001b32c2      0xc5b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/osc~.o
+ .debug_info    0x00000000001b3f1d      0xbeb /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/phasor~.o
+ .debug_info    0x00000000001b4b08      0xab4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/powtodb~.o
+ .debug_info    0x00000000001b55bc      0xbaf /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/print~.o
+ .debug_info    0x00000000001b616b      0xad1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/rmstodb~.o
+ .debug_info    0x00000000001b6c3c      0xda3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/rsqrt~.o
+ .debug_info    0x00000000001b79df      0xc0a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/samphold~.o
+ .debug_info    0x00000000001b85e9     0x8f45 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/sfread~.o
+ .debug_info    0x00000000001c152e     0x8de9 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/sfwrite~.o
+ .debug_info    0x00000000001ca317      0xb46 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/snapshot~.o
+ .debug_info    0x00000000001cae5d      0xbfd /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/sqrt~.o
+ .debug_info    0x00000000001cba5a      0xe71 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/tabosc4~.o
+ .debug_info    0x00000000001cc8cb     0x1131 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/tabplay~.o
+ .debug_info    0x00000000001cd9fc      0xa8a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/tabread.o
+ .debug_info    0x00000000001ce486      0xcd7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/tabread4~.o
+ .debug_info    0x00000000001cf15d      0xc98 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/tabread~.o
+ .debug_info    0x00000000001cfdf5      0xb91 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/tabreceive~.o
+ .debug_info    0x00000000001d0986      0xdb0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/tabsend~.o
+ .debug_info    0x00000000001d1736      0xc7c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/tabwrite.o
+ .debug_info    0x00000000001d23b2      0xfc5 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/tabwrite~.o
+ .debug_info    0x00000000001d3377      0xe6c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/threshold~.o
+ .debug_info    0x00000000001d41e3      0xde6 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/vcf~.o
+ .debug_info    0x00000000001d4fc9      0xd44 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/vd~.o
+ .debug_info    0x00000000001d5d0d      0xe5e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/vline~.o
+ .debug_info    0x00000000001d6b6b      0xc04 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/vsnapshot~.o
+ .debug_info    0x00000000001d776f      0xa19 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/wrap~.o
+ .debug_info    0x00000000001d8188      0xdba /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/extra/bandpass.o
+ .debug_info    0x00000000001d8f42      0xe93 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/extra/equalizer.o
+ .debug_info    0x00000000001d9dd5     0x2132 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/extra/gcanvas.o
+ .debug_info    0x00000000001dbf07      0xdd5 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/extra/highpass.o
+ .debug_info    0x00000000001dccdc      0xe3f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/extra/highshelf.o
+ .debug_info    0x00000000001ddb1b     0x1194 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/extra/hlshelf.o
+ .debug_info    0x00000000001decaf     0x1677 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/extra/image.o
+ .debug_info    0x00000000001e0326      0xdd5 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/extra/lowpass.o
+ .debug_info    0x00000000001e10fb      0xe3f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/extra/lowshelf.o
+ .debug_info    0x00000000001e1f3a     0x1215 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/extra/moog~.o
+ .debug_info    0x00000000001e314f      0xdd3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/extra/notch.o
+ .debug_info    0x00000000001e3f22      0xaf1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/extra/zerox~.o
+ .debug_info    0x00000000001e4a13     0x7da8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+ .debug_info    0x00000000001ec7bb     0x1b6b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libtlsf.a(tlsf.o)
+ .debug_info    0x00000000001ee326     0x77d8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
+ .debug_info    0x00000000001f5afe     0x7ba0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(helper.o)
+ .debug_info    0x00000000001fd69e      0x12a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(strncpy.o)
 
 .debug_abbrev   0x0000000000000000    0x1ef19
  *(.debug_abbrev)
@@ -4166,251 +4166,251 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000    0x10f90
+.debug_str      0x0000000000000000    0x10f9c
  *(.debug_str)
- .debug_str     0x0000000000000000    0x10f90 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/pdbox.o
-                                       0x554e (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/pdbox-net.o
-                                       0x5185 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/pdbox-func.o
-                                       0x5803 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/pdbox-gui.o
-                                       0x5324 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/s_audio_rockbox.o
-                                       0x5232 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/d_arithmetic.o
+ .debug_str     0x0000000000000000    0x10f9c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/pdbox.o
+                                       0x555a (size before relaxing)
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/pdbox-net.o
+                                       0x5191 (size before relaxing)
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/pdbox-func.o
+                                       0x580f (size before relaxing)
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/pdbox-gui.o
+                                       0x5330 (size before relaxing)
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/s_audio_rockbox.o
+                                       0x523e (size before relaxing)
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/d_arithmetic.o
                                        0x10a8 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/d_ctl.o
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/d_ctl.o
                                         0xbf6 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/d_dac.o
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/d_dac.o
                                         0xda8 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/d_fft.o
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/d_fft.o
                                         0xcaf (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/d_fftroutine.o
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/d_fftroutine.o
                                         0xc0e (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/d_global.o
-                                       0x5576 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/d_imayer_fft.o
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/d_global.o
+                                       0x5582 (size before relaxing)
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/d_imayer_fft.o
                                         0x986 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/d_mayer_fft.o
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/d_mayer_fft.o
                                         0x15c (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/d_misc.o
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/d_misc.o
                                        0x1270 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/d_resample.o
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/d_resample.o
                                         0x327 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/d_soundfile.o
-                                       0x5b26 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/d_ugen.o
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/d_soundfile.o
+                                       0x5b32 (size before relaxing)
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/d_ugen.o
                                        0x1595 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_all_guis.o
-                                       0x5dab (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_array.o
-                                       0x61dd (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_bang.o
-                                       0x6013 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_canvas.o
-                                       0x67ee (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_editor.o
-                                       0x6a7d (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_graph.o
-                                       0x5fc7 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_guiconnect.o
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_all_guis.o
+                                       0x5db7 (size before relaxing)
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_array.o
+                                       0x61e9 (size before relaxing)
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_bang.o
+                                       0x601f (size before relaxing)
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_canvas.o
+                                       0x67fa (size before relaxing)
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_editor.o
+                                       0x6a89 (size before relaxing)
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_graph.o
+                                       0x5fd3 (size before relaxing)
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_guiconnect.o
                                         0xfdf (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_hdial.o
-                                       0x5fd1 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_hslider.o
-                                       0x6021 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_io.o
-                                       0x5d3a (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_mycanvas.o
-                                       0x5e9c (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_numbox.o
-                                       0x618c (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_readwrite.o
-                                       0x56b0 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_rtext.o
-                                       0x5a7b (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_scalar.o
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_hdial.o
+                                       0x5fdd (size before relaxing)
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_hslider.o
+                                       0x602d (size before relaxing)
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_io.o
+                                       0x5d46 (size before relaxing)
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_mycanvas.o
+                                       0x5ea8 (size before relaxing)
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_numbox.o
+                                       0x6198 (size before relaxing)
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_readwrite.o
+                                       0x56bc (size before relaxing)
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_rtext.o
+                                       0x5a87 (size before relaxing)
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_scalar.o
                                        0x14fd (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_template.o
-                                       0x649d (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_text.o
-                                       0x6650 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_toggle.o
-                                       0x5f7b (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_traversal.o
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_template.o
+                                       0x64a9 (size before relaxing)
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_text.o
+                                       0x665c (size before relaxing)
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_toggle.o
+                                       0x5f87 (size before relaxing)
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_traversal.o
                                        0x16c3 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_vdial.o
-                                       0x5fc0 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_vslider.o
-                                       0x6019 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_vumeter.o
-                                       0x5eb2 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/m_atom.o
-                                       0x4bf6 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/m_binbuf.o
-                                       0x5065 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/m_class.o
-                                       0x5a96 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/m_conf.o
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_vdial.o
+                                       0x5fcc (size before relaxing)
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_vslider.o
+                                       0x6025 (size before relaxing)
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/g_vumeter.o
+                                       0x5ebe (size before relaxing)
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/m_atom.o
+                                       0x4c02 (size before relaxing)
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/m_binbuf.o
+                                       0x5071 (size before relaxing)
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/m_class.o
+                                       0x5aa2 (size before relaxing)
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/m_conf.o
                                         0x398 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/m_fixed.o
-                                       0x5606 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/m_glob.o
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/m_fixed.o
+                                       0x5612 (size before relaxing)
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/m_glob.o
                                         0xe39 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/m_memory.o
-                                       0x49e8 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/m_obj.o
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/m_memory.o
+                                       0x49f4 (size before relaxing)
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/m_obj.o
                                        0x12d1 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/m_pd.o
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/m_pd.o
                                         0xf9f (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/m_sched.o
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/m_sched.o
                                         0xcd9 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/s_audio.o
-                                       0x56fc (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/s_file.o
-                                       0x49ac (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/s_loader.o
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/s_audio.o
+                                       0x5708 (size before relaxing)
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/s_file.o
+                                       0x49b8 (size before relaxing)
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/s_loader.o
                                         0x1ab (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/s_path.o
-                                       0x5639 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/s_print.o
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/s_path.o
+                                       0x5645 (size before relaxing)
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/s_print.o
                                         0xc67 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/x_acoustics.o
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/x_acoustics.o
                                         0xb84 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/x_arithmetic.o
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/x_arithmetic.o
                                        0x1286 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/x_connective.o
-                                       0x5ed9 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/x_interface.o
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/x_connective.o
+                                       0x5ee5 (size before relaxing)
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/x_interface.o
                                         0xc98 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/x_misc.o
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/x_misc.o
                                         0xe05 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/x_net.o
-                                       0x55d5 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/x_qlist.o
-                                       0x56c8 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/x_time.o
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/x_net.o
+                                       0x55e1 (size before relaxing)
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/x_qlist.o
+                                       0x56d4 (size before relaxing)
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/src/x_time.o
                                        0x108b (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/biquad~.o
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/biquad~.o
                                         0xd55 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/bp~.o
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/bp~.o
                                         0xc5b (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/clip~.o
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/clip~.o
                                         0xba7 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/cos~.o
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/cos~.o
                                         0xb9d (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/cos_table.o
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/cos_table.o
                                         0x92e (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/dbtopow~.o
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/dbtopow~.o
                                         0xb6d (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/dbtorms~.o
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/dbtorms~.o
                                         0xb6d (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/delread~.o
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/delread~.o
                                         0xcde (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/delwrite~.o
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/delwrite~.o
                                         0xc88 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/env~.o
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/env~.o
                                         0xc8e (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/ftom~.o
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/ftom~.o
                                         0xb58 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/hip~.o
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/hip~.o
                                         0xc0e (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/intern_setup.o
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/intern_setup.o
                                         0x4a1 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/line~.o
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/line~.o
                                         0xbb6 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/lop~.o
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/lop~.o
                                         0xc03 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/mtof~.o
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/mtof~.o
                                         0xb50 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/noise~.o
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/noise~.o
                                         0xb11 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/osc~.o
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/osc~.o
                                         0xbcf (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/phasor~.o
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/phasor~.o
                                         0xbe7 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/powtodb~.o
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/powtodb~.o
                                         0xb65 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/print~.o
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/print~.o
                                         0xbc8 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/rmstodb~.o
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/rmstodb~.o
                                         0xb6d (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/rsqrt~.o
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/rsqrt~.o
                                         0xba7 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/samphold~.o
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/samphold~.o
                                         0xc0c (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/sfread~.o
-                                       0x5979 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/sfwrite~.o
-                                       0x59b6 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/snapshot~.o
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/sfread~.o
+                                       0x5985 (size before relaxing)
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/sfwrite~.o
+                                       0x59c2 (size before relaxing)
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/snapshot~.o
                                         0xc14 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/sqrt~.o
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/sqrt~.o
                                         0xb82 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/tabosc4~.o
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/tabosc4~.o
                                         0xcc2 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/tabplay~.o
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/tabplay~.o
                                         0xe36 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/tabread.o
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/tabread.o
                                         0xb8a (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/tabread4~.o
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/tabread4~.o
                                         0xc75 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/tabread~.o
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/tabread~.o
                                         0xc59 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/tabreceive~.o
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/tabreceive~.o
                                         0xc19 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/tabsend~.o
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/tabsend~.o
                                         0xc88 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/tabwrite.o
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/tabwrite.o
                                         0xc25 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/tabwrite~.o
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/tabwrite~.o
                                         0xd2a (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/threshold~.o
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/threshold~.o
                                         0xd0b (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/vcf~.o
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/vcf~.o
                                         0xc37 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/vd~.o
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/vd~.o
                                         0xc98 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/vline~.o
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/vline~.o
                                         0xca3 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/vsnapshot~.o
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/vsnapshot~.o
                                         0xc0e (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/wrap~.o
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/intern/wrap~.o
                                         0xb22 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/extra/bandpass.o
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/extra/bandpass.o
                                         0xcb3 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/extra/equalizer.o
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/extra/equalizer.o
                                         0xca7 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/extra/gcanvas.o
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/extra/gcanvas.o
                                        0x12a5 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/extra/highpass.o
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/extra/highpass.o
                                         0xcb3 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/extra/highshelf.o
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/extra/highshelf.o
                                         0xcbe (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/extra/hlshelf.o
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/extra/hlshelf.o
                                         0xcf7 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/extra/image.o
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/extra/image.o
                                        0x1193 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/extra/lowpass.o
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/extra/lowpass.o
                                         0xcae (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/extra/lowshelf.o
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/extra/lowshelf.o
                                         0xcb9 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/extra/moog~.o
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/extra/moog~.o
                                         0xce4 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/extra/notch.o
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/extra/notch.o
                                         0xca4 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/extra/zerox~.o
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/extra/zerox~.o
                                         0xbb8 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
-                                       0x52b3 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libtlsf.a(tlsf.o)
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+                                       0x52bf (size before relaxing)
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libtlsf.a(tlsf.o)
                                         0x410 (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
-                                       0x495a (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(helper.o)
-                                       0x52aa (size before relaxing)
- .debug_str     0x0000000000010f90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(strncpy.o)
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
+                                       0x4966 (size before relaxing)
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(helper.o)
+                                       0x52b6 (size before relaxing)
+ .debug_str     0x0000000000010f9c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(strncpy.o)
                                         0x19c (size before relaxing)
 
 .debug_loc

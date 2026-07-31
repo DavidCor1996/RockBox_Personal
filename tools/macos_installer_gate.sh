@@ -117,7 +117,7 @@ cat >"${stub_bin}/plutil" <<'EOF'
 #!/bin/sh
 # plutil -extract KEYPATH raw -o - FILE
 key="$2"
-file="$5"
+file="$6"
 [ -f "${file}" ] || exit 1
 value="$(awk -v k="${key}" -F' = ' '$1 == k { print $2; found = 1; exit } END { if (!found) exit 1 }' "${file}")" || exit 1
 printf '%s\n' "${value}"
@@ -129,6 +129,61 @@ export RP_BIN="${stub_bin}"
 export RP_SBIN="${stub_sbin}"
 export RP_GATE_DIALOGS="${work}/dialogs.txt"
 : >"${RP_GATE_DIALOGS}"
+
+# Stub bootloader helpers, logging every invocation to RP_GATE_TOOLLOG so
+# ordering (backup before write, no write after a failed read, etc.) can be
+# checked afterwards. Placed directly at the path build_bootloader_tool()
+# looks for an already-built tool, so these tests never need a real compiler
+# or the bundled tool-src to be present.
+export RP_GATE_TOOLLOG="${work}/toollog.txt"
+: >"${RP_GATE_TOOLLOG}"
+tools_dir="${work}/home/Library/Application Support/RockPod/tools"
+mkdir -p "${tools_dir}"
+
+cat >"${tools_dir}/mks5lboot" <<'EOF'
+#!/bin/sh
+echo "mks5lboot $*" >>"${RP_GATE_TOOLLOG}"
+case "$1" in
+    --dfuscan)
+        if [ "${RP_GATE_DFU_FOUND:-0}" = "1" ]; then
+            echo "1 device found in DFU mode"
+        else
+            echo "No DFU devices found"
+        fi
+        ;;
+    --bl-inst)
+        [ "${RP_GATE_BLINST_FAIL:-0}" = "1" ] && { echo "install failed" >&2; exit 1; }
+        echo "install ok"
+        ;;
+    *)
+        echo "unhandled mks5lboot invocation: $*" >&2
+        exit 1
+        ;;
+esac
+EOF
+
+cat >"${tools_dir}/ipodpatcher" <<'EOF'
+#!/bin/sh
+device="$1"
+shift
+echo "ipodpatcher ${device} $*" >>"${RP_GATE_TOOLLOG}"
+case "$1" in
+    --read-partition)
+        [ "${RP_GATE_READ_FAIL:-0}" = "1" ] && { echo "read failed" >&2; exit 1; }
+        printf 'BOOTPARTITIONDATA' >"$2"
+        ;;
+    --add-bootloader)
+        [ "${RP_GATE_WRITE_FAIL:-0}" = "1" ] && { echo "write failed" >&2; exit 1; }
+        echo "bootloader added"
+        ;;
+    *)
+        echo "unhandled ipodpatcher invocation: $*" >&2
+        exit 1
+        ;;
+esac
+EOF
+
+chmod +x "${tools_dir}/mks5lboot" "${tools_dir}/ipodpatcher"
 
 # ------------------------------------------------------------------- fixtures
 
@@ -222,6 +277,7 @@ make_payload()
 
     printf 'FIRMWARE-PAYLOAD-%s\n' "${target}" >"${payload}/rockbox.ipod"
     printf 'Target: %s\nVersion: gate-release\n' "${target}" >"${payload}/rockbox-info.txt"
+    printf 'BOOTLOADER-PAYLOAD-%s\n' "${target}" >"${payload}/bootloader-${target}.ipod"
     cat >"${payload}/release.env" <<EOF
 RP_RELEASE_ID="gate-release"
 RP_TARGET="${target}"
@@ -256,6 +312,8 @@ run_case()
         . "${setup_src}/lib/package.sh"
         . "${setup_src}/lib/database.sh"
         . "${setup_src}/lib/deploy.sh"
+        . "${setup_src}/lib/stock.sh"
+        . "${setup_src}/lib/bootloader.sh"
 
         RP_SETUP_DIR="${setup_src}"
         RP_PAYLOAD="${payload}"
@@ -461,6 +519,92 @@ if [ ! -e "${mount}/.rockbox/database_tmp.tcd" ] &&
 else
     bad "stale transaction files survived the install"
 fi
+
+say "bootloader safety invariants"
+
+bootloader_src="${repo_root}/tools/macos-installer/setup/lib/bootloader.sh"
+if grep -v '^[[:space:]]*#' "${bootloader_src}" | grep -q -- '--single\|"-S"'; then
+    bad "bootloader.sh must never construct mks5lboot's --single/-S option"
+else
+    ok "bootloader.sh never constructs --single/-S"
+fi
+
+make_payload ipod6g
+reset_mount yes
+write_fixtures "disk4"
+
+export RP_GATE_ANSWER="Ready"
+# Keep the DFU poll loop fast and deterministic in the gate; production code
+# defaults to a real 60 x 1s scan and a 5s post-install settle.
+export RP_DFU_MAX_TRIES=3
+export RP_DFU_POLL_INTERVAL=0
+
+: >"${RP_GATE_TOOLLOG}"
+unset RP_GATE_DFU_FOUND
+expect "Classic: DFU not found is a hard stop" RP-DFU-NOT-FOUND \
+    'install_bootloader_classic'
+if grep -q -- '--bl-inst' "${RP_GATE_TOOLLOG}"; then
+    bad "Classic: bootloader install must not run when DFU was never found"
+else
+    ok "Classic: bootloader install did not run without a detected DFU device"
+fi
+
+: >"${RP_GATE_TOOLLOG}"
+export RP_GATE_DFU_FOUND=1
+expect "Classic: detected DFU device completes the install" OK \
+    'install_bootloader_classic'
+if grep -q -- '--dfuscan' "${RP_GATE_TOOLLOG}" && grep -q -- '--bl-inst' "${RP_GATE_TOOLLOG}"; then
+    ok "Classic: scanned for DFU before installing the bootloader"
+else
+    bad "Classic: expected both a DFU scan and a bootloader install in the tool log"
+fi
+unset RP_GATE_DFU_FOUND
+
+make_payload ipodvideo
+reset_mount yes
+write_fixtures "disk4"
+
+export RP_GATE_ANSWER="Install"
+
+: >"${RP_GATE_TOOLLOG}"
+export RP_GATE_READ_FAIL=1
+expect "Video: unreadable boot partition is a hard stop before any write" RP-BOOT-WRITE \
+    'RP_BACKUP="${RP_WORK}/host-backup"; mkdir -p "${RP_BACKUP}/firmware"; install_bootloader_video'
+if grep -q -- '--add-bootloader' "${RP_GATE_TOOLLOG}"; then
+    bad "Video: must never attempt --add-bootloader when the pre-write backup read failed"
+else
+    ok "Video: no bootloader write was attempted after a failed backup read"
+fi
+unset RP_GATE_READ_FAIL
+
+: >"${RP_GATE_TOOLLOG}"
+export RP_GATE_WRITE_FAIL=1
+expect "Video: a failed bootloader write is reported, backup already taken" RP-BOOT-WRITE \
+    'RP_BACKUP="${RP_WORK}/host-backup"; mkdir -p "${RP_BACKUP}/firmware"; install_bootloader_video'
+if grep -q -- '--read-partition' "${RP_GATE_TOOLLOG}" && grep -q -- '--add-bootloader' "${RP_GATE_TOOLLOG}"; then
+    read_line="$(grep -n -- '--read-partition' "${RP_GATE_TOOLLOG}" | head -1 | cut -d: -f1)"
+    write_line="$(grep -n -- '--add-bootloader' "${RP_GATE_TOOLLOG}" | head -1 | cut -d: -f1)"
+    if [ "${read_line}" -lt "${write_line}" ]; then
+        ok "Video: the boot partition backup was read before any write was attempted"
+    else
+        bad "Video: the bootloader write happened before the backup read"
+    fi
+else
+    bad "Video: expected both a partition read and a bootloader write attempt in the tool log"
+fi
+unset RP_GATE_WRITE_FAIL
+
+: >"${RP_GATE_TOOLLOG}"
+expect "Video: full bootloader install reads, writes, and re-reads the boot partition" OK \
+    'RP_BACKUP="${RP_WORK}/host-backup"; mkdir -p "${RP_BACKUP}/firmware"; install_bootloader_video'
+read_count="$(grep -c -- '--read-partition' "${RP_GATE_TOOLLOG}")"
+if [ "${read_count}" -ge 2 ]; then
+    ok "Video: the boot partition was re-read after the write to verify it"
+else
+    bad "Video: expected at least two partition reads (backup, then verify); got ${read_count}"
+fi
+
+unset RP_GATE_ANSWER RP_DFU_MAX_TRIES RP_DFU_POLL_INTERVAL
 
 echo
 echo "macos_installer_gate: ${passes} passed, ${failures} failed"

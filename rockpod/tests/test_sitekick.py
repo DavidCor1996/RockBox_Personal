@@ -271,24 +271,15 @@ def test_classic_yellow_and_artist_backgrounds_are_packaged():
         "Classic Yellow", "sitekick-color-6.bmp"
     )
     assert sitekick.BACKGROUNDS[-3:] == (
-        ("Beatles Crosswalk", "beatles-crosswalk"),
-        ("Beatles Pepperland", "beatles-pepperland"),
-        ("Beatles Rooftop", "beatles-rooftop"),
+        ("Polaroid Darkroom", "polaroid-darkroom"),
+        ("KI Arena Lightning", "ki-arena-lightning"),
+        ("Cyberpunk Night City", "cyberpunk-night-city"),
     )
     for path in (
-        root / "base" / "sitekick-color-6.bmp",
-        root / "backgrounds" / "stage-6.bmp",
-        root / "backgrounds" / "pane-6.bmp",
-        root / "backgrounds" / "stage-7.bmp",
-        root / "backgrounds" / "pane-7.bmp",
-        root / "backgrounds" / "stage-8.bmp",
-        root / "backgrounds" / "pane-8.bmp",
-        root / "backgrounds" / "stage-9.bmp",
-        root / "backgrounds" / "pane-9.bmp",
-        root / "backgrounds" / "stage-10.bmp",
-        root / "backgrounds" / "pane-10.bmp",
-        root / "backgrounds" / "stage-11.bmp",
-        root / "backgrounds" / "pane-11.bmp",
+        [root / "base" / "sitekick-color-6.bmp"] +
+        [root / "backgrounds" / f"{kind}-{i}.bmp"
+         for i in range(6, len(sitekick.BACKGROUNDS))
+         for kind in ("stage", "pane")]
     ):
         assert path.is_file()
 
@@ -296,12 +287,14 @@ def test_classic_yellow_and_artist_backgrounds_are_packaged():
         Path(__file__).resolve().parents[2] / "apps" / "plugins" / "sitekick.c"
     ).read_text(encoding="utf-8")
     assert "#define SK_BODY_COLOR_COUNT 7" in source
-    assert "#define SK_BACKGROUND_COUNT 12" in source
+    assert (f"#define SK_BACKGROUND_COUNT {len(sitekick.BACKGROUNDS)}"
+           in source)
     assert '"Classic Yellow"' in source
     assert '"Oliver Scrapyard", "Emma Neon Box"' in source
     assert '"Oliver Alone Crowd"' in source
     assert '"Beatles Crosswalk", "Beatles Pepperland", "Beatles Rooftop"' \
         in source
+    assert '"Cyberpunk Night City"' in source
 
 
 def test_load_state_accepts_expanded_512_chip_catalogue(pack):
@@ -317,6 +310,44 @@ def test_load_state_accepts_expanded_512_chip_catalogue(pack):
     )
 
     assert sitekick.load_state(pack).owned == owned
+
+
+def test_load_state_reads_sks3_save_with_shop_and_presets(pack):
+    """SKS3 is what the shipped device actually writes once presets exist
+    (see sk_write_save in apps/plugins/sitekick.c) -- it must parse the
+    same equipment/dump/appearance fields as SKS2, from their new fixed
+    offsets after the added shop-stock and preset blocks."""
+    (pack / "state").mkdir()
+    header = bytearray(sitekick._SAVE3_HEADER)
+    header[:4] = b"SKS3"
+    struct.pack_into("<IIHH", header, 4, 900, 340, 3, sitekick._SAVE3_HEADER)
+    struct.pack_into(
+        "<8H", header, 16,
+        7, 0xffff, 11, 15, 0xffff, 19, 22, 0xffff,
+    )
+    struct.pack_into("<H", header, sitekick._SAVE2_BASE_HEADER, 31)
+    struct.pack_into("<I", header, sitekick._SAVE2_BASE_HEADER + 4, 654321)
+    header[sitekick._SAVE2_DUMP_HEADER] = 3
+    header[sitekick._SAVE2_DUMP_HEADER + 1] = 5
+    struct.pack_into("<I", header, sitekick._SAVE2_HEADER, 999)
+    struct.pack_into("<6H", header, sitekick._SAVE2_HEADER + 4,
+                    *([0xffff] * 6))
+    struct.pack_into("<H", header, sitekick._SAVE2_SHOP_HEADER, 0)
+    (pack / sitekick.SAVE_FILE).write_bytes(
+        bytes(header) + struct.pack("<3H", 7, 11, 15)
+    )
+
+    state = sitekick.load_state(pack)
+    assert state.exists is True
+    assert state.xp == 900
+    assert state.coins == 340
+    assert state.owned == (7, 11, 15)
+    assert state.equipped[1] is None
+    assert state.equipped[5] == 19
+    assert state.dump_id == 31
+    assert state.dump_ready_at == 654321
+    assert state.body_color == 3
+    assert state.background == 5
 
 
 def test_ipod_exclusives_cover_every_rarity_and_reference():

@@ -87,6 +87,7 @@
 #define LIVETV_SLOT_TITLE_FALLBACK 96
 
 #define LIVETV_BANNER_SECS  (5 * HZ)
+#define LIVETV_PARENTAL_PIN ROCKBOX_DIR "/videolist/locked.pin"
 
 /* Model -------------------------------------------------------------- */
 
@@ -104,6 +105,7 @@ static int livetv_path_used;
 static char livetv_root[MAX_PATH];
 static int livetv_channel_cur;
 static bool livetv_ready;
+static bool livetv_parental_unlocked;
 
 /* The slot the player is currently playing, so that an end of file can be
  * answered with the programme that follows it. */
@@ -283,7 +285,7 @@ static bool livetv_load_channels(void)
     while (livetv_channel_num < LIVETV_MAX_CHANNELS &&
            rb->read_line(fd, line, sizeof(line)) > 0)
     {
-        char *fields[6];
+        char *fields[7];
         char *text = livetv_trim(line);
         int count;
         struct livetv_channel *chan;
@@ -291,7 +293,7 @@ static bool livetv_load_channels(void)
         if (text[0] == '\0' || text[0] == '#')
             continue;
 
-        count = livetv_split(text, fields, 6);
+        count = livetv_split(text, fields, 7);
         if (count < 2)
             continue;
 
@@ -309,6 +311,8 @@ static bool livetv_load_channels(void)
             rb->strlcpy(chan->logo, fields[4], sizeof(chan->logo));
         if (count > 5)
             chan->favourite = rb->atoi(fields[5]) != 0;
+        if (count > 6)
+            chan->parental_locked = rb->atoi(fields[6]) != 0;
         chan->first_slot = -1;
         livetv_channel_num++;
     }
@@ -469,6 +473,8 @@ static void livetv_rebuild_view(void)
     {
         const struct livetv_channel *chan = &livetv_channels[i];
 
+        if (chan->parental_locked && !livetv_parental_unlocked)
+            continue;
         if (guide.filter == LIVETV_FILTER_FAVOURITES && !chan->favourite)
             continue;
         if (guide.filter == LIVETV_FILTER_SHOWS && chan->slot_count == 0)
@@ -478,16 +484,19 @@ static void livetv_rebuild_view(void)
 
     if (livetv_view_num == 0)
     {
-        /* Never present an empty grid: fall back to every channel. */
+        /* Never bypass a parental lock while falling back from a filter. */
         guide.filter = LIVETV_FILTER_ALL;
         for (int i = 0; i < livetv_channel_num; i++)
-            livetv_view[livetv_view_num++] = i;
+            if (!livetv_channels[i].parental_locked ||
+                livetv_parental_unlocked)
+                livetv_view[livetv_view_num++] = i;
     }
 }
 
 bool livetv_load(const char *root)
 {
     livetv_ready = false;
+    livetv_parental_unlocked = false;
     rb->memset(livetv_logos, 0, sizeof(livetv_logos));
     livetv_brand_valid = false;
     livetv_brand_tried = false;
@@ -511,6 +520,10 @@ bool livetv_load(const char *root)
     livetv_load_state();
     guide.filter = LIVETV_FILTER_ALL;
     livetv_rebuild_view();
+    if (livetv_channel_cur >= 0 &&
+        livetv_channels[livetv_channel_cur].parental_locked &&
+        livetv_view_num > 0)
+        livetv_channel_cur = livetv_view[0];
     livetv_ready = true;
     return true;
 }
@@ -567,6 +580,9 @@ bool livetv_step_channel(int delta)
 
         if (probe == livetv_channel_cur)
             break;
+        if (livetv_channels[probe].parental_locked &&
+            !livetv_parental_unlocked)
+            continue;
         if (livetv_slot_at(probe, 0, NULL) == NULL)
             continue;
 
@@ -1979,6 +1995,10 @@ void livetv_clear_overlay(void)
 #define LIVETV_BTN_OPTIONS  (BUTTON_PLAY | BUTTON_REPEAT)
 #define LIVETV_BTN_BACK12   (BUTTON_LEFT | BUTTON_REPEAT)
 #define LIVETV_BTN_FWD12    (BUTTON_RIGHT | BUTTON_REPEAT)
+#define LIVETV_BTN_EXIT_REL (BUTTON_MENU | BUTTON_REL)
+#define LIVETV_BTN_UNLOCK   (BUTTON_SELECT | BUTTON_REPEAT)
+#define LIVETV_BTN_UNLOCK_REL \
+    (BUTTON_SELECT | BUTTON_REPEAT | BUTTON_REL)
 #else
 #define LIVETV_BTN_UP       BUTTON_UP
 #define LIVETV_BTN_DOWN     BUTTON_DOWN
@@ -1990,6 +2010,188 @@ void livetv_clear_overlay(void)
 #define LIVETV_BTN_BACK12   (BUTTON_LEFT | BUTTON_REPEAT)
 #define LIVETV_BTN_FWD12    (BUTTON_RIGHT | BUTTON_REPEAT)
 #endif
+
+static void livetv_parental_draw_pin(const char *pin, int digit)
+{
+    char masked[5];
+    char glyph[2];
+    int length = rb->strlen(pin);
+    int title_w;
+    int text_h;
+    int panel_y = LCD_HEIGHT - 69;
+
+    rb->lcd_set_viewport(NULL);
+    rb->lcd_set_backdrop(NULL);
+    rb->lcd_set_drawmode(DRMODE_SOLID);
+    rb->lcd_set_background(
+        rb->global_settings->ui_engine_dark_mode ?
+        LCD_RGBPACK(18, 20, 24) : LCD_WHITE);
+    rb->lcd_set_foreground(
+        rb->global_settings->ui_engine_dark_mode ?
+        LCD_RGBPACK(239, 242, 246) : LCD_BLACK);
+    rb->lcd_clear_display();
+    rb->lcd_setfont(FONT_UI);
+    rb->lcd_getstringsize("Unlock Settings", &title_w, &text_h);
+    rb->lcd_putsxy(MAX(4, (LCD_WIDTH - title_w) / 2), 38,
+                   "Unlock Settings");
+    rb->lcd_putsxy(42, 78, "Scroll to choose, Select to enter");
+
+    rb->lcd_set_foreground(LCD_RGBPACK(31, 46, 65));
+    rb->lcd_fillrect(20, panel_y, LCD_WIDTH - 42, 50);
+    rb->lcd_set_foreground(LCD_RGBPACK(207, 220, 231));
+    rb->lcd_drawrect(20, panel_y, LCD_WIDTH - 42, 50);
+    rb->lcd_set_foreground(LCD_RGBPACK(239, 244, 246));
+    /* Text over a painted surface must be foreground-only. In SOLID mode
+     * Rockbox fills each glyph cell with the viewport background, which
+     * appears as a row of white boxes on the dark PIN panel. */
+    rb->lcd_set_drawmode(DRMODE_FG);
+
+    for (int i = 0; i < length && i < 4; i++)
+        masked[i] = '*';
+    masked[MIN(length, 4)] = '\0';
+    rb->lcd_putsxy(31, panel_y + 15, masked);
+
+    for (int i = -5; i <= 6; i++)
+    {
+        int value = (digit + i + 20) % 10;
+        int x = LCD_WIDTH / 2 - 9 + i * 19;
+
+        if (x < 104)
+            continue;
+        glyph[0] = (char)('0' + value);
+        glyph[1] = '\0';
+        if (i == 0)
+        {
+            rb->lcd_set_foreground(LCD_RGBPACK(0, 92, 192));
+            rb->lcd_fillrect(x - 3, panel_y + 9, 16, text_h + 5);
+            rb->lcd_set_foreground(LCD_WHITE);
+        }
+        else
+            rb->lcd_set_foreground(LCD_RGBPACK(239, 244, 246));
+        rb->lcd_putsxy(x, panel_y + 11, glyph);
+    }
+    rb->lcd_set_drawmode(DRMODE_SOLID);
+    rb->lcd_update();
+}
+
+static bool livetv_parental_prompt_pin(char *pin, size_t size)
+{
+    int digit = 0;
+
+    if (size < 5)
+        return false;
+    pin[0] = '\0';
+    rb->button_clear_queue();
+    mpegplayer_livetv_pin_active = true;
+
+    while (true)
+    {
+        int button;
+        size_t length;
+
+        livetv_parental_draw_pin(pin, digit);
+        button = mpeg_button_get(TIMEOUT_BLOCK);
+        if (mpeg_sysevent() != 0)
+        {
+            mpegplayer_livetv_pin_active = false;
+            return false;
+        }
+
+        switch (button)
+        {
+        case LIVETV_BTN_UP:
+        case LIVETV_BTN_UP | BUTTON_REPEAT:
+            digit = digit <= 0 ? 9 : digit - 1;
+            break;
+        case LIVETV_BTN_DOWN:
+        case LIVETV_BTN_DOWN | BUTTON_REPEAT:
+            digit = (digit + 1) % 10;
+            break;
+        case LIVETV_BTN_LEFT:
+        case LIVETV_BTN_LEFT | BUTTON_REL:
+            length = rb->strlen(pin);
+            if (length > 0)
+                pin[length - 1] = '\0';
+            break;
+        case LIVETV_BTN_SELECT:
+            length = rb->strlen(pin);
+            if (length < 4)
+            {
+                pin[length] = (char)('0' + digit);
+                pin[length + 1] = '\0';
+            }
+            if (length + 1 == 4)
+            {
+                mpegplayer_livetv_pin_active = false;
+                return true;
+            }
+            break;
+        case LIVETV_BTN_EXIT:
+#ifdef LIVETV_BTN_EXIT_REL
+        case LIVETV_BTN_EXIT_REL:
+#endif
+            mpegplayer_livetv_pin_active = false;
+            return false;
+        default:
+            break;
+        }
+    }
+}
+
+static bool livetv_parental_unlock(void)
+{
+    char expected[16];
+    char entered[16];
+    int fd = rb->open(LIVETV_PARENTAL_PIN, O_RDONLY);
+    int length;
+
+    if (fd < 0 || rb->read_line(fd, expected, sizeof(expected)) <= 0)
+    {
+        if (fd >= 0)
+            rb->close(fd);
+        rb->splash(HZ * 2, "Settings lock unavailable");
+        return false;
+    }
+    rb->close(fd);
+
+    length = rb->strlen(expected);
+    while (length > 0 &&
+           (expected[length - 1] == '\r' || expected[length - 1] == '\n' ||
+            expected[length - 1] == ' ' || expected[length - 1] == '\t'))
+        expected[--length] = '\0';
+    if (length != 4)
+    {
+        rb->splash(HZ * 2, "Settings lock PIN invalid");
+        return false;
+    }
+    for (int i = 0; i < 4; i++)
+        if (expected[i] < '0' || expected[i] > '9')
+        {
+            rb->splash(HZ * 2, "Settings lock PIN invalid");
+            return false;
+        }
+
+    if (!livetv_parental_prompt_pin(entered, sizeof(entered)))
+        return false;
+    if (rb->strcmp(entered, expected) != 0)
+    {
+        rb->splash(HZ * 2, "Wrong code");
+        return false;
+    }
+    return true;
+}
+
+static void livetv_parental_finish_unlock(void)
+{
+    if (!livetv_parental_unlocked && livetv_parental_unlock())
+    {
+        livetv_parental_unlocked = true;
+        livetv_rebuild_view();
+        livetv_guide_reset_to_now();
+    }
+    rb->button_clear_queue();
+    livetv_guide_draw();
+}
 
 static int livetv_options_run(void)
 {
@@ -2045,6 +2247,10 @@ int livetv_guide_run(void)
     int result = LIVETV_GUIDE_EXIT;
     long next_tick = *rb->current_tick + HZ;
     bool done = false;
+#ifdef LIVETV_BTN_UNLOCK
+    bool menu_pending = false;
+    bool unlock_pending = false;
+#endif
 
     if (!livetv_ready)
         return LIVETV_GUIDE_EXIT;
@@ -2117,6 +2323,12 @@ int livetv_guide_run(void)
 
         case LIVETV_BTN_SELECT:
         {
+            if (unlock_pending)
+            {
+                unlock_pending = false;
+                livetv_parental_finish_unlock();
+                break;
+            }
             int chan = livetv_guide_selected_channel();
 
             /* Selecting a programme that is not on yet snaps the guide to
@@ -2136,10 +2348,35 @@ int livetv_guide_run(void)
             break;
         }
 
+#ifdef LIVETV_BTN_UNLOCK
+        case LIVETV_BTN_EXIT:
+            menu_pending = true;
+            break;
+
+        case LIVETV_BTN_UNLOCK:
+            unlock_pending = true;
+            break;
+
+        case LIVETV_BTN_UNLOCK_REL:
+            if (!unlock_pending)
+                break;
+            unlock_pending = false;
+            livetv_parental_finish_unlock();
+            break;
+
+        case LIVETV_BTN_EXIT_REL:
+            if (!menu_pending)
+                break;
+            menu_pending = false;
+            result = LIVETV_GUIDE_EXIT;
+            done = true;
+            break;
+#else
         case LIVETV_BTN_EXIT:
             result = LIVETV_GUIDE_EXIT;
             done = true;
             break;
+#endif
 
         default:
             break;
@@ -2182,6 +2419,8 @@ int livetv_guide_run(void)
 #define LIVETV_WX_BODY_H        (LCD_HEIGHT - LIVETV_WX_HDR_H - \
                                  LIVETV_WX_TICKER_H)
 #define LIVETV_WX_TICKER_Y      (LCD_HEIGHT - LIVETV_WX_TICKER_H)
+#define LIVETV_WX_AD_OVERLAY_H  LIVETV_WEATHER_COMMERCIAL_OVERLAY_H
+#define LIVETV_WX_AD_OVERLAY_Y  (LCD_HEIGHT - LIVETV_WX_AD_OVERLAY_H)
 #define LIVETV_WX_SCENE_Y       LIVETV_WX_BODY_Y
 #define LIVETV_WX_SCENE_H       70
 #define LIVETV_WX_CARD_Y        (LIVETV_WX_SCENE_Y + LIVETV_WX_SCENE_H)
@@ -2965,6 +3204,18 @@ bool livetv_weather_program_active(void)
     return slot != NULL && slot->kind == LIVETV_KIND_SHOW;
 }
 
+bool livetv_weather_commercial_active(void)
+{
+    const struct livetv_slot *slot;
+    int chan = livetv_current_channel();
+
+    if (!livetv_channel_is_weather(chan))
+        return false;
+
+    slot = livetv_slot_at(chan, 0, NULL);
+    return slot != NULL && slot->kind == LIVETV_KIND_AD;
+}
+
 uint32_t livetv_weather_program_seconds(void)
 {
     uint32_t elapsed = (uint32_t)(*rb->current_tick - wx_clock_epoch);
@@ -3062,6 +3313,109 @@ void livetv_weather_draw(void)
         break;
     }
     livetv_wx_ticker();
+}
+
+void livetv_weather_draw_commercial_overlay(void)
+{
+    const struct livetv_wx_hour *hour;
+    struct livetv_wx_day *today;
+    int text_h = livetv_font_height();
+    char primary[64];
+    char secondary[64];
+    char tertiary[64];
+    const int station_w = 58;
+    const int icon_w = 54;
+    const int copy_x = station_w + icon_w + 4;
+    const fb_data station_bg = LCD_RGBPACK(7, 66, 122);
+    const fb_data icon_bg = LCD_RGBPACK(8, 42, 77);
+    const fb_data copy_bg = LCD_RGBPACK(3, 22, 55);
+
+    if (!wx.loaded)
+        livetv_wx_load();
+    hour = wx_current_hour();
+    today = wx.day_count > 0 ? &wx.days[0] : NULL;
+
+    livetv_fill(0, LIVETV_WX_AD_OVERLAY_Y, LCD_WIDTH,
+                LIVETV_WX_AD_OVERLAY_H, copy_bg);
+    livetv_fill(0, LIVETV_WX_AD_OVERLAY_Y, LCD_WIDTH, 3,
+                LCD_RGBPACK(62, 188, 240));
+    livetv_fill(0, LIVETV_WX_AD_OVERLAY_Y + 3, station_w,
+                LIVETV_WX_AD_OVERLAY_H - 3, station_bg);
+    livetv_fill(station_w, LIVETV_WX_AD_OVERLAY_Y + 3, icon_w,
+                LIVETV_WX_AD_OVERLAY_H - 3, icon_bg);
+
+    livetv_text_at(6, LIVETV_WX_AD_OVERLAY_Y + 11,
+                   LCD_WHITE, station_bg, "WX 102");
+    livetv_text_at(6, LIVETV_WX_AD_OVERLAY_Y + 13 + text_h,
+                   LCD_RGBPACK(105, 214, 255), station_bg,
+                   "LOCAL");
+    livetv_text_at(6, LIVETV_WX_AD_OVERLAY_Y + 15 + text_h * 2,
+                   LCD_RGBPACK(219, 235, 245), station_bg,
+                   "LIVE");
+
+    /* Use the same dimensional bitmap pack as the forecast panels. This is
+     * synced forecast artwork, not a hand-drawn approximation. */
+    wx_icon(station_w + icon_w / 2, LIVETV_WX_AD_OVERLAY_Y + 34, 40,
+            wx_current_code(), !wx_current_is_day());
+
+    rb->snprintf(
+        primary, sizeof(primary), "%s  %s%s",
+        wx.location[0] ? wx.location : "Weather",
+        hour && hour->temp[0] ? hour->temp : "--",
+        wx_unit_suffix());
+    livetv_text_fit(copy_x, LIVETV_WX_AD_OVERLAY_Y + 6,
+                    LCD_WIDTH - copy_x - 4, LCD_WHITE, copy_bg, primary);
+
+    rb->snprintf(
+        secondary, sizeof(secondary), "%s  Rain %s%%",
+        hour && hour->text[0] ? hour->text : "Current conditions",
+        hour && hour->precip[0] ? hour->precip : "--");
+    livetv_text_fit(copy_x, LIVETV_WX_AD_OVERLAY_Y + 8 + text_h,
+                    LCD_WIDTH - copy_x - 4, LCD_RGBPACK(166, 218, 247),
+                    copy_bg, secondary);
+
+    rb->snprintf(
+        tertiary, sizeof(tertiary), "Wind %s %s  H/L %s/%s%s",
+        today && today->wind_dir[0] ? today->wind_dir : "--",
+        today && today->wind_speed[0] ? today->wind_speed : "--",
+        today && today->temp_max[0] ? today->temp_max : "--",
+        today && today->temp_min[0] ? today->temp_min : "--",
+        wx_unit_suffix());
+    livetv_text_fit(copy_x, LIVETV_WX_AD_OVERLAY_Y + 10 + text_h * 2,
+                    LCD_WIDTH - copy_x - 4, LCD_RGBPACK(219, 235, 245),
+                    copy_bg, tertiary);
+    livetv_update(0, LIVETV_WX_AD_OVERLAY_Y, LCD_WIDTH,
+                  LIVETV_WX_AD_OVERLAY_H);
+}
+
+void livetv_weather_commercial_text(char *primary, size_t primary_size,
+                                    char *secondary, size_t secondary_size,
+                                    char *tertiary, size_t tertiary_size)
+{
+    const struct livetv_wx_hour *hour;
+    const struct livetv_wx_day *today;
+
+    if (!wx.loaded)
+        livetv_wx_load();
+    hour = wx_current_hour();
+    today = wx.day_count > 0 ? &wx.days[0] : NULL;
+
+    rb->snprintf(
+        primary, primary_size, "%s  %s%s",
+        wx.location[0] ? wx.location : "Weather",
+        hour && hour->temp[0] ? hour->temp : "--",
+        wx_unit_suffix());
+    rb->snprintf(
+        secondary, secondary_size, "%s  Rain %s%%",
+        hour && hour->text[0] ? hour->text : "Current conditions",
+        hour && hour->precip[0] ? hour->precip : "--");
+    rb->snprintf(
+        tertiary, tertiary_size, "Wind %s %s  H/L %s/%s%s",
+        today && today->wind_dir[0] ? today->wind_dir : "--",
+        today && today->wind_speed[0] ? today->wind_speed : "--",
+        today && today->temp_max[0] ? today->temp_max : "--",
+        today && today->temp_min[0] ? today->temp_min : "--",
+        wx_unit_suffix());
 }
 
 #endif /* HAVE_LCD_COLOR */

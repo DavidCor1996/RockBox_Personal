@@ -30,6 +30,7 @@ _GENERIC_SHOW_LABELS = {"", "show", "shows", "series", "tv", "tv shows", "specia
 _TAB_ORDER = (
     ("show", "TV Shows"),
     ("movie", "Movies"),
+    ("concert", "Concerts"),
     ("music_video", "Music Videos"),
     ("home_video", "Home Videos"),
 )
@@ -110,6 +111,15 @@ def classify_video_track(track):
             "episode_label": title or "Untitled Music Video",
         }
 
+    if video_kind == "concert":
+        return {
+            "kind": "concert",
+            "group_key": f"concert:{(title or album).casefold()}",
+            "label": title or "Untitled Concert",
+            "sub_label": artist or album or "Concert",
+            "episode_label": title or "Untitled Concert",
+        }
+
     is_show = video_kind == "show"
     show_name = show_title
     # An explicit "movie" classification is the library's own answer. Only a
@@ -184,6 +194,7 @@ def build_video_browser_groups(tracks):
     grouped = {
         "show": {},
         "movie": [],
+        "concert": [],
         "music_video": [],
         "home_video": [],
     }
@@ -213,6 +224,7 @@ def build_video_browser_groups(tracks):
             )
         )
     grouped["movie"].sort(key=lambda item: str(item.get("title") or "").casefold())
+    grouped["concert"].sort(key=lambda item: str(item.get("title") or "").casefold())
     grouped["music_video"].sort(key=lambda item: str(item.get("title") or "").casefold())
     grouped["home_video"].sort(key=lambda item: str(item.get("title") or "").casefold())
     return grouped
@@ -229,8 +241,8 @@ class VideoGridView(QWidget):
         super().__init__(parent)
         self._thumbnail_service = thumbnail_service
         self._tracks = []
-        self._groups = {"show": {}, "movie": [], "music_video": [], "home_video": []}
-        self._entries_by_kind = {"show": [], "movie": [], "music_video": [], "home_video": []}
+        self._groups = {"show": {}, "movie": [], "concert": [], "music_video": [], "home_video": []}
+        self._entries_by_kind = {"show": [], "movie": [], "concert": [], "music_video": [], "home_video": []}
         self._current_track_id = None
         self._album_placeholder_path = ""
         self._album_frame_path = ""
@@ -333,6 +345,7 @@ class VideoGridView(QWidget):
     def _refresh_tabs(self):
         self._entries_by_kind["show"] = self._show_entries()
         self._entries_by_kind["movie"] = self._track_entries(self._groups["movie"])
+        self._entries_by_kind["concert"] = self._track_entries(self._groups["concert"])
         self._entries_by_kind["music_video"] = self._track_entries(
             self._groups["music_video"]
         )
@@ -346,6 +359,7 @@ class VideoGridView(QWidget):
         counts = {
             "show": len(self._groups["show"]),
             "movie": len(self._groups["movie"]),
+            "concert": len(self._groups["concert"]),
             "music_video": len(self._groups["music_video"]),
             "home_video": len(self._groups["home_video"]),
         }

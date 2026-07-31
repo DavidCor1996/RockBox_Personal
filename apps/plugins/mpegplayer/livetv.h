@@ -162,6 +162,7 @@ struct livetv_channel
     int  first_slot;
     int  slot_count;
     bool favourite;
+    bool parental_locked;
 };
 
 /* Model -------------------------------------------------------------- */
@@ -260,9 +261,10 @@ void livetv_desktop_draw_window(void);
 
 /* True when "chan" is the Weather channel. */
 bool livetv_channel_is_weather(int chan);
-/* True only while the current Weather slot is forecast programming. Ads
- * remain ordinary full-screen video even though they share the channel. */
+/* True only while the current Weather slot is forecast programming. */
 bool livetv_weather_program_active(void);
+/* True only while the current Weather slot is a commercial. */
+bool livetv_weather_commercial_active(void);
 /* Seconds into the current forecast carrier. Anchored to the schedule's
  * tune-in resume point, then advanced with the playback/UI monotonic clock. */
 uint32_t livetv_weather_program_seconds(void);
@@ -280,6 +282,16 @@ void livetv_weather_tick(uint32_t stream_seconds);
 /* Repaint whichever panel is currently selected, e.g. after the video
  * rectangle was reasserted by an overlay or the guide returning. */
 void livetv_weather_draw(void);
+/* Draw the compact current-conditions strip used over Weather commercials.
+ * The decoder is clipped above this band, so it is not repainted per frame. */
+#define LIVETV_WEATHER_COMMERCIAL_OVERLAY_H 64
+void livetv_weather_draw_commercial_overlay(void);
+/* Format the same three live-data rows for the hardware YUV overlay path.
+ * This avoids relying on framebuffer updates while the iPod LCD is in YUV
+ * mode, where a clipped video band otherwise appears solid black. */
+void livetv_weather_commercial_text(char *primary, size_t primary_size,
+                                    char *secondary, size_t secondary_size,
+                                    char *tertiary, size_t tertiary_size);
 
 /* Video output -------------------------------------------------------- */
 
@@ -287,6 +299,10 @@ extern bool mpegplayer_livetv_launch;
 extern bool mpegplayer_livetv_pig;
 extern bool mpegplayer_livetv_desktop;
 extern bool mpegplayer_livetv_guide_active;
+/* PIN entry owns the framebuffer visually, while the existing decoder and
+ * audio lifecycle continue untouched behind it. */
+extern bool mpegplayer_livetv_pin_active;
+extern bool mpegplayer_livetv_weather_active;
 /* True during native forecast-panel phases. The video output keeps decoding
  * on its normal full-screen rectangle but skips framebuffer blits until the
  * next presenter/video phase. Guide picture-in-guide remains visible. */

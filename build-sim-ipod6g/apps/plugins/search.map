@@ -462,10 +462,10 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000     0xfe18
+.debug_info     0x0000000000000000     0xfe24
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x8076 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/search.o
- .debug_info    0x0000000000008076     0x7da2 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+ .debug_info    0x0000000000000000     0x807c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/search.o
+ .debug_info    0x000000000000807c     0x7da8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
 
 .debug_abbrev   0x0000000000000000      0x913
  *(.debug_abbrev)
@@ -480,12 +480,12 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x4cce
+.debug_str      0x0000000000000000     0x4cda
  *(.debug_str)
- .debug_str     0x0000000000000000     0x4cce /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/search.o
-                                       0x5235 (size before relaxing)
- .debug_str     0x0000000000004cce        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
-                                       0x52b3 (size before relaxing)
+ .debug_str     0x0000000000000000     0x4cda /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/search.o
+                                       0x5241 (size before relaxing)
+ .debug_str     0x0000000000004cda        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+                                       0x52bf (size before relaxing)
 
 .debug_loc
  *(.debug_loc)

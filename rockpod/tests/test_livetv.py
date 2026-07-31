@@ -44,6 +44,8 @@ def test_live_tv_volume_uses_owned_green_crt_overlay():
     assert "static void livetv_volume_show(void)" in source
     assert "mpegplayer_yuv_overlay_draw" in source
     assert "vo_draw_yuv_overlay" in video_out
+    assert "bool weather_panel" in video_out
+    assert "BT.601 limited-range YUV for the Weather panel navy" in video_out
     assert "int group_x = (width - group_w) / 2;" in source
     assert '"VOLUME", 2, 32, 255, 80' in source
     assert "percent >= 100 ? LIVETV_VOLUME_SEGMENTS" in source
@@ -60,6 +62,63 @@ def test_live_tv_volume_uses_owned_green_crt_overlay():
         "if (!mpegplayer_livetv_desktop)\n"
         "            livetv_volume_show();"
     ) in source
+
+
+def test_youtube_live_channels_have_stable_names_icons_and_assignments(
+        tmp_path, monkeypatch):
+    monkeypatch.setenv("HOME", str(tmp_path))
+    class Config:
+        video_dir = str(tmp_path / "Videos")
+        video_dirs = [video_dir]
+        ffmpeg_binary = "ffmpeg"
+        youtube_movie_binary = "yt-dlp"
+
+        def get(self, key, default=None):
+            return getattr(self, key, default)
+
+    library = livetv.LiveTvLibrary(Config())
+    lineup = LiveTvLineup(library)
+    youtube = livetv.LiveTvYoutubeChannelSync(library, Config())
+    youtube._logo_path = lambda spec: f"/logos/{spec['callsign']}.png"
+    majority = [
+        LiveTvMedia(str(tmp_path / f"mr-{index}.mp4"), "show", "Episode",
+                    "The Majority Report", duration=3600)
+        for index in range(3)
+    ]
+    channel5 = [
+        LiveTvMedia(str(tmp_path / f"c5-{index}.mp4"), "show", "Episode",
+                    "Channel 5 with Andrew Callaghan", duration=1800)
+        for index in range(3)
+    ]
+
+    mr = youtube.ensure_channel(lineup, "majority-report", majority + channel5)
+    c5 = youtube.ensure_channel(lineup, "channel-5", majority + channel5)
+
+    assert (mr.number, mr.callsign, mr.name) == (99, "MR", "The Majority Report")
+    assert (c5.number, c5.callsign, c5.name) == (
+        98, "C5", "Channel 5")
+    assert mr.logo.endswith("MR.png")
+    assert c5.logo.endswith("C5.png")
+    assert mr.shows == [item.key for item in majority]
+    assert c5.shows == [item.key for item in channel5]
+    stale = youtube.stale_device_paths(
+        "majority-report", ["/old/one.mp4", "/old/two.mp4"],
+        ["/old/two.mp4"])
+    assert stale == ["shows/The_Majority_Report/one.mpg"]
+
+
+def test_weather_news_breaks_are_distinct_from_long_forecast_reports():
+    source = (REPO / "rockpod/services/livetv.py").read_text(encoding="utf-8")
+
+    assert "LIVETV_WEATHER_MIN_NATURAL_REPORT_SECONDS = 45" in source
+    assert "LIVETV_WEATHER_MIN_NEWS_BREAK_SECONDS = 24" in source
+    assert "LIVETV_WEATHER_MAX_REPORT_SECONDS = 112" in source
+    assert "LIVETV_WEATHER_MAX_NEWS_BREAK_SECONDS = 300" in source
+    assert 'os.path.join("interstitials", "news")' in source
+    assert 'label="NEWS BREAK"' in source
+    assert "news_cycles = (5, 10, 17, 21, 25)" in source
+    assert "variant_news_slots.sort(" in source
+    assert "afade=t=out" not in source
 
 
 def test_weather_snow_insert_selection_uses_nearest_hour(tmp_path):
@@ -158,6 +217,8 @@ def test_weather_sync_keeps_carissa_and_only_activates_matching_solo_women(
                 "file": "mild.mp4",
                 "presenter": "Solo Woman",
                 "solo_woman": True,
+                "weather_overlay": True,
+                "overlay_style": "sidebar",
                 "conditions": ["clear", "partly_cloudy", "cloudy"],
                 "months": [6, 7, 8],
                 "min_temp_c": 18,
@@ -197,6 +258,11 @@ def test_weather_sync_keeps_carissa_and_only_activates_matching_solo_women(
     assert selected == [str(carissa), str(conditional / "mild.mp4")]
     assert report["forecast"]["condition_group"] == "cloudy"
     assert report["forecast"]["temperature_c"] == 24
+    mild = next(row for row in report["decisions"]
+                if row["presenter"] == "Solo Woman")
+    assert mild["active"]
+    assert mild["weather_overlay"]
+    assert mild["overlay_style"] == "sidebar"
     male = next(row for row in report["decisions"]
                 if row["presenter"] == "Mixed Segment")
     assert not male["active"]
@@ -358,9 +424,16 @@ def test_weather_presenter_renderer_uses_clean_backplates(tmp_path):
     rendered = livetv.render_weather_presenters(
         Config(), str(tmp_path / "rendered"))
 
-    assert len(rendered) == 1
-    assert rendered[0].endswith("current-conditions-celsius.png")
-    with Image.open(rendered[0]) as image:
+    assert len(rendered) == 5
+    assert any(path.endswith("hourly-forecast.png") for path in rendered)
+    assert any(path.endswith("seven-day-forecast.png") for path in rendered)
+    assert any(path.endswith("precipitation-timeline.png")
+               for path in rendered)
+    assert any(path.endswith("wind-outlook.png") for path in rendered)
+    current = next(
+        path for path in rendered
+        if path.endswith("current-conditions-celsius.png"))
+    with Image.open(current) as image:
         assert image.size == (1448, 1086)
         assert image.getpixel((100, 150)) != (18, 52, 86)
 
@@ -370,6 +443,22 @@ def test_weather_presenter_renderer_uses_clean_backplates(tmp_path):
     with Image.open(transitions[0]) as image:
         assert image.size == (640, 480)
         assert image.getpixel((10, 10)) != image.getpixel((10, 450))
+
+    lower_third = livetv.render_weather_clip_lower_third(
+        Config(), str(tmp_path / "transitions"))
+    with Image.open(lower_third) as image:
+        assert image.size == (320, 64)
+        assert image.mode == "RGBA"
+        assert image.getpixel((0, 0))[:3] == (47, 190, 244)
+
+    sidebar = livetv.render_weather_clip_sidebar(
+        Config(), str(tmp_path / "transitions"))
+    with Image.open(sidebar) as image:
+        assert image.size == (320, 240)
+        assert image.mode == "RGBA"
+        assert image.getpixel((0, 0))[3] == 0
+        assert image.getpixel((216, 0))[:3] == (47, 190, 244)
+        assert image.getpixel((0, 176))[:3] == (47, 190, 244)
 
 
 def test_weather_icons_use_dimensional_broadcast_atlas():
@@ -445,13 +534,15 @@ def test_weather_channel_uses_only_condition_and_season_specific_ads(
     ]
     monkeypatch.setattr(livetv, "weather_current_code", lambda _config: "clear")
     assert livetv._weather_ad_keys(
-        Config(), ads, now=livetv.datetime(2026, 7, 15)) == [ads[0].key]
+        Config(), ads, now=livetv.datetime(2026, 7, 15)) == sorted(
+            [ads[0].key, ads[1].key])
     assert livetv._weather_ad_keys(
         Config(), ads, now=livetv.datetime(2026, 10, 15)) == [ads[1].key]
 
     monkeypatch.setattr(livetv, "weather_current_code", lambda _config: "snow")
     assert livetv._weather_ad_keys(
-        Config(), ads, now=livetv.datetime(2026, 7, 15)) == [ads[2].key]
+        Config(), ads, now=livetv.datetime(2026, 7, 15)) == sorted(
+            [ads[1].key, ads[2].key])
 
     normal = LiveTvChannel(
         number=100, callsign="TV", name="Television", category="Series")
@@ -468,28 +559,62 @@ def test_weather_channel_uses_only_condition_and_season_specific_ads(
 
 def test_weather_program_clock_exposes_video_and_preserves_ads():
     guide = GUIDE_C.read_text(encoding="utf-8")
+    header = GUIDE_H.read_text(encoding="utf-8")
     player = PLAYER_C.read_text(encoding="utf-8")
     host = Path(livetv.__file__).read_text(encoding="utf-8")
 
     assert "return true;" in guide
     assert "slot->kind == LIVETV_KIND_SHOW" in guide
-    assert livetv.LIVETV_WEATHER_FLOW_PROFILE == "broadcast-flow-v5"
+    assert livetv.LIVETV_WEATHER_FLOW_PROFILE == "broadcast-flow-v9"
+    assert livetv.LIVETV_WEATHER_CLOCK_SECONDS == 120
+    assert livetv.LIVETV_WEATHER_REPORT_START == 48
+    assert livetv.LIVETV_WEATHER_REPORT_SECONDS == 72
     assert '"VIEWER COMMENTS"' in host
-    assert "for cycle in range(57)" in host
+    assert "while cycle < 30" in host
+    assert "news_clock_seconds = max(" in host
+    assert "index * len(news_cycles)" in host
+    assert "news_cycles.index(cycle)" in host
+    assert "cycle += blocks" in host
     assert "regular_clocks[" in host
-    assert (
-        "[5:v]scale=320:240:force_original_aspect_ratio=increase,"
-        in host
-    )
+    assert "len(presenters) >= 2 and bool(forecast_outro)" in host
+    assert "cycle in report_cycles and regular_clocks" in host
+    assert "report_cycles = (2, 12, 22)" in host
+    assert "path = panel_clock" in host
+    assert '"fade", "wipeleft", "smoothleft", "slideup"' in host
+    assert '"local-radar-frame-" in os.path.basename(path)' in host
+    assert "radar_hold = 3.0" in host
+    assert "render_weather_data_panels" in host
+    assert "PRECIPITATION TIMELINE" in host
+    assert "WIND OUTLOOK" in host
+    assert "render_weather_clip_lower_third" in host
+    assert "render_weather_clip_sidebar" in host
+    assert "news_overlay_styles" in host
+    assert "weather_overlay_inserts" in host
+    assert '"overlay=0:176:shortest=1:format=auto"' in host
+    assert '"overlay=0:0:shortest=1:format=auto"' in host
+    assert '"pad=216:176:0:(176-ih)/2:color=0x031637,"' in host
     assert "crop=320:240,fps=20" in host
-    assert "trim=duration=16,setpts=PTS-STARTPTS[v5base]" in host
-    assert "apad=pad_dur=16,atrim=duration=16" in host
-    assert "atrim=duration=48[apre]" in host
-    assert "volume='if(lt(mod(t,64),2),mod(t,64)*0.5," in host
-    assert "if(lt(mod(t,64),48)," in host
-    assert "1-(mod(t,64)-46)*0.5,0)" in host
-    assert "[music][report]amix=inputs=2:" in host
+    assert '"shortest=1:format=auto,"' in host
+    assert '"-crf", "22", "-bf", "0", "-g", "12",' in host
+    assert "self._library.duration_for(clock_insert)" in host
+    assert "concat=n=4:v=1:a=0[vclock]" in host
+    assert 'f"trim=duration={clock_seconds},"' in host
+    assert "sidechaincompress=" in host
+    assert "apad=whole_dur=3600" in host
+    assert "atrim=start=0.35" in host
+    assert "[ducked][report]amix=inputs=2:" in host
     assert "alimiter=limit=0.95[aout]" in host
+    assert "livetv_weather_commercial_active()" in player
+    assert "livetv_weather_draw_commercial_overlay()" in player
+    assert "LIVETV_WEATHER_COMMERCIAL_OVERLAY_H 64" in header
+    assert "livetv_weather_commercial_text" in header
+    assert "mpegplayer_livetv_weather_commercial)" in player
+    assert (
+        "mpeg_yuv_rect(planes, width, height, 0, 0, width, height,"
+        in player)
+    assert "livetv_weather_commercial_text(" in player
+    assert "LCD_HEIGHT - LIVETV_WEATHER_COMMERCIAL_OVERLAY_H" in player
+    assert "wx_icon(station_w + icon_w / 2" in guide
     assert "ribbon_bg = LCD_RGBPACK(12, 68, 126)" in guide
     assert "full-height wipe" in guide
     assert "livetv_weather_program_active()" in player
@@ -704,9 +829,18 @@ def test_channels_tsv_layout_matches_what_the_device_parses(tmp_path):
             if line and not line.startswith("#")]
     assert len(rows) == 1
     fields = rows[0].split("\t")
-    assert len(fields) == 6
+    assert len(fields) == 7
     assert fields[0] == "100" and fields[1] == "TEST"
     assert fields[5] in {"0", "1"}
+    assert fields[6] == "0"
+
+    channels[0].parental_locked = True
+    write_channels_tsv(path, channels)
+    locked_fields = [
+        line for line in path.read_text(encoding="utf-8").splitlines()
+        if line and not line.startswith("#")
+    ][0].split("\t")
+    assert locked_fields[6] == "1"
 
 
 def test_device_slot_cap_is_the_same_on_both_sides():
@@ -1090,6 +1224,54 @@ def test_changing_the_encode_profile_invalidates_cached_clips(tmp_path):
     assert sync.prune_stale_cache() == 1
     assert not stale.exists()
     assert (current / "keep.mpg").is_file()
+
+
+def test_mpeg_conversion_reuses_cache_completed_by_competing_job(
+        tmp_path, monkeypatch):
+    source = tmp_path / "show.mkv"
+    source.write_bytes(b"source")
+    library = _StubLibraryForSync(tmp_path / "cache", [tmp_path])
+    library.ffmpeg_bin = lambda: "ffmpeg"
+    sync = livetv.LiveTvSync(library)
+    item = LiveTvMedia(
+        path=str(source), kind="show", title="Show", series="Weather")
+    target = Path(sync.cached_mpeg_path(item))
+    conversion_targets = []
+
+    def competing_conversion(command, **_kwargs):
+        conversion_targets.append(Path(command[-1]))
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(b"valid competing encode")
+        return livetv.subprocess.CompletedProcess(
+            command, returncode=1, stdout="", stderr="")
+
+    monkeypatch.setattr(livetv.subprocess, "run", competing_conversion)
+
+    assert sync.ensure_mpeg(item) == str(target)
+    assert target.read_bytes() == b"valid competing encode"
+    assert len(conversion_targets) == 1
+    assert conversion_targets[0] != Path(str(target) + ".tmp")
+    assert not conversion_targets[0].exists()
+
+
+def test_blank_mpeg_conversion_error_reports_exit_status(tmp_path, monkeypatch):
+    source = tmp_path / "show.mkv"
+    source.write_bytes(b"source")
+    library = _StubLibraryForSync(tmp_path / "cache", [tmp_path])
+    library.ffmpeg_bin = lambda: "ffmpeg"
+    sync = livetv.LiveTvSync(library)
+    item = LiveTvMedia(
+        path=str(source), kind="show", title="Show", series="Weather")
+
+    monkeypatch.setattr(
+        livetv.subprocess,
+        "run",
+        lambda command, **_kwargs: livetv.subprocess.CompletedProcess(
+            command, returncode=-9, stdout="", stderr=""),
+    )
+
+    with pytest.raises(RuntimeError, match="ffmpeg exited with status -9"):
+        sync.ensure_mpeg(item)
 
 
 def test_ad_break_bounds_are_configurable_and_default_to_two_or_three():

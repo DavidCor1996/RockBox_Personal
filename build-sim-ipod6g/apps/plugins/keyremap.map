@@ -570,14 +570,14 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x3686f
+.debug_info     0x0000000000000000    0x36893
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0xeb02 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/keyremap.o
- .debug_info    0x000000000000eb02     0x7da2 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
- .debug_info    0x00000000000168a4     0x8079 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(action_helper.o)
- .debug_info    0x000000000001e91d     0x7aea /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(button_helper.o)
- .debug_info    0x0000000000026407     0x8e1d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(printcell_helper.o)
- .debug_info    0x000000000002f224     0x764b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(kbd_helper.o)
+ .debug_info    0x0000000000000000     0xeb08 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/keyremap.o
+ .debug_info    0x000000000000eb08     0x7da8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+ .debug_info    0x00000000000168b0     0x807f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(action_helper.o)
+ .debug_info    0x000000000001e92f     0x7af0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(button_helper.o)
+ .debug_info    0x000000000002641f     0x8e23 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(printcell_helper.o)
+ .debug_info    0x000000000002f242     0x7651 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(kbd_helper.o)
 
 .debug_abbrev   0x0000000000000000     0x1c39
  *(.debug_abbrev)
@@ -600,20 +600,20 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0xbc3c
+.debug_str      0x0000000000000000     0xbc48
  *(.debug_str)
- .debug_str     0x0000000000000000     0xbc3c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/keyremap.o
-                                       0xbf51 (size before relaxing)
- .debug_str     0x000000000000bc3c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
-                                       0x52b3 (size before relaxing)
- .debug_str     0x000000000000bc3c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(action_helper.o)
-                                       0x6327 (size before relaxing)
- .debug_str     0x000000000000bc3c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(button_helper.o)
-                                       0x515c (size before relaxing)
- .debug_str     0x000000000000bc3c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(printcell_helper.o)
-                                       0x553b (size before relaxing)
- .debug_str     0x000000000000bc3c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(kbd_helper.o)
-                                       0x4983 (size before relaxing)
+ .debug_str     0x0000000000000000     0xbc48 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/keyremap.o
+                                       0xbf5d (size before relaxing)
+ .debug_str     0x000000000000bc48        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+                                       0x52bf (size before relaxing)
+ .debug_str     0x000000000000bc48        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(action_helper.o)
+                                       0x6333 (size before relaxing)
+ .debug_str     0x000000000000bc48        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(button_helper.o)
+                                       0x5168 (size before relaxing)
+ .debug_str     0x000000000000bc48        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(printcell_helper.o)
+                                       0x5547 (size before relaxing)
+ .debug_str     0x000000000000bc48        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(kbd_helper.o)
+                                       0x498f (size before relaxing)
 
 .debug_loc
  *(.debug_loc)

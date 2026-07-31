@@ -56,42 +56,46 @@ verify_package_target()
 }
 
 # Refuse an archive that could escape the mount point or replace a file with a
-# link or special file.
-verify_package_entries()
+# link or special file. Shared by the Rockpod package and the optional stock
+# Rockbox package, since a hostile or corrupt zip is exactly as dangerous
+# either way.
+verify_zip_entries()
 {
-    local names="${RP_WORK}/zip-names.txt"
-    local kinds="${RP_WORK}/zip-kinds.txt"
+    local zip="$1"
+    local label="$2"
+    local names="${RP_WORK}/zip-names-$(basename "${zip}").txt"
+    local kinds="${RP_WORK}/zip-kinds-$(basename "${zip}").txt"
 
-    if ! ${RP_BIN}/unzip -tqq "${RP_PAYLOAD}/rockbox.zip" >/dev/null 2>&1; then
+    if ! ${RP_BIN}/unzip -tqq "${zip}" >/dev/null 2>&1; then
         fail "RP-HASH-MISMATCH" \
-            "The bundled Rockbox package is damaged." \
+            "The bundled ${label} package is damaged." \
             "Download RockPod Setup again."
     fi
 
-    ${RP_BIN}/unzip -Z1 "${RP_PAYLOAD}/rockbox.zip" >"${names}" 2>/dev/null
+    ${RP_BIN}/unzip -Z1 "${zip}" >"${names}" 2>/dev/null
 
     if grep -q '^/' "${names}"; then
         fail "RP-PKG-UNSAFE-ZIP" \
-            "The bundled package contains an absolute path." \
+            "The bundled ${label} package contains an absolute path." \
             "Download RockPod Setup again."
     fi
     if grep -q '\(^\|/\)\.\.\(/\|$\)' "${names}"; then
         fail "RP-PKG-UNSAFE-ZIP" \
-            "The bundled package contains a parent-directory path." \
+            "The bundled ${label} package contains a parent-directory path." \
             "Download RockPod Setup again."
     fi
     if grep -q '\\\\' "${names}"; then
         fail "RP-PKG-UNSAFE-ZIP" \
-            "The bundled package contains a backslash path." \
+            "The bundled ${label} package contains a backslash path." \
             "Download RockPod Setup again."
     fi
 
     # Symlinks and special files never appear in a valid Rockbox package.
-    ${RP_BIN}/unzip -Z "${RP_PAYLOAD}/rockbox.zip" 2>/dev/null \
+    ${RP_BIN}/unzip -Z "${zip}" 2>/dev/null \
         | awk 'NR > 1 { print substr($1, 1, 1) }' >"${kinds}"
     if grep -q '^[lbcps]' "${kinds}"; then
         fail "RP-PKG-UNSAFE-ZIP" \
-            "The bundled package contains a link or special file." \
+            "The bundled ${label} package contains a link or special file." \
             "Download RockPod Setup again."
     fi
 
@@ -99,9 +103,14 @@ verify_package_entries()
     # the installed result depend on extraction order.
     if tr 'A-Z' 'a-z' <"${names}" | sort | uniq -d | grep -q .; then
         fail "RP-PKG-UNSAFE-ZIP" \
-            "The bundled package contains names that collide on a FAT32 volume." \
+            "The bundled ${label} package contains names that collide on a FAT32 volume." \
             "Download RockPod Setup again."
     fi
 
-    log "package entries validated: $(wc -l <"${names}" | tr -d ' ') entries"
+    log "${label} package entries validated: $(wc -l <"${names}" | tr -d ' ') entries"
+}
+
+verify_package_entries()
+{
+    verify_zip_entries "${RP_PAYLOAD}/rockbox.zip" "Rockpod"
 }

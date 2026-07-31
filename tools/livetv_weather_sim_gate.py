@@ -3,7 +3,7 @@
 
 The Weather channel is an ordinary Live TV channel (recognised by category,
 not a new slot kind - see docs/livetv-weather-channel-spec.md) whose shows
-are real MPEG files carrying a 64-second broadcast clock and continuous
+are real MPEG files carrying a 120-second broadcast clock and continuous
 music. This gate builds a minimal fixture and checks that:
 
 * tuning the channel does not crash or hang;
@@ -71,8 +71,8 @@ def build_channel(root: Path) -> None:
                                        encoding="utf-8")
 
 
-def build_guide(root: Path, clip_relative: str) -> None:
-    """24 hour-long blocks/day, no ads - just enough to tune and watch."""
+def build_guide(root: Path, clip_relative: str, kind: str = "S") -> None:
+    """24 hour-long Weather blocks/day - just enough to tune and watch."""
     lines = ["# chan\tday\tstart\tdur\tkind\ttitle\trating\tdesc\tpath"
              "\tblockstart\tblockdur"]
     now = datetime.datetime.now().astimezone()
@@ -86,11 +86,12 @@ def build_guide(root: Path, clip_relative: str) -> None:
                 # The simulator's MPEG parser scans this deliberately long
                 # fixture for roughly 19 seconds before osd_play(). Starting
                 # the live slot 45 seconds behind guide creation makes that
-                # delay wrap to the beginning of the 64-second clock.
+                # delay lands inside the opening forecast portion of the
+                # 120-second production clock.
                 start = max(hour * 3600, current_seconds - 46)
                 duration = min(3600, 86400 - start)
             lines.append(
-                f"{WEATHER_CHANNEL_NUMBER}\t{day}\t{start}\t{duration}\tS"
+                f"{WEATHER_CHANNEL_NUMBER}\t{day}\t{start}\t{duration}\t{kind}"
                 f"\tLocal Forecast\tTV-G\tContinuous local weather."
                 f"\t{clip_relative}\t{start}\t{duration}"
             )
@@ -98,7 +99,7 @@ def build_guide(root: Path, clip_relative: str) -> None:
 
 
 def build_bumper_clip(target: Path) -> None:
-    """Build the production 16/8/8/8/8/16 carrier rhythm.
+    """Build the production 16/8/8/8/8/72 carrier rhythm.
 
     Red and green stand in for the two presenter IDs and testsrc stands in
     for the longer report insert. Flat #094871 phases are where the player
@@ -111,13 +112,13 @@ def build_bumper_clip(target: Path) -> None:
         "-f", "lavfi", "-i", "color=c=0x094871:s=320x240:r=20:d=8",
         "-f", "lavfi", "-i", "color=c=green:s=320x240:r=20:d=8",
         "-f", "lavfi", "-i", "color=c=0x094871:s=320x240:r=20:d=8",
-        "-f", "lavfi", "-i", "color=c=yellow:s=320x240:r=20:d=16",
+        "-f", "lavfi", "-i", "color=c=yellow:s=320x240:r=20:d=72",
         "-filter_complex",
         "[0:v][1:v][2:v][3:v][4:v][5:v]"
-        "concat=n=6:v=1:a=0[v64];"
-        "[v64]loop=loop=7:size=1280:start=0,setpts=N/(20*TB)[v]",
+        "concat=n=6:v=1:a=0[v120];"
+        "[v120]loop=loop=4:size=2400:start=0,setpts=N/(20*TB)[v]",
         "-map", "[v]",
-        "-t", "512",
+        "-t", "600",
         "-c:v", "mpeg2video", "-pix_fmt", "yuv420p",
         "-bf", "0", "-g", "12", "-flags", "+low_delay", "-q:v", "2",
         "-an",
@@ -319,6 +320,10 @@ def main() -> int:
                         default=Path("build-sim-ipod6g"))
     parser.add_argument("--output", type=Path,
                         default=Path("/tmp/livetv-weather-gate"))
+    parser.add_argument(
+        "--commercial-overlay", action="store_true",
+        help="Schedule the fixture as a Weather commercial and verify its "
+             "bottom current-conditions strip.")
     args = parser.parse_args()
 
     repo = Path(__file__).resolve().parent.parent
@@ -358,7 +363,9 @@ def main() -> int:
         # Timestamp the live schedule only after the relatively expensive
         # fixture encode, immediately before launch, so its two-second
         # tune-in offset remains deterministic.
-        build_guide(root / LIVETV_ROOT, "shows/weather.mpg")
+        build_guide(
+            root / LIVETV_ROOT, "shows/weather.mpg",
+            "A" if args.commercial_overlay else "S")
         process = subprocess.Popen(
             [str(simulator), "--zoom", "1", "--nobackground",
              "--root", str(root)],
@@ -375,12 +382,56 @@ def main() -> int:
             tap(process.pid, "KP_5")
             time.sleep(2.5)
 
-            wait_for_presenter_video(frame)
-            presenter = args.output / "weather-presenter.png"
-            shutil.copy2(frame, presenter)
-            center = pixel(presenter, 160, 120)
-            if center is None:
-                failures.append("presenter carrier frame was not captured")
+            if args.commercial_overlay:
+                time.sleep(1.0)
+                commercial = args.output / "weather-commercial-overlay.png"
+                shutil.copy2(frame, commercial)
+                video = pixel(commercial, 160, 120)
+                strip = pixel(commercial, 200, 220)
+                border = pixel(commercial, 160, 177)
+                icon = pixel(commercial, 85, 208)
+                fixture_video = (
+                    close_enough(video, (255, 0, 0), 24) or
+                    close_enough(video, (0, 128, 0), 24) or
+                    close_enough(video, (255, 255, 0), 24) or
+                    close_enough(video, (9, 72, 113), 24)
+                )
+                if not fixture_video:
+                    failures.append(
+                        f"Weather commercial video was not visible ({video})")
+                if not close_enough(strip, (3, 22, 55), 20):
+                    failures.append(
+                        "Weather commercial conditions strip was missing "
+                        f"({strip})")
+                if not close_enough(border, (62, 188, 240), 24):
+                    failures.append(
+                        "Weather commercial strip border was missing "
+                        f"({border})")
+                if close_enough(icon, (8, 42, 77), 12):
+                    failures.append(
+                        "Weather commercial condition artwork was missing "
+                        f"({icon})")
+            else:
+                wait_for_presenter_video(frame)
+                presenter = args.output / "weather-presenter.png"
+                shutil.copy2(frame, presenter)
+                center = pixel(presenter, 160, 120)
+                if center is None:
+                    failures.append(
+                        "presenter carrier frame was not captured")
+
+                tap(process.pid, "KP_2")
+                time.sleep(0.3)
+                volume = args.output / "weather-volume-overlay.png"
+                shutil.copy2(frame, volume)
+                # Outside the centred meter, the strip must use a stable
+                # Weather navy base. A decoded presenter pixel here is a
+                # stale-screen leak.
+                volume_base = pixel(volume, 8, 210)
+                if not close_enough(volume_base, (3, 22, 55), 20):
+                    failures.append(
+                        "Weather volume overlay leaked its previous screen "
+                        f"({volume_base})")
 
         finally:
             process.terminate()

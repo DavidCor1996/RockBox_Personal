@@ -326,6 +326,7 @@ class LiveTvPanel(QWidget):
     remove_channel_requested = Signal(int)      # channel number
     logo_requested = Signal(int)                # channel number
     favourite_toggled = Signal(int)             # channel number
+    parental_lock_toggled = Signal(int)          # channel number
     open_sources_requested = Signal()
 
     TABS = (
@@ -404,6 +405,7 @@ class LiveTvPanel(QWidget):
         self._remove_btn = QPushButton("Remove Channel")
         self._logo_btn = QPushButton("Set Channel Logo")
         self._favourite_btn = QPushButton("Toggle Favorite")
+        self._parental_lock_btn = QPushButton("Toggle Parental Lock")
         self._assign_combo = QComboBox()
         self._assign_btn = QPushButton("Assign Selected")
         self._unassign_btn = QPushButton("Unassign")
@@ -428,7 +430,8 @@ class LiveTvPanel(QWidget):
             "Move the selected shows or commercials onto the chosen channel.")
         for widget in (self._refresh_btn, self._autobuild_btn, self._add_btn,
                        self._edit_btn, self._remove_btn, self._logo_btn,
-                       self._favourite_btn, self._assign_combo,
+                       self._favourite_btn, self._parental_lock_btn,
+                       self._assign_combo,
                        self._assign_btn, self._unassign_btn,
                        self._delete_media_btn,
                        self._rename_btn, self._edit_media_btn):
@@ -445,6 +448,7 @@ class LiveTvPanel(QWidget):
         self._remove_btn.clicked.connect(self._emit_remove)
         self._logo_btn.clicked.connect(self._emit_logo)
         self._favourite_btn.clicked.connect(self._emit_favourite)
+        self._parental_lock_btn.clicked.connect(self._emit_parental_lock)
         self._assign_btn.clicked.connect(self._emit_assign)
         self._unassign_btn.clicked.connect(self._emit_unassign)
         self._delete_media_btn.clicked.connect(self._emit_delete_media)
@@ -456,7 +460,7 @@ class LiveTvPanel(QWidget):
 
         self._channel_tree = self._make_tree(
             ["Ch", "Call Sign", "Channel", "Category", "Shows", "Ads",
-             "Favorite", "Logo"])
+             "Favorite", "Parental Lock", "Logo"])
         self._show_tree = self._make_tree(
             ["Show (guide title)", "Series", "Length", "Channel", "File"])
         self._ads_tree = self._make_tree(
@@ -515,7 +519,8 @@ class LiveTvPanel(QWidget):
         on_channels = key == "channels"
         on_media = key in {"shows", "ads"}
         for widget in (self._add_btn, self._edit_btn, self._remove_btn,
-                       self._logo_btn, self._favourite_btn):
+                       self._logo_btn, self._favourite_btn,
+                       self._parental_lock_btn):
             widget.setVisible(on_channels)
         for widget in (self._assign_combo, self._assign_btn,
                        self._unassign_btn, self._rename_btn,
@@ -544,6 +549,7 @@ class LiveTvPanel(QWidget):
                 str((ad_counts or {}).get(channel.number,
                                           len(channel.ads)) or "All"),
                 "Yes" if channel.favourite else "No",
+                "Locked" if channel.parental_locked else "No",
                 channel.logo or "Call sign",
             ])
             item.setData(0, Qt.UserRole, channel.number)
@@ -693,6 +699,11 @@ class LiveTvPanel(QWidget):
         number = self._selected_channel_number()
         if number:
             self.favourite_toggled.emit(int(number))
+
+    def _emit_parental_lock(self):
+        number = self._selected_channel_number()
+        if number is not None:
+            self.parental_lock_toggled.emit(int(number))
 
     def _emit_edit(self):
         number = self._selected_channel_number()

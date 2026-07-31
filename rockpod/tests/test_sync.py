@@ -485,6 +485,23 @@ class TestBuildDevicePath:
             "Videos", "Music Videos", "Live Performance.m4v"
         )
 
+    def test_concert_rows_use_concerts_folder(self):
+        row = {
+            "title": "Live at Red Rocks",
+            "artist": "The Band",
+            "file_path": "/videos/live.m4v",
+            "media_type": "video",
+            "video_kind": "concert",
+        }
+        result = build_device_path(
+            row,
+            "Music/{album_artist}/{album}",
+            "{track_number:02d} - {title}{ext}",
+        )
+        assert result == os.path.join(
+            "Videos", "Concerts", "Live at Red Rocks.m4v"
+        )
+
     def test_downloaded_music_video_type_overrides_source_folder(self):
         row = {
             "title": "Tree - Karma Police",

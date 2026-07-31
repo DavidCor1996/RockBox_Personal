@@ -11,7 +11,9 @@ import secrets
 import shutil
 import signal
 import time
+import xml.etree.ElementTree as ET
 from datetime import datetime
+from pathlib import Path
 
 from PySide6.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QSplitter,
@@ -57,6 +59,16 @@ from services.youtube_movies import (
     parse_movie_import_progress,
     persist_movie_import_poster,
 )
+from services.comics_store import (
+    ArchiveOrgComicsClient,
+    ComicsStoreError,
+    parse_comic_download_progress,
+)
+from services.magazine_store import (
+    ArchiveOrgMagazineClient,
+    MagazineStoreError,
+    parse_magazine_download_progress,
+)
 from services.offlineweb_sync import (
     OfflineWebSyncImporter,
     OfflineWebSyncError,
@@ -96,6 +108,15 @@ from services.maker_lite_export import (
     sync_projects as sync_maker_lite_projects,
 )
 from services.rockbox_photos import RockboxPhotoService
+from services.rockbox_maps import RockboxMapsService, RockboxWorldAtlasService
+from services.rockbox_magazines import (
+    MagazineSyncError,
+    RockboxMagazineService,
+)
+from services.rockbox_comics import (
+    ComicSyncError,
+    RockboxComicService,
+)
 from services.ipone_wallpapers import IPoneWallpaperService
 from services.rockbox_profiles import RockboxProfileStore
 from services.rockbox_plugins import RockboxPluginService
@@ -139,10 +160,14 @@ from ui.maker_lite_creator import MakerLiteCreator
 from ui.xbox_avatar_editor import XboxAvatarEditorWidget
 from ui.sitekick_panel import SitekickPanel
 from ui.photo_manager import PhotoManagerWidget
+from ui.magazine_sync import MagazineSyncWidget
+from ui.comic_sync import ComicSyncWidget
 from ui.ipone_wallpaper_manager import IPoneWallpaperManagerWidget
 from ui.linux_manager import LinuxInstallProgressDialog, LinuxManagerWidget
 from ui.android_manager import AndroidManagerWidget
 from ui.web_browser import BrowserPanel, MovieStorePanel, MusicSharingPanel
+from ui.comics_store_panel import ComicsStorePanel
+from ui.magazine_store_panel import MagazineStorePanel
 from ui.boot_manager import BootManagerWidget
 from ui.theme_hub import ThemeHubWidget
 from ui.theme_designer import ThemeDesignerWidget
@@ -211,6 +236,12 @@ class MainWindow(QMainWindow):
         self._device_inventory = DeviceInventoryVerifier(self._config, self)
         self._theme_assets = ThemeAssetManager(self._config)
         self._repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+        self._comics_store_client = ArchiveOrgComicsClient(
+            self._config, self._repo_root
+        )
+        self._magazine_store_client = ArchiveOrgMagazineClient(
+            self._config, self._repo_root
+        )
         self._desktop_mode_service = DesktopModeService(self._repo_root)
         self.destroyed.connect(lambda: self._desktop_mode_service.shutdown())
         self._rockbox_profiles = RockboxProfileStore(self._config, self._repo_root)
@@ -221,6 +252,14 @@ class MainWindow(QMainWindow):
         self._rockbox_boot = RockboxBootService()
         self._rockbox_games = RockboxGameService()
         self._rockbox_photos = RockboxPhotoService()
+        self._rockbox_maps = RockboxMapsService()
+        self._rockbox_world_atlas = RockboxWorldAtlasService()
+        self._rockbox_magazines = RockboxMagazineService(
+            self._config, self._repo_root
+        )
+        self._rockbox_comics = RockboxComicService(
+            self._config, self._repo_root
+        )
         self._ipone_wallpapers_service = IPoneWallpaperService()
         self._rockbox_plugins = RockboxPluginService()
         self._rockbox_simulator = RockboxSimulatorService()
@@ -267,6 +306,14 @@ class MainWindow(QMainWindow):
         self._current_game_target_mode = "device"
         self._current_photo_diff = None
         self._current_photo_target_mode = "device"
+        self._magazine_prepare_process = None
+        self._magazine_prepare_queue = []
+        self._magazine_prepare_output = []
+        self._magazine_prepare_profile = "standard"
+        self._comic_prepare_process = None
+        self._comic_prepare_queue = []
+        self._comic_prepare_output = []
+        self._comic_prepare_profile = "standard"
         self._current_simulator_diff = None
         self._simulator_targets = []
         self._rockbox_db_update_started_at = None
@@ -313,6 +360,24 @@ class MainWindow(QMainWindow):
         self._movie_browse_output = []
         self._movie_browse_query = ""
         self._movie_browse_loaded = False
+        self._comic_browse_process = None
+        self._comic_browse_output_path = ""
+        self._comic_browse_output = []
+        self._comic_browse_query = ""
+        self._comic_browse_loaded = False
+        self._comic_download_process = None
+        self._comic_download_output = []
+        self._comic_download_log_path = ""
+        self._comic_download_identifier = ""
+        self._magazine_browse_process = None
+        self._magazine_browse_output_path = ""
+        self._magazine_browse_output = []
+        self._magazine_browse_query = ""
+        self._magazine_browse_loaded = False
+        self._magazine_download_process = None
+        self._magazine_download_output = []
+        self._magazine_download_log_path = ""
+        self._magazine_download_identifier = ""
         self._website_sync_process = None
         self._website_sync_output_path = ""
         self._website_sync_log_path = ""
@@ -431,11 +496,15 @@ class MainWindow(QMainWindow):
         )
         self._livetv_panel = LiveTvPanel()
         self._photo_manager = PhotoManagerWidget()
+        self._magazine_sync = MagazineSyncWidget()
+        self._comic_sync = ComicSyncWidget()
         self._linux_manager = LinuxManagerWidget()
         self._android_manager = AndroidManagerWidget()
         self._browser_panel = BrowserPanel()
         self._music_sharing_panel = MusicSharingPanel()
         self._movie_store_panel = MovieStorePanel()
+        self._comics_store_panel = ComicsStorePanel()
+        self._magazine_store_panel = MagazineStorePanel()
         self._game_browser_panel = BrowserPanel(
             music_store=False,
             title="iPod Games",
@@ -448,6 +517,8 @@ class MainWindow(QMainWindow):
         self._store_page.addTab(self._browser_panel, "Music")
         self._store_page.addTab(self._music_sharing_panel, "Sharing")
         self._store_page.addTab(self._movie_store_panel, "Movies")
+        self._store_page.addTab(self._comics_store_panel, "Comics")
+        self._store_page.addTab(self._magazine_store_panel, "Magazines")
         self._livetv_store_panel = LiveTvStorePanel()
         self._store_page.addTab(self._livetv_store_panel, "Live TV")
         self._calm_store_panel = CalmStorePanel(self._calm_service)
@@ -486,6 +557,8 @@ class MainWindow(QMainWindow):
         self._content_stack.addWidget(self._livetv_panel)
         self._content_stack.addWidget(self._store_page)
         self._content_stack.addWidget(self._photo_manager)
+        self._content_stack.addWidget(self._magazine_sync)
+        self._content_stack.addWidget(self._comic_sync)
         self._content_stack.addWidget(self._linux_manager)
         self._content_stack.addWidget(self._android_manager)
         self._content_stack.addWidget(self._simulator_panel)
@@ -547,6 +620,14 @@ class MainWindow(QMainWindow):
         device_menu = menubar.addMenu("Device")
         device_menu.addAction("Sync to iPod", self._start_sync, "Ctrl+S")
         device_menu.addAction("Sync Weather", self._sync_weather_only)
+        device_menu.addAction("Sync Maps Current Location...", self._sync_maps_current_location)
+        device_menu.addAction("Sync Maps Photo Tags...", self._sync_maps_photo_tags)
+        device_menu.addAction("Sync Maps Route (GPX)...", self._sync_maps_route)
+        device_menu.addAction("Sync Maps World Satellite Atlas...", self._sync_maps_world_atlas)
+        device_menu.addAction(
+            "Sync Majority Report", self._sync_majority_report)
+        device_menu.addAction(
+            "Sync Channel 5 with Andrew Callaghan", self._sync_channel_5)
         device_menu.addAction(
             "Sync TV Information", self._sync_tv_information)
         device_menu.addAction("Import Android Photos/Videos...", self._import_android_media)
@@ -664,6 +745,8 @@ class MainWindow(QMainWindow):
         self._livetv_panel.logo_requested.connect(self._livetv_choose_logo)
         self._livetv_panel.favourite_toggled.connect(
             self._livetv_toggle_favourite)
+        self._livetv_panel.parental_lock_toggled.connect(
+            self._livetv_toggle_parental_lock)
         self._livetv_store_panel.browse_requested.connect(
             self._start_livetv_store_browse)
         self._livetv_store_panel.import_requested.connect(
@@ -727,6 +810,65 @@ class MainWindow(QMainWindow):
         self._photo_manager.sync_requested.connect(self._sync_selected_photos)
         self._photo_manager.hide_requested.connect(self._hide_selected_photos)
         self._photo_manager.remove_requested.connect(self._remove_selected_photos)
+        self._magazine_sync.upload_requested.connect(self._upload_magazine_pdfs)
+        self._magazine_sync.prepare_requested.connect(
+            self._prepare_selected_magazines
+        )
+        self._magazine_sync.sync_requested.connect(
+            self._sync_selected_magazines
+        )
+        self._magazine_sync.remove_requested.connect(
+            self._remove_selected_magazines
+        )
+        self._magazine_sync.refresh_requested.connect(
+            self._refresh_magazine_sync
+        )
+        self._magazine_sync.selection_changed.connect(
+            self._on_magazine_selection_changed
+        )
+        self._magazine_sync.category_assign_requested.connect(
+            self._assign_magazine_category
+        )
+        self._magazine_sync.category_rename_requested.connect(
+            self._rename_magazine_category
+        )
+        self._magazine_sync.category_delete_requested.connect(
+            self._delete_magazine_category
+        )
+        self._magazine_sync.lock_requested.connect(
+            self._set_selected_magazines_locked
+        )
+        self._comic_sync.upload_requested.connect(self._upload_comic_archives)
+        self._comic_sync.prepare_requested.connect(
+            self._prepare_selected_comics
+        )
+        self._comic_sync.sync_requested.connect(
+            self._sync_selected_comics
+        )
+        self._comic_sync.remove_requested.connect(
+            self._remove_selected_comics
+        )
+        self._comic_sync.refresh_requested.connect(
+            self._refresh_comic_sync
+        )
+        self._comic_sync.selection_changed.connect(
+            self._on_comic_selection_changed
+        )
+        self._comic_sync.category_assign_requested.connect(
+            self._assign_comic_category
+        )
+        self._comic_sync.category_rename_requested.connect(
+            self._rename_comic_category
+        )
+        self._comic_sync.category_delete_requested.connect(
+            self._delete_comic_category
+        )
+        self._comic_sync.lock_requested.connect(
+            self._set_selected_comics_locked
+        )
+        self._comic_sync.reading_direction_requested.connect(
+            self._set_selected_comics_reading_direction
+        )
         self._browser_panel.open_external_requested.connect(self._open_browser_external)
         self._browser_panel.store_import_requested.connect(self._start_store_import)
         self._browser_panel.store_result_import_requested.connect(self._start_store_result_import)
@@ -740,6 +882,10 @@ class MainWindow(QMainWindow):
         self._music_sharing_panel.share_buy_requested.connect(self._start_music_share_import)
         self._movie_store_panel.movie_import_requested.connect(self._start_movie_import)
         self._movie_store_panel.movie_browse_requested.connect(self._start_movie_browse)
+        self._comics_store_panel.comic_search_requested.connect(self._start_comic_search)
+        self._comics_store_panel.comic_download_requested.connect(self._start_comic_download)
+        self._magazine_store_panel.magazine_search_requested.connect(self._start_magazine_search)
+        self._magazine_store_panel.magazine_download_requested.connect(self._start_magazine_download)
         self._game_browser_panel.open_external_requested.connect(self._open_browser_external)
         self._website_sync_panel.add_requested.connect(self._start_website_sync)
         self._website_sync_panel.resync_requested.connect(self._start_website_sync)
@@ -1336,6 +1482,8 @@ class MainWindow(QMainWindow):
             "rockbox_movies": "Store",
             "rockbox_sharing": "Store",
             "rockbox_photos": "Photos",
+            "rockbox_magazines": "Magazine Sync",
+            "rockbox_comics": "Comic / Manga Sync",
             "rockbox_linux": "Linux",
             "rockbox_android": "Android on iPod",
             "rockbox_browser": "Store",
@@ -1640,6 +1788,12 @@ class MainWindow(QMainWindow):
         elif self._current_view == "rockbox_photos":
             self._content_stack.setCurrentWidget(self._photo_manager)
             self._refresh_photo_manager()
+        elif self._current_view == "rockbox_magazines":
+            self._content_stack.setCurrentWidget(self._magazine_sync)
+            self._refresh_magazine_sync()
+        elif self._current_view == "rockbox_comics":
+            self._content_stack.setCurrentWidget(self._comic_sync)
+            self._refresh_comic_sync()
         elif self._current_view == "rockbox_linux":
             self._content_stack.setCurrentWidget(self._linux_manager)
             self._refresh_linux_manager()
@@ -1677,6 +1831,14 @@ class MainWindow(QMainWindow):
             self._current_view = "rockbox_movies"
             self._refresh_movie_store_panel()
             self._status_bar.set_left_text("Store: Movies")
+        elif current is self._comics_store_panel:
+            self._current_view = "rockbox_comics_store"
+            self._refresh_comics_store_panel()
+            self._status_bar.set_left_text("Store: Comics")
+        elif current is self._magazine_store_panel:
+            self._current_view = "rockbox_magazine_store"
+            self._refresh_magazine_store_panel()
+            self._status_bar.set_left_text("Store: Magazines")
         elif current is self._livetv_store_panel:
             self._current_view = "rockbox_livetv_store"
             self._status_bar.set_left_text("Store: Live TV")
@@ -2425,7 +2587,7 @@ class MainWindow(QMainWindow):
                 "video_scope": "show",
             }
 
-        if video_kind not in {"movie", "home_video", "music_video"}:
+        if video_kind not in {"movie", "concert", "home_video", "music_video"}:
             return {}
 
         title = str(first.get("title") or first.get("album") or "Untitled Video").strip()
@@ -3020,7 +3182,7 @@ class MainWindow(QMainWindow):
                     "video_scope": "show",
                 }
             )
-        for kind in ("movie", "music_video", "home_video"):
+        for kind in ("movie", "concert", "music_video", "home_video"):
             for track in grouped[kind]:
                 track = normalize_track_for_ui(track)
                 targets.append(
@@ -4203,6 +4365,92 @@ class MainWindow(QMainWindow):
         dialog.sync_cancelled.connect(lambda: self._sync_engine.cancel_sync())
         dialog.exec()
 
+    def _maps_profile_or_warn(self):
+        profile = self._rockbox_profiles.current_profile()
+        if not profile or not os.path.isdir(str(profile.get("device_mount_path") or "")):
+            QMessageBox.warning(self, "No Device", "Connect the iPod before syncing offline Maps data.")
+            return None
+        return profile
+
+    def _sync_maps_current_location(self):
+        profile = self._maps_profile_or_warn()
+        if not profile:
+            return
+        name, ok = QInputDialog.getText(self, "Sync Maps Location", "Location name:", text=str(profile.get("weather_location_name") or "Current Location"))
+        if not ok:
+            return
+        latitude, ok = QInputDialog.getDouble(self, "Sync Maps Location", "Latitude:", float(profile.get("weather_latitude") or 0), -90, 90, 6)
+        if not ok:
+            return
+        longitude, ok = QInputDialog.getDouble(self, "Sync Maps Location", "Longitude:", float(profile.get("weather_longitude") or 0), -180, 180, 6)
+        if not ok:
+            return
+        try:
+            result = self._rockbox_maps.write_bundle(profile, name, latitude, longitude)
+        except (OSError, ValueError) as exc:
+            QMessageBox.warning(self, "Maps Sync Failed", str(exc))
+            return
+        self._status_bar.set_left_text(f"Synced Maps location and {result['photos']} geotagged photo(s)")
+
+    def _sync_maps_photo_tags(self):
+        profile = self._maps_profile_or_warn()
+        if not profile:
+            return
+        try:
+            result = self._rockbox_maps.write_bundle(
+                profile,
+                profile.get("weather_location_name") or "Current Location",
+                profile.get("weather_latitude") or 0,
+                profile.get("weather_longitude") or 0,
+            )
+        except (OSError, ValueError) as exc:
+            QMessageBox.warning(self, "Maps Photo Tag Sync Failed", str(exc))
+            return
+        self._status_bar.set_left_text(
+            f"Synced {result['photos']} unlocked geotagged photo tag(s)"
+        )
+
+    def _sync_maps_route(self):
+        profile = self._maps_profile_or_warn()
+        if not profile:
+            return
+        path, _filter = QFileDialog.getOpenFileName(self, "Choose GPX Route", "", "GPS Exchange Format (*.gpx)")
+        if not path:
+            return
+        try:
+            points = self._rockbox_maps.parse_gpx(path)
+            result = self._rockbox_maps.write_bundle(
+                profile,
+                profile.get("weather_location_name") or "Current Location",
+                profile.get("weather_latitude") or 0,
+                profile.get("weather_longitude") or 0,
+                os.path.splitext(os.path.basename(path))[0], points)
+        except (OSError, ValueError, ET.ParseError) as exc:
+            QMessageBox.warning(self, "Maps Route Sync Failed", str(exc))
+            return
+        self._status_bar.set_left_text(f"Synced {result['route_points']} GPS route point(s) to Maps")
+
+    def _sync_maps_world_atlas(self):
+        profile = self._maps_profile_or_warn()
+        if not profile:
+            return
+        source = QFileDialog.getExistingDirectory(
+            self, "Choose World Satellite Tile Atlas (z/x/y)")
+        if not source:
+            return
+        zoom, ok = QInputDialog.getInt(
+            self, "World Satellite Atlas", "Maximum zoom to install:", 8, 0, 16)
+        if not ok:
+            return
+        try:
+            result = self._rockbox_world_atlas.sync_atlas(profile, source, zoom)
+        except (OSError, ValueError) as exc:
+            QMessageBox.warning(self, "World Atlas Sync Failed", str(exc))
+            return
+        self._status_bar.set_left_text(
+            f"Synced {result['tiles']} world satellite tile(s) through zoom {zoom}"
+        )
+
     def _sync_tv_information(self):
         if getattr(self, "_tv_information_sync_job", None) is not None:
             return
@@ -4228,6 +4476,72 @@ class MainWindow(QMainWindow):
         job.signals.finished.connect(self._on_tv_information_sync_finished)
         QThreadPool.globalInstance().start(job)
         self._status_bar.set_left_text("Refreshing TV information")
+
+    def _sync_majority_report(self):
+        self._sync_livetv_youtube_channel("majority-report")
+
+    def _sync_channel_5(self):
+        self._sync_livetv_youtube_channel("channel-5")
+
+    def _sync_livetv_youtube_channel(self, channel_key):
+        if getattr(self, "_livetv_youtube_sync_job", None) is not None:
+            return
+        device = self._device_detector.current_device
+        mount_path = (
+            str(getattr(device, "mount_path", "") or "") if device else "")
+        if not mount_path:
+            QMessageBox.warning(
+                self, "No Device", "No Rockbox device is connected.")
+            return
+
+        spec = livetv.LIVETV_YOUTUBE_CHANNELS.get(channel_key, {})
+        name = spec.get("name", "YouTube channel")
+        progress = QProgressDialog(
+            f"Fetching recent full episodes of {name}...", None, 0, 0, self)
+        progress.setWindowTitle(f"Sync {name}")
+        progress.setWindowModality(Qt.WindowModal)
+        progress.setMinimumDuration(0)
+        progress.show()
+
+        job = livetv.LiveTvYoutubeChannelSyncJob(
+            self._config, mount_path, channel_key)
+        self._livetv_youtube_sync_job = job
+        self._livetv_youtube_sync_progress = progress
+        job.signals.progress.connect(self._on_livetv_youtube_sync_progress)
+        job.signals.finished.connect(self._on_livetv_youtube_sync_finished)
+        QThreadPool.globalInstance().start(job)
+        self._status_bar.set_left_text(f"Syncing {name}")
+
+    def _on_livetv_youtube_sync_progress(self, _done, _total, label):
+        progress = getattr(self, "_livetv_youtube_sync_progress", None)
+        if progress is not None:
+            progress.setLabelText(str(label or "Syncing Live TV..."))
+
+    def _on_livetv_youtube_sync_finished(self, result):
+        self._livetv_youtube_sync_job = None
+        progress = getattr(self, "_livetv_youtube_sync_progress", None)
+        self._livetv_youtube_sync_progress = None
+        if progress is not None:
+            progress.close()
+
+        if not result.get("success"):
+            message = str(result.get("message", "Unknown error"))
+            self._status_bar.set_left_text("Live TV YouTube sync failed")
+            QMessageBox.warning(self, "Live TV YouTube Sync Failed", message)
+            return
+
+        self._livetv_shows = result.get("shows") or []
+        self._livetv_ads = result.get("ads") or []
+        message = (
+            f"Synced {result.get('youtube_channel', 'channel')}: "
+            f"{result.get('copied', 0)} files updated, "
+            f"{result.get('skipped', 0)} already current.")
+        warnings = result.get("warnings") or []
+        if warnings:
+            message += f" {warnings[0]}"
+        self._status_bar.set_left_text(message)
+        if getattr(self, "_current_view", "") == "rockbox_livetv":
+            self._render_livetv_panel()
 
     def _on_tv_information_sync_progress(self, _done, _total, label):
         progress = getattr(self, "_tv_information_sync_progress", None)
@@ -5607,6 +5921,366 @@ class MainWindow(QMainWindow):
             running=False,
         )
         self._status_bar.set_left_text("Movie import failed")
+
+    def _refresh_comics_store_panel(self):
+        if self._comic_browse_loaded:
+            return
+        self._comic_browse_loaded = True
+        self._start_comic_search("public domain")
+
+    def _start_comic_search(self, query):
+        if self._comic_browse_process is not None:
+            return
+        try:
+            request = self._comics_store_client.prepare_search(query, limit=24)
+        except ComicsStoreError as exc:
+            self._comics_store_panel.set_comic_search_status(str(exc), running=False)
+            return
+
+        process = self._create_child_process(
+            request,
+            self._comics_store_client.browse_dir,
+            self._on_comic_search_output,
+            self._on_comic_search_finished,
+            self._on_comic_search_error,
+        )
+        self._comic_browse_process = process
+        self._comic_browse_output_path = request.output_path
+        self._comic_browse_output = []
+        self._comic_browse_query = str(query or "").strip()
+        self._comics_store_panel.set_comic_search_status(
+            f"Searching the Internet Archive for {self._comic_browse_query}…",
+            running=True,
+        )
+        self._status_bar.set_left_text("Searching public-domain comics")
+        process.start(request.command[0], request.command[1:])
+
+    def _on_comic_search_output(self):
+        process = self._comic_browse_process
+        if process is None:
+            return
+        text = compact_process_text(read_process_text(process))
+        if text:
+            self._comic_browse_output.append(text)
+
+    def _on_comic_search_finished(self, exit_code, exit_status):
+        process = self._comic_browse_process
+        self._comic_browse_process = None
+        if process is not None:
+            text = compact_process_text(read_process_text(process))
+            if text:
+                self._comic_browse_output.append(text)
+
+        output_path = self._comic_browse_output_path
+        self._comic_browse_output_path = ""
+        query = self._comic_browse_query
+        self._comic_browse_query = ""
+        if exit_code != 0:
+            detail = " ".join(self._comic_browse_output).strip()
+            self._comic_browse_output = []
+            self._comics_store_panel.set_comic_search_status(
+                f"Comic search failed with exit code {exit_code}: {detail[-500:]}",
+                running=False,
+            )
+            self._status_bar.set_left_text("Comic search failed")
+            return
+
+        try:
+            with open(output_path, "r") as handle:
+                results = json.load(handle)
+        except (OSError, json.JSONDecodeError) as exc:
+            self._comic_browse_output = []
+            self._comics_store_panel.set_comic_search_status(
+                f"Comic search result could not be read: {exc}", running=False
+            )
+            self._status_bar.set_left_text("Comic search failed")
+            return
+
+        self._comic_browse_output = []
+        count = len(results)
+        header = f"Results for {query}" if query else "Public Domain Comics"
+        self._comics_store_panel.set_comic_results(results, header)
+        label = f"Found {count} public-domain comic{'s' if count != 1 else ''}."
+        self._comics_store_panel.set_comic_search_status(label, running=False)
+        self._status_bar.set_left_text(label)
+
+    def _on_comic_search_error(self, error):
+        self._comic_browse_process = None
+        self._comic_browse_output_path = ""
+        self._comic_browse_output = []
+        self._comic_browse_query = ""
+        self._comics_store_panel.set_comic_search_status(
+            f"Comic search could not start: {error}", running=False
+        )
+        self._status_bar.set_left_text("Comic search failed")
+
+    def _start_comic_download(self, identifier):
+        if self._comic_download_process is not None:
+            return
+        try:
+            request = self._comics_store_client.prepare_download(identifier)
+        except ComicsStoreError as exc:
+            self._comics_store_panel.finish_comic_download(success=False)
+            QMessageBox.warning(self, "Comic Download", str(exc))
+            return
+
+        process = self._create_child_process(
+            request,
+            request.output_dir,
+            self._on_comic_download_output,
+            self._on_comic_download_finished,
+            self._on_comic_download_error,
+        )
+        self._comic_download_process = process
+        self._comic_download_output = []
+        self._comic_download_log_path = request.log_path
+        self._comic_download_identifier = str(identifier or "")
+        self._comics_store_panel.begin_comic_download(identifier)
+        self._status_bar.set_left_text("Downloading comic from Internet Archive")
+        process.start(request.command[0], request.command[1:])
+
+    def _on_comic_download_output(self):
+        process = self._comic_download_process
+        if process is None:
+            return
+        raw = read_process_text(process)
+        lines = process_output_lines(raw)
+        if lines:
+            self._comic_download_output.extend(lines)
+            progress = parse_comic_download_progress(lines)
+            self._comics_store_panel.update_comic_download(
+                progress["phase"], progress["progress"]
+            )
+
+    def _on_comic_download_finished(self, exit_code, exit_status):
+        process = self._comic_download_process
+        self._comic_download_process = None
+        if process is not None:
+            raw = read_process_text(process)
+            self._comic_download_output.extend(process_output_lines(raw))
+
+        output_path = ""
+        for line in self._comic_download_output:
+            if line.startswith("ROCKPOD_COMIC_OUTPUT="):
+                output_path = line.split("=", 1)[1].strip()
+        self._comic_download_output = []
+        self._comic_download_log_path = ""
+        identifier = self._comic_download_identifier
+        self._comic_download_identifier = ""
+
+        if exit_code != 0 or not output_path:
+            self._comics_store_panel.finish_comic_download(success=False)
+            self._status_bar.set_left_text(
+                f"Comic download failed with exit code {exit_code}"
+            )
+            return
+
+        try:
+            issue_id = self._rockbox_comics.import_archive(output_path)
+        except (ComicSyncError, OSError) as exc:
+            self._comics_store_panel.finish_comic_download(success=False)
+            QMessageBox.warning(self, "Comic Download", str(exc))
+            self._status_bar.set_left_text("Comic import failed")
+            return
+        finally:
+            try:
+                os.remove(output_path)
+            except OSError:
+                pass
+
+        self._comics_store_panel.finish_comic_download(issue_id, success=True)
+        self._status_bar.set_left_text(
+            f"Downloaded {identifier} into the Comic library as {issue_id}."
+        )
+        self._refresh_comic_sync([issue_id])
+
+    def _on_comic_download_error(self, error):
+        self._comic_download_process = None
+        self._comic_download_output = []
+        self._comic_download_log_path = ""
+        self._comic_download_identifier = ""
+        self._comics_store_panel.finish_comic_download(success=False)
+        self._status_bar.set_left_text(f"Comic download could not start: {error}")
+
+    def _refresh_magazine_store_panel(self):
+        if self._magazine_browse_loaded:
+            return
+        self._magazine_browse_loaded = True
+        self._start_magazine_search("public domain")
+
+    def _start_magazine_search(self, query):
+        if self._magazine_browse_process is not None:
+            return
+        try:
+            request = self._magazine_store_client.prepare_search(query, limit=24)
+        except MagazineStoreError as exc:
+            self._magazine_store_panel.set_magazine_search_status(str(exc), running=False)
+            return
+
+        process = self._create_child_process(
+            request,
+            self._magazine_store_client.browse_dir,
+            self._on_magazine_search_output,
+            self._on_magazine_search_finished,
+            self._on_magazine_search_error,
+        )
+        self._magazine_browse_process = process
+        self._magazine_browse_output_path = request.output_path
+        self._magazine_browse_output = []
+        self._magazine_browse_query = str(query or "").strip()
+        self._magazine_store_panel.set_magazine_search_status(
+            f"Searching the Internet Archive for {self._magazine_browse_query}…",
+            running=True,
+        )
+        self._status_bar.set_left_text("Searching public-domain magazines")
+        process.start(request.command[0], request.command[1:])
+
+    def _on_magazine_search_output(self):
+        process = self._magazine_browse_process
+        if process is None:
+            return
+        text = compact_process_text(read_process_text(process))
+        if text:
+            self._magazine_browse_output.append(text)
+
+    def _on_magazine_search_finished(self, exit_code, exit_status):
+        process = self._magazine_browse_process
+        self._magazine_browse_process = None
+        if process is not None:
+            text = compact_process_text(read_process_text(process))
+            if text:
+                self._magazine_browse_output.append(text)
+
+        output_path = self._magazine_browse_output_path
+        self._magazine_browse_output_path = ""
+        query = self._magazine_browse_query
+        self._magazine_browse_query = ""
+        if exit_code != 0:
+            detail = " ".join(self._magazine_browse_output).strip()
+            self._magazine_browse_output = []
+            self._magazine_store_panel.set_magazine_search_status(
+                f"Magazine search failed with exit code {exit_code}: {detail[-500:]}",
+                running=False,
+            )
+            self._status_bar.set_left_text("Magazine search failed")
+            return
+
+        try:
+            with open(output_path, "r") as handle:
+                results = json.load(handle)
+        except (OSError, json.JSONDecodeError) as exc:
+            self._magazine_browse_output = []
+            self._magazine_store_panel.set_magazine_search_status(
+                f"Magazine search result could not be read: {exc}", running=False
+            )
+            self._status_bar.set_left_text("Magazine search failed")
+            return
+
+        self._magazine_browse_output = []
+        count = len(results)
+        header = f"Results for {query}" if query else "Public Domain Magazines"
+        self._magazine_store_panel.set_magazine_results(results, header)
+        label = f"Found {count} public-domain magazine{'s' if count != 1 else ''}."
+        self._magazine_store_panel.set_magazine_search_status(label, running=False)
+        self._status_bar.set_left_text(label)
+
+    def _on_magazine_search_error(self, error):
+        self._magazine_browse_process = None
+        self._magazine_browse_output_path = ""
+        self._magazine_browse_output = []
+        self._magazine_browse_query = ""
+        self._magazine_store_panel.set_magazine_search_status(
+            f"Magazine search could not start: {error}", running=False
+        )
+        self._status_bar.set_left_text("Magazine search failed")
+
+    def _start_magazine_download(self, identifier):
+        if self._magazine_download_process is not None:
+            return
+        try:
+            request = self._magazine_store_client.prepare_download(identifier)
+        except MagazineStoreError as exc:
+            self._magazine_store_panel.finish_magazine_download(success=False)
+            QMessageBox.warning(self, "Magazine Download", str(exc))
+            return
+
+        process = self._create_child_process(
+            request,
+            request.output_dir,
+            self._on_magazine_download_output,
+            self._on_magazine_download_finished,
+            self._on_magazine_download_error,
+        )
+        self._magazine_download_process = process
+        self._magazine_download_output = []
+        self._magazine_download_log_path = request.log_path
+        self._magazine_download_identifier = str(identifier or "")
+        self._magazine_store_panel.begin_magazine_download(identifier)
+        self._status_bar.set_left_text("Downloading magazine from Internet Archive")
+        process.start(request.command[0], request.command[1:])
+
+    def _on_magazine_download_output(self):
+        process = self._magazine_download_process
+        if process is None:
+            return
+        raw = read_process_text(process)
+        lines = process_output_lines(raw)
+        if lines:
+            self._magazine_download_output.extend(lines)
+            progress = parse_magazine_download_progress(lines)
+            self._magazine_store_panel.update_magazine_download(
+                progress["phase"], progress["progress"]
+            )
+
+    def _on_magazine_download_finished(self, exit_code, exit_status):
+        process = self._magazine_download_process
+        self._magazine_download_process = None
+        if process is not None:
+            raw = read_process_text(process)
+            self._magazine_download_output.extend(process_output_lines(raw))
+
+        output_path = ""
+        for line in self._magazine_download_output:
+            if line.startswith("ROCKPOD_MAGAZINE_OUTPUT="):
+                output_path = line.split("=", 1)[1].strip()
+        self._magazine_download_output = []
+        self._magazine_download_log_path = ""
+        identifier = self._magazine_download_identifier
+        self._magazine_download_identifier = ""
+
+        if exit_code != 0 or not output_path:
+            self._magazine_store_panel.finish_magazine_download(success=False)
+            self._status_bar.set_left_text(
+                f"Magazine download failed with exit code {exit_code}"
+            )
+            return
+
+        try:
+            issue_id = self._rockbox_magazines.import_pdf(output_path)
+        except (MagazineSyncError, OSError) as exc:
+            self._magazine_store_panel.finish_magazine_download(success=False)
+            QMessageBox.warning(self, "Magazine Download", str(exc))
+            self._status_bar.set_left_text("Magazine import failed")
+            return
+        finally:
+            try:
+                os.remove(output_path)
+            except OSError:
+                pass
+
+        self._magazine_store_panel.finish_magazine_download(issue_id, success=True)
+        self._status_bar.set_left_text(
+            f"Downloaded {identifier} into the Magazine library as {issue_id}."
+        )
+        self._refresh_magazine_sync([issue_id])
+
+    def _on_magazine_download_error(self, error):
+        self._magazine_download_process = None
+        self._magazine_download_output = []
+        self._magazine_download_log_path = ""
+        self._magazine_download_identifier = ""
+        self._magazine_store_panel.finish_magazine_download(success=False)
+        self._status_bar.set_left_text(f"Magazine download could not start: {error}")
 
     def _enqueue_youtube_movie_metadata_lookup(self, output_path, import_result=None):
         file_path = str(output_path or "").strip()
@@ -8380,6 +9054,29 @@ class MainWindow(QMainWindow):
         self._render_livetv_panel()
         self._livetv_panel.select_channel(channel_number)
 
+    def _livetv_toggle_parental_lock(self, channel_number):
+        lineup = self._livetv_lineup()
+        channel = lineup.channel_by_number(channel_number)
+        if channel is None:
+            return
+        if (not channel.parental_locked and
+                not any(other is not channel and not other.parental_locked
+                        for other in lineup.channels)):
+            QMessageBox.warning(
+                self, "Parental Lock",
+                "Keep at least one Live TV channel unlocked so the guide "
+                "has a safe channel to show before the password is entered.")
+            return
+        channel.parental_locked = not channel.parental_locked
+        lineup.save()
+        self._render_livetv_panel()
+        self._livetv_panel.select_channel(channel_number)
+        self._livetv_panel.set_status(
+            f"{channel.number} {channel.callsign} is "
+            f"{'parental locked' if channel.parental_locked else 'unlocked'}. "
+            "Locked channels stay out of the iPod guide until SELECT is held "
+            "and the Settings password is entered.")
+
     def _livetv_choose_logo(self, channel_number):
         lineup = self._livetv_lineup()
         channel = lineup.channel_by_number(channel_number)
@@ -8616,6 +9313,670 @@ class MainWindow(QMainWindow):
         self._livetv_import_output = []
         self._livetv_store_panel.set_status(
             f"Download could not start: {error}", running=False)
+
+    # ═══════════════════════════════════════════════════════════════
+    # Rockbox magazines
+    # ═══════════════════════════════════════════════════════════════
+
+    def _magazine_target_context(self):
+        profile = self._rockbox_profiles.current_profile()
+        if not profile:
+            return None, "device", None
+        if profile.get("device_mount_path"):
+            return profile, "device", None
+        if not self._simulator_targets:
+            self._simulator_targets = self._rockbox_simulator.discover_targets(
+                self._repo_root
+            )
+        simulator = self._simulator_target_by_id(
+            profile.get("simulator_target")
+        )
+        if simulator or profile.get("simulator_simdisk_path"):
+            return profile, "simulator", simulator
+        return profile, "device", None
+
+    def _refresh_magazine_sync(self, selected_ids=None, message=None):
+        profile, target_mode, simulator = self._magazine_target_context()
+        if selected_ids is None:
+            selected_ids = [
+                issue["id"]
+                for issue in self._magazine_sync.selected_issues()
+            ]
+        issues = self._rockbox_magazines.list_issues(
+            profile, target_mode, simulator
+        )
+        target = (
+            self._rockbox_magazines.target_root(
+                profile, target_mode, simulator
+            )
+            if profile
+            else ""
+        )
+        self._magazine_sync.set_issues(issues, selected_ids)
+        self._magazine_sync.set_categories(
+            self._rockbox_magazines.categories()
+        )
+        if message is None:
+            ready = sum(issue["prepared"] for issue in issues)
+            synced = sum(issue["on_target"] for issue in issues)
+            message = (
+                f"{len(issues)} imported · {ready} ready · {synced} on target"
+            )
+        busy = bool(
+            self._magazine_prepare_process
+            and self._magazine_prepare_process.state()
+            != QProcess.NotRunning
+        )
+        self._magazine_sync.set_state(
+            self._rockbox_magazines.library_root,
+            target,
+            message,
+            busy=busy,
+        )
+
+    def _on_magazine_selection_changed(self):
+        selected = self._magazine_sync.selected_issues()
+        if not selected:
+            return
+        ready = sum(issue["prepared"] for issue in selected)
+        self._magazine_sync.set_message(
+            f"{len(selected)} selected · {ready} ready to sync"
+        )
+
+    def _upload_magazine_pdfs(self):
+        paths, _selected_filter = QFileDialog.getOpenFileNames(
+            self,
+            "Upload Magazine PDFs",
+            str(Path.home()),
+            "PDF magazines (*.pdf)",
+        )
+        if not paths:
+            return
+        imported = []
+        skipped = []
+        failures = []
+        for path in paths:
+            try:
+                existing_ids = {
+                    issue["id"]
+                    for issue in self._rockbox_magazines.list_issues()
+                }
+                issue_id = self._rockbox_magazines.import_pdf(path)
+                if issue_id in existing_ids:
+                    skipped.append(issue_id)
+                else:
+                    imported.append(issue_id)
+            except (MagazineSyncError, OSError) as exc:
+                failures.append(f"{os.path.basename(path)}: {exc}")
+        if failures:
+            QMessageBox.warning(
+                self, "Magazine Upload", "\n".join(failures)
+            )
+        if imported:
+            self._refresh_magazine_sync(
+                imported,
+                f"Uploaded {len(imported)} PDF(s)"
+                + (
+                    f" · skipped {len(skipped)} already present"
+                    if skipped else ""
+                )
+                + ". Select Prepare to convert.",
+            )
+        elif skipped:
+            self._refresh_magazine_sync(
+                skipped,
+                f"Skipped {len(skipped)} PDF(s) already in the library.",
+            )
+
+    def _assign_magazine_category(self, category):
+        selected = self._magazine_sync.selected_issues()
+        if not selected:
+            return
+        try:
+            self._rockbox_magazines.set_issue_category(
+                [issue["id"] for issue in selected], category
+            )
+        except (MagazineSyncError, OSError) as exc:
+            QMessageBox.warning(self, "Magazine Categories", str(exc))
+            return
+        self._refresh_magazine_sync(
+            [issue["id"] for issue in selected],
+            f"Assigned {len(selected)} magazine(s) to {category}.",
+        )
+
+    def _rename_magazine_category(self, old_name, new_name):
+        try:
+            self._rockbox_magazines.rename_category(old_name, new_name)
+        except (MagazineSyncError, OSError) as exc:
+            QMessageBox.warning(self, "Magazine Categories", str(exc))
+            return
+        self._refresh_magazine_sync(
+            message=f"Renamed category to {' '.join(new_name.split())}."
+        )
+
+    def _delete_magazine_category(self, category):
+        if (
+            QMessageBox.question(
+                self,
+                "Delete Magazine Category",
+                f"Delete “{category}”? Its magazines will move to "
+                "Uncategorized.",
+            )
+            != QMessageBox.Yes
+        ):
+            return
+        try:
+            self._rockbox_magazines.delete_category(category)
+        except (MagazineSyncError, OSError) as exc:
+            QMessageBox.warning(self, "Magazine Categories", str(exc))
+            return
+        self._refresh_magazine_sync(message=f"Deleted category {category}.")
+
+    def _set_selected_magazines_locked(self, locked):
+        selected = self._magazine_sync.selected_issues()
+        if not selected:
+            return
+        if locked and not self._ensure_video_locked_pin():
+            return
+        try:
+            self._rockbox_magazines.set_issues_locked(
+                [issue["id"] for issue in selected], locked
+            )
+        except (MagazineSyncError, OSError) as exc:
+            QMessageBox.warning(self, "Magazine Lock", str(exc))
+            return
+        state = "Locked" if locked else "Unlocked"
+        self._refresh_magazine_sync(
+            [issue["id"] for issue in selected],
+            f"{state} {len(selected)} magazine(s).",
+        )
+
+    def _prepare_selected_magazines(self):
+        if self._magazine_prepare_process is not None:
+            self._status_bar.set_left_text(
+                "Magazine preparation is already running"
+            )
+            return
+        issue_ids = [
+            issue["id"]
+            for issue in self._magazine_sync.selected_issues()
+            if issue.get("pdf_path")
+        ]
+        if not issue_ids:
+            self._status_bar.set_left_text("No imported PDF selected")
+            return
+        self._magazine_prepare_profile = (
+            self._magazine_sync.preparation_profile()
+        )
+        self._magazine_prepare_queue = issue_ids
+        self._start_next_magazine_prepare()
+
+    def _start_next_magazine_prepare(self):
+        if not self._magazine_prepare_queue:
+            self._refresh_magazine_sync(
+                message="Magazine preparation complete."
+            )
+            self._status_bar.set_left_text("Magazine preparation complete")
+            return
+        issue_id = self._magazine_prepare_queue.pop(0)
+        try:
+            command = self._rockbox_magazines.preparation_command(
+                issue_id, self._magazine_prepare_profile
+            )
+        except MagazineSyncError as exc:
+            self._magazine_prepare_queue = []
+            QMessageBox.warning(self, "Magazine Preparation", str(exc))
+            self._refresh_magazine_sync(message=str(exc))
+            return
+        process = QProcess(self)
+        process.setProcessChannelMode(QProcess.MergedChannels)
+        process.setWorkingDirectory(self._repo_root)
+        self._magazine_prepare_process = process
+        self._magazine_prepare_output = []
+
+        def read_output():
+            text = bytes(process.readAllStandardOutput()).decode(
+                "utf-8", "replace"
+            )
+            if text:
+                self._magazine_prepare_output.append(text)
+                latest = text.strip().splitlines()
+                if latest:
+                    self._magazine_sync.set_message(latest[-1])
+
+        def finished(exit_code, exit_status):
+            read_output()
+            self._magazine_prepare_process = None
+            process.deleteLater()
+            if (
+                exit_status != QProcess.NormalExit
+                or int(exit_code) != 0
+            ):
+                self._magazine_prepare_queue = []
+                detail = "".join(self._magazine_prepare_output).strip()
+                message = detail.splitlines()[-1] if detail else (
+                    f"Preparation failed with exit code {exit_code}."
+                )
+                QMessageBox.warning(
+                    self, "Magazine Preparation Failed", message
+                )
+                self._refresh_magazine_sync(message=message)
+                return
+            self._refresh_magazine_sync(
+                [issue_id], f"Prepared {issue_id}."
+            )
+            self._start_next_magazine_prepare()
+
+        process.readyReadStandardOutput.connect(read_output)
+        process.finished.connect(finished)
+        process.start(command[0], command[1:])
+        if not process.waitForStarted(3000):
+            error = process.errorString() or "Could not start converter."
+            self._magazine_prepare_process = None
+            self._magazine_prepare_queue = []
+            process.deleteLater()
+            QMessageBox.warning(self, "Magazine Preparation", error)
+            self._refresh_magazine_sync(message=error)
+            return
+        self._refresh_magazine_sync(
+            [issue_id], f"Preparing {issue_id}…"
+        )
+
+    def _sync_selected_magazines(self):
+        issues = [
+            issue
+            for issue in self._magazine_sync.selected_issues()
+            if issue.get("prepared")
+        ]
+        profile, target_mode, simulator = self._magazine_target_context()
+        if not profile or not issues:
+            self._status_bar.set_left_text(
+                "No prepared magazines selected"
+            )
+            return
+        try:
+            if any(issue.get("locked") for issue in issues):
+                if not self._ensure_video_locked_pin():
+                    return
+            locked_pin = str(
+                self._device_config_value("video_locked_pin", "") or ""
+            )
+            copied = self._rockbox_magazines.sync_issues(
+                profile, issues, target_mode, simulator,
+                locked_pin=locked_pin,
+            )
+        except (MagazineSyncError, OSError) as exc:
+            QMessageBox.warning(self, "Magazine Sync Failed", str(exc))
+            self._refresh_magazine_sync(message=f"Sync failed: {exc}")
+            return
+        self._refresh_magazine_sync(
+            [issue["id"] for issue in issues],
+            f"Synced {copied} magazine(s).",
+        )
+        self._status_bar.set_left_text(
+            f"Magazine sync complete: {copied} issue(s)"
+        )
+
+    def _remove_selected_magazines(self):
+        issues = [
+            issue
+            for issue in self._magazine_sync.selected_issues()
+            if issue.get("on_target")
+        ]
+        profile, target_mode, simulator = self._magazine_target_context()
+        if not profile or not issues:
+            return
+        if (
+            QMessageBox.question(
+                self,
+                "Remove Magazines",
+                f"Remove {len(issues)} selected magazine(s) from the target?",
+            )
+            != QMessageBox.Yes
+        ):
+            return
+        try:
+            removed = self._rockbox_magazines.remove_issues(
+                profile, issues, target_mode, simulator
+            )
+        except OSError as exc:
+            QMessageBox.warning(self, "Remove Magazines", str(exc))
+            return
+        self._refresh_magazine_sync(
+            message=f"Removed {removed} magazine(s) from the target."
+        )
+
+    # ═══════════════════════════════════════════════════════════════
+    # Rockbox comics
+    # ═══════════════════════════════════════════════════════════════
+
+    def _refresh_comic_sync(self, selected_ids=None, message=None):
+        profile, target_mode, simulator = self._magazine_target_context()
+        if selected_ids is None:
+            selected_ids = [
+                issue["id"]
+                for issue in self._comic_sync.selected_issues()
+            ]
+        issues = self._rockbox_comics.list_issues(
+            profile, target_mode, simulator
+        )
+        target = (
+            self._rockbox_comics.target_root(
+                profile, target_mode, simulator
+            )
+            if profile
+            else ""
+        )
+        self._comic_sync.set_issues(issues, selected_ids)
+        self._comic_sync.set_categories(
+            self._rockbox_comics.categories()
+        )
+        if message is None:
+            ready = sum(issue["prepared"] for issue in issues)
+            synced = sum(issue["on_target"] for issue in issues)
+            message = (
+                f"{len(issues)} imported · {ready} ready · {synced} on target"
+            )
+        busy = bool(
+            self._comic_prepare_process
+            and self._comic_prepare_process.state()
+            != QProcess.NotRunning
+        )
+        self._comic_sync.set_state(
+            self._rockbox_comics.library_root,
+            target,
+            message,
+            busy=busy,
+        )
+
+    def _on_comic_selection_changed(self):
+        selected = self._comic_sync.selected_issues()
+        if not selected:
+            return
+        ready = sum(issue["prepared"] for issue in selected)
+        self._comic_sync.set_message(
+            f"{len(selected)} selected · {ready} ready to sync"
+        )
+
+    def _upload_comic_archives(self):
+        paths, _selected_filter = QFileDialog.getOpenFileNames(
+            self,
+            "Upload Comic/Manga Archives",
+            str(Path.home()),
+            "Comic archives (*.cbz *.cbr *.zip *.rar)",
+        )
+        if not paths:
+            return
+        imported = []
+        skipped = []
+        failures = []
+        for path in paths:
+            try:
+                existing_ids = {
+                    issue["id"]
+                    for issue in self._rockbox_comics.list_issues()
+                }
+                issue_id = self._rockbox_comics.import_archive(path)
+                if issue_id in existing_ids:
+                    skipped.append(issue_id)
+                else:
+                    imported.append(issue_id)
+            except (ComicSyncError, OSError) as exc:
+                failures.append(f"{os.path.basename(path)}: {exc}")
+        if failures:
+            QMessageBox.warning(
+                self, "Comic Upload", "\n".join(failures)
+            )
+        if imported:
+            self._refresh_comic_sync(
+                imported,
+                f"Uploaded {len(imported)} archive(s)"
+                + (
+                    f" · skipped {len(skipped)} already present"
+                    if skipped else ""
+                )
+                + ". Select Prepare to convert.",
+            )
+        elif skipped:
+            self._refresh_comic_sync(
+                skipped,
+                f"Skipped {len(skipped)} archive(s) already in the library.",
+            )
+
+    def _assign_comic_category(self, category):
+        selected = self._comic_sync.selected_issues()
+        if not selected:
+            return
+        try:
+            self._rockbox_comics.set_issue_category(
+                [issue["id"] for issue in selected], category
+            )
+        except (ComicSyncError, OSError) as exc:
+            QMessageBox.warning(self, "Comic Categories", str(exc))
+            return
+        self._refresh_comic_sync(
+            [issue["id"] for issue in selected],
+            f"Assigned {len(selected)} comic(s) to {category}.",
+        )
+
+    def _rename_comic_category(self, old_name, new_name):
+        try:
+            self._rockbox_comics.rename_category(old_name, new_name)
+        except (ComicSyncError, OSError) as exc:
+            QMessageBox.warning(self, "Comic Categories", str(exc))
+            return
+        self._refresh_comic_sync(
+            message=f"Renamed category to {' '.join(new_name.split())}."
+        )
+
+    def _delete_comic_category(self, category):
+        if (
+            QMessageBox.question(
+                self,
+                "Delete Comic Category",
+                f"Delete “{category}”? Its comics will move to "
+                "Uncategorized.",
+            )
+            != QMessageBox.Yes
+        ):
+            return
+        try:
+            self._rockbox_comics.delete_category(category)
+        except (ComicSyncError, OSError) as exc:
+            QMessageBox.warning(self, "Comic Categories", str(exc))
+            return
+        self._refresh_comic_sync(message=f"Deleted category {category}.")
+
+    def _set_selected_comics_locked(self, locked):
+        selected = self._comic_sync.selected_issues()
+        if not selected:
+            return
+        if locked and not self._ensure_video_locked_pin():
+            return
+        try:
+            self._rockbox_comics.set_issues_locked(
+                [issue["id"] for issue in selected], locked
+            )
+        except (ComicSyncError, OSError) as exc:
+            QMessageBox.warning(self, "Comic Lock", str(exc))
+            return
+        state = "Locked" if locked else "Unlocked"
+        self._refresh_comic_sync(
+            [issue["id"] for issue in selected],
+            f"{state} {len(selected)} comic(s).",
+        )
+
+    def _set_selected_comics_reading_direction(self, direction):
+        selected = self._comic_sync.selected_issues()
+        if not selected:
+            return
+        try:
+            self._rockbox_comics.set_reading_direction(
+                [issue["id"] for issue in selected], direction
+            )
+        except (ComicSyncError, OSError) as exc:
+            QMessageBox.warning(self, "Comic Reading Direction", str(exc))
+            return
+        label = "manga (right to left)" if direction == "rtl" else "western (left to right)"
+        self._refresh_comic_sync(
+            [issue["id"] for issue in selected],
+            f"Set {len(selected)} comic(s) to {label}.",
+        )
+
+    def _prepare_selected_comics(self):
+        if self._comic_prepare_process is not None:
+            self._status_bar.set_left_text(
+                "Comic preparation is already running"
+            )
+            return
+        issue_ids = [
+            issue["id"]
+            for issue in self._comic_sync.selected_issues()
+            if issue.get("archive_path")
+        ]
+        if not issue_ids:
+            self._status_bar.set_left_text("No imported archive selected")
+            return
+        self._comic_prepare_profile = (
+            self._comic_sync.preparation_profile()
+        )
+        self._comic_prepare_queue = issue_ids
+        self._start_next_comic_prepare()
+
+    def _start_next_comic_prepare(self):
+        if not self._comic_prepare_queue:
+            self._refresh_comic_sync(
+                message="Comic preparation complete."
+            )
+            self._status_bar.set_left_text("Comic preparation complete")
+            return
+        issue_id = self._comic_prepare_queue.pop(0)
+        try:
+            command = self._rockbox_comics.preparation_command(
+                issue_id, self._comic_prepare_profile
+            )
+        except ComicSyncError as exc:
+            self._comic_prepare_queue = []
+            QMessageBox.warning(self, "Comic Preparation", str(exc))
+            self._refresh_comic_sync(message=str(exc))
+            return
+        process = QProcess(self)
+        process.setProcessChannelMode(QProcess.MergedChannels)
+        process.setWorkingDirectory(self._repo_root)
+        self._comic_prepare_process = process
+        self._comic_prepare_output = []
+
+        def read_output():
+            text = bytes(process.readAllStandardOutput()).decode(
+                "utf-8", "replace"
+            )
+            if text:
+                self._comic_prepare_output.append(text)
+                latest = text.strip().splitlines()
+                if latest:
+                    self._comic_sync.set_message(latest[-1])
+
+        def finished(exit_code, exit_status):
+            read_output()
+            self._comic_prepare_process = None
+            process.deleteLater()
+            if (
+                exit_status != QProcess.NormalExit
+                or int(exit_code) != 0
+            ):
+                self._comic_prepare_queue = []
+                detail = "".join(self._comic_prepare_output).strip()
+                message = detail.splitlines()[-1] if detail else (
+                    f"Preparation failed with exit code {exit_code}."
+                )
+                QMessageBox.warning(
+                    self, "Comic Preparation Failed", message
+                )
+                self._refresh_comic_sync(message=message)
+                return
+            self._refresh_comic_sync(
+                [issue_id], f"Prepared {issue_id}."
+            )
+            self._start_next_comic_prepare()
+
+        process.readyReadStandardOutput.connect(read_output)
+        process.finished.connect(finished)
+        process.start(command[0], command[1:])
+        if not process.waitForStarted(3000):
+            error = process.errorString() or "Could not start converter."
+            self._comic_prepare_process = None
+            self._comic_prepare_queue = []
+            process.deleteLater()
+            QMessageBox.warning(self, "Comic Preparation", error)
+            self._refresh_comic_sync(message=error)
+            return
+        self._refresh_comic_sync(
+            [issue_id], f"Preparing {issue_id}…"
+        )
+
+    def _sync_selected_comics(self):
+        issues = [
+            issue
+            for issue in self._comic_sync.selected_issues()
+            if issue.get("prepared")
+        ]
+        profile, target_mode, simulator = self._magazine_target_context()
+        if not profile or not issues:
+            self._status_bar.set_left_text(
+                "No prepared comics selected"
+            )
+            return
+        try:
+            if any(issue.get("locked") for issue in issues):
+                if not self._ensure_video_locked_pin():
+                    return
+            locked_pin = str(
+                self._device_config_value("video_locked_pin", "") or ""
+            )
+            copied = self._rockbox_comics.sync_issues(
+                profile, issues, target_mode, simulator,
+                locked_pin=locked_pin,
+            )
+        except (ComicSyncError, OSError) as exc:
+            QMessageBox.warning(self, "Comic Sync Failed", str(exc))
+            self._refresh_comic_sync(message=f"Sync failed: {exc}")
+            return
+        self._refresh_comic_sync(
+            [issue["id"] for issue in issues],
+            f"Synced {copied} comic(s).",
+        )
+        self._status_bar.set_left_text(
+            f"Comic sync complete: {copied} issue(s)"
+        )
+
+    def _remove_selected_comics(self):
+        issues = [
+            issue
+            for issue in self._comic_sync.selected_issues()
+            if issue.get("on_target")
+        ]
+        profile, target_mode, simulator = self._magazine_target_context()
+        if not profile or not issues:
+            return
+        if (
+            QMessageBox.question(
+                self,
+                "Remove Comics",
+                f"Remove {len(issues)} selected comic(s) from the target?",
+            )
+            != QMessageBox.Yes
+        ):
+            return
+        try:
+            removed = self._rockbox_comics.remove_issues(
+                profile, issues, target_mode, simulator
+            )
+        except OSError as exc:
+            QMessageBox.warning(self, "Remove Comics", str(exc))
+            return
+        self._refresh_comic_sync(
+            message=f"Removed {removed} comic(s) from the target."
+        )
 
     # ═══════════════════════════════════════════════════════════════
     # Rockbox photos

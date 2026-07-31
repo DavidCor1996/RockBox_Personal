@@ -84,7 +84,9 @@ tick.
 
 ## Audio lifecycle
 
-The core produces signed stereo PCM at 22050 Hz by default. Six fixed
+The iPod hardware profile produces signed stereo PCM at 11025 Hz by default,
+halving sound-synthesis and mixing work relative to the initial 22050 Hz
+profile. Six fixed
 512-frame ring blocks feed `PCM_MIXER_CHAN_PLAYBACK`, starting after two
 blocks are ready. The larger blocks reduce mixer locking and callback churn
 without increasing the ring's memory footprint. The callback only swaps
@@ -116,7 +118,7 @@ diagonals. Controls are described on first launch and in the in-game menu.
 | Button 5 / medium kick | Menu + Previous |
 | Button 6 / heavy kick | Menu + Next |
 | Player 1 Start | pause menu `Start game`, or Menu + Select |
-| Coin 1 | pause menu `Insert coin`, or Menu + Play/Pause |
+| Coin 1 | Select + Play/Pause, or pause menu `Insert coin` |
 | Emulator menu | short press Menu |
 | Emergency exit | hold Menu for two seconds, or engage Hold |
 

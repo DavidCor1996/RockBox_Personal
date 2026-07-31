@@ -77,7 +77,10 @@ photos.c
 achievements.c
 weather.c
 calm.c
+magazines.c
+comics.c
 nb_maps.c
+pokedex.c
 #endif
 
 #ifdef USB_ENABLE_HID
@@ -130,6 +133,7 @@ wwe_backstage.c
 
 #if defined(IPOD_6G) && !defined(SIMULATOR)
 sm64.c
+animalcrossing.c
 #endif
 
 #if defined(HAVE_LCD_COLOR) && (LCD_STRIDEFORMAT == HORIZONTAL_STRIDE) && !defined(RG_NANO) /* Build issues */
