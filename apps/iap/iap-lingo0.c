@@ -859,6 +859,19 @@ void iap_handlepkt_mode0(const unsigned int len, const unsigned char *buf)
             if (device.accinfo == ACCST_NONE)
                 device.accinfo = ACCST_INIT;
 
+            /* Kokkia variants do not all send StartIDPS again after MFi
+             * authentication. A completed authenticated exchange is already
+             * proof that this serial Kokkia session is usable; waiting for
+             * that optional follow-up made the watchdog tear down a working
+             * AirPods connection every activation deadline.
+             *
+             * Keep the StartIDPS activation handler below: models that send
+             * it still receive the exact compatibility replies. This only
+             * prevents a successfully authenticated Kokkia from being
+             * needlessly retried when it does not send that request. */
+            if (iap_kokkia_present())
+                iap_note_kokkia_ready();
+
             /* After auth, initiate digital audio via periodic handler.
              * Do NOT call iap_set_remote_volume() or any other send here —
              * tx_buf is shared and 0x19 hasn't finished DMA yet. */
@@ -1271,6 +1284,30 @@ void iap_handlepkt_mode0(const unsigned int len, const unsigned char *buf)
                 {
                     if (device.serial_activation_sent)
                     {
+                        if (device.serial_activation_tid ==
+                            ((uint16_t)tid_hi << 8 | tid_lo))
+                        {
+                            /* A Kokkia can retransmit the exact activation
+                             * request after a Bluetooth peer handoff when it
+                             * did not observe our first replies. Re-send the
+                             * same replies without resetting a live session.
+                             * A new transaction ID still follows the restart
+                             * path below, preserving recovery for an actual
+                             * accessory reboot. */
+                            IAP_TX_INIT(0x00, 0x39);
+                            IAP_TX_PUT(0x00);
+                            IAP_TX_PUT(0x01);
+                            iap_send_tx();
+
+                            IAP_TX_INIT(0x00, 0x3A);
+                            IAP_TX_PUT(0x00);
+                            IAP_TX_PUT(0x01);
+                            IAP_TX_PUT(0x01);
+                            iap_send_tx();
+                            iap_note_kokkia_ready();
+                            break;
+                        }
+
                         iap_note_accessory_restart();
                         iap_reset_device(&device);
                         cmd_ack(cmd, IAP_ACK_BAD_PARAM);
@@ -1278,6 +1315,8 @@ void iap_handlepkt_mode0(const unsigned int len, const unsigned char *buf)
                     }
 
                     device.serial_activation_sent = true;
+                    device.serial_activation_tid =
+                        ((uint16_t)tid_hi << 8) | tid_lo;
                     device.kokkia_detected = true;
                 }
 

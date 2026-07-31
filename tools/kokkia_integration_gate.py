@@ -76,6 +76,26 @@ def main() -> int:
     require(core, "if (audio_status() & AUDIO_STATUS_PLAY)",
             "stopped-state input guard")
     require(lingo0, "iap_note_kokkia_ready();", "activation completion")
+    auth_pos = lingo0.index("device.auth.state = AUST_AUTH;",
+                           lingo0.index("case 0x18:"))
+    ready_pos = lingo0.index("iap_note_kokkia_ready();", auth_pos)
+    if ready_pos < auth_pos:
+        raise AssertionError(
+            "authenticated Kokkia sessions must become ready before the "
+            "activation watchdog can retry them")
+    require(lingo0, "if (iap_kokkia_present())",
+            "pre-authentication Kokkia readiness predicate")
+    require(lingo0, "device.serial_activation_tid ==",
+            "idempotent activation retransmission predicate")
+    require(lingo0, "A new transaction ID still follows the restart",
+            "activation restart boundary")
+    disconnect = core.index("void iap_note_serial_disconnect(void)")
+    disconnect_end = core.index("bool iap_remote_input_suppressed(void)",
+                                 disconnect)
+    require(core[disconnect:disconnect_end], "iap_kokkia_present()",
+            "pause-on-unplug presence predicate")
+    require(spec, "optional follow-up",
+            "authenticated Kokkia readiness contract")
     require(serial, "(HZ + 3) / 4", "250 ms dock debounce")
     require(serial, "if (!iap_ready_for_serial())", "boot UART gate")
     require(serial, "iap_diag_uart_frame_errors",

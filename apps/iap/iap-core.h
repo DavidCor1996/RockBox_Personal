@@ -156,6 +156,7 @@ struct device_t {
     uint32_t idps_deviceid;         /* DeviceID from IDPS IdentifyToken */
     uint16_t ipod_trans_id;         /* Transaction ID for iPod-originated cmds */
     bool serial_activation_sent;    /* Post-auth dock activation was sent */
+    uint16_t serial_activation_tid; /* Transaction ID of that activation */
     bool kokkia_detected;           /* Kokkia activation signature received */
 };
 

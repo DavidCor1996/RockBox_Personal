@@ -16,7 +16,8 @@ is therefore:
 1. dock contact present and UART open;
 2. valid Kokkia StartIDPS signature observed;
 3. MFi authentication complete; and
-4. post-authentication Kokkia activation replies sent.
+4. completed MFi authentication, with post-authentication Kokkia activation
+   replies sent when that optional follow-up is requested.
 
 The Bluetooth status icon represents Kokkia dongle presence, not headphone
 connection.  It appears once the open serial dock has emitted the
@@ -37,9 +38,16 @@ for an unpaired or searching Kokkia.
 At boot, the dock UART remains closed until the iAP queue and fixed framing
 buffers are ready.  This prevents an already-inserted Kokkia from exhausting
 its bounded identification attempts during the earlier audio/settings startup
-window.  Once authenticated activation completes, `READY` is latched until a
-real dock removal, accessory restart, manual restart, or watchdog recovery;
-transient internal authentication bookkeeping cannot flicker the icon.
+window.  Once MFi authentication completes, `READY` is latched until a real
+dock removal, accessory restart, manual restart, or watchdog recovery; a
+post-authentication `StartIDPS` request, when present, receives the Kokkia
+activation replies but is not required for readiness. This avoids restarting
+compatible Kokkia variants that have already authenticated and connected a
+headset but do not emit that optional request. A retransmission with the same
+activation transaction ID receives the same replies without resetting the
+live session; a different transaction ID retains the existing accessory-reset
+recovery path. Transient internal authentication bookkeeping cannot flicker
+the icon.
 
 The public state machine is:
 
@@ -47,11 +55,14 @@ The public state machine is:
 - `DETECTING`: UART open, waiting for a Kokkia signature;
 - `AUTHENTICATING`: a Kokkia signature was seen and authentication is moving;
 - `RETRYING`: recovery restarted a stalled Kokkia session;
-- `READY`: authenticated and activated.
+- `READY`: authenticated; optional requested activation replies completed.
 
 ## Recovery
 
-- Physical removal remains a hard iAP session boundary.
+- Physical removal remains a hard iAP session boundary. When `Pause on
+  Unplug` is enabled, it uses the same Kokkia-presence condition as the
+  Bluetooth icon disappearing, so a retry-state display cannot suppress the
+  requested pause.
 - Dock absence must remain continuous for 250 ms before it is accepted.
 - A fully activated session is never reset merely because Bluetooth audio is
   quiet.  READY-state recovery requires at least four explicit UART or iAP

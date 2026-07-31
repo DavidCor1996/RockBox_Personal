@@ -663,6 +663,7 @@ void iap_reset_device(struct device_t* device)
     device->idps_deviceid = 0;
     device->ipod_trans_id = 1;
     device->serial_activation_sent = false;
+    device->serial_activation_tid = 0;
     device->kokkia_detected = false;
 
     /* IDPS is a property of how the device identified itself, so it
@@ -754,7 +755,7 @@ void iap_note_serial_connect(void)
 void iap_note_serial_disconnect(void)
 {
     if (iap_started && global_settings.kokkia_pause_on_unplug &&
-        iap_kokkia_connected())
+        iap_kokkia_present())
         queue_post(&iap_queue, IAP_EV_DISCONNECT, 0);
 }
 
