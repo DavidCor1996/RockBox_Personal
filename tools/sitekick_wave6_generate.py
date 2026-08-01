@@ -240,19 +240,20 @@ def osrs_dragon_platebody() -> Image.Image:
 def osrs_godsword() -> Image.Image:
     img, d, s = canvas((100, 90))
     w, h = img.size
-    blade = Image.new("RGBA", (int(20 * s), int(76 * s)), (0, 0, 0, 0))
+    blade = Image.new("RGBA", (int(30 * s), int(80 * s)), (0, 0, 0, 0))
     bd = ImageDraw.Draw(blade)
     bw, bh = blade.size
-    bd.polygon([(bw // 2, 0), (bw - 1, 46 * s), (bw // 2 + 3 * s, 56 * s),
-               (bw // 2 - 3 * s, 56 * s), (0, 46 * s)], fill=SILVER,
-              outline=OUTLINE)
-    bd.line((bw // 2, 4 * s, bw // 2, 44 * s), fill=WHITE,
-           width=int(2 * s))
-    bd.rectangle((2 * s, 56 * s, bw - 2 * s, 62 * s), fill=GOLD,
-                outline=OUTLINE, width=int(2.5 * s))
-    bd.rectangle((bw // 2 - 3 * s, 62 * s, bw // 2 + 3 * s, bh), fill=BLACK,
-                outline=OUTLINE, width=int(1.5 * s))
-    bd.ellipse((bw // 2 - 6 * s, bh - 10 * s, bw // 2 + 6 * s, bh),
+    bd.polygon([(bw // 2, 0), (bw - 2 * s, 14 * s), (bw - 4 * s, 44 * s),
+               (bw // 2 + 5 * s, 56 * s), (bw // 2 - 5 * s, 56 * s),
+               (4 * s, 44 * s), (2 * s, 14 * s)], fill=SILVER,
+              outline=OUTLINE, width=int(2.5 * s))
+    bd.line((bw // 2, 6 * s, bw // 2, 50 * s), fill=WHITE,
+           width=int(2.5 * s))
+    bd.rectangle((0, 56 * s, bw, 63 * s), fill=GOLD, outline=OUTLINE,
+                width=int(2.5 * s))
+    bd.rectangle((bw // 2 - 4 * s, 63 * s, bw // 2 + 4 * s, bh - 8 * s),
+                fill=BLACK, outline=OUTLINE, width=int(1.5 * s))
+    bd.ellipse((bw // 2 - 7 * s, bh - 14 * s, bw // 2 + 7 * s, bh),
               fill=GOLD, outline=OUTLINE, width=int(2 * s))
     blade = blade.rotate(-30, expand=True, resample=Image.BICUBIC)
     img.alpha_composite(blade, (w - blade.width, 0))

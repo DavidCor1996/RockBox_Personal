@@ -231,6 +231,8 @@ screenshot_cover "wormlet" "wormlet"
 screenshot_cover "xobox" "xobox"
 screenshot_cover "xrick" "xrick"
 
+file_cover "anarch" \
+    "$repo_root/apps/plugins/anarch/upstream/media/screenshot1.png"
 file_cover "clubpenguin" "$repo_root/assets/ipodjs/rockbox/clubpenguin/covers/Club Penguin.bmp"
 file_cover "runescape_classic" "$repo_root/assets/ipodjs/rockbox/runescape_classic/covers/RuneScape Classic.bmp"
 ipodhero_cover

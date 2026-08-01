@@ -13,6 +13,10 @@ text_viewer
 clock
 #endif
 
+#if defined(HAVE_LCD_COLOR) && (LCD_WIDTH >= 320) && (LCD_HEIGHT >= 240)
+microui_demo
+#endif
+
 /* color horizontal-stride LCDs */
 #if defined(HAVE_LCD_COLOR) && (LCD_STRIDEFORMAT == HORIZONTAL_STRIDE)
 xworld
@@ -51,6 +55,11 @@ reversi
 goban
 #ifdef HAVE_LCD_COLOR
 pocketcatch
+#endif
+#if (defined(IPOD_6G) || defined(SIMULATOR)) && defined(HAVE_LCD_COLOR) \
+    && (LCD_WIDTH == 320) && (LCD_HEIGHT == 240) \
+    && (CONFIG_KEYPAD == IPOD_4G_PAD)
+anarch
 #endif
 #if defined(HAVE_LCD_COLOR) && (LCD_WIDTH >= 320) && (LCD_HEIGHT >= 240) \
     && (PLUGIN_BUFFER_SIZE >= 0x300000) && (CONFIG_KEYPAD == IPOD_4G_PAD)

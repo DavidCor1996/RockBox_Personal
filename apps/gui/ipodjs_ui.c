@@ -1084,6 +1084,34 @@ bool ipodjs_ui_search_surfaces_available(void)
                        "/search-selected.apple.97x32x24.bmp");
 }
 
+bool ipodjs_ui_prepare_search_surfaces(void)
+{
+    return ipodjs_ui_search_surface_asset(IPODJS_UI_SEARCH_PANEL) != NULL &&
+           ipodjs_ui_search_surface_asset(IPODJS_UI_SEARCH_FIELD) != NULL &&
+           ipodjs_ui_search_surface_asset(IPODJS_UI_SEARCH_SELECTED) != NULL;
+}
+
+static struct bitmap *ipodjs_ui_search_surface_cached(
+    enum ipodjs_ui_search_surface surface)
+{
+    if (surface == IPODJS_UI_SEARCH_PANEL)
+    {
+        return ipodjs_ui_fast_scroll_overlay_valid ?
+            &ipodjs_ui_fast_scroll_overlay : NULL;
+    }
+    if (surface == IPODJS_UI_SEARCH_FIELD)
+    {
+        return ipodjs_ui_search_surfaces.field_valid ?
+            &ipodjs_ui_search_surfaces.field : NULL;
+    }
+    if (surface == IPODJS_UI_SEARCH_SELECTED)
+    {
+        return ipodjs_ui_search_surfaces.selected_valid ?
+            &ipodjs_ui_search_surfaces.selected : NULL;
+    }
+    return NULL;
+}
+
 static void ipodjs_ui_draw_tiled_part(struct screen *display,
                                       struct bitmap *bm,
                                       int src_x, int src_y,
@@ -1116,7 +1144,7 @@ bool ipodjs_ui_draw_search_surface(struct screen *display,
                                    enum ipodjs_ui_search_surface surface,
                                    int x, int y, int width, int height)
 {
-    struct bitmap *bm = ipodjs_ui_search_surface_asset(surface);
+    struct bitmap *bm = ipodjs_ui_search_surface_cached(surface);
     /* The Apple fast-scroll plate has a roughly 16 px corner radius.  Cutting
      * it at 8 px tiles part of each curve into the horizontal Search strip,
      * leaving visible shoulders at both ends. */

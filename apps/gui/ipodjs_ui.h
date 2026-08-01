@@ -77,6 +77,7 @@ bool ipodjs_ui_fast_scroll_active(void);
 bool ipodjs_ui_fast_scroll_take_expired(void);
 void ipodjs_ui_draw_fast_scroll(struct screen *display);
 bool ipodjs_ui_search_surfaces_available(void);
+bool ipodjs_ui_prepare_search_surfaces(void);
 bool ipodjs_ui_draw_search_surface(struct screen *display,
                                    enum ipodjs_ui_search_surface surface,
                                    int x, int y, int width, int height);
@@ -209,6 +210,10 @@ static inline void ipodjs_ui_draw_fast_scroll(struct screen *display)
     (void)display;
 }
 static inline bool ipodjs_ui_search_surfaces_available(void)
+{
+    return false;
+}
+static inline bool ipodjs_ui_prepare_search_surfaces(void)
 {
     return false;
 }

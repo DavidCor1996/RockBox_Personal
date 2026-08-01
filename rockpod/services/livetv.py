@@ -39,7 +39,7 @@ LIVETV_MAX_CHANNELS = 24
 LIVETV_FIRST_CHANNEL = 100
 # Must match LIVETV_MAX_SLOTS in apps/plugins/mpegplayer/livetv.h. The iPod
 # holds today and tomorrow, so that pair is what has to fit.
-LIVETV_DEVICE_MAX_SLOTS = 2048
+LIVETV_DEVICE_MAX_SLOTS = 8192
 LIVETV_DAY_SECONDS = 86400
 LIVETV_MIN_TAIL_SECONDS = 60
 

@@ -67,44 +67,6 @@ ui viewport: -
 </theme>
 
 <theme>
-Name: iPone
-Targets: ipodvideo ipod6g
-Authors: iPone dark-mode mod by local build, based on iClassic/adwaitapod work
-WPS: yes
-SBS: yes
-FMS: yes
-RWPS: no
-RSBS: no
-RFMS: no
-
-<main>
-wps.320x240x(16|24|32): iPone.wps
-sbs.320x240x(16|24|32): iPone.sbs
-fms.320x240x(16|24|32): iPone.fms
-font.320x240x(16|24|32): 18-Cantarell-Bold.fnt
-backdrop: -
-background color: 100F16
-foreground color: F7F4FA
-line selector start color: 2B2234
-line selector end color: 9D7AE6
-line selector text color: FCF9FF
-list separator color: 1A1621
-selector type: bar (gradient)
-scrollbar: off
-show icons: on
-statusbar: off
-ui viewport: -
-list separator height: 1
-iconset: icons/iPone.bmp
-viewers iconset: -
-battery display: graphic
-album art: prefer image file
-filetype colours: -
-backlight on button hold: normal
-</main>
-</theme>
-
-<theme>
 Name: ipodjs-classic
 Targets: ipod6g
 Authors: local build, styled to match the iPodJS native interface

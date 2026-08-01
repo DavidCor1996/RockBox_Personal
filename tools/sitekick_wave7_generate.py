@@ -94,21 +94,24 @@ def osrs_santa_hat() -> Image.Image:
 # ---------------------------------------------------------------------------
 
 def osrs_fire_cape() -> Image.Image:
-    img, d, s = canvas((96, 80))
+    img, d, s = canvas((96, 84))
     w, h = img.size
-    lw = 6 * s
-    body = [(20 * s, 2 * s), (w - 20 * s, 2 * s), (w - 4 * s, h - 2 * s),
-            (4 * s, h - 2 * s)]
+    lw = 5 * s
+    valley_y = h - 34 * s
+    peak_y = h - 2 * s
+    xs = [6 * s, 17 * s, 28 * s, 39 * s, 50 * s, 61 * s, 72 * s, 83 * s,
+         90 * s]
+    hem = [(x, peak_y if i % 2 == 1 else valley_y) for i, x in enumerate(xs)]
+    body = [(20 * s, 2 * s), (w - 20 * s, 2 * s)] + hem
     d.polygon(body, fill=BLACK, outline=OUTLINE)
     d.line(body + [body[0]], fill=OUTLINE, width=lw, joint="curve")
-    for i in range(5):
-        fx = 14 * s + i * 16 * s
-        flame = [(fx, h - 4 * s), (fx - 8 * s, h - 26 * s),
-                 (fx, h - 44 * s), (fx + 8 * s, h - 26 * s)]
-        d.polygon(flame, fill=ORANGE_FLAME, outline=OUTLINE,
-                 width=int(2.5 * s))
-        d.polygon([(fx, h - 10 * s), (fx - 4 * s, h - 24 * s),
-                  (fx, h - 34 * s), (fx + 4 * s, h - 24 * s)], fill=YELLOW)
+    for i in range(0, len(xs) - 2, 2):
+        x0, x1, cx = xs[i], xs[i + 2], xs[i + 1]
+        d.polygon([(x0 + 3 * s, valley_y - 4 * s), (cx, peak_y - 6 * s),
+                  (x1 - 3 * s, valley_y - 4 * s)], fill=ORANGE_FLAME,
+                 outline=OUTLINE, width=int(2 * s))
+        d.polygon([(x0 + 7 * s, valley_y - 6 * s), (cx, peak_y - 16 * s),
+                  (x1 - 7 * s, valley_y - 6 * s)], fill=YELLOW)
     d.polygon([(w // 2 - 10 * s, 4 * s), (w // 2 + 10 * s, 4 * s),
               (w // 2, 16 * s)], fill=ORANGE_FLAME, outline=OUTLINE,
              width=int(2 * s))
@@ -116,20 +119,21 @@ def osrs_fire_cape() -> Image.Image:
 
 
 def osrs_max_cape() -> Image.Image:
-    img, d, s = canvas((96, 80))
+    img, d, s = canvas((96, 84))
     w, h = img.size
     lw = 6 * s
-    body = [(20 * s, 2 * s), (w - 20 * s, 2 * s), (w - 4 * s, h - 2 * s),
+    d.rounded_rectangle((w // 2 - 16 * s, 0, w // 2 + 16 * s, 14 * s),
+                        radius=6 * s, fill=BLACK, outline=OUTLINE,
+                        width=int(4 * s))
+    body = [(16 * s, 10 * s), (w - 16 * s, 10 * s), (w - 4 * s, h - 2 * s),
             (4 * s, h - 2 * s)]
     d.polygon(body, fill=BLACK, outline=OUTLINE)
     d.line(body + [body[0]], fill=OUTLINE, width=lw, joint="curve")
-    for y in (14 * s, 34 * s, 54 * s):
-        d.line((10 * s, y, w - 10 * s, y), fill=GOLD, width=int(3 * s))
-    d.polygon([(w // 2 - 12 * s, 60 * s), (w // 2 + 12 * s, 60 * s),
-              (w // 2, h - 6 * s)], fill=GOLD, outline=OUTLINE,
-             width=int(2 * s))
-    d.polygon([(w // 2 - 10 * s, 4 * s), (w // 2 + 10 * s, 4 * s),
-              (w // 2, 16 * s)], fill=GOLD, outline=OUTLINE,
+    border = [(19 * s, 13 * s), (w - 19 * s, 13 * s), (w - 8 * s, h - 5 * s),
+             (8 * s, h - 5 * s)]
+    d.line(border + [border[0]], fill=GOLD, width=int(3 * s), joint="curve")
+    d.polygon([(w // 2 - 12 * s, h - 30 * s), (w // 2 + 12 * s, h - 30 * s),
+              (w // 2, h - 4 * s)], fill=GOLD, outline=OUTLINE,
              width=int(2 * s))
     return img
 
@@ -139,16 +143,22 @@ def osrs_max_cape() -> Image.Image:
 # ---------------------------------------------------------------------------
 
 def osrs_twisted_bow() -> Image.Image:
-    img, d, s = canvas((60, 90))
+    img, d, s = canvas((64, 94))
     w, h = img.size
     lw = int(3 * s)
     cx = w // 2
-    d.arc((cx - 26 * s, 4 * s, cx + 26 * s, h - 4 * s), 260, 460,
-         fill=STEEL_BLUE, width=int(6 * s))
-    d.arc((cx - 22 * s, 8 * s, cx + 22 * s, h - 8 * s), 260, 460,
-         fill=WHITE, width=int(2 * s))
-    d.line((cx - 2 * s, 6 * s, cx - 2 * s, h - 6 * s), fill=(90, 60, 40, 255),
-          width=int(1.5 * s))
+    top_curl = [(cx, 8 * s), (cx + 12 * s, 3 * s), (cx + 22 * s, 10 * s),
+               (cx + 20 * s, 20 * s), (cx + 8 * s, 20 * s)]
+    bottom_curl = [(cx, h - 8 * s), (cx - 12 * s, h - 3 * s),
+                  (cx - 22 * s, h - 10 * s), (cx - 20 * s, h - 20 * s),
+                  (cx - 8 * s, h - 20 * s)]
+    spine = [(cx, 8 * s), (cx - 4 * s, h // 2), (cx, h - 8 * s)]
+    d.line(spine, fill=STEEL_BLUE, width=int(7 * s), joint="curve")
+    d.line(top_curl, fill=STEEL_BLUE, width=int(6 * s), joint="curve")
+    d.line(bottom_curl, fill=STEEL_BLUE, width=int(6 * s), joint="curve")
+    d.line(spine, fill=WHITE, width=int(2 * s), joint="curve")
+    d.line((cx - 3 * s, 10 * s, cx - 3 * s, h - 10 * s),
+          fill=(90, 60, 40, 255), width=int(1.5 * s))
     for cy in (18 * s, h // 2, h - 18 * s):
         d.ellipse((cx - 6 * s, cy - 6 * s, cx + 6 * s, cy + 6 * s),
                   fill=GOLD, outline=OUTLINE, width=int(2 * s))

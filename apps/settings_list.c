@@ -1251,7 +1251,7 @@ const struct settings_list settings[] = {
                    "miniplayer,full art,video", NULL, 3,
                    "Miniplayer", "Full Art", "Video"),
 #ifdef HAVE_IPODJS_UI
-    CHOICE_SETTING(0, ui_engine, -1, UI_ENGINE_ROCKBOX,
+    CHOICE_SETTING(0, ui_engine, -1, UI_ENGINE_IPODJS,
                    "ui engine", "rockbox,ipodjs", NULL, 2,
                    "Rockbox", "iPod"),
     CHOICE_SETTING(0, ui_engine_accent, -1, UI_ENGINE_ACCENT_BLUE,

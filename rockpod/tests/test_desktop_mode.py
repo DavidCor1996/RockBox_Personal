@@ -109,6 +109,64 @@ def test_ipod_itunes_uses_the_full_work_area_without_covering_it_with_dock():
     assert "state->app != DM_APP_ITUNES" in source
 
 
+def test_desktop_controls_are_bounded_and_hover_does_not_select_files():
+    source = (
+        Path(desktop.__file__).resolve().parents[2]
+        / "apps/plugins/desktop_mode.c"
+    ).read_text(encoding="utf-8")
+    hover = source[
+        source.rindex("static void dm_update_hover") :
+        source.index("static bool dm_focus_move")
+    ]
+    click = source[
+        source.index("static int dm_click(struct dm_state") :
+        source.index("static void dm_secondary_click")
+    ]
+
+    assert "#define DM_CONTROL_LIMIT 64" in source
+    assert "struct dm_control_registry" in source
+    assert "DM_ERR_CONTROL_OVERFLOW" in source
+    assert "dm_file_selected =" not in hover
+    assert "dm_control_at(state" in click
+    assert "DM_ACTION_FILE_ROW" in click
+
+
+def test_desktop_pointer_frames_use_clipped_composition_and_partial_updates():
+    source = (
+        Path(desktop.__file__).resolve().parents[2]
+        / "apps/plugins/desktop_mode.c"
+    ).read_text(encoding="utf-8")
+    present = source[
+        source.index("static void dm_present") :
+        source.index("static bool dm_write_all")
+    ]
+
+    assert "dm_prepare_damage(state, full)" in source
+    assert "dm_paint_clip" in source
+    assert "rb->lcd_bitmap_part" in present
+    assert "rb->lcd_update_rect" in present
+    assert "dirty.width * dirty.height" in source
+    assert "DM_ACTION_DOCK_APP" in source
+
+
+def test_desktop_has_one_cleanup_path_and_runtime_diagnostics():
+    source = (
+        Path(desktop.__file__).resolve().parents[2]
+        / "apps/plugins/desktop_mode.c"
+    ).read_text(encoding="utf-8")
+
+    assert source.count("cleanup:") == 1
+    assert "DM_OVERLAY_DIAGNOSTICS" in source
+    assert '"Desktop Diagnostics"' in source
+    assert "state->controls->high_water" in source
+    assert "state->worst_frame_ticks" in source
+    assert "state->partial_update_count" in source
+    assert "rb->lcd_set_viewport(NULL)" in source
+    assert "rb->lcd_set_foreground(saved_foreground)" in source
+    assert "rb->lcd_set_background(saved_background)" in source
+    assert "rb->lcd_set_drawmode(saved_drawmode)" in source
+
+
 def test_simulator_autostart_follows_desktop_player_handoffs():
     source = (
         Path(desktop.__file__).resolve().parents[2] / "apps/main.c"

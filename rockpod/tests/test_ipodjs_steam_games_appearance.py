@@ -61,6 +61,16 @@ def test_steam_library_loads_installed_ipod_games_from_achievement_catalog():
         root_menu
 
 
+def test_anarch_has_verified_native_artwork_for_steam_discovery():
+    sources = _text("assets/game_covers/native/SOURCES.tsv")
+    cover = ROOT / "assets/game_covers/native/anarch.bmp"
+
+    assert "anarch\texisting-cover\tapps/plugins/anarch/upstream/" \
+        "media/screenshot1.png" in sources
+    with Image.open(cover) as artwork:
+        assert artwork.size == (160, 120)
+
+
 def test_cps1_has_a_dedicated_zip_platform_and_manifest():
     root_menu = _text("apps/root_menu.c")
 

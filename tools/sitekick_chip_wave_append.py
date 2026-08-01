@@ -83,6 +83,11 @@ WAVE_SERIES = {
         "killer-instinct\tKiller Instinct\t1032,1033,1034",
         "cyberpunk-2077\tCyberpunk 2077\t1035,1036,1037,1038",
     ),
+    1039: (
+        "cyberpunk-silverhand\tJohnny Silverhand\t1039,1040,1041,1042",
+        "cyberpunk-judy\tJudy Alvarez\t1043,1044,1045",
+        "killer-instinct-spinal\tSpinal\t1046,1047,1048,1049",
+    ),
 }
 
 

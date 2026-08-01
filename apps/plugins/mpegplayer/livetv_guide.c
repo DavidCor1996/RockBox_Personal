@@ -75,6 +75,8 @@
 /* Wide enough for the DIRECTV style "100 RTRO" call sign at the UI font. */
 #define LIVETV_CHANCOL_W    68
 #define LIVETV_GRID_COLS    3
+#define LIVETV_SHORT_CLIP_SECONDS 300
+#define LIVETV_SHORT_GUIDE_BLOCK  900
 #define LIVETV_COL_W        \
     ((LIVETV_GUIDE_W - LIVETV_CHANCOL_W) / LIVETV_GRID_COLS)
 #define LIVETV_STRIP_CELL_W 78
@@ -94,6 +96,8 @@
 static struct livetv_channel livetv_channels[LIVETV_MAX_CHANNELS];
 static int livetv_channel_num;
 
+/* Sized for every current/tomorrow listing published by the Live TV sync.
+ * Keep this static: guide rendering must not borrow playback memory. */
 static struct livetv_slot livetv_slots[LIVETV_MAX_SLOTS];
 static int livetv_slot_num;
 
@@ -1445,6 +1449,18 @@ static void livetv_draw_time_header(void)
     }
 }
 
+static bool livetv_channel_short_clips(int chan)
+{
+    const struct livetv_channel *ch = livetv_channel(chan);
+
+    if (ch == NULL || ch->slot_count == 0)
+        return false;
+    for (int i = ch->first_slot; i < ch->first_slot + ch->slot_count; i++)
+        if (livetv_slots[i].block_dur > LIVETV_SHORT_CLIP_SECONDS)
+            return false;
+    return true;
+}
+
 static void livetv_draw_grid_row(int row, bool selected_row)
 {
     int view_index = guide.row_top + row;
@@ -1524,6 +1540,15 @@ static void livetv_draw_grid_row(int row, bool selected_row)
         slot_start = probe - (long)offset -
                      ((long)slot->start - (long)slot->block_start);
         slot_end = slot_start + (long)slot->block_dur;
+
+        /* Preserve the real clip timeline for playback, while rendering an
+         * all-short-clip station as conventional guide-sized blocks. */
+        if (livetv_channel_short_clips(chan))
+        {
+            slot_start = (probe / LIVETV_SHORT_GUIDE_BLOCK) *
+                         LIVETV_SHORT_GUIDE_BLOCK;
+            slot_end = slot_start + LIVETV_SHORT_GUIDE_BLOCK;
+        }
 
         starts_before = slot_start < base;
         ends_after = slot_end > window_end;

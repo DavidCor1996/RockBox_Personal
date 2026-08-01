@@ -78,6 +78,9 @@
 #include "skin_engine/wps_internals.h"
 #include "gui/ipodjs_ui.h"
 #include "gui/ipodjs_trace.h"
+#ifdef HAVE_IPODJS_UI
+#include "gui/qrcode/qrcodegen.h"
+#endif
 #include "bookmark.h"
 #include "playlist.h"
 #include "playlist_viewer.h"
@@ -106,6 +109,7 @@
 #include "mv.h"
 #include "dir.h"
 #include "crc32.h"
+#include "general.h"
 #if defined(IPOD_NANO2G) || defined(IPOD_VIDEO) || defined(IPOD_6G) || \
     defined(IPOD_NANO3G)
 #include "lcd.h"
@@ -127,6 +131,9 @@ static struct bitmap *root_menu_video_netflix_watched_cached(void);
 static int ipodjs_video_wps(void);
 static bool ipodjs_video_wps_empty(const char *title, const char *message,
                                    bool allow_replay);
+#ifdef HAVE_TAGCACHE
+static int root_menu_video_qrcode_screen(void);
+#endif
 #endif
 #if defined(IPOD_NANO2G)
 
@@ -5118,6 +5125,18 @@ static int launch_pokedex_plugin(void *param)
     return GO_TO_ROOT;
 }
 
+#if defined(HAVE_IPODJS_UI) && defined(HAVE_TAGCACHE)
+static int launch_qrcode_tool(void *param)
+{
+    (void)param;
+    return root_menu_video_qrcode_screen();
+}
+
+MENUITEM_FUNCTION(qrcode_item, MENU_FUNC_CHECK_RETVAL,
+                  "QR Codes", launch_qrcode_tool,
+                  NULL, Icon_Plugin);
+#endif
+
 static int launch_calm_plugin(void *param)
 {
     (void)param;
@@ -5322,6 +5341,9 @@ static int launch_pokemini(void *param);
           &achievements_item, &livetv_item, &sitekick_item, &tamagotchi_item,
           &maps_item, &weather_item, &calm_item,
           &offlineweb_item, &magazines_item, &comics_item, &pocketsky_item,
+#if defined(HAVE_IPODJS_UI) && defined(HAVE_TAGCACHE)
+          &qrcode_item,
+#endif
           &pokedex_item);
 
 static const struct browse_folder_info gameboy_folder = {"/gameboy/", SHOW_ALL};
@@ -14815,10 +14837,11 @@ static void root_menu_video_search_build(const char *query)
     }
 }
 
-static void root_menu_video_search_draw_input(const char *query,
-                                               int character)
+static void root_menu_video_stock_keyboard_draw(const char *query,
+                                                 const char *characters,
+                                                 int character_count,
+                                                 int character)
 {
-    static const char alphabet[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     const int panel_x = 20;
     const int panel_y = 171;
     const int panel_w = 278;
@@ -14862,9 +14885,9 @@ static void root_menu_video_search_draw_input(const char *query,
         int x = center_x + offset * 19;
 
         while (index < 0)
-            index += 26;
-        index %= 26;
-        glyph[0] = alphabet[index];
+            index += character_count;
+        index %= character_count;
+        glyph[0] = characters[index];
         glyph[1] = '\0';
         lcd_getstringsize(glyph, &glyph_w, &glyph_h);
         /* The stock query field masks the alphabet to its left; do not paint
@@ -14982,7 +15005,8 @@ static void root_menu_video_search_draw(const char *query, bool entering,
     }
 
     if (entering)
-        root_menu_video_search_draw_input(query, character);
+        root_menu_video_stock_keyboard_draw(
+            query, "ABCDEFGHIJKLMNOPQRSTUVWXYZ", 26, character);
     ipodjs_video_draw_hold_overlay();
     lcd_update();
     ipodjs_trace_screen("Search", entering ? "input" : "results",
@@ -15034,7 +15058,8 @@ int root_menu_ipodjs_search(void)
     bool held = button_hold();
     long next_hold_refresh = 0;
 
-    if (!root_menu_ipodjs_search_available())
+    if (!root_menu_ipodjs_search_available() ||
+        !ipodjs_ui_prepare_search_surfaces())
         return GO_TO_PREVIOUS;
     root_menu_video_search_build(query);
     button_clear_queue();
@@ -15171,6 +15196,759 @@ int root_menu_ipodjs_search(void)
                 }
                 else
                     return GO_TO_PREVIOUS;
+                break;
+        }
+    }
+}
+
+#define IPODJS_QRCODE_TEXT_SIZE 256
+#define IPODJS_QRCODE_QUIET_ZONE 4
+#define IPODJS_QRCODE_SAVE_SCALE 4
+#define IPODJS_QRCODE_SAVE_DIR HOME_DIR "QR Codes"
+#define IPODJS_QRCODE_META_DIR ROCKBOX_DIR "/qrcodes"
+#define IPODJS_QRCODE_MAX_SAVED 64
+#define IPODJS_QRCODE_LABEL_SIZE 32
+
+struct root_menu_video_qrcode_bank
+{
+    const char *label;
+    const char *characters;
+};
+
+static const struct root_menu_video_qrcode_bank
+root_menu_video_qrcode_banks[] = {
+    { "ABC", "ABCDEFGHIJKLMNOPQRSTUVWXYZ" },
+    { "abc", "abcdefghijklmnopqrstuvwxyz" },
+    { "123", "0123456789" },
+    { "#+=", ":/.-_?&=%+@#" },
+};
+
+static uint8_t root_menu_video_qrcode_temp[qrcodegen_BUFFER_LEN_MAX];
+static uint8_t root_menu_video_qrcode_data[qrcodegen_BUFFER_LEN_MAX];
+static char root_menu_video_qrcode_saved[IPODJS_QRCODE_MAX_SAVED]
+                                          [IPODJS_QRCODE_LABEL_SIZE];
+
+static void root_menu_video_qrcode_le16(unsigned char *buffer,
+                                        unsigned value)
+{
+    buffer[0] = value & 0xff;
+    buffer[1] = (value >> 8) & 0xff;
+}
+
+static void root_menu_video_qrcode_le32(unsigned char *buffer,
+                                        uint32_t value)
+{
+    buffer[0] = value & 0xff;
+    buffer[1] = (value >> 8) & 0xff;
+    buffer[2] = (value >> 16) & 0xff;
+    buffer[3] = (value >> 24) & 0xff;
+}
+
+static bool root_menu_video_qrcode_write_all(int fd, const void *buffer,
+                                              size_t size)
+{
+    const unsigned char *data = buffer;
+
+    while (size > 0)
+    {
+        ssize_t written = write(fd, data, size);
+
+        if (written <= 0)
+            return false;
+        data += written;
+        size -= written;
+    }
+    return true;
+}
+
+static bool root_menu_video_qrcode_meta_path(const char *image_path,
+                                              char *meta_path,
+                                              size_t meta_size)
+{
+    const char *name = strrchr(image_path, '/');
+    char stem[IPODJS_QRCODE_LABEL_SIZE];
+    char *extension;
+
+    name = name ? name + 1 : image_path;
+    strmemccpy(stem, name, sizeof(stem));
+    extension = strrchr(stem, '.');
+    if (!extension || strcasecmp(extension, ".bmp"))
+        return false;
+    *extension = '\0';
+    return snprintf(meta_path, meta_size, "%s/%s.txt",
+                    IPODJS_QRCODE_META_DIR, stem) < (int)meta_size;
+}
+
+static bool root_menu_video_qrcode_save_source(const char *image_path,
+                                                const char *text)
+{
+    char meta_path[MAX_PATH];
+    char temp_path[MAX_PATH];
+    int fd;
+    bool ok;
+
+    if (mkdir(ROCKBOX_DIR) < 0 && !dir_exists(ROCKBOX_DIR))
+        return false;
+    if (mkdir(IPODJS_QRCODE_META_DIR) < 0 &&
+        !dir_exists(IPODJS_QRCODE_META_DIR))
+        return false;
+    if (!root_menu_video_qrcode_meta_path(image_path, meta_path,
+                                           sizeof(meta_path)) ||
+        snprintf(temp_path, sizeof(temp_path), "%s.tmp", meta_path) >=
+            (int)sizeof(temp_path))
+        return false;
+
+    fd = creat(temp_path, 0666);
+    if (fd < 0)
+        return false;
+    ok = root_menu_video_qrcode_write_all(fd, text, strlen(text));
+    if (close(fd) < 0)
+        ok = false;
+    if (ok)
+    {
+        remove(meta_path);
+        ok = rename(temp_path, meta_path) >= 0;
+    }
+    if (!ok)
+        remove(temp_path);
+    return ok;
+}
+
+static bool root_menu_video_qrcode_save(char *path, size_t path_size,
+                                         const char *text)
+{
+    unsigned char header[62] = { 0 };
+    unsigned char row[((qrcodegen_VERSION_MAX * 4 + 17 +
+                        IPODJS_QRCODE_QUIET_ZONE * 2) *
+                       IPODJS_QRCODE_SAVE_SCALE + 31) / 32 * 4];
+    int modules = qrcodegen_getSize(root_menu_video_qrcode_data);
+    int total_modules = modules + IPODJS_QRCODE_QUIET_ZONE * 2;
+    int pixels = total_modules * IPODJS_QRCODE_SAVE_SCALE;
+    int row_size = ((pixels + 31) / 32) * 4;
+    uint32_t image_size = row_size * pixels;
+    int fd;
+    bool ok = true;
+
+    if (modules <= 0 || path_size < MAX_PATH)
+        return false;
+    if (mkdir(IPODJS_QRCODE_SAVE_DIR) < 0 &&
+        !dir_exists(IPODJS_QRCODE_SAVE_DIR))
+        return false;
+    if (!create_numbered_filename(path, IPODJS_QRCODE_SAVE_DIR,
+                                  "QR Code ", ".bmp", 3
+                                  IF_CNFN_NUM_(, NULL)))
+        return false;
+
+    header[0] = 'B';
+    header[1] = 'M';
+    root_menu_video_qrcode_le32(header + 2, 62 + image_size);
+    root_menu_video_qrcode_le32(header + 10, 62);
+    root_menu_video_qrcode_le32(header + 14, 40);
+    root_menu_video_qrcode_le32(header + 18, pixels);
+    root_menu_video_qrcode_le32(header + 22, pixels);
+    root_menu_video_qrcode_le16(header + 26, 1);
+    root_menu_video_qrcode_le16(header + 28, 1);
+    root_menu_video_qrcode_le32(header + 34, image_size);
+    root_menu_video_qrcode_le32(header + 38, 3780);
+    root_menu_video_qrcode_le32(header + 42, 3780);
+    root_menu_video_qrcode_le32(header + 46, 2);
+    root_menu_video_qrcode_le32(header + 50, 2);
+    header[54] = 0xff;
+    header[55] = 0xff;
+    header[56] = 0xff;
+    header[57] = 0x00;
+    header[58] = 0x00;
+    header[59] = 0x00;
+    header[60] = 0x00;
+    header[61] = 0x00;
+
+    fd = creat(path, 0666);
+    if (fd < 0)
+        return false;
+    ok = root_menu_video_qrcode_write_all(fd, header, sizeof(header));
+
+    for (int pixel_y = pixels - 1; ok && pixel_y >= 0; pixel_y--)
+    {
+        int module_y = pixel_y / IPODJS_QRCODE_SAVE_SCALE -
+                       IPODJS_QRCODE_QUIET_ZONE;
+
+        memset(row, 0, row_size);
+        if (module_y >= 0 && module_y < modules)
+        {
+            for (int pixel_x = 0; pixel_x < pixels; pixel_x++)
+            {
+                int module_x = pixel_x / IPODJS_QRCODE_SAVE_SCALE -
+                               IPODJS_QRCODE_QUIET_ZONE;
+
+                if (module_x >= 0 && module_x < modules &&
+                    qrcodegen_getModule(root_menu_video_qrcode_data,
+                                        module_x, module_y))
+                    row[pixel_x >> 3] |= 0x80 >> (pixel_x & 7);
+            }
+        }
+        ok = root_menu_video_qrcode_write_all(fd, row, row_size);
+    }
+    if (close(fd) < 0)
+        ok = false;
+    if (ok)
+        ok = root_menu_video_qrcode_save_source(path, text);
+    if (!ok)
+        remove(path);
+    return ok;
+}
+
+static int root_menu_video_qrcode_saved_compare(const void *a,
+                                                 const void *b)
+{
+    return strcasecmp(a, b);
+}
+
+static int root_menu_video_qrcode_load_saved(void)
+{
+    DIR *directory = opendir(IPODJS_QRCODE_SAVE_DIR);
+    struct dirent *entry;
+    int count = 0;
+
+    memset(root_menu_video_qrcode_saved, 0,
+           sizeof(root_menu_video_qrcode_saved));
+    if (!directory)
+        return 0;
+    while (count < IPODJS_QRCODE_MAX_SAVED &&
+           (entry = readdir(directory)) != NULL)
+    {
+        char image_path[MAX_PATH];
+        char meta_path[MAX_PATH];
+        char label[IPODJS_QRCODE_LABEL_SIZE];
+        char *extension;
+
+        if (strncasecmp(entry->d_name, "QR Code ", 8))
+            continue;
+        strmemccpy(label, entry->d_name, sizeof(label));
+        extension = strrchr(label, '.');
+        if (!extension || strcasecmp(extension, ".bmp"))
+            continue;
+        *extension = '\0';
+        if (snprintf(image_path, sizeof(image_path), "%s/%s",
+                     IPODJS_QRCODE_SAVE_DIR, entry->d_name) >=
+            (int)sizeof(image_path) ||
+            !root_menu_video_qrcode_meta_path(image_path, meta_path,
+                                               sizeof(meta_path)) ||
+            !file_exists(meta_path))
+            continue;
+        strmemccpy(root_menu_video_qrcode_saved[count], label,
+                   sizeof(root_menu_video_qrcode_saved[count]));
+        count++;
+    }
+    closedir(directory);
+    qsort(root_menu_video_qrcode_saved, count,
+          sizeof(root_menu_video_qrcode_saved[0]),
+          root_menu_video_qrcode_saved_compare);
+    return count;
+}
+
+static bool root_menu_video_qrcode_load_source(const char *label,
+                                                char *text,
+                                                size_t text_size)
+{
+    char image_path[MAX_PATH];
+    char meta_path[MAX_PATH];
+    off_t file_size;
+    int fd;
+    ssize_t read_size;
+
+    if (snprintf(image_path, sizeof(image_path), "%s/%s.bmp",
+                 IPODJS_QRCODE_SAVE_DIR, label) >=
+        (int)sizeof(image_path) ||
+        !root_menu_video_qrcode_meta_path(image_path, meta_path,
+                                           sizeof(meta_path)))
+        return false;
+    fd = open(meta_path, O_RDONLY);
+    if (fd < 0)
+        return false;
+    file_size = filesize(fd);
+    if (file_size < 0 || file_size >= (off_t)text_size)
+    {
+        close(fd);
+        return false;
+    }
+    read_size = read(fd, text, file_size);
+    close(fd);
+    if (read_size != file_size)
+        return false;
+    text[read_size] = '\0';
+    return text[0] != '\0';
+}
+
+static bool root_menu_video_qrcode_encode(const char *text)
+{
+    memset(root_menu_video_qrcode_temp, 0,
+           sizeof(root_menu_video_qrcode_temp));
+    memset(root_menu_video_qrcode_data, 0,
+           sizeof(root_menu_video_qrcode_data));
+    return qrcodegen_encodeText(
+        text, root_menu_video_qrcode_temp, root_menu_video_qrcode_data,
+        qrcodegen_Ecc_MEDIUM, qrcodegen_VERSION_MIN,
+        qrcodegen_VERSION_MAX, qrcodegen_Mask_AUTO, true);
+}
+
+static void root_menu_video_qrcode_draw_input(const char *text, int bank,
+                                               int character)
+{
+    const struct root_menu_video_qrcode_bank *active =
+        &root_menu_video_qrcode_banks[bank];
+    char detail[48];
+
+    lcd_set_viewport(NULL);
+    lcd_set_drawmode(DRMODE_SOLID);
+    lcd_set_background(root_menu_video_screen_bg());
+    lcd_clear_display();
+    root_menu_video_draw_status_title("QR Code");
+
+    lcd_set_foreground(root_menu_video_row_bg());
+    lcd_fillrect(0, IPODJS_HEADER_HEIGHT, LCD_WIDTH,
+                 LCD_HEIGHT - IPODJS_HEADER_HEIGHT);
+    lcd_setfont(root_menu_video_font());
+    lcd_set_foreground(root_menu_video_text());
+    lcd_set_background(root_menu_video_row_bg());
+    root_menu_video_puts_fit(8, IPODJS_HEADER_HEIGHT + 18,
+                             LCD_WIDTH - 16,
+                             text[0] ? "Enter QR code text" :
+                                       "Create a QR code", true);
+    lcd_set_foreground(root_menu_video_muted_text());
+    root_menu_video_puts_fit(8, IPODJS_HEADER_HEIGHT + 45,
+                             LCD_WIDTH - 16,
+                             "Wheel chooses  |  Center types", true);
+    root_menu_video_puts_fit(8, IPODJS_HEADER_HEIGHT + 64,
+                             LCD_WIDTH - 16,
+                             "Prev deletes  |  Next adds space", true);
+    root_menu_video_puts_fit(8, IPODJS_HEADER_HEIGHT + 83,
+                             LCD_WIDTH - 16,
+                             "Play changes keys  |  Menu creates", true);
+
+    snprintf(detail, sizeof(detail), "%s  %d/%d", active->label,
+             (int)strlen(text), IPODJS_QRCODE_TEXT_SIZE - 1);
+    root_menu_video_puts_fit(8, IPODJS_HEADER_HEIGHT + 112,
+                             LCD_WIDTH - 16, detail, true);
+
+    root_menu_video_stock_keyboard_draw(
+        text, active->characters, strlen(active->characters), character);
+    ipodjs_video_draw_hold_overlay();
+    lcd_update();
+    ipodjs_trace_screen("QR Code", "input", bank, character,
+                        strlen(text), 0, 0, LCD_WIDTH, LCD_HEIGHT);
+}
+
+static void root_menu_video_qrcode_draw_code(const char *text, bool can_save)
+{
+    int size = qrcodegen_getSize(root_menu_video_qrcode_data);
+    int total_modules = size + IPODJS_QRCODE_QUIET_ZONE * 2;
+    int content_h = LCD_HEIGHT - IPODJS_HEADER_HEIGHT;
+    int scale = MIN(LCD_WIDTH / total_modules,
+                    content_h / total_modules);
+    int drawn = total_modules * scale;
+    int left = (LCD_WIDTH - drawn) / 2;
+    int top = IPODJS_HEADER_HEIGHT + (content_h - drawn) / 2;
+    int origin_x = left + IPODJS_QRCODE_QUIET_ZONE * scale;
+    int origin_y = top + IPODJS_QRCODE_QUIET_ZONE * scale;
+
+    lcd_set_viewport(NULL);
+    lcd_set_drawmode(DRMODE_SOLID);
+    lcd_set_background(LCD_RGBPACK(255, 255, 255));
+    lcd_clear_display();
+    root_menu_video_draw_status_title(can_save ? "QR - Center Saves" :
+                                                 "QR Code");
+    lcd_set_foreground(LCD_RGBPACK(255, 255, 255));
+    lcd_fillrect(0, IPODJS_HEADER_HEIGHT, LCD_WIDTH, content_h);
+
+    lcd_set_foreground(LCD_RGBPACK(0, 0, 0));
+    for (int y = 0; y < size; y++)
+    {
+        int x = 0;
+
+        while (x < size)
+        {
+            int start;
+
+            while (x < size &&
+                   !qrcodegen_getModule(root_menu_video_qrcode_data, x, y))
+                x++;
+            start = x;
+            while (x < size &&
+                   qrcodegen_getModule(root_menu_video_qrcode_data, x, y))
+                x++;
+            if (start < x)
+                lcd_fillrect(origin_x + start * scale,
+                             origin_y + y * scale,
+                             (x - start) * scale, scale);
+        }
+    }
+
+    ipodjs_video_draw_hold_overlay();
+    lcd_update();
+    ipodjs_trace_screen("QR Code", "display", size, scale,
+                        strlen(text), left, top, drawn, drawn);
+}
+
+static void root_menu_video_qrcode_clear_buffers(void)
+{
+    memset(root_menu_video_qrcode_temp, 0,
+           sizeof(root_menu_video_qrcode_temp));
+    memset(root_menu_video_qrcode_data, 0,
+           sizeof(root_menu_video_qrcode_data));
+}
+
+enum root_menu_video_qrcode_editor_result {
+    IPODJS_QRCODE_EDITOR_BACK = 0,
+    IPODJS_QRCODE_EDITOR_SAVED,
+};
+
+static int root_menu_video_qrcode_editor(const char *initial_text)
+{
+    char text[IPODJS_QRCODE_TEXT_SIZE] = "";
+    int bank = 0;
+    int character = 0;
+    bool is_new = initial_text == NULL;
+    bool displaying = !is_new;
+    bool redraw = true;
+    bool held = button_hold();
+    long next_hold_refresh = 0;
+
+    if (initial_text)
+    {
+        strmemccpy(text, initial_text, sizeof(text));
+        if (!root_menu_video_qrcode_encode(text))
+        {
+            memset(text, 0, sizeof(text));
+            root_menu_video_qrcode_clear_buffers();
+            return IPODJS_QRCODE_EDITOR_BACK;
+        }
+    }
+    button_clear_queue();
+
+    while (true)
+    {
+        const struct root_menu_video_qrcode_bank *active =
+            &root_menu_video_qrcode_banks[bank];
+        int character_count = strlen(active->characters);
+        int action;
+
+        root_menu_video_hold_update(&held, &redraw);
+        if (redraw)
+        {
+            if (displaying)
+                root_menu_video_qrcode_draw_code(text, is_new);
+            else
+                root_menu_video_qrcode_draw_input(text, bank, character);
+            redraw = false;
+        }
+
+        action = get_action(CONTEXT_TREE | ALLOW_SOFTLOCK, HZ / 20);
+        if (ipodjs_ui_handle_system_event(action, &redraw))
+            continue;
+        if (root_menu_video_handle_tree_stop(action, &redraw))
+            continue;
+
+        switch (action)
+        {
+            case ACTION_NONE:
+                if (held && TIME_AFTER(current_tick, next_hold_refresh))
+                {
+                    next_hold_refresh = current_tick + HZ;
+                    redraw = true;
+                }
+                break;
+
+            case ACTION_STD_PREV:
+            case ACTION_STD_PREVREPEAT:
+                if (root_menu_video_hold_update(&held, &redraw) || displaying)
+                    break;
+                character = character <= 0 ? character_count - 1 :
+                                             character - 1;
+                redraw = true;
+                break;
+
+            case ACTION_STD_NEXT:
+            case ACTION_STD_NEXTREPEAT:
+                if (root_menu_video_hold_update(&held, &redraw) || displaying)
+                    break;
+                character = (character + 1) % character_count;
+                redraw = true;
+                break;
+
+            case ACTION_TREE_PGLEFT:
+                if (root_menu_video_hold_update(&held, &redraw) || displaying)
+                    break;
+                if (text[0])
+                {
+                    text[strlen(text) - 1] = '\0';
+                    redraw = true;
+                }
+                break;
+
+            case ACTION_TREE_PGRIGHT:
+                if (root_menu_video_hold_update(&held, &redraw) || displaying)
+                    break;
+                if (strlen(text) + 1 < sizeof(text))
+                {
+                    size_t length = strlen(text);
+                    text[length] = ' ';
+                    text[length + 1] = '\0';
+                    redraw = true;
+                }
+                break;
+
+            case ACTION_STD_OK:
+                if (root_menu_video_hold_update(&held, &redraw))
+                    break;
+                if (displaying)
+                {
+                    char path[MAX_PATH];
+
+                    if (!is_new)
+                        break;
+                    if (root_menu_video_qrcode_save(path, sizeof(path), text))
+                    {
+                        splashf(HZ * 2, "Saved\n%s", path);
+                        ipodjs_trace_screen("QR Code", "saved",
+                            qrcodegen_getSize(root_menu_video_qrcode_data),
+                            IPODJS_QRCODE_SAVE_SCALE, strlen(text),
+                            0, 0, 0, 0);
+                        memset(text, 0, sizeof(text));
+                        root_menu_video_qrcode_clear_buffers();
+                        return IPODJS_QRCODE_EDITOR_SAVED;
+                    }
+                    else
+                        splash(HZ * 2, "Could not save QR code");
+                    redraw = true;
+                }
+                else if (strlen(text) + 1 < sizeof(text))
+                {
+                    size_t length = strlen(text);
+                    text[length] = active->characters[character];
+                    text[length + 1] = '\0';
+                    redraw = true;
+                }
+                break;
+
+            case ACTION_TREE_WPS:
+                if (root_menu_video_hold_update(&held, &redraw) || displaying)
+                    break;
+                bank = (bank + 1) % ARRAYLEN(root_menu_video_qrcode_banks);
+                character = 0;
+                redraw = true;
+                break;
+
+            case ACTION_STD_MENU:
+            case ACTION_STD_CANCEL:
+                if (root_menu_video_hold_update(&held, &redraw))
+                    break;
+                if (displaying)
+                {
+                    if (is_new)
+                    {
+                        displaying = false;
+                        redraw = true;
+                    }
+                    else
+                    {
+                        memset(text, 0, sizeof(text));
+                        root_menu_video_qrcode_clear_buffers();
+                        return IPODJS_QRCODE_EDITOR_BACK;
+                    }
+                }
+                else if (!text[0])
+                {
+                    memset(text, 0, sizeof(text));
+                    root_menu_video_qrcode_clear_buffers();
+                    return IPODJS_QRCODE_EDITOR_BACK;
+                }
+                else if (root_menu_video_qrcode_encode(text))
+                {
+                    displaying = true;
+                    redraw = true;
+                }
+                else
+                {
+                    splash(HZ * 2, "Text is too long for a QR code");
+                    redraw = true;
+                }
+                break;
+        }
+    }
+}
+
+static const char *root_menu_video_qrcode_list_label(int index)
+{
+    return index == 0 ? "Add QR Code" :
+                        root_menu_video_qrcode_saved[index - 1];
+}
+
+static void root_menu_video_qrcode_draw_list_row(int index, int screen_row,
+                                                  int row_h, bool active)
+{
+    int y = IPODJS_HEADER_HEIGHT + screen_row * row_h;
+
+    if (active)
+    {
+        unsigned accent = root_menu_video_accent();
+        root_menu_video_selection_gradient(0, y, LCD_WIDTH, row_h);
+        lcd_set_foreground(IPODJS_PREVIEW_TEXT);
+        lcd_set_background(accent);
+    }
+    else
+    {
+        lcd_set_foreground(root_menu_video_row_bg());
+        lcd_fillrect(0, y, LCD_WIDTH, row_h);
+        lcd_set_foreground(root_menu_video_text());
+        lcd_set_background(root_menu_video_row_bg());
+    }
+
+    root_menu_video_puts_fit(7, y + 4, LCD_WIDTH - 28,
+                             root_menu_video_qrcode_list_label(index), false);
+    if (active)
+        root_menu_video_draw_arrow(LCD_WIDTH - 16,
+                                   y + (row_h - 6) / 2);
+}
+
+static void root_menu_video_qrcode_draw_list(int selected, int saved_count)
+{
+    int count = saved_count + 1;
+    int row_h = root_menu_video_row_height();
+    int visible = root_menu_video_visible_rows(row_h);
+    int top = root_menu_video_list_top(selected, visible);
+
+    lcd_set_viewport(NULL);
+    lcd_set_drawmode(DRMODE_SOLID);
+    lcd_set_background(root_menu_video_screen_bg());
+    lcd_clear_display();
+    root_menu_video_draw_status_title("QR Codes");
+
+    lcd_setfont(root_menu_video_font());
+    lcd_set_foreground(root_menu_video_row_bg());
+    lcd_fillrect(0, IPODJS_HEADER_HEIGHT, LCD_WIDTH,
+                 LCD_HEIGHT - IPODJS_HEADER_HEIGHT);
+    for (int i = 0; i < visible && top + i < count; i++)
+    {
+        int index = top + i;
+        root_menu_video_qrcode_draw_list_row(index, i, row_h,
+                                              index == selected);
+    }
+
+    ipodjs_video_draw_hold_overlay();
+    if (!ipodjs_ui_transition_present(&screens[SCREEN_MAIN]))
+        lcd_update();
+    ipodjs_trace_screen("QR Codes", "list", selected, top, count,
+                        0, 0, LCD_WIDTH, LCD_HEIGHT);
+}
+
+static int root_menu_video_qrcode_screen(void)
+{
+    char source[IPODJS_QRCODE_TEXT_SIZE];
+    int saved_count;
+    int selected = 0;
+    bool redraw = true;
+    bool held = button_hold();
+    long next_hold_refresh = 0;
+
+    root_menu_video_enter_native_screen();
+    if (!ipodjs_ui_search_surfaces_available() ||
+        !ipodjs_ui_prepare_search_surfaces())
+    {
+        splash(HZ * 2, "QR keyboard assets missing");
+        return root_menu_video_finish_native_screen(GO_TO_PREVIOUS);
+    }
+    saved_count = root_menu_video_qrcode_load_saved();
+    button_clear_queue();
+
+    while (true)
+    {
+        int action;
+        int count = saved_count + 1;
+
+        root_menu_video_hold_update(&held, &redraw);
+        if (redraw)
+        {
+            root_menu_video_qrcode_draw_list(selected, saved_count);
+            redraw = false;
+        }
+
+        action = get_action(CONTEXT_TREE | ALLOW_SOFTLOCK, HZ / 20);
+        if (ipodjs_ui_handle_system_event(action, &redraw))
+            continue;
+        if (root_menu_video_handle_tree_stop(action, &redraw))
+            continue;
+
+        switch (action)
+        {
+            case ACTION_NONE:
+                if (held && TIME_AFTER(current_tick, next_hold_refresh))
+                {
+                    next_hold_refresh = current_tick + HZ;
+                    redraw = true;
+                }
+                break;
+
+            case ACTION_STD_PREV:
+            case ACTION_STD_PREVREPEAT:
+                if (!root_menu_video_hold_update(&held, &redraw))
+                {
+                    selected = MAX(0, selected - 1);
+                    redraw = true;
+                }
+                break;
+
+            case ACTION_STD_NEXT:
+            case ACTION_STD_NEXTREPEAT:
+                if (!root_menu_video_hold_update(&held, &redraw))
+                {
+                    selected = MIN(count - 1, selected + 1);
+                    redraw = true;
+                }
+                break;
+
+            case ACTION_STD_OK:
+                if (root_menu_video_hold_update(&held, &redraw))
+                    break;
+                memset(source, 0, sizeof(source));
+                if (selected == 0)
+                {
+                    if (root_menu_video_qrcode_editor(NULL) ==
+                        IPODJS_QRCODE_EDITOR_SAVED)
+                    {
+                        saved_count = root_menu_video_qrcode_load_saved();
+                        selected = saved_count;
+                    }
+                }
+                else if (!root_menu_video_qrcode_load_source(
+                             root_menu_video_qrcode_saved[selected - 1],
+                             source, sizeof(source)))
+                    splash(HZ * 2, "Could not open saved QR code");
+                else
+                    (void)root_menu_video_qrcode_editor(source);
+                memset(source, 0, sizeof(source));
+                button_clear_queue();
+                redraw = true;
+                break;
+
+            case ACTION_TREE_WPS:
+                if (!root_menu_video_hold_update(&held, &redraw))
+                {
+                    (void)root_menu_video_handle_play_pause(false, NULL);
+                    redraw = true;
+                }
+                break;
+
+            case ACTION_STD_MENU:
+            case ACTION_STD_CANCEL:
+                if (!root_menu_video_hold_update(&held, &redraw))
+                {
+                    memset(source, 0, sizeof(source));
+                    memset(root_menu_video_qrcode_saved, 0,
+                           sizeof(root_menu_video_qrcode_saved));
+                    root_menu_video_qrcode_clear_buffers();
+                    return root_menu_video_finish_native_screen(
+                        GO_TO_PREVIOUS);
+                }
                 break;
         }
     }
@@ -15996,6 +16774,9 @@ root_menu_video_application_items[] = {
     { "Calm", launch_calm_plugin },
     { "Internet", launch_offlineweb_plugin },
     { "Pocket Sky", launch_pocketsky_plugin },
+#ifdef HAVE_TAGCACHE
+    { "QR Codes", launch_qrcode_tool },
+#endif
     { "Pokedex", launch_pokedex_plugin },
 };
 

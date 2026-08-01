@@ -42,9 +42,13 @@
 /* Static model caps. Sized in the spec; nothing is heap allocated and no
  * core_alloc() memory is touched. */
 #define LIVETV_MAX_CHANNELS     24
-#define LIVETV_MAX_SLOTS        2048
-#define LIVETV_TEXT_POOL        36864
-#define LIVETV_PATH_POOL        24576
+/* Keep two full days of every synced channel in memory.  Short-form channels
+ * can produce far more than 2048 programme/ad boundaries in that window;
+ * truncating at the old limit silently made higher-numbered channels appear
+ * empty even though their clips had been copied successfully. */
+#define LIVETV_MAX_SLOTS        8192
+#define LIVETV_TEXT_POOL        65535
+#define LIVETV_PATH_POOL        65535
 
 #define LIVETV_CALLSIGN_LEN     10
 #define LIVETV_NAME_LEN         32

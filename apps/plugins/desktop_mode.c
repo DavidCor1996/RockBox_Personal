@@ -312,6 +312,9 @@
 #define DM_BOOT_SPINNER_X ((LCD_WIDTH - DM_BOOT_SPINNER_SIZE) / 2)
 #define DM_BOOT_SPINNER_Y 151
 #define DM_INPUT_POLL_TICKS MAX(1, HZ / 50)
+/* Match the bounded microUI profile without coupling this playback-aware,
+ * asset-backed shell to the immediate-mode core. */
+#define DM_CONTROL_LIMIT 64
 #define DM_ABS(value) ((value) < 0 ? -(value) : (value))
 #define DM_APP_BIT(app) (1u << (unsigned int)(app))
 
@@ -426,6 +429,7 @@ enum dm_overlay
     DM_OVERLAY_RESTART_CONFIRM,
     DM_OVERLAY_DELETE_CONFIRM,
     DM_OVERLAY_NEW_FOLDER_CONFIRM,
+    DM_OVERLAY_DIAGNOSTICS,
 };
 
 enum dm_boot_result
@@ -433,6 +437,49 @@ enum dm_boot_result
     DM_BOOT_ERROR = -1,
     DM_BOOT_DONE = 0,
     DM_BOOT_USB_CONNECTED = 1,
+};
+
+enum dm_error
+{
+    DM_ERR_NONE = 0,
+    DM_ERR_ASSET_MISSING,
+    DM_ERR_ASSET_INVALID,
+    DM_ERR_PLUGIN_BUFFER,
+    DM_ERR_ARENA_OVERFLOW,
+    DM_ERR_CONTROL_OVERFLOW,
+};
+
+enum dm_control_action
+{
+    DM_ACTION_NONE = 0,
+    DM_ACTION_APPLE_MENU,
+    DM_ACTION_DOCK_APP,
+    DM_ACTION_CLOSE,
+    DM_ACTION_MINIMISE,
+    DM_ACTION_FINDER_BACK,
+    DM_ACTION_FINDER_FORWARD,
+    DM_ACTION_FINDER_SCROLL,
+    DM_ACTION_FILE_ROW,
+    DM_ACTION_FINDER_SIDEBAR,
+    DM_ACTION_ITUNES_PREVIOUS,
+    DM_ACTION_ITUNES_PLAY_PAUSE,
+    DM_ACTION_ITUNES_NEXT,
+    DM_ACTION_ITUNES_WPS,
+    DM_ACTION_ITUNES_PAGE,
+    DM_ACTION_ITUNES_SOURCE,
+    DM_ACTION_PREFERENCE,
+    DM_ACTION_DESKTOP_FOLDER,
+    DM_ACTION_APPLE_MENU_ROW,
+    DM_ACTION_CONTEXT_MENU_ROW,
+    DM_ACTION_MODAL_CONFIRM,
+    DM_ACTION_MODAL_DISMISS,
+};
+
+enum dm_control_flags
+{
+    DM_CONTROL_HAND = 0x01,
+    DM_CONTROL_FOCUSABLE = 0x02,
+    DM_CONTROL_DOUBLE_CLICK = 0x04,
 };
 
 struct dm_asset_def
@@ -486,6 +533,24 @@ struct dm_rect
     int height;
 };
 
+struct dm_control
+{
+    uint32_t id;
+    struct dm_rect bounds;
+    enum dm_control_action action;
+    short value;
+    unsigned short flags;
+};
+
+struct dm_control_registry
+{
+    struct dm_control controls[DM_CONTROL_LIMIT];
+    int count;
+    int high_water;
+    int hover_index;
+    uint32_t focus_id;
+};
+
 struct dm_settings
 {
     int pointer_speed;
@@ -534,6 +599,19 @@ struct dm_state
     int last_click_y;
     bool running;
     bool redraw;
+    bool damage_full;
+    int presented_cursor_x;
+    int presented_cursor_y;
+    struct dm_rect presented_hover;
+    enum dm_control_action presented_hover_action;
+    struct dm_rect pending_damage;
+    uint32_t scene_signature;
+    unsigned long frame_count;
+    unsigned long full_update_count;
+    unsigned long partial_update_count;
+    long last_frame_ticks;
+    long worst_frame_ticks;
+    struct dm_control_registry *controls;
     /* Absolute-wheel targets steer the pointer directly.  Anything that never
      * reports a wheel contact - the simulator, or a future target without
      * HAVE_WHEEL_POSITION - falls back to four-direction pointer motion.
@@ -859,6 +937,9 @@ static int dm_saved_cursor_x = LCD_WIDTH / 2;
 static int dm_saved_cursor_y = LCD_HEIGHT / 2;
 static unsigned char *dm_arena;
 static size_t dm_arena_left;
+static size_t dm_arena_total;
+static enum dm_error dm_last_error;
+static struct dm_rect dm_paint_clip = { 0, 0, LCD_WIDTH, LCD_HEIGHT };
 
 static bool dm_point_in_rect(int x, int y, struct dm_rect rect)
 {
@@ -872,7 +953,10 @@ static void *dm_alloc(size_t bytes)
     void *result;
 
     if (!dm_arena || aligned > dm_arena_left)
+    {
+        dm_last_error = DM_ERR_ARENA_OVERFLOW;
         return NULL;
+    }
     result = dm_arena;
     dm_arena += aligned;
     dm_arena_left -= aligned;
@@ -886,6 +970,7 @@ static bool dm_asset_files_present(void)
 
     if (!rb->file_exists(DM_MANIFEST_FILE))
     {
+        dm_last_error = DM_ERR_ASSET_MISSING;
         DEBUGF("desktop mode: missing %s\n", DM_MANIFEST_FILE);
         return false;
     }
@@ -893,23 +978,33 @@ static bool dm_asset_files_present(void)
     {
         if (!rb->file_exists(dm_asset_defs[id].path))
         {
+            dm_last_error = DM_ERR_ASSET_MISSING;
             DEBUGF("desktop mode: missing asset %d %s\n",
                    id, dm_asset_defs[id].path);
             return false;
         }
     }
     if (!rb->file_exists(dm_boot_background_path))
+    {
+        dm_last_error = DM_ERR_ASSET_MISSING;
         return false;
+    }
     for (frame = 0; frame < DM_BOOT_FRAME_COUNT; frame++)
     {
         if (!rb->file_exists(dm_boot_spinner_paths[frame]))
+        {
+            dm_last_error = DM_ERR_ASSET_MISSING;
             return false;
+        }
     }
     for (id = 0; id < DM_FONT_COUNT; id++)
     {
         if (!rb->file_exists(dm_font_defs[id].coverage) ||
             !rb->file_exists(dm_font_defs[id].metrics))
+        {
+            dm_last_error = DM_ERR_ASSET_MISSING;
             return false;
+        }
     }
     return true;
 }
@@ -933,7 +1028,10 @@ static enum dm_boot_result dm_show_boot_animation(void)
     if (!arena ||
         buffer_size < background_bytes +
                       spinner_bytes * DM_BOOT_FRAME_COUNT)
+    {
+        dm_last_error = DM_ERR_PLUGIN_BUFFER;
         return DM_BOOT_ERROR;
+    }
 
     rb->memset(&background, 0, sizeof(background));
     background.width = LCD_WIDTH;
@@ -943,10 +1041,13 @@ static enum dm_boot_result dm_show_boot_animation(void)
     arena += ALIGN_UP(background_bytes, 4);
     if (rb->read_bmp_file(
             dm_boot_background_path, &background, background_bytes,
-            FORMAT_NATIVE, NULL) <= 0 ||
+        FORMAT_NATIVE, NULL) <= 0 ||
         background.width != LCD_WIDTH ||
         background.height != LCD_HEIGHT)
+    {
+        dm_last_error = DM_ERR_ASSET_INVALID;
         return DM_BOOT_ERROR;
+    }
 
     for (frame = 0; frame < DM_BOOT_FRAME_COUNT; frame++)
     {
@@ -960,10 +1061,13 @@ static enum dm_boot_result dm_show_boot_animation(void)
         arena += ALIGN_UP(spinner_bytes, 4);
         if (rb->read_bmp_file(
                 dm_boot_spinner_paths[frame], spinner, spinner_bytes,
-                FORMAT_NATIVE, NULL) <= 0 ||
+            FORMAT_NATIVE, NULL) <= 0 ||
             spinner->width != DM_BOOT_SPINNER_SIZE ||
             spinner->height != DM_BOOT_SPINNER_SIZE)
+        {
+            dm_last_error = DM_ERR_ASSET_INVALID;
             return DM_BOOT_ERROR;
+        }
     }
 
     while (true)
@@ -1136,8 +1240,12 @@ static bool dm_load_assets(void)
         return false;
     dm_arena = rb->plugin_get_buffer(&size);
     dm_arena_left = size;
+    dm_arena_total = size;
     if (!dm_arena)
+    {
+        dm_last_error = DM_ERR_PLUGIN_BUFFER;
         return false;
+    }
 
     dm_canvas = dm_alloc((size_t)LCD_WIDTH * LCD_HEIGHT * sizeof(fb_data));
     if (!dm_canvas)
@@ -1149,12 +1257,20 @@ static bool dm_load_assets(void)
                       dm_load_rga_asset((enum dm_asset_id)id);
 
         if (!ok)
+        {
+            if (dm_last_error == DM_ERR_NONE)
+                dm_last_error = DM_ERR_ASSET_INVALID;
             return false;
+        }
     }
     for (id = 0; id < DM_FONT_COUNT; id++)
     {
         if (!dm_load_font((enum dm_font_id)id))
+        {
+            if (dm_last_error == DM_ERR_NONE)
+                dm_last_error = DM_ERR_ASSET_INVALID;
             return false;
+        }
     }
     return true;
 }
@@ -1168,6 +1284,10 @@ static bool dm_load_assets(void)
 /* Grande, so the shell needs somewhere it can read back what it has   */
 /* already drawn in order to blend over it.                            */
 /* ------------------------------------------------------------------ */
+
+static bool dm_rect_intersect(struct dm_rect *rect,
+                              const struct dm_rect *clip);
+static void dm_update_hover(struct dm_state *state);
 
 static inline fb_data dm_blend(fb_data destination, fb_data source,
                                unsigned int coverage)
@@ -1188,38 +1308,45 @@ static inline fb_data dm_blend(fb_data destination, fb_data source,
 static void dm_blit(enum dm_asset_id id, int x, int y)
 {
     const struct dm_asset *asset = &dm_assets[id];
+    struct dm_rect target;
+    int source_x;
+    int source_y;
     int row;
-    int width;
-    int height;
 
     if (!asset->loaded)
         return;
-    width = MIN(asset->width, LCD_WIDTH - x);
-    height = MIN(asset->height, LCD_HEIGHT - y);
-    if (x < 0 || y < 0 || width <= 0 || height <= 0)
+    target = (struct dm_rect){ x, y, asset->width, asset->height };
+    if (!dm_rect_intersect(&target, &dm_paint_clip))
         return;
-    for (row = 0; row < height; row++)
-        rb->memcpy(dm_canvas + (y + row) * LCD_WIDTH + x,
-                   asset->pixels + row * asset->width,
-                   (size_t)width * sizeof(fb_data));
+    source_x = target.x - x;
+    source_y = target.y - y;
+    for (row = 0; row < target.height; row++)
+        rb->memcpy(dm_canvas + (target.y + row) * LCD_WIDTH + target.x,
+                   asset->pixels + (source_y + row) * asset->width +
+                       source_x,
+                   (size_t)target.width * sizeof(fb_data));
 }
 
 static void dm_blit_part(enum dm_asset_id id, int x, int y, int width)
 {
     const struct dm_asset *asset = &dm_assets[id];
+    struct dm_rect target;
+    int source_x;
+    int source_y;
     int row;
-    int height;
 
     if (!asset->loaded)
         return;
-    width = MIN(MIN(width, asset->width), LCD_WIDTH - x);
-    height = MIN(asset->height, LCD_HEIGHT - y);
-    if (x < 0 || y < 0 || width <= 0 || height <= 0)
+    target = (struct dm_rect){ x, y, MIN(width, asset->width), asset->height };
+    if (!dm_rect_intersect(&target, &dm_paint_clip))
         return;
-    for (row = 0; row < height; row++)
-        rb->memcpy(dm_canvas + (y + row) * LCD_WIDTH + x,
-                   asset->pixels + row * asset->width,
-                   (size_t)width * sizeof(fb_data));
+    source_x = target.x - x;
+    source_y = target.y - y;
+    for (row = 0; row < target.height; row++)
+        rb->memcpy(dm_canvas + (target.y + row) * LCD_WIDTH + target.x,
+                   asset->pixels + (source_y + row) * asset->width +
+                       source_x,
+                   (size_t)target.width * sizeof(fb_data));
 }
 
 #if LCD_WIDTH < 1920
@@ -1227,23 +1354,27 @@ static void dm_blit_region(enum dm_asset_id id, int source_x, int source_y,
                            int x, int y, int width, int height)
 {
     const struct dm_asset *asset = &dm_assets[id];
+    struct dm_rect target;
+    int clipped_source_x;
+    int clipped_source_y;
     int row;
 
     if (!asset->loaded || source_x < 0 || source_y < 0 ||
-        source_x >= asset->width || source_y >= asset->height ||
-        x < 0 || y < 0)
+        source_x >= asset->width || source_y >= asset->height)
         return;
     width = MIN(width, asset->width - source_x);
-    width = MIN(width, LCD_WIDTH - x);
     height = MIN(height, asset->height - source_y);
-    height = MIN(height, LCD_HEIGHT - y);
-    if (width <= 0 || height <= 0)
+    target = (struct dm_rect){ x, y, width, height };
+    if (!dm_rect_intersect(&target, &dm_paint_clip))
         return;
-    for (row = 0; row < height; row++)
-        rb->memcpy(dm_canvas + (y + row) * LCD_WIDTH + x,
-                   asset->pixels + (source_y + row) * asset->width +
-                       source_x,
-                   (size_t)width * sizeof(fb_data));
+    clipped_source_x = source_x + target.x - x;
+    clipped_source_y = source_y + target.y - y;
+    for (row = 0; row < target.height; row++)
+        rb->memcpy(dm_canvas + (target.y + row) * LCD_WIDTH + target.x,
+                   asset->pixels +
+                       (clipped_source_y + row) * asset->width +
+                       clipped_source_x,
+                   (size_t)target.width * sizeof(fb_data));
 }
 #endif
 
@@ -1256,22 +1387,32 @@ static void dm_blit_panel(enum dm_asset_id id, int x, int y, int width,
                           int cap)
 {
     const struct dm_asset *asset = &dm_assets[id];
+    struct dm_rect target_rect;
     int row;
     int column;
 
     if (!asset->loaded || width < cap * 2 || x < 0 ||
         x + width > LCD_WIDTH || y < 0 || y + asset->height > LCD_HEIGHT)
         return;
-    for (row = 0; row < asset->height; row++)
+    target_rect = (struct dm_rect){ x, y, width, asset->height };
+    if (!dm_rect_intersect(&target_rect, &dm_paint_clip))
+        return;
+    for (row = target_rect.y - y;
+         row < target_rect.y - y + target_rect.height; row++)
     {
         const fb_data *source = asset->pixels + row * asset->width;
         fb_data *target = dm_canvas + (y + row) * LCD_WIDTH + x;
 
-        rb->memcpy(target, source, (size_t)cap * sizeof(fb_data));
-        for (column = cap; column < width - cap; column++)
-            target[column] = source[cap];
-        rb->memcpy(target + width - cap, source + asset->width - cap,
-                   (size_t)cap * sizeof(fb_data));
+        for (column = target_rect.x - x;
+             column < target_rect.x - x + target_rect.width; column++)
+        {
+            if (column < cap)
+                target[column] = source[column];
+            else if (column >= width - cap)
+                target[column] = source[asset->width - (width - column)];
+            else
+                target[column] = source[cap];
+        }
     }
 }
 
@@ -1290,7 +1431,8 @@ static void dm_compose(enum dm_asset_id id, int x, int y)
         const unsigned char *alpha;
         fb_data *target;
 
-        if (target_y < 0 || target_y >= LCD_HEIGHT)
+        if (target_y < dm_paint_clip.y ||
+            target_y >= dm_paint_clip.y + dm_paint_clip.height)
             continue;
         source = asset->pixels + row * asset->width;
         alpha = asset->coverage + row * asset->width;
@@ -1300,7 +1442,9 @@ static void dm_compose(enum dm_asset_id id, int x, int y)
             int target_x = x + column;
             unsigned int value = alpha[column];
 
-            if (target_x < 0 || target_x >= LCD_WIDTH || value == 0)
+            if (target_x < dm_paint_clip.x ||
+                target_x >= dm_paint_clip.x + dm_paint_clip.width ||
+                value == 0)
                 continue;
             target[target_x] = value == 255 ?
                 source[column] :
@@ -1352,7 +1496,8 @@ static void dm_draw_text(const struct dm_font *font, int x, int y,
             int column;
             int target_y = y + row;
 
-            if (target_y < 0 || target_y >= LCD_HEIGHT)
+            if (target_y < dm_paint_clip.y ||
+                target_y >= dm_paint_clip.y + dm_paint_clip.height)
                 continue;
             alpha = font->coverage +
                     ((index / DM_FONT_COLUMNS) * font->cell_h + row) *
@@ -1364,7 +1509,9 @@ static void dm_draw_text(const struct dm_font *font, int x, int y,
                 int target_x = x + column;
                 unsigned int value = alpha[column];
 
-                if (target_x < 0 || target_x >= LCD_WIDTH || value == 0)
+                if (target_x < dm_paint_clip.x ||
+                    target_x >= dm_paint_clip.x + dm_paint_clip.width ||
+                    value == 0)
                     continue;
                 target[target_x] = value == 255 ?
                     ink : dm_blend(target[target_x], ink, value);
@@ -1402,10 +1549,144 @@ static void dm_draw_desktop_label(int x, int y, int width, const char *text)
                           DM_INK_WHITE, text);
 }
 
-static void dm_present(void)
+static void dm_rect_union(struct dm_rect *destination,
+                          const struct dm_rect *source)
 {
-    rb->lcd_bitmap(dm_canvas, 0, 0, LCD_WIDTH, LCD_HEIGHT);
-    rb->lcd_update();
+    int right;
+    int bottom;
+
+    if (source->width <= 0 || source->height <= 0)
+        return;
+    if (destination->width <= 0 || destination->height <= 0)
+    {
+        *destination = *source;
+        return;
+    }
+    right = MAX(destination->x + destination->width,
+                source->x + source->width);
+    bottom = MAX(destination->y + destination->height,
+                 source->y + source->height);
+    destination->x = MIN(destination->x, source->x);
+    destination->y = MIN(destination->y, source->y);
+    destination->width = right - destination->x;
+    destination->height = bottom - destination->y;
+}
+
+static uint32_t dm_signature_add(uint32_t signature, unsigned int value)
+{
+    return (signature ^ value) * 16777619u;
+}
+
+static uint32_t dm_signature_string(uint32_t signature, const char *text)
+{
+    while (*text)
+        signature = dm_signature_add(signature, (unsigned char)*text++);
+    return signature;
+}
+
+static uint32_t dm_scene_signature(const struct dm_state *state)
+{
+    uint32_t signature = 2166136261u;
+    bool hint_visible = !state->wheel_available && !state->host_pointer &&
+        TIME_BEFORE(*rb->current_tick, state->hint_until);
+
+    signature = dm_signature_add(signature, state->app);
+    signature = dm_signature_add(signature, state->overlay);
+    signature = dm_signature_add(signature, state->running_apps);
+    signature = dm_signature_add(signature, dm_file_selected + 1);
+    signature = dm_signature_add(signature, dm_file_top);
+    signature = dm_signature_add(signature, dm_file_count);
+    signature = dm_signature_string(signature, dm_cwd);
+    signature = dm_signature_add(signature, dm_itunes_source);
+    signature = dm_signature_add(signature, dm_itunes_page_top);
+    signature = dm_signature_add(signature, dm_itunes_count);
+    signature = dm_signature_add(signature, dm_itunes_total);
+    signature = dm_signature_add(signature, dm_itunes_database_pending);
+    signature = dm_signature_add(signature, dm_itunes_has_more);
+    signature = dm_signature_add(signature, state->animation.active);
+    signature = dm_signature_add(signature, state->animation.last_frame + 1);
+    signature = dm_signature_add(signature, state->animation.current.x);
+    signature = dm_signature_add(signature, state->animation.current.y);
+    signature = dm_signature_add(signature, state->animation.current.width);
+    signature = dm_signature_add(signature, state->animation.current.height);
+    signature = dm_signature_add(signature, dm_settings.pointer_speed);
+    signature = dm_signature_add(signature, dm_settings.reverse_wheel);
+    signature = dm_signature_add(signature, dm_settings.show_desktop_folders);
+    signature = dm_signature_add(signature, dm_settings.drag_lock);
+    signature = dm_signature_add(signature, dm_settings.restore_session);
+    signature = dm_signature_add(signature, dm_settings.start_app);
+    signature = dm_signature_add(signature, hint_visible);
+    return signature;
+}
+
+static bool dm_prepare_damage(struct dm_state *state, bool full)
+{
+    static const struct dm_rect screen = { 0, 0, LCD_WIDTH, LCD_HEIGHT };
+    const struct dm_control *hover = NULL;
+    struct dm_rect dirty = { 0, 0, 0, 0 };
+    struct dm_rect cursor;
+
+    if (state->controls->hover_index >= 0 &&
+        state->controls->hover_index < state->controls->count)
+        hover = &state->controls->controls[state->controls->hover_index];
+    if (!full)
+    {
+        cursor = (struct dm_rect){ state->presented_cursor_x,
+                                  state->presented_cursor_y, 16, 20 };
+        dm_rect_union(&dirty, &cursor);
+        cursor = (struct dm_rect){ state->cursor_x, state->cursor_y, 16, 20 };
+        dm_rect_union(&dirty, &cursor);
+        dm_rect_union(&dirty, &state->presented_hover);
+        if (hover)
+            dm_rect_union(&dirty, &hover->bounds);
+        if (state->presented_hover_action == DM_ACTION_DOCK_APP ||
+            (hover && hover->action == DM_ACTION_DOCK_APP))
+        {
+            struct dm_rect dock =
+            {
+                0, MAX(DM_MENUBAR_H, DM_TOOLTIP_Y - 2), LCD_WIDTH,
+                LCD_HEIGHT - MAX(DM_MENUBAR_H, DM_TOOLTIP_Y - 2)
+            };
+
+            dm_rect_union(&dirty, &dock);
+        }
+        if (!dm_rect_intersect(&dirty, &screen) ||
+            dirty.width * dirty.height > LCD_WIDTH * LCD_HEIGHT * 2 / 3)
+            full = true;
+    }
+    state->pending_damage = full ? screen : dirty;
+    dm_paint_clip = state->pending_damage;
+    return full;
+}
+
+static void dm_present(struct dm_state *state, bool full)
+{
+    const struct dm_control *hover = NULL;
+    const struct dm_rect *dirty = &state->pending_damage;
+
+    if (state->controls->hover_index >= 0 &&
+        state->controls->hover_index < state->controls->count)
+        hover = &state->controls->controls[state->controls->hover_index];
+    if (full)
+    {
+        rb->lcd_bitmap(dm_canvas, 0, 0, LCD_WIDTH, LCD_HEIGHT);
+        rb->lcd_update();
+        state->full_update_count++;
+    }
+    else
+    {
+        rb->lcd_bitmap_part(dm_canvas, dirty->x, dirty->y, LCD_WIDTH,
+                            dirty->x, dirty->y,
+                            dirty->width, dirty->height);
+        rb->lcd_update_rect(dirty->x, dirty->y,
+                            dirty->width, dirty->height);
+        state->partial_update_count++;
+    }
+    state->presented_cursor_x = state->cursor_x;
+    state->presented_cursor_y = state->cursor_y;
+    state->presented_hover = hover ? hover->bounds :
+                                     (struct dm_rect){ 0, 0, 0, 0 };
+    state->presented_hover_action = hover ? hover->action : DM_ACTION_NONE;
 }
 
 static bool dm_write_all(int fd, const void *data, size_t size)
@@ -1734,7 +2015,8 @@ static void dm_draw_animation(const struct dm_state *state)
         const fb_data *source;
         fb_data *target;
 
-        if (target_y < 0 || target_y >= LCD_HEIGHT)
+        if (target_y < dm_paint_clip.y ||
+            target_y >= dm_paint_clip.y + dm_paint_clip.height)
             continue;
         source = asset->pixels + (row * asset->height / height) * asset->width;
         target = dm_canvas + target_y * LCD_WIDTH;
@@ -1742,7 +2024,8 @@ static void dm_draw_animation(const struct dm_state *state)
         {
             int target_x = animation->current.x + column;
 
-            if (target_x < 0 || target_x >= LCD_WIDTH)
+            if (target_x < dm_paint_clip.x ||
+                target_x >= dm_paint_clip.x + dm_paint_clip.width)
                 continue;
             target[target_x] = source[column * asset->width / width];
         }
@@ -2515,6 +2798,53 @@ static void dm_draw_get_info(void)
     dm_draw_sheet_row(3, "Where:", dm_cwd);
 }
 
+static const char *dm_error_name(enum dm_error error)
+{
+    switch (error)
+    {
+        case DM_ERR_NONE:
+            return "none";
+        case DM_ERR_ASSET_MISSING:
+            return "asset missing";
+        case DM_ERR_ASSET_INVALID:
+            return "asset invalid";
+        case DM_ERR_PLUGIN_BUFFER:
+            return "plugin buffer";
+        case DM_ERR_ARENA_OVERFLOW:
+            return "arena overflow";
+        case DM_ERR_CONTROL_OVERFLOW:
+            return "control overflow";
+    }
+    return "unknown";
+}
+
+static void dm_draw_diagnostics(const struct dm_state *state)
+{
+    char memory[32];
+    char controls[32];
+    char frame[32];
+    char updates[32];
+
+    rb->snprintf(memory, sizeof(memory), "%lu / %lu KiB",
+                 (unsigned long)(dm_arena_total - dm_arena_left) / 1024,
+                 (unsigned long)dm_arena_total / 1024);
+    rb->snprintf(controls, sizeof(controls), "%d now, %d peak",
+                 state->controls->count, state->controls->high_water);
+    rb->snprintf(frame, sizeof(frame), "%ld / %ld ticks",
+                 state->last_frame_ticks, state->worst_frame_ticks);
+    rb->snprintf(updates, sizeof(updates), "%lu full, %lu partial",
+                 state->full_update_count, state->partial_update_count);
+    dm_blit(DM_ASSET_SHEET, DM_SHEET_X, DM_SHEET_Y);
+    dm_draw_text_centered(&dm_fonts[DM_FONT_BOLD], DM_SHEET_X,
+                          DM_SHEET_Y + 10, DM_SHEET_W, DM_INK,
+                          "Desktop Diagnostics");
+    dm_draw_sheet_row(0, "Memory:", memory);
+    dm_draw_sheet_row(1, "Controls:", controls);
+    dm_draw_sheet_row(2, "Frame:", frame);
+    dm_draw_sheet_row(3, "Updates:", updates);
+    dm_draw_sheet_row(4, "Error:", dm_error_name(dm_last_error));
+}
+
 static void dm_draw_confirm(const struct dm_state *state)
 {
     const char *title = "Return to the iPod menu?";
@@ -2535,14 +2865,10 @@ static void dm_draw_confirm(const struct dm_state *state)
 
 static bool dm_pointer_is_hand(const struct dm_state *state)
 {
-    return state->hover_dock >= 0 ||
-           dm_point_in_rect(state->cursor_x, state->cursor_y,
-                            (struct dm_rect){ 0, 0, DM_APPLE_X + DM_APPLE_W,
-                                              DM_MENUBAR_H }) ||
-           (state->app != DM_APP_DESKTOP &&
-            dm_point_in_rect(state->cursor_x, state->cursor_y,
-                             DM_TRAFFIC_RECT)) ||
-           (state->overlay != DM_OVERLAY_NONE && state->menu_row >= 0);
+    int index = state->controls->hover_index;
+
+    return index >= 0 && index < state->controls->count &&
+           (state->controls->controls[index].flags & DM_CONTROL_HAND) != 0;
 }
 
 static void dm_draw_cursor(const struct dm_state *state)
@@ -2552,8 +2878,17 @@ static void dm_draw_cursor(const struct dm_state *state)
                state->cursor_x, state->cursor_y);
 }
 
-static void dm_draw(const struct dm_state *state)
+static void dm_draw(struct dm_state *state)
 {
+    uint32_t signature;
+    long started = *rb->current_tick;
+    bool full;
+
+    dm_update_hover(state);
+    signature = dm_scene_signature(state);
+    full = state->damage_full || state->frame_count == 0 ||
+           signature != state->scene_signature;
+    full = dm_prepare_damage(state, full);
     dm_blit(DM_ASSET_AURORA, 0, 0);
     dm_draw_desktop_icons();
     if (state->animation.active)
@@ -2581,6 +2916,8 @@ static void dm_draw(const struct dm_state *state)
             dm_draw_finder_context_menu(state);
         else if (state->overlay == DM_OVERLAY_GET_INFO)
             dm_draw_get_info();
+        else if (state->overlay == DM_OVERLAY_DIAGNOSTICS)
+            dm_draw_diagnostics(state);
         else if (state->overlay == DM_OVERLAY_RETURN_CONFIRM ||
                  state->overlay == DM_OVERLAY_RESTART_CONFIRM ||
                  state->overlay == DM_OVERLAY_DELETE_CONFIRM ||
@@ -2601,7 +2938,13 @@ static void dm_draw(const struct dm_state *state)
                               DM_MENUBAR_H + 10, width, DM_INK, hint);
     }
     dm_draw_cursor(state);
-    dm_present();
+    dm_present(state, full);
+    state->last_frame_ticks = *rb->current_tick - started;
+    state->worst_frame_ticks = MAX(state->worst_frame_ticks,
+                                   state->last_frame_ticks);
+    state->frame_count++;
+    state->scene_signature = signature;
+    state->damage_full = false;
 }
 
 static void dm_scan_directory(void);
@@ -3052,40 +3395,76 @@ static void dm_save_settings(void)
     rb->close(fd);
 }
 
-static void dm_update_hover(struct dm_state *state)
+static uint32_t dm_control_id(enum dm_control_action action, int value)
 {
+    return ((uint32_t)action << 16) | ((unsigned int)value & 0xffffu);
+}
+
+static bool dm_rect_intersect(struct dm_rect *rect,
+                              const struct dm_rect *clip)
+{
+    int right = MIN(rect->x + rect->width, clip->x + clip->width);
+    int bottom = MIN(rect->y + rect->height, clip->y + clip->height);
+
+    rect->x = MAX(rect->x, clip->x);
+    rect->y = MAX(rect->y, clip->y);
+    rect->width = right - rect->x;
+    rect->height = bottom - rect->y;
+    return rect->width > 0 && rect->height > 0;
+}
+
+static void dm_register_control(struct dm_state *state,
+                                enum dm_control_action action, int value,
+                                struct dm_rect bounds,
+                                unsigned int flags)
+{
+    static const struct dm_rect screen = { 0, 0, LCD_WIDTH, LCD_HEIGHT };
+    struct dm_control_registry *registry = state->controls;
+    struct dm_control *control;
+
+    if (!dm_rect_intersect(&bounds, &screen))
+        return;
+    if (registry->count >= DM_CONTROL_LIMIT)
+    {
+        dm_last_error = DM_ERR_CONTROL_OVERFLOW;
+        return;
+    }
+    control = &registry->controls[registry->count++];
+    control->id = dm_control_id(action, value);
+    control->bounds = bounds;
+    control->action = action;
+    control->value = value;
+    control->flags = flags;
+    registry->high_water = MAX(registry->high_water, registry->count);
+}
+
+static void dm_build_controls(struct dm_state *state)
+{
+    struct dm_control_registry *registry = state->controls;
     int i;
 
-    state->hover_dock = -1;
-    state->hover_row = -1;
-    state->menu_row = -1;
-    for (i = 0; i < (int)ARRAYLEN(dm_dock_apps); i++)
-    {
-        if (dm_point_in_rect(state->cursor_x, state->cursor_y,
-                             dm_dock_rect(i)))
-        {
-            state->hover_dock = i;
-            break;
-        }
-    }
+    registry->count = 0;
+    registry->hover_index = -1;
+    if (state->animation.active)
+        return;
+
     if (state->overlay == DM_OVERLAY_APPLE_MENU)
     {
         for (i = 0; i < DM_APPLE_MENU_ROWS; i++)
         {
             struct dm_rect row =
             {
-                DM_MENU_X + 1, DM_MENU_Y + DM_MENU_TOP + i * DM_MENU_ROW_H,
+                DM_MENU_X + 1,
+                DM_MENU_Y + DM_MENU_TOP + i * DM_MENU_ROW_H,
                 DM_MENU_W - 2, DM_MENU_ROW_H
             };
 
-            if (dm_point_in_rect(state->cursor_x, state->cursor_y, row))
-            {
-                state->menu_row = i;
-                break;
-            }
+            dm_register_control(state, DM_ACTION_APPLE_MENU_ROW, i, row,
+                                DM_CONTROL_HAND | DM_CONTROL_FOCUSABLE);
         }
+        return;
     }
-    else if (state->overlay == DM_OVERLAY_FINDER_CONTEXT)
+    if (state->overlay == DM_OVERLAY_FINDER_CONTEXT)
     {
         for (i = 0; i < DM_CONTEXT_ROWS; i++)
         {
@@ -3096,73 +3475,257 @@ static void dm_update_hover(struct dm_state *state)
                 DM_CONTEXT_W - 2, DM_MENU_ROW_H
             };
 
-            if (dm_point_in_rect(state->cursor_x, state->cursor_y, row))
-            {
-                state->menu_row = i;
-                break;
-            }
+            dm_register_control(state, DM_ACTION_CONTEXT_MENU_ROW, i, row,
+                                DM_CONTROL_HAND | DM_CONTROL_FOCUSABLE);
+        }
+        return;
+    }
+    if (state->overlay == DM_OVERLAY_RETURN_CONFIRM ||
+        state->overlay == DM_OVERLAY_RESTART_CONFIRM ||
+        state->overlay == DM_OVERLAY_DELETE_CONFIRM ||
+        state->overlay == DM_OVERLAY_NEW_FOLDER_CONFIRM)
+    {
+        dm_register_control(state, DM_ACTION_MODAL_CONFIRM, 0,
+                            (struct dm_rect){ 0, 0, LCD_WIDTH, LCD_HEIGHT },
+                            DM_CONTROL_FOCUSABLE);
+        return;
+    }
+    if (state->overlay == DM_OVERLAY_GET_INFO ||
+        state->overlay == DM_OVERLAY_DIAGNOSTICS)
+    {
+        dm_register_control(state, DM_ACTION_MODAL_DISMISS, 0,
+                            (struct dm_rect){ 0, 0, LCD_WIDTH, LCD_HEIGHT },
+                            DM_CONTROL_FOCUSABLE);
+        return;
+    }
+
+    dm_register_control(state, DM_ACTION_APPLE_MENU, 0,
+                        (struct dm_rect){ 0, 0,
+                                          DM_APPLE_X + DM_APPLE_W,
+                                          DM_MENUBAR_H },
+                        DM_CONTROL_HAND);
+    if (LCD_WIDTH > 320 || state->app != DM_APP_ITUNES)
+    {
+        for (i = 0; i < DM_DOCK_SLOTS; i++)
+            dm_register_control(state, DM_ACTION_DOCK_APP, i,
+                                dm_dock_rect(i), DM_CONTROL_HAND);
+    }
+    if (state->app != DM_APP_DESKTOP)
+    {
+        dm_register_control(state, DM_ACTION_CLOSE, 0, DM_CLOSE_RECT,
+                            DM_CONTROL_HAND);
+        dm_register_control(state, DM_ACTION_MINIMISE, 0, DM_MINIMISE_RECT,
+                            DM_CONTROL_HAND);
+    }
+    if (state->app == DM_APP_FINDER)
+    {
+        dm_register_control(state, DM_ACTION_FINDER_BACK, 0, DM_BACK_RECT,
+                            DM_CONTROL_HAND);
+        dm_register_control(state, DM_ACTION_FINDER_FORWARD, 0,
+                            DM_FORWARD_RECT, DM_CONTROL_HAND);
+        if (dm_file_count > DM_FILE_ROWS)
+            dm_register_control(
+                state, DM_ACTION_FINDER_SCROLL, 0,
+                (struct dm_rect){ DM_SCROLLER_X, DM_BODY_Y,
+                                  DM_SCROLLER_W, DM_SCROLLER_H },
+                DM_CONTROL_HAND);
+        for (i = 0; i < DM_FILE_ROWS && dm_file_top + i < dm_file_count; i++)
+            dm_register_control(
+                state, DM_ACTION_FILE_ROW, dm_file_top + i,
+                (struct dm_rect){ DM_LIST_X, DM_BODY_Y + i * DM_ROW_H,
+                                  DM_LIST_W, DM_ROW_H },
+                DM_CONTROL_DOUBLE_CLICK | DM_CONTROL_FOCUSABLE);
+        for (i = 0; i < (int)ARRAYLEN(dm_sidebar_rows); i++)
+        {
+            const struct dm_sidebar_row *row = &dm_sidebar_rows[i];
+
+            if (!row->header)
+                dm_register_control(
+                    state, DM_ACTION_FINDER_SIDEBAR, i,
+                    (struct dm_rect){ DM_WIN_X, row->y,
+                                      DM_WIN_SIDEBAR_W, row->height },
+                    DM_CONTROL_HAND | DM_CONTROL_FOCUSABLE);
         }
     }
     else if (state->app == DM_APP_ITUNES)
     {
-        for (i = 0; i < DM_ITUNES_ROWS; i++)
-        {
-            struct dm_rect row =
-            {
-                DM_ITUNES_LIST_X,
-                DM_ITUNES_BODY_Y + i * DM_ITUNES_ROW_H,
-                DM_ITUNES_LIST_W, DM_ITUNES_ROW_H
-            };
-
-            if (dm_point_in_rect(state->cursor_x, state->cursor_y, row) &&
-                i < dm_itunes_count)
-            {
-                state->hover_row = i;
-                dm_file_selected = i;
-                break;
-            }
-        }
+        dm_register_control(
+            state, DM_ACTION_ITUNES_PREVIOUS, 0,
+            (struct dm_rect){ DM_ITUNES_X + 30, DM_ITUNES_Y + 24, 31, 35 },
+            DM_CONTROL_HAND);
+        dm_register_control(
+            state, DM_ACTION_ITUNES_PLAY_PAUSE, 0,
+            (struct dm_rect){ DM_ITUNES_X + 66, DM_ITUNES_Y + 23, 38, 38 },
+            DM_CONTROL_HAND);
+        dm_register_control(
+            state, DM_ACTION_ITUNES_NEXT, 0,
+            (struct dm_rect){ DM_ITUNES_X + 106, DM_ITUNES_Y + 24, 33, 35 },
+            DM_CONTROL_HAND);
+        dm_register_control(
+            state, DM_ACTION_ITUNES_WPS, 0,
+            (struct dm_rect){ DM_ITUNES_X + 159, DM_ITUNES_Y + 22,
+                              DM_ITUNES_W - 200, 41 },
+            DM_CONTROL_HAND);
+        dm_register_control(
+            state, DM_ACTION_ITUNES_PAGE, -1,
+            (struct dm_rect){ DM_ITUNES_X + DM_ITUNES_W - 38,
+                              DM_ITUNES_Y + DM_ITUNES_H - 20, 18, 18 },
+            DM_CONTROL_HAND);
+        dm_register_control(
+            state, DM_ACTION_ITUNES_PAGE, 1,
+            (struct dm_rect){ DM_ITUNES_X + DM_ITUNES_W - 20,
+                              DM_ITUNES_Y + DM_ITUNES_H - 20, 18, 18 },
+            DM_CONTROL_HAND);
+        for (i = 0; i < DM_ITUNES_SOURCE_COUNT; i++)
+            dm_register_control(
+                state, DM_ACTION_ITUNES_SOURCE, i,
+                (struct dm_rect){ DM_ITUNES_X + 1,
+                                  DM_ITUNES_BODY_Y + i * DM_ITUNES_ROW_H,
+                                  DM_ITUNES_SOURCE_W - 2, DM_ITUNES_ROW_H },
+                DM_CONTROL_HAND | DM_CONTROL_FOCUSABLE);
+        for (i = 0; i < DM_ITUNES_ROWS && i < dm_itunes_count; i++)
+            dm_register_control(
+                state, DM_ACTION_FILE_ROW, i,
+                (struct dm_rect){ DM_ITUNES_LIST_X,
+                                  DM_ITUNES_BODY_Y + i * DM_ITUNES_ROW_H,
+                                  DM_ITUNES_LIST_W, DM_ITUNES_ROW_H },
+                DM_CONTROL_DOUBLE_CLICK | DM_CONTROL_FOCUSABLE);
     }
-    else if (state->app == DM_APP_FINDER || state->app == DM_APP_PREVIEW)
+    else if (state->app == DM_APP_PREVIEW)
     {
-        bool finder = state->app == DM_APP_FINDER;
-
-        for (i = 0; i < DM_FILE_ROWS; i++)
-        {
-            struct dm_rect row =
-            {
-                finder ? DM_LIST_X : DM_WIN_X + 1,
-                DM_BODY_Y + i * DM_ROW_H,
-                finder ? DM_LIST_W : DM_WIN_W - 2, DM_ROW_H
-            };
-
-            if (dm_point_in_rect(state->cursor_x, state->cursor_y, row) &&
-                dm_file_top + i < dm_file_count)
-            {
-                state->hover_row = dm_file_top + i;
-                dm_file_selected = state->hover_row;
-                break;
-            }
-        }
+        for (i = 0; i < DM_FILE_ROWS && dm_file_top + i < dm_file_count; i++)
+            dm_register_control(
+                state, DM_ACTION_FILE_ROW, dm_file_top + i,
+                (struct dm_rect){ DM_WIN_X + 1, DM_BODY_Y + i * DM_ROW_H,
+                                  DM_WIN_W - 2, DM_ROW_H },
+                DM_CONTROL_DOUBLE_CLICK | DM_CONTROL_FOCUSABLE);
     }
     else if (state->app == DM_APP_PREFERENCES)
     {
-        state->preference_row = -1;
         for (i = 0; i < DM_PREF_ROWS && i < 6; i++)
+            dm_register_control(
+                state, DM_ACTION_PREFERENCE, i,
+                (struct dm_rect){ DM_WIN_X + 6,
+                                  DM_BODY_Y + i * DM_PREF_ROW_H,
+                                  DM_WIN_W - 12, DM_PREF_ROW_H },
+                DM_CONTROL_HAND | DM_CONTROL_FOCUSABLE);
+    }
+    else if (state->app == DM_APP_DESKTOP)
+    {
+        dm_register_control(
+            state, DM_ACTION_DESKTOP_FOLDER, 0,
+            (struct dm_rect){ DM_DESKTOP_ICON_X - 16,
+                              DM_DESKTOP_DISK_Y, 64, 48 },
+            DM_CONTROL_DOUBLE_CLICK);
+        if (dm_settings.show_desktop_folders)
         {
-            struct dm_rect row =
-            {
-                DM_WIN_X + 6, DM_BODY_Y + i * DM_PREF_ROW_H,
-                DM_WIN_W - 12, DM_PREF_ROW_H
-            };
-
-            if (dm_point_in_rect(state->cursor_x, state->cursor_y, row))
-            {
-                state->preference_row = i;
-                break;
-            }
+            dm_register_control(
+                state, DM_ACTION_DESKTOP_FOLDER, 1,
+                (struct dm_rect){ DM_DESKTOP_ICON_X - 16,
+                                  DM_DESKTOP_DOCS_Y, 64, 48 },
+                DM_CONTROL_DOUBLE_CLICK);
+            dm_register_control(
+                state, DM_ACTION_DESKTOP_FOLDER, 2,
+                (struct dm_rect){ DM_DESKTOP_ICON_X - 16,
+                                  DM_DESKTOP_MUSIC_Y, 64, 48 },
+                DM_CONTROL_DOUBLE_CLICK);
         }
     }
+}
+
+static const struct dm_control *dm_control_at(const struct dm_state *state,
+                                               int x, int y)
+{
+    int i;
+
+    for (i = state->controls->count - 1; i >= 0; i--)
+    {
+        const struct dm_control *control = &state->controls->controls[i];
+
+        if (dm_point_in_rect(x, y, control->bounds))
+            return control;
+    }
+    return NULL;
+}
+
+static void dm_update_hover(struct dm_state *state)
+{
+    const struct dm_control *control;
+
+    dm_build_controls(state);
+    state->hover_dock = -1;
+    state->hover_row = -1;
+    state->menu_row = -1;
+    state->preference_row = -1;
+    control = dm_control_at(state, state->cursor_x, state->cursor_y);
+    if (!control)
+        return;
+    state->controls->hover_index = control - state->controls->controls;
+    if (control->action == DM_ACTION_DOCK_APP)
+        state->hover_dock = control->value;
+    else if (control->action == DM_ACTION_FILE_ROW)
+        state->hover_row = control->value;
+    else if (control->action == DM_ACTION_APPLE_MENU_ROW ||
+             control->action == DM_ACTION_CONTEXT_MENU_ROW)
+        state->menu_row = control->value;
+    else if (control->action == DM_ACTION_PREFERENCE)
+        state->preference_row = control->value;
+}
+
+/* Previous/Next offer deterministic focus inside compact controls where
+ * pixel-perfect pointer placement is needlessly difficult. The desktop and
+ * Finder canvas remain pointer-driven; this is an assist for menus, sheets,
+ * and System Preferences rather than a replacement interaction mode. */
+static bool dm_focus_move(struct dm_state *state, int direction)
+{
+    struct dm_control_registry *registry = state->controls;
+    int focused = -1;
+    int first = -1;
+    int last = -1;
+    int next;
+    int i;
+
+    if (state->overlay == DM_OVERLAY_NONE &&
+        state->app != DM_APP_PREFERENCES)
+        return false;
+    dm_build_controls(state);
+    for (i = 0; i < registry->count; i++)
+    {
+        const struct dm_control *control = &registry->controls[i];
+
+        if ((control->flags & DM_CONTROL_FOCUSABLE) == 0)
+            continue;
+        if (first < 0)
+            first = i;
+        last = i;
+        if (control->id == registry->focus_id)
+            focused = i;
+    }
+    if (first < 0)
+        return false;
+    if (focused < 0)
+        next = direction > 0 ? first : last;
+    else
+    {
+        next = focused;
+        do
+        {
+            next += direction > 0 ? 1 : -1;
+            if (next >= registry->count)
+                next = 0;
+            else if (next < 0)
+                next = registry->count - 1;
+        }
+        while ((registry->controls[next].flags & DM_CONTROL_FOCUSABLE) == 0 &&
+               next != focused);
+    }
+    registry->focus_id = registry->controls[next].id;
+    state->cursor_x = registry->controls[next].bounds.x +
+                      registry->controls[next].bounds.width / 2;
+    state->cursor_y = registry->controls[next].bounds.y +
+                      registry->controls[next].bounds.height / 2;
+    dm_update_hover(state);
+    return true;
 }
 
 /* Four-direction fallback step, in the same 1-6 pixel band the absolute
@@ -3670,8 +4233,8 @@ static int dm_activate_app(struct dm_state *state, enum dm_app app)
              * mpegplayer instance. Commit the idle desktop first so that
              * instance can preserve it behind its Aqua window. */
             state->app = DM_APP_DESKTOP;
+            state->damage_full = true;
             dm_draw(state);
-            dm_present();
             if (!dm_save_livetv_underlay())
             {
                 rb->splash(HZ * 2, "Could not prepare TV window");
@@ -3687,8 +4250,8 @@ static int dm_activate_app(struct dm_state *state, enum dm_app app)
              * it runs. Hand it the exact committed Desktop so its Aqua
              * window can remain genuinely windowed. */
             state->app = DM_APP_DESKTOP;
+            state->damage_full = true;
             dm_draw(state);
-            dm_present();
             if (!dm_save_underlay(DM_SITEKICK_UNDERLAY_FILE,
                                   DM_SITEKICK_UNDERLAY_MAGIC))
             {
@@ -3705,8 +4268,8 @@ static int dm_activate_app(struct dm_state *state, enum dm_app app)
             /* Netflix is a desktop-only catalogue window. It receives the
              * committed Desktop and reads only Video Sync's videolist. */
             state->app = DM_APP_DESKTOP;
+            state->damage_full = true;
             dm_draw(state);
-            dm_present();
             if (!dm_save_underlay(DM_NETFLIX_UNDERLAY_FILE,
                                   DM_NETFLIX_UNDERLAY_MAGIC))
             {
@@ -3739,7 +4302,7 @@ static int dm_handle_apple_menu(struct dm_state *state)
     switch (state->menu_row)
     {
         case 0:
-            rb->splash(HZ * 2, "Snow Leopard Desktop Mode");
+            state->overlay = DM_OVERLAY_DIAGNOSTICS;
             break;
         case 1:
             state->app = DM_APP_PREFERENCES;
@@ -3830,70 +4393,45 @@ static int dm_handle_finder_context(struct dm_state *state)
     return PLUGIN_OK;
 }
 
-static int dm_click_itunes(struct dm_state *state)
+static int dm_activate_itunes_control(const struct dm_control *control)
 {
     int status = rb->audio_status();
-    int i;
 
-    if (dm_point_in_rect(state->cursor_x, state->cursor_y,
-                         (struct dm_rect)
-                         { DM_ITUNES_X + 30, DM_ITUNES_Y + 24, 31, 35 }))
-        rb->audio_prev();
-    else if (dm_point_in_rect(state->cursor_x, state->cursor_y,
-                              (struct dm_rect)
-                              { DM_ITUNES_X + 66, DM_ITUNES_Y + 23, 38, 38 }))
+    switch (control->action)
     {
-        if ((status & AUDIO_STATUS_PAUSE) != 0)
-            rb->audio_resume();
-        else if ((status & AUDIO_STATUS_PLAY) != 0)
-            rb->audio_pause();
-    }
-    else if (dm_point_in_rect(state->cursor_x, state->cursor_y,
-                              (struct dm_rect)
-                              { DM_ITUNES_X + 106, DM_ITUNES_Y + 24, 33, 35 }))
-        rb->audio_next();
-    else if (dm_point_in_rect(state->cursor_x, state->cursor_y,
-                              (struct dm_rect)
-                              { DM_ITUNES_X + 159, DM_ITUNES_Y + 22,
-                                DM_ITUNES_W - 200, 41 }))
-        return PLUGIN_GOTO_WPS;
-    else if (dm_point_in_rect(state->cursor_x, state->cursor_y,
-                              (struct dm_rect)
-                              { DM_ITUNES_X + DM_ITUNES_W - 38,
-                                DM_ITUNES_Y + DM_ITUNES_H - 20, 18, 18 }))
-        dm_itunes_change_page(-1);
-    else if (dm_point_in_rect(state->cursor_x, state->cursor_y,
-                              (struct dm_rect)
-                              { DM_ITUNES_X + DM_ITUNES_W - 20,
-                                DM_ITUNES_Y + DM_ITUNES_H - 20, 18, 18 }))
-        dm_itunes_change_page(1);
-    else
-    {
-        for (i = 0; i < DM_ITUNES_SOURCE_COUNT; i++)
-        {
-            struct dm_rect source =
-            {
-                DM_ITUNES_X + 1,
-                DM_ITUNES_BODY_Y + i * DM_ITUNES_ROW_H,
-                DM_ITUNES_SOURCE_W - 2, DM_ITUNES_ROW_H
-            };
-
-            if (dm_point_in_rect(state->cursor_x, state->cursor_y, source))
-            {
-                dm_itunes_source = i;
-                dm_itunes_page_top = 0;
-                dm_itunes_load();
-                break;
-            }
-        }
+        case DM_ACTION_ITUNES_PREVIOUS:
+            rb->audio_prev();
+            break;
+        case DM_ACTION_ITUNES_PLAY_PAUSE:
+            if ((status & AUDIO_STATUS_PAUSE) != 0)
+                rb->audio_resume();
+            else if ((status & AUDIO_STATUS_PLAY) != 0)
+                rb->audio_pause();
+            break;
+        case DM_ACTION_ITUNES_NEXT:
+            rb->audio_next();
+            break;
+        case DM_ACTION_ITUNES_WPS:
+            return PLUGIN_GOTO_WPS;
+        case DM_ACTION_ITUNES_PAGE:
+            dm_itunes_change_page(control->value);
+            break;
+        case DM_ACTION_ITUNES_SOURCE:
+            dm_itunes_source = control->value;
+            dm_itunes_page_top = 0;
+            dm_itunes_load();
+            break;
+        default:
+            break;
     }
     return PLUGIN_OK;
 }
 
 static int dm_click(struct dm_state *state, bool double_click)
 {
-    int i;
+    const struct dm_control *control;
 
+    dm_update_hover(state);
     if (state->overlay == DM_OVERLAY_RETURN_CONFIRM)
     {
         state->running = false;
@@ -3922,6 +4460,11 @@ static int dm_click(struct dm_state *state, bool double_click)
         state->overlay = DM_OVERLAY_NONE;
         return PLUGIN_OK;
     }
+    if (state->overlay == DM_OVERLAY_DIAGNOSTICS)
+    {
+        state->overlay = DM_OVERLAY_NONE;
+        return PLUGIN_OK;
+    }
     if (state->overlay == DM_OVERLAY_APPLE_MENU)
     {
         if (state->menu_row >= 0)
@@ -3931,112 +4474,83 @@ static int dm_click(struct dm_state *state, bool double_click)
     }
     if (state->overlay == DM_OVERLAY_FINDER_CONTEXT)
         return dm_handle_finder_context(state);
-    if (dm_point_in_rect(state->cursor_x, state->cursor_y,
-                         (struct dm_rect){ 0, 0, DM_APPLE_X + DM_APPLE_W,
-                                           DM_MENUBAR_H }))
-    {
-        state->overlay = DM_OVERLAY_APPLE_MENU;
+    control = dm_control_at(state, state->cursor_x, state->cursor_y);
+    if (!control)
         return PLUGIN_OK;
-    }
-    for (i = 0; i < DM_DOCK_SLOTS; i++)
+    switch (control->action)
     {
-        if (dm_point_in_rect(state->cursor_x, state->cursor_y,
-                             dm_dock_rect(i)))
-            return dm_activate_app(state, dm_dock_apps[i]);
-    }
-    if (state->app != DM_APP_DESKTOP &&
-        dm_point_in_rect(state->cursor_x, state->cursor_y, DM_CLOSE_RECT))
-    {
-        if (state->app != DM_APP_FINDER)
-            state->running_apps &= ~DM_APP_BIT(state->app);
-        state->app = DM_APP_DESKTOP;
-        return PLUGIN_OK;
-    }
-    if (state->app != DM_APP_DESKTOP &&
-        dm_point_in_rect(state->cursor_x, state->cursor_y, DM_MINIMISE_RECT))
-    {
-        dm_start_animation(state, state->app, true);
-        return PLUGIN_OK;
-    }
-    if (state->app == DM_APP_FINDER &&
-        dm_file_count > DM_FILE_ROWS &&
-        dm_point_in_rect(state->cursor_x, state->cursor_y,
-                         (struct dm_rect){ DM_SCROLLER_X, DM_BODY_Y,
-                                           DM_SCROLLER_W, DM_SCROLLER_H }))
-    {
-        int maximum = dm_file_count - DM_FILE_ROWS;
-        int travel = MAX(1, DM_SCROLLER_H - DM_SCROLLER_THUMB_H);
-
-        dm_file_top = MAX(
-            0, MIN(maximum,
-                   (state->cursor_y - DM_BODY_Y - DM_SCROLLER_THUMB_H / 2) *
-                       maximum / travel));
-        dm_file_selected = MAX(
-            dm_file_top,
-            MIN(dm_file_selected, dm_file_top + DM_FILE_ROWS - 1));
-        return PLUGIN_OK;
-    }
-    if ((state->app == DM_APP_FINDER || state->app == DM_APP_ITUNES ||
-         state->app == DM_APP_PREVIEW) && state->hover_row >= 0)
-    {
-        dm_file_selected = state->hover_row;
-        if (double_click)
+        case DM_ACTION_APPLE_MENU:
+            state->overlay = DM_OVERLAY_APPLE_MENU;
+            break;
+        case DM_ACTION_DOCK_APP:
+            return dm_activate_app(state, dm_dock_apps[control->value]);
+        case DM_ACTION_CLOSE:
+            if (state->app != DM_APP_FINDER)
+                state->running_apps &= ~DM_APP_BIT(state->app);
+            state->app = DM_APP_DESKTOP;
+            break;
+        case DM_ACTION_MINIMISE:
+            dm_start_animation(state, state->app, true);
+            break;
+        case DM_ACTION_FINDER_BACK:
+            dm_history_move(-1);
+            break;
+        case DM_ACTION_FINDER_FORWARD:
+            dm_history_move(1);
+            break;
+        case DM_ACTION_FINDER_SCROLL:
         {
-            if (state->app == DM_APP_ITUNES &&
-                !dm_files[dm_file_selected].is_dir)
-                return dm_open_itunes_selection();
-            return dm_open_selected_file();
+            int maximum = dm_file_count - DM_FILE_ROWS;
+            int travel = MAX(1, DM_SCROLLER_H - DM_SCROLLER_THUMB_H);
+
+            dm_file_top = MAX(
+                0, MIN(maximum,
+                       (state->cursor_y - DM_BODY_Y -
+                        DM_SCROLLER_THUMB_H / 2) * maximum / travel));
+            dm_file_selected = MAX(
+                dm_file_top,
+                MIN(dm_file_selected, dm_file_top + DM_FILE_ROWS - 1));
+            break;
         }
-    }
-    else if (state->app == DM_APP_FINDER &&
-             dm_point_in_rect(state->cursor_x, state->cursor_y,
-                              DM_BACK_RECT))
-        dm_history_move(-1);
-    else if (state->app == DM_APP_FINDER &&
-             dm_point_in_rect(state->cursor_x, state->cursor_y,
-                              DM_FORWARD_RECT))
-        dm_history_move(1);
-    else if (state->app == DM_APP_FINDER &&
-             state->cursor_x >= DM_WIN_X &&
-             state->cursor_x < DM_WIN_X + DM_WIN_SIDEBAR_W)
-    {
-        for (i = 0; i < (int)ARRAYLEN(dm_sidebar_rows); i++)
-        {
-            const struct dm_sidebar_row *row = &dm_sidebar_rows[i];
-            struct dm_rect bounds =
-                { DM_WIN_X, row->y, DM_WIN_SIDEBAR_W, row->height };
-
-            if (!row->header &&
-                dm_point_in_rect(state->cursor_x, state->cursor_y, bounds))
+        case DM_ACTION_FILE_ROW:
+            dm_file_selected = control->value;
+            if (double_click)
             {
-                dm_navigate(row->path);
-                break;
+                if (state->app == DM_APP_ITUNES &&
+                    !dm_files[dm_file_selected].is_dir)
+                    return dm_open_itunes_selection();
+                return dm_open_selected_file();
             }
-        }
-    }
-    else if (state->app == DM_APP_ITUNES)
-        return dm_click_itunes(state);
-    else if (state->app == DM_APP_PREFERENCES &&
-             state->preference_row >= 0)
-    {
-        switch (state->preference_row)
-        {
-            case 0:
+            break;
+        case DM_ACTION_FINDER_SIDEBAR:
+            dm_navigate(dm_sidebar_rows[control->value].path);
+            break;
+        case DM_ACTION_ITUNES_PREVIOUS:
+        case DM_ACTION_ITUNES_PLAY_PAUSE:
+        case DM_ACTION_ITUNES_NEXT:
+        case DM_ACTION_ITUNES_WPS:
+        case DM_ACTION_ITUNES_PAGE:
+        case DM_ACTION_ITUNES_SOURCE:
+            return dm_activate_itunes_control(control);
+        case DM_ACTION_PREFERENCE:
+            switch (control->value)
+            {
+                case 0:
                 dm_settings.pointer_speed =
                     dm_settings.pointer_speed % 4 + 1;
                 break;
-            case 1:
+                case 1:
                 dm_settings.reverse_wheel =
                     !dm_settings.reverse_wheel;
                 break;
-            case 2:
+                case 2:
                 dm_settings.drag_lock = !dm_settings.drag_lock;
                 break;
-            case 3:
+                case 3:
                 dm_settings.show_desktop_folders =
                     !dm_settings.show_desktop_folders;
                 break;
-            case 4:
+                case 4:
                 if (dm_settings.start_app == DM_APP_DESKTOP)
                     dm_settings.start_app = DM_APP_FINDER;
                 else if (dm_settings.start_app == DM_APP_FINDER)
@@ -4044,33 +4558,27 @@ static int dm_click(struct dm_state *state, bool double_click)
                 else
                     dm_settings.start_app = DM_APP_DESKTOP;
                 break;
-            case 5:
+                case 5:
                 dm_settings.restore_session =
                     !dm_settings.restore_session;
                 break;
-        }
-        dm_save_settings();
-    }
-    else if (state->app == DM_APP_DESKTOP && double_click)
-    {
-        if (dm_point_in_rect(state->cursor_x, state->cursor_y,
-                             (struct dm_rect){ DM_DESKTOP_ICON_X - 16,
-                                               DM_DESKTOP_DISK_Y, 64, 48 }))
-            dm_navigate("/");
-        else if (dm_point_in_rect(state->cursor_x, state->cursor_y,
-                                  (struct dm_rect){ DM_DESKTOP_ICON_X - 16,
-                                                    DM_DESKTOP_DOCS_Y,
-                                                    64, 48 }))
-            dm_navigate("/Documents");
-        else if (dm_point_in_rect(state->cursor_x, state->cursor_y,
-                                  (struct dm_rect){ DM_DESKTOP_ICON_X - 16,
-                                                    DM_DESKTOP_MUSIC_Y,
-                                                    64, 48 }))
-            dm_navigate("/Music");
-        else
-            return PLUGIN_OK;
-        state->running_apps |= DM_APP_BIT(DM_APP_FINDER);
-        state->app = DM_APP_FINDER;
+            }
+            dm_save_settings();
+            break;
+        case DM_ACTION_DESKTOP_FOLDER:
+            if (!double_click)
+                break;
+            if (control->value == 0)
+                dm_navigate("/");
+            else if (control->value == 1)
+                dm_navigate("/Documents");
+            else
+                dm_navigate("/Music");
+            state->running_apps |= DM_APP_BIT(DM_APP_FINDER);
+            state->app = DM_APP_FINDER;
+            break;
+        default:
+            break;
     }
     return PLUGIN_OK;
 }
@@ -4112,7 +4620,7 @@ static bool dm_button(long button, long mask)
     return (button & mask) == mask;
 }
 
-static void dm_missing_assets_screen(void)
+static enum plugin_status dm_missing_assets_screen(void)
 {
     rb->lcd_setfont(FONT_UI);
 #ifdef HAVE_LCD_COLOR
@@ -4134,6 +4642,7 @@ static void dm_missing_assets_screen(void)
                    (const unsigned char *)"Expected under .rockbox/rocks/");
     rb->lcd_putsxy(8, 144,
                    (const unsigned char *)"apps/ (iPod) or rocks.data/ (host)");
+    rb->lcd_putsxyf(8, 162, "Error: %s", dm_error_name(dm_last_error));
     rb->lcd_putsxy(8, 176,
                    (const unsigned char *)"Menu: Return to iPod");
     rb->lcd_update();
@@ -4142,7 +4651,7 @@ static void dm_missing_assets_screen(void)
         long button = rb->button_get(true);
 
         if (rb->default_event_handler(button) == SYS_USB_CONNECTED)
-            break;
+            return PLUGIN_USB_CONNECTED;
 #ifdef BUTTON_MENU
         if (button & BUTTON_MENU)
             break;
@@ -4152,6 +4661,7 @@ static void dm_missing_assets_screen(void)
             break;
 #endif
     }
+    return PLUGIN_OK;
 }
 
 enum plugin_status plugin_start(const void *parameter)
@@ -4175,26 +4685,49 @@ enum plugin_status plugin_start(const void *parameter)
         .running_apps = DM_APP_BIT(DM_APP_FINDER),
         .running = true,
         .redraw = true,
+        .damage_full = true,
+        .presented_cursor_x = -32,
+        .presented_cursor_y = -32,
     };
     int result = PLUGIN_OK;
     enum dm_boot_result boot_result;
+    unsigned int saved_foreground = rb->lcd_get_foreground();
+    unsigned int saved_background = rb->lcd_get_background();
+    int saved_drawmode = rb->lcd_get_drawmode();
+    bool saved_backlight = rb->is_backlight_on(true);
+    bool session_started = false;
+#ifdef HAVE_WHEEL_POSITION
+    bool wheel_events_owned = false;
+#endif
 
     (void)parameter;
     rb->lcd_setfont(FONT_UI);
     boot_result = dm_show_boot_animation();
     if (boot_result == DM_BOOT_USB_CONNECTED)
-        return PLUGIN_USB_CONNECTED;
+    {
+        result = PLUGIN_USB_CONNECTED;
+        goto cleanup;
+    }
     if (boot_result == DM_BOOT_ERROR)
     {
-        dm_missing_assets_screen();
-        return PLUGIN_OK;
+        result = dm_missing_assets_screen();
+        goto cleanup;
     }
     if (!dm_load_assets())
     {
-        dm_missing_assets_screen();
-        return PLUGIN_OK;
+        result = dm_missing_assets_screen();
+        goto cleanup;
     }
+    state.controls = dm_alloc(sizeof(*state.controls));
+    if (!state.controls)
+    {
+        result = dm_missing_assets_screen();
+        goto cleanup;
+    }
+    rb->memset(state.controls, 0, sizeof(*state.controls));
+    state.controls->hover_index = -1;
     dm_load_settings();
+    session_started = true;
     state.hint_until = *rb->current_tick + HZ * 4;
     if (!rb->dir_exists(dm_cwd))
         rb->strcpy(dm_cwd, "/");
@@ -4217,6 +4750,7 @@ enum plugin_status plugin_start(const void *parameter)
     }
 #ifdef HAVE_WHEEL_POSITION
     rb->wheel_send_events(false);
+    wheel_events_owned = true;
 #endif
     while (state.running && result == PLUGIN_OK)
     {
@@ -4245,6 +4779,7 @@ enum plugin_status plugin_start(const void *parameter)
         {
             state.last_status_tick = *rb->current_tick;
             state.redraw = true;
+            state.damage_full = true;
         }
         if (rb->button_hold())
         {
@@ -4408,7 +4943,9 @@ enum plugin_status plugin_start(const void *parameter)
 #endif
         if (button & BUTTON_LEFT)
         {
-            if (state.wheel_available && state.app == DM_APP_FINDER)
+            if (dm_focus_move(&state, -1))
+                state.redraw = true;
+            else if (state.wheel_available && state.app == DM_APP_FINDER)
                 dm_history_move(-1);
             else
                 dm_held_dir_touch(&state, -1, 0, *rb->current_tick);
@@ -4426,7 +4963,9 @@ enum plugin_status plugin_start(const void *parameter)
 #endif
         if (button & BUTTON_RIGHT)
         {
-            if (state.wheel_available && state.app == DM_APP_FINDER)
+            if (dm_focus_move(&state, 1))
+                state.redraw = true;
+            else if (state.wheel_available && state.app == DM_APP_FINDER)
                 dm_history_move(1);
             else
                 dm_held_dir_touch(&state, 1, 0, *rb->current_tick);
@@ -4435,14 +4974,33 @@ enum plugin_status plugin_start(const void *parameter)
         }
 #endif
     }
+cleanup:
 #ifdef HAVE_WHEEL_POSITION
-    rb->wheel_send_events(true);
+    if (wheel_events_owned)
+        rb->wheel_send_events(true);
 #endif
-    dm_saved_app = state.app;
-    dm_saved_cursor_x = state.cursor_x;
-    dm_saved_cursor_y = state.cursor_y;
-    dm_save_settings();
+    state.mouse_down = false;
+    state.dragged = false;
+    state.held_dir_x = 0;
+    state.held_dir_y = 0;
+    state.host_click = 0;
+    state.host_context = false;
+    if (session_started)
+    {
+        dm_saved_app = state.app;
+        dm_saved_cursor_x = state.cursor_x;
+        dm_saved_cursor_y = state.cursor_y;
+        dm_save_settings();
+    }
+    rb->lcd_set_viewport(NULL);
+    rb->lcd_set_foreground(saved_foreground);
+    rb->lcd_set_background(saved_background);
+    rb->lcd_set_drawmode(saved_drawmode);
     rb->lcd_setfont(FONT_UI);
+    if (saved_backlight)
+        rb->backlight_on();
+    else
+        rb->backlight_off();
     return result;
 #endif
 }

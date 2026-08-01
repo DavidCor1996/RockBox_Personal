@@ -181,6 +181,7 @@ def _check_source():
         "dm_draw_apple_menu",
         "dm_draw_finder_context_menu",
         "dm_draw_get_info",
+        "dm_draw_diagnostics",
         "dm_draw_confirm",
         "dm_draw_cursor",
     )
@@ -232,9 +233,39 @@ def _check_source():
     present = _extract_function(source, "dm_present")
     if "rb->lcd_bitmap(" not in present or present.count("lcd_update()") != 1:
         errors.append("a committed frame must reach the LCD exactly once")
+    if "rb->lcd_bitmap_part(" not in present or "lcd_update_rect(" not in present:
+        errors.append("pointer-only frames have no partial LCD update path")
+    damage = _extract_function(source, "dm_prepare_damage")
+    for token in ("presented_cursor_x", "presented_hover", "DM_ACTION_DOCK_APP"):
+        if token not in damage:
+            errors.append("damage tracking is missing token: %s" % token)
     for name in ("dm_blit", "dm_blit_panel", "dm_compose", "dm_draw_text"):
-        if not _extract_function(source, name):
+        body = _extract_function(source, name)
+        if not body:
             errors.append("compositor primitive is missing: %s" % name)
+        elif "dm_paint_clip" not in body:
+            errors.append("compositor primitive ignores paint clip: %s" % name)
+    if "#define DM_CONTROL_LIMIT 64" not in source:
+        errors.append("bounded 64-entry control profile is missing")
+    controls = _extract_function(source, "dm_register_control")
+    if "DM_ERR_CONTROL_OVERFLOW" not in controls:
+        errors.append("control overflow is not reported safely")
+    hover = _extract_function(source, "dm_update_hover")
+    if "dm_file_selected =" in hover:
+        errors.append("pointer hover still mutates the selected file")
+    click = _extract_function(source, "dm_click")
+    if "dm_control_at(" not in click:
+        errors.append("click dispatch does not use the control registry")
+    if source.count("cleanup:") != 1:
+        errors.append("Desktop Mode does not have exactly one cleanup path")
+    for token in (
+        "lcd_set_viewport(NULL)",
+        "lcd_set_foreground(saved_foreground)",
+        "lcd_set_background(saved_background)",
+        "lcd_set_drawmode(saved_drawmode)",
+    ):
+        if token not in source:
+            errors.append("cleanup does not restore display state: %s" % token)
     # Fallback pointer motion is what lets the focused gate drive the shell at
     # all on a target that reports no wheel contact.
     if "state->wheel_available = true" not in source:
