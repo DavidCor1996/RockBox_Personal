@@ -101,6 +101,17 @@
     #define FRAME_HEIGHT 240
 
     #define USE_FMT     (LVL_FMT_PKD)
+#elif defined(__IOS__)
+    #define USE_DIV_TABLE
+
+    /* iPod touch uses the same compact software renderer as Rockbox. */
+    #define MODE13
+    #define FRAME_WIDTH  320
+    #define FRAME_HEIGHT 240
+
+    #define USE_FMT     (LVL_FMT_PKD)
+
+    #include <stdlib.h>
 #elif defined(__DOS__)
     #define USE_DIV_TABLE
 
@@ -206,7 +217,7 @@
 #endif
 
 // Optimization flags =========================================================
-#if defined(__GBA__) || defined(__ROCKBOX__)
+#if defined(__GBA__) || defined(__ROCKBOX__) || defined(__IOS__)
 // hide dead enemies after a while to reduce the number of polygons on the screen
     #define HIDE_CORPSES (30*10) // 10 sec
 // replace trap flor geometry by two flat quads in the static state
@@ -330,6 +341,8 @@ X_INLINE int32 abs(int32 x) {
     #define int2str(x,str) __itoa(x, str, 10)
 #elif defined(__ROCKBOX__)
     #define int2str(x,str) rb->snprintf(str, 16, "%d", x)
+#elif defined(__IOS__)
+    #define int2str(x,str) snprintf(str, 16, "%d", x)
 #else
     #define int2str(x,str) _itoa(x, str, 10)
 #endif
@@ -363,6 +376,8 @@ X_INLINE int32 abs(int32 x) {
 #elif defined(__DOS__)
     extern uint16 fb[FRAME_WIDTH * FRAME_HEIGHT];
 #elif defined(__ROCKBOX__)
+    extern uint16 fb[FRAME_WIDTH * FRAME_HEIGHT];
+#elif defined(__IOS__)
     extern uint16 fb[FRAME_WIDTH * FRAME_HEIGHT];
 #endif
 
@@ -423,6 +438,15 @@ extern uint8* vramPtr;
     #define SND_MIN          -128
     #define SND_MAX          127
 #elif defined(__ROCKBOX__)
+    /* Exactly one block is generated for each 30 Hz simulation tick. */
+    #define SND_SAMPLES      735
+    #define SND_OUTPUT_FREQ  22050
+    #define SND_SAMPLE_FREQ  22050
+    #define SND_ENCODE(x)    ((x) + 128)
+    #define SND_DECODE(x)    ((x) - 128)
+    #define SND_MIN          -128
+    #define SND_MAX          127
+#elif defined(__IOS__)
     /* Exactly one block is generated for each 30 Hz simulation tick. */
     #define SND_SAMPLES      735
     #define SND_OUTPUT_FREQ  22050
@@ -2830,7 +2854,7 @@ void matrixFrame_c(const void* pos, const void* angles);
 void matrixFrameLerp(const void* pos, const void* anglesA, const void* anglesB, int32 delta, int32 rate);
 void matrixSetView(const vec3i &pos, int32 angleX, int32 angleY);
 
-#if defined(__GBA__) || defined(__GBA_WIN__) || defined(__ROCKBOX__)
+#if defined(__GBA__) || defined(__GBA_WIN__) || defined(__ROCKBOX__) || defined(__IOS__)
 #define renderInit()
 #define renderFree()
 #define renderSwap()

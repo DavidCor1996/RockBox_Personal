@@ -35,6 +35,8 @@ ViewportRel viewportRel;
     uint16 fb[FRAME_WIDTH * FRAME_HEIGHT];
 #elif defined(__ROCKBOX__)
     uint16 fb[FRAME_WIDTH * FRAME_HEIGHT];
+#elif defined(__IOS__)
+    uint16 fb[FRAME_WIDTH * FRAME_HEIGHT];
 #endif
 
 enum FaceType {

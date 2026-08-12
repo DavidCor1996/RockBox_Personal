@@ -2786,6 +2786,13 @@ struct Lara : ItemObj
                 input |= IN_WALK;
             }
         }
+    #elif defined(__IOS__)
+        if (keys & IK_A) input |= IN_ACTION;
+        if (keys & IK_B) input |= IN_JUMP;
+        if (keys & IK_C) input |= IN_WEAPON;
+        if (keys & IK_X) input |= IN_WALK;
+        if (keys & IK_Y) input |= IN_LOOK;
+        if (keys & IK_Z) input |= IN_UP | IN_DOWN;
     #elif defined(__NDS__)
         if (keys & IK_A) input |= IN_UP | IN_DOWN;
         if (keys & IK_B) input |= IN_ACTION;
