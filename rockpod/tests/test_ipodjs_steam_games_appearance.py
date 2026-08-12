@@ -94,7 +94,11 @@ def test_uxn_games_have_a_dedicated_console_and_verified_assets():
 
     assert 'if (!strcasecmp(ext, ".rom"))' in root_menu
     assert 'return "Uxn";' in root_menu
-    assert 'ROCKBOX_DIR "/rocks/viewers/uxn/games.tsv"' in root_menu
+    assert "ipodjs_steam_load_uxn_games();" in root_menu
+    assert 'ipodjs_steam_find_console("Uxn")' in root_menu
+    assert 'plugin, "/Uxn/donsol.rom"' in root_menu
+    assert 'plugin, "/Uxn/niju.rom"' in root_menu
+    assert 'plugin, "/Uxn/worm.rom"' in root_menu
     assert 'assets/uxn_games/games.tsv' in buildzip
     for stem, digest in expected.items():
         rom = ROOT / "assets/uxn_games/roms" / f"{stem}.rom"

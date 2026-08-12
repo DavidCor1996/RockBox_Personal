@@ -41,12 +41,13 @@ The app merges three real installed-library sources:
    only covers marked as official Rockbox manual screenshots or existing
    title artwork in `assets/game_covers/native/SOURCES.tsv`; generated
    typographic placeholders are intentionally excluded.
-3. Installed Uxn ROMs from the packaged Uxn launcher manifest. Donsol, Niju,
+3. Installed Uxn ROMs registered directly by the Steam library. Donsol, Niju,
    and Worm ship as MIT-licensed test ROMs with exact source revisions and
    SHA-256 hashes in `assets/uxn_games/SOURCES.tsv`. Their covers are real
    simulator gameplay frames or the upstream game's preview, never generated
-   title cards. The library admits each entry only while its ROM, Uxn viewer,
-   and cover are all readable.
+   title cards. Direct registration keeps the Uxn console independent of the
+   generic manifest parser; the library still admits each entry only while
+   its ROM, Uxn viewer, and cover are all readable.
 
 Special installed titles such as Super Mario 64 and Stick RPG use their real
 existing repository covers and launch parameters. Entries without a readable

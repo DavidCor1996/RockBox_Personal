@@ -17415,6 +17415,16 @@ static void ipodjs_steam_build_consoles(void)
               ipodjs_steam_compare_console_names);
 }
 
+static int ipodjs_steam_find_console(const char *name)
+{
+    for (int console = 0; console < ipodjs_steam_console_count; console++)
+    {
+        if (!strcasecmp(ipodjs_steam_consoles[console], name))
+            return console;
+    }
+    return 0;
+}
+
 static void ipodjs_steam_build_visible_games(void)
 {
     const char *console = ipodjs_steam_console > 0 ?
@@ -17590,6 +17600,32 @@ static void ipodjs_steam_load_special_games(void)
         IPODJS_ASSET_DIR "/stickrpg/covers/Stick RPG.bmp", 2003);
 }
 
+static void ipodjs_steam_load_uxn_games(void)
+{
+    static const char * const plugin = VIEWERS_DIR "/uxn.rock";
+
+    /* These titles and assets are part of the RockPod package.  Register
+     * them explicitly so the Uxn console does not depend on the generic
+     * third-party manifest parser or disappear silently on hardware. */
+    (void)ipodjs_steam_add_game(
+        "Donsol", "Uxn", "Card dungeon", "Hundred Rabbits",
+        "Hundred Rabbits",
+        "Explore a dungeon made from a shuffled deck of cards.",
+        plugin, "/Uxn/donsol.rom",
+        ROCKBOX_DIR "/games/library/covers/uxn/donsol.bmp", 2024);
+    (void)ipodjs_steam_add_game(
+        "Niju", "Uxn", "Learning puzzle", "Hundred Rabbits",
+        "Hundred Rabbits",
+        "Review Japanese hiragana and katakana with two study modes.",
+        plugin, "/Uxn/niju.rom",
+        ROCKBOX_DIR "/games/library/covers/uxn/niju.bmp", 0);
+    (void)ipodjs_steam_add_game(
+        "Worm", "Uxn", "Arcade", "origedit", "origedit",
+        "Guide a growing sandworm with the click-wheel directions.",
+        plugin, "/Uxn/worm.rom",
+        ROCKBOX_DIR "/games/library/covers/uxn/worm.bmp", 2024);
+}
+
 static void ipodjs_steam_load_ipod_games(void)
 {
     char generation[40];
@@ -17685,19 +17721,19 @@ static void ipodjs_steam_load_library(void)
         ROCKBOX_DIR "/rocks/games/pokemini_launcher/games.tsv",
         ROCKBOX_DIR "/rocks/games/maker_lite/games.tsv",
         ROCKBOX_DIR "/rocks/games/cps1/games.tsv",
-        ROCKBOX_DIR "/rocks/viewers/uxn/games.tsv",
     };
 
     ipodjs_steam_game_count = 0;
     ipodjs_steam_load_native_games();
     ipodjs_steam_load_special_games();
+    ipodjs_steam_load_uxn_games();
     ipodjs_steam_load_ipod_games();
     for (int i = 0; i < (int)ARRAYLEN(indexes); i++)
         ipodjs_steam_load_manifest(indexes[i]);
     qsort(ipodjs_steam_games, ipodjs_steam_game_count,
           sizeof(ipodjs_steam_games[0]), ipodjs_steam_compare_games);
-    ipodjs_steam_console = 0;
     ipodjs_steam_build_consoles();
+    ipodjs_steam_console = ipodjs_steam_find_console("Uxn");
     ipodjs_steam_build_visible_games();
 }
 
