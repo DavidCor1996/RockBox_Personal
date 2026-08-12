@@ -27,7 +27,7 @@ title, and launches that title from a large Play button.
 
 ## Library and artwork contract
 
-The app merges two real installed-library sources:
+The app merges three real installed-library sources:
 
 1. RockPod's launcher manifests for ROM-based games. Their title, launch
    plugin/ROM parameter, cover path, year, genre, publisher, developer, and
@@ -36,11 +36,22 @@ The app merges two real installed-library sources:
    only covers marked as official Rockbox manual screenshots or existing
    title artwork in `assets/game_covers/native/SOURCES.tsv`; generated
    typographic placeholders are intentionally excluded.
+3. Installed Uxn ROMs from the packaged Uxn launcher manifest. Donsol, Niju,
+   and Worm ship as MIT-licensed test ROMs with exact source revisions and
+   SHA-256 hashes in `assets/uxn_games/SOURCES.tsv`. Their covers are real
+   simulator gameplay frames or the upstream game's preview, never generated
+   title cards. The library admits each entry only while its ROM, Uxn viewer,
+   and cover are all readable.
 
 Special installed titles such as Super Mario 64 and Stick RPG use their real
 existing repository covers and launch parameters. Entries without a readable
 cover or playable installed target do not appear, so the Steam library never
 advertises a mock or unavailable game.
+
+Uxn entries use `Uxn` as their platform, which creates a dedicated console
+filter automatically. The manifest is read once on Games entry alongside the
+other installed-library indexes; no ROM or cover directory scan occurs in a
+draw callback.
 
 ## Interaction
 

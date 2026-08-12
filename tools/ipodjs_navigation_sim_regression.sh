@@ -234,6 +234,7 @@ prepare_root()
         /^ui engine accent:/ { next }
         /^ui engine dark mode:/ { next }
         /^ui engine extras pane:/ { next }
+        /^ui engine hold effect:/ { next }
         /^start in screen:/ { next }
         /^(tagcache_autoupdate|autoupdate):/ { next }
         /^resume:/ { next }
@@ -245,6 +246,7 @@ prepare_root()
             print "ui engine accent: " accent
             print "ui engine dark mode: " dark_mode
             print "ui engine extras pane: " extras_pane
+            print "ui engine hold effect: lockscreen"
             print "start in screen: root"
             print "tagcache_autoupdate: off"
             print "resume: off"

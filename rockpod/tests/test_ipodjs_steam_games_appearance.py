@@ -1,4 +1,5 @@
 from pathlib import Path
+import hashlib
 
 from PIL import Image
 
@@ -77,6 +78,31 @@ def test_cps1_has_a_dedicated_zip_platform_and_manifest():
     assert 'strstr(path, "/games/cps1/roms/")' in root_menu
     assert 'return "CPS1 Arcade";' in root_menu
     assert 'ROCKBOX_DIR "/rocks/games/cps1/games.tsv"' in root_menu
+
+
+def test_uxn_games_have_a_dedicated_console_and_verified_assets():
+    root_menu = _text("apps/root_menu.c")
+    buildzip = _text("tools/buildzip.pl")
+    manifest = _text("assets/uxn_games/games.tsv")
+    sources = _text("assets/uxn_games/SOURCES.tsv")
+    expected = {
+        "donsol": "d86527c1d0597e74a18b8663cc02e7bb0b85e94435ae26cf333d81de26711058",
+        "niju": "2b4b977173273f1d3eb4117347cd4888b1f431e288f77a26a59e830409fa1012",
+        "worm": "cb43e8ba9375cff8356ca00038233b5579f15ec507bd0cacbffcde3e0ac88a1a",
+    }
+
+    assert 'if (!strcasecmp(ext, ".rom"))' in root_menu
+    assert 'return "Uxn";' in root_menu
+    assert 'ROCKBOX_DIR "/rocks/viewers/uxn/games.tsv"' in root_menu
+    assert 'assets/uxn_games/games.tsv' in buildzip
+    for stem, digest in expected.items():
+        rom = ROOT / "assets/uxn_games/roms" / f"{stem}.rom"
+        cover = ROOT / "assets/game_covers/uxn" / f"{stem}.bmp"
+        assert f"/Uxn/{stem}.rom" in manifest
+        assert digest in sources
+        assert hashlib.sha256(rom.read_bytes()).hexdigest() == digest
+        with Image.open(cover) as artwork:
+            assert artwork.size == (144, 108)
 
 
 def test_official_steam_logo_has_native_header_background_without_white_box():

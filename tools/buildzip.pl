@@ -836,6 +836,24 @@ sub buildzip {
         close($steam_sources);
     }
 
+    # Uxn games are open-source ROMs installed outside .rockbox. Package their
+    # verified launcher manifest and authentic screenshots only when the Uxn
+    # viewer is present; the firmware also checks that each ROM exists before
+    # admitting it to the Steam library.
+    if(-e "$temp_dir/rocks/viewers/uxn.rock" &&
+       -e "$ROOT/assets/uxn_games/games.tsv") {
+        mkpath("$temp_dir/rocks/viewers/uxn", $verbose, 0777);
+        copy("$ROOT/assets/uxn_games/games.tsv",
+             "$temp_dir/rocks/viewers/uxn/games.tsv");
+        copy("$ROOT/assets/uxn_games/SOURCES.tsv",
+             "$temp_dir/rocks/viewers/uxn/SOURCES.tsv");
+        copy("$ROOT/assets/uxn_games/THIRDPARTY-NOTICES.txt",
+             "$temp_dir/rocks/viewers/uxn/THIRDPARTY-NOTICES.txt");
+        mkpath("$temp_dir/games/library/covers/uxn", $verbose, 0777);
+        glob_copy("$ROOT/assets/game_covers/uxn/*.bmp",
+                  "$temp_dir/games/library/covers/uxn");
+    }
+
     if(-e "$temp_dir/rocks/games/pokemini_launcher.rock" &&
        -d "$ROOT/assets/ipodjs/rockbox/pokemini/covers") {
         mkpath("$temp_dir/rocks/games/pokemini_launcher/covers",

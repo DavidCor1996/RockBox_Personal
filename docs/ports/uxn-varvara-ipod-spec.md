@@ -91,9 +91,16 @@ simulator disk with:
 tools/uxn_install_roms.sh /path/to/mount game.rom another.rom
 ```
 
-The helper only creates `/Uxn`, checks the Uxn ROM size limit, copies the
-specified ROMs, installs the source-controlled demo, and syncs the volume. It
-does not deploy firmware or replace `.rockbox`.
+The helper creates `/Uxn`, checks the Uxn ROM size limit, copies the specified
+ROMs, installs the source-controlled demo, and syncs the volume. It also
+installs the bundled MIT-licensed Donsol, Niju, and Worm test ROMs. When a
+`.rockbox` installation is present, it stages their verified covers,
+source/checksum notice, and Steam launcher manifest without replacing the
+directory or touching the music database.
+
+iPodJS Steam mode discovers the installed test ROMs under its automatically
+generated `Uxn` console filter. Entries disappear safely if their ROM, cover,
+or the Uxn viewer is absent.
 
 ## Qualification
 

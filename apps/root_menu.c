@@ -17445,6 +17445,8 @@ static const char *ipodjs_steam_platform_for_path(const char *path)
         return "Game & Watch";
     if (!strcasecmp(ext, ".mlp"))
         return "Maker Lite";
+    if (!strcasecmp(ext, ".rom"))
+        return "Uxn";
     if (!strcasecmp(ext, ".zip") &&
         path && strstr(path, "/games/cps1/roms/"))
         return "CPS1 Arcade";
@@ -17674,6 +17676,7 @@ static void ipodjs_steam_load_library(void)
         ROCKBOX_DIR "/rocks/games/pokemini_launcher/games.tsv",
         ROCKBOX_DIR "/rocks/games/maker_lite/games.tsv",
         ROCKBOX_DIR "/rocks/games/cps1/games.tsv",
+        ROCKBOX_DIR "/rocks/viewers/uxn/games.tsv",
     };
 
     ipodjs_steam_game_count = 0;
