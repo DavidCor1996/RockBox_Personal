@@ -109,6 +109,12 @@ smsgg
 picodrive
 cps1
 arduboy
+#if (defined(IPOD_VIDEO) || defined(IPOD_6G) || defined(SIMULATOR)) \
+    && (CONFIG_KEYPAD == IPOD_4G_PAD) \
+    && (LCD_STRIDEFORMAT == HORIZONTAL_STRIDE) \
+    && (PLUGIN_BUFFER_SIZE >= 0x200000)
+uxn
+#endif
 tamagotchi
 gwatch
 #if (defined(CPU_ARM) || defined(SIMULATOR)) && (MEMORYSIZE >= 32)

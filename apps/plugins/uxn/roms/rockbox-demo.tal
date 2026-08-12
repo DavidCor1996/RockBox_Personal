@@ -1,0 +1,23 @@
+( Rockbox Uxn color and screen-device demo )
+
+|00 @System [ &vector $2 &expansion $2 &wst $1 &rst $1 &metadata $2
+    &r $2 &g $2 &b $2 &debug $1 &state $1 ]
+|20 @Screen [ &vector $2 &width $2 &height $2 &auto $1 &pad $1
+    &x $2 &y $2 &addr $2 &pixel $1 &sprite $1 ]
+
+|0100
+
+    ( Four-color Rockbox palette. )
+    #0fa5 .System/r DEO2
+    #05ff .System/g DEO2
+    #0f5a .System/b DEO2
+
+    ( Split the 320x240 screen into four device-fill quadrants. )
+    #00a0 .Screen/x DEO2
+    #0078 .Screen/y DEO2
+    #b0 .Screen/pixel DEO
+    #a1 .Screen/pixel DEO
+    #92 .Screen/pixel DEO
+    #83 .Screen/pixel DEO
+
+    BRK
