@@ -110,6 +110,8 @@
 
 #define MPEGPLAYER_NETFLIX_PREFIX "netflix:"
 #define MPEGPLAYER_NETFLIX_PREFIX_LEN 8
+#define MPEGPLAYER_MAPS_PREFIX "-mapsdash:"
+#define MPEGPLAYER_MAPS_PREFIX_LEN (sizeof(MPEGPLAYER_MAPS_PREFIX) - 1)
 #define MPEGPLAYER_NETFLIX_RESTART_PREFIX "netflix-restart:"
 #define MPEGPLAYER_NETFLIX_RESTART_PREFIX_LEN 16
 
@@ -123,6 +125,7 @@ bool mpegplayer_livetv_guide_active;
 bool mpegplayer_livetv_pin_active;
 bool mpegplayer_livetv_weather_hidden;
 bool mpegplayer_livetv_weather_active;
+static bool mpegplayer_maps_dashcam_launch;
 static bool mpegplayer_livetv_weather_commercial;
 
 #if defined(HAVE_LCD_COLOR) && (LCD_WIDTH >= 320) && (LCD_HEIGHT >= 240)
@@ -1965,7 +1968,12 @@ static void fps_update_post_frame_callback(void)
 {
     void (*cb)(void) = NULL;
 
-    if (feed.active) {
+    if (mpegplayer_maps_dashcam_launch) {
+        /* Maps dashcams are intentionally video-only.  In particular, do
+         * not let a saved FPS setting or the stock volume card claim the
+         * single post-frame callback and paint over subsequent frames. */
+    }
+    else if (feed.active) {
         cb = feed_post_frame_callback;
     }
 #if MPEG_STOCK_CONTROLS
@@ -2534,7 +2542,7 @@ static void mpeg_volume_card_show(void)
     int x;
     int y;
 
-    if (!mpeg_volume_assets_loaded())
+    if (mpegplayer_maps_dashcam_launch || !mpeg_volume_assets_loaded())
         return;
 
     mpeg_volume_card_until = *rb->current_tick + MPEG_VOLUME_CARD_TIME;
@@ -3262,6 +3270,34 @@ static void osd_refresh(int hint)
 
     tick = *rb->current_tick;
 
+    /* A dashcam opened by Maps is an immersive, edge-to-edge view.  Keep
+     * timing/resume work in the normal button loop, but never promote a
+     * forced status or volume refresh into visible player chrome. */
+    if (mpegplayer_maps_dashcam_launch)
+    {
+        if (hint == OSD_REFRESH_DEFAULT)
+        {
+            if (osd.status == OSD_STATUS_PLAYING)
+                rb->reset_poweroff_timer();
+
+            if ((osd.auto_refresh & OSD_REFRESH_VIDEO) &&
+                TIME_AFTER(tick, osd.print_tick))
+            {
+                osd.auto_refresh &= ~OSD_REFRESH_VIDEO;
+                stream_draw_frame(false);
+            }
+
+            if ((osd.auto_refresh & OSD_REFRESH_RESUME) &&
+                TIME_AFTER(tick, osd.resume_tick))
+            {
+                osd.auto_refresh &= ~(OSD_REFRESH_RESUME |
+                                      OSD_REFRESH_VIDEO);
+                stream_resume();
+            }
+        }
+        return;
+    }
+
     if (settings.showfps)
         fps_refresh();
 
@@ -3420,6 +3456,13 @@ static void osd_refresh(int hint)
 /* Show/Hide the OSD */
 static void osd_show(unsigned show)
 {
+    if (mpegplayer_maps_dashcam_launch)
+    {
+        osd.flags &= ~OSD_SHOW;
+        stream_vo_set_clip(NULL);
+        return;
+    }
+
     if (((show ^ osd.flags) & OSD_SHOW) == 0)
     {
         if (show & OSD_SHOW) {
@@ -3653,6 +3696,9 @@ static void osd_set_volume(int delta)
     /* Sync the global settings */
     if (vol != rb->global_status->volume)
         rb->sound_set(SOUND_VOLUME, vol);
+
+    if (mpegplayer_maps_dashcam_launch)
+        return;
 
 #ifdef HAVE_LCD_COLOR
     if (mpegplayer_livetv_launch || mpegplayer_netflix_launch)
@@ -5343,8 +5389,17 @@ enum plugin_status plugin_start(const void* parameter)
     mpegplayer_youtube_launch =
         !rb->strncmp((const char *)parameter, "youtube:", 8);
     mpegplayer_youtube_embedded = mpegplayer_youtube_launch;
+    mpegplayer_maps_dashcam_launch =
+        !rb->strncmp((const char *)parameter, MPEGPLAYER_MAPS_PREFIX,
+                     MPEGPLAYER_MAPS_PREFIX_LEN);
 
-    if (mpegplayer_youtube_launch)
+    if (mpegplayer_maps_dashcam_launch)
+    {
+        rb->strlcpy(videofile,
+                    (const char *)parameter + MPEGPLAYER_MAPS_PREFIX_LEN,
+                    sizeof(videofile));
+    }
+    else if (mpegplayer_youtube_launch)
     {
         rb->strlcpy(videofile, (const char *)parameter + 8,
                     sizeof(videofile));
@@ -5469,6 +5524,16 @@ enum plugin_status plugin_start(const void* parameter)
                 settings.resume_time = 0;
                 stream_vo_set_display_mode(settings.display_mode);
             }
+            else if (mpegplayer_maps_dashcam_launch)
+            {
+                /* Maps opens a complete drive, not a seek preview. Start at
+                 * frame zero and use the full 320x240 display immediately. */
+                settings.display_mode = MPEG_VIDEO_DISPLAY_FILL;
+                settings.play_mode = 0;
+                settings.resume_options = MPEG_RESUME_RESTART;
+                settings.resume_time = 0;
+                stream_vo_set_display_mode(settings.display_mode);
+            }
             else if (netflix_restart)
             {
                 settings.resume_options = MPEG_RESUME_RESTART;
@@ -5489,7 +5554,8 @@ enum plugin_status plugin_start(const void* parameter)
                 livetv_open_failures = 0;
 #endif
                 if (feed.active || mpegplayer_youtube_launch ||
-                    mpegplayer_livetv_launch)
+                    mpegplayer_livetv_launch ||
+                    mpegplayer_maps_dashcam_launch)
                 {
                     result = MPEG_START_RESTART;
                 }

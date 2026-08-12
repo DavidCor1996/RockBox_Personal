@@ -694,6 +694,11 @@ sub buildzip {
              "$temp_dir/maps/maritime_satellite.r16");
         copy("$ROOT/assets/nb_maps/moncton_imagery.rgb",
              "$temp_dir/maps/moncton_imagery.rgb");
+        foreach my $dashcam (glob("$ROOT/assets/nb_maps/moncton_dashcam_*.rgb")) {
+            my $dashcam_name = $dashcam;
+            $dashcam_name =~ s!^.*/!!;
+            copy($dashcam, "$temp_dir/maps/$dashcam_name");
+        }
         copy("$ROOT/assets/nb_maps/fredericton_imagery.rgb",
              "$temp_dir/maps/fredericton_imagery.rgb");
         copy("$ROOT/assets/nb_maps/fredericton_panoramax_0.rgb",
@@ -702,22 +707,12 @@ sub buildzip {
              "$temp_dir/maps/fredericton_panoramax_1.rgb");
         copy("$ROOT/assets/nb_maps/saint_john_imagery.rgb",
              "$temp_dir/maps/saint_john_imagery.rgb");
-        copy("$ROOT/assets/nb_maps/times_square_north.rgb",
-             "$temp_dir/maps/times_square_north.rgb");
-        copy("$ROOT/assets/nb_maps/times_square_east.rgb",
-             "$temp_dir/maps/times_square_east.rgb");
-        copy("$ROOT/assets/nb_maps/times_square_south.rgb",
-             "$temp_dir/maps/times_square_south.rgb");
-        copy("$ROOT/assets/nb_maps/times_square_west.rgb",
-             "$temp_dir/maps/times_square_west.rgb");
-        copy("$ROOT/assets/nb_maps/toronto_360_north.rgb",
-             "$temp_dir/maps/toronto_360_north.rgb");
-        copy("$ROOT/assets/nb_maps/toronto_360_east.rgb",
-             "$temp_dir/maps/toronto_360_east.rgb");
-        copy("$ROOT/assets/nb_maps/toronto_360_south.rgb",
-             "$temp_dir/maps/toronto_360_south.rgb");
-        copy("$ROOT/assets/nb_maps/toronto_360_west.rgb",
-             "$temp_dir/maps/toronto_360_west.rgb");
+        foreach my $panorama (glob("$ROOT/assets/nb_maps/*_360_*.rgb"),
+                              glob("$ROOT/assets/nb_maps/times_square_*.rgb")) {
+            my $panorama_name = $panorama;
+            $panorama_name =~ s!^.*/!!;
+            copy($panorama, "$temp_dir/maps/$panorama_name");
+        }
         copy("$ROOT/assets/nb_maps/london_kartaview.rgb",
              "$temp_dir/maps/london_kartaview.rgb");
         copy("$ROOT/assets/nb_maps/berlin_kartaview.rgb",

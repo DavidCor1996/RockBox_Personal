@@ -5,9 +5,6 @@ Archive member included to satisfy reference by file (symbol)
 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minesweeper_tiles.16x16x24.o)
                               /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/minesweeper.o (minesweeper_tiles)
 
-Merging object attributes
-
-
 Merging program properties
 
 Removed property 0xc0000002 to merge /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crti.o (0x3) and /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/minesweeper.o (not found)
@@ -56,7 +53,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/libgcc_s.so.1
 LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a
 END GROUP
 LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/libatomic_asneeded.so
-LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/libatomic.a
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/libatomic.so
 LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/libc.so
 START GROUP
 LOAD /usr/lib/libc.so.6
@@ -527,40 +524,40 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x1a042
+.debug_info     0x0000000000000000    0x1a80b
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x8797 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/minesweeper.o
- .debug_info    0x0000000000008797     0x7da8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
- .debug_info    0x000000000001053f     0x99c0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
- .debug_info    0x0000000000019eff      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minesweeper_tiles.16x16x24.o)
+ .debug_info    0x0000000000000000     0x8a22 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/minesweeper.o
+ .debug_info    0x0000000000008a22     0x8039 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+ .debug_info    0x0000000000010a5b     0x9c66 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
+ .debug_info    0x000000000001a6c1      0x14a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minesweeper_tiles.16x16x24.o)
 
-.debug_abbrev   0x0000000000000000      0xe72
+.debug_abbrev   0x0000000000000000      0xe7b
  *(.debug_abbrev)
- .debug_abbrev  0x0000000000000000      0x590 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/minesweeper.o
- .debug_abbrev  0x0000000000000590      0x442 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
- .debug_abbrev  0x00000000000009d2      0x3e2 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
- .debug_abbrev  0x0000000000000db4       0xbe /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minesweeper_tiles.16x16x24.o)
+ .debug_abbrev  0x0000000000000000      0x599 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/minesweeper.o
+ .debug_abbrev  0x0000000000000599      0x442 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+ .debug_abbrev  0x00000000000009db      0x3e2 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
+ .debug_abbrev  0x0000000000000dbd       0xbe /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minesweeper_tiles.16x16x24.o)
 
-.debug_line     0x0000000000000000     0x1311
+.debug_line     0x0000000000000000     0x1320
  *(.debug_line .debug_line.* .debug_line_end)
- .debug_line    0x0000000000000000      0xc6d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/minesweeper.o
- .debug_line    0x0000000000000c6d      0x2bd /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
- .debug_line    0x0000000000000f2a      0x39b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
- .debug_line    0x00000000000012c5       0x4c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minesweeper_tiles.16x16x24.o)
+ .debug_line    0x0000000000000000      0xc72 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/minesweeper.o
+ .debug_line    0x0000000000000c72      0x2c2 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+ .debug_line    0x0000000000000f34      0x3a0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
+ .debug_line    0x00000000000012d4       0x4c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minesweeper_tiles.16x16x24.o)
 
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0xa0eb
+.debug_str      0x0000000000000000     0xa31d
  *(.debug_str)
- .debug_str     0x0000000000000000     0xa0eb /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/minesweeper.o
-                                       0x5487 (size before relaxing)
- .debug_str     0x000000000000a0eb        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
-                                       0x52bf (size before relaxing)
- .debug_str     0x000000000000a0eb        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
-                                       0xa32d (size before relaxing)
- .debug_str     0x000000000000a0eb        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minesweeper_tiles.16x16x24.o)
-                                        0x176 (size before relaxing)
+ .debug_str     0x0000000000000000     0xa31d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/minesweeper.o
+                                       0x5673 (size before relaxing)
+ .debug_str     0x000000000000a31d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+                                       0x54ab (size before relaxing)
+ .debug_str     0x000000000000a31d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
+                                       0xa568 (size before relaxing)
+ .debug_str     0x000000000000a31d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minesweeper_tiles.16x16x24.o)
+                                        0x17c (size before relaxing)
 
 .debug_loc
  *(.debug_loc)
@@ -590,30 +587,30 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
  *(.debug_addr)
 
 .debug_line_str
-                0x0000000000000000      0x846
+                0x0000000000000000      0x855
  *(.debug_line_str)
  .debug_line_str
-                0x0000000000000000      0x846 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/minesweeper.o
-                                        0x690 (size before relaxing)
+                0x0000000000000000      0x855 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/minesweeper.o
+                                        0x69f (size before relaxing)
  .debug_line_str
-                0x0000000000000846        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
-                                        0x68b (size before relaxing)
+                0x0000000000000855        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+                                        0x69a (size before relaxing)
  .debug_line_str
-                0x0000000000000846        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
-                                        0x675 (size before relaxing)
+                0x0000000000000855        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
+                                        0x684 (size before relaxing)
  .debug_line_str
-                0x0000000000000846        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minesweeper_tiles.16x16x24.o)
+                0x0000000000000855        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minesweeper_tiles.16x16x24.o)
                                         0x230 (size before relaxing)
 
 .debug_loclists
-                0x0000000000000000      0x6f6
+                0x0000000000000000      0x6e0
  *(.debug_loclists)
  .debug_loclists
-                0x0000000000000000      0x5ca /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/minesweeper.o
+                0x0000000000000000      0x5b4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/minesweeper.o
  .debug_loclists
-                0x00000000000005ca       0x9e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+                0x00000000000005b4       0x9e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
  .debug_loclists
-                0x0000000000000668       0x8e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
+                0x0000000000000652       0x8e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
 
 .debug_macro
  *(.debug_macro)

@@ -131,6 +131,7 @@ class Sidebar(QWidget):
     ROCKBOX_BROWSER = "rockbox_browser"
     ROCKBOX_WEBSITE_SYNC = "rockbox_website_sync"
     ROCKBOX_SIMULATOR = "rockbox_simulator"
+    ROCKBOX_VIDEO_OUT = "rockbox_video_out"
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -301,6 +302,10 @@ class Sidebar(QWidget):
         self._simulator_item = self._add_item(
             self._rockbox_header, "Simulator", self.ROCKBOX_SIMULATOR,
             _make_icon("#6b88b3", "device")
+        )
+        self._video_out_item = self._add_item(
+            self._rockbox_header, "Video Out / Dock Lab", self.ROCKBOX_VIDEO_OUT,
+            _make_icon("#536f8e", "device")
         )
         self._rockbox_header.setExpanded(True)
 

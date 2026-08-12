@@ -28,6 +28,9 @@
 #include "usb_core.h"   /* for usb_charging_maxcurrent_change */
 #include "backlight.h"
 #include "timeout.h"
+#ifndef BOOTLOADER
+#include "videoout-6g.h"
+#endif
 
 static int idepowered;
 
@@ -40,6 +43,10 @@ static volatile bool usb_high_current_committed;
 
 void power_off(void)
 {
+#ifndef BOOTLOADER
+    ipod6g_videoout_disable();
+#endif
+
     /* USB inserted or EXTON1 */
     pmu_set_wake_condition(
             PCF5063X_OOCWAKE_EXTON2 | PCF5063X_OOCWAKE_EXTON1);

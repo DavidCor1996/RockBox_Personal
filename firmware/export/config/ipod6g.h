@@ -250,6 +250,8 @@
 #define HAVE_USB_HID_MOUSE
 #ifndef BOOTLOADER
 #define USB_ENABLE_IAP_HID
+#define USB_ENABLE_ETHERNET
+#define USB_ENABLE_IPHETH_HOST
 #endif
 #define USB_VENDOR_ID 0x05AC
 #define USB_PRODUCT_ID 0x1261
@@ -274,7 +276,7 @@
 /* Disable iAP when LOGF_SERIAL is enabled to avoid conflicts */
 #ifndef LOGF_SERIAL
 #define IPOD_ACCESSORY_PROTOCOL
-#define TARGET_EXTRA_THREADS 1
+#define TARGET_EXTRA_THREADS 2
 #endif
 #endif
 

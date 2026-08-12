@@ -27,6 +27,9 @@
 #include "serial.h"
 #ifdef IPOD_ACCESSORY_PROTOCOL
 #include "iap.h"
+#ifndef BOOTLOADER
+#include "videoout-6g.h"
+#endif
 #endif
 
 #include "s5l87xx.h"
@@ -114,6 +117,45 @@ static enum iap_autobaud_status abr_status;
 static int bitrate = 0;
 static bool acc_plugged = false;
 static unsigned int acc_absent_ticks;
+#ifndef BOOTLOADER
+static long videoout_identify_tick;
+static enum ipod6g_videoout_accessory videoout_accessory =
+    IPOD6G_VIDEOOUT_ACCESSORY_NONE;
+
+/* Give iAP enough time to identify a Kokkia before allowing the SVID block.
+ * A responsive non-Kokkia dock can qualify after three seconds.  Silent
+ * legacy video docks still qualify after ten seconds, preserving DCP750
+ * compatibility without treating every serial accessory as video-capable. */
+#define VIDEOOUT_IDENTIFY_GRACE_TICKS (3 * HZ)
+#define VIDEOOUT_IDENTIFY_MAX_TICKS   (10 * HZ)
+
+static void serial_videoout_classify(void)
+{
+    enum ipod6g_videoout_accessory accessory;
+    long elapsed;
+
+    if (!acc_plugged)
+        accessory = IPOD6G_VIDEOOUT_ACCESSORY_NONE;
+    else if (iap_kokkia_present())
+        accessory = IPOD6G_VIDEOOUT_ACCESSORY_BLOCKED;
+    else
+    {
+        elapsed = current_tick - videoout_identify_tick;
+        if ((elapsed >= VIDEOOUT_IDENTIFY_GRACE_TICKS &&
+             iap_connection_status() == IAP_CONNECTION_READY) ||
+            elapsed >= VIDEOOUT_IDENTIFY_MAX_TICKS)
+            accessory = IPOD6G_VIDEOOUT_ACCESSORY_VIDEO;
+        else
+            accessory = IPOD6G_VIDEOOUT_ACCESSORY_PENDING;
+    }
+
+    if (videoout_accessory != accessory)
+    {
+        videoout_accessory = accessory;
+        ipod6g_videoout_accessory_state(accessory);
+    }
+}
+#endif
 
 /* A tap can make the dock-presence contact bounce for one or two scheduler
  * ticks even though the transmitter never left the connector.  Treating that
@@ -178,6 +220,10 @@ static void serial_acc_tick(void)
     if (acc_plugged != plugged)
     {
         acc_plugged = plugged;
+#ifndef BOOTLOADER
+        if (acc_plugged)
+            videoout_identify_tick = current_tick;
+#endif
         if (acc_plugged)
         {
             uartc_open(ser_port.uartc);
@@ -205,6 +251,12 @@ static void serial_acc_tick(void)
             iap_reset_state(IF_IAP_MP(0));
         }
     }
+
+#ifndef BOOTLOADER
+    /* Classification only publishes state.  Potentially blocking SVID
+     * transitions remain deferred to a normal LCD/settings context. */
+    serial_videoout_classify();
+#endif
 }
 
 void serial_setup(void)

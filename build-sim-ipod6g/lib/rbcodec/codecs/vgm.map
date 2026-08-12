@@ -29,9 +29,6 @@ Archive member included to satisfy reference by file (symbol)
 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
                               /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/vgm.o (codec_init)
 
-Merging object attributes
-
-
 Merging program properties
 
 Removed property 0xc0000002 to merge /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crti.o (0x3) and /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/vgm.o (not found)
@@ -158,7 +155,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/libgcc_s.so.1
 LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a
 END GROUP
 LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/libatomic_asneeded.so
-LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/libatomic.a
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/libatomic.so
 LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/libc.so
 START GROUP
 LOAD /usr/lib/libc.so.6
@@ -270,7 +267,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .plt.sec
  *(.plt.sec)
 
-.text           0x0000000000001050     0x8d34
+.text           0x0000000000001050     0x8d37
  *(.text.unlikely .text.*_unlikely .text.unlikely.*)
  *(.text.exit .text.exit.*)
  *(.text.startup .text.startup.*)
@@ -303,146 +300,146 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
                 0x00000000000024fc                skip_
                 0x0000000000002570                Track_set_fade
                 0x00000000000025c3                Vgm_play
- .text          0x00000000000025cf     0x2860 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(ym2612_emu.o)
+ .text          0x00000000000025cf     0x2863 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(ym2612_emu.o)
                 0x00000000000046cc                impl_reset
                 0x00000000000047fe                Ym2612_set_rate
-                0x0000000000004b75                Ym2612_reset
-                0x0000000000004b7a                Ym2612_write0
-                0x0000000000004b7f                Ym2612_write1
-                0x0000000000004b84                Ym2612_mute_voices
-                0x0000000000004b8b                Ym2612_run
- .text          0x0000000000004e2f      0x462 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(track_filter.o)
-                0x0000000000004e70                track_init
-                0x0000000000004e76                track_stop
-                0x0000000000004ea4                track_create
-                0x0000000000004ec1                track_skip
-                0x0000000000004f32                skippy_
-                0x0000000000004f71                track_set_fade
-                0x0000000000004f8f                fill_buf
-                0x0000000000005002                track_start
-                0x0000000000005048                track_play
- .text          0x0000000000005291     0x1376 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(inflate.o)
-                0x0000000000005e28                decompress
- .text          0x0000000000006607      0x13a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(mallocer.o)
-                0x0000000000006607                wpw_init_mempool
-                0x0000000000006643                wpw_init_mempool_pdm
-                0x000000000000666d                wpw_reset_mempool
-                0x000000000000667f                wpw_destroy_mempool
-                0x00000000000066ab                wpw_available
-                0x00000000000066c6                wpw_malloc
-                0x000000000000670c                wpw_calloc
-                0x0000000000006737                wpw_free
-                0x0000000000006738                wpw_realloc
- .text          0x0000000000006741      0x2ab /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(blip_buffer.o)
-                0x0000000000006741                Blip_clear
-                0x0000000000006765                Blip_init
-                0x0000000000006790                Blip_clock_rate_factor
-                0x00000000000067a1                Blip_bass_freq
-                0x00000000000067cf                Blip_set_sample_rate
-                0x000000000000683d                Blip_end_frame
-                0x0000000000006844                Blip_count_samples
-                0x0000000000006856                Blip_count_clocks
-                0x0000000000006872                Blip_remove_samples
-                0x00000000000068c3                Blip_read_samples
-                0x0000000000006992                Blip_mix_samples
-                0x00000000000069d8                volume_unit
-                0x00000000000069e2                Synth_init
- .text          0x00000000000069ec      0x485 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(multi_buffer.o)
-                0x00000000000069ec                Tracked_init
-                0x00000000000069ff                Tracked_clear
-                0x0000000000006a0c                Tracked_end_frame
-                0x0000000000006a2e                Tracked_non_silent
-                0x0000000000006a3b                Tracked_remove_silence
-                0x0000000000006a5b                Tracked_remove_samples
-                0x0000000000006a79                Tracked_remove_all_samples
-                0x0000000000006a8f                Tracked_read_samples
-                0x0000000000006ab9                Mixer_init
-                0x0000000000006abf                Mixer_read_pairs
-                0x0000000000006c0d                Buffer_init
-                0x0000000000006c99                Buffer_set_sample_rate
-                0x0000000000006cec                Buffer_clock_rate
-                0x0000000000006d27                Buffer_bass_freq
-                0x0000000000006d58                Buffer_set_channel_count
-                0x0000000000006d62                Buffer_channel
-                0x0000000000006d7b                Buffer_clear
-                0x0000000000006da9                Buffer_end_frame
-                0x0000000000006dda                Buffer_read_samples
- .text          0x0000000000006e71      0x37f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(resampler.o)
-                0x00000000000070a7                Resampler_setup
-                0x00000000000070dd                Resampler_resize
-                0x0000000000007111                Resampler_reset
-                0x0000000000007141                Resampler_play
- .text          0x00000000000071f0      0x16a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(bbfuncs.o)
-                0x00000000000071f0                error_die
-                0x00000000000071f1                error_msg
-                0x00000000000071f2                safe_read
-                0x0000000000007219                full_read
-                0x0000000000007268                xread
-                0x0000000000007270                xread_char
-                0x00000000000072af                check_header_gzip
- .text          0x000000000000735a       0x46 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(mbreader.o)
-                0x000000000000735a                mbread
- .text          0x00000000000073a0      0x4bf /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libemu2413.a(sms_apu.o)
-                0x00000000000075ab                Sms_apu_volume
-                0x00000000000075ce                Sms_apu_set_output
-                0x0000000000007642                Sms_apu_write_ggstereo
-                0x00000000000076cd                Sms_apu_reset
-                0x0000000000007761                Sms_apu_init
-                0x00000000000077bd                Sms_apu_write_data
-                0x0000000000007842                Sms_apu_end_frame
- .text          0x000000000000785f       0xa3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libemu2413.a(ym2413_emu.o)
-                0x000000000000785f                Ym2413_init
-                0x0000000000007873                Ym2413_reset
-                0x0000000000007887                Ym2413_set_rate
-                0x00000000000078a8                Ym2413_write
-                0x00000000000078cb                Ym2413_mute_voices
-                0x00000000000078d0                Ym2413_run
- .text          0x0000000000007902     0x22a6 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libemu2413.a(emu2413.o)
-                0x0000000000008382                OPLL_dump2patch
-                0x0000000000008485                OPLL_getDefaultPatch
-                0x00000000000084aa                OPLL_setPatch
-                0x0000000000008527                OPLL_patch2dump
-                0x00000000000085ca                OPLL_copyPatch
-                0x00000000000085e6                OPLL_delete
-                0x00000000000085e7                OPLL_reset_patch
-                0x0000000000008639                OPLL_forceRefresh
-                0x0000000000008738                OPLL_set_rate
-                0x0000000000008766                OPLL_set_quality
-                0x0000000000008774                OPLL_set_internal_mute
-                0x000000000000877b                OPLL_is_internal_muted
-                0x0000000000008782                OPLL_update_buffer
-                0x0000000000008872                OPLL_calc
-                0x0000000000008877                OPLL_setMask
-                0x000000000000888b                OPLL_toggleMask
-                0x00000000000088a1                OPLL_writeReg
-                0x00000000000097b0                OPLL_reset
-                0x00000000000098b8                OPLL_new
-                0x0000000000009b88                OPLL_writeIO
-                0x0000000000009b97                OPLL_read
- .text          0x0000000000009ba8      0x1dc /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
-                0x0000000000009ba8                codec_init
-                0x0000000000009bd1                codec_set_replaygain
-                0x0000000000009c44                codec_malloc
-                0x0000000000009c7a                codec_calloc
-                0x0000000000009cac                codec_free
-                0x0000000000009cad                codec_realloc
-                0x0000000000009ce4                codec_strlen
-                0x0000000000009cf4                strcpy
-                0x0000000000009d04                strcat
-                0x0000000000009d14                strcmp
-                0x0000000000009d24                memcpy
-                0x0000000000009d34                memset
-                0x0000000000009d44                memcmp
-                0x0000000000009d54                memchr
-                0x0000000000009d64                memmove
-                0x0000000000009d74                qsort
+                0x0000000000004b78                Ym2612_reset
+                0x0000000000004b7d                Ym2612_write0
+                0x0000000000004b82                Ym2612_write1
+                0x0000000000004b87                Ym2612_mute_voices
+                0x0000000000004b8e                Ym2612_run
+ .text          0x0000000000004e32      0x462 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(track_filter.o)
+                0x0000000000004e73                track_init
+                0x0000000000004e79                track_stop
+                0x0000000000004ea7                track_create
+                0x0000000000004ec4                track_skip
+                0x0000000000004f35                skippy_
+                0x0000000000004f74                track_set_fade
+                0x0000000000004f92                fill_buf
+                0x0000000000005005                track_start
+                0x000000000000504b                track_play
+ .text          0x0000000000005294     0x1376 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(inflate.o)
+                0x0000000000005e2b                decompress
+ .text          0x000000000000660a      0x13a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(mallocer.o)
+                0x000000000000660a                wpw_init_mempool
+                0x0000000000006646                wpw_init_mempool_pdm
+                0x0000000000006670                wpw_reset_mempool
+                0x0000000000006682                wpw_destroy_mempool
+                0x00000000000066ae                wpw_available
+                0x00000000000066c9                wpw_malloc
+                0x000000000000670f                wpw_calloc
+                0x000000000000673a                wpw_free
+                0x000000000000673b                wpw_realloc
+ .text          0x0000000000006744      0x2ab /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(blip_buffer.o)
+                0x0000000000006744                Blip_clear
+                0x0000000000006768                Blip_init
+                0x0000000000006793                Blip_clock_rate_factor
+                0x00000000000067a4                Blip_bass_freq
+                0x00000000000067d2                Blip_set_sample_rate
+                0x0000000000006840                Blip_end_frame
+                0x0000000000006847                Blip_count_samples
+                0x0000000000006859                Blip_count_clocks
+                0x0000000000006875                Blip_remove_samples
+                0x00000000000068c6                Blip_read_samples
+                0x0000000000006995                Blip_mix_samples
+                0x00000000000069db                volume_unit
+                0x00000000000069e5                Synth_init
+ .text          0x00000000000069ef      0x485 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(multi_buffer.o)
+                0x00000000000069ef                Tracked_init
+                0x0000000000006a02                Tracked_clear
+                0x0000000000006a0f                Tracked_end_frame
+                0x0000000000006a31                Tracked_non_silent
+                0x0000000000006a3e                Tracked_remove_silence
+                0x0000000000006a5e                Tracked_remove_samples
+                0x0000000000006a7c                Tracked_remove_all_samples
+                0x0000000000006a92                Tracked_read_samples
+                0x0000000000006abc                Mixer_init
+                0x0000000000006ac2                Mixer_read_pairs
+                0x0000000000006c10                Buffer_init
+                0x0000000000006c9c                Buffer_set_sample_rate
+                0x0000000000006cef                Buffer_clock_rate
+                0x0000000000006d2a                Buffer_bass_freq
+                0x0000000000006d5b                Buffer_set_channel_count
+                0x0000000000006d65                Buffer_channel
+                0x0000000000006d7e                Buffer_clear
+                0x0000000000006dac                Buffer_end_frame
+                0x0000000000006ddd                Buffer_read_samples
+ .text          0x0000000000006e74      0x37f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(resampler.o)
+                0x00000000000070aa                Resampler_setup
+                0x00000000000070e0                Resampler_resize
+                0x0000000000007114                Resampler_reset
+                0x0000000000007144                Resampler_play
+ .text          0x00000000000071f3      0x16a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(bbfuncs.o)
+                0x00000000000071f3                error_die
+                0x00000000000071f4                error_msg
+                0x00000000000071f5                safe_read
+                0x000000000000721c                full_read
+                0x000000000000726b                xread
+                0x0000000000007273                xread_char
+                0x00000000000072b2                check_header_gzip
+ .text          0x000000000000735d       0x46 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(mbreader.o)
+                0x000000000000735d                mbread
+ .text          0x00000000000073a3      0x4bf /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libemu2413.a(sms_apu.o)
+                0x00000000000075ae                Sms_apu_volume
+                0x00000000000075d1                Sms_apu_set_output
+                0x0000000000007645                Sms_apu_write_ggstereo
+                0x00000000000076d0                Sms_apu_reset
+                0x0000000000007764                Sms_apu_init
+                0x00000000000077c0                Sms_apu_write_data
+                0x0000000000007845                Sms_apu_end_frame
+ .text          0x0000000000007862       0xa3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libemu2413.a(ym2413_emu.o)
+                0x0000000000007862                Ym2413_init
+                0x0000000000007876                Ym2413_reset
+                0x000000000000788a                Ym2413_set_rate
+                0x00000000000078ab                Ym2413_write
+                0x00000000000078ce                Ym2413_mute_voices
+                0x00000000000078d3                Ym2413_run
+ .text          0x0000000000007905     0x22a6 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libemu2413.a(emu2413.o)
+                0x0000000000008385                OPLL_dump2patch
+                0x0000000000008488                OPLL_getDefaultPatch
+                0x00000000000084ad                OPLL_setPatch
+                0x000000000000852a                OPLL_patch2dump
+                0x00000000000085cd                OPLL_copyPatch
+                0x00000000000085e9                OPLL_delete
+                0x00000000000085ea                OPLL_reset_patch
+                0x000000000000863c                OPLL_forceRefresh
+                0x000000000000873b                OPLL_set_rate
+                0x0000000000008769                OPLL_set_quality
+                0x0000000000008777                OPLL_set_internal_mute
+                0x000000000000877e                OPLL_is_internal_muted
+                0x0000000000008785                OPLL_update_buffer
+                0x0000000000008875                OPLL_calc
+                0x000000000000887a                OPLL_setMask
+                0x000000000000888e                OPLL_toggleMask
+                0x00000000000088a4                OPLL_writeReg
+                0x00000000000097b3                OPLL_reset
+                0x00000000000098bb                OPLL_new
+                0x0000000000009b8b                OPLL_writeIO
+                0x0000000000009b9a                OPLL_read
+ .text          0x0000000000009bab      0x1dc /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+                0x0000000000009bab                codec_init
+                0x0000000000009bd4                codec_set_replaygain
+                0x0000000000009c47                codec_malloc
+                0x0000000000009c7d                codec_calloc
+                0x0000000000009caf                codec_free
+                0x0000000000009cb0                codec_realloc
+                0x0000000000009ce7                codec_strlen
+                0x0000000000009cf7                strcpy
+                0x0000000000009d07                strcat
+                0x0000000000009d17                strcmp
+                0x0000000000009d27                memcpy
+                0x0000000000009d37                memset
+                0x0000000000009d47                memcmp
+                0x0000000000009d57                memchr
+                0x0000000000009d67                memmove
+                0x0000000000009d77                qsort
  *(.gnu.warning)
 
-.fini           0x0000000000009d84        0xd
+.fini           0x0000000000009d88        0xd
  *(SORT_NONE(.fini))
- .fini          0x0000000000009d84        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crti.o
-                0x0000000000009d84                _fini
- .fini          0x0000000000009d8c        0x5 /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
+ .fini          0x0000000000009d88        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crti.o
+                0x0000000000009d88                _fini
+ .fini          0x0000000000009d90        0x5 /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
                 [!provide]                        PROVIDE (__etext = .)
                 [!provide]                        PROVIDE (_etext = .)
                 [!provide]                        PROVIDE (etext = .)
@@ -766,43 +763,43 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .stab.indexstr
  *(.stab.indexstr)
 
-.comment        0x0000000000000000       0x36
+.comment        0x0000000000000000       0x1b
  *(.comment)
- .comment       0x0000000000000000       0x36 /usr/lib/gcc/x86_64-pc-linux-gnu/16/crtbeginS.o
+ .comment       0x0000000000000000       0x1b /usr/lib/gcc/x86_64-pc-linux-gnu/16/crtbeginS.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/vgm.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/vgm.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/codec_crt0.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/codec_crt0.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(vgm_emu.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(vgm_emu.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(ym2612_emu.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(ym2612_emu.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(track_filter.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(track_filter.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(inflate.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(inflate.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(mallocer.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(mallocer.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(blip_buffer.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(blip_buffer.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(multi_buffer.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(multi_buffer.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(resampler.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(resampler.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(bbfuncs.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(bbfuncs.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(mbreader.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(mbreader.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libemu2413.a(sms_apu.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libemu2413.a(sms_apu.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libemu2413.a(ym2413_emu.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libemu2413.a(ym2413_emu.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libemu2413.a(emu2413.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libemu2413.a(emu2413.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16/crtendS.o
+ .comment       0x000000000000001b        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16/crtendS.o
                                          0x1c (size before relaxing)
 
 .gnu.build.attributes
@@ -896,61 +893,61 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
  .debug_abbrev  0x0000000000003402      0x467 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libemu2413.a(emu2413.o)
  .debug_abbrev  0x0000000000003869      0x35b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
 
-.debug_line     0x0000000000000000     0x8fc7
+.debug_line     0x0000000000000000     0x8fc9
  *(.debug_line .debug_line.* .debug_line_end)
  .debug_line    0x0000000000000000      0x3a3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/vgm.o
  .debug_line    0x00000000000003a3       0xa9 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/codec_crt0.o
  .debug_line    0x000000000000044c     0x17cc /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(vgm_emu.o)
- .debug_line    0x0000000000001c18     0x19d7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(ym2612_emu.o)
- .debug_line    0x00000000000035ef      0x684 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(track_filter.o)
- .debug_line    0x0000000000003c73     0x12ab /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(inflate.o)
- .debug_line    0x0000000000004f1e      0x1a8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(mallocer.o)
- .debug_line    0x00000000000050c6      0x4c7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(blip_buffer.o)
- .debug_line    0x000000000000558d      0x774 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(multi_buffer.o)
- .debug_line    0x0000000000005d01      0x43d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(resampler.o)
- .debug_line    0x000000000000613e      0x1ef /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(bbfuncs.o)
- .debug_line    0x000000000000632d       0xb7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(mbreader.o)
- .debug_line    0x00000000000063e4      0x6db /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libemu2413.a(sms_apu.o)
- .debug_line    0x0000000000006abf      0x132 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libemu2413.a(ym2413_emu.o)
- .debug_line    0x0000000000006bf1     0x212e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libemu2413.a(emu2413.o)
- .debug_line    0x0000000000008d1f      0x2a8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .debug_line    0x0000000000001c18     0x19d9 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(ym2612_emu.o)
+ .debug_line    0x00000000000035f1      0x684 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(track_filter.o)
+ .debug_line    0x0000000000003c75     0x12ab /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(inflate.o)
+ .debug_line    0x0000000000004f20      0x1a8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(mallocer.o)
+ .debug_line    0x00000000000050c8      0x4c7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(blip_buffer.o)
+ .debug_line    0x000000000000558f      0x774 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(multi_buffer.o)
+ .debug_line    0x0000000000005d03      0x43d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(resampler.o)
+ .debug_line    0x0000000000006140      0x1ef /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(bbfuncs.o)
+ .debug_line    0x000000000000632f       0xb7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(mbreader.o)
+ .debug_line    0x00000000000063e6      0x6db /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libemu2413.a(sms_apu.o)
+ .debug_line    0x0000000000006ac1      0x132 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libemu2413.a(ym2413_emu.o)
+ .debug_line    0x0000000000006bf3     0x212e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libemu2413.a(emu2413.o)
+ .debug_line    0x0000000000008d21      0x2a8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
 
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x338a
+.debug_str      0x0000000000000000     0x32b8
  *(.debug_str)
- .debug_str     0x0000000000000000     0x338a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/vgm.o
+ .debug_str     0x0000000000000000     0x32b8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/vgm.o
                                        0x1571 (size before relaxing)
- .debug_str     0x000000000000338a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/codec_crt0.o
+ .debug_str     0x00000000000032b8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/codec_crt0.o
                                         0xcbf (size before relaxing)
- .debug_str     0x000000000000338a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(vgm_emu.o)
+ .debug_str     0x00000000000032b8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(vgm_emu.o)
                                        0x15bf (size before relaxing)
- .debug_str     0x000000000000338a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(ym2612_emu.o)
+ .debug_str     0x00000000000032b8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(ym2612_emu.o)
                                         0xb3a (size before relaxing)
- .debug_str     0x000000000000338a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(track_filter.o)
+ .debug_str     0x00000000000032b8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(track_filter.o)
                                         0x8a5 (size before relaxing)
- .debug_str     0x000000000000338a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(inflate.o)
+ .debug_str     0x00000000000032b8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(inflate.o)
                                         0xa54 (size before relaxing)
- .debug_str     0x000000000000338a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(mallocer.o)
+ .debug_str     0x00000000000032b8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(mallocer.o)
                                         0xcfb (size before relaxing)
- .debug_str     0x000000000000338a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(blip_buffer.o)
+ .debug_str     0x00000000000032b8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(blip_buffer.o)
                                         0x519 (size before relaxing)
- .debug_str     0x000000000000338a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(multi_buffer.o)
+ .debug_str     0x00000000000032b8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(multi_buffer.o)
                                         0x6db (size before relaxing)
- .debug_str     0x000000000000338a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(resampler.o)
+ .debug_str     0x00000000000032b8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(resampler.o)
                                         0x56e (size before relaxing)
- .debug_str     0x000000000000338a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(bbfuncs.o)
+ .debug_str     0x00000000000032b8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(bbfuncs.o)
                                         0x26d (size before relaxing)
- .debug_str     0x000000000000338a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(mbreader.o)
+ .debug_str     0x00000000000032b8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(mbreader.o)
                                         0x1ba (size before relaxing)
- .debug_str     0x000000000000338a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libemu2413.a(sms_apu.o)
+ .debug_str     0x00000000000032b8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libemu2413.a(sms_apu.o)
                                         0x53b (size before relaxing)
- .debug_str     0x000000000000338a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libemu2413.a(ym2413_emu.o)
+ .debug_str     0x00000000000032b8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libemu2413.a(ym2413_emu.o)
                                         0x452 (size before relaxing)
- .debug_str     0x000000000000338a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libemu2413.a(emu2413.o)
+ .debug_str     0x00000000000032b8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libemu2413.a(emu2413.o)
                                         0xd1b (size before relaxing)
- .debug_str     0x000000000000338a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .debug_str     0x00000000000032b8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
                                         0xedb (size before relaxing)
 
 .debug_loc
@@ -981,92 +978,92 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
  *(.debug_addr)
 
 .debug_line_str
-                0x0000000000000000      0x991
+                0x0000000000000000      0x961
  *(.debug_line_str)
  .debug_line_str
-                0x0000000000000000      0x991 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/vgm.o
+                0x0000000000000000      0x961 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/vgm.o
                                         0x44a (size before relaxing)
  .debug_line_str
-                0x0000000000000991        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/codec_crt0.o
-                                        0x264 (size before relaxing)
+                0x0000000000000961        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/codec_crt0.o
+                                        0x260 (size before relaxing)
  .debug_line_str
-                0x0000000000000991        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(vgm_emu.o)
+                0x0000000000000961        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(vgm_emu.o)
                                         0x1ed (size before relaxing)
  .debug_line_str
-                0x0000000000000991        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(ym2612_emu.o)
+                0x0000000000000961        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(ym2612_emu.o)
                                         0x204 (size before relaxing)
  .debug_line_str
-                0x0000000000000991        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(track_filter.o)
+                0x0000000000000961        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(track_filter.o)
                                         0x208 (size before relaxing)
  .debug_line_str
-                0x0000000000000991        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(inflate.o)
+                0x0000000000000961        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(inflate.o)
                                         0x281 (size before relaxing)
  .debug_line_str
-                0x0000000000000991        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(mallocer.o)
+                0x0000000000000961        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(mallocer.o)
                                         0x312 (size before relaxing)
  .debug_line_str
-                0x0000000000000991        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(blip_buffer.o)
+                0x0000000000000961        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(blip_buffer.o)
                                         0x16c (size before relaxing)
  .debug_line_str
-                0x0000000000000991        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(multi_buffer.o)
+                0x0000000000000961        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(multi_buffer.o)
                                         0x168 (size before relaxing)
  .debug_line_str
-                0x0000000000000991        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(resampler.o)
+                0x0000000000000961        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(resampler.o)
                                         0x181 (size before relaxing)
  .debug_line_str
-                0x0000000000000991        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(bbfuncs.o)
+                0x0000000000000961        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(bbfuncs.o)
                                         0x1af (size before relaxing)
  .debug_line_str
-                0x0000000000000991        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(mbreader.o)
+                0x0000000000000961        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(mbreader.o)
                                         0x195 (size before relaxing)
  .debug_line_str
-                0x0000000000000991        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libemu2413.a(sms_apu.o)
+                0x0000000000000961        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libemu2413.a(sms_apu.o)
                                         0x144 (size before relaxing)
  .debug_line_str
-                0x0000000000000991        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libemu2413.a(ym2413_emu.o)
+                0x0000000000000961        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libemu2413.a(ym2413_emu.o)
                                         0x157 (size before relaxing)
  .debug_line_str
-                0x0000000000000991        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libemu2413.a(emu2413.o)
+                0x0000000000000961        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libemu2413.a(emu2413.o)
                                         0x1fb (size before relaxing)
  .debug_line_str
-                0x0000000000000991        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+                0x0000000000000961        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
                                         0x328 (size before relaxing)
 
 .debug_loclists
-                0x0000000000000000     0xb188
+                0x0000000000000000     0xb185
  *(.debug_loclists)
  .debug_loclists
                 0x0000000000000000       0xdc /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/vgm.o
  .debug_loclists
                 0x00000000000000dc       0x1e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/codec_crt0.o
  .debug_loclists
-                0x00000000000000fa     0x164d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(vgm_emu.o)
+                0x00000000000000fa     0x1641 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(vgm_emu.o)
  .debug_loclists
-                0x0000000000001747     0x4882 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(ym2612_emu.o)
+                0x000000000000173b     0x488b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(ym2612_emu.o)
  .debug_loclists
-                0x0000000000005fc9      0x51b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(track_filter.o)
+                0x0000000000005fc6      0x51b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(track_filter.o)
  .debug_loclists
-                0x00000000000064e4      0xfe4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(inflate.o)
+                0x00000000000064e1      0xfe4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(inflate.o)
  .debug_loclists
-                0x00000000000074c8       0xf0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(mallocer.o)
+                0x00000000000074c5       0xf0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(mallocer.o)
  .debug_loclists
-                0x00000000000075b8      0x5ed /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(blip_buffer.o)
+                0x00000000000075b5      0x5ed /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(blip_buffer.o)
  .debug_loclists
-                0x0000000000007ba5      0x830 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(multi_buffer.o)
+                0x0000000000007ba2      0x830 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(multi_buffer.o)
  .debug_loclists
-                0x00000000000083d5      0x607 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(resampler.o)
+                0x00000000000083d2      0x607 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(resampler.o)
  .debug_loclists
-                0x00000000000089dc      0x1aa /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(bbfuncs.o)
+                0x00000000000089d9      0x1aa /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(bbfuncs.o)
  .debug_loclists
-                0x0000000000008b86       0x6d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(mbreader.o)
+                0x0000000000008b83       0x6d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libvgm.a(mbreader.o)
  .debug_loclists
-                0x0000000000008bf3      0x8d8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libemu2413.a(sms_apu.o)
+                0x0000000000008bf0      0x8d8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libemu2413.a(sms_apu.o)
  .debug_loclists
-                0x00000000000094cb      0x155 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libemu2413.a(ym2413_emu.o)
+                0x00000000000094c8      0x155 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libemu2413.a(ym2413_emu.o)
  .debug_loclists
-                0x0000000000009620     0x1840 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libemu2413.a(emu2413.o)
+                0x000000000000961d     0x1840 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libemu2413.a(emu2413.o)
  .debug_loclists
-                0x000000000000ae60      0x328 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+                0x000000000000ae5d      0x328 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
 
 .debug_macro
  *(.debug_macro)

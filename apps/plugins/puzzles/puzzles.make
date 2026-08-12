@@ -49,18 +49,24 @@ PUZZLESFLAGS = -I$(PUZZLES_SRCDIR)/dummy $(filter-out			\
 		$(PUZZLES_SRCDIR)/rbcompat.h -ffunction-sections	\
 		-fdata-sections -w -Wl,--gc-sections
 
+ifneq ($(findstring -DROCKPOD_IOS_EMBED,$(EXTRA_DEFINES)),)
+PUZZLES_MAPFLAGS =
+else
+PUZZLES_MAPFLAGS = -Wl,$(LDMAP_OPT),$(PUZZLES_OBJDIR)/src/$*.map
+endif
+
 $(PUZZLES_FINISHED_ROCKS): $(PUZZLES_OBJDIR)/sgt-%.rock: $(PUZZLES_OBJDIR)/src/%.o $(PUZZLES_OBJDIR)/help/%.o $(PUZZLES_SHARED_OBJ) $(TLSFLIB)
 	$(call PRINTS,LD $(@F))$(CC) $(PLUGINFLAGS) -o $(PUZZLES_OBJDIR)/$*.elf \
 		$(filter %.o, $^) \
 		$(filter %.a, $+) \
-		-lgcc $(filter-out -Wl%.map, $(PLUGINLDFLAGS)) -Wl,$(LDMAP_OPT),$(PUZZLES_OBJDIR)/src/$*.map
+		$(PLUGIN_RUNTIME_LIBS) $(filter-out -Wl%.map, $(PLUGINLDFLAGS)) $(PUZZLES_MAPFLAGS)
 	$(SILENT)$(call objcopy_plugin,$(PUZZLES_OBJDIR)/$*.elf,$@)
 
 $(PUZZLES_UNFINISHED_ROCKS): $(PUZZLES_OBJDIR)/sgt-%.rock: $(PUZZLES_OBJDIR)/src/unfinished/%.o $(PUZZLES_OBJDIR)/help/%.o $(PUZZLES_SHARED_OBJ) $(TLSFLIB)
 	$(call PRINTS,LD $(@F))$(CC) $(PLUGINFLAGS) -o $(PUZZLES_OBJDIR)/$*.elf \
 		$(filter %.o, $^) \
 		$(filter %.a, $+) \
-		-lgcc $(filter-out -Wl%.map, $(PLUGINLDFLAGS)) -Wl,$(LDMAP_OPT),$(PUZZLES_OBJDIR)/src/$*.map
+		$(PLUGIN_RUNTIME_LIBS) $(filter-out -Wl%.map, $(PLUGINLDFLAGS)) $(PUZZLES_MAPFLAGS)
 	$(SILENT)$(call objcopy_plugin,$(PUZZLES_OBJDIR)/$*.elf,$@)
 
 $(PUZZLES_SRCDIR)/rbcompat.h:	$(APPSDIR)/plugin.h			\

@@ -70,6 +70,7 @@ int plugin_open(const char *plugin, const char *parameter);
 
 #ifndef __PCTOOL__
 #include "config.h"
+#include "notification.h"
 #include "system.h"
 #include "dir.h"
 #include "general.h"
@@ -181,7 +182,7 @@ int plugin_open(const char *plugin, const char *parameter);
  * when this happens please take the opportunity to sort in
  * any new functions "waiting" at the end of the list.
  */
-#define PLUGIN_API_VERSION 282
+#define PLUGIN_API_VERSION 286
 
 /* 239 Marks the removal of ARCHOS HWCODEC and CHARCELL */
 
@@ -1044,6 +1045,24 @@ struct plugin_api {
 #endif
     bool (*haptic_feedback_enabled)(void);
     void (*haptic_feedback)(int duration_ms, int strength);
+#ifdef HAVE_IPODJS_UI
+    bool (*notification_post)(const struct notification_request *request);
+    bool (*notification_schedule)(const struct notification_request *request,
+                                  long rtc_deadline);
+    void (*notification_cancel)(unsigned source, unsigned kind,
+                                uint32_t stable_id);
+#endif
+#if defined(HAVE_IPODJS_UI) && defined(HAVE_TAGCACHE)
+    bool (*root_menu_ipodjs_text_input)(const char *title, char *text,
+                                       size_t size);
+#endif
+#ifdef USB_ENABLE_ETHERNET
+    bool (*usb_internet_connected)(void);
+    void (*usb_internet_service)(void);
+    unsigned long (*usb_internet_weather_generation)(void);
+    int (*usb_internet_send)(uint16_t port, const void *data, int length);
+    int (*usb_internet_receive)(uint16_t port, void *data, int capacity);
+#endif
 };
 
 /* plugin header */

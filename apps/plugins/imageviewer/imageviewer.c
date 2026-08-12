@@ -24,6 +24,7 @@
  *   - check magick value in file header to determine image type.
  */
 #include "plugin.h"
+#include <stdarg.h>
 #include <lib/playback_control.h>
 #include <lib/helper.h>
 #include <lib/configfile.h>
@@ -47,6 +48,7 @@ GREY_INFO_STRUCT
 #define IMGVIEW_CONFIGFILE          "imageviewer.cfg"
 #define IMGVIEW_SETTINGS_MINVERSION 1
 #define IMGVIEW_SETTINGS_VERSION    2
+#define IMGVIEW_DEBUG_LOG           ROCKBOX_DIR "/logs/imageviewer.log"
 
 /* Slideshow times */
 #define SS_MIN_TIMEOUT      1
@@ -67,6 +69,24 @@ static struct imgview_settings settings =
     SS_DEFAULT_TIMEOUT
 };
 static struct imgview_settings old_settings;
+
+static void imageviewer_log(const char *fmt, ...)
+{
+    int fd;
+    char msg[200];
+    va_list ap;
+
+    fd = rb->open(IMGVIEW_DEBUG_LOG, O_WRONLY | O_CREAT | O_APPEND, 0666);
+    if (fd < 0)
+        return;
+
+    va_start(ap, fmt);
+    rb->vsnprintf(msg, sizeof(msg), fmt, ap);
+    va_end(ap);
+
+    rb->fdprintf(fd, "[%08lx] %s\n", *rb->current_tick, msg);
+    rb->close(fd);
+}
 
 static struct configdata config[] =
 {
@@ -170,13 +190,17 @@ static int compare_pic_names(const void *left, const void *right)
 static void get_pic_list(bool single_file)
 {
     unsigned char *list_start = buf;
-    unsigned char *name_end = buf + buf_size;
+    size_t list_size = buf_size;
     DIR *dir;
     struct dirent *entry;
     char dirpath[MAX_PATH];
     char fullpath[MAX_PATH];
-    char *pname;
+    const char *pname;
     char *slash;
+    size_t names_bytes;
+    size_t ptr_bytes;
+    char *name_ptr;
+    char *base;
 
     file_pt = (char **) buf;
     entries = 0;
@@ -198,6 +222,7 @@ static void get_pic_list(bool single_file)
     *slash = '\0';
     pname = slash + 1;
 
+    names_bytes = 0;
     dir = rb->opendir(dirpath);
     if (!dir)
         return;
@@ -213,13 +238,66 @@ static void get_pic_list(bool single_file)
             continue;
 
         name_len = rb->strlen(entry->d_name) + 1;
-        if ((entries + 1) * sizeof(char *) + name_len >
-            (size_t)(name_end - list_start))
+        if (name_len > list_size)
+        {
+            entries = 0;
             break;
+        }
 
-        name_end -= name_len;
-        rb->strlcpy((char *)name_end, entry->d_name, name_len);
-        file_pt[entries] = (char *)name_end;
+        if (names_bytes + name_len < names_bytes)
+        {
+            entries = 0;
+            break;
+        }
+
+        names_bytes += name_len;
+        entries++;
+    }
+    rb->closedir(dir);
+
+    if (entries <= 0)
+    {
+fallback_single:
+        base = rb->strrchr(np_file, '/');
+        file_pt[0] = base ? base + 1 : np_file;
+        entries = 1;
+        curfile = 0;
+        buf += sizeof(char *);
+        buf_size -= sizeof(char *);
+        return;
+    }
+
+    ptr_bytes = (size_t)entries * sizeof(char *);
+    if (ptr_bytes + names_bytes < ptr_bytes ||
+        ptr_bytes + names_bytes > list_size)
+    {
+        imageviewer_log("file list too large dir=%s entries=%d ptr=%lu names=%lu",
+                        dirpath, entries, (unsigned long)ptr_bytes,
+                        (unsigned long)names_bytes);
+        goto fallback_single;
+    }
+
+    name_ptr = (char *)list_start + ptr_bytes;
+    dir = rb->opendir(dirpath);
+    if (!dir)
+        goto fallback_single;
+
+    entries = 0;
+    curfile = -1;
+    while ((entry = rb->readdir(dir)) != NULL)
+    {
+        struct dirinfo info = rb->dir_get_info(dir, entry);
+        size_t name_len;
+
+        if (info.attribute & ATTR_DIRECTORY)
+            continue;
+        if (!is_supported_image_name(entry->d_name))
+            continue;
+
+        name_len = rb->strlen(entry->d_name) + 1;
+        rb->strlcpy(name_ptr, entry->d_name, name_len);
+        file_pt[entries] = name_ptr;
+        name_ptr += name_len;
 
         if (!rb->strcmp(entry->d_name, pname))
             curfile = entries;
@@ -244,20 +322,12 @@ static void get_pic_list(bool single_file)
     }
 
     if (entries <= 0 || curfile < 0)
-    {
-        char *base = rb->strrchr(np_file, '/');
-        file_pt[0] = base ? base + 1 : np_file;
-        entries = 1;
-        curfile = 0;
-        buf += sizeof(char *);
-        buf_size -= sizeof(char *);
-        return;
-    }
+        goto fallback_single;
 
     rb->snprintf(fullpath, sizeof(fullpath), "%s/%s", dirpath, file_pt[curfile]);
     rb->strlcpy(np_file, fullpath, sizeof(np_file));
-    buf = list_start + entries * sizeof(char *);
-    buf_size = name_end - buf;
+    buf = (unsigned char *)name_ptr;
+    buf_size = list_size - (size_t)(buf - list_start);
 }
 
 static int change_filename(int direct)
@@ -981,6 +1051,7 @@ static int load_and_show(char *filename, struct image_info *info,
 
     if (status == IMAGE_UNKNOWN) {
         /* file isn't supported image file, skip this. */
+        imageviewer_log("skip unsupported file=%s", filename);
         file_pt[curfile] = NULL;
         return change_filename(direction);
     }
@@ -998,6 +1069,8 @@ reload_decoder:
         if (imgdec == NULL)
         {
             /* something is wrong */
+            imageviewer_log("decoder load failed type=%d file=%s", status,
+                            filename);
             return PLUGIN_ERROR;
         }
 #ifdef USE_PLUG_BUF
@@ -1012,17 +1085,17 @@ reload_decoder:
     remaining = buf_size;
 
     int queued_button = rb->button_get(false);
-    if (queued_button == IMGVIEW_MENU
-#ifdef IMGVIEW_QUIT
-        || queued_button == IMGVIEW_QUIT
-#endif
-       )
+    if (queued_button == IMGVIEW_MENU)
+    {
+        imageviewer_log("abort before decode file=%s", filename);
         status = PLUGIN_ABORT;
+    }
     else
         status = imgdec->load_image(filename, info, buf, &remaining, offset, filesize);
 
     if (status == PLUGIN_JPEG_PROGRESSIVE)
     {
+        imageviewer_log("progressive jpeg fallback file=%s", filename);
         status = IMAGE_JPEG_PROGRESSIVE;
         goto reload_decoder;
     }
@@ -1032,6 +1105,8 @@ reload_decoder:
 #ifdef USE_PLUG_BUF
         if(iv_api.plug_buf)
         {
+            imageviewer_log("out of memory, requesting audio buffer file=%s",
+                            filename);
             return ask_and_get_audio_buffer(filename);
         }
         else
@@ -1044,10 +1119,13 @@ reload_decoder:
     }
     else if (status == PLUGIN_ERROR)
     {
+        imageviewer_log("decode error file=%s type=%d offset=%d size=%d",
+                        filename, image_type, offset, filesize);
         file_pt[curfile] = NULL;
         return change_filename(direction);
     }
     else if (status == PLUGIN_ABORT) {
+        imageviewer_log("decode aborted file=%s", filename);
         rb->splash(HZ, "Aborted");
         return PLUGIN_OK;
     }
@@ -1090,6 +1168,8 @@ reload_decoder:
         status = imgdec->get_image(info, frame, ds); /* decode or fetch from cache */
         if (status == PLUGIN_ERROR)
         {
+            imageviewer_log("frame decode error file=%s frame=%d ds=%d",
+                            filename, frame, ds);
             file_pt[curfile] = NULL;
             return change_filename(direction);
         }
@@ -1231,10 +1311,14 @@ enum plugin_status plugin_start(const void* parameter)
     int offset = 0, filesize = 0, status;
 
     bool is_album_art = false;
+    imageviewer_log("start parameter=%s",
+                    parameter ? (const char *)parameter : "(albumart)");
+
     if (!parameter)
     {
         if (!find_album_art(&offset, &filesize, &status))
     {
+        imageviewer_log("album art lookup failed");
         rb->splash(HZ * 2, "No file");
         return PLUGIN_ERROR;
     }
@@ -1246,6 +1330,7 @@ enum plugin_status plugin_start(const void* parameter)
         rb->strcpy(np_file, parameter);
         if ((status = get_image_type(np_file, false)) == IMAGE_UNKNOWN)
             {
+                imageviewer_log("unsupported parameter file=%s", np_file);
                 rb->splash(HZ * 2, "Unsupported file");
                 return PLUGIN_ERROR;
             }
@@ -1253,6 +1338,9 @@ enum plugin_status plugin_start(const void* parameter)
 
 #ifdef USE_PLUG_BUF
     buf = rb->plugin_get_buffer(&buf_size);
+    imageviewer_log("plugin buffer size=%lu", (unsigned long)buf_size);
+    decoder_buf = buf;
+    decoder_buf_size = buf_size;
 #else
     decoder_buf = rb->plugin_get_buffer(&decoder_buf_size);
     buf = rb->plugin_get_audio_buffer(&buf_size);
@@ -1271,12 +1359,23 @@ enum plugin_status plugin_start(const void* parameter)
 #endif
 
 #ifdef USE_PLUG_BUF
-    decoder_buf = buf;
-    decoder_buf_size = buf_size;
     if(!rb->audio_status())
     {
+        unsigned char *audio_buf;
+        size_t audio_buf_size = 0;
         iv_api.plug_buf = false;
-        buf = rb->plugin_get_audio_buffer(&buf_size);
+        audio_buf = rb->plugin_get_audio_buffer(&audio_buf_size);
+        if (!audio_buf || audio_buf_size == 0)
+        {
+            iv_api.plug_buf = true;
+            imageviewer_log("audio buffer unavailable, using plugin buffer");
+        }
+        else
+        {
+            buf = audio_buf;
+            buf_size = audio_buf_size;
+            imageviewer_log("audio buffer size=%lu", (unsigned long)buf_size);
+        }
     }
 #endif
 
@@ -1330,6 +1429,21 @@ enum plugin_status plugin_start(const void* parameter)
 #ifdef USEGSLIB
     grey_release(); /* deinitialize */
 #endif
+
+    /* Give the audio buffer back if this viewer took it.
+     *
+     * The core only frees a plugin's audio buffer when the plugin is not a
+     * TSR one (plugin.c, "close handle if plugin is no tsr one").  The Photos
+     * app registers itself as TSR and then opens this viewer, so on that path
+     * nothing releases the buffer: playback afterwards has no memory, and the
+     * user sees a track in the status bar with no sound.  Release what we
+     * took.  plugin_release_audio_buffer() quiesces buffer users first, so it
+     * is safe against a PCM or mixer callback still holding a reference, and
+     * it is a no-op when the buffer was never taken. */
+    if (!iv_api.plug_buf)
+        rb->plugin_release_audio_buffer();
+
+    imageviewer_log("exit rc=%d file=%s", condition, np_file);
 
     return condition;
 }

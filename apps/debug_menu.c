@@ -141,6 +141,7 @@
 
 #if defined(IPOD_6G) && !defined(SIMULATOR)
 #include "norboot-target.h"
+#include "videoout-6g.h"
 #endif
 
 #ifdef SIMULATOR
@@ -2910,6 +2911,129 @@ static bool dbg_device_data(void)
 
 
 #if defined(IPOD_6G) && !defined(SIMULATOR)
+#define DBG_VIDEOOUT_STAGE_TIMEOUT (60 * HZ)
+
+static void dbg_videoout_text(const char *title, const char *detail)
+{
+    lcd_set_background(LCD_RGBPACK(0, 0, 0));
+    lcd_set_foreground(LCD_RGBPACK(255, 255, 255));
+    lcd_clear_display();
+    lcd_puts(0, 0, title);
+    lcd_puts(0, 2, detail);
+    lcd_puts(0, 5, "SELECT: next");
+    lcd_puts(0, 6, "MENU: stop/exit");
+    lcd_update();
+}
+
+static void dbg_videoout_solid(void)
+{
+    lcd_set_foreground(LCD_RGBPACK(24, 96, 224));
+    lcd_fillrect(0, 0, LCD_WIDTH, LCD_HEIGHT);
+    lcd_update();
+}
+
+static void dbg_videoout_bars(void)
+{
+    static const unsigned colors[] = {
+        LCD_RGBPACK(255, 255, 255), LCD_RGBPACK(255, 255, 0),
+        LCD_RGBPACK(0, 255, 255),   LCD_RGBPACK(0, 255, 0),
+        LCD_RGBPACK(255, 0, 255),   LCD_RGBPACK(255, 0, 0),
+        LCD_RGBPACK(0, 0, 255),     LCD_RGBPACK(0, 0, 0),
+    };
+
+    for (unsigned i = 0; i < ARRAYLEN(colors); i++)
+    {
+        int x0 = LCD_WIDTH * i / ARRAYLEN(colors);
+        int x1 = LCD_WIDTH * (i + 1) / ARRAYLEN(colors);
+        lcd_set_foreground(colors[i]);
+        lcd_fillrect(x0, 0, x1 - x0, LCD_HEIGHT);
+    }
+    lcd_update();
+}
+
+static bool dbg_videoout(void)
+{
+    unsigned stage = 0;
+    unsigned refresh_count = 0;
+    bool enter_stage = true;
+    bool timed_out = false;
+    long stage_deadline = 0;
+
+    ipod6g_videoout_disable();
+
+    while (1)
+    {
+        if (enter_stage)
+        {
+            enter_stage = false;
+            switch (stage)
+            {
+                case 0:
+                    dbg_videoout_text("iPod6G composite", "Output is OFF");
+                    break;
+                case 1:
+                    if (!ipod6g_videoout_enable_sync())
+                    {
+                        dbg_videoout_text("SVID init failed", "Output was stopped");
+                        stage = 0;
+                        break;
+                    }
+                    dbg_videoout_text("Stage 1: sync", "No framebuffer layer");
+                    break;
+                case 2:
+                    dbg_videoout_solid();
+                    ipod6g_videoout_show_framebuffer(FBADDR(0, 0),
+                                                     LCD_WIDTH, LCD_HEIGHT);
+                    break;
+                case 3:
+                    dbg_videoout_bars();
+                    ipod6g_videoout_refresh(FBADDR(0, 0));
+                    break;
+                case 4:
+                    dbg_videoout_text("Stage 4: static FB", "Rockbox RGB565 frame");
+                    ipod6g_videoout_refresh(FBADDR(0, 0));
+                    break;
+                default:
+                {
+                    char line[32];
+                    refresh_count++;
+                    snprintf(line, sizeof(line), "Manual refresh %u", refresh_count);
+                    dbg_videoout_text("Stage 5: refresh", line);
+                    ipod6g_videoout_refresh(FBADDR(0, 0));
+                    break;
+                }
+            }
+
+            stage_deadline = stage > 0
+                ? current_tick + DBG_VIDEOOUT_STAGE_TIMEOUT : 0;
+        }
+
+        int action = get_action(CONTEXT_STD, HZ / 4);
+        if (stage_deadline && TIME_AFTER(current_tick, stage_deadline))
+        {
+            timed_out = true;
+            break;
+        }
+        if (action == ACTION_STD_CANCEL)
+            break;
+        if (action == ACTION_STD_OK)
+        {
+            if (stage < 5)
+                stage++;
+            enter_stage = true;
+        }
+    }
+
+    ipod6g_videoout_disable();
+    lcd_set_background(LCD_DEFAULT_BG);
+    lcd_set_foreground(LCD_DEFAULT_FG);
+    lcd_clear_display();
+    lcd_update();
+    if (timed_out)
+        splash(2 * HZ, "Composite test timed out; output off");
+    return false;
+}
+
 static bool dbg_syscfg(void) {
     struct simplelist_info info;
     struct SysCfg syscfg;
@@ -3202,6 +3326,7 @@ static const struct {
 #endif
 
 #if defined(IPOD_6G) && !defined(SIMULATOR)
+        {"Test composite video", dbg_videoout },
         {"View SysCfg", dbg_syscfg },
         {"Dump bootflash to file", dbg_bootflash_dump },
 #endif

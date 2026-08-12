@@ -102,6 +102,15 @@
 #include "language.h"
 #include "plugin.h"
 #include "rockachievements_telemetry.h"
+#ifdef HAVE_IPODJS_UI
+#include "notification_manager.h"
+#include "usb_internet.h"
+#if defined(USB_ENABLE_IPHETH_HOST) && !defined(SIMULATOR)
+#include "usb_iphone_network.h"
+#include "usb_iphone_preflight.h"
+#include "usb_iphone_tether.h"
+#endif
+#endif
 #include "filetypes.h"
 #include "file.h"
 #include "keyboard.h"
@@ -118,6 +127,12 @@
 #endif
 #ifdef HAVE_IPODJS_UI
 #include "gui/albumlist_art.h"
+
+/* Bitmap payloads are handed to the BMP decoder as bm->data, which casts them
+ * to fb_data * and writes them with halfword stores.  A plain char array only
+ * guarantees one-byte alignment, and an unaligned strh data-aborts on the
+ * iPod Video's core -- so force the base of every payload. */
+#define IPODJS_BM_ALIGN __attribute__((aligned(4)))
 static bool root_menu_video_enabled(void);
 static bool root_menu_video_uses_stock_music(void);
 static void root_menu_video_enter_native_screen(void);
@@ -670,7 +685,7 @@ struct video_netflix_detail {
 static struct bitmap video_netflix_detail_bm;
 static unsigned char video_netflix_detail_data[
     BM_SIZE(VIDEO_LIST_NETFLIX_DETAIL_W, VIDEO_LIST_NETFLIX_DETAIL_H,
-            FORMAT_NATIVE, false)];
+            FORMAT_NATIVE, false)] IPODJS_BM_ALIGN;
 static bool video_netflix_detail_valid;
 static char video_netflix_detail_art_id[VIDEO_LIST_ART_ID_LEN];
 /* Description shown on the landing screen for the selected row, resolved at
@@ -683,15 +698,15 @@ struct videos_pin_surfaces {
     struct bitmap panel;
     unsigned char panel_data[
         BM_SIZE(VIDEO_PIN_PANEL_W, VIDEO_PIN_PANEL_H,
-                FORMAT_NATIVE, false) + VIDEO_PIN_PANEL_ALPHA_BYTES];
+                FORMAT_NATIVE, false) + VIDEO_PIN_PANEL_ALPHA_BYTES] IPODJS_BM_ALIGN;
     struct bitmap field;
     unsigned char field_data[
         BM_SIZE(VIDEO_PIN_SURFACE_W, VIDEO_PIN_SURFACE_H,
-                FORMAT_NATIVE, false)];
+                FORMAT_NATIVE, false)] IPODJS_BM_ALIGN;
     struct bitmap selected;
     unsigned char selected_data[
         BM_SIZE(VIDEO_PIN_SURFACE_W, VIDEO_PIN_SURFACE_H,
-                FORMAT_NATIVE, false)];
+                FORMAT_NATIVE, false)] IPODJS_BM_ALIGN;
     bool tried;
     bool valid;
 };
@@ -1113,28 +1128,49 @@ static bool videos_prompt_pin(const char *title, char *pin, size_t pin_size)
     return true;
 }
 
+/* Reads the shared privacy PIN.  Returns 0 when a valid four-digit PIN is
+ * present, -1 when the file is missing or unreadable, and 1 when it holds
+ * something the lock screens could never match. */
+static int videos_read_shared_pin(char *pin, size_t pin_size)
+{
+    int fd;
+    int i;
+
+    if (!pin || pin_size < 5)
+        return -1;
+    pin[0] = '\0';
+    fd = open(VIDEO_LIST_LOCK_PIN, O_RDONLY);
+    if (fd < 0)
+        return -1;
+    if (read_line(fd, pin, (int)pin_size) <= 0)
+    {
+        close(fd);
+        return -1;
+    }
+    close(fd);
+    video_trim_line(pin);
+    if (strlen(pin) != 4)
+        return 1;
+    for (i = 0; i < 4; i++)
+        if (!isdigit((unsigned char)pin[i]))
+            return 1;
+    return 0;
+}
+
 static bool videos_unlock_with_shared_pin(const char *title,
                                           const char *unavailable,
                                           const char *invalid)
 {
-    int fd;
     char expected[16];
     char entered[16] = "";
+    int rc = videos_read_shared_pin(expected, sizeof(expected));
 
-    fd = open(VIDEO_LIST_LOCK_PIN, O_RDONLY);
-    if (fd < 0 || read_line(fd, expected, sizeof(expected)) <= 0)
+    if (rc < 0)
     {
-        if (fd >= 0)
-            close(fd);
         splash(HZ * 2, unavailable);
         return false;
     }
-    close(fd);
-    video_trim_line(expected);
-    if (strlen(expected) != 4 || !isdigit((unsigned char)expected[0]) ||
-        !isdigit((unsigned char)expected[1]) ||
-        !isdigit((unsigned char)expected[2]) ||
-        !isdigit((unsigned char)expected[3]))
+    if (rc > 0)
     {
         splash(HZ * 2, invalid);
         return false;
@@ -1162,6 +1198,18 @@ static bool videos_unlock_settings_menu(void)
     return videos_unlock_with_shared_pin("Unlock Settings",
                                          "Settings lock unavailable",
                                          "Settings lock PIN invalid");
+}
+
+/* "Lock Settings Menu" lives inside the very menu it guards, so a missing or
+ * malformed PIN file must not lock the user out of the only place the switch
+ * can be turned back off.  The lock only bites once RockPod has written a PIN
+ * the unlock screen could actually match. */
+static bool videos_settings_lock_active(void)
+{
+    char expected[16];
+
+    return global_settings.ui_engine_lock_settings &&
+           videos_read_shared_pin(expected, sizeof(expected)) == 0;
 }
 
 static bool video_manifest_path_matches(const char *entry_path,
@@ -5037,12 +5085,24 @@ MENUITEM_FUNCTION(desktop_mode_item, MENU_FUNC_CHECK_RETVAL,
 static int launch_offlineweb_plugin(void *param)
 {
     (void)param;
-    return load_plugin_path_screen(PLUGIN_APPS_DIR "/offlineweb.rock", NULL);
+    return load_plugin_path_screen(PLUGIN_APPS_DIR "/offlineweb.rock",
+                                   "online");
+}
+
+static int internet_item_callback(int action,
+                                  const struct menu_item_ex *this_item,
+                                  struct gui_synclist *this_list)
+{
+    (void)this_item;
+    (void)this_list;
+    if (action == ACTION_REQUEST_MENUITEM && !usb_internet_connected())
+        return ACTION_EXIT_MENUITEM;
+    return action;
 }
 
 MENUITEM_FUNCTION(offlineweb_item, MENU_FUNC_CHECK_RETVAL,
                   "Internet", launch_offlineweb_plugin,
-                  NULL, Icon_Rockbox);
+                  internet_item_callback, Icon_Rockbox);
 
 static int launch_achievements_plugin(void *param)
 {
@@ -5057,9 +5117,8 @@ MENUITEM_FUNCTION(achievements_item, MENU_FUNC_CHECK_RETVAL,
 
 static int launch_sitekick_plugin(void *param)
 {
-    (void)param;
     return load_plugin_path_screen(
-        PLUGIN_APPS_DIR "/sitekick.rock", NULL);
+        PLUGIN_APPS_DIR "/sitekick.rock", param);
 }
 
 MENUITEM_FUNCTION(sitekick_item, MENU_FUNC_CHECK_RETVAL,
@@ -5759,6 +5818,7 @@ static const struct menu_item_ex * const root_menu_ipodjs_default_items[] = {
     &videos,
     &livetv_item,
     &photos_item,
+    &offlineweb_item,
     &applications_menu,
     &menu_,
     &wps_item,
@@ -6702,21 +6762,52 @@ static bool root_menu_video_hold_storm_active(void)
 
 static int root_menu_video_count(void)
 {
-    if (global_settings.root_menu_customized)
-        return MENU_GET_COUNT(root_menu_.flags);
+    const struct menu_item_ex * const *items;
+    int source_count;
+    int count = 0;
 
-    return ARRAYLEN(root_menu_ipodjs_default_items);
+    if (global_settings.root_menu_customized)
+    {
+        items = (const struct menu_item_ex * const *)root_menu__;
+        source_count = MENU_GET_COUNT(root_menu_.flags);
+    }
+    else
+    {
+        items = root_menu_ipodjs_default_items;
+        source_count = ARRAYLEN(root_menu_ipodjs_default_items);
+    }
+    for (int i = 0; i < source_count; i++)
+        if (items[i] != &offlineweb_item || usb_internet_connected())
+            count++;
+    return count;
 }
 
 static const struct menu_item_ex *root_menu_video_item(int index)
 {
-    if (index < 0 || index >= root_menu_video_count())
+    const struct menu_item_ex * const *items;
+    int source_count;
+    int visible = 0;
+
+    if (index < 0)
         return NULL;
-
     if (global_settings.root_menu_customized)
-        return root_menu__[index];
-
-    return root_menu_ipodjs_default_items[index];
+    {
+        items = (const struct menu_item_ex * const *)root_menu__;
+        source_count = MENU_GET_COUNT(root_menu_.flags);
+    }
+    else
+    {
+        items = root_menu_ipodjs_default_items;
+        source_count = ARRAYLEN(root_menu_ipodjs_default_items);
+    }
+    for (int i = 0; i < source_count; i++)
+    {
+        if (items[i] == &offlineweb_item && !usb_internet_connected())
+            continue;
+        if (visible++ == index)
+            return items[i];
+    }
+    return NULL;
 }
 
 static bool root_menu_video_has_current_track(void)
@@ -7204,29 +7295,29 @@ static void root_menu_video_storage_info(char *buf, size_t buf_size,
 
 static struct bitmap root_menu_video_apple_logo_bm;
 static unsigned char root_menu_video_apple_logo_data[
-    BM_SIZE(48, 58, FORMAT_NATIVE, false)];
+    BM_SIZE(48, 58, FORMAT_NATIVE, false)] IPODJS_BM_ALIGN;
 static bool root_menu_video_apple_logo_tried;
 static bool root_menu_video_apple_logo_valid;
 
 static struct bitmap root_menu_video_netflix_logo_bm;
 static unsigned char root_menu_video_netflix_logo_data[
-    BM_SIZE(150, 70, FORMAT_NATIVE, false)];
+    BM_SIZE(150, 70, FORMAT_NATIVE, false)] IPODJS_BM_ALIGN;
 static bool root_menu_video_netflix_logo_tried;
 static bool root_menu_video_netflix_logo_valid;
 static struct bitmap root_menu_video_netflix_watched_bm;
 static unsigned char root_menu_video_netflix_watched_data[
     BM_SIZE(VIDEO_LIST_NETFLIX_WATCHED_SIZE,
-            VIDEO_LIST_NETFLIX_WATCHED_SIZE, FORMAT_NATIVE, false)];
+            VIDEO_LIST_NETFLIX_WATCHED_SIZE, FORMAT_NATIVE, false)] IPODJS_BM_ALIGN;
 static bool root_menu_video_netflix_watched_tried;
 static bool root_menu_video_netflix_watched_valid;
 static struct bitmap root_menu_video_netflix_logo_small_bm;
 static unsigned char root_menu_video_netflix_logo_small_data[
-    BM_SIZE(91, 42, FORMAT_NATIVE, false)];
+    BM_SIZE(91, 42, FORMAT_NATIVE, false)] IPODJS_BM_ALIGN;
 static bool root_menu_video_netflix_logo_small_tried;
 static bool root_menu_video_netflix_logo_small_valid;
 static struct bitmap root_menu_video_steam_logo_bm;
 static unsigned char root_menu_video_steam_logo_data[
-    BM_SIZE(110, 32, FORMAT_NATIVE, false)];
+    BM_SIZE(110, 32, FORMAT_NATIVE, false)] IPODJS_BM_ALIGN;
 static bool root_menu_video_steam_logo_tried;
 static bool root_menu_video_steam_logo_valid;
 
@@ -7405,13 +7496,13 @@ static int root_menu_video_aa_slot = -1;
 static struct bitmap root_menu_video_default_art_bm;
 static unsigned char root_menu_video_default_art_data[
     BM_SCALED_SIZE(IPODJS_WPS_ART_MAX, IPODJS_WPS_ART_MAX,
-                   FORMAT_NATIVE, false)];
+                   FORMAT_NATIVE, false)] IPODJS_BM_ALIGN;
 static bool root_menu_video_default_art_tried;
 static bool root_menu_video_default_art_valid;
 
 static struct bitmap root_menu_video_gloss_blue_bm;
 static unsigned char root_menu_video_gloss_blue_data[
-    BM_SIZE(64, 9, FORMAT_NATIVE, false)];
+    BM_SIZE(64, 9, FORMAT_NATIVE, false)] IPODJS_BM_ALIGN;
 static bool root_menu_video_gloss_blue_tried;
 static bool root_menu_video_gloss_blue_valid;
 #endif
@@ -7428,25 +7519,25 @@ struct root_menu_video_apple_slider_assets {
     struct bitmap progress_fill;
     struct bitmap progress_fill_cap;
     unsigned char volume_low_data[
-        BM_SIZE(11, 17, FORMAT_NATIVE, false) + 11 * 17 / 2 + 1];
+        BM_SIZE(11, 17, FORMAT_NATIVE, false) + 11 * 17 / 2 + 1] IPODJS_BM_ALIGN;
     unsigned char volume_high_data[
-        BM_SIZE(19, 18, FORMAT_NATIVE, false) + 19 * 18 / 2 + 1];
+        BM_SIZE(19, 18, FORMAT_NATIVE, false) + 19 * 18 / 2 + 1] IPODJS_BM_ALIGN;
     unsigned char brightness_low_data[
-        BM_SIZE(20, 21, FORMAT_NATIVE, false) + 20 * 21 / 2];
+        BM_SIZE(20, 21, FORMAT_NATIVE, false) + 20 * 21 / 2] IPODJS_BM_ALIGN;
     unsigned char brightness_high_data[
-        BM_SIZE(30, 31, FORMAT_NATIVE, false) + 30 * 31 / 2];
+        BM_SIZE(30, 31, FORMAT_NATIVE, false) + 30 * 31 / 2] IPODJS_BM_ALIGN;
     unsigned char frame_light_data[
-        BM_SIZE(248, 20, FORMAT_NATIVE, false) + 248 * 20 / 2];
+        BM_SIZE(248, 20, FORMAT_NATIVE, false) + 248 * 20 / 2] IPODJS_BM_ALIGN;
     unsigned char frame_dark_data[
-        BM_SIZE(248, 20, FORMAT_NATIVE, false) + 248 * 20 / 2];
+        BM_SIZE(248, 20, FORMAT_NATIVE, false) + 248 * 20 / 2] IPODJS_BM_ALIGN;
     unsigned char fill_data[
-        BM_SIZE(316, 20, FORMAT_NATIVE, false) + 316 * 20 / 2];
+        BM_SIZE(316, 20, FORMAT_NATIVE, false) + 316 * 20 / 2] IPODJS_BM_ALIGN;
     unsigned char progress_frame_data[
-        BM_SIZE(200, 22, FORMAT_NATIVE, false) + 200 * 22 / 2];
+        BM_SIZE(200, 22, FORMAT_NATIVE, false) + 200 * 22 / 2] IPODJS_BM_ALIGN;
     unsigned char progress_fill_data[
-        BM_SIZE(200, 22, FORMAT_NATIVE, false) + 200 * 22 / 2];
+        BM_SIZE(200, 22, FORMAT_NATIVE, false) + 200 * 22 / 2] IPODJS_BM_ALIGN;
     unsigned char progress_fill_cap_data[
-        BM_SIZE(16, 16, FORMAT_NATIVE, false)];
+        BM_SIZE(16, 16, FORMAT_NATIVE, false)] IPODJS_BM_ALIGN;
     bool tried[10];
     bool valid[10];
 };
@@ -8012,7 +8103,7 @@ static struct root_menu_video_db_art_slot
     root_menu_video_db_art_cache[IPODJS_DB_ART_CACHE];
 static unsigned char root_menu_video_db_art_decode_data[
     BM_SIZE(IPODJS_DB_ART_MAX, IPODJS_DB_ART_MAX, FORMAT_NATIVE, false) +
-    IPODJS_DB_ART_WORK_EXTRA];
+    IPODJS_DB_ART_WORK_EXTRA] IPODJS_BM_ALIGN;
 static int root_menu_video_db_art_next;
 
 static bool root_menu_video_db_album_track_path(int album_seek,
@@ -11475,9 +11566,10 @@ static void root_menu_video_draw_status_title_width(const char *title,
     int icon_x = batt_x - 19;
     int bluetooth_x = icon_x - 16;
     bool bluetooth = false;
+    bool internet = usb_internet_connected();
 
 #ifdef IPOD_ACCESSORY_PROTOCOL
-    bluetooth = iap_kokkia_present();
+    bluetooth = !internet && iap_kokkia_present();
 #endif
     root_menu_video_status_bluetooth_drawn = bluetooth;
     root_menu_video_status_bluetooth_valid = true;
@@ -11495,7 +11587,8 @@ static void root_menu_video_draw_status_title_width(const char *title,
     if (pane_mode)
     {
         root_menu_video_puts_fit(6, 5 + root_menu_video_text_y_offset(),
-                                 bluetooth ? bluetooth_x - 10 : icon_x - 10,
+                                 (bluetooth || internet) ? bluetooth_x - 12 :
+                                 icon_x - 10,
                                  "iPod", false);
 
         if (button_hold())
@@ -11507,7 +11600,8 @@ static void root_menu_video_draw_status_title_width(const char *title,
     else
     {
         root_menu_video_puts_fit(6, 5 + root_menu_video_text_y_offset(),
-                                 bluetooth ? bluetooth_x - 10 : width - 52,
+                                 (bluetooth || internet) ? bluetooth_x - 12 :
+                                 width - 52,
                                  title ? title : "iPod",
                                  false);
 
@@ -11523,6 +11617,9 @@ static void root_menu_video_draw_status_title_width(const char *title,
     if (bluetooth)
         ipodjs_ui_draw_bluetooth_indicator(&screens[SCREEN_MAIN],
                                            bluetooth_x, 2);
+    else if (internet)
+        ipodjs_ui_draw_wifi_indicator(&screens[SCREEN_MAIN],
+                                      bluetooth_x - 5, 3);
     root_menu_video_draw_battery(batt_x, 5, batt, charger_inserted());
 }
 
@@ -11537,9 +11634,10 @@ static void root_menu_video_draw_wps_status_title(const char *title)
     int icon_x = batt_x - 19;
     int bluetooth_x = icon_x - 16;
     bool bluetooth = false;
+    bool internet = usb_internet_connected();
 
 #ifdef IPOD_ACCESSORY_PROTOCOL
-    bluetooth = iap_kokkia_present();
+    bluetooth = !internet && iap_kokkia_present();
 #endif
     root_menu_video_status_bluetooth_drawn = bluetooth;
     root_menu_video_status_bluetooth_valid = true;
@@ -11565,6 +11663,9 @@ static void root_menu_video_draw_wps_status_title(const char *title)
     if (bluetooth)
         ipodjs_ui_draw_bluetooth_indicator(&screens[SCREEN_MAIN],
                                            bluetooth_x, 2);
+    else if (internet)
+        ipodjs_ui_draw_wifi_indicator(&screens[SCREEN_MAIN],
+                                      bluetooth_x - 5, 3);
     root_menu_video_draw_battery(batt_x, 5, battery_level(),
                                  charger_inserted());
 }
@@ -11633,6 +11734,7 @@ static void root_menu_video_draw_preview(int selected)
 struct root_menu_video_weather {
     bool available;
     bool hourly;
+    bool live;
     bool night;
     long checked_tick;
     char icon[24];
@@ -11644,7 +11746,7 @@ struct root_menu_video_weather {
 static struct root_menu_video_weather root_menu_video_weather_cache;
 static struct bitmap root_menu_video_weather_icon_bm;
 static unsigned char root_menu_video_weather_icon_data[
-    BM_SIZE(40, 40, FORMAT_NATIVE, false)];
+    BM_SIZE(40, 40, FORMAT_NATIVE, false)] IPODJS_BM_ALIGN;
 static char root_menu_video_weather_icon_path[MAX_PATH];
 static bool root_menu_video_weather_icon_valid;
 static char root_menu_video_weather_icon_miss[32];
@@ -11830,11 +11932,20 @@ static bool root_menu_video_load_weather(void)
 
     if (root_menu_video_weather_cache.checked_tick &&
         TIME_BEFORE(current_tick,
-                    root_menu_video_weather_cache.checked_tick + HZ * 600))
-        return root_menu_video_weather_cache.available;
+                    root_menu_video_weather_cache.checked_tick + HZ * 60))
+        return root_menu_video_weather_cache.available &&
+               (!usb_internet_connected() ||
+                root_menu_video_weather_cache.live);
 
     root_menu_video_weather_cache.checked_tick = current_tick;
     root_menu_video_weather_cache.available = false;
+    root_menu_video_weather_cache.hourly = false;
+    root_menu_video_weather_cache.live = false;
+    root_menu_video_weather_cache.night = false;
+    root_menu_video_weather_cache.icon[0] = '\0';
+    root_menu_video_weather_cache.condition[0] = '\0';
+    root_menu_video_weather_cache.location[0] = '\0';
+    root_menu_video_weather_cache.temp[0] = '\0';
 
     fd = open(ROCKBOX_DIR "/rockpod/weather/forecast.tsv", O_RDONLY);
     if (fd < 0)
@@ -11873,7 +11984,7 @@ static bool root_menu_video_load_weather(void)
         if (!first[0])
             continue;
 
-        if (!strcmp(first, "hourly"))
+        if (!strcmp(first, "current") || !strcmp(first, "hourly"))
         {
             char stamp[24];
             char icon[24];
@@ -11899,6 +12010,27 @@ static bool root_menu_video_load_weather(void)
                                            sizeof(is_day));
 
             if (!temp[0] || !condition[0])
+                continue;
+
+            if (!strcmp(first, "current"))
+            {
+                strmemccpy(root_menu_video_weather_cache.icon, icon,
+                           sizeof(root_menu_video_weather_cache.icon));
+                strmemccpy(root_menu_video_weather_cache.condition,
+                           condition,
+                           sizeof(root_menu_video_weather_cache.condition));
+                snprintf(root_menu_video_weather_cache.temp,
+                         sizeof(root_menu_video_weather_cache.temp), "%s %c",
+                         temp, units[0] == 'i' ? 'F' : 'C');
+                root_menu_video_weather_cache.available = true;
+                root_menu_video_weather_cache.hourly = true;
+                root_menu_video_weather_cache.live = true;
+                root_menu_video_weather_cache.night =
+                    is_day[0] && atoi(is_day) == 0;
+                continue;
+            }
+
+            if (root_menu_video_weather_cache.live)
                 continue;
 
             key = root_menu_video_weather_stamp_key(stamp);
@@ -11958,6 +12090,8 @@ static bool root_menu_video_load_weather(void)
     close(fd);
     root_menu_video_weather_cache.available =
         root_menu_video_weather_cache.condition[0] != '\0';
+    if (usb_internet_connected() && !root_menu_video_weather_cache.live)
+        root_menu_video_weather_cache.available = false;
     return root_menu_video_weather_cache.available;
 }
 
@@ -12846,6 +12980,7 @@ static int ipodjs_video_wps(void)
     bool last_charging = false;
     bool last_paused = false;
     bool last_bluetooth = false;
+    bool last_internet = false;
     char last_track_path[MAX_PATH] = "";
 
     root_menu_video_enter_native_screen();
@@ -12868,12 +13003,14 @@ static int ipodjs_video_wps(void)
         int battery = battery_level();
         bool charging = charger_inserted();
         bool bluetooth = false;
+        bool internet = usb_internet_connected();
 #ifdef IPOD_ACCESSORY_PROTOCOL
         bluetooth = iap_kokkia_present();
 #endif
         bool status_redraw = battery != last_battery ||
                              charging != last_charging ||
-                             bluetooth != last_bluetooth;
+                             bluetooth != last_bluetooth ||
+                             internet != last_internet;
         bool paused;
 
         if (!(status & AUDIO_STATUS_PLAY))
@@ -12944,6 +13081,7 @@ static int ipodjs_video_wps(void)
         last_battery = battery;
         last_charging = charging;
         last_bluetooth = bluetooth;
+        last_internet = internet;
 
         if (held)
         {
@@ -14855,6 +14993,7 @@ static void root_menu_video_stock_keyboard_draw(const char *query,
     int font_h;
     int query_w;
     int query_h;
+    const char *display_query = query;
 
     if (font < 0)
         return;
@@ -14869,11 +15008,16 @@ static void root_menu_video_stock_keyboard_draw(const char *query,
 
     lcd_setfont(font);
     font_h = font_get(font)->height;
-    lcd_getstringsize(query, &query_w, &query_h);
+    lcd_getstringsize(display_query, &query_w, &query_h);
+    while (*display_query && query_w > field_w - 8)
+    {
+        display_query++;
+        lcd_getstringsize(display_query, &query_w, &query_h);
+    }
     lcd_set_foreground(LCD_RGBPACK(20, 24, 27));
     lcd_set_drawmode(DRMODE_FG);
     lcd_putsxy(MAX(field_x + 4, field_x + field_w - query_w - 4),
-               field_y + MAX(0, (field_h - query_h) / 2), query);
+               field_y + MAX(0, (field_h - query_h) / 2), display_query);
     lcd_set_drawmode(DRMODE_SOLID);
 
     for (int offset = -5; offset <= 6; offset++)
@@ -14915,6 +15059,140 @@ static void root_menu_video_stock_keyboard_draw(const char *query,
         lcd_set_drawmode(DRMODE_FG);
         lcd_putsxy(x, panel_y + 11, glyph);
         lcd_set_drawmode(DRMODE_SOLID);
+    }
+}
+
+bool root_menu_ipodjs_text_input(const char *title, char *text, size_t size)
+{
+    static const char * const banks[] = {
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+        "abcdefghijklmnopqrstuvwxyz",
+        "0123456789.-_/:?&=%+"
+    };
+    int bank = 0;
+    int character = 0;
+    bool redraw = true;
+    bool held = button_hold();
+
+    if (!text || size < 2 || !ipodjs_ui_search_surfaces_available() ||
+        !ipodjs_ui_prepare_search_surfaces())
+        return false;
+    text[size - 1] = '\0';
+    button_clear_queue();
+
+    while (true)
+    {
+        const char *characters = banks[bank];
+        int character_count = strlen(characters);
+        int action;
+
+        root_menu_video_hold_update(&held, &redraw);
+        if (redraw)
+        {
+            char help[80];
+
+            lcd_set_viewport(NULL);
+            lcd_set_drawmode(DRMODE_SOLID);
+            lcd_set_background(root_menu_video_screen_bg());
+            lcd_clear_display();
+            root_menu_video_draw_status_title(title ? title : "Search");
+            lcd_set_foreground(root_menu_video_row_bg());
+            lcd_fillrect(0, IPODJS_HEADER_HEIGHT, LCD_WIDTH,
+                         LCD_HEIGHT - IPODJS_HEADER_HEIGHT);
+            lcd_setfont(root_menu_video_search_font());
+            lcd_set_foreground(root_menu_video_text());
+            lcd_set_background(root_menu_video_row_bg());
+            root_menu_video_puts_fit(8, IPODJS_HEADER_HEIGHT + 25,
+                                     LCD_WIDTH - 16,
+                                     text[0] ? text : "Search or enter address",
+                                     true);
+            snprintf(help, sizeof(help),
+                     "Play: keys   Left: delete   Menu: go");
+            lcd_set_foreground(root_menu_video_muted_text());
+            root_menu_video_puts_fit(8, IPODJS_HEADER_HEIGHT + 60,
+                                     LCD_WIDTH - 16, help, true);
+            root_menu_video_stock_keyboard_draw(text, characters,
+                                                 character_count, character);
+            ipodjs_video_draw_hold_overlay();
+            lcd_update();
+            redraw = false;
+        }
+
+        action = get_action(CONTEXT_TREE | ALLOW_SOFTLOCK, HZ / 20);
+        if (ipodjs_ui_handle_system_event(action, &redraw))
+            continue;
+        if (root_menu_video_handle_tree_stop(action, &redraw))
+            continue;
+
+        switch (action)
+        {
+            case ACTION_STD_PREV:
+            case ACTION_STD_PREVREPEAT:
+                if (!root_menu_video_hold_update(&held, &redraw))
+                {
+                    character = character <= 0 ? character_count - 1 :
+                                                 character - 1;
+                    redraw = true;
+                }
+                break;
+            case ACTION_STD_NEXT:
+            case ACTION_STD_NEXTREPEAT:
+                if (!root_menu_video_hold_update(&held, &redraw))
+                {
+                    character = (character + 1) % character_count;
+                    redraw = true;
+                }
+                break;
+            case ACTION_TREE_PGLEFT:
+                if (!root_menu_video_hold_update(&held, &redraw) && text[0])
+                {
+                    text[strlen(text) - 1] = '\0';
+                    redraw = true;
+                }
+                break;
+            case ACTION_TREE_PGRIGHT:
+                if (!root_menu_video_hold_update(&held, &redraw) &&
+                    strlen(text) + 1 < size)
+                {
+                    size_t length = strlen(text);
+                    text[length] = ' ';
+                    text[length + 1] = '\0';
+                    redraw = true;
+                }
+                break;
+            case ACTION_STD_OK:
+                if (!root_menu_video_hold_update(&held, &redraw) &&
+                    strlen(text) + 1 < size)
+                {
+                    size_t length = strlen(text);
+                    text[length] = characters[character];
+                    text[length + 1] = '\0';
+                    redraw = true;
+                }
+                break;
+            case ACTION_TREE_WPS:
+                if (!root_menu_video_hold_update(&held, &redraw))
+                {
+                    bank = (bank + 1) % ARRAYLEN(banks);
+                    character = 0;
+                    redraw = true;
+                }
+                break;
+            case ACTION_STD_MENU:
+                if (!root_menu_video_hold_update(&held, &redraw) && text[0])
+                {
+                    button_clear_queue();
+                    return true;
+                }
+                break;
+            case ACTION_STD_CONTEXT:
+                if (!root_menu_video_hold_update(&held, &redraw))
+                {
+                    button_clear_queue();
+                    return false;
+                }
+                break;
+        }
     }
 }
 
@@ -16165,7 +16443,7 @@ static int root_menu_video_launch_menu_item(const struct menu_item_ex *item)
 #endif
         if (item->value == GO_TO_MAINMENU)
         {
-            if (global_settings.ui_engine_lock_settings &&
+            if (videos_settings_lock_active() &&
                 !videos_unlock_settings_menu())
                 return GO_TO_ROOT;
             return root_menu_video_settings_menu();
@@ -18158,6 +18436,10 @@ static int root_menu_video_games_menu(void)
     }
 }
 
+#if defined(IPOD_6G) && !defined(SIMULATOR)
+void settings_apply_ipod6g_videoout(int mode);
+#endif
+
 enum root_menu_video_qs_item {
     IPODJS_QS_VOLUME = 0,
     IPODJS_QS_BRIGHTNESS,
@@ -18173,8 +18455,14 @@ enum root_menu_video_qs_item {
     IPODJS_QS_HAPTICS,
 #endif
     IPODJS_QS_HOLD,
+#ifdef USB_ENABLE_ETHERNET
+    IPODJS_QS_USB_CONNECTION,
+#endif
 #ifdef IPOD_ACCESSORY_PROTOCOL
     IPODJS_QS_KOKKIA,
+#endif
+#if defined(IPOD_6G) && !defined(SIMULATOR)
+    IPODJS_QS_COMPOSITE_OUT,
 #endif
     IPODJS_QS_CACHE_MEMORY,
     IPODJS_QS_COUNT,
@@ -18224,8 +18512,16 @@ static const char *root_menu_video_qs_icon_path(int item)
 #endif
         case IPODJS_QS_HOLD:
             return IPODJS_ASSET_DIR "/qs/hold.18x18x24.bmp";
+#if defined(USB_ENABLE_ETHERNET) && !defined(SIMULATOR)
+        case IPODJS_QS_USB_CONNECTION:
+            return NULL;
+#endif
 #ifdef IPOD_ACCESSORY_PROTOCOL
         case IPODJS_QS_KOKKIA:
+            return NULL;
+#endif
+#if defined(IPOD_6G) && !defined(SIMULATOR)
+        case IPODJS_QS_COMPOSITE_OUT:
             return NULL;
 #endif
         case IPODJS_QS_CACHE_MEMORY:
@@ -18310,9 +18606,17 @@ static const char *root_menu_video_qs_label(int item)
 #endif
         case IPODJS_QS_HOLD:
             return "Hold";
+#if defined(USB_ENABLE_ETHERNET) && !defined(SIMULATOR)
+        case IPODJS_QS_USB_CONNECTION:
+            return "USB Connection";
+#endif
 #ifdef IPOD_ACCESSORY_PROTOCOL
         case IPODJS_QS_KOKKIA:
             return "Kokkia";
+#endif
+#if defined(IPOD_6G) && !defined(SIMULATOR)
+        case IPODJS_QS_COMPOSITE_OUT:
+            return "Composite Out";
 #endif
         case IPODJS_QS_CACHE_MEMORY:
             return "Cache & Memory";
@@ -18446,6 +18750,27 @@ static void root_menu_video_qs_value(int item, char *buf, size_t buf_size)
                        buf_size);
             break;
 
+#if (defined(USB_ENABLE_ETHERNET) || defined(USB_ENABLE_IPHETH_HOST)) && \
+    !defined(SIMULATOR)
+        case IPODJS_QS_USB_CONNECTION:
+            if (global_settings.usb_mode == USB_MODE_INTERNET)
+                strmemccpy(buf, usb_internet_connected() ? "Internet" :
+                           "Internet (plug in)", buf_size);
+#ifdef USB_ENABLE_IPHETH_HOST
+            else if (global_settings.usb_mode == USB_MODE_IPHONE_TETHER)
+            {
+                strmemccpy(buf, usb_internet_connected() ?
+                           "iPhone Internet" : "Open RockPod Link",
+                           buf_size);
+            }
+#endif
+            else if (global_settings.usb_mode == USB_MODE_CHARGE)
+                strmemccpy(buf, "Charge Only", buf_size);
+            else
+                strmemccpy(buf, "Storage", buf_size);
+            break;
+#endif
+
 #ifdef IPOD_ACCESSORY_PROTOCOL
         case IPODJS_QS_KOKKIA:
         {
@@ -18457,6 +18782,21 @@ static void root_menu_video_qs_value(int item, char *buf, size_t buf_size)
 
             strmemccpy(buf, states[MAX(0, MIN((int)status,
                        (int)ARRAYLEN(states) - 1))], buf_size);
+            break;
+        }
+#endif
+
+#if defined(IPOD_6G) && !defined(SIMULATOR)
+        case IPODJS_QS_COMPOSITE_OUT:
+        {
+#ifdef IPOD_ACCESSORY_PROTOCOL
+            if (iap_kokkia_present())
+            {
+                strmemccpy(buf, "Blocked", buf_size);
+                break;
+            }
+#endif
+            strmemccpy(buf, "Debug only", buf_size);
             break;
         }
 #endif
@@ -18620,6 +18960,49 @@ static bool root_menu_video_qs_adjust(int item, int delta)
                 UI_ENGINE_HOLD_LOCKSCREEN;
             changed = true;
             break;
+
+#if defined(IPOD_6G) && !defined(SIMULATOR)
+        case IPODJS_QS_COMPOSITE_OUT:
+        {
+#ifdef IPOD_ACCESSORY_PROTOCOL
+            if (iap_kokkia_present())
+                break;
+#endif
+            (void)delta;
+            /* Never enter the recovered SVID register sequence from the
+             * ordinary UI.  Its manual stages provide a known stop point and
+             * are the only supported path until a real dock is qualified. */
+            global_settings.composite_video_output = 0;
+            settings_apply_ipod6g_videoout(0);
+            splash(HZ * 2, "Use System > Debug\nTest composite video");
+            changed = true;
+            break;
+        }
+#endif
+
+#if (defined(USB_ENABLE_ETHERNET) || defined(USB_ENABLE_IPHETH_HOST)) && \
+    !defined(SIMULATOR)
+        case IPODJS_QS_USB_CONNECTION:
+        {
+            int mode_count = 2;
+#ifdef USB_ENABLE_ETHERNET
+            mode_count++;
+#endif
+#ifdef USB_ENABLE_IPHETH_HOST
+            mode_count++;
+#endif
+            int value = global_settings.usb_mode +
+                        (delta < 0 ? mode_count - 1 : 1);
+            value %= mode_count;
+            if (value != global_settings.usb_mode)
+            {
+                global_settings.usb_mode = value;
+                usb_set_mode(value);
+                changed = true;
+            }
+            break;
+        }
+#endif
     }
 
     return changed;
@@ -18720,7 +19103,33 @@ static bool root_menu_video_draw_qs_icon(int x, int y, int item, bool active)
 {
     struct bitmap *bm;
 
+#if defined(IPOD_6G) && !defined(SIMULATOR)
+    if (item == IPODJS_QS_COMPOSITE_OUT)
+    {
+        /* External display with a dock/composite lead.  This is rendered
+         * instead of loaded from disk so the control always has its icon,
+         * including on incomplete or third-party themes. */
+        lcd_set_foreground(active ? IPODJS_PREVIEW_TEXT :
+                           root_menu_video_muted_text());
+        lcd_drawrect(x + 1, y + 1, 14, 11);
+        lcd_drawrect(x + 3, y + 3, 10, 7);
+        lcd_vline(x + 8, y + 12, y + 14);
+        lcd_hline(x + 5, x + 11, y + 15);
+        lcd_hline(x + 15, x + 17, y + 7);
+        lcd_fillrect(x + 16, y + 6, 2, 3);
+        return true;
+    }
+#else
     (void)active;
+#endif
+
+#ifdef USB_ENABLE_ETHERNET
+    if (item == IPODJS_QS_USB_CONNECTION)
+    {
+        ipodjs_ui_draw_wifi_indicator(&screens[SCREEN_MAIN], x - 2, y + 1);
+        return true;
+    }
+#endif
 
 #ifdef IPOD_ACCESSORY_PROTOCOL
     if (item == IPODJS_QS_KOKKIA)
@@ -18861,6 +19270,11 @@ static void root_menu_video_draw_qs_footer(int selected, bool adjusting)
     if (adjusting)
         root_menu_video_draw_qs_footer_text(
             "Scroll to adjust - Select when done");
+#if defined(IPOD_6G) && !defined(SIMULATOR)
+    else if (selected == IPODJS_QS_COMPOSITE_OUT)
+        root_menu_video_draw_qs_footer_text(
+            "Hardware test: System > Debug");
+#endif
     else if (selected == IPODJS_QS_CACHE_MEMORY)
         root_menu_video_draw_qs_footer_text(
             "Select for cache and memory");
@@ -20055,6 +20469,526 @@ static bool root_menu_video_preview_switch_is_immediate(int old_index,
     return !strcmp(old_label, "Netflix") || !strcmp(new_label, "Netflix");
 }
 
+#define NOTIFICATION_IOS5_ASSET_DIR ROCKBOX_DIR \
+    "/ipodjs/notifications"
+#define NOTIFICATION_CENTER_LINEN_W 32
+#define NOTIFICATION_CENTER_LINEN_H 32
+#define NOTIFICATION_SECTION_W 32
+#define NOTIFICATION_SECTION_H 24
+#define NOTIFICATION_CLOSE_W 22
+#define NOTIFICATION_CLOSE_H 22
+#define NOTIFICATION_SOURCE_ICON_W 22
+#define NOTIFICATION_SOURCE_ICON_H 22
+
+static struct {
+    struct bitmap linen;
+    struct bitmap section;
+    struct bitmap close;
+    struct bitmap achievement;
+    struct bitmap sitekick;
+    unsigned char linen_data[
+        BM_SIZE(NOTIFICATION_CENTER_LINEN_W,
+                NOTIFICATION_CENTER_LINEN_H, FORMAT_NATIVE, false)] IPODJS_BM_ALIGN;
+    unsigned char section_data[
+        BM_SIZE(NOTIFICATION_SECTION_W,
+                NOTIFICATION_SECTION_H, FORMAT_NATIVE, false)] IPODJS_BM_ALIGN;
+    unsigned char close_data[
+        BM_SIZE(NOTIFICATION_CLOSE_W,
+                NOTIFICATION_CLOSE_H, FORMAT_NATIVE, false)] IPODJS_BM_ALIGN;
+    unsigned char achievement_data[
+        BM_SIZE(NOTIFICATION_SOURCE_ICON_W, NOTIFICATION_SOURCE_ICON_H,
+                FORMAT_NATIVE, false) +
+        NOTIFICATION_SOURCE_ICON_W * NOTIFICATION_SOURCE_ICON_H / 2] IPODJS_BM_ALIGN;
+    unsigned char sitekick_data[
+        BM_SIZE(NOTIFICATION_SOURCE_ICON_W, NOTIFICATION_SOURCE_ICON_H,
+                FORMAT_NATIVE, false) +
+        NOTIFICATION_SOURCE_ICON_W * NOTIFICATION_SOURCE_ICON_H / 2] IPODJS_BM_ALIGN;
+    bool prepared;
+    bool valid;
+} root_menu_video_notification_assets;
+
+static bool root_menu_video_load_notification_asset(const char *path,
+                                                     struct bitmap *bm,
+                                                     unsigned char *data,
+                                                     size_t data_size,
+                                                     int width, int height)
+{
+    int rc;
+
+    if (!file_exists(path))
+        return false;
+    memset(bm, 0, sizeof(*bm));
+    bm->width = width;
+    bm->height = height;
+    bm->format = FORMAT_NATIVE;
+    bm->data = data;
+    rc = read_bmp_file(path, bm, data_size,
+                       FORMAT_NATIVE | FORMAT_DITHER | FORMAT_TRANSPARENT,
+                       NULL);
+    return rc >= 0 && bm->width == width && bm->height == height;
+}
+
+static void root_menu_video_prepare_notification_assets(void)
+{
+    char path[MAX_PATH];
+
+    if (root_menu_video_notification_assets.prepared)
+        return;
+    root_menu_video_notification_assets.prepared = true;
+
+    snprintf(path, sizeof(path), "%s/%s", NOTIFICATION_IOS5_ASSET_DIR,
+             "notification-center-linen.ios5.32x32x24.bmp");
+    root_menu_video_notification_assets.valid =
+        root_menu_video_load_notification_asset(path,
+            &root_menu_video_notification_assets.linen,
+            root_menu_video_notification_assets.linen_data,
+            sizeof(root_menu_video_notification_assets.linen_data),
+            NOTIFICATION_CENTER_LINEN_W, NOTIFICATION_CENTER_LINEN_H);
+    snprintf(path, sizeof(path), "%s/%s", NOTIFICATION_IOS5_ASSET_DIR,
+             "notification-section.ios5.32x24x24.bmp");
+    root_menu_video_notification_assets.valid &=
+        root_menu_video_load_notification_asset(path,
+            &root_menu_video_notification_assets.section,
+            root_menu_video_notification_assets.section_data,
+            sizeof(root_menu_video_notification_assets.section_data),
+            NOTIFICATION_SECTION_W, NOTIFICATION_SECTION_H);
+    snprintf(path, sizeof(path), "%s/%s", NOTIFICATION_IOS5_ASSET_DIR,
+             "notification-close.ios5.22x22x24.bmp");
+    root_menu_video_notification_assets.valid &=
+        root_menu_video_load_notification_asset(path,
+            &root_menu_video_notification_assets.close,
+            root_menu_video_notification_assets.close_data,
+            sizeof(root_menu_video_notification_assets.close_data),
+            NOTIFICATION_CLOSE_W, NOTIFICATION_CLOSE_H);
+
+    root_menu_video_load_notification_asset(
+        NOTIFICATION_IOS5_ASSET_DIR "/achievement-icon.22x22x24.bmp",
+        &root_menu_video_notification_assets.achievement,
+        root_menu_video_notification_assets.achievement_data,
+        sizeof(root_menu_video_notification_assets.achievement_data),
+        NOTIFICATION_SOURCE_ICON_W, NOTIFICATION_SOURCE_ICON_H);
+    root_menu_video_load_notification_asset(
+        NOTIFICATION_IOS5_ASSET_DIR "/sitekick-icon.22x22x24.bmp",
+        &root_menu_video_notification_assets.sitekick,
+        root_menu_video_notification_assets.sitekick_data,
+        sizeof(root_menu_video_notification_assets.sitekick_data),
+        NOTIFICATION_SOURCE_ICON_W, NOTIFICATION_SOURCE_ICON_H);
+    notification_manager_prepare_visuals();
+}
+
+static void root_menu_video_tile_notification_asset(struct bitmap *bm,
+                                                    int x, int y,
+                                                    int width, int height)
+{
+    int dx;
+    int dy;
+
+    for (dy = 0; dy < height; dy += bm->height)
+    {
+        int draw_h = MIN(bm->height, height - dy);
+
+        for (dx = 0; dx < width; dx += bm->width)
+        {
+            int draw_w = MIN(bm->width, width - dx);
+
+            lcd_bmp_part(bm, 0, 0, x + dx, y + dy, draw_w, draw_h);
+        }
+    }
+}
+
+static void root_menu_video_draw_notification_source_icon(unsigned source,
+                                                          int x, int y)
+{
+    struct bitmap *bm = NULL;
+
+    if (source == NOTIFICATION_SOURCE_ACHIEVEMENTS)
+        bm = &root_menu_video_notification_assets.achievement;
+    else if (source == NOTIFICATION_SOURCE_SITEKICK)
+        bm = &root_menu_video_notification_assets.sitekick;
+
+    if (bm && bm->data && bm->width > 0 && bm->height > 0)
+        lcd_bmp(bm, x, y);
+    else if (source == NOTIFICATION_SOURCE_MUSIC)
+    {
+        lcd_set_drawmode(DRMODE_SOLID);
+        lcd_set_foreground(LCD_WHITE);
+        lcd_fillrect(x + 13, y + 3, 3, 13);
+        lcd_hline(x + 7, x + 15, y + 3);
+        lcd_fillrect(x + 5, y + 14, 8, 6);
+        lcd_fillrect(x + 11, y + 12, 8, 6);
+    }
+    else if (source == NOTIFICATION_SOURCE_LIVETV)
+    {
+        lcd_set_drawmode(DRMODE_SOLID);
+        lcd_set_foreground(LCD_WHITE);
+        lcd_drawrect(x + 2, y + 4, 19, 14);
+        lcd_hline(x + 8, x + 14, y + 20);
+        lcd_vline(x + 11, y + 18, y + 20);
+    }
+    else if (source == NOTIFICATION_SOURCE_WEATHER)
+    {
+        lcd_set_drawmode(DRMODE_SOLID);
+        lcd_set_foreground(LCD_WHITE);
+        lcd_fillrect(x + 4, y + 11, 15, 7);
+        lcd_fillrect(x + 8, y + 7, 8, 9);
+        lcd_fillrect(x + 2, y + 13, 19, 4);
+    }
+    else if (source == NOTIFICATION_SOURCE_BATTERY)
+    {
+        lcd_set_drawmode(DRMODE_SOLID);
+        lcd_set_foreground(LCD_WHITE);
+        lcd_drawrect(x + 2, y + 5, 18, 12);
+        lcd_fillrect(x + 20, y + 9, 2, 4);
+        lcd_fillrect(x + 5, y + 8, 5, 6);
+    }
+    else if (source == NOTIFICATION_SOURCE_STORAGE)
+    {
+        lcd_set_drawmode(DRMODE_SOLID);
+        lcd_set_foreground(LCD_WHITE);
+        lcd_hline(x + 3, x + 19, y + 5);
+        lcd_hline(x + 1, x + 21, y + 8);
+        lcd_hline(x + 1, x + 21, y + 17);
+        lcd_vline(x + 1, y + 8, y + 17);
+        lcd_vline(x + 21, y + 8, y + 17);
+        lcd_hline(x + 5, x + 17, y + 13);
+    }
+}
+
+static const char *notification_source_label(unsigned source)
+{
+    if (source == NOTIFICATION_SOURCE_ACHIEVEMENTS)
+        return "Achievements";
+    if (source == NOTIFICATION_SOURCE_SITEKICK)
+        return "Sitekick";
+    if (source == NOTIFICATION_SOURCE_MUSIC)
+        return "Music";
+    if (source == NOTIFICATION_SOURCE_LIVETV)
+        return "DIRECTV";
+    if (source == NOTIFICATION_SOURCE_WEATHER)
+        return "Weather";
+    if (source == NOTIFICATION_SOURCE_BATTERY)
+        return "Battery";
+    if (source == NOTIFICATION_SOURCE_STORAGE)
+        return "Storage";
+    return "iPod";
+}
+
+static void root_menu_video_notification_age(char *buf, size_t size,
+                                             long timestamp)
+{
+    long now;
+    long age;
+
+#if CONFIG_RTC
+    now = (long)mktime(get_time());
+#else
+    now = current_tick / HZ;
+#endif
+    age = timestamp > 0 && now > timestamp ? now - timestamp : 0;
+    if (age < 60)
+        strmemccpy(buf, "now", size);
+    else if (age < 60 * 60)
+        snprintf(buf, size, "%ldm", age / 60);
+    else if (age < 24 * 60 * 60)
+        snprintf(buf, size, "%ldh", age / (60 * 60));
+    else
+        snprintf(buf, size, "%ldd", age / (24 * 60 * 60));
+}
+
+static void root_menu_video_draw_notification_dot(int x, int y,
+                                                  bool unread)
+{
+    lcd_set_drawmode(DRMODE_SOLID);
+    lcd_set_foreground(unread ? LCD_RGBPACK(38, 151, 244) :
+                                LCD_RGBPACK(101, 106, 113));
+    lcd_hline(x + 2, x + 5, y);
+    lcd_hline(x, x + 7, y + 2);
+    lcd_fillrect(x, y + 3, 8, 3);
+    lcd_hline(x + 1, x + 6, y + 6);
+    lcd_hline(x + 2, x + 5, y + 7);
+}
+
+static void root_menu_video_draw_notification_grabber(void)
+{
+    const int x = LCD_WIDTH / 2 - 23;
+    const int y = LCD_HEIGHT - 9;
+
+    lcd_set_drawmode(DRMODE_SOLID);
+    lcd_set_foreground(LCD_RGBPACK(8, 9, 10));
+    lcd_fillrect(x + 3, y - 2, 40, 10);
+    lcd_fillrect(x, y + 1, 46, 5);
+    lcd_set_foreground(LCD_RGBPACK(108, 111, 116));
+    lcd_hline(x + 4, x + 41, y);
+    lcd_hline(x + 2, x + 43, y + 3);
+    lcd_hline(x + 4, x + 41, y + 6);
+}
+
+static void root_menu_video_draw_notification_center(int selected)
+{
+    const int top_h = 24;
+    const int section_h = 28;
+    const int item_h = 60;
+    const int bottom_h = 12;
+    const int block_h = section_h + item_h;
+    const int visible = MAX(1,
+        (LCD_HEIGHT - top_h - bottom_h) / block_h);
+    int count = notification_manager_count();
+    int top = selected >= visible ? selected - visible + 1 : 0;
+    int bold_font = notification_manager_visual_font(true);
+    int regular_font = notification_manager_visual_font(false);
+    int bold_h = font_get(bold_font)->height;
+    int row;
+
+    lcd_set_viewport(NULL);
+    lcd_set_drawmode(DRMODE_SOLID);
+    if (root_menu_video_notification_assets.valid)
+        root_menu_video_tile_notification_asset(
+            &root_menu_video_notification_assets.linen,
+            0, 0, LCD_WIDTH, LCD_HEIGHT);
+    else
+        root_menu_video_gradient(0, 0, LCD_WIDTH, LCD_HEIGHT,
+                                 LCD_RGBPACK(70, 75, 82),
+                                 LCD_RGBPACK(25, 28, 33));
+    if (root_menu_video_notification_assets.valid)
+        root_menu_video_tile_notification_asset(
+            &root_menu_video_notification_assets.section,
+            0, 0, LCD_WIDTH, top_h);
+    else
+        root_menu_video_gradient(0, 0, LCD_WIDTH, top_h,
+                                 LCD_RGBPACK(75, 80, 88),
+                                 LCD_RGBPACK(27, 30, 35));
+    lcd_set_foreground(LCD_WHITE);
+    lcd_set_drawmode(DRMODE_FG);
+    lcd_setfont(bold_font);
+    root_menu_video_puts_fit(42, (top_h - bold_h) / 2,
+                             LCD_WIDTH - 84, "Notifications", true);
+    lcd_set_drawmode(DRMODE_SOLID);
+    lcd_set_foreground(LCD_RGBPACK(11, 12, 14));
+    lcd_hline(0, LCD_WIDTH - 1, top_h - 1);
+
+    if (count == 0)
+    {
+        const int panel_y = 88;
+
+        root_menu_video_gradient(18, panel_y, LCD_WIDTH - 36, 58,
+                                 LCD_RGBPACK(53, 57, 64),
+                                 LCD_RGBPACK(23, 26, 31));
+        lcd_set_foreground(LCD_RGBPACK(8, 9, 11));
+        lcd_drawrect(18, panel_y, LCD_WIDTH - 36, 58);
+        lcd_setfont(bold_font);
+        lcd_set_drawmode(DRMODE_FG);
+        lcd_set_foreground(LCD_WHITE);
+        root_menu_video_puts_fit(30, panel_y + 10,
+                                 LCD_WIDTH - 60, "No Notifications", true);
+        lcd_setfont(regular_font);
+        lcd_set_foreground(LCD_RGBPACK(194, 197, 202));
+        root_menu_video_puts_fit(30, panel_y + 34,
+                                 LCD_WIDTH - 60, "You're all caught up.",
+                                 true);
+    }
+    for (row = 0; row < visible && top + row < count; ++row)
+    {
+        struct notification_record record;
+        int index = top + row;
+        int y = top_h + row * block_h;
+        int content_y = y + section_h;
+        bool highlighted = index == selected;
+        char age[12];
+        int age_w;
+
+        if (!notification_manager_get(index, &record))
+            continue;
+        if (root_menu_video_notification_assets.valid)
+            root_menu_video_tile_notification_asset(
+                &root_menu_video_notification_assets.section,
+                0, y, LCD_WIDTH, section_h);
+        else
+            root_menu_video_gradient(0, y, LCD_WIDTH, section_h,
+                                     LCD_RGBPACK(66, 71, 78),
+                                     LCD_RGBPACK(27, 30, 35));
+        root_menu_video_draw_notification_source_icon(
+            record.request.source, 6,
+            y + (section_h - NOTIFICATION_SOURCE_ICON_H) / 2);
+        lcd_set_drawmode(DRMODE_FG);
+        lcd_setfont(bold_font);
+        lcd_set_foreground(LCD_WHITE);
+        root_menu_video_puts_fit(34, y + (section_h - bold_h) / 2,
+                                 LCD_WIDTH - 70,
+                                 notification_source_label(
+                                     record.request.source), false);
+        if (root_menu_video_notification_assets.valid)
+            lcd_bmp(&root_menu_video_notification_assets.close,
+                    LCD_WIDTH - 24,
+                    y + (section_h - NOTIFICATION_CLOSE_H) / 2);
+
+        if (highlighted)
+        {
+            root_menu_video_gradient(5, content_y + 3,
+                                     LCD_WIDTH - 10, item_h - 6,
+                                     LCD_RGBPACK(64, 70, 80),
+                                     LCD_RGBPACK(31, 35, 42));
+            lcd_set_foreground(LCD_RGBPACK(8, 9, 11));
+            lcd_drawrect(5, content_y + 3,
+                         LCD_WIDTH - 10, item_h - 6);
+            lcd_set_foreground(LCD_RGBPACK(105, 110, 119));
+            lcd_hline(7, LCD_WIDTH - 8, content_y + 4);
+        }
+
+        root_menu_video_draw_notification_dot(
+            21, content_y + (item_h - 8) / 2, !record.read);
+        root_menu_video_notification_age(age, sizeof(age),
+                                         record.request.timestamp);
+        font_getstringsize(age, &age_w, NULL, bold_font);
+        lcd_set_drawmode(DRMODE_FG);
+        lcd_setfont(bold_font);
+        lcd_set_foreground(LCD_WHITE);
+        root_menu_video_puts_fit(42, content_y + 8,
+                                 LCD_WIDTH - 58 - age_w,
+                                 record.request.title, false);
+        root_menu_video_puts_fit(LCD_WIDTH - age_w - 9,
+                                 content_y + 8, age_w, age, false);
+        lcd_setfont(regular_font);
+        lcd_set_foreground(highlighted ? LCD_RGBPACK(232, 233, 236) :
+                                         LCD_RGBPACK(210, 213, 218));
+        root_menu_video_puts_fit(42,
+                                 content_y + 12 + bold_h,
+                                 LCD_WIDTH - 54,
+                                 record.request.body, false);
+        lcd_set_drawmode(DRMODE_SOLID);
+        lcd_set_foreground(LCD_RGBPACK(18, 20, 23));
+        lcd_hline(0, LCD_WIDTH - 1, content_y + item_h - 1);
+    }
+    root_menu_video_draw_notification_grabber();
+    if (!ipodjs_ui_transition_present(&screens[SCREEN_MAIN]))
+        lcd_update();
+}
+
+static int root_menu_video_launch_notification(
+    const struct notification_record *record)
+{
+    int ret = 0;
+
+    if (record->request.source == NOTIFICATION_SOURCE_MUSIC)
+        return GO_TO_WPS;
+
+    root_menu_video_finish_native_screen(0);
+    if (record->request.source == NOTIFICATION_SOURCE_ACHIEVEMENTS)
+        ret = launch_achievements_plugin(NULL);
+    else if (record->request.source == NOTIFICATION_SOURCE_SITEKICK)
+        ret = launch_sitekick_plugin(record->request.route[0] ?
+                                     (void *)record->request.route : NULL);
+    else if (record->request.source == NOTIFICATION_SOURCE_LIVETV)
+        ret = launch_livetv_plugin(NULL);
+    else if (record->request.source == NOTIFICATION_SOURCE_WEATHER)
+        ret = launch_weather_plugin(NULL);
+    root_menu_video_enter_native_screen();
+    return ret;
+}
+
+static int root_menu_video_notification_center(void)
+{
+    int selected = 0;
+    bool redraw = true;
+
+    root_menu_video_prepare_notification_assets();
+    notification_manager_set_center_active(true);
+    button_clear_queue();
+    while (true)
+    {
+        int count = notification_manager_count();
+        int action;
+
+        if (count > 0)
+            selected = MAX(0, MIN(selected, count - 1));
+        else
+            selected = 0;
+        if (redraw)
+        {
+            root_menu_video_draw_notification_center(selected);
+            redraw = false;
+        }
+        action = get_action(CONTEXT_TREE|ALLOW_SOFTLOCK, HZ / 5);
+        if (ipodjs_ui_handle_system_event(action, &redraw))
+            continue;
+        switch (action)
+        {
+        case ACTION_STD_PREV:
+        case ACTION_STD_PREVREPEAT:
+            if (selected > 0)
+            {
+                selected--;
+                redraw = true;
+            }
+            break;
+        case ACTION_STD_NEXT:
+        case ACTION_STD_NEXTREPEAT:
+            if (selected + 1 < count)
+            {
+                selected++;
+                redraw = true;
+            }
+            break;
+        case ACTION_STD_OK:
+            if (count > 0)
+            {
+                struct notification_record record;
+
+                if (notification_manager_get(selected, &record))
+                {
+                    int launch_result;
+
+                    notification_manager_mark_read(selected);
+                    launch_result =
+                        root_menu_video_launch_notification(&record);
+                    if (launch_result == GO_TO_WPS)
+                    {
+                        notification_manager_set_center_active(false);
+                        button_clear_queue();
+                        return GO_TO_WPS;
+                    }
+                    redraw = true;
+                }
+            }
+            break;
+        case ACTION_STD_CONTEXT:
+            if (count > 0 && yesno_pop("Clear all notifications?"))
+            {
+                notification_manager_clear();
+                selected = 0;
+                redraw = true;
+            }
+            break;
+        case ACTION_STD_CANCEL:
+            notification_manager_set_center_active(false);
+            button_clear_queue();
+            return 0;
+        case ACTION_STD_MENU:
+            notification_manager_set_center_active(false);
+            button_clear_queue();
+            return 0;
+        default:
+            if (default_event_handler(action) == SYS_USB_CONNECTED)
+            {
+                notification_manager_set_center_active(false);
+                return MENU_ATTACHED_USB;
+            }
+            break;
+        }
+    }
+}
+
+static int root_menu_video_present_notification_center(void)
+{
+    int result;
+
+    ipodjs_ui_transition_begin_vertical(1);
+    result = root_menu_video_notification_center();
+    if (result == 0)
+        ipodjs_ui_transition_begin_vertical(-1);
+    button_clear_queue();
+    return result;
+}
+
 static int root_menu_video_dashboard(int *selectedp)
 {
     int selected = MAX(0, MIN(*selectedp, root_menu_video_count() - 1));
@@ -20066,11 +21000,13 @@ static int root_menu_video_dashboard(int *selectedp)
     bool held = button_hold();
     bool last_paused = false;
     bool last_bluetooth = false;
+    bool last_internet = false;
     bool play_hold_stopped = false;
     long next_slideshow = 0;
     long preview_settle_tick = 0;
     long preview_io_settle_tick = current_tick + HZ / 2;
     long next_hold_refresh = 0;
+    bool left_toggle_armed = true;
     bool preview_pending = false;
     struct root_menu_video_list_draw_state draw_state = {
         .valid = false
@@ -20079,6 +21015,7 @@ static int root_menu_video_dashboard(int *selectedp)
     root_menu_video_enter_native_screen();
     root_menu_video_prepare_netflix_logo();
     root_menu_video_prepare_sitekick_preview();
+    root_menu_video_prepare_notification_assets();
     button_clear_queue();
 
     while (true)
@@ -20087,9 +21024,13 @@ static int root_menu_video_dashboard(int *selectedp)
         int count = root_menu_video_count();
         bool paused;
         bool bluetooth = false;
+        bool internet;
         bool poweroff_hold;
         const struct menu_item_ex *item;
         enum root_menu_video_preview_source preview_source;
+
+        notification_manager_service();
+        internet = usb_internet_connected();
 
 #ifdef IPOD_ACCESSORY_PROTOCOL
         bluetooth = iap_kokkia_present();
@@ -20124,9 +21065,11 @@ static int root_menu_video_dashboard(int *selectedp)
         if (!poweroff_hold && selected != drawn_selected && !redraw_list_only)
             redraw = true;
 
-        if (!poweroff_hold && bluetooth != last_bluetooth)
+        if (!poweroff_hold && (bluetooth != last_bluetooth ||
+                              internet != last_internet))
         {
             last_bluetooth = bluetooth;
+            last_internet = internet;
             if (!redraw && drawn_selected >= 0 && !held)
             {
                 /* iAP state changes arrive independently of button events.
@@ -20168,6 +21111,8 @@ static int root_menu_video_dashboard(int *selectedp)
         item = root_menu_video_item(selected);
         action = get_action(CONTEXT_TREE|ALLOW_SOFTLOCK,
                             paused ? HZ/5 : HZ/20);
+        if (button_status() & BUTTON_LEFT)
+            left_toggle_armed = true;
         if (ipodjs_ui_handle_system_event(action, &redraw))
             continue;
 #ifdef IPOD_ACCESSORY_PROTOCOL
@@ -20471,14 +21416,32 @@ static int root_menu_video_dashboard(int *selectedp)
             case ACTION_STD_MENU:
                 if (root_menu_video_hold_update(&held, &redraw))
                     break;
-                /* Home is the top of the iPod navigation hierarchy. */
+                /* Notification Center is intentionally Left-toggle only. */
                 break;
 
             case ACTION_STD_CANCEL:
                 if (root_menu_video_hold_update(&held, &redraw))
                     break;
-                *selectedp = selected;
-                return root_menu_video_finish_native_screen(GO_TO_PREVIOUS);
+                if (!left_toggle_armed)
+                {
+                    button_clear_queue();
+                    break;
+                }
+                left_toggle_armed = false;
+                {
+                    int notification_result =
+                        root_menu_video_present_notification_center();
+
+                    if (notification_result == MENU_ATTACHED_USB)
+                        return root_menu_video_finish_native_screen(
+                            MENU_ATTACHED_USB);
+                    if (notification_result == GO_TO_WPS)
+                        return root_menu_video_finish_native_screen(
+                            GO_TO_WPS);
+                    redraw = true;
+                    redraw_list_only = false;
+                }
+                break;
         }
     }
 }

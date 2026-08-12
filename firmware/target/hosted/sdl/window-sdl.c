@@ -24,6 +24,9 @@
 #include <string.h>
 #include <strings.h>
 #include <unistd.h>
+#ifdef ROCKPOD_IOS_EMBED
+#include <pthread.h>
+#endif
 #include "sim-ui-defines.h"
 #include "window-sdl.h"
 #include "lcd-sdl.h"
@@ -77,7 +80,16 @@ static const char rockpod_auto_dump_flagfile[] = "tmp/cherryblossom-sim-autodump
 static void sdl_window_startup_fatal(const char *operation)
 {
     fprintf(stderr, "%s failed: %s\n", operation, SDL_GetError());
+#ifdef ROCKPOD_IOS_EMBED
+    extern void rockpod_ios_simulator_failed(const char *message);
+    char message[256];
+    snprintf(message, sizeof(message), "%s failed: %s", operation,
+             SDL_GetError());
+    rockpod_ios_simulator_failed(message);
+    pthread_exit(NULL);
+#else
     exit(EXIT_FAILURE);
+#endif
 }
 
 static void rockpod_preview_configure(void)
@@ -128,6 +140,8 @@ static void rockpod_preview_configure(void)
     }
 }
 
+static void get_window_dimensions(int *w, int *h);
+
 static void rockpod_preview_capture_if_needed(void)
 {
     if (!rockpod_preview_enabled || !rockpod_preview_path[0])
@@ -136,6 +150,63 @@ static void rockpod_preview_capture_if_needed(void)
     Uint32 now = SDL_GetTicks();
     if (rockpod_preview_last_ticks && now - rockpod_preview_last_ticks < rockpod_preview_interval_ms)
         return;
+
+#ifdef ROCKPOD_IOS_EMBED
+    /* Compose the panel straight from the simulator's own surfaces.
+     *
+     * Everything drawn goes into gui_texture, a streaming texture, and is only
+     * visible through the renderer.  Under the offscreen driver on iOS both
+     * SDL_RenderReadPixels() and SDL_GetWindowSurface() come back entirely
+     * black -- the whole panel, iPod body included -- so nothing that reads
+     * the render target can work there.  picture_surface and sim_lcd_surface
+     * are ordinary CPU surfaces holding exactly the same pixels, so build the
+     * frame from them and skip renderer and texture altogether. */
+    {
+        static SDL_Surface *ios_panel;
+        extern void rockpod_ios_publish_frame(const void *pixels, int w,
+                                              int h, int pitch);
+        int pw = 0, ph = 0;
+
+        get_window_dimensions(&pw, &ph);
+        if (pw > 0 && ph > 0)
+        {
+            if (!ios_panel || ios_panel->w != pw || ios_panel->h != ph)
+            {
+                if (ios_panel)
+                    SDL_FreeSurface(ios_panel);
+                ios_panel = SDL_CreateRGBSurfaceWithFormat(
+                    0, pw, ph, 32, SDL_PIXELFORMAT_ARGB8888);
+            }
+            if (ios_panel)
+            {
+                SDL_FillRect(ios_panel, NULL, 0);
+                if (background && picture_surface)
+                    SDL_BlitSurface(picture_surface, NULL, ios_panel, NULL);
+                /* Use lcd_surface, not sim_lcd_surface.  sdl_gui_update()
+                 * treats sim_lcd_surface as scratch: it blits only the dirty
+                 * rectangle into it at (0,0) and uploads that to gui_texture
+                 * at the right destination.  It therefore holds one arbitrary
+                 * fragment, which is why compositing it produced stale grey
+                 * and right-hand pane content drawn on the left.  lcd_surface
+                 * is the full-size screen. */
+                if (lcd_surface)
+                {
+                    SDL_Rect dst;
+                    dst.x = background ? UI_LCD_POSX : 0;
+                    dst.y = background ? UI_LCD_POSY : 0;
+                    dst.w = lcd_surface->w;
+                    dst.h = lcd_surface->h;
+                    SDL_SetSurfaceBlendMode(lcd_surface, SDL_BLENDMODE_NONE);
+                    SDL_BlitSurface(lcd_surface, NULL, ios_panel, &dst);
+                }
+                rockpod_ios_publish_frame(ios_panel->pixels, pw, ph,
+                                          ios_panel->pitch);
+                rockpod_preview_last_ticks = now;
+                return;
+            }
+        }
+    }
+#endif
 
     int width = 0;
     int height = 0;
@@ -152,6 +223,80 @@ static void rockpod_preview_capture_if_needed(void)
         return;
     }
 
+#ifdef ROCKPOD_IOS_EMBED
+    /* SDL_RenderReadPixels returns success but all-zero pixels for the
+     * offscreen driver on iOS -- the whole panel, chrome included, comes back
+     * black even though the renderer has drawn.  With the software renderer
+     * the window surface *is* the render target, so read it directly and use
+     * that whenever the readback produced nothing. */
+    {
+        const Uint32 *probe = (const Uint32 *)frame->pixels;
+        size_t words = (size_t)frame->pitch * height / sizeof(Uint32);
+        size_t i;
+        int any = 0;
+
+        for (i = 0; i < words; i += 64)
+            if (probe[i] & 0x00ffffffu) { any = 1; break; }
+
+        if (!any)
+        {
+            SDL_Surface *win = SDL_GetWindowSurface(sdlWindow);
+            if (win && win->w == width && win->h == height)
+            {
+                SDL_FreeSurface(frame);
+                frame = SDL_ConvertSurfaceFormat(win, SDL_PIXELFORMAT_ARGB8888, 0);
+                if (frame == NULL)
+                    return;
+            }
+        }
+    }
+#endif
+
+#ifdef ROCKPOD_IOS_EMBED
+    extern void rockpod_ios_publish_frame(const void *pixels, int width,
+                                          int height, int pitch);
+    /* Set by the companion when it has received no in-memory frame, so a
+     * failure anywhere in the pixels -> CGImage -> UIImageView path still
+     * leaves it a way to show the panel.  Off by default: writing an 800 KB
+     * bitmap several times a second is not something to do to flash storage
+     * unless the fast path has already proven unusable. */
+    extern volatile int rockpod_ios_file_preview_wanted;
+
+    rockpod_ios_publish_frame(frame->pixels, width, height, frame->pitch);
+    if (rockpod_ios_file_preview_wanted && rockpod_preview_path[0])
+    {
+        /* Raw ARGB8888 behind a three-word header, not a BMP.  SDL_SaveBMP
+         * emits a BITMAPV5HEADER with BI_BITFIELDS, which iOS decodes
+         * unreliably; the companion converts these bytes with the same code
+         * path it already uses for in-memory frames, so nothing here depends
+         * on an image decoder.  Written to a temporary name and renamed so a
+         * reader never observes a half-written frame. */
+        char ios_tmp[MAX_PATH];
+        FILE *out;
+
+        snprintf(ios_tmp, sizeof(ios_tmp), "%s.tmp", rockpod_preview_path);
+        out = fopen(ios_tmp, "wb");
+        if (out)
+        {
+            uint32_t head[3];
+            size_t bytes = (size_t)frame->pitch * (size_t)height;
+
+            head[0] = (uint32_t)width;
+            head[1] = (uint32_t)height;
+            head[2] = (uint32_t)frame->pitch;
+            if (fwrite(head, sizeof(head), 1, out) == 1 &&
+                fwrite(frame->pixels, bytes, 1, out) == 1 &&
+                fclose(out) == 0)
+            {
+                remove(rockpod_preview_path);
+                rename(ios_tmp, rockpod_preview_path);
+            }
+            else
+                remove(ios_tmp);
+        }
+    }
+    rockpod_preview_last_ticks = now;
+#else
     char tmp_path[MAX_PATH];
     snprintf(tmp_path, sizeof(tmp_path), "%s.tmp.bmp", rockpod_preview_path);
     if (SDL_SaveBMP(frame, tmp_path) == 0)
@@ -164,6 +309,7 @@ static void rockpod_preview_capture_if_needed(void)
     {
         remove(tmp_path);
     }
+#endif
 
     SDL_FreeSurface(frame);
 }
@@ -415,7 +561,9 @@ void sdl_window_setup(void)
                                    SDL_WINDOWPOS_CENTERED, width * display_zoom,
                                    height * display_zoom , flags)) == NULL)
         sdl_window_startup_fatal("SDL window creation");
-    if ((sdlRenderer = SDL_CreateRenderer(sdlWindow, -1, SDL_RENDERER_PRESENTVSYNC)) == NULL)
+    Uint32 renderer_flags = rockpod_preview_hidden ? SDL_RENDERER_SOFTWARE :
+                                                   SDL_RENDERER_PRESENTVSYNC;
+    if ((sdlRenderer = SDL_CreateRenderer(sdlWindow, -1, renderer_flags)) == NULL)
         sdl_window_startup_fatal("SDL renderer creation");
 
     /* Establish the panel's logical size up front.  Until it is set the

@@ -35,6 +35,7 @@ void root_menu_ipodjs_draw_wps_frame(void);
 #ifdef HAVE_TAGCACHE
 bool root_menu_ipodjs_search_available(void);
 int root_menu_ipodjs_search(void);
+bool root_menu_ipodjs_text_input(const char *title, char *text, size_t size);
 #endif
 #endif
 struct menu_table {

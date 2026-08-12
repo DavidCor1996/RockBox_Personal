@@ -106,7 +106,9 @@ PLUGIN_ALL_OBJ := $(call c2obj,$(filter-out %.lua,\
 	$(filter $(APPSDIR)/plugins/%,$(OTHER_SRC))))
 $(PLUGIN_ALL_OBJ): $(PLUGIN_GENERATED_HEADERS)
 
-OTHER_INC += -I$(APPSDIR)/plugins -I$(APPSDIR)/plugins/lib
+OTHER_INC += -I$(APPSDIR)/plugins -I$(APPSDIR)/plugins/lib \
+        -I$(ROOTDIR)/lib/rcheevos/include \
+        -I$(ROOTDIR)/lib/rcheevos/src
 
 # special compile flags for plugins:
 PLUGINFLAGS = -I$(APPSDIR)/plugins -DPLUGIN $(CFLAGS)
@@ -206,13 +208,23 @@ $(BUILDDIR)/apps/plugins/%.o: $(ROOTDIR)/apps/plugins/%.cpp \
 	$(call PRINTS,CXX $(subst $(ROOTDIR)/,,$<))$(PLUGIN_CXX) -I$(dir $<) $(PLUGIN_CXXFLAGS) -c $< -o $@
 
 ifdef APP_TYPE
+ifneq ($(findstring -DROCKPOD_IOS_EMBED,$(EXTRA_DEFINES)),)
+ PLUGINLDFLAGS = $(SHARED_LDFLAGS)
+else
  PLUGINLDFLAGS = $(SHARED_LDFLAGS) -Wl,$(LDMAP_OPT),$*.map
+endif
  PLUGINFLAGS += $(SHARED_CFLAGS) # <-- from Makefile
 else
  PLUGINLDFLAGS = -T$(PLUGINLINK_LDS) -Wl,--gc-sections -Wl,-Map,$*.map
  OVERLAYLDFLAGS = -T$(OVERLAYREF_LDS) -Wl,--gc-sections -Wl,-Map,$*.refmap $(GLOBAL_LDOPTS)
 endif
 PLUGINLDFLAGS += $(GLOBAL_LDOPTS)
+
+ifneq ($(findstring -DROCKPOD_IOS_EMBED,$(EXTRA_DEFINES)),)
+PLUGIN_RUNTIME_LIBS =
+else
+PLUGIN_RUNTIME_LIBS = -lgcc
+endif
 
 ifdef USE_LTO
  PLUGINFLAGS += -fno-builtin -ffreestanding
@@ -225,7 +237,7 @@ $(BUILDDIR)/%.rock:
 	$(call PRINTS,LD $(@F))$(CC) $(PLUGINFLAGS) -o $(BUILDDIR)/$*.elf \
 		$(filter %.o, $^) \
 		$(filter %.a, $+) \
-		-lgcc $(PLUGINLDFLAGS)
+		$(PLUGIN_RUNTIME_LIBS) $(PLUGINLDFLAGS)
 	$(SILENT)$(call objcopy_plugin,$(BUILDDIR)/$*.elf,$@)
 
 $(BUILDDIR)/apps/plugins/%.lua: $(ROOTDIR)/apps/plugins/%.lua
@@ -235,4 +247,4 @@ $(BUILDDIR)/%.refmap: $(APPSDIR)/plugin.h $(OVERLAYREF_LDS) $(PLUGIN_LIBS) $(PLU
 	$(call PRINTS,LD $(@F))$(CC) $(PLUGINFLAGS) -o /dev/null \
 		$(filter %.o, $^) \
 		$(filter %.a, $+) \
-		-lgcc $(OVERLAYLDFLAGS)
+		$(PLUGIN_RUNTIME_LIBS) $(OVERLAYLDFLAGS)

@@ -316,6 +316,20 @@ class RockboxProfileStore:
             "screen_resolution": screen_resolution,
             "source_repo_path": source_repo_path,
             "selected_theme": selected_theme,
+            "weather_location_name": str(
+                item.get("weather_location_name")
+                or self._config.get("weather_location_name", "Moncton, NB")
+            ).strip() or "Moncton, NB",
+            "weather_latitude": float(
+                item.get("weather_latitude")
+                if item.get("weather_latitude") is not None
+                else self._config.get("weather_latitude", 46.0878)
+            ),
+            "weather_longitude": float(
+                item.get("weather_longitude")
+                if item.get("weather_longitude") is not None
+                else self._config.get("weather_longitude", -64.7782)
+            ),
             "backup_location": os.path.abspath(backup_location),
             "lockscreen_clock_position": _normalize_clock_position(item.get("lockscreen_clock_position")),
             "lockscreen_customization": _normalize_lockscreen_customization(item.get("lockscreen_customization")),

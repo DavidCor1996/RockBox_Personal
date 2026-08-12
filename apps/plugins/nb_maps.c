@@ -13,15 +13,27 @@
 
 #if defined(HAVE_LCD_COLOR) && (LCD_WIDTH >= 320) && (LCD_HEIGHT >= 240)
 
-#define MAR_WORLD_W 10000
-#define MAR_WORLD_H 6600
-#define MAR_ZOOM_COUNT 9
+#include "nb_maps_markers.h"
+#include "nb_maps_mercator.h"
+
+#define MAR_REFERENCE_SCALE 8192
+#define MAR_WORLD_W (10000 * MAR_REFERENCE_SCALE)
+#define MAR_WORLD_H (6600 * MAR_REFERENCE_SCALE)
+#define MAR_ZOOM_COUNT 19
+#define MAR_START_LOCATION_ZOOM 14
+#define MAR_CITY_FOCUS_ZOOM 11
 #define MAR_MAP_Y 22
 #define MAR_SAT_W 320
 #define MAR_SAT_H 160
 #define MAR_STREET_H 184
 #define MAR_GLOBE_FRAMES 64
 #define MAR_GLOBE_TURN_FRAMES 3
+#define MAR_GLOBE_RADIUS (MAR_SAT_H / 2)
+#define MAR_PAN_FRAMES 8
+#define MAR_POI_ICON_SIZE 9
+#define MAR_TOUCH_PAN_DELAY (HZ / 10)
+#define MAR_TOUCH_PAN_INTERVAL MAX(1, HZ / 15)
+#define MAR_TOUCH_ZOOM_GUARD (HZ / 4)
 #define MAR_SAT_BYTES (MAR_SAT_W * MAR_SAT_H * sizeof(fb_data))
 #define MAR_SCENE_NONE -1
 #define MAR_SCENE_TIMES_SQUARE -2
@@ -32,13 +44,22 @@
 #define MAR_SCENE_TOKYO -7
 #define MAR_SCENE_TORONTO_360 -8
 #define MAR_SCENE_FREDERICTON -9
+#define MAR_SCENE_AMSTERDAM_360 -17
+#define MAR_SCENE_SAN_FRANCISCO_360 -18
+#define MAR_SCENE_LISBON_360 -19
+#define MAR_SCENE_PARIS_360 -20
+#define MAR_SCENE_LYON_360 -21
+#define MAR_SCENE_BORDEAUX_360 -22
+#define MAR_SCENE_MONCTON_DASHCAM -23
 #define MAR_WORLD_SAT_PATH ROCKBOX_DIR "/maps/world_satellite.r16"
 #define MAR_WORLD_GLOBE_PATH ROCKBOX_DIR "/maps/world_globe_%02d.r16"
 #define MAR_DASHCAM_VIDEO_DIR ROCKBOX_DIR "/maps/videos"
 #define MAR_VIDEO_PLAYER_PATH ROCKBOX_DIR "/rocks/viewers/mpegplayer.rock"
+#define MAR_VIDEO_PLAYER_PREFIX "-mapsdash:"
 #define MAR_WORLD_TILE_PATH ROCKBOX_DIR "/maps/world/%d/%d_%d.r16"
 #define MAR_WORLD_TILE_HI_PATH ROCKBOX_DIR "/maps/world/%d_hi/%d_%d.r16"
 #define MAR_WORLD_TILE_HI2_PATH ROCKBOX_DIR "/maps/world/%d_hi2/%d_%d.r16"
+#define MAR_NB_ATLAS_PATH ROCKBOX_DIR "/maps/new_brunswick/nb_z%02d_x%05d.r16p"
 #define MAR_STREET_MONCTON_PATH ROCKBOX_DIR "/maps/moncton_imagery.rgb"
 #define MAR_STREET_FREDERICTON_PATH ROCKBOX_DIR "/maps/fredericton_imagery.rgb"
 #define MAR_STREET_SAINT_JOHN_PATH ROCKBOX_DIR "/maps/saint_john_imagery.rgb"
@@ -50,11 +71,22 @@
 #define MAR_BERLIN_PATH ROCKBOX_DIR "/maps/berlin_kartaview.rgb"
 #define MAR_PARIS_PATH ROCKBOX_DIR "/maps/paris_panoramax.rgb"
 #define MAR_TOKYO_PATH ROCKBOX_DIR "/maps/tokyo_panoramax.rgb"
+#define MAR_TORONTO_PATH ROCKBOX_DIR "/maps/toronto_panoramax_0.rgb"
+#define MAR_TORONTO_360_PATH ROCKBOX_DIR "/maps/toronto_360_north.rgb"
+#define MAR_FREDERICTON_PATH ROCKBOX_DIR "/maps/fredericton_panoramax_0.rgb"
+#define MAR_MONCTON_DASHCAM_PATH ROCKBOX_DIR "/maps/moncton_dashcam_0.rgb"
+#define MAR_AMSTERDAM_360_PATH ROCKBOX_DIR "/maps/amsterdam_360_north.rgb"
+#define MAR_SAN_FRANCISCO_360_PATH ROCKBOX_DIR "/maps/san_francisco_360_north.rgb"
+#define MAR_LISBON_360_PATH ROCKBOX_DIR "/maps/lisbon_360_north.rgb"
+#define MAR_PARIS_360_PATH ROCKBOX_DIR "/maps/paris_360_north.rgb"
+#define MAR_LYON_360_PATH ROCKBOX_DIR "/maps/lyon_360_north.rgb"
+#define MAR_BORDEAUX_360_PATH ROCKBOX_DIR "/maps/bordeaux_360_north.rgb"
 #define MAR_SYNC_PATH ROCKBOX_DIR "/maps/location.v1.tsv"
 #define MAR_PHOTO_THUMB_PATH ROCKBOX_DIR "/maps/photos/photo_%02d.r16"
-#define MAR_SYNC_TEXT_SIZE 2048
+#define MAR_SYNC_TEXT_SIZE 8192
 #define MAR_MAX_SYNC_PHOTOS 12
 #define MAR_MAX_ROUTE_POINTS 24
+#define MAR_MAX_SYNC_POIS 48
 #define MAR_PHOTO_THUMB_W 40
 #define MAR_PHOTO_THUMB_H 30
 #define MAR_BLUE LCD_RGBPACK(0, 122, 255)
@@ -104,8 +136,20 @@ struct mar_view {
     int browse_index;
     int street_heading;
     int street_scene;
+    int street_pan_from;
+    int street_pan_direction;
+    int street_pan_frame;
     enum mar_screen screen;
 };
+
+#ifdef HAVE_WHEEL_POSITION
+struct mar_touch_pan {
+    int zone;
+    long since;
+    long last_pan;
+    long zoom_guard;
+};
+#endif
 
 struct mar_shape {
     const int16_t *points;
@@ -133,33 +177,108 @@ struct mar_world_scene {
     int longitude_e6;
     const char *name;
     const char *detail;
+    const char *image;
     const char *video;
 };
 
 static const struct mar_world_scene mar_world_scenes[] = {
+    { MAR_SCENE_MONCTON_DASHCAM, 46091845, -64779522,
+      "Central Moncton", "New Brunswick - full dashcam video",
+      MAR_MONCTON_DASHCAM_PATH, "moncton_full_drive.mpg" },
     { MAR_SCENE_TIMES_SQUARE, 40758000, -73985500,
-      "Times Square", "New York  •  rotatable 360°", NULL },
+      "Times Square", "New York - 360 panorama",
+      MAR_TIMES_SQUARE_NORTH_PATH, NULL },
     { MAR_SCENE_TORONTO_360, 43653200, -79383200,
-      "Downtown Toronto", "Canada  •  rotatable 360°", NULL },
+      "Downtown Toronto", "Canada - 360 panorama",
+      MAR_TORONTO_360_PATH, NULL },
+    { MAR_SCENE_AMSTERDAM_360, 52374752, 4895167,
+      "Amsterdam", "Netherlands - 360 panorama",
+      MAR_AMSTERDAM_360_PATH, NULL },
+    { MAR_SCENE_SAN_FRANCISCO_360, 37781832, -122415560,
+      "San Francisco", "California - 360 panorama",
+      MAR_SAN_FRANCISCO_360_PATH, NULL },
+    { MAR_SCENE_LISBON_360, 38717854, -9143727,
+      "Lisbon", "Portugal - 360 panorama",
+      MAR_LISBON_360_PATH, NULL },
+    { MAR_SCENE_PARIS_360, 48864811, 2320894,
+      "Paris 360", "Place de la Concorde panorama",
+      MAR_PARIS_360_PATH, NULL },
+    { MAR_SCENE_LYON_360, 45760102, 4839942,
+      "Lyon", "France - 360 panorama", MAR_LYON_360_PATH, NULL },
+    { MAR_SCENE_BORDEAUX_360, 44841096, -575150,
+      "Bordeaux", "France - 360 panorama",
+      MAR_BORDEAUX_360_PATH, NULL },
+    { MAR_SCENE_FREDERICTON, 45963600, -66643100,
+      "Fredericton", "Canada - street sequence",
+      MAR_FREDERICTON_PATH, NULL },
+    { MAR_SCENE_TORONTO, 43653200, -79383200,
+      "Toronto", "Canada - street sequence", MAR_TORONTO_PATH, NULL },
+    { MAR_SCENE_LONDON, 51500700, -124600,
+      "London", "United Kingdom - dashcam", MAR_LONDON_PATH, NULL },
+    { MAR_SCENE_BERLIN, 52520000, 13405000,
+      "Berlin", "Germany - dashcam", MAR_BERLIN_PATH, NULL },
+    { MAR_SCENE_PARIS, 48858400, 2294500,
+      "Paris", "France - street camera", MAR_PARIS_PATH, NULL },
+    { MAR_SCENE_TOKYO, 35658600, 139745400,
+      "Tokyo", "Japan - street camera", MAR_TOKYO_PATH, NULL },
     { -10, 59180000, 25180000,
-      "Kose", "Estonia  •  full dashcam video", "kose_estonia.mpg" },
+      "Kose", "Estonia - dashcam video", NULL, "kose_estonia.mpg" },
     { -11, 46240000, 14360000,
-      "Kranj", "Slovenia  •  full dashcam video", "kranj_slovenia.mpg" },
+      "Kranj", "Slovenia - dashcam video", NULL, "kranj_slovenia.mpg" },
     { -12, 44880000, 15620000,
-      "Plitvice", "Croatia to Slovenia  •  full dashcam video",
+      "Plitvice", "Croatia to Slovenia - video", NULL,
       "plitvice_ljubljana.mpg" },
     { -13, 37340000, 127920000,
-      "Wonju", "South Korea  •  full dashcam video", "wonju_korea.mpg" },
+      "Wonju", "South Korea - dashcam video", NULL, "wonju_korea.mpg" },
     { -14, -41510000, 173960000,
-      "Blenheim", "New Zealand  •  full dashcam video",
+      "Blenheim", "New Zealand - dashcam video", NULL,
       "blenheim_havelock.mpg" },
     { -15, 39140000, -77200000,
-      "Gaithersburg", "Maryland, USA  •  full dashcam video",
+      "Gaithersburg", "Maryland, USA - dashcam video", NULL,
       "gaithersburg_maryland.mpg" },
     { -16, 35470000, -97520000,
-      "Oklahoma City", "USA  •  full dashcam video", "oklahoma_i235.mpg" }
+      "Oklahoma City", "USA - dashcam video", NULL, "oklahoma_i235.mpg" }
 };
 static bool mar_world_scene_available[ARRAYLEN(mar_world_scenes)];
+static enum plugin_status mar_pending_plugin_status;
+
+struct mar_panorama {
+    int scene;
+    const char *path[4];
+};
+
+#define MAR_PANORAMA_PATHS(slug) { \
+    ROCKBOX_DIR "/maps/" slug "_north.rgb", \
+    ROCKBOX_DIR "/maps/" slug "_east.rgb", \
+    ROCKBOX_DIR "/maps/" slug "_south.rgb", \
+    ROCKBOX_DIR "/maps/" slug "_west.rgb" }
+
+static const struct mar_panorama mar_panoramas[] = {
+    { MAR_SCENE_TIMES_SQUARE, MAR_PANORAMA_PATHS("times_square") },
+    { MAR_SCENE_TORONTO_360, MAR_PANORAMA_PATHS("toronto_360") },
+    { MAR_SCENE_AMSTERDAM_360, MAR_PANORAMA_PATHS("amsterdam_360") },
+    { MAR_SCENE_SAN_FRANCISCO_360,
+      MAR_PANORAMA_PATHS("san_francisco_360") },
+    { MAR_SCENE_LISBON_360, MAR_PANORAMA_PATHS("lisbon_360") },
+    { MAR_SCENE_PARIS_360, MAR_PANORAMA_PATHS("paris_360") },
+    { MAR_SCENE_LYON_360, MAR_PANORAMA_PATHS("lyon_360") },
+    { MAR_SCENE_BORDEAUX_360, MAR_PANORAMA_PATHS("bordeaux_360") },
+};
+
+static int mar_panorama_index(int scene)
+{
+    unsigned i;
+
+    for (i = 0; i < ARRAYLEN(mar_panoramas); i++)
+        if (mar_panoramas[i].scene == scene)
+            return i;
+    return -1;
+}
+
+static bool mar_is_panorama_scene(int scene)
+{
+    return mar_panorama_index(scene) >= 0;
+}
 
 static void mar_update_world_scene_availability(void)
 {
@@ -173,45 +292,24 @@ static void mar_update_world_scene_availability(void)
             rb->snprintf(path, sizeof(path), "%s/%s", MAR_DASHCAM_VIDEO_DIR,
                          scene->video);
             mar_world_scene_available[i] = rb->file_exists(path);
-        } else if (scene->scene == MAR_SCENE_TIMES_SQUARE) {
-            mar_world_scene_available[i] =
-                rb->file_exists(MAR_TIMES_SQUARE_NORTH_PATH);
-        } else if (scene->scene == MAR_SCENE_TORONTO_360) {
-            mar_world_scene_available[i] = rb->file_exists(
-                ROCKBOX_DIR "/maps/toronto_360_north.rgb");
-        } else {
-            mar_world_scene_available[i] = false;
-        }
+        } else
+            mar_world_scene_available[i] = scene->image &&
+                                           rb->file_exists(scene->image);
     }
 }
 
 static int mar_world_scene_count(void)
 {
-    unsigned i;
-    int count = 0;
-
-    for (i = 0; i < ARRAYLEN(mar_world_scenes); i++)
-        if (mar_world_scene_available[i])
-            count++;
-    return count;
+    return ARRAYLEN(mar_world_scenes);
 }
 
 static int mar_world_scene_at(int visible_index)
 {
-    unsigned i;
-
-    for (i = 0; i < ARRAYLEN(mar_world_scenes); i++) {
-        if (!mar_world_scene_available[i])
-            continue;
-        if (visible_index-- == 0)
-            return (int)i;
-    }
-    return -1;
+    return visible_index >= 0 &&
+           visible_index < (int)ARRAYLEN(mar_world_scenes) ?
+           visible_index : -1;
 }
 
-static const int zoom_scale[MAR_ZOOM_COUNT] = {
-    8, 12, 18, 28, 44, 64, 96, 144, 216
-};
 static fb_data mar_satellite[MAR_SAT_W * MAR_STREET_H];
 union mar_visual_cache {
     fb_data map_tiles[4][MAR_SAT_W * MAR_SAT_H];
@@ -229,6 +327,8 @@ static char mar_sync_text[MAR_SYNC_TEXT_SIZE];
 struct mar_sync_state {
     bool has_location;
     int location_x, location_y;
+    int location_latitude_e6, location_longitude_e6;
+    char location_name[48];
     int photo_count;
     int photo_x[MAR_MAX_SYNC_PHOTOS], photo_y[MAR_MAX_SYNC_PHOTOS];
     bool photo_thumb_valid[MAR_MAX_SYNC_PHOTOS];
@@ -237,13 +337,20 @@ struct mar_sync_state {
                        [MAR_PHOTO_THUMB_W * MAR_PHOTO_THUMB_H];
     int route_count;
     int route_x[MAR_MAX_ROUTE_POINTS], route_y[MAR_MAX_ROUTE_POINTS];
+    int poi_count;
+    int poi_x[MAR_MAX_SYNC_POIS], poi_y[MAR_MAX_SYNC_POIS];
+    char poi_kind[MAR_MAX_SYNC_POIS];
+    char poi_name[MAR_MAX_SYNC_POIS][24];
 };
 static struct mar_sync_state mar_sync;
+
+static const char *mar_street_path(int place_index);
 
 /* Web-Mercator Y values for each whole latitude from -85 through +85.
  * The satellite atlas is a standard slippy-map tile tree, not an
  * equirectangular image. One-degree interpolation keeps the conversion
  * integer-only and makes synced locations land on their actual imagery. */
+#if 0
 static const int16_t mar_mercator_y_by_lat[] = {
     6589, 6397, 6235, 6094, 5970, 5859, 5758, 5666, 5582, 5503, 5430, 5361,
     5297, 5236, 5178, 5123, 5071, 5021, 4973, 4927, 4882, 4840, 4799, 4759,
@@ -261,30 +368,37 @@ static const int16_t mar_mercator_y_by_lat[] = {
     1422, 1364, 1303, 1239, 1170, 1097, 1018, 934, 842, 741, 630, 506,
     365, 203, 11,
 };
+#endif
 
 /* World coordinates match the standard Web-Mercator satellite tile grid. */
 static void mar_geo_to_world(int latitude_e6, int longitude_e6, int *x, int *y)
 {
     int latitude_index;
     int latitude_fraction;
+    int64_t y_q30;
 
     /* Native ARM long is 32 bit: use a 64-bit intermediate or ordinary
      * location coordinates overflow and land in the ocean. */
     *x = (int)(((long long)(longitude_e6 + 180000000) * MAR_WORLD_W) /
                360000000LL);
-    if (latitude_e6 < -85000000)
-        latitude_e6 = -85000000;
-    else if (latitude_e6 > 85000000)
-        latitude_e6 = 85000000;
-    latitude_index = (latitude_e6 + 85000000) / 1000000;
-    latitude_fraction = (latitude_e6 + 85000000) % 1000000;
-    if (latitude_index >= (int)ARRAYLEN(mar_mercator_y_by_lat) - 1)
-        *y = mar_mercator_y_by_lat[ARRAYLEN(mar_mercator_y_by_lat) - 1];
-    else
-        *y = mar_mercator_y_by_lat[latitude_index] +
-             ((mar_mercator_y_by_lat[latitude_index + 1] -
-               mar_mercator_y_by_lat[latitude_index]) * latitude_fraction) /
-             1000000;
+    if (latitude_e6 < MAR_MERCATOR_MIN_LAT_E6)
+        latitude_e6 = MAR_MERCATOR_MIN_LAT_E6;
+    else if (latitude_e6 > MAR_MERCATOR_MAX_LAT_E6)
+        latitude_e6 = MAR_MERCATOR_MAX_LAT_E6;
+    latitude_e6 -= MAR_MERCATOR_MIN_LAT_E6;
+    latitude_index = latitude_e6 / MAR_MERCATOR_STEP_E6;
+    latitude_fraction = latitude_e6 % MAR_MERCATOR_STEP_E6;
+    if (latitude_index >= (int)ARRAYLEN(mar_mercator_y_q30) - 1)
+        y_q30 = mar_mercator_y_q30[ARRAYLEN(mar_mercator_y_q30) - 1];
+    else {
+        int64_t delta = (int64_t)mar_mercator_y_q30[latitude_index + 1] -
+                        mar_mercator_y_q30[latitude_index];
+
+        y_q30 = mar_mercator_y_q30[latitude_index] +
+                delta * latitude_fraction / MAR_MERCATOR_STEP_E6;
+    }
+    *y = (int)((y_q30 * MAR_WORLD_H + MAR_MERCATOR_Q30 / 2) /
+               MAR_MERCATOR_Q30);
 }
 
 static bool mar_parse_number(const char **cursor, int *value)
@@ -358,8 +472,17 @@ static void mar_load_sync(void)
             *next++ = '\0';
         if (!rb->strncmp(line, "location\t", 9) &&
             mar_parse_pair(line + 9, &lat, &lon)) {
+            char *name = rb->strchr(line + 9, '\t');
+
             mar_geo_to_world(lat, lon, &mar_sync.location_x, &mar_sync.location_y);
+            mar_sync.location_latitude_e6 = lat;
+            mar_sync.location_longitude_e6 = lon;
             mar_sync.has_location = true;
+            if (name)
+                name = rb->strchr(name + 1, '\t');
+            rb->strlcpy(mar_sync.location_name,
+                        name && name[1] ? name + 1 : "Current Location",
+                        sizeof(mar_sync.location_name));
         } else if (!rb->strncmp(line, "photo\t", 6) &&
                    mar_parse_pair(line + 6, &lat, &lon) &&
                    mar_sync.photo_count < MAR_MAX_SYNC_PHOTOS) {
@@ -388,12 +511,92 @@ static void mar_load_sync(void)
             mar_geo_to_world(lat, lon, &mar_sync.route_x[mar_sync.route_count],
                              &mar_sync.route_y[mar_sync.route_count]);
             mar_sync.route_count++;
+        } else if (!rb->strncmp(line, "poi\t", 4) &&
+                   mar_sync.poi_count < MAR_MAX_SYNC_POIS) {
+            const char *cursor = line + 4;
+            int index = mar_sync.poi_count;
+            char *kind;
+            char *name;
+
+            if (!mar_parse_number(&cursor, &lat) || *cursor++ != '\t' ||
+                !mar_parse_number(&cursor, &lon) || *cursor++ != '\t') {
+                line = next;
+                continue;
+            }
+            kind = (char *)cursor;
+            name = rb->strchr(kind, '\t');
+            if (!name || !kind[0]) {
+                line = next;
+                continue;
+            }
+            *name++ = '\0';
+            mar_geo_to_world(lat, lon, &mar_sync.poi_x[index],
+                             &mar_sync.poi_y[index]);
+            mar_sync.poi_kind[index] = kind[0];
+            rb->strlcpy(mar_sync.poi_name[index], name,
+                        sizeof(mar_sync.poi_name[index]));
+            mar_sync.poi_count++;
         }
         line = next;
     }
 }
 
-static bool mar_load_satellite_tile(int zoom, int x, int y, fb_data *buffer)
+struct mar_nb_atlas_bounds {
+    int zoom;
+    int x0;
+    int x1;
+    int y0;
+    int y1;
+};
+
+static const struct mar_nb_atlas_bounds mar_nb_atlas_bounds[] = {
+    { 9, 157, 165, 177, 185 },
+    { 10, 315, 330, 355, 370 },
+    { 11, 630, 661, 711, 740 },
+    { 12, 1261, 1323, 1422, 1480 },
+    { 13, 2523, 2646, 2844, 2961 },
+    { 14, 5047, 5292, 5688, 5922 },
+    { 15, 10094, 10585, 11377, 11845 },
+    { 16, 20188, 21171, 22754, 23690 },
+};
+
+static bool mar_load_nb_atlas_tile(int zoom, int x, int y, fb_data *buffer)
+{
+    unsigned i;
+
+    for (i = 0; i < ARRAYLEN(mar_nb_atlas_bounds); i++) {
+        const struct mar_nb_atlas_bounds *bounds = &mar_nb_atlas_bounds[i];
+        int pack_x;
+        int pack_width;
+        int fd;
+        off_t offset;
+        ssize_t got;
+        char path[80];
+
+        if (bounds->zoom != zoom || x < bounds->x0 || x > bounds->x1 ||
+            y < bounds->y0 || y > bounds->y1)
+            continue;
+        pack_x = bounds->x0 + ((x - bounds->x0) / 16) * 16;
+        pack_width = MIN(16, bounds->x1 - pack_x + 1);
+        rb->snprintf(path, sizeof(path), MAR_NB_ATLAS_PATH, zoom, pack_x);
+        fd = rb->open(path, O_RDONLY);
+        if (fd < 0)
+            return false;
+        offset = (off_t)(((long long)(y - bounds->y0) * pack_width +
+                          (x - pack_x)) * MAR_SAT_BYTES);
+        if (rb->lseek(fd, offset, SEEK_SET) < 0) {
+            rb->close(fd);
+            return false;
+        }
+        got = rb->read(fd, buffer, MAR_SAT_BYTES);
+        rb->close(fd);
+        return got == (ssize_t)MAR_SAT_BYTES;
+    }
+    return false;
+}
+
+static bool mar_load_satellite_tile_exact(int zoom, int x, int y,
+                                          fb_data *buffer)
 {
     char tile_path[64];
     int fd;
@@ -421,12 +624,61 @@ static bool mar_load_satellite_tile(int zoom, int x, int y, fb_data *buffer)
             rb->snprintf(tile_path, sizeof(tile_path), MAR_WORLD_TILE_PATH,
                          zoom, x, y);
         fd = rb->open(tile_path, O_RDONLY);
+        if (fd < 0 && mar_load_nb_atlas_tile(zoom, x, y, buffer))
+            return true;
     }
     if (fd < 0)
         return false;
     got = rb->read(fd, buffer, MAR_SAT_BYTES);
     rb->close(fd);
     return got == (ssize_t)MAR_SAT_BYTES;
+}
+
+/* Deep optional atlases are allowed, but the base package deliberately ships
+ * only z1-z3. Magnify the closest installed parent tile when a deeper tile is
+ * absent. This keeps every advertised zoom responsive and geographically
+ * continuous instead of repeatedly opening missing files or painting blue. */
+static bool mar_load_satellite_tile(int zoom, int x, int y, fb_data *buffer)
+{
+    int parent_zoom;
+
+    if (mar_load_satellite_tile_exact(zoom, x, y, buffer))
+        return true;
+    /* City detail is either native or absent. Magnifying a regional parent
+     * at z9+ produces misleading, blurry pixels and makes scanning unusable. */
+    if (zoom >= 9)
+        return false;
+    for (parent_zoom = zoom - 1; parent_zoom >= 1; parent_zoom--) {
+        int factor = 1 << (zoom - parent_zoom);
+        int part_x = x & (factor - 1);
+        int part_y = y & (factor - 1);
+        int x0 = (part_x * MAR_SAT_W) / factor;
+        int x1 = ((part_x + 1) * MAR_SAT_W) / factor;
+        int y0 = (part_y * MAR_SAT_H) / factor;
+        int y1 = ((part_y + 1) * MAR_SAT_H) / factor;
+        int dy;
+
+        if (!mar_load_satellite_tile_exact(parent_zoom, x / factor,
+                                           y / factor, mar_satellite))
+            continue;
+        for (dy = 0; dy < MAR_SAT_H; dy++) {
+            int sy = y0 + (dy * MAX(1, y1 - y0)) / MAR_SAT_H;
+            int dx;
+
+            if (sy >= y1)
+                sy = y1 - 1;
+            for (dx = 0; dx < MAR_SAT_W; dx++) {
+                int sx = x0 + (dx * MAX(1, x1 - x0)) / MAR_SAT_W;
+
+                if (sx >= x1)
+                    sx = x1 - 1;
+                buffer[dy * MAR_SAT_W + dx] =
+                    mar_satellite[sy * MAR_SAT_W + sx];
+            }
+        }
+        return true;
+    }
+    return false;
 }
 
 static bool mar_load_satellite(const struct mar_view *view)
@@ -440,13 +692,15 @@ static bool mar_load_satellite(const struct mar_view *view)
     int y;
 
     if (view->zoom == 0) {
-        int globe_frame = (view->center_x * MAR_GLOBE_FRAMES) / MAR_WORLD_W;
+        int globe_frame = (int)(((long long)view->center_x *
+                                 MAR_GLOBE_FRAMES) / MAR_WORLD_W);
 
         if (globe_frame >= MAR_GLOBE_FRAMES)
             globe_frame = 0;
         if (mar_satellite_zoom == 0 && mar_satellite_x == globe_frame)
             return true;
         mar_satellite_zoom = -1;
+        mar_lookaround_scene = MAR_SCENE_NONE;
         if (!mar_load_satellite_tile(0, globe_frame, 0,
                                      mar_visual_cache.map_tiles[0]))
             return false;
@@ -464,8 +718,8 @@ static bool mar_load_satellite(const struct mar_view *view)
         origin_y = 0;
     else if (origin_y > MAR_WORLD_H - span_y)
         origin_y = MAR_WORLD_H - span_y;
-    x = (origin_x * tiles) / MAR_WORLD_W;
-    y = (origin_y * tiles) / MAR_WORLD_H;
+    x = (int)(((long long)origin_x * tiles) / MAR_WORLD_W);
+    y = (int)(((long long)origin_y * tiles) / MAR_WORLD_H);
     if (x >= tiles)
         x = tiles - 1;
     if (y >= tiles)
@@ -474,6 +728,7 @@ static bool mar_load_satellite(const struct mar_view *view)
         mar_satellite_y == y)
         return true;
     mar_satellite_zoom = -1;
+    mar_lookaround_scene = MAR_SCENE_NONE;
     if (!mar_load_satellite_tile(view->zoom, x, y,
                                  mar_visual_cache.map_tiles[0]) ||
         !mar_load_satellite_tile(view->zoom, (x + 1) % tiles, y,
@@ -624,6 +879,25 @@ static const struct mar_place mar_places[] = {
     { 8410, 3510, "Port Hawkesbury", MAR_TOWN, 2 },
     { 9400, 3280, "Glace Bay", MAR_TOWN, 2 },
     { 6420, 2320, "Summerside", MAR_TOWN, 2 },
+    { 0, 0, "Riverview", MAR_TOWN, 7 },
+    { 0, 0, "Shediac", MAR_TOWN, 7 },
+    { 0, 0, "Salisbury", MAR_TOWN, 8 },
+    { 0, 0, "Memramcook", MAR_TOWN, 8 },
+    { 0, 0, "Bouctouche", MAR_TOWN, 7 },
+    { 0, 0, "Petitcodiac", MAR_TOWN, 8 },
+    { 0, 0, "Cap-Pele", MAR_TOWN, 8 },
+    { 0, 0, "Hillsborough", MAR_TOWN, 8 },
+    { 0, 0, "Sussex", MAR_TOWN, 7 },
+    { 0, 0, "Quispamsis", MAR_TOWN, 8 },
+    { 0, 0, "Rothesay", MAR_TOWN, 8 },
+    { 0, 0, "Oromocto", MAR_TOWN, 7 },
+    { 0, 0, "Woodstock", MAR_TOWN, 7 },
+    { 0, 0, "Bathurst", MAR_CITY, 6 },
+    { 0, 0, "Campbellton", MAR_CITY, 6 },
+    { 0, 0, "Grand Bay-Westfield", MAR_TOWN, 8 },
+    { 0, 0, "St. Andrews", MAR_TOWN, 7 },
+    { 0, 0, "Pictou", MAR_TOWN, 7 },
+    { 0, 0, "Wolfville", MAR_TOWN, 7 },
     { 3580, 1050, "Chaleur Bay", MAR_WATER_NAME, 0 },
     { 5420, 1800, "Gulf of St. Lawrence", MAR_WATER_NAME, 0 },
     { 3440, 4620, "Bay of Fundy", MAR_WATER_NAME, 0 },
@@ -653,6 +927,16 @@ static const struct mar_geo_point mar_place_geo[] = {
     { 44378000, -64312000 }, { 44238000, -64151000 },
     { 45623300, -62645000 }, { 45618200, -61734000 },
     { 46196000, -59956000 }, { 46239000, -63132000 },
+    { 46061000, -64805200 }, { 46219900, -64541100 },
+    { 46039100, -65046300 }, { 45993500, -64551500 },
+    { 46468400, -64724900 }, { 45939400, -65176600 },
+    { 46212800, -64384700 }, { 45919900, -64655200 },
+    { 45722700, -65510200 }, { 45432000, -65946600 },
+    { 45380700, -65983800 }, { 45848400, -66478800 },
+    { 46152000, -67598100 }, { 47618100, -65651300 },
+    { 48007500, -66672700 }, { 45360800, -66241300 },
+    { 45073000, -67052600 }, { 45678000, -62710000 },
+    { 45091000, -64359000 },
     { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 },
     { 0, 0 }, { 0, 0 }, { 0, 0 }
 };
@@ -664,30 +948,128 @@ static void mar_place_to_world(int place_index, int *x, int *y)
     if (point->latitude_e6 != 0)
         mar_geo_to_world(point->latitude_e6, point->longitude_e6, x, y);
     else {
-        *x = mar_places[place_index].x;
-        *y = mar_places[place_index].y;
+        *x = mar_places[place_index].x * MAR_REFERENCE_SCALE;
+        *y = mar_places[place_index].y * MAR_REFERENCE_SCALE;
     }
 }
 
 static inline int mar_mid_y(void)
 {
-    return (MAR_MAP_Y + LCD_HEIGHT) / 2;
+    /* Geographic pixels occupy only the satellite viewport.  The status
+     * panel below it is UI, not map space; including it in the midpoint
+     * shifts every marker south by 29 pixels at world zoom. */
+    return MAR_MAP_Y + MAR_SAT_H / 2;
 }
 
 static inline int mar_x(const struct mar_view *view, int x)
 {
     int span = MAR_WORLD_W / (1 << view->zoom);
+    int delta = x - view->center_x;
 
-    return LCD_WIDTH / 2 + (int)(((long)(x - view->center_x) * LCD_WIDTH) /
-                                 MAX(1, span));
+    /* Geographic overlays must wrap with the tile atlas at the date line.
+     * Without this, a valid point just across the seam is projected through
+     * the entire world and can reappear over an ocean as zoom changes. */
+    if (delta > MAR_WORLD_W / 2)
+        delta -= MAR_WORLD_W;
+    else if (delta < -MAR_WORLD_W / 2)
+        delta += MAR_WORLD_W;
+
+    return LCD_WIDTH / 2 +
+           (int)(((long long)delta * LCD_WIDTH) /
+                 MAX(1, span));
 }
 
 static inline int mar_y(const struct mar_view *view, int y)
 {
     int span = MAR_WORLD_H / (1 << view->zoom);
 
-    return mar_mid_y() + (int)(((long)(y - view->center_y) * MAR_SAT_H) /
-                               MAX(1, span));
+    return mar_mid_y() +
+           (int)(((long long)(y - view->center_y) * MAR_SAT_H) /
+                 MAX(1, span));
+}
+
+static void mar_color(unsigned color);
+static void mar_halo(int x, int y, const char *text, unsigned color,
+                     unsigned halo);
+
+/* Bhaskara's sine approximation is accurate enough for an 80-pixel globe
+ * and avoids floating point in the plugin. Input is thousandths of a degree;
+ * output is signed Q15. */
+static int mar_sin_mdeg_q15(int angle)
+{
+    int sign = 1;
+    int64_t product;
+    int64_t denominator;
+
+    if (angle < 0) {
+        angle = -angle;
+        sign = -1;
+    }
+    angle %= 360000;
+    if (angle > 180000) {
+        angle = 360000 - angle;
+        sign = -sign;
+    }
+    product = (int64_t)angle * (180000 - angle);
+    denominator = 40500000000LL - product;
+    return sign * (int)((4 * product * 32768) / denominator);
+}
+
+static void mar_draw_globe_location(void)
+{
+    int central_longitude_e6;
+    int delta_longitude_e6;
+    int latitude_mdeg;
+    int longitude_mdeg;
+    int sin_latitude;
+    int cos_latitude;
+    int sin_longitude;
+    int x;
+    int y;
+    int text_w;
+    int text_h;
+    int label_x;
+
+    if (!mar_sync.has_location || mar_satellite_x < 0)
+        return;
+    central_longitude_e6 = -180000000 +
+        (int)(((long long)mar_satellite_x * 360000000LL) /
+              MAR_GLOBE_FRAMES);
+    delta_longitude_e6 = mar_sync.location_longitude_e6 -
+                         central_longitude_e6;
+    while (delta_longitude_e6 < -180000000)
+        delta_longitude_e6 += 360000000;
+    while (delta_longitude_e6 > 180000000)
+        delta_longitude_e6 -= 360000000;
+    if (delta_longitude_e6 < -90000000 ||
+        delta_longitude_e6 > 90000000)
+        return; /* Correctly hidden on the far side of the Earth. */
+
+    latitude_mdeg = mar_sync.location_latitude_e6 / 1000;
+    longitude_mdeg = delta_longitude_e6 / 1000;
+    sin_latitude = mar_sin_mdeg_q15(latitude_mdeg);
+    cos_latitude = mar_sin_mdeg_q15(90000 -
+                                    (latitude_mdeg < 0 ? -latitude_mdeg :
+                                                         latitude_mdeg));
+    sin_longitude = mar_sin_mdeg_q15(longitude_mdeg);
+    x = LCD_WIDTH / 2 +
+        (int)(((long long)MAR_GLOBE_RADIUS * cos_latitude *
+               sin_longitude) / (32768LL * 32768LL));
+    y = MAR_MAP_Y + MAR_SAT_H / 2 -
+        (MAR_GLOBE_RADIUS * sin_latitude) / 32768;
+
+    mar_color(LCD_RGBPACK(159, 210, 249));
+    xlcd_fillcircle(x, y, 6);
+    mar_color(LCD_WHITE);
+    xlcd_fillcircle(x, y, 4);
+    mar_color(LCD_RGBPACK(0, 122, 255));
+    xlcd_fillcircle(x, y, 2);
+    rb->lcd_getstringsize("My Location", &text_w, &text_h);
+    label_x = x + 8;
+    if (label_x + text_w > LCD_WIDTH - 4)
+        label_x = x - text_w - 8;
+    mar_halo(label_x, y - text_h / 2, "My Location", LCD_WHITE,
+             LCD_RGBPACK(0, 86, 204));
 }
 
 static void mar_color(unsigned color)
@@ -698,6 +1080,9 @@ static void mar_color(unsigned color)
 static void mar_halo(int x, int y, const char *text, unsigned color,
                      unsigned halo)
 {
+    int drawmode = rb->lcd_get_drawmode();
+
+    rb->lcd_set_drawmode(DRMODE_FG);
     mar_color(halo);
     rb->lcd_putsxy(x - 1, y, text);
     rb->lcd_putsxy(x + 1, y, text);
@@ -705,6 +1090,65 @@ static void mar_halo(int x, int y, const char *text, unsigned color,
     rb->lcd_putsxy(x, y + 1, text);
     mar_color(color);
     rb->lcd_putsxy(x, y, text);
+    rb->lcd_set_drawmode(drawmode);
+}
+
+static int mar_maki_icon_for_kind(char kind)
+{
+    switch (kind) {
+    case 'd': return 1; /* bar */
+    case 'a': return 2; /* attraction */
+    case 's': return 3; /* lodging */
+    case 'g': return 4; /* fuel */
+    case 'h': return 5; /* hospital */
+    default:  return 0; /* restaurant */
+    }
+}
+
+static void mar_draw_maki_icon(int center_x, int center_y, int icon,
+                               unsigned color)
+{
+    int x;
+    int y;
+    int left = center_x - MAR_POI_ICON_SIZE / 2;
+    int top = center_y - MAR_POI_ICON_SIZE / 2;
+
+    if (icon < 0 || icon >= (int)ARRAYLEN(mar_maki_icons))
+        return;
+    /* Downsample the licensed 15px Maki mask to a compact cartographic mark.
+     * The one-pixel keyline keeps it readable without dominating the map. */
+    mar_color(LCD_WHITE);
+    for (y = 0; y < MAR_POI_ICON_SIZE; y++) {
+        int source_y = (y * 15 + MAR_POI_ICON_SIZE / 2) /
+                       MAR_POI_ICON_SIZE;
+        unsigned short row = mar_maki_icons[icon][MIN(source_y, 14)];
+
+        for (x = 0; x < MAR_POI_ICON_SIZE; x++) {
+            int source_x = (x * 15 + MAR_POI_ICON_SIZE / 2) /
+                           MAR_POI_ICON_SIZE;
+
+            if (!(row & (1u << MIN(source_x, 14))))
+                continue;
+            rb->lcd_drawpixel(left + x - 1, top + y);
+            rb->lcd_drawpixel(left + x + 1, top + y);
+            rb->lcd_drawpixel(left + x, top + y - 1);
+            rb->lcd_drawpixel(left + x, top + y + 1);
+        }
+    }
+    mar_color(color);
+    for (y = 0; y < MAR_POI_ICON_SIZE; y++) {
+        int source_y = (y * 15 + MAR_POI_ICON_SIZE / 2) /
+                       MAR_POI_ICON_SIZE;
+        unsigned short row = mar_maki_icons[icon][MIN(source_y, 14)];
+
+        for (x = 0; x < MAR_POI_ICON_SIZE; x++) {
+            int source_x = (x * 15 + MAR_POI_ICON_SIZE / 2) /
+                           MAR_POI_ICON_SIZE;
+
+            if (row & (1u << MIN(source_x, 14)))
+                rb->lcd_drawpixel(left + x, top + y);
+        }
+    }
 }
 
 static void mar_fill_shape(const struct mar_view *view,
@@ -719,10 +1163,13 @@ static void mar_fill_shape(const struct mar_view *view,
         int i;
 
         for (i = 0; i < shape->count - 1 && n < (int)ARRAYLEN(xs); i++) {
-            int x0 = mar_x(view, shape->points[i * 2]);
-            int y0 = mar_y(view, shape->points[i * 2 + 1]);
-            int x1 = mar_x(view, shape->points[i * 2 + 2]);
-            int y1 = mar_y(view, shape->points[i * 2 + 3]);
+            int x0 = mar_x(view, shape->points[i * 2] * MAR_REFERENCE_SCALE);
+            int y0 = mar_y(view, shape->points[i * 2 + 1] *
+                           MAR_REFERENCE_SCALE);
+            int x1 = mar_x(view, shape->points[i * 2 + 2] *
+                           MAR_REFERENCE_SCALE);
+            int y1 = mar_y(view, shape->points[i * 2 + 3] *
+                           MAR_REFERENCE_SCALE);
 
             if ((y0 <= y && y1 > y) || (y1 <= y && y0 > y))
                 xs[n++] = x0 + (int)(((long)(y - y0) * (x1 - x0)) / (y1 - y0));
@@ -761,10 +1208,10 @@ static void mar_stroke(const struct mar_view *view, const int16_t *points,
 
     mar_color(color);
     for (i = 0; i < count - 1; i++) {
-        int x0 = mar_x(view, points[i * 2]);
-        int y0 = mar_y(view, points[i * 2 + 1]);
-        int x1 = mar_x(view, points[i * 2 + 2]);
-        int y1 = mar_y(view, points[i * 2 + 3]);
+        int x0 = mar_x(view, points[i * 2] * MAR_REFERENCE_SCALE);
+        int y0 = mar_y(view, points[i * 2 + 1] * MAR_REFERENCE_SCALE);
+        int x1 = mar_x(view, points[i * 2 + 2] * MAR_REFERENCE_SCALE);
+        int y1 = mar_y(view, points[i * 2 + 3] * MAR_REFERENCE_SCALE);
         int w;
 
         for (w = 0; w < width; w++) {
@@ -807,8 +1254,8 @@ static int mar_destination_at(int ordinal)
 static void mar_focus_place(struct mar_view *view, int place_index)
 {
     mar_place_to_world(place_index, &view->center_x, &view->center_y);
-    if (view->zoom < 2)
-        view->zoom = 2;
+    if (view->zoom < MAR_CITY_FOCUS_ZOOM)
+        view->zoom = MAR_CITY_FOCUS_ZOOM;
     view->selected_place = place_index;
     view->screen = MAR_SCREEN_MAP;
 }
@@ -887,7 +1334,9 @@ static void mar_draw_places(const struct mar_view *view)
         int text_w;
         unsigned color;
 
-        if (view->zoom < place->min_zoom || !view->labels)
+        if (view->zoom < place->min_zoom || !view->labels ||
+            (view->mode == MAR_MODE_SATELLITE &&
+             mar_place_geo[i].latitude_e6 == 0))
             continue;
         int world_x;
         int world_y;
@@ -922,6 +1371,47 @@ static void mar_draw_places(const struct mar_view *view)
                  view->mode == MAR_MODE_SATELLITE ||
                  view->mode == MAR_MODE_NIGHT ? LCD_RGBPACK(25, 42, 31) :
                  LCD_RGBPACK(255, 255, 255));
+    }
+}
+
+static void mar_draw_world_scene_pins(const struct mar_view *view)
+{
+    unsigned i;
+    int text_h;
+    int unused;
+
+    if (view->zoom < 2 || !view->labels)
+        return;
+    rb->lcd_getstringsize("M", &unused, &text_h);
+    for (i = 0; i < ARRAYLEN(mar_world_scenes); i++) {
+        const struct mar_world_scene *scene = &mar_world_scenes[i];
+        int world_x;
+        int world_y;
+        int x;
+        int y;
+        bool location_overlap = false;
+
+        mar_geo_to_world(scene->latitude_e6, scene->longitude_e6,
+                         &world_x, &world_y);
+        x = mar_x(view, world_x);
+        y = mar_y(view, world_y);
+        if (x < -70 || x > LCD_WIDTH + 30 ||
+            y < MAR_MAP_Y || y > LCD_HEIGHT - text_h)
+            continue;
+        mar_draw_maki_icon(x, y, 6,
+                           scene->video ? LCD_RGBPACK(255, 149, 0) : MAR_BLUE);
+        if (mar_sync.has_location) {
+            int location_x = mar_x(view, mar_sync.location_x);
+            int location_y = mar_y(view, mar_sync.location_y);
+
+            location_overlap = (x > location_x ? x - location_x :
+                                location_x - x) < 80 &&
+                               (y > location_y ? y - location_y :
+                                location_y - y) < text_h + 3;
+        }
+        if (view->zoom >= 5 && !location_overlap)
+            mar_halo(x + 7, y - text_h / 2, scene->name, LCD_WHITE,
+                     LCD_RGBPACK(25, 42, 31));
     }
 }
 
@@ -972,8 +1462,10 @@ static void mar_draw_synced_items(const struct mar_view *view)
 {
     int i;
 
-    if (view->zoom == 0)
+    if (view->zoom == 0) {
+        mar_draw_globe_location();
         return;
+    }
 
     if (mar_sync.route_count > 1) {
         mar_color(LCD_RGBPACK(0, 122, 255));
@@ -1014,92 +1506,255 @@ static void mar_draw_synced_items(const struct mar_view *view)
             rb->lcd_fillrect(x - 1, y - 1, 3, 3);
         }
     }
+    if (view->zoom >= 9) {
+        bool occupied[18][10];
+        int nearest = -1;
+        long long nearest_d2 = LLONG_MAX;
+        int drawn = 0;
+
+        rb->memset(occupied, 0, sizeof(occupied));
+        /* Choose one label by proximity to the screen centre. The complete
+         * synced POI set remains available as licensed category artwork, but
+         * a dense downtown can never turn into a wall of repeated names. */
+        for (i = 0; i < mar_sync.poi_count; i++) {
+            int x = mar_x(view, mar_sync.poi_x[i]);
+            int y = mar_y(view, mar_sync.poi_y[i]);
+            long long dx;
+            long long dy;
+            long long d2;
+
+            if (x < 8 || x >= LCD_WIDTH - 8 ||
+                y < MAR_MAP_Y + 8 || y >= MAR_MAP_Y + MAR_SAT_H - 8)
+                continue;
+            dx = x - LCD_WIDTH / 2;
+            dy = y - (MAR_MAP_Y + MAR_SAT_H / 2);
+            d2 = dx * dx + dy * dy;
+            if (d2 < nearest_d2) {
+                nearest = i;
+                nearest_d2 = d2;
+            }
+        }
+        for (i = 0; i < mar_sync.poi_count && drawn < 18; i++) {
+            int x = mar_x(view, mar_sync.poi_x[i]);
+            int y = mar_y(view, mar_sync.poi_y[i]);
+            int gx;
+            int gy;
+            unsigned color;
+
+            if (x < 8 || x >= LCD_WIDTH - 8 ||
+                y < MAR_MAP_Y + 8 || y >= MAR_MAP_Y + MAR_SAT_H - 8)
+                continue;
+            gx = MIN(17, MAX(0, x / 18));
+            gy = MIN(9, MAX(0, (y - MAR_MAP_Y) / 16));
+            if (occupied[gx][gy] && i != nearest)
+                continue;
+            occupied[gx][gy] = true;
+            switch (mar_sync.poi_kind[i]) {
+            case 'd':
+                color = LCD_RGBPACK(151, 71, 190);
+                break;
+            case 'a':
+                color = LCD_RGBPACK(224, 71, 70);
+                break;
+            case 's':
+                color = LCD_RGBPACK(40, 116, 210);
+                break;
+            case 'g':
+                color = LCD_RGBPACK(92, 101, 107);
+                break;
+            case 'h':
+                color = LCD_RGBPACK(52, 164, 86);
+                break;
+            default:
+                color = LCD_RGBPACK(244, 142, 37);
+                break;
+            }
+            mar_draw_maki_icon(x, y,
+                               mar_maki_icon_for_kind(mar_sync.poi_kind[i]),
+                               color);
+            drawn++;
+        }
+        if (view->zoom >= 12 && nearest >= 0) {
+            int x = mar_x(view, mar_sync.poi_x[nearest]);
+            int y = mar_y(view, mar_sync.poi_y[nearest]);
+            int text_w;
+            int text_h;
+            int label_x;
+
+            rb->lcd_getstringsize(mar_sync.poi_name[nearest], &text_w, &text_h);
+            label_x = x + 11;
+            if (label_x + text_w >= LCD_WIDTH - 4)
+                label_x = x - text_w - 11;
+            mar_halo(label_x, MAX(MAR_MAP_Y + 2, y - text_h / 2),
+                     mar_sync.poi_name[nearest], LCD_WHITE,
+                     LCD_RGBPACK(25, 42, 31));
+        }
+    }
     if (mar_sync.has_location) {
         int x = mar_x(view, mar_sync.location_x);
         int y = mar_y(view, mar_sync.location_y);
+        int text_w;
+        int text_h;
+        int label_x;
+        int label_y;
+        int radius = view->zoom >= 12 ? 13 : view->zoom >= 9 ? 8 : 5;
+        const char *label = "My Location";
 
-        /* The soft accuracy ring and centered dot keep the familiar stock
-         * Maps location treatment legible over either aerial imagery. */
+        /* A deliberately prominent beacon and direct label distinguish the
+         * synced position from nearby-place artwork. At regional zooms the
+         * point contracts so its footprint does not imply a huge area. */
         mar_color(LCD_RGBPACK(159, 210, 249));
-        xlcd_drawcircle(x, y, 7);
+        xlcd_fillcircle(x, y, radius);
         mar_color(LCD_WHITE);
-        xlcd_drawcircle(x, y, 5);
+        xlcd_fillcircle(x, y, MAX(2, radius - 3));
         mar_color(LCD_RGBPACK(0, 122, 255));
-        rb->lcd_fillrect(x - 3, y - 3, 7, 7);
+        xlcd_fillcircle(x, y, MAX(1, radius - 5));
         mar_color(LCD_WHITE);
-        rb->lcd_fillrect(x - 2, y - 2, 5, 5);
+        if (radius >= 8)
+            xlcd_fillcircle(x, y, 1);
+
+        if (view->zoom >= 6) {
+            rb->lcd_getstringsize(label, &text_w, &text_h);
+            label_x = x + radius + 2;
+            if (label_x + text_w + 8 > LCD_WIDTH - 3)
+                label_x = x - text_w - radius - 2;
+            label_y = y - text_h / 2;
+            label_y = MAX(MAR_MAP_Y + 2,
+                          MIN(label_y, MAR_MAP_Y + MAR_SAT_H - text_h - 2));
+            mar_halo(label_x, label_y, label, LCD_WHITE,
+                     LCD_RGBPACK(0, 86, 204));
+        }
+    }
+}
+
+static void mar_draw_menu_header(const char *title, const char *back)
+{
+    int y;
+    int title_w;
+
+    for (y = MAR_MAP_Y; y < 53; y++) {
+        int shade = 246 - ((y - MAR_MAP_Y) * 34) / 31;
+
+        mar_color(LCD_RGBPACK(shade, shade + 1, shade + 2));
+        rb->lcd_hline(0, LCD_WIDTH - 1, y);
+    }
+    mar_color(LCD_RGBPACK(166, 170, 173));
+    rb->lcd_hline(0, LCD_WIDTH - 1, 52);
+    rb->lcd_set_drawmode(DRMODE_FG);
+    mar_color(MAR_TEXT);
+    rb->lcd_getstringsize(title, &title_w, NULL);
+    rb->lcd_putsxy((LCD_WIDTH - title_w) / 2, 34, title);
+    if (back) {
+        mar_color(MAR_BLUE);
+        rb->lcd_putsxy(10, 34, "<");
+        rb->lcd_putsxy(20, 34, back);
+    }
+}
+
+static void mar_draw_chevron(int x, int y, unsigned color)
+{
+    int i;
+
+    mar_color(color);
+    for (i = 0; i < 4; i++) {
+        rb->lcd_drawpixel(x + i, y - 4 + i);
+        rb->lcd_drawpixel(x + i, y + 4 - i);
     }
 }
 
 static void mar_draw_explore(const struct mar_view *view)
 {
-    int count = mar_destination_count();
-    int first = MAX(0, view->browse_index - 3);
+    int count = mar_destination_count() + 1;
+    int first = MAX(0, view->browse_index - 6);
     int last = MIN(count, first + 7);
     int i;
-    int y = 96;
-    unsigned bg = view->mode == MAR_MODE_NIGHT ? LCD_RGBPACK(31, 39, 43) :
-                  LCD_RGBPACK(250, 250, 250);
-    unsigned text = view->mode == MAR_MODE_NIGHT ? LCD_RGBPACK(239, 243, 244) :
-                    MAR_TEXT;
+    int y = 55;
 
-    mar_color(bg);
-    rb->lcd_fillrect(0, 70, LCD_WIDTH, LCD_HEIGHT - 70);
-    mar_color(view->mode == MAR_MODE_NIGHT ? LCD_RGBPACK(92, 111, 118) :
-              LCD_RGBPACK(213, 216, 218));
-    rb->lcd_hline(0, LCD_WIDTH - 1, 70);
-    mar_color(text);
-    rb->lcd_putsxy(12, 78, "Explore Maritimes");
-    mar_color(view->mode == MAR_MODE_NIGHT ? LCD_RGBPACK(164, 182, 189) :
-              LCD_RGBPACK(106, 111, 114));
-    rb->lcd_putsxy(12, 86, "Select map  Right detail  Left dashcams");
+    mar_color(LCD_RGBPACK(250, 250, 250));
+    rb->lcd_fillrect(0, MAR_MAP_Y, LCD_WIDTH, LCD_HEIGHT - MAR_MAP_Y);
+    mar_draw_menu_header("Explore", "Maps");
+    rb->lcd_set_drawmode(DRMODE_FG);
 
-    for (i = first; i < last; i++, y += 20) {
-        int place_index = mar_destination_at(i);
-        const struct mar_place *place = &mar_places[place_index];
+    for (i = first; i < last; i++, y += 26) {
+        const char *name;
+        const char *value;
+        bool chevron = true;
+
+        if (i == 0) {
+            name = "Look Around";
+            value = "Dashcams & 360";
+        } else {
+            int place_index = mar_destination_at(i - 1);
+            const struct mar_place *place = &mar_places[place_index];
+
+            name = place->name;
+            value = mar_street_path(place_index) ? "Detail" :
+                                                    mar_place_type(place);
+            chevron = false;
+        }
 
         if (i == view->browse_index) {
             mar_color(MAR_BLUE);
-            rb->lcd_fillrect(7, y - 1, LCD_WIDTH - 14, 18);
+            rb->lcd_fillrect(5, y, LCD_WIDTH - 10, 25);
         }
-        mar_color(i == view->browse_index ? LCD_WHITE : text);
-        rb->lcd_putsxy(15, y + 1, place->name);
+        mar_color(i == view->browse_index ? LCD_WHITE : MAR_TEXT);
+        rb->lcd_putsxy(13, y + 8, name);
         mar_color(i == view->browse_index ? LCD_RGBPACK(218, 235, 255) :
                   LCD_RGBPACK(117, 123, 126));
-        rb->lcd_putsxy(184, y + 1, mar_place_type(place));
+        rb->lcd_putsxy(i == 0 ? 202 : 250, y + 8, value);
+        if (chevron)
+            mar_draw_chevron(LCD_WIDTH - 17, y + 13,
+                              i == view->browse_index ? LCD_WHITE :
+                              LCD_RGBPACK(128, 132, 135));
+        if (i != view->browse_index) {
+            mar_color(LCD_RGBPACK(220, 222, 224));
+            rb->lcd_hline(12, LCD_WIDTH - 1, y + 25);
+        }
     }
 }
 
 static void mar_draw_world(const struct mar_view *view)
 {
     int selected = view->browse_index;
-    int first = MAX(0, selected - 3);
-    int last = MIN(mar_world_scene_count(), first + 4);
+    int first = MAX(0, selected - 4);
+    int last = MIN(mar_world_scene_count(), first + 5);
     int i;
-    int y = 105;
+    int y = 55;
+
     mar_color(LCD_RGBPACK(250, 250, 250));
-    rb->lcd_fillrect(0, 70, LCD_WIDTH, LCD_HEIGHT - 70);
-    mar_color(LCD_RGBPACK(213, 216, 218));
-    rb->lcd_hline(0, LCD_WIDTH - 1, 70);
-    mar_color(MAR_TEXT);
-    rb->lcd_putsxy(12, 78, "World Look Around");
-    mar_color(LCD_RGBPACK(106, 111, 114));
-    rb->lcd_putsxy(12, 87, "Offline real street imagery");
-    for (i = first; i < last; i++, y += 35) {
+    rb->lcd_fillrect(0, MAR_MAP_Y, LCD_WIDTH, LCD_HEIGHT - MAR_MAP_Y);
+    mar_draw_menu_header("Look Around", "Explore");
+    rb->lcd_set_drawmode(DRMODE_FG);
+    for (i = first; i < last; i++, y += 36) {
         int scene_index = mar_world_scene_at(i);
         const struct mar_world_scene *scene = scene_index >= 0 ?
             &mar_world_scenes[scene_index] : NULL;
+        bool available = scene_index >= 0 &&
+                         mar_world_scene_available[scene_index];
         if (!scene)
             continue;
         if (i == selected) {
             mar_color(MAR_BLUE);
-            rb->lcd_fillrect(7, y, LCD_WIDTH - 14, 28);
+            rb->lcd_fillrect(5, y, LCD_WIDTH - 10, 35);
         }
-        mar_color(i == selected ? LCD_WHITE : MAR_TEXT);
+        mar_color(i == selected ? LCD_WHITE :
+                  available ? MAR_TEXT : LCD_RGBPACK(139, 143, 146));
         rb->lcd_putsxy(15, y + 5, scene->name);
         mar_color(i == selected ? LCD_RGBPACK(218, 235, 255) :
                   LCD_RGBPACK(106, 111, 114));
         rb->lcd_putsxy(15, y + 15, scene->detail);
+        if (!available) {
+            mar_color(i == selected ? LCD_WHITE :
+                      LCD_RGBPACK(139, 143, 146));
+            rb->lcd_putsxy(267, y + 5, "Sync");
+        }
+        mar_draw_chevron(LCD_WIDTH - 17, y + 18,
+                          i == selected ? LCD_WHITE :
+                          LCD_RGBPACK(128, 132, 135));
+        if (i != selected) {
+            mar_color(LCD_RGBPACK(220, 222, 224));
+            rb->lcd_hline(12, LCD_WIDTH - 1, y + 35);
+        }
     }
     (void)view;
 }
@@ -1115,6 +1770,7 @@ static void mar_draw_status(const struct mar_view *view)
     struct tm *now = rb->get_time();
     char time_text[12];
     char zoom_text[24];
+    char coordinate_text[64];
     int hour = now ? now->tm_hour : 9;
     int minute = now ? now->tm_min : 41;
 
@@ -1123,8 +1779,8 @@ static void mar_draw_status(const struct mar_view *view)
     else if (hour > 12)
         hour -= 12;
     rb->snprintf(time_text, sizeof(time_text), "%d:%02d", hour, minute);
-    rb->snprintf(zoom_text, sizeof(zoom_text), "%s  %dx", mar_mode_name(view->mode),
-                 view->zoom + 1);
+    rb->snprintf(zoom_text, sizeof(zoom_text), "%s  %dx",
+                 mar_mode_name(view->mode), 1 << view->zoom);
 
     mar_color(LCD_WHITE);
     rb->lcd_fillrect(0, 0, LCD_WIDTH, MAR_MAP_Y);
@@ -1146,11 +1802,47 @@ static void mar_draw_status(const struct mar_view *view)
         rb->lcd_fillrect(0, LCD_HEIGHT - 28, LCD_WIDTH, 28);
         mar_color(LCD_RGBPACK(218, 225, 229));
         rb->lcd_hline(0, LCD_WIDTH - 1, LCD_HEIGHT - 28);
-        mar_color(MAR_TEXT);
-        rb->lcd_putsxy(14, LCD_HEIGHT - 20, "Earth");
+        mar_color(mar_sync.has_location ? MAR_BLUE : MAR_TEXT);
+        rb->lcd_putsxy(14, LCD_HEIGHT - 20,
+                       mar_sync.has_location ? "My Location" : "Earth");
         mar_color(LCD_RGBPACK(96, 103, 107));
-        rb->lcd_putsxy(14, LCD_HEIGHT - 11, "Satellite globe");
+        rb->lcd_putsxy(14, LCD_HEIGHT - 11,
+                       mar_sync.has_location ? mar_sync.location_name :
+                                               "Satellite globe");
     } else {
+        if (view->screen == MAR_SCREEN_MAP) {
+            mar_color(LCD_RGBPACK(248, 251, 253));
+            rb->lcd_fillrect(0, MAR_MAP_Y + MAR_SAT_H, LCD_WIDTH,
+                             LCD_HEIGHT - MAR_MAP_Y - MAR_SAT_H);
+            mar_color(LCD_RGBPACK(218, 225, 229));
+            rb->lcd_hline(0, LCD_WIDTH - 1, MAR_MAP_Y + MAR_SAT_H);
+            if (mar_sync.has_location) {
+                int lat = mar_sync.location_latitude_e6;
+                int lon = mar_sync.location_longitude_e6;
+                int lat_abs = lat < 0 ? -lat : lat;
+                int lon_abs = lon < 0 ? -lon : lon;
+
+                /* Stock Maps-style hierarchy: a blue section title, the
+                 * complete civic label, then quiet precision metadata. */
+                mar_color(MAR_BLUE);
+                xlcd_fillcircle(15, MAR_MAP_Y + MAR_SAT_H + 8, 3);
+                rb->lcd_putsxy(23, MAR_MAP_Y + MAR_SAT_H + 4,
+                               "My Location");
+                mar_color(MAR_TEXT);
+                rb->lcd_putsxy(14, MAR_MAP_Y + MAR_SAT_H + 15,
+                               mar_sync.location_name);
+                rb->snprintf(coordinate_text, sizeof(coordinate_text),
+                             "%c%d.%04d, %c%d.%04d  %d nearby",
+                             lat < 0 ? '-' : '+', lat_abs / 1000000,
+                             (lat_abs % 1000000) / 100,
+                             lon < 0 ? '-' : '+', lon_abs / 1000000,
+                             (lon_abs % 1000000) / 100,
+                             mar_sync.poi_count);
+                mar_color(LCD_RGBPACK(96, 103, 107));
+                rb->lcd_putsxy(14, MAR_MAP_Y + MAR_SAT_H + 26,
+                               coordinate_text);
+            }
+        }
         mar_color(view->mode == MAR_MODE_NIGHT ? LCD_RGBPACK(38, 47, 52) :
                   LCD_RGBPACK(255, 255, 255));
         rb->lcd_fillrect(8, LCD_HEIGHT - 20, 116, 14);
@@ -1166,7 +1858,10 @@ static void mar_draw_status(const struct mar_view *view)
 static void mar_draw_map_controls(const struct mar_view *view)
 {
     static const char * const scale_names[] = {
-        "Earth", "200 km", "100 km", "60 km", "40 km", "25 km"
+        "Earth", "20,000 km", "10,000 km", "5,000 km", "2,500 km",
+        "1,250 km", "625 km", "310 km", "155 km", "78 km", "39 km",
+        "20 km", "10 km", "5 km", "2.5 km", "1.25 km", "625 m",
+        "310 m", "155 m"
     };
     unsigned panel = LCD_RGBPACK(255, 255, 255);
     unsigned border = LCD_RGBPACK(211, 216, 218);
@@ -1185,11 +1880,11 @@ static void mar_draw_map_controls(const struct mar_view *view)
     rb->lcd_putsxy(x + 10, 63, "-");
 
     mar_color(panel);
-    rb->lcd_fillrect(LCD_WIDTH - 70, LCD_HEIGHT - 39, 62, 14);
+    rb->lcd_fillrect(LCD_WIDTH - 70, LCD_HEIGHT - 20, 62, 14);
     mar_color(border);
-    rb->lcd_drawrect(LCD_WIDTH - 70, LCD_HEIGHT - 39, 62, 14);
+    rb->lcd_drawrect(LCD_WIDTH - 70, LCD_HEIGHT - 20, 62, 14);
     mar_color(text);
-    rb->lcd_putsxy(LCD_WIDTH - 64, LCD_HEIGHT - 36,
+    rb->lcd_putsxy(LCD_WIDTH - 64, LCD_HEIGHT - 17,
                    scale_names[view->zoom]);
 }
 
@@ -1229,28 +1924,19 @@ static bool mar_load_street(int place_index)
 
 static bool mar_load_lookaround(int scene)
 {
-    static const char * const times_square_paths[] = {
-        MAR_TIMES_SQUARE_NORTH_PATH, MAR_TIMES_SQUARE_EAST_PATH,
-        MAR_TIMES_SQUARE_SOUTH_PATH, MAR_TIMES_SQUARE_WEST_PATH
-    };
-    static const char * const toronto_paths[] = {
-        ROCKBOX_DIR "/maps/toronto_360_north.rgb",
-        ROCKBOX_DIR "/maps/toronto_360_east.rgb",
-        ROCKBOX_DIR "/maps/toronto_360_south.rgb",
-        ROCKBOX_DIR "/maps/toronto_360_west.rgb"
-    };
-    const char * const *paths = scene == MAR_SCENE_TIMES_SQUARE ?
-                               times_square_paths :
-                               scene == MAR_SCENE_TORONTO_360 ?
-                               toronto_paths : NULL;
+    int panorama = mar_panorama_index(scene);
     int i;
 
-    if (!paths)
+    if (panorama < 0)
         return false;
     if (mar_lookaround_scene == scene)
         return true;
+    /* The panorama and map tiles are two views of the same bounded cache.
+     * Invalidate map ownership before the first panorama byte is written. */
+    mar_satellite_zoom = -1;
+    mar_lookaround_scene = MAR_SCENE_NONE;
     for (i = 0; i < 4; i++) {
-        int fd = rb->open(paths[i], O_RDONLY);
+        int fd = rb->open(mar_panoramas[panorama].path[i], O_RDONLY);
         ssize_t got;
 
         if (fd < 0)
@@ -1262,13 +1948,43 @@ static bool mar_load_lookaround(int scene)
             return false;
     }
     mar_lookaround_scene = scene;
-    mar_satellite_zoom = -1;
     return true;
+}
+
+/* Slide between already-cached directions. This performs no storage access,
+ * allocation, or framebuffer ownership transfer; it only reveals pixels from
+ * the two real views over a short, elapsed frame sequence. */
+static void mar_draw_lookaround_transition(int from, int to, int direction,
+                                           int frame)
+{
+    int offset = (LCD_WIDTH * frame) / MAR_PAN_FRAMES;
+
+    rb->lcd_set_drawmode(DRMODE_SOLID);
+    if (direction > 0) {
+        if (offset < LCD_WIDTH)
+            rb->lcd_bitmap_part(mar_visual_cache.lookaround[from],
+                                offset, 0, LCD_WIDTH, 0, MAR_MAP_Y,
+                                LCD_WIDTH - offset, MAR_STREET_H);
+        if (offset > 0)
+            rb->lcd_bitmap_part(mar_visual_cache.lookaround[to], 0, 0,
+                                LCD_WIDTH, LCD_WIDTH - offset, MAR_MAP_Y,
+                                offset, MAR_STREET_H);
+    } else {
+        if (offset < LCD_WIDTH)
+            rb->lcd_bitmap_part(mar_visual_cache.lookaround[from], 0, 0,
+                                LCD_WIDTH, offset, MAR_MAP_Y,
+                                LCD_WIDTH - offset, MAR_STREET_H);
+        if (offset > 0)
+            rb->lcd_bitmap_part(mar_visual_cache.lookaround[to],
+                                LCD_WIDTH - offset, 0, LCD_WIDTH,
+                                0, MAR_MAP_Y, offset, MAR_STREET_H);
+    }
 }
 
 static int mar_world_frame_count(int scene)
 {
-    return scene == MAR_SCENE_TORONTO ? 3 :
+    return scene == MAR_SCENE_MONCTON_DASHCAM ? 8 :
+           scene == MAR_SCENE_TORONTO ? 3 :
            scene == MAR_SCENE_FREDERICTON ? 2 : 1;
 }
 
@@ -1283,11 +1999,25 @@ static bool mar_load_world_dashcam(int scene, int frame)
         ROCKBOX_DIR "/maps/fredericton_panoramax_0.rgb",
         ROCKBOX_DIR "/maps/fredericton_panoramax_1.rgb"
     };
+    static const char * const moncton_paths[] = {
+        ROCKBOX_DIR "/maps/moncton_dashcam_0.rgb",
+        ROCKBOX_DIR "/maps/moncton_dashcam_1.rgb",
+        ROCKBOX_DIR "/maps/moncton_dashcam_2.rgb",
+        ROCKBOX_DIR "/maps/moncton_dashcam_3.rgb",
+        ROCKBOX_DIR "/maps/moncton_dashcam_4.rgb",
+        ROCKBOX_DIR "/maps/moncton_dashcam_5.rgb",
+        ROCKBOX_DIR "/maps/moncton_dashcam_6.rgb",
+        ROCKBOX_DIR "/maps/moncton_dashcam_7.rgb"
+    };
     const char *path;
     int fd;
     ssize_t got;
 
-    if (scene == MAR_SCENE_TORONTO) {
+    if (scene == MAR_SCENE_MONCTON_DASHCAM) {
+        if (frame < 0 || frame >= (int)ARRAYLEN(moncton_paths))
+            return false;
+        path = moncton_paths[frame];
+    } else if (scene == MAR_SCENE_TORONTO) {
         if (frame < 0 || frame >= (int)ARRAYLEN(toronto_paths))
             return false;
         path = toronto_paths[frame];
@@ -1333,6 +2063,7 @@ static bool mar_open_street(struct mar_view *view)
     if (!mar_load_street(view->selected_place))
         return false;
     view->street_scene = MAR_SCENE_NONE;
+    view->street_pan_frame = 0;
     view->screen = MAR_SCREEN_STREET;
     return true;
 }
@@ -1343,6 +2074,8 @@ static bool mar_open_street(struct mar_view *view)
 static bool mar_open_dashcam_video(const char *video)
 {
     char path[MAX_PATH];
+    char launch[MAX_PATH + sizeof(MAR_VIDEO_PLAYER_PREFIX)];
+    int status;
 
     if (!video || !*video)
         return false;
@@ -1355,14 +2088,49 @@ static bool mar_open_dashcam_video(const char *video)
         rb->splash(HZ * 2, "MPEG player missing");
         return false;
     }
-    return rb->plugin_open(MAR_VIDEO_PLAYER_PATH, path) == PLUGIN_OK;
+    rb->snprintf(launch, sizeof(launch), "%s%s", MAR_VIDEO_PLAYER_PREFIX,
+                 path);
+    status = rb->plugin_open(MAR_VIDEO_PLAYER_PATH, launch);
+    if (status == PLUGIN_GOTO_PLUGIN) {
+        mar_pending_plugin_status = PLUGIN_GOTO_PLUGIN;
+        return true;
+    }
+    return status == PLUGIN_OK;
+}
+
+static bool mar_open_world_scene(struct mar_view *view, int index)
+{
+    const struct mar_world_scene *scene;
+
+    if (index < 0 || index >= (int)ARRAYLEN(mar_world_scenes))
+        return false;
+    scene = &mar_world_scenes[index];
+    if (!mar_world_scene_available[index]) {
+        rb->splash(HZ * 2, scene->video ? "Dashcam video not synced" :
+                                        "Street imagery not installed");
+        return false;
+    }
+    if (scene->video)
+        return mar_open_dashcam_video(scene->video);
+    if (mar_is_panorama_scene(scene->scene)) {
+        if (!mar_load_lookaround(scene->scene))
+            return false;
+    } else if (!mar_load_world_dashcam(scene->scene, 0)) {
+        return false;
+    }
+    view->selected_place = -1;
+    view->street_scene = scene->scene;
+    view->street_heading = 0;
+    view->street_pan_frame = 0;
+    view->screen = MAR_SCREEN_STREET;
+    return true;
 }
 
 static int mar_nearest_world_scene(const struct mar_view *view)
 {
     unsigned i;
     int closest = -1;
-    long best_distance = LONG_MAX;
+    long long best_distance = LLONG_MAX;
 
     for (i = 0; i < ARRAYLEN(mar_world_scenes); i++) {
         const struct mar_world_scene *scene = &mar_world_scenes[i];
@@ -1370,7 +2138,7 @@ static int mar_nearest_world_scene(const struct mar_view *view)
         int y;
         int dx;
         int dy;
-        long distance;
+        long long distance;
 
         if (!mar_world_scene_available[i])
             continue;
@@ -1383,7 +2151,7 @@ static int mar_nearest_world_scene(const struct mar_view *view)
         dy = y - view->center_y;
         if (dy < 0)
             dy = -dy;
-        distance = (long)dx * dx + (long)dy * dy;
+        distance = (long long)dx * dx + (long long)dy * dy;
         if (distance < best_distance) {
             best_distance = distance;
             closest = (int)i;
@@ -1395,22 +2163,10 @@ static int mar_nearest_world_scene(const struct mar_view *view)
 static bool mar_open_nearest_world_scene(struct mar_view *view)
 {
     int index = mar_nearest_world_scene(view);
-    const struct mar_world_scene *world_scene;
-    int scene;
 
     if (index < 0)
         return false;
-    world_scene = &mar_world_scenes[index];
-    scene = world_scene->scene;
-    if (world_scene->video)
-        return mar_open_dashcam_video(world_scene->video);
-    if (!mar_load_lookaround(scene))
-        return false;
-    view->selected_place = -1;
-    view->street_scene = scene;
-    view->street_heading = 0;
-    view->screen = MAR_SCREEN_STREET;
-    return true;
+    return mar_open_world_scene(view, index);
 }
 
 static void mar_draw_street_view(const struct mar_view *view)
@@ -1424,7 +2180,7 @@ static void mar_draw_street_view(const struct mar_view *view)
 
     if (place)
         scene_name = place->name;
-    else if (view->street_scene != MAR_SCENE_TIMES_SQUARE) {
+    else {
         unsigned i;
         for (i = 0; i < ARRAYLEN(mar_world_scenes); i++) {
             if (mar_world_scenes[i].scene == view->street_scene) {
@@ -1434,13 +2190,17 @@ static void mar_draw_street_view(const struct mar_view *view)
         }
     }
 
-    if ((view->street_scene == MAR_SCENE_TIMES_SQUARE ||
-         view->street_scene == MAR_SCENE_TORONTO_360) &&
+    if (mar_is_panorama_scene(view->street_scene) &&
         mar_lookaround_scene == view->street_scene) {
         rb->lcd_set_background(LCD_RGBPACK(235, 240, 241));
         rb->lcd_clear_display();
-        rb->lcd_bitmap(mar_visual_cache.lookaround[heading], 0, MAR_MAP_Y,
-                       LCD_WIDTH, MAR_STREET_H);
+        if (view->street_pan_frame > 0)
+            mar_draw_lookaround_transition(view->street_pan_from, heading,
+                                           view->street_pan_direction,
+                                           view->street_pan_frame);
+        else
+            rb->lcd_bitmap(mar_visual_cache.lookaround[heading], 0, MAR_MAP_Y,
+                           LCD_WIDTH, MAR_STREET_H);
         mar_color(LCD_WHITE);
         rb->lcd_fillrect(0, 0, LCD_WIDTH, MAR_MAP_Y);
         mar_color(LCD_RGBPACK(213, 216, 218));
@@ -1461,8 +2221,7 @@ static void mar_draw_street_view(const struct mar_view *view)
     if ((view->street_scene == MAR_SCENE_NONE &&
          mar_street_place == view->selected_place) ||
         (view->street_scene != MAR_SCENE_NONE &&
-         view->street_scene != MAR_SCENE_TIMES_SQUARE &&
-         view->street_scene != MAR_SCENE_TORONTO_360 &&
+         !mar_is_panorama_scene(view->street_scene) &&
          mar_world_dashcam_scene == view->street_scene)) {
         rb->lcd_set_background(LCD_RGBPACK(235, 240, 241));
         rb->lcd_clear_display();
@@ -1519,6 +2278,10 @@ static void mar_draw_satellite(const struct mar_view *view)
     int origin_y = view->center_y - span_y / 2;
     int base_x;
     int base_y;
+    int tile_x0;
+    int tile_x1;
+    int tile_y0;
+    int tile_y1;
     int pixel_x;
     int pixel_y;
 
@@ -1530,14 +2293,16 @@ static void mar_draw_satellite(const struct mar_view *view)
         origin_y = 0;
     else if (origin_y > MAR_WORLD_H - span_y)
         origin_y = MAR_WORLD_H - span_y;
-    base_x = (origin_x * tiles) / MAR_WORLD_W;
-    base_y = (origin_y * tiles) / MAR_WORLD_H;
-    pixel_x = ((origin_x - (base_x * MAR_WORLD_W) / tiles) * MAR_SAT_W) /
-              MAX(1, ((base_x + 1) * MAR_WORLD_W) / tiles -
-              (base_x * MAR_WORLD_W) / tiles);
-    pixel_y = ((origin_y - (base_y * MAR_WORLD_H) / tiles) * MAR_SAT_H) /
-              MAX(1, ((base_y + 1) * MAR_WORLD_H) / tiles -
-              (base_y * MAR_WORLD_H) / tiles);
+    base_x = (int)(((long long)origin_x * tiles) / MAR_WORLD_W);
+    base_y = (int)(((long long)origin_y * tiles) / MAR_WORLD_H);
+    tile_x0 = (int)(((long long)base_x * MAR_WORLD_W) / tiles);
+    tile_x1 = (int)(((long long)(base_x + 1) * MAR_WORLD_W) / tiles);
+    tile_y0 = (int)(((long long)base_y * MAR_WORLD_H) / tiles);
+    tile_y1 = (int)(((long long)(base_y + 1) * MAR_WORLD_H) / tiles);
+    pixel_x = ((origin_x - tile_x0) * MAR_SAT_W) /
+              MAX(1, tile_x1 - tile_x0);
+    pixel_y = ((origin_y - tile_y0) * MAR_SAT_H) /
+              MAX(1, tile_y1 - tile_y0);
 
     if (view->zoom == 0) {
         /* A globe frame is a complete orthographic Earth view. Do not wrap
@@ -1568,8 +2333,11 @@ static void mar_draw_satellite(const struct mar_view *view)
 
 static void mar_render(const struct mar_view *view)
 {
-    unsigned water = LCD_RGBPACK(44, 100, 132);
-
+    rb->lcd_set_viewport(NULL);
+    rb->lcd_set_drawmode(DRMODE_SOLID);
+#if LCD_DEPTH > 1
+    rb->lcd_set_backdrop(NULL);
+#endif
     rb->lcd_setfont(FONT_SYSFIXED);
     /* Retain the vector fallback code without painting it over satellite data. */
     if (false) {
@@ -1586,6 +2354,9 @@ static void mar_render(const struct mar_view *view)
         rb->lcd_set_background(LCD_RGBPACK(220, 238, 247));
         rb->lcd_clear_display();
         mar_draw_satellite(view);
+        /* Satellite mode contains only downloaded pixels and geographic
+         * overlays. The legacy schematic city artwork is never composited. */
+        mar_draw_world_scene_pins(view);
         mar_draw_synced_items(view);
         mar_draw_selection(view);
         mar_draw_status(view);
@@ -1597,8 +2368,15 @@ static void mar_render(const struct mar_view *view)
         rb->lcd_update();
         return;
     }
-    rb->lcd_set_background(water);
+    /* Missing deep imagery is not ocean. A neutral stock-style empty state
+     * keeps geographically correct markers from appearing to float at sea
+     * while making the incomplete atlas unmistakable. */
+    rb->lcd_set_background(LCD_RGBPACK(242, 244, 245));
     rb->lcd_clear_display();
+    mar_color(LCD_RGBPACK(96, 103, 107));
+    rb->lcd_putsxy(72, MAR_MAP_Y + 59, "Satellite detail unavailable");
+    mar_color(LCD_RGBPACK(142, 147, 150));
+    rb->lcd_putsxy(78, MAR_MAP_Y + 72, "Sync this area from RockPod");
     mar_draw_synced_items(view);
     mar_draw_selection(view);
     mar_draw_status(view);
@@ -1612,27 +2390,114 @@ static void mar_render(const struct mar_view *view)
 
 static void mar_clamp(struct mar_view *view)
 {
+    int half_span;
+
     while (view->center_x < 0)
         view->center_x += MAR_WORLD_W;
     while (view->center_x >= MAR_WORLD_W)
         view->center_x -= MAR_WORLD_W;
-    if (view->center_y < 0)
-        view->center_y = 0;
-    else if (view->center_y > MAR_WORLD_H)
-        view->center_y = MAR_WORLD_H;
+    if (view->zoom == 0)
+        return;
+    half_span = (MAR_WORLD_H / (1 << view->zoom)) / 2;
+    /* The raster cannot scroll beyond its north/south edge. Clamp the map
+     * centre to the same limit so every overlay uses the exact viewport that
+     * was drawn, including immediately after a zoom-level change. */
+    if (view->center_y < half_span)
+        view->center_y = half_span;
+    else if (view->center_y > MAR_WORLD_H - half_span)
+        view->center_y = MAR_WORLD_H - half_span;
 }
 
 static int mar_pan_step(const struct mar_view *view)
 {
-    /* Six screen pixels per click; repeats remain controllable at every zoom. */
-    return MAX((6 << 8) / zoom_scale[view->zoom], 8);
+    int span = MAR_WORLD_H / (1 << view->zoom);
+
+    /* Eight screen pixels per detent, with enough fixed world precision for
+     * city-scale z12 scanning. */
+    return MAX((span * 8) / MAR_SAT_H, 1);
+}
+
+#ifdef HAVE_WHEEL_POSITION
+static void mar_touch_pan_reset(struct mar_touch_pan *touch)
+{
+    touch->zone = -1;
+    touch->since = 0;
+    touch->last_pan = 0;
+}
+
+static bool mar_touch_pan_map(struct mar_view *view,
+                              struct mar_touch_pan *touch, int button)
+{
+    int clean = button & ~(BUTTON_REPEAT | BUTTON_REL);
+    int wheel;
+    int zone;
+    int step;
+    long now = *rb->current_tick;
+
+    if (clean == BUTTON_SCROLL_FWD || clean == BUTTON_SCROLL_BACK) {
+        touch->zoom_guard = now + MAR_TOUCH_ZOOM_GUARD;
+        mar_touch_pan_reset(touch);
+        return false;
+    }
+    wheel = rb->wheel_status();
+    if (wheel < 0 ||
+        (rb->button_status() & (BUTTON_MENU | BUTTON_PLAY | BUTTON_LEFT |
+                                BUTTON_RIGHT | BUTTON_SELECT)) != 0) {
+        mar_touch_pan_reset(touch);
+        return false;
+    }
+    if (TIME_BEFORE(now, touch->zoom_guard))
+        return false;
+
+    /* Position 0 is the top of the ring, then clockwise through right,
+     * bottom and left. A stationary, unpressed finger pans in that compass
+     * direction; rotating the wheel continues to generate zoom events. */
+    zone = ((wheel + 12) / 24) & 3;
+    if (zone != touch->zone) {
+        touch->zone = zone;
+        touch->since = now;
+        touch->last_pan = now;
+        return false;
+    }
+    if (TIME_BEFORE(now, touch->since + MAR_TOUCH_PAN_DELAY) ||
+        TIME_BEFORE(now, touch->last_pan + MAR_TOUCH_PAN_INTERVAL))
+        return false;
+    touch->last_pan = now;
+    step = MAX(mar_pan_step(view) / 4, 1);
+    if (zone == 0)
+        view->center_y -= step;
+    else if (zone == 1)
+        view->center_x += step;
+    else if (zone == 2)
+        view->center_y += step;
+    else
+        view->center_x -= step;
+    mar_clamp(view);
+    (void)mar_load_satellite(view);
+    return true;
+}
+#endif
+
+static void mar_return_to_synced_location(struct mar_view *view)
+{
+    if (!mar_sync.has_location)
+        return;
+    view->center_x = mar_sync.location_x;
+    view->center_y = mar_sync.location_y;
+    view->zoom = MAR_START_LOCATION_ZOOM;
+    view->selected_place = -1;
+    view->street_scene = MAR_SCENE_NONE;
+    view->street_pan_frame = 0;
+    view->screen = MAR_SCREEN_MAP;
+    mar_clamp(view);
+    (void)mar_load_satellite(view);
 }
 
 static enum plugin_status mar_main(void)
 {
     struct mar_view view = {
-        .center_x = 3200,
-        .center_y = 2346,
+        .center_x = 3200 * MAR_REFERENCE_SCALE,
+        .center_y = 2346 * MAR_REFERENCE_SCALE,
         .zoom = 0,
         .mode = MAR_MODE_SATELLITE,
         .labels = true,
@@ -1640,17 +2505,35 @@ static enum plugin_status mar_main(void)
         .browse_index = 0,
         .street_heading = 0,
         .street_scene = MAR_SCENE_NONE,
+        .street_pan_from = 0,
+        .street_pan_direction = 0,
+        .street_pan_frame = 0,
         .screen = MAR_SCREEN_MAP,
     };
     bool dirty = true;
+    bool select_long_handled = false;
+    long last_zoom_tick = -HZ;
+#ifdef HAVE_WHEEL_POSITION
+    struct mar_touch_pan touch = {
+        .zone = -1,
+        .since = 0,
+        .last_pan = 0,
+        .zoom_guard = 0,
+    };
+#endif
+
+    mar_pending_plugin_status = PLUGIN_OK;
 
 #if LCD_DEPTH > 1
     rb->lcd_set_backdrop(NULL);
 #endif
-    (void)mar_load_satellite(&view);
     mar_load_sync();
+    if (mar_sync.has_location)
+        mar_return_to_synced_location(&view);
+    else
+        (void)mar_load_satellite(&view);
     mar_update_world_scene_availability();
-    /* Do not interpret the launcher wheel release as an immediate zoom. */
+    /* Do not interpret the launcher wheel release as an immediate pan. */
     rb->button_clear_queue();
     while (true) {
         int button;
@@ -1660,23 +2543,54 @@ static enum plugin_status mar_main(void)
         if (dirty) {
             mar_render(&view);
             dirty = false;
+            if (view.street_pan_frame > 0) {
+                if (view.street_pan_frame < MAR_PAN_FRAMES) {
+                    view.street_pan_frame++;
+                    dirty = true;
+                } else
+                    view.street_pan_frame = 0;
+            }
         }
-        button = rb->button_get_w_tmo(HZ / 5);
-#if defined(BUTTON_MENU) && defined(BUTTON_SELECT)
-        if ((rb->button_status() & (BUTTON_MENU | BUTTON_SELECT)) ==
-            (BUTTON_MENU | BUTTON_SELECT))
-            return PLUGIN_OK;
+        button = rb->button_get_w_tmo(view.street_pan_frame > 0 ||
+                                      view.screen == MAR_SCREEN_MAP ?
+                                      MAX(1, HZ / 30) : HZ / 5);
+#ifdef HAVE_WHEEL_POSITION
+        if (view.screen == MAR_SCREEN_MAP) {
+            if (mar_touch_pan_map(&view, &touch, button))
+                dirty = true;
+        } else
+            mar_touch_pan_reset(&touch);
 #endif
         if (button == BUTTON_NONE)
             continue;
         clean = button & ~(BUTTON_REPEAT | BUTTON_REL);
+#if defined(BUTTON_MENU) && defined(BUTTON_SELECT)
+        if ((clean & (BUTTON_MENU | BUTTON_SELECT)) ==
+            (BUTTON_MENU | BUTTON_SELECT))
+            return PLUGIN_OK;
+#endif
+#if defined(BUTTON_PLAY) && defined(BUTTON_SELECT)
+        if ((clean & (BUTTON_PLAY | BUTTON_SELECT)) ==
+            (BUTTON_PLAY | BUTTON_SELECT)) {
+            mar_return_to_synced_location(&view);
+            select_long_handled = false;
+            rb->button_clear_queue();
+            dirty = true;
+            continue;
+        }
+#endif
         step = mar_pan_step(&view);
 
         if (view.screen == MAR_SCREEN_STREET) {
             if (clean == BUTTON_LEFT && !(button & BUTTON_REL)) {
-                if (view.street_scene == MAR_SCENE_TIMES_SQUARE ||
-                    view.street_scene == MAR_SCENE_TORONTO_360) {
-                    view.street_heading = (view.street_heading + 3) & 3;
+                if (mar_is_panorama_scene(view.street_scene)) {
+                    int from = view.street_heading & 3;
+                    int to = (from + 3) & 3;
+
+                    view.street_pan_from = from;
+                    view.street_pan_direction = -1;
+                    view.street_pan_frame = 1;
+                    view.street_heading = to;
                     dirty = true;
                 } else if (view.street_scene != MAR_SCENE_NONE &&
                            mar_world_frame_count(view.street_scene) > 1) {
@@ -1690,9 +2604,14 @@ static enum plugin_status mar_main(void)
                 continue;
             }
             if (clean == BUTTON_RIGHT && !(button & BUTTON_REL)) {
-                if (view.street_scene == MAR_SCENE_TIMES_SQUARE ||
-                    view.street_scene == MAR_SCENE_TORONTO_360) {
-                    view.street_heading = (view.street_heading + 1) & 3;
+                if (mar_is_panorama_scene(view.street_scene)) {
+                    int from = view.street_heading & 3;
+                    int to = (from + 1) & 3;
+
+                    view.street_pan_from = from;
+                    view.street_pan_direction = 1;
+                    view.street_pan_frame = 1;
+                    view.street_heading = to;
                     dirty = true;
                 } else if (view.street_scene != MAR_SCENE_NONE &&
                            mar_world_frame_count(view.street_scene) > 1) {
@@ -1708,6 +2627,7 @@ static enum plugin_status mar_main(void)
             if (clean == BUTTON_SELECT && !(button & BUTTON_REL)) {
                 view.screen = MAR_SCREEN_MAP;
                 view.street_scene = MAR_SCENE_NONE;
+                view.street_pan_frame = 0;
                 (void)mar_load_satellite(&view);
                 dirty = true;
                 continue;
@@ -1729,18 +2649,19 @@ static enum plugin_status mar_main(void)
 #ifdef BUTTON_MENU
             if (clean == BUTTON_MENU && !(button & BUTTON_REL)) {
                 view.screen = MAR_SCREEN_EXPLORE;
+                view.browse_index = 0;
                 dirty = true;
                 continue;
             }
 #endif
 #ifdef HAVE_SCROLLWHEEL
-            if (clean == BUTTON_SCROLL_FWD && !(button & BUTTON_REL)) {
+            if (clean == BUTTON_SCROLL_FWD) {
                 if (view.browse_index < mar_world_scene_count() - 1)
                     view.browse_index++;
                 dirty = true;
                 continue;
             }
-            if (clean == BUTTON_SCROLL_BACK && !(button & BUTTON_REL)) {
+            if (clean == BUTTON_SCROLL_BACK) {
                 if (view.browse_index > 0)
                     view.browse_index--;
                 dirty = true;
@@ -1749,20 +2670,10 @@ static enum plugin_status mar_main(void)
 #endif
             if (clean == BUTTON_SELECT && !(button & BUTTON_REL)) {
                 int scene_index = mar_world_scene_at(view.browse_index);
-                const struct mar_world_scene *world_scene = scene_index >= 0 ?
-                    &mar_world_scenes[scene_index] : NULL;
-                if (!world_scene)
-                    continue;
-                int scene = world_scene->scene;
 
-                if (world_scene->video) {
-                    (void)mar_open_dashcam_video(world_scene->video);
-                } else if (mar_load_lookaround(scene)) {
-                    view.selected_place = -1;
-                    view.street_scene = scene;
-                    view.street_heading = 0;
-                    view.screen = MAR_SCREEN_STREET;
-                }
+                (void)mar_open_world_scene(&view, scene_index);
+                if (mar_pending_plugin_status == PLUGIN_GOTO_PLUGIN)
+                    return mar_pending_plugin_status;
                 dirty = true;
                 continue;
             }
@@ -1771,7 +2682,7 @@ static enum plugin_status mar_main(void)
         }
 
         if (view.screen == MAR_SCREEN_EXPLORE) {
-            int count = mar_destination_count();
+            int count = mar_destination_count() + 1;
 
 #ifdef BUTTON_MENU
             if (clean == BUTTON_MENU && !(button & BUTTON_REL)) {
@@ -1781,19 +2692,19 @@ static enum plugin_status mar_main(void)
             }
 #endif
             if (clean == BUTTON_LEFT && !(button & BUTTON_REL)) {
-                view.screen = MAR_SCREEN_WORLD;
+                view.screen = MAR_SCREEN_MAP;
                 view.browse_index = 0;
                 dirty = true;
                 continue;
             }
 #ifdef HAVE_SCROLLWHEEL
-            if (clean == BUTTON_SCROLL_FWD && !(button & BUTTON_REL)) {
+            if (clean == BUTTON_SCROLL_FWD) {
                 if (view.browse_index < count - 1)
                     view.browse_index++;
                 dirty = true;
                 continue;
             }
-            if (clean == BUTTON_SCROLL_BACK && !(button & BUTTON_REL)) {
+            if (clean == BUTTON_SCROLL_BACK) {
                 if (view.browse_index > 0)
                     view.browse_index--;
                 dirty = true;
@@ -1801,7 +2712,15 @@ static enum plugin_status mar_main(void)
             }
 #endif
             if (clean == BUTTON_SELECT && !(button & BUTTON_REL)) {
-                int place_index = mar_destination_at(view.browse_index);
+                int place_index;
+
+                if (view.browse_index == 0) {
+                    view.screen = MAR_SCREEN_WORLD;
+                    view.browse_index = 0;
+                    dirty = true;
+                    continue;
+                }
+                place_index = mar_destination_at(view.browse_index - 1);
                 if (place_index >= 0) {
                     mar_focus_place(&view, place_index);
                     /* Explore changes the zoom and centre. Load that exact
@@ -1813,7 +2732,15 @@ static enum plugin_status mar_main(void)
                 continue;
             }
             if (clean == BUTTON_RIGHT && !(button & BUTTON_REL)) {
-                int place_index = mar_destination_at(view.browse_index);
+                int place_index;
+
+                if (view.browse_index == 0) {
+                    view.screen = MAR_SCREEN_WORLD;
+                    view.browse_index = 0;
+                    dirty = true;
+                    continue;
+                }
+                place_index = mar_destination_at(view.browse_index - 1);
                 if (place_index >= 0) {
                     mar_focus_place(&view, place_index);
                     (void)mar_open_street(&view);
@@ -1853,22 +2780,35 @@ static enum plugin_status mar_main(void)
         }
 #ifdef BUTTON_MENU
         else if (clean == BUTTON_MENU && !(button & BUTTON_REL)) {
-            view.center_y -= step;
+            if (view.zoom > 0)
+                view.zoom--;
             mar_clamp(&view);
             (void)mar_load_satellite(&view);
             dirty = true;
         }
 #endif
 #ifdef HAVE_SCROLLWHEEL
-        else if (clean == BUTTON_SCROLL_FWD && !(button & BUTTON_REL)) {
-            if (view.zoom < MAR_ZOOM_COUNT - 1)
+        else if (clean == BUTTON_SCROLL_FWD) {
+            long now = *rb->current_tick;
+
+            if (!TIME_BEFORE(now, last_zoom_tick + MAX(1, HZ / 8)) &&
+                view.zoom < MAR_ZOOM_COUNT - 1) {
                 view.zoom++;
-            (void)mar_load_satellite(&view);
+                last_zoom_tick = now;
+                mar_clamp(&view);
+                (void)mar_load_satellite(&view);
+            }
             dirty = true;
-        } else if (clean == BUTTON_SCROLL_BACK && !(button & BUTTON_REL)) {
-            if (view.zoom > 0)
+        } else if (clean == BUTTON_SCROLL_BACK) {
+            long now = *rb->current_tick;
+
+            if (!TIME_BEFORE(now, last_zoom_tick + MAX(1, HZ / 8)) &&
+                view.zoom > 0) {
                 view.zoom--;
-            (void)mar_load_satellite(&view);
+                last_zoom_tick = now;
+                mar_clamp(&view);
+                (void)mar_load_satellite(&view);
+            }
             dirty = true;
         }
 #endif
@@ -1877,10 +2817,22 @@ static enum plugin_status mar_main(void)
                 /* Hold Select always chooses the nearest installed real
                  * Dashcam/360 scene to the map cursor. City Satellite Detail
                  * remains available from Explore with Right. */
-                (void)mar_open_nearest_world_scene(&view);
+                if (!select_long_handled) {
+                    select_long_handled = true;
+                    (void)mar_open_nearest_world_scene(&view);
+                    if (mar_pending_plugin_status == PLUGIN_GOTO_PLUGIN)
+                        return mar_pending_plugin_status;
+                }
             }
-            else if (!(button & BUTTON_REL))
-                view.labels = !view.labels;
+            else if (button & BUTTON_REL) {
+                if (!select_long_handled && view.zoom < MAR_ZOOM_COUNT - 1) {
+                    view.zoom++;
+                    mar_clamp(&view);
+                    (void)mar_load_satellite(&view);
+                }
+                select_long_handled = false;
+            } else
+                select_long_handled = false;
             dirty = true;
         } else {
             exit_on_usb(button);

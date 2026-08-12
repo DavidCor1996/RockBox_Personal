@@ -1,7 +1,4 @@
 
-Merging object attributes
-
-
 Merging program properties
 
 Removed property 0xc0000002 to merge /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crti.o (0x3) and /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/test_usb.o (not found)
@@ -45,7 +42,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/libgcc_s.so.1
 LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a
 END GROUP
 LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/libatomic_asneeded.so
-LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/libatomic.a
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/libatomic.so
 LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/libc.so
 START GROUP
 LOAD /usr/lib/libc.so.6
@@ -470,30 +467,30 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000     0xfbc3
+.debug_info     0x0000000000000000    0x100e5
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x7e1b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/test_usb.o
- .debug_info    0x0000000000007e1b     0x7da8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+ .debug_info    0x0000000000000000     0x80ac /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/test_usb.o
+ .debug_info    0x00000000000080ac     0x8039 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
 
 .debug_abbrev   0x0000000000000000      0x810
  *(.debug_abbrev)
  .debug_abbrev  0x0000000000000000      0x3ce /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/test_usb.o
  .debug_abbrev  0x00000000000003ce      0x442 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
 
-.debug_line     0x0000000000000000      0x60c
+.debug_line     0x0000000000000000      0x616
  *(.debug_line .debug_line.* .debug_line_end)
- .debug_line    0x0000000000000000      0x34f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/test_usb.o
- .debug_line    0x000000000000034f      0x2bd /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+ .debug_line    0x0000000000000000      0x354 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/test_usb.o
+ .debug_line    0x0000000000000354      0x2c2 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
 
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x4d59
+.debug_str      0x0000000000000000     0x4f3c
  *(.debug_str)
- .debug_str     0x0000000000000000     0x4d59 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/test_usb.o
-                                       0x52cd (size before relaxing)
- .debug_str     0x0000000000004d59        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
-                                       0x52bf (size before relaxing)
+ .debug_str     0x0000000000000000     0x4f3c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/test_usb.o
+                                       0x54b9 (size before relaxing)
+ .debug_str     0x0000000000004f3c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+                                       0x54ab (size before relaxing)
 
 .debug_loc
  *(.debug_loc)
@@ -523,14 +520,14 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
  *(.debug_addr)
 
 .debug_line_str
-                0x0000000000000000      0x650
+                0x0000000000000000      0x65f
  *(.debug_line_str)
  .debug_line_str
-                0x0000000000000000      0x650 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/test_usb.o
-                                        0x62e (size before relaxing)
+                0x0000000000000000      0x65f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/test_usb.o
+                                        0x63d (size before relaxing)
  .debug_line_str
-                0x0000000000000650        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
-                                        0x68b (size before relaxing)
+                0x000000000000065f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+                                        0x69a (size before relaxing)
 
 .debug_loclists
                 0x0000000000000000      0x130

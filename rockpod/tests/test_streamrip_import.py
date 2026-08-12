@@ -9,6 +9,8 @@ from services.streamrip_import import (
     discover_imported_audio_files,
     ensure_rockbox_cover_files,
     ensure_streamrip_config,
+    find_existing_streamrip_source_files,
+    find_existing_library_item_files,
     is_supported_streamrip_url,
     streamrip_source_tag_matches,
     streamrip_quality_for_url,
@@ -98,6 +100,45 @@ def test_streamrip_source_tag_matches_streamrip_ids_case_insensitively():
 
     assert streamrip_source_tag_matches(tags, "tidal", "album", "513960426") is True
     assert streamrip_source_tag_matches(tags, "tidal", "track", "513960426") is False
+
+
+def test_existing_streamrip_album_requires_complete_metadata_order(tmp_path, monkeypatch):
+    album = tmp_path / "Album"
+    album.mkdir()
+    first = album / "first.flac"
+    second = album / "second.flac"
+    first.write_bytes(b"one")
+    second.write_bytes(b"two")
+    tags = {
+        str(first): {"tidal_album_id": ["55"], "discnumber": ["1"], "disctotal": ["1"], "tracknumber": ["1"], "tracktotal": ["2"]},
+        str(second): {"tidal_album_id": ["55"], "discnumber": ["1"], "disctotal": ["1"], "tracknumber": ["2"], "tracktotal": ["2"]},
+    }
+    monkeypatch.setattr("services.streamrip_import.mutagen.File", lambda path, easy=False: type("Audio", (), {"tags": tags[path]})())
+
+    assert find_existing_streamrip_source_files(tmp_path, "tidal", "album", "55") == [str(first), str(second)]
+    second.unlink()
+    assert find_existing_streamrip_source_files(tmp_path, "tidal", "album", "55") == []
+
+
+def test_existing_library_album_matches_tags_without_provider_id(tmp_path, monkeypatch):
+    album = tmp_path / "The Strokes - Reality Awaits"
+    album.mkdir()
+    first = album / "first.flac"
+    second = album / "second.flac"
+    partial = tmp_path / "The Strokes - Partial"
+    partial.mkdir()
+    missing_first = partial / "second.flac"
+    for path in (first, second, missing_first):
+        path.write_bytes(b"audio")
+    tags = {
+        str(first): {"title": ["One"], "album": ["Reality Awaits"], "albumartist": ["The Strokes"], "tracknumber": ["1/2"]},
+        str(second): {"title": ["Two"], "album": ["Reality Awaits"], "albumartist": ["The Strokes"], "tracknumber": ["2/2"]},
+        str(missing_first): {"title": ["Two"], "album": ["Partial"], "albumartist": ["The Strokes"], "tracknumber": ["2/2"]},
+    }
+    monkeypatch.setattr("services.streamrip_import.mutagen.File", lambda path, easy=True: type("Audio", (), {"tags": tags[path]})())
+
+    assert find_existing_library_item_files(tmp_path, "album", "Reality Awaits", "The Strokes") == [str(first), str(second)]
+    assert find_existing_library_item_files(tmp_path, "album", "Partial", "The Strokes") == []
 
 
 def test_build_streamrip_command_rejects_unknown_urls(tmp_dir):

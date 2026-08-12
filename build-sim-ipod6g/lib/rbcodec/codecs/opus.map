@@ -135,9 +135,6 @@ Archive member included to satisfy reference by file (symbol)
 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
                               /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/opus.o (codec_set_replaygain)
 
-Merging object attributes
-
-
 Merging program properties
 
 Removed property 0xc0000002 to merge /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crti.o (0x3) and /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/opus.o (not found)
@@ -491,7 +488,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/libgcc_s.so.1
 LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a
 END GROUP
 LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/libatomic_asneeded.so
-LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/libatomic.a
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/libatomic.so
 LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/libc.so
 START GROUP
 LOAD /usr/lib/libc.so.6
@@ -603,7 +600,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .plt.sec
  *(.plt.sec)
 
-.text           0x00000000000020f0    0x162e0
+.text           0x00000000000020f0    0x162f0
  *(.text.unlikely .text.*_unlikely .text.unlikely.*)
  *(.text.exit .text.exit.*)
  *(.text.startup .text.startup.*)
@@ -668,253 +665,253 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
                 0x0000000000005520                ogg_stream_packetout
                 0x0000000000005536                ogg_stream_packetpeek
                 0x0000000000005549                ogg_packet_clear
- .text          0x0000000000005565     0x2638 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(celt_decoder.o)
-                0x00000000000067b9                celt_decoder_get_size
-                0x00000000000067db                celt_decode_with_ec
-                0x0000000000007803                opus_custom_decoder_ctl
-                0x0000000000007ae9                celt_decoder_init
- .text          0x0000000000007b9d      0xae6 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(celt_lpc.o)
-                0x0000000000007da6                _celt_lpc
-                0x0000000000007f0f                celt_fir_c
-                0x00000000000080dc                celt_iir
-                0x000000000000846d                _celt_autocorr
- .text          0x0000000000008683       0x36 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(entcode.o)
-                0x0000000000008683                ec_tell_frac
- .text          0x00000000000086b9      0x24e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(entdec.o)
-                0x0000000000008709                ec_dec_init
-                0x0000000000008758                ec_decode
-                0x000000000000877d                ec_decode_bin
-                0x00000000000087a9                ec_dec_update
-                0x00000000000087cc                ec_dec_bit_logp
-                0x00000000000087fc                ec_dec_icdf
-                0x000000000000883d                ec_dec_bits
-                0x0000000000008899                ec_dec_uint
- .text          0x0000000000008907      0x314 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(mathops.o)
-                0x0000000000008966                isqrt32
-                0x0000000000008999                celt_rsqrt_norm
-                0x00000000000089f9                celt_sqrt
-                0x0000000000008a97                celt_cos_norm
-                0x0000000000008ae6                celt_rcp
-                0x0000000000008b7e                frac_div32
- .text          0x0000000000008c1b      0x6a5 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(mdct.o)
-                0x0000000000008c1b                clt_mdct_forward_c
-                0x0000000000009007                clt_mdct_backward_c
- .text          0x00000000000092c0       0x41 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(modes.o)
-                0x00000000000092c0                opus_custom_mode_create
- .text          0x0000000000009301      0xf12 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(pitch.o)
-                0x000000000000953b                pitch_downsample
-                0x00000000000097fa                celt_pitch_xcorr_c
-                0x0000000000009b1c                pitch_search
-                0x0000000000009dfe                remove_doubling
- .text          0x000000000000a213      0xf24 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(quant_bands.o)
-                0x000000000000a5ec                quant_coarse_energy
-                0x000000000000aa8f                quant_fine_energy
-                0x000000000000ab7b                quant_energy_finalise
-                0x000000000000acb6                unquant_coarse_energy
-                0x000000000000ae94                unquant_fine_energy
-                0x000000000000af1c                unquant_energy_finalise
-                0x000000000000b012                amp2Log2
- .text          0x000000000000b137      0xae9 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(rate.o)
-                0x000000000000b137                clt_compute_allocation
- .text          0x000000000000bc20      0x907 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(vq.o)
-                0x000000000000be44                exp_rotation
-                0x000000000000bfbe                op_pvq_search_c
-                0x000000000000c219                alg_quant
-                0x000000000000c300                alg_unquant
-                0x000000000000c3a5                renormalise_vector
-                0x000000000000c42e                stereo_itheta
- .text          0x000000000000c527      0xb19 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(dec_API.o)
-                0x000000000000c527                silk_Get_Decoder_Size
-                0x000000000000c530                silk_InitDecoder
-                0x000000000000c56a                silk_Decode
- .text          0x000000000000d040      0x1fc /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(decode_frame.o)
-                0x000000000000d040                silk_decode_frame
- .text          0x000000000000d23c      0x359 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(decode_indices.o)
-                0x000000000000d23c                silk_decode_indices
- .text          0x000000000000d595      0x22f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(decode_parameters.o)
-                0x000000000000d595                silk_decode_parameters
- .text          0x000000000000d7c4       0xab /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(decode_pitch.o)
-                0x000000000000d7c4                silk_decode_pitch
- .text          0x000000000000d86f      0x1ea /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(decode_pulses.o)
-                0x000000000000d86f                silk_decode_pulses
- .text          0x000000000000da59      0x191 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(decoder_set_fs.o)
-                0x000000000000da59                silk_decoder_set_fs
- .text          0x000000000000dbea      0x1ea /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(gain_quant.o)
-                0x000000000000dbea                silk_gains_quant
-                0x000000000000dd21                silk_gains_dequant
-                0x000000000000ddbd                silk_gains_ID
- .text          0x000000000000ddd4       0x3c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(init_decoder.o)
-                0x000000000000ddd4                silk_init_decoder
- .text          0x000000000000de10       0x54 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(lin2log.o)
-                0x000000000000de10                silk_lin2log
- .text          0x000000000000de64       0x5b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(log2lin.o)
-                0x000000000000de64                silk_log2lin
- .text          0x000000000000debf      0x24b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(NLSF2A.o)
-                0x000000000000df5a                silk_NLSF2A
- .text          0x000000000000e10a      0x12f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(NLSF_decode.o)
-                0x000000000000e10a                silk_NLSF_decode
- .text          0x000000000000e239      0x26c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(NLSF_stabilize.o)
-                0x000000000000e239                silk_NLSF_stabilize
- .text          0x000000000000e4a5       0x97 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(NLSF_unpack.o)
-                0x000000000000e4a5                silk_NLSF_unpack
- .text          0x000000000000e53c      0xcfc /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(PLC.o)
-                0x000000000000e53c                silk_PLC_Reset
-                0x000000000000e56e                silk_PLC
-                0x000000000000f0ac                silk_PLC_glue_frames
- .text          0x000000000000f238      0x448 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(resampler.o)
-                0x000000000000f238                silk_resampler_init
-                0x000000000000f510                silk_resampler
- .text          0x000000000000f680      0x683 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(resampler_private_down_FIR.o)
-                0x000000000000f680                silk_resampler_private_down_FIR
- .text          0x000000000000fd03      0x1e6 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(resampler_private_IIR_FIR.o)
-                0x000000000000fd03                silk_resampler_private_IIR_FIR
- .text          0x000000000000fee9      0x146 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(resampler_private_up2_HQ.o)
-                0x000000000000fee9                silk_resampler_private_up2_HQ
-                0x000000000001002a                silk_resampler_private_up2_HQ_wrapper
- .text          0x000000000001002f      0x457 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(shell_coder.o)
-                0x00000000000100a9                silk_shell_encoder
-                0x000000000001029b                silk_shell_decoder
- .text          0x0000000000010486      0x253 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(sort.o)
-                0x0000000000010486                silk_insertion_sort_increasing
-                0x0000000000010583                silk_insertion_sort_decreasing_int16
-                0x0000000000010694                silk_insertion_sort_increasing_all_values_int16
- .text          0x00000000000106d9      0x11f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(stereo_decode_pred.o)
-                0x00000000000106d9                silk_stereo_decode_pred
-                0x00000000000107df                silk_stereo_decode_mid_only
- .text          0x00000000000107f8      0x2a1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(stereo_MS_to_LR.o)
-                0x00000000000107f8                silk_stereo_MS_to_LR
- .text          0x0000000000010a99       0xe1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(sum_sqr_shift.o)
-                0x0000000000010a99                silk_sum_sqr_shift
- .text          0x0000000000010b7a      0x3d4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(opus.o)
-                0x0000000000010bb5                encode_size
-                0x0000000000010bdf                opus_packet_get_samples_per_frame
-                0x0000000000010c2f                opus_packet_parse_impl
-                0x0000000000010f34                opus_packet_parse
- .text          0x0000000000010f4e     0x3337 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(bands.o)
-                0x00000000000112d4                hysteresis_decision
-                0x000000000001132f                celt_lcg_rand
-                0x000000000001133b                bitexact_cos
-                0x0000000000011382                bitexact_log2tan
-                0x0000000000011f4f                compute_band_energies
-                0x00000000000120fd                normalise_bands
-                0x000000000001222a                denormalise_bands
-                0x000000000001245e                anti_collapse
-                0x000000000001270f                spreading_decision
-                0x000000000001294b                haar1
-                0x000000000001330a                quant_all_bands
- .text          0x0000000000014285      0x4e8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(celt.o)
-                0x0000000000014285                resampling_factor
-                0x00000000000142c9                comb_filter
-                0x00000000000146e2                init_caps
-                0x0000000000014748                opus_strerror
-                0x0000000000014765                opus_get_version_string
- .text          0x000000000001476d      0x309 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(cwrs.o)
-                0x000000000001476d                encode_pulses
-                0x00000000000148a1                decode_pulses
- .text          0x0000000000014a76      0x456 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(entenc.o)
-                0x0000000000014b2d                ec_enc_init
-                0x0000000000014b63                ec_encode
-                0x0000000000014b9d                ec_encode_bin
-                0x0000000000014bdc                ec_enc_bit_logp
-                0x0000000000014bfc                ec_enc_icdf
-                0x0000000000014c42                ec_enc_bits
-                0x0000000000014ca1                ec_enc_uint
-                0x0000000000014cf3                ec_enc_patch_initial_bits
-                0x0000000000014d61                ec_enc_shrink
-                0x0000000000014d8d                ec_enc_done
- .text          0x0000000000014ecc      0xc2c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(kiss_fft.o)
-                0x0000000000014ecc                opus_fft_impl
-                0x0000000000015a51                opus_fft_c
-                0x0000000000015aaa                opus_ifft_c
- .text          0x0000000000015af8      0x178 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(laplace.o)
-                0x0000000000015af8                ec_laplace_encode
-                0x0000000000015bcc                ec_laplace_decode
- .text          0x0000000000015c70       0x48 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(bwexpander_32.o)
-                0x0000000000015c70                silk_bwexpander_32
- .text          0x0000000000015cb8       0x4e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(bwexpander.o)
-                0x0000000000015cb8                silk_bwexpander
- .text          0x0000000000015d06      0x6a9 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(CNG.o)
-                0x0000000000015d60                silk_CNG_Reset
-                0x0000000000015d9c                silk_CNG
- .text          0x00000000000163af      0x19e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(code_signs.o)
-                0x00000000000163af                silk_encode_signs
-                0x0000000000016479                silk_decode_signs
- .text          0x000000000001654d      0x9ac /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(decode_core.o)
-                0x000000000001654d                silk_decode_core
- .text          0x0000000000016ef9      0x139 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(LPC_analysis_filter.o)
-                0x0000000000016ef9                silk_LPC_analysis_filter
- .text          0x0000000000017032      0x154 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(LPC_fit.o)
-                0x0000000000017032                silk_LPC_fit
- .text          0x0000000000017186      0x274 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(LPC_inv_pred_gain.o)
-                0x0000000000017186                silk_LPC_inverse_pred_gain_c
- .text          0x00000000000173fa       0x46 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(resampler_private_AR2.o)
-                0x00000000000173fa                silk_resampler_private_AR2
- .text.ls_bit   0x0000000000017440       0x38 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libtlsf.a(tlsf.o)
- .text.ms_bit   0x0000000000017478       0x35 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libtlsf.a(tlsf.o)
- .text.set_bit  0x00000000000174ad       0x14 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libtlsf.a(tlsf.o)
+ .text          0x0000000000005565     0x2648 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(celt_decoder.o)
+                0x00000000000067c9                celt_decoder_get_size
+                0x00000000000067eb                celt_decode_with_ec
+                0x0000000000007813                opus_custom_decoder_ctl
+                0x0000000000007af9                celt_decoder_init
+ .text          0x0000000000007bad      0xae6 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(celt_lpc.o)
+                0x0000000000007db6                _celt_lpc
+                0x0000000000007f1f                celt_fir_c
+                0x00000000000080ec                celt_iir
+                0x000000000000847d                _celt_autocorr
+ .text          0x0000000000008693       0x36 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(entcode.o)
+                0x0000000000008693                ec_tell_frac
+ .text          0x00000000000086c9      0x24e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(entdec.o)
+                0x0000000000008719                ec_dec_init
+                0x0000000000008768                ec_decode
+                0x000000000000878d                ec_decode_bin
+                0x00000000000087b9                ec_dec_update
+                0x00000000000087dc                ec_dec_bit_logp
+                0x000000000000880c                ec_dec_icdf
+                0x000000000000884d                ec_dec_bits
+                0x00000000000088a9                ec_dec_uint
+ .text          0x0000000000008917      0x314 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(mathops.o)
+                0x0000000000008976                isqrt32
+                0x00000000000089a9                celt_rsqrt_norm
+                0x0000000000008a09                celt_sqrt
+                0x0000000000008aa7                celt_cos_norm
+                0x0000000000008af6                celt_rcp
+                0x0000000000008b8e                frac_div32
+ .text          0x0000000000008c2b      0x6a5 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(mdct.o)
+                0x0000000000008c2b                clt_mdct_forward_c
+                0x0000000000009017                clt_mdct_backward_c
+ .text          0x00000000000092d0       0x41 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(modes.o)
+                0x00000000000092d0                opus_custom_mode_create
+ .text          0x0000000000009311      0xf12 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(pitch.o)
+                0x000000000000954b                pitch_downsample
+                0x000000000000980a                celt_pitch_xcorr_c
+                0x0000000000009b2c                pitch_search
+                0x0000000000009e0e                remove_doubling
+ .text          0x000000000000a223      0xf24 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(quant_bands.o)
+                0x000000000000a5fc                quant_coarse_energy
+                0x000000000000aa9f                quant_fine_energy
+                0x000000000000ab8b                quant_energy_finalise
+                0x000000000000acc6                unquant_coarse_energy
+                0x000000000000aea4                unquant_fine_energy
+                0x000000000000af2c                unquant_energy_finalise
+                0x000000000000b022                amp2Log2
+ .text          0x000000000000b147      0xae9 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(rate.o)
+                0x000000000000b147                clt_compute_allocation
+ .text          0x000000000000bc30      0x907 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(vq.o)
+                0x000000000000be54                exp_rotation
+                0x000000000000bfce                op_pvq_search_c
+                0x000000000000c229                alg_quant
+                0x000000000000c310                alg_unquant
+                0x000000000000c3b5                renormalise_vector
+                0x000000000000c43e                stereo_itheta
+ .text          0x000000000000c537      0xb19 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(dec_API.o)
+                0x000000000000c537                silk_Get_Decoder_Size
+                0x000000000000c540                silk_InitDecoder
+                0x000000000000c57a                silk_Decode
+ .text          0x000000000000d050      0x1fc /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(decode_frame.o)
+                0x000000000000d050                silk_decode_frame
+ .text          0x000000000000d24c      0x359 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(decode_indices.o)
+                0x000000000000d24c                silk_decode_indices
+ .text          0x000000000000d5a5      0x22f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(decode_parameters.o)
+                0x000000000000d5a5                silk_decode_parameters
+ .text          0x000000000000d7d4       0xab /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(decode_pitch.o)
+                0x000000000000d7d4                silk_decode_pitch
+ .text          0x000000000000d87f      0x1ea /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(decode_pulses.o)
+                0x000000000000d87f                silk_decode_pulses
+ .text          0x000000000000da69      0x191 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(decoder_set_fs.o)
+                0x000000000000da69                silk_decoder_set_fs
+ .text          0x000000000000dbfa      0x1ea /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(gain_quant.o)
+                0x000000000000dbfa                silk_gains_quant
+                0x000000000000dd31                silk_gains_dequant
+                0x000000000000ddcd                silk_gains_ID
+ .text          0x000000000000dde4       0x3c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(init_decoder.o)
+                0x000000000000dde4                silk_init_decoder
+ .text          0x000000000000de20       0x54 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(lin2log.o)
+                0x000000000000de20                silk_lin2log
+ .text          0x000000000000de74       0x5b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(log2lin.o)
+                0x000000000000de74                silk_log2lin
+ .text          0x000000000000decf      0x24b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(NLSF2A.o)
+                0x000000000000df6a                silk_NLSF2A
+ .text          0x000000000000e11a      0x12f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(NLSF_decode.o)
+                0x000000000000e11a                silk_NLSF_decode
+ .text          0x000000000000e249      0x26c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(NLSF_stabilize.o)
+                0x000000000000e249                silk_NLSF_stabilize
+ .text          0x000000000000e4b5       0x97 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(NLSF_unpack.o)
+                0x000000000000e4b5                silk_NLSF_unpack
+ .text          0x000000000000e54c      0xcfc /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(PLC.o)
+                0x000000000000e54c                silk_PLC_Reset
+                0x000000000000e57e                silk_PLC
+                0x000000000000f0bc                silk_PLC_glue_frames
+ .text          0x000000000000f248      0x448 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(resampler.o)
+                0x000000000000f248                silk_resampler_init
+                0x000000000000f520                silk_resampler
+ .text          0x000000000000f690      0x683 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(resampler_private_down_FIR.o)
+                0x000000000000f690                silk_resampler_private_down_FIR
+ .text          0x000000000000fd13      0x1e6 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(resampler_private_IIR_FIR.o)
+                0x000000000000fd13                silk_resampler_private_IIR_FIR
+ .text          0x000000000000fef9      0x146 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(resampler_private_up2_HQ.o)
+                0x000000000000fef9                silk_resampler_private_up2_HQ
+                0x000000000001003a                silk_resampler_private_up2_HQ_wrapper
+ .text          0x000000000001003f      0x457 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(shell_coder.o)
+                0x00000000000100b9                silk_shell_encoder
+                0x00000000000102ab                silk_shell_decoder
+ .text          0x0000000000010496      0x253 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(sort.o)
+                0x0000000000010496                silk_insertion_sort_increasing
+                0x0000000000010593                silk_insertion_sort_decreasing_int16
+                0x00000000000106a4                silk_insertion_sort_increasing_all_values_int16
+ .text          0x00000000000106e9      0x11f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(stereo_decode_pred.o)
+                0x00000000000106e9                silk_stereo_decode_pred
+                0x00000000000107ef                silk_stereo_decode_mid_only
+ .text          0x0000000000010808      0x2a1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(stereo_MS_to_LR.o)
+                0x0000000000010808                silk_stereo_MS_to_LR
+ .text          0x0000000000010aa9       0xe1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(sum_sqr_shift.o)
+                0x0000000000010aa9                silk_sum_sqr_shift
+ .text          0x0000000000010b8a      0x3d4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(opus.o)
+                0x0000000000010bc5                encode_size
+                0x0000000000010bef                opus_packet_get_samples_per_frame
+                0x0000000000010c3f                opus_packet_parse_impl
+                0x0000000000010f44                opus_packet_parse
+ .text          0x0000000000010f5e     0x3337 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(bands.o)
+                0x00000000000112e4                hysteresis_decision
+                0x000000000001133f                celt_lcg_rand
+                0x000000000001134b                bitexact_cos
+                0x0000000000011392                bitexact_log2tan
+                0x0000000000011f5f                compute_band_energies
+                0x000000000001210d                normalise_bands
+                0x000000000001223a                denormalise_bands
+                0x000000000001246e                anti_collapse
+                0x000000000001271f                spreading_decision
+                0x000000000001295b                haar1
+                0x000000000001331a                quant_all_bands
+ .text          0x0000000000014295      0x4e8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(celt.o)
+                0x0000000000014295                resampling_factor
+                0x00000000000142d9                comb_filter
+                0x00000000000146f2                init_caps
+                0x0000000000014758                opus_strerror
+                0x0000000000014775                opus_get_version_string
+ .text          0x000000000001477d      0x309 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(cwrs.o)
+                0x000000000001477d                encode_pulses
+                0x00000000000148b1                decode_pulses
+ .text          0x0000000000014a86      0x456 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(entenc.o)
+                0x0000000000014b3d                ec_enc_init
+                0x0000000000014b73                ec_encode
+                0x0000000000014bad                ec_encode_bin
+                0x0000000000014bec                ec_enc_bit_logp
+                0x0000000000014c0c                ec_enc_icdf
+                0x0000000000014c52                ec_enc_bits
+                0x0000000000014cb1                ec_enc_uint
+                0x0000000000014d03                ec_enc_patch_initial_bits
+                0x0000000000014d71                ec_enc_shrink
+                0x0000000000014d9d                ec_enc_done
+ .text          0x0000000000014edc      0xc2c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(kiss_fft.o)
+                0x0000000000014edc                opus_fft_impl
+                0x0000000000015a61                opus_fft_c
+                0x0000000000015aba                opus_ifft_c
+ .text          0x0000000000015b08      0x178 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(laplace.o)
+                0x0000000000015b08                ec_laplace_encode
+                0x0000000000015bdc                ec_laplace_decode
+ .text          0x0000000000015c80       0x48 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(bwexpander_32.o)
+                0x0000000000015c80                silk_bwexpander_32
+ .text          0x0000000000015cc8       0x4e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(bwexpander.o)
+                0x0000000000015cc8                silk_bwexpander
+ .text          0x0000000000015d16      0x6a9 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(CNG.o)
+                0x0000000000015d70                silk_CNG_Reset
+                0x0000000000015dac                silk_CNG
+ .text          0x00000000000163bf      0x19e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(code_signs.o)
+                0x00000000000163bf                silk_encode_signs
+                0x0000000000016489                silk_decode_signs
+ .text          0x000000000001655d      0x9ac /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(decode_core.o)
+                0x000000000001655d                silk_decode_core
+ .text          0x0000000000016f09      0x139 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(LPC_analysis_filter.o)
+                0x0000000000016f09                silk_LPC_analysis_filter
+ .text          0x0000000000017042      0x154 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(LPC_fit.o)
+                0x0000000000017042                silk_LPC_fit
+ .text          0x0000000000017196      0x274 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(LPC_inv_pred_gain.o)
+                0x0000000000017196                silk_LPC_inverse_pred_gain_c
+ .text          0x000000000001740a       0x46 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(resampler_private_AR2.o)
+                0x000000000001740a                silk_resampler_private_AR2
+ .text.ls_bit   0x0000000000017450       0x38 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libtlsf.a(tlsf.o)
+ .text.ms_bit   0x0000000000017488       0x35 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libtlsf.a(tlsf.o)
+ .text.set_bit  0x00000000000174bd       0x14 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libtlsf.a(tlsf.o)
  .text.clear_bit
-                0x00000000000174c1       0x14 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libtlsf.a(tlsf.o)
+                0x00000000000174d1       0x14 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libtlsf.a(tlsf.o)
  .text.FIND_SUITABLE_BLOCK
-                0x00000000000174d5       0x5c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libtlsf.a(tlsf.o)
+                0x00000000000174e5       0x5c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libtlsf.a(tlsf.o)
  .text.process_area
-                0x0000000000017531       0x57 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libtlsf.a(tlsf.o)
+                0x0000000000017541       0x57 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libtlsf.a(tlsf.o)
  .text.MAPPING_INSERT
-                0x0000000000017588       0x2d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libtlsf.a(tlsf.o)
- .text.panicf   0x00000000000175b5        0x2 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libtlsf.a(tlsf.o)
-                0x00000000000175b5                panicf
+                0x0000000000017598       0x2d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libtlsf.a(tlsf.o)
+ .text.panicf   0x00000000000175c5        0x2 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libtlsf.a(tlsf.o)
+                0x00000000000175c5                panicf
  .text.get_new_area
-                0x00000000000175b7        0x6 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libtlsf.a(tlsf.o)
-                0x00000000000175b7                get_new_area
+                0x00000000000175c7        0x6 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libtlsf.a(tlsf.o)
+                0x00000000000175c7                get_new_area
  .text.destroy_memory_pool
-                0x00000000000175bd        0x5 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libtlsf.a(tlsf.o)
-                0x00000000000175bd                destroy_memory_pool
- .text.free_ex  0x00000000000175c2      0x2a2 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libtlsf.a(tlsf.o)
-                0x00000000000175c2                free_ex
+                0x00000000000175cd        0x5 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libtlsf.a(tlsf.o)
+                0x00000000000175cd                destroy_memory_pool
+ .text.free_ex  0x00000000000175d2      0x2a2 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libtlsf.a(tlsf.o)
+                0x00000000000175d2                free_ex
  .text.init_memory_pool
-                0x0000000000017864       0xa2 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libtlsf.a(tlsf.o)
-                0x0000000000017864                init_memory_pool
+                0x0000000000017874       0xa2 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libtlsf.a(tlsf.o)
+                0x0000000000017874                init_memory_pool
  .text.add_new_area
-                0x0000000000017906      0x140 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libtlsf.a(tlsf.o)
-                0x0000000000017906                add_new_area
+                0x0000000000017916      0x140 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libtlsf.a(tlsf.o)
+                0x0000000000017916                add_new_area
  .text.malloc_ex
-                0x0000000000017a46      0x310 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libtlsf.a(tlsf.o)
-                0x0000000000017a46                malloc_ex
+                0x0000000000017a56      0x310 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libtlsf.a(tlsf.o)
+                0x0000000000017a56                malloc_ex
  .text.tlsf_malloc
-                0x0000000000017d56       0x8c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libtlsf.a(tlsf.o)
-                0x0000000000017d56                tlsf_malloc
+                0x0000000000017d66       0x8c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libtlsf.a(tlsf.o)
+                0x0000000000017d66                tlsf_malloc
  .text.tlsf_free
-                0x0000000000017de2        0xc /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libtlsf.a(tlsf.o)
-                0x0000000000017de2                tlsf_free
+                0x0000000000017df2        0xc /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libtlsf.a(tlsf.o)
+                0x0000000000017df2                tlsf_free
  .text.realloc_ex
-                0x0000000000017dee      0x3ed /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libtlsf.a(tlsf.o)
-                0x0000000000017dee                realloc_ex
+                0x0000000000017dfe      0x3ed /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libtlsf.a(tlsf.o)
+                0x0000000000017dfe                realloc_ex
  .text.tlsf_realloc
-                0x00000000000181db       0x19 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libtlsf.a(tlsf.o)
-                0x00000000000181db                tlsf_realloc
- .text          0x00000000000181f4      0x1dc /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
-                0x00000000000181f4                codec_init
-                0x000000000001821d                codec_set_replaygain
-                0x0000000000018290                codec_malloc
-                0x00000000000182c6                codec_calloc
-                0x00000000000182f8                codec_free
-                0x00000000000182f9                codec_realloc
-                0x0000000000018330                codec_strlen
-                0x0000000000018340                strcpy
-                0x0000000000018350                strcat
-                0x0000000000018360                strcmp
-                0x0000000000018370                memcpy
-                0x0000000000018380                memset
-                0x0000000000018390                memcmp
-                0x00000000000183a0                memchr
-                0x00000000000183b0                memmove
-                0x00000000000183c0                qsort
+                0x00000000000181eb       0x19 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libtlsf.a(tlsf.o)
+                0x00000000000181eb                tlsf_realloc
+ .text          0x0000000000018204      0x1dc /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+                0x0000000000018204                codec_init
+                0x000000000001822d                codec_set_replaygain
+                0x00000000000182a0                codec_malloc
+                0x00000000000182d6                codec_calloc
+                0x0000000000018308                codec_free
+                0x0000000000018309                codec_realloc
+                0x0000000000018340                codec_strlen
+                0x0000000000018350                strcpy
+                0x0000000000018360                strcat
+                0x0000000000018370                strcmp
+                0x0000000000018380                memcpy
+                0x0000000000018390                memset
+                0x00000000000183a0                memcmp
+                0x00000000000183b0                memchr
+                0x00000000000183c0                memmove
+                0x00000000000183d0                qsort
  *(.gnu.warning)
 
-.fini           0x00000000000183d0        0xd
+.fini           0x00000000000183e0        0xd
  *(SORT_NONE(.fini))
- .fini          0x00000000000183d0        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crti.o
-                0x00000000000183d0                _fini
- .fini          0x00000000000183d8        0x5 /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
+ .fini          0x00000000000183e0        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crti.o
+                0x00000000000183e0                _fini
+ .fini          0x00000000000183e8        0x5 /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
                 [!provide]                        PROVIDE (__etext = .)
                 [!provide]                        PROVIDE (_etext = .)
                 [!provide]                        PROVIDE (etext = .)
@@ -1536,149 +1533,149 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .stab.indexstr
  *(.stab.indexstr)
 
-.comment        0x0000000000000000       0x36
+.comment        0x0000000000000000       0x1b
  *(.comment)
- .comment       0x0000000000000000       0x36 /usr/lib/gcc/x86_64-pc-linux-gnu/16/crtbeginS.o
+ .comment       0x0000000000000000       0x1b /usr/lib/gcc/x86_64-pc-linux-gnu/16/crtbeginS.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/opus.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/opus.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/codec_crt0.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/codec_crt0.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(opus_decoder.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(opus_decoder.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(opus_header.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(opus_header.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(framing.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(framing.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(celt_decoder.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(celt_decoder.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(celt_lpc.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(celt_lpc.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(entcode.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(entcode.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(entdec.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(entdec.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(mathops.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(mathops.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(mdct.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(mdct.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(modes.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(modes.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(pitch.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(pitch.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(quant_bands.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(quant_bands.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(rate.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(rate.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(vq.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(vq.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(dec_API.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(dec_API.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(decode_frame.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(decode_frame.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(decode_indices.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(decode_indices.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(decode_parameters.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(decode_parameters.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(decode_pitch.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(decode_pitch.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(decode_pulses.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(decode_pulses.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(decoder_set_fs.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(decoder_set_fs.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(gain_quant.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(gain_quant.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(init_decoder.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(init_decoder.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(lin2log.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(lin2log.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(log2lin.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(log2lin.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(NLSF2A.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(NLSF2A.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(NLSF_decode.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(NLSF_decode.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(NLSF_stabilize.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(NLSF_stabilize.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(NLSF_unpack.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(NLSF_unpack.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(pitch_est_tables.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(pitch_est_tables.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(PLC.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(PLC.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(resampler.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(resampler.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(resampler_private_down_FIR.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(resampler_private_down_FIR.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(resampler_private_IIR_FIR.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(resampler_private_IIR_FIR.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(resampler_private_up2_HQ.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(resampler_private_up2_HQ.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(resampler_rom.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(resampler_rom.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(shell_coder.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(shell_coder.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(sort.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(sort.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(stereo_decode_pred.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(stereo_decode_pred.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(stereo_MS_to_LR.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(stereo_MS_to_LR.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(sum_sqr_shift.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(sum_sqr_shift.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(table_LSF_cos.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(table_LSF_cos.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(tables_gain.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(tables_gain.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(tables_LTP.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(tables_LTP.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(tables_NLSF_CB_NB_MB.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(tables_NLSF_CB_NB_MB.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(tables_NLSF_CB_WB.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(tables_NLSF_CB_WB.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(tables_other.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(tables_other.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(tables_pitch_lag.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(tables_pitch_lag.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(tables_pulses_per_block.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(tables_pulses_per_block.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(opus.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(opus.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(bands.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(bands.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(celt.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(celt.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(cwrs.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(cwrs.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(entenc.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(entenc.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(kiss_fft.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(kiss_fft.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(laplace.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(laplace.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(bwexpander_32.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(bwexpander_32.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(bwexpander.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(bwexpander.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(CNG.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(CNG.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(code_signs.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(code_signs.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(decode_core.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(decode_core.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(LPC_analysis_filter.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(LPC_analysis_filter.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(LPC_fit.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(LPC_fit.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(LPC_inv_pred_gain.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(LPC_inv_pred_gain.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(resampler_private_AR2.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(resampler_private_AR2.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libtlsf.a(tlsf.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libtlsf.a(tlsf.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16/crtendS.o
+ .comment       0x000000000000001b        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16/crtendS.o
                                          0x1c (size before relaxing)
 
 .gnu.build.attributes
@@ -1984,220 +1981,220 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
  .debug_abbrev  0x0000000000008e39      0x476 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libtlsf.a(tlsf.o)
  .debug_abbrev  0x00000000000092af      0x35b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
 
-.debug_line     0x0000000000000000    0x1645b
+.debug_line     0x0000000000000000    0x16463
  *(.debug_line .debug_line.* .debug_line_end)
  .debug_line    0x0000000000000000      0x872 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/opus.o
  .debug_line    0x0000000000000872       0xa9 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/codec_crt0.o
  .debug_line    0x000000000000091b     0x1395 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(opus_decoder.o)
  .debug_line    0x0000000000001cb0      0x3cc /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(opus_header.o)
  .debug_line    0x000000000000207c     0x1401 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(framing.o)
- .debug_line    0x000000000000347d     0x1e1c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(celt_decoder.o)
- .debug_line    0x0000000000005299      0xaa2 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(celt_lpc.o)
- .debug_line    0x0000000000005d3b       0xb4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(entcode.o)
- .debug_line    0x0000000000005def      0x487 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(entdec.o)
- .debug_line    0x0000000000006276      0x39b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(mathops.o)
- .debug_line    0x0000000000006611      0x68e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(mdct.o)
- .debug_line    0x0000000000006c9f      0x11e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(modes.o)
- .debug_line    0x0000000000006dbd     0x1245 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(pitch.o)
- .debug_line    0x0000000000008002      0xbc4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(quant_bands.o)
- .debug_line    0x0000000000008bc6      0xb39 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(rate.o)
- .debug_line    0x00000000000096ff      0xa6b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(vq.o)
- .debug_line    0x000000000000a16a      0x934 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(dec_API.o)
- .debug_line    0x000000000000aa9e      0x17a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(decode_frame.o)
- .debug_line    0x000000000000ac18      0x32d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(decode_indices.o)
- .debug_line    0x000000000000af45      0x1c9 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(decode_parameters.o)
- .debug_line    0x000000000000b10e       0xfb /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(decode_pitch.o)
- .debug_line    0x000000000000b209      0x26a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(decode_pulses.o)
- .debug_line    0x000000000000b473      0x1ba /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(decoder_set_fs.o)
- .debug_line    0x000000000000b62d      0x289 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(gain_quant.o)
- .debug_line    0x000000000000b8b6       0xc8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(init_decoder.o)
- .debug_line    0x000000000000b97e      0x122 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(lin2log.o)
- .debug_line    0x000000000000baa0       0xaf /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(log2lin.o)
- .debug_line    0x000000000000bb4f      0x2b7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(NLSF2A.o)
- .debug_line    0x000000000000be06      0x19c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(NLSF_decode.o)
- .debug_line    0x000000000000bfa2      0x393 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(NLSF_stabilize.o)
- .debug_line    0x000000000000c335      0x124 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(NLSF_unpack.o)
- .debug_line    0x000000000000c459       0x68 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(pitch_est_tables.o)
- .debug_line    0x000000000000c4c1      0xc35 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(PLC.o)
- .debug_line    0x000000000000d0f6      0x350 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(resampler.o)
- .debug_line    0x000000000000d446      0x51f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(resampler_private_down_FIR.o)
- .debug_line    0x000000000000d965      0x20b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(resampler_private_IIR_FIR.o)
- .debug_line    0x000000000000db70      0x202 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(resampler_private_up2_HQ.o)
- .debug_line    0x000000000000dd72       0x56 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(resampler_rom.o)
- .debug_line    0x000000000000ddc8      0x1f0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(shell_coder.o)
- .debug_line    0x000000000000dfb8      0x3e8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(sort.o)
- .debug_line    0x000000000000e3a0      0x182 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(stereo_decode_pred.o)
- .debug_line    0x000000000000e522      0x259 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(stereo_MS_to_LR.o)
- .debug_line    0x000000000000e77b      0x1f8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(sum_sqr_shift.o)
- .debug_line    0x000000000000e973       0x68 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(table_LSF_cos.o)
- .debug_line    0x000000000000e9db       0x68 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(tables_gain.o)
- .debug_line    0x000000000000ea43       0x6d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(tables_LTP.o)
- .debug_line    0x000000000000eab0       0x72 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(tables_NLSF_CB_NB_MB.o)
- .debug_line    0x000000000000eb22       0x72 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(tables_NLSF_CB_WB.o)
- .debug_line    0x000000000000eb94       0x6d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(tables_other.o)
- .debug_line    0x000000000000ec01       0x68 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(tables_pitch_lag.o)
- .debug_line    0x000000000000ec69       0x68 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(tables_pulses_per_block.o)
- .debug_line    0x000000000000ecd1      0x4c2 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(opus.o)
- .debug_line    0x000000000000f193     0x2ecb /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(bands.o)
- .debug_line    0x000000000001205e      0x3d8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(celt.o)
- .debug_line    0x0000000000012436      0x3c4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(cwrs.o)
- .debug_line    0x00000000000127fa      0x6ab /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(entenc.o)
- .debug_line    0x0000000000012ea5      0x8b2 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(kiss_fft.o)
- .debug_line    0x0000000000013757      0x29e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(laplace.o)
- .debug_line    0x00000000000139f5       0xbe /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(bwexpander_32.o)
- .debug_line    0x0000000000013ab3       0xb9 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(bwexpander.o)
- .debug_line    0x0000000000013b6c      0x576 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(CNG.o)
- .debug_line    0x00000000000140e2      0x24f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(code_signs.o)
- .debug_line    0x0000000000014331      0x787 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(decode_core.o)
- .debug_line    0x0000000000014ab8      0x175 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(LPC_analysis_filter.o)
- .debug_line    0x0000000000014c2d      0x1f4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(LPC_fit.o)
- .debug_line    0x0000000000014e21      0x362 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(LPC_inv_pred_gain.o)
- .debug_line    0x0000000000015183       0xc3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(resampler_private_AR2.o)
- .debug_line    0x0000000000015246      0xf6d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libtlsf.a(tlsf.o)
- .debug_line    0x00000000000161b3      0x2a8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .debug_line    0x000000000000347d     0x1e23 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(celt_decoder.o)
+ .debug_line    0x00000000000052a0      0xaa2 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(celt_lpc.o)
+ .debug_line    0x0000000000005d42       0xb4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(entcode.o)
+ .debug_line    0x0000000000005df6      0x487 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(entdec.o)
+ .debug_line    0x000000000000627d      0x39b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(mathops.o)
+ .debug_line    0x0000000000006618      0x68e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(mdct.o)
+ .debug_line    0x0000000000006ca6      0x11e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(modes.o)
+ .debug_line    0x0000000000006dc4     0x1246 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(pitch.o)
+ .debug_line    0x000000000000800a      0xbc4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(quant_bands.o)
+ .debug_line    0x0000000000008bce      0xb39 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(rate.o)
+ .debug_line    0x0000000000009707      0xa6b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(vq.o)
+ .debug_line    0x000000000000a172      0x934 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(dec_API.o)
+ .debug_line    0x000000000000aaa6      0x17a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(decode_frame.o)
+ .debug_line    0x000000000000ac20      0x32d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(decode_indices.o)
+ .debug_line    0x000000000000af4d      0x1c9 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(decode_parameters.o)
+ .debug_line    0x000000000000b116       0xfb /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(decode_pitch.o)
+ .debug_line    0x000000000000b211      0x26a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(decode_pulses.o)
+ .debug_line    0x000000000000b47b      0x1ba /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(decoder_set_fs.o)
+ .debug_line    0x000000000000b635      0x289 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(gain_quant.o)
+ .debug_line    0x000000000000b8be       0xc8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(init_decoder.o)
+ .debug_line    0x000000000000b986      0x122 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(lin2log.o)
+ .debug_line    0x000000000000baa8       0xaf /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(log2lin.o)
+ .debug_line    0x000000000000bb57      0x2b7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(NLSF2A.o)
+ .debug_line    0x000000000000be0e      0x19c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(NLSF_decode.o)
+ .debug_line    0x000000000000bfaa      0x393 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(NLSF_stabilize.o)
+ .debug_line    0x000000000000c33d      0x124 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(NLSF_unpack.o)
+ .debug_line    0x000000000000c461       0x68 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(pitch_est_tables.o)
+ .debug_line    0x000000000000c4c9      0xc35 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(PLC.o)
+ .debug_line    0x000000000000d0fe      0x350 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(resampler.o)
+ .debug_line    0x000000000000d44e      0x51f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(resampler_private_down_FIR.o)
+ .debug_line    0x000000000000d96d      0x20b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(resampler_private_IIR_FIR.o)
+ .debug_line    0x000000000000db78      0x202 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(resampler_private_up2_HQ.o)
+ .debug_line    0x000000000000dd7a       0x56 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(resampler_rom.o)
+ .debug_line    0x000000000000ddd0      0x1f0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(shell_coder.o)
+ .debug_line    0x000000000000dfc0      0x3e8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(sort.o)
+ .debug_line    0x000000000000e3a8      0x182 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(stereo_decode_pred.o)
+ .debug_line    0x000000000000e52a      0x259 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(stereo_MS_to_LR.o)
+ .debug_line    0x000000000000e783      0x1f8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(sum_sqr_shift.o)
+ .debug_line    0x000000000000e97b       0x68 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(table_LSF_cos.o)
+ .debug_line    0x000000000000e9e3       0x68 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(tables_gain.o)
+ .debug_line    0x000000000000ea4b       0x6d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(tables_LTP.o)
+ .debug_line    0x000000000000eab8       0x72 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(tables_NLSF_CB_NB_MB.o)
+ .debug_line    0x000000000000eb2a       0x72 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(tables_NLSF_CB_WB.o)
+ .debug_line    0x000000000000eb9c       0x6d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(tables_other.o)
+ .debug_line    0x000000000000ec09       0x68 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(tables_pitch_lag.o)
+ .debug_line    0x000000000000ec71       0x68 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(tables_pulses_per_block.o)
+ .debug_line    0x000000000000ecd9      0x4c2 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(opus.o)
+ .debug_line    0x000000000000f19b     0x2ecb /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(bands.o)
+ .debug_line    0x0000000000012066      0x3d8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(celt.o)
+ .debug_line    0x000000000001243e      0x3c4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(cwrs.o)
+ .debug_line    0x0000000000012802      0x6ab /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(entenc.o)
+ .debug_line    0x0000000000012ead      0x8b2 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(kiss_fft.o)
+ .debug_line    0x000000000001375f      0x29e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(laplace.o)
+ .debug_line    0x00000000000139fd       0xbe /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(bwexpander_32.o)
+ .debug_line    0x0000000000013abb       0xb9 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(bwexpander.o)
+ .debug_line    0x0000000000013b74      0x576 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(CNG.o)
+ .debug_line    0x00000000000140ea      0x24f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(code_signs.o)
+ .debug_line    0x0000000000014339      0x787 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(decode_core.o)
+ .debug_line    0x0000000000014ac0      0x175 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(LPC_analysis_filter.o)
+ .debug_line    0x0000000000014c35      0x1f4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(LPC_fit.o)
+ .debug_line    0x0000000000014e29      0x362 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(LPC_inv_pred_gain.o)
+ .debug_line    0x000000000001518b       0xc3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(resampler_private_AR2.o)
+ .debug_line    0x000000000001524e      0xf6d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libtlsf.a(tlsf.o)
+ .debug_line    0x00000000000161bb      0x2a8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
 
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x5235
+.debug_str      0x0000000000000000     0x5163
  *(.debug_str)
- .debug_str     0x0000000000000000     0x5235 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/opus.o
+ .debug_str     0x0000000000000000     0x5163 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/opus.o
                                        0x145e (size before relaxing)
- .debug_str     0x0000000000005235        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/codec_crt0.o
+ .debug_str     0x0000000000005163        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/codec_crt0.o
                                         0xcbf (size before relaxing)
- .debug_str     0x0000000000005235        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(opus_decoder.o)
+ .debug_str     0x0000000000005163        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(opus_decoder.o)
                                        0x111e (size before relaxing)
- .debug_str     0x0000000000005235        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(opus_header.o)
+ .debug_str     0x0000000000005163        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(opus_header.o)
                                         0x76c (size before relaxing)
- .debug_str     0x0000000000005235        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(framing.o)
+ .debug_str     0x0000000000005163        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(framing.o)
                                        0x11b6 (size before relaxing)
- .debug_str     0x0000000000005235        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(celt_decoder.o)
+ .debug_str     0x0000000000005163        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(celt_decoder.o)
                                        0x106d (size before relaxing)
- .debug_str     0x0000000000005235        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(celt_lpc.o)
+ .debug_str     0x0000000000005163        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(celt_lpc.o)
                                         0x333 (size before relaxing)
- .debug_str     0x0000000000005235        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(entcode.o)
+ .debug_str     0x0000000000005163        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(entcode.o)
                                         0x243 (size before relaxing)
- .debug_str     0x0000000000005235        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(entdec.o)
+ .debug_str     0x0000000000005163        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(entdec.o)
                                         0x306 (size before relaxing)
- .debug_str     0x0000000000005235        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(mathops.o)
+ .debug_str     0x0000000000005163        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(mathops.o)
                                         0x2d5 (size before relaxing)
- .debug_str     0x0000000000005235        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(mdct.o)
+ .debug_str     0x0000000000005163        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(mdct.o)
                                         0x34a (size before relaxing)
- .debug_str     0x0000000000005235        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(modes.o)
+ .debug_str     0x0000000000005163        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(modes.o)
                                         0x4bf (size before relaxing)
- .debug_str     0x0000000000005235        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(pitch.o)
+ .debug_str     0x0000000000005163        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(pitch.o)
                                         0x4d5 (size before relaxing)
- .debug_str     0x0000000000005235        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(quant_bands.o)
+ .debug_str     0x0000000000005163        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(quant_bands.o)
                                         0x7a2 (size before relaxing)
- .debug_str     0x0000000000005235        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(rate.o)
+ .debug_str     0x0000000000005163        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(rate.o)
                                         0x5e4 (size before relaxing)
- .debug_str     0x0000000000005235        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(vq.o)
+ .debug_str     0x0000000000005163        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(vq.o)
                                         0x4a4 (size before relaxing)
- .debug_str     0x0000000000005235        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(dec_API.o)
+ .debug_str     0x0000000000005163        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(dec_API.o)
                                         0xa65 (size before relaxing)
- .debug_str     0x0000000000005235        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(decode_frame.o)
+ .debug_str     0x0000000000005163        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(decode_frame.o)
                                         0x822 (size before relaxing)
- .debug_str     0x0000000000005235        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(decode_indices.o)
+ .debug_str     0x0000000000005163        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(decode_indices.o)
                                         0x8bf (size before relaxing)
- .debug_str     0x0000000000005235        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(decode_parameters.o)
+ .debug_str     0x0000000000005163        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(decode_parameters.o)
                                         0x7d3 (size before relaxing)
- .debug_str     0x0000000000005235        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(decode_pitch.o)
+ .debug_str     0x0000000000005163        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(decode_pitch.o)
                                         0x2c8 (size before relaxing)
- .debug_str     0x0000000000005235        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(decode_pulses.o)
+ .debug_str     0x0000000000005163        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(decode_pulses.o)
                                         0x393 (size before relaxing)
- .debug_str     0x0000000000005235        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(decoder_set_fs.o)
+ .debug_str     0x0000000000005163        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(decoder_set_fs.o)
                                         0x78f (size before relaxing)
- .debug_str     0x0000000000005235        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(gain_quant.o)
+ .debug_str     0x0000000000005163        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(gain_quant.o)
                                         0x306 (size before relaxing)
- .debug_str     0x0000000000005235        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(init_decoder.o)
+ .debug_str     0x0000000000005163        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(init_decoder.o)
                                         0x6d0 (size before relaxing)
- .debug_str     0x0000000000005235        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(lin2log.o)
+ .debug_str     0x0000000000005163        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(lin2log.o)
                                         0x273 (size before relaxing)
- .debug_str     0x0000000000005235        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(log2lin.o)
+ .debug_str     0x0000000000005163        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(log2lin.o)
                                         0x246 (size before relaxing)
- .debug_str     0x0000000000005235        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(NLSF2A.o)
+ .debug_str     0x0000000000005163        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(NLSF2A.o)
                                         0x320 (size before relaxing)
- .debug_str     0x0000000000005235        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(NLSF_decode.o)
+ .debug_str     0x0000000000005163        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(NLSF_decode.o)
                                         0x3ee (size before relaxing)
- .debug_str     0x0000000000005235        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(NLSF_stabilize.o)
+ .debug_str     0x0000000000005163        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(NLSF_stabilize.o)
                                         0x2aa (size before relaxing)
- .debug_str     0x0000000000005235        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(NLSF_unpack.o)
+ .debug_str     0x0000000000005163        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(NLSF_unpack.o)
                                         0x2de (size before relaxing)
- .debug_str     0x0000000000005235        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(pitch_est_tables.o)
+ .debug_str     0x0000000000005163        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(pitch_est_tables.o)
                                         0x70c (size before relaxing)
- .debug_str     0x0000000000005235        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(PLC.o)
+ .debug_str     0x0000000000005163        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(PLC.o)
                                         0xefe (size before relaxing)
- .debug_str     0x0000000000005235        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(resampler.o)
+ .debug_str     0x0000000000005163        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(resampler.o)
                                         0x4cc (size before relaxing)
- .debug_str     0x0000000000005235        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(resampler_private_down_FIR.o)
+ .debug_str     0x0000000000005163        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(resampler_private_down_FIR.o)
                                         0x422 (size before relaxing)
- .debug_str     0x0000000000005235        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(resampler_private_IIR_FIR.o)
+ .debug_str     0x0000000000005163        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(resampler_private_IIR_FIR.o)
                                         0x427 (size before relaxing)
- .debug_str     0x0000000000005235        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(resampler_private_up2_HQ.o)
+ .debug_str     0x0000000000005163        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(resampler_private_up2_HQ.o)
                                         0x38f (size before relaxing)
- .debug_str     0x0000000000005235        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(resampler_rom.o)
+ .debug_str     0x0000000000005163        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(resampler_rom.o)
                                         0x2f9 (size before relaxing)
- .debug_str     0x0000000000005235        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(shell_coder.o)
+ .debug_str     0x0000000000005163        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(shell_coder.o)
                                         0x3b5 (size before relaxing)
- .debug_str     0x0000000000005235        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(sort.o)
+ .debug_str     0x0000000000005163        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(sort.o)
                                         0x265 (size before relaxing)
- .debug_str     0x0000000000005235        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(stereo_decode_pred.o)
+ .debug_str     0x0000000000005163        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(stereo_decode_pred.o)
                                         0x39c (size before relaxing)
- .debug_str     0x0000000000005235        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(stereo_MS_to_LR.o)
+ .debug_str     0x0000000000005163        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(stereo_MS_to_LR.o)
                                         0x2ca (size before relaxing)
- .debug_str     0x0000000000005235        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(sum_sqr_shift.o)
+ .debug_str     0x0000000000005163        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(sum_sqr_shift.o)
                                         0x254 (size before relaxing)
- .debug_str     0x0000000000005235        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(table_LSF_cos.o)
+ .debug_str     0x0000000000005163        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(table_LSF_cos.o)
                                         0x67d (size before relaxing)
- .debug_str     0x0000000000005235        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(tables_gain.o)
+ .debug_str     0x0000000000005163        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(tables_gain.o)
                                         0x68a (size before relaxing)
- .debug_str     0x0000000000005235        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(tables_LTP.o)
+ .debug_str     0x0000000000005163        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(tables_LTP.o)
                                         0x812 (size before relaxing)
- .debug_str     0x0000000000005235        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(tables_NLSF_CB_NB_MB.o)
+ .debug_str     0x0000000000005163        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(tables_NLSF_CB_NB_MB.o)
                                         0x836 (size before relaxing)
- .debug_str     0x0000000000005235        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(tables_NLSF_CB_WB.o)
+ .debug_str     0x0000000000005163        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(tables_NLSF_CB_WB.o)
                                         0x821 (size before relaxing)
- .debug_str     0x0000000000005235        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(tables_other.o)
+ .debug_str     0x0000000000005163        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(tables_other.o)
                                         0x894 (size before relaxing)
- .debug_str     0x0000000000005235        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(tables_pitch_lag.o)
+ .debug_str     0x0000000000005163        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(tables_pitch_lag.o)
                                         0x702 (size before relaxing)
- .debug_str     0x0000000000005235        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(tables_pulses_per_block.o)
+ .debug_str     0x0000000000005163        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(tables_pulses_per_block.o)
                                         0x76d (size before relaxing)
- .debug_str     0x0000000000005235        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(opus.o)
+ .debug_str     0x0000000000005163        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(opus.o)
                                         0x2ef (size before relaxing)
- .debug_str     0x0000000000005235        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(bands.o)
+ .debug_str     0x0000000000005163        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(bands.o)
                                         0xc5c (size before relaxing)
- .debug_str     0x0000000000005235        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(celt.o)
+ .debug_str     0x0000000000005163        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(celt.o)
                                         0x444 (size before relaxing)
- .debug_str     0x0000000000005235        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(cwrs.o)
+ .debug_str     0x0000000000005163        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(cwrs.o)
                                         0x77e (size before relaxing)
- .debug_str     0x0000000000005235        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(entenc.o)
+ .debug_str     0x0000000000005163        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(entenc.o)
                                         0x368 (size before relaxing)
- .debug_str     0x0000000000005235        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(kiss_fft.o)
+ .debug_str     0x0000000000005163        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(kiss_fft.o)
                                         0x383 (size before relaxing)
- .debug_str     0x0000000000005235        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(laplace.o)
+ .debug_str     0x0000000000005163        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(laplace.o)
                                         0x2c1 (size before relaxing)
- .debug_str     0x0000000000005235        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(bwexpander_32.o)
+ .debug_str     0x0000000000005163        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(bwexpander_32.o)
                                         0x21c (size before relaxing)
- .debug_str     0x0000000000005235        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(bwexpander.o)
+ .debug_str     0x0000000000005163        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(bwexpander.o)
                                         0x219 (size before relaxing)
- .debug_str     0x0000000000005235        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(CNG.o)
+ .debug_str     0x0000000000005163        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(CNG.o)
                                         0x83d (size before relaxing)
- .debug_str     0x0000000000005235        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(code_signs.o)
+ .debug_str     0x0000000000005163        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(code_signs.o)
                                         0x358 (size before relaxing)
- .debug_str     0x0000000000005235        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(decode_core.o)
+ .debug_str     0x0000000000005163        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(decode_core.o)
                                         0x8c2 (size before relaxing)
- .debug_str     0x0000000000005235        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(LPC_analysis_filter.o)
+ .debug_str     0x0000000000005163        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(LPC_analysis_filter.o)
                                         0x247 (size before relaxing)
- .debug_str     0x0000000000005235        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(LPC_fit.o)
+ .debug_str     0x0000000000005163        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(LPC_fit.o)
                                         0x272 (size before relaxing)
- .debug_str     0x0000000000005235        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(LPC_inv_pred_gain.o)
+ .debug_str     0x0000000000005163        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(LPC_inv_pred_gain.o)
                                         0x32a (size before relaxing)
- .debug_str     0x0000000000005235        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(resampler_private_AR2.o)
+ .debug_str     0x0000000000005163        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(resampler_private_AR2.o)
                                         0x2b4 (size before relaxing)
- .debug_str     0x0000000000005235        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libtlsf.a(tlsf.o)
+ .debug_str     0x0000000000005163        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libtlsf.a(tlsf.o)
                                         0x410 (size before relaxing)
- .debug_str     0x0000000000005235        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .debug_str     0x0000000000005163        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
                                         0xedb (size before relaxing)
 
 .debug_loc
@@ -2228,214 +2225,214 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
  *(.debug_addr)
 
 .debug_line_str
-                0x0000000000000000     0x1e86
+                0x0000000000000000     0x1e56
  *(.debug_line_str)
  .debug_line_str
-                0x0000000000000000     0x1e86 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/opus.o
+                0x0000000000000000     0x1e56 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/opus.o
                                         0x41e (size before relaxing)
  .debug_line_str
-                0x0000000000001e86        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/codec_crt0.o
-                                        0x264 (size before relaxing)
+                0x0000000000001e56        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/codec_crt0.o
+                                        0x260 (size before relaxing)
  .debug_line_str
-                0x0000000000001e86        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(opus_decoder.o)
-                                        0x502 (size before relaxing)
+                0x0000000000001e56        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(opus_decoder.o)
+                                        0x4fe (size before relaxing)
  .debug_line_str
-                0x0000000000001e86        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(opus_header.o)
+                0x0000000000001e56        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(opus_header.o)
                                         0x277 (size before relaxing)
  .debug_line_str
-                0x0000000000001e86        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(framing.o)
-                                        0x379 (size before relaxing)
+                0x0000000000001e56        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(framing.o)
+                                        0x375 (size before relaxing)
  .debug_line_str
-                0x0000000000001e86        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(celt_decoder.o)
-                                        0x374 (size before relaxing)
+                0x0000000000001e56        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(celt_decoder.o)
+                                        0x370 (size before relaxing)
  .debug_line_str
-                0x0000000000001e86        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(celt_lpc.o)
+                0x0000000000001e56        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(celt_lpc.o)
                                         0x1fe (size before relaxing)
  .debug_line_str
-                0x0000000000001e86        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(entcode.o)
+                0x0000000000001e56        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(entcode.o)
                                         0x1c1 (size before relaxing)
  .debug_line_str
-                0x0000000000001e86        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(entdec.o)
+                0x0000000000001e56        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(entdec.o)
                                         0x1be (size before relaxing)
  .debug_line_str
-                0x0000000000001e86        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(mathops.o)
+                0x0000000000001e56        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(mathops.o)
                                         0x1d6 (size before relaxing)
  .debug_line_str
-                0x0000000000001e86        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(mdct.o)
+                0x0000000000001e56        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(mdct.o)
                                         0x1d5 (size before relaxing)
  .debug_line_str
-                0x0000000000001e86        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(modes.o)
+                0x0000000000001e56        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(modes.o)
                                         0x1fb (size before relaxing)
  .debug_line_str
-                0x0000000000001e86        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(pitch.o)
+                0x0000000000001e56        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(pitch.o)
                                         0x20a (size before relaxing)
  .debug_line_str
-                0x0000000000001e86        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(quant_bands.o)
+                0x0000000000001e56        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(quant_bands.o)
                                         0x264 (size before relaxing)
  .debug_line_str
-                0x0000000000001e86        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(rate.o)
+                0x0000000000001e56        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(rate.o)
                                         0x20e (size before relaxing)
  .debug_line_str
-                0x0000000000001e86        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(vq.o)
+                0x0000000000001e56        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(vq.o)
                                         0x1e7 (size before relaxing)
  .debug_line_str
-                0x0000000000001e86        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(dec_API.o)
+                0x0000000000001e56        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(dec_API.o)
                                         0x282 (size before relaxing)
  .debug_line_str
-                0x0000000000001e86        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(decode_frame.o)
+                0x0000000000001e56        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(decode_frame.o)
                                         0x26d (size before relaxing)
  .debug_line_str
-                0x0000000000001e86        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(decode_indices.o)
+                0x0000000000001e56        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(decode_indices.o)
                                         0x269 (size before relaxing)
  .debug_line_str
-                0x0000000000001e86        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(decode_parameters.o)
+                0x0000000000001e56        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(decode_parameters.o)
                                         0x235 (size before relaxing)
  .debug_line_str
-                0x0000000000001e86        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(decode_pitch.o)
+                0x0000000000001e56        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(decode_pitch.o)
                                         0x1d9 (size before relaxing)
  .debug_line_str
-                0x0000000000001e86        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(decode_pulses.o)
+                0x0000000000001e56        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(decode_pulses.o)
                                         0x25e (size before relaxing)
  .debug_line_str
-                0x0000000000001e86        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(decoder_set_fs.o)
+                0x0000000000001e56        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(decoder_set_fs.o)
                                         0x225 (size before relaxing)
  .debug_line_str
-                0x0000000000001e86        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(gain_quant.o)
+                0x0000000000001e56        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(gain_quant.o)
                                         0x1dc (size before relaxing)
  .debug_line_str
-                0x0000000000001e86        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(init_decoder.o)
+                0x0000000000001e56        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(init_decoder.o)
                                         0x271 (size before relaxing)
  .debug_line_str
-                0x0000000000001e86        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(lin2log.o)
+                0x0000000000001e56        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(lin2log.o)
                                         0x1e6 (size before relaxing)
  .debug_line_str
-                0x0000000000001e86        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(log2lin.o)
+                0x0000000000001e56        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(log2lin.o)
                                         0x1c5 (size before relaxing)
  .debug_line_str
-                0x0000000000001e86        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(NLSF2A.o)
+                0x0000000000001e56        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(NLSF2A.o)
                                         0x1d9 (size before relaxing)
  .debug_line_str
-                0x0000000000001e86        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(NLSF_decode.o)
+                0x0000000000001e56        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(NLSF_decode.o)
                                         0x1f0 (size before relaxing)
  .debug_line_str
-                0x0000000000001e86        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(NLSF_stabilize.o)
+                0x0000000000001e56        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(NLSF_stabilize.o)
                                         0x1d9 (size before relaxing)
  .debug_line_str
-                0x0000000000001e86        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(NLSF_unpack.o)
+                0x0000000000001e56        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(NLSF_unpack.o)
                                         0x1db (size before relaxing)
  .debug_line_str
-                0x0000000000001e86        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(pitch_est_tables.o)
+                0x0000000000001e56        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(pitch_est_tables.o)
                                         0x27d (size before relaxing)
  .debug_line_str
-                0x0000000000001e86        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(PLC.o)
+                0x0000000000001e56        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(PLC.o)
                                         0x2a6 (size before relaxing)
  .debug_line_str
-                0x0000000000001e86        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(resampler.o)
+                0x0000000000001e56        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(resampler.o)
                                         0x219 (size before relaxing)
  .debug_line_str
-                0x0000000000001e86        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(resampler_private_down_FIR.o)
+                0x0000000000001e56        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(resampler_private_down_FIR.o)
                                         0x24c (size before relaxing)
  .debug_line_str
-                0x0000000000001e86        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(resampler_private_IIR_FIR.o)
+                0x0000000000001e56        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(resampler_private_IIR_FIR.o)
                                         0x249 (size before relaxing)
  .debug_line_str
-                0x0000000000001e86        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(resampler_private_up2_HQ.o)
+                0x0000000000001e56        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(resampler_private_up2_HQ.o)
                                         0x21c (size before relaxing)
  .debug_line_str
-                0x0000000000001e86        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(resampler_rom.o)
+                0x0000000000001e56        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(resampler_rom.o)
                                         0x1d8 (size before relaxing)
  .debug_line_str
-                0x0000000000001e86        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(shell_coder.o)
+                0x0000000000001e56        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(shell_coder.o)
                                         0x244 (size before relaxing)
  .debug_line_str
-                0x0000000000001e86        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(sort.o)
+                0x0000000000001e56        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(sort.o)
                                         0x1ad (size before relaxing)
  .debug_line_str
-                0x0000000000001e86        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(stereo_decode_pred.o)
+                0x0000000000001e56        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(stereo_decode_pred.o)
                                         0x250 (size before relaxing)
  .debug_line_str
-                0x0000000000001e86        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(stereo_MS_to_LR.o)
+                0x0000000000001e56        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(stereo_MS_to_LR.o)
                                         0x1fd (size before relaxing)
  .debug_line_str
-                0x0000000000001e86        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(sum_sqr_shift.o)
+                0x0000000000001e56        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(sum_sqr_shift.o)
                                         0x1ee (size before relaxing)
  .debug_line_str
-                0x0000000000001e86        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(table_LSF_cos.o)
+                0x0000000000001e56        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(table_LSF_cos.o)
                                         0x269 (size before relaxing)
  .debug_line_str
-                0x0000000000001e86        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(tables_gain.o)
+                0x0000000000001e56        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(tables_gain.o)
                                         0x264 (size before relaxing)
  .debug_line_str
-                0x0000000000001e86        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(tables_LTP.o)
+                0x0000000000001e56        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(tables_LTP.o)
                                         0x26f (size before relaxing)
  .debug_line_str
-                0x0000000000001e86        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(tables_NLSF_CB_NB_MB.o)
+                0x0000000000001e56        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(tables_NLSF_CB_NB_MB.o)
                                         0x297 (size before relaxing)
  .debug_line_str
-                0x0000000000001e86        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(tables_NLSF_CB_WB.o)
+                0x0000000000001e56        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(tables_NLSF_CB_WB.o)
                                         0x28e (size before relaxing)
  .debug_line_str
-                0x0000000000001e86        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(tables_other.o)
+                0x0000000000001e56        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(tables_other.o)
                                         0x275 (size before relaxing)
  .debug_line_str
-                0x0000000000001e86        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(tables_pitch_lag.o)
+                0x0000000000001e56        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(tables_pitch_lag.o)
                                         0x273 (size before relaxing)
  .debug_line_str
-                0x0000000000001e86        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(tables_pulses_per_block.o)
+                0x0000000000001e56        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(tables_pulses_per_block.o)
                                         0x288 (size before relaxing)
  .debug_line_str
-                0x0000000000001e86        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(opus.o)
+                0x0000000000001e56        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(opus.o)
                                         0x1af (size before relaxing)
  .debug_line_str
-                0x0000000000001e86        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(bands.o)
+                0x0000000000001e56        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(bands.o)
                                         0x253 (size before relaxing)
  .debug_line_str
-                0x0000000000001e86        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(celt.o)
+                0x0000000000001e56        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(celt.o)
                                         0x1f9 (size before relaxing)
  .debug_line_str
-                0x0000000000001e86        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(cwrs.o)
+                0x0000000000001e56        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(cwrs.o)
                                         0x28d (size before relaxing)
  .debug_line_str
-                0x0000000000001e86        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(entenc.o)
+                0x0000000000001e56        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(entenc.o)
                                         0x1d4 (size before relaxing)
  .debug_line_str
-                0x0000000000001e86        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(kiss_fft.o)
-                                        0x213 (size before relaxing)
+                0x0000000000001e56        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(kiss_fft.o)
+                                        0x20f (size before relaxing)
  .debug_line_str
-                0x0000000000001e86        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(laplace.o)
+                0x0000000000001e56        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(laplace.o)
                                         0x1e1 (size before relaxing)
  .debug_line_str
-                0x0000000000001e86        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(bwexpander_32.o)
+                0x0000000000001e56        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(bwexpander_32.o)
                                         0x1c8 (size before relaxing)
  .debug_line_str
-                0x0000000000001e86        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(bwexpander.o)
+                0x0000000000001e56        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(bwexpander.o)
                                         0x1bf (size before relaxing)
  .debug_line_str
-                0x0000000000001e86        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(CNG.o)
+                0x0000000000001e56        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(CNG.o)
                                         0x20e (size before relaxing)
  .debug_line_str
-                0x0000000000001e86        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(code_signs.o)
+                0x0000000000001e56        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(code_signs.o)
                                         0x241 (size before relaxing)
  .debug_line_str
-                0x0000000000001e86        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(decode_core.o)
+                0x0000000000001e56        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(decode_core.o)
                                         0x22f (size before relaxing)
  .debug_line_str
-                0x0000000000001e86        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(LPC_analysis_filter.o)
+                0x0000000000001e56        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(LPC_analysis_filter.o)
                                         0x1ff (size before relaxing)
  .debug_line_str
-                0x0000000000001e86        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(LPC_fit.o)
+                0x0000000000001e56        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(LPC_fit.o)
                                         0x1d3 (size before relaxing)
  .debug_line_str
-                0x0000000000001e86        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(LPC_inv_pred_gain.o)
+                0x0000000000001e56        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(LPC_inv_pred_gain.o)
                                         0x1f6 (size before relaxing)
  .debug_line_str
-                0x0000000000001e86        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(resampler_private_AR2.o)
+                0x0000000000001e56        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libopus.a(resampler_private_AR2.o)
                                         0x1ff (size before relaxing)
  .debug_line_str
-                0x0000000000001e86        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libtlsf.a(tlsf.o)
+                0x0000000000001e56        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libtlsf.a(tlsf.o)
                                         0x15d (size before relaxing)
  .debug_line_str
-                0x0000000000001e86        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+                0x0000000000001e56        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
                                         0x328 (size before relaxing)
 
 .debug_loclists

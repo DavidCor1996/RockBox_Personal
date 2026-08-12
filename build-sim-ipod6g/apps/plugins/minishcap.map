@@ -27,9 +27,6 @@ Archive member included to satisfy reference by file (symbol)
 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_room_links_house_smith.240x160x24.o)
                               /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/minishcap.o (minishcap_room_links_house_smith)
 
-Merging object attributes
-
-
 Merging program properties
 
 Removed property 0xc0000002 to merge /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crti.o (0x3) and /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/minishcap.o (not found)
@@ -128,7 +125,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/libgcc_s.so.1
 LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a
 END GROUP
 LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/libatomic_asneeded.so
-LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/libatomic.a
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/libatomic.so
 LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/libc.so
 START GROUP
 LOAD /usr/lib/libc.so.6
@@ -741,23 +738,23 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x1e638
+.debug_info     0x0000000000000000    0x1ee3f
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0xe197 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/minishcap.o
- .debug_info    0x000000000000e197     0x7da8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
- .debug_info    0x0000000000015f3f     0x77d8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
- .debug_info    0x000000000001d717      0x142 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_back.24x24x24.o)
- .debug_info    0x000000000001d859      0x142 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_front.24x24x24.o)
- .debug_info    0x000000000001d99b      0x142 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_front_step.24x24x24.o)
- .debug_info    0x000000000001dadd      0x142 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_left.24x24x24.o)
- .debug_info    0x000000000001dc1f      0x142 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_left_step.24x24x24.o)
- .debug_info    0x000000000001dd61      0x142 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_right.24x24x24.o)
- .debug_info    0x000000000001dea3      0x142 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_right_step.24x24x24.o)
- .debug_info    0x000000000001dfe5      0x145 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_room_meadow_real.320x208x24.o)
- .debug_info    0x000000000001e12a      0x145 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_room_creek_real.320x208x24.o)
- .debug_info    0x000000000001e26f      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_room_links_house_bedroom.240x160x24.o)
- .debug_info    0x000000000001e3b2      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_room_links_house_entrance.240x160x24.o)
- .debug_info    0x000000000001e4f5      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_room_links_house_smith.240x160x24.o)
+ .debug_info    0x0000000000000000     0xe428 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/minishcap.o
+ .debug_info    0x000000000000e428     0x8039 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+ .debug_info    0x0000000000016461     0x7a69 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
+ .debug_info    0x000000000001deca      0x149 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_back.24x24x24.o)
+ .debug_info    0x000000000001e013      0x149 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_front.24x24x24.o)
+ .debug_info    0x000000000001e15c      0x149 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_front_step.24x24x24.o)
+ .debug_info    0x000000000001e2a5      0x149 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_left.24x24x24.o)
+ .debug_info    0x000000000001e3ee      0x149 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_left_step.24x24x24.o)
+ .debug_info    0x000000000001e537      0x149 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_right.24x24x24.o)
+ .debug_info    0x000000000001e680      0x149 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_right_step.24x24x24.o)
+ .debug_info    0x000000000001e7c9      0x14c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_room_meadow_real.320x208x24.o)
+ .debug_info    0x000000000001e915      0x14c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_room_creek_real.320x208x24.o)
+ .debug_info    0x000000000001ea61      0x14a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_room_links_house_bedroom.240x160x24.o)
+ .debug_info    0x000000000001ebab      0x14a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_room_links_house_entrance.240x160x24.o)
+ .debug_info    0x000000000001ecf5      0x14a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_room_links_house_smith.240x160x24.o)
 
 .debug_abbrev   0x0000000000000000     0x16f9
  *(.debug_abbrev)
@@ -777,59 +774,59 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
  .debug_abbrev  0x000000000000157d       0xbe /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_room_links_house_entrance.240x160x24.o)
  .debug_abbrev  0x000000000000163b       0xbe /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_room_links_house_smith.240x160x24.o)
 
-.debug_line     0x0000000000000000     0x34e0
+.debug_line     0x0000000000000000     0x34ef
  *(.debug_line .debug_line.* .debug_line_end)
- .debug_line    0x0000000000000000     0x2bd3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/minishcap.o
- .debug_line    0x0000000000002bd3      0x2bd /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
- .debug_line    0x0000000000002e90      0x2c0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
- .debug_line    0x0000000000003150       0x4c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_back.24x24x24.o)
- .debug_line    0x000000000000319c       0x4c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_front.24x24x24.o)
- .debug_line    0x00000000000031e8       0x4c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_front_step.24x24x24.o)
- .debug_line    0x0000000000003234       0x4c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_left.24x24x24.o)
- .debug_line    0x0000000000003280       0x4c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_left_step.24x24x24.o)
- .debug_line    0x00000000000032cc       0x4c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_right.24x24x24.o)
- .debug_line    0x0000000000003318       0x4c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_right_step.24x24x24.o)
- .debug_line    0x0000000000003364       0x4c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_room_meadow_real.320x208x24.o)
- .debug_line    0x00000000000033b0       0x4c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_room_creek_real.320x208x24.o)
- .debug_line    0x00000000000033fc       0x4c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_room_links_house_bedroom.240x160x24.o)
- .debug_line    0x0000000000003448       0x4c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_room_links_house_entrance.240x160x24.o)
- .debug_line    0x0000000000003494       0x4c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_room_links_house_smith.240x160x24.o)
+ .debug_line    0x0000000000000000     0x2bd8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/minishcap.o
+ .debug_line    0x0000000000002bd8      0x2c2 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+ .debug_line    0x0000000000002e9a      0x2c5 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
+ .debug_line    0x000000000000315f       0x4c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_back.24x24x24.o)
+ .debug_line    0x00000000000031ab       0x4c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_front.24x24x24.o)
+ .debug_line    0x00000000000031f7       0x4c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_front_step.24x24x24.o)
+ .debug_line    0x0000000000003243       0x4c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_left.24x24x24.o)
+ .debug_line    0x000000000000328f       0x4c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_left_step.24x24x24.o)
+ .debug_line    0x00000000000032db       0x4c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_right.24x24x24.o)
+ .debug_line    0x0000000000003327       0x4c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_right_step.24x24x24.o)
+ .debug_line    0x0000000000003373       0x4c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_room_meadow_real.320x208x24.o)
+ .debug_line    0x00000000000033bf       0x4c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_room_creek_real.320x208x24.o)
+ .debug_line    0x000000000000340b       0x4c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_room_links_house_bedroom.240x160x24.o)
+ .debug_line    0x0000000000003457       0x4c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_room_links_house_entrance.240x160x24.o)
+ .debug_line    0x00000000000034a3       0x4c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_room_links_house_smith.240x160x24.o)
 
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x5e2a
+.debug_str      0x0000000000000000     0x6008
  *(.debug_str)
- .debug_str     0x0000000000000000     0x5e2a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/minishcap.o
-                                       0x63af (size before relaxing)
- .debug_str     0x0000000000005e2a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
-                                       0x52bf (size before relaxing)
- .debug_str     0x0000000000005e2a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
-                                       0x4966 (size before relaxing)
- .debug_str     0x0000000000005e2a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_back.24x24x24.o)
-                                        0x17a (size before relaxing)
- .debug_str     0x0000000000005e2a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_front.24x24x24.o)
-                                        0x17c (size before relaxing)
- .debug_str     0x0000000000005e2a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_front_step.24x24x24.o)
-                                        0x186 (size before relaxing)
- .debug_str     0x0000000000005e2a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_left.24x24x24.o)
-                                        0x17a (size before relaxing)
- .debug_str     0x0000000000005e2a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_left_step.24x24x24.o)
-                                        0x184 (size before relaxing)
- .debug_str     0x0000000000005e2a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_right.24x24x24.o)
-                                        0x17c (size before relaxing)
- .debug_str     0x0000000000005e2a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_right_step.24x24x24.o)
-                                        0x186 (size before relaxing)
- .debug_str     0x0000000000005e2a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_room_meadow_real.320x208x24.o)
-                                        0x188 (size before relaxing)
- .debug_str     0x0000000000005e2a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_room_creek_real.320x208x24.o)
-                                        0x186 (size before relaxing)
- .debug_str     0x0000000000005e2a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_room_links_house_bedroom.240x160x24.o)
-                                        0x198 (size before relaxing)
- .debug_str     0x0000000000005e2a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_room_links_house_entrance.240x160x24.o)
+ .debug_str     0x0000000000000000     0x6008 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/minishcap.o
+                                       0x6596 (size before relaxing)
+ .debug_str     0x0000000000006008        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+                                       0x54ab (size before relaxing)
+ .debug_str     0x0000000000006008        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
+                                       0x4b52 (size before relaxing)
+ .debug_str     0x0000000000006008        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_back.24x24x24.o)
+                                        0x180 (size before relaxing)
+ .debug_str     0x0000000000006008        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_front.24x24x24.o)
+                                        0x182 (size before relaxing)
+ .debug_str     0x0000000000006008        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_front_step.24x24x24.o)
+                                        0x18c (size before relaxing)
+ .debug_str     0x0000000000006008        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_left.24x24x24.o)
+                                        0x180 (size before relaxing)
+ .debug_str     0x0000000000006008        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_left_step.24x24x24.o)
+                                        0x18a (size before relaxing)
+ .debug_str     0x0000000000006008        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_right.24x24x24.o)
+                                        0x182 (size before relaxing)
+ .debug_str     0x0000000000006008        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_right_step.24x24x24.o)
+                                        0x18c (size before relaxing)
+ .debug_str     0x0000000000006008        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_room_meadow_real.320x208x24.o)
+                                        0x18e (size before relaxing)
+ .debug_str     0x0000000000006008        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_room_creek_real.320x208x24.o)
+                                        0x18c (size before relaxing)
+ .debug_str     0x0000000000006008        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_room_links_house_bedroom.240x160x24.o)
+                                        0x19e (size before relaxing)
+ .debug_str     0x0000000000006008        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_room_links_house_entrance.240x160x24.o)
+                                        0x1a0 (size before relaxing)
+ .debug_str     0x0000000000006008        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_room_links_house_smith.240x160x24.o)
                                         0x19a (size before relaxing)
- .debug_str     0x0000000000005e2a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_room_links_house_smith.240x160x24.o)
-                                        0x194 (size before relaxing)
 
 .debug_loc
  *(.debug_loc)
@@ -859,52 +856,52 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
  *(.debug_addr)
 
 .debug_line_str
-                0x0000000000000000      0xf2c
+                0x0000000000000000      0xf3b
  *(.debug_line_str)
  .debug_line_str
-                0x0000000000000000      0xf2c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/minishcap.o
-                                        0x820 (size before relaxing)
+                0x0000000000000000      0xf3b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/minishcap.o
+                                        0x82f (size before relaxing)
  .debug_line_str
-                0x0000000000000f2c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
-                                        0x68b (size before relaxing)
+                0x0000000000000f3b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+                                        0x69a (size before relaxing)
  .debug_line_str
-                0x0000000000000f2c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
-                                        0x62e (size before relaxing)
+                0x0000000000000f3b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
+                                        0x63d (size before relaxing)
  .debug_line_str
-                0x0000000000000f2c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_back.24x24x24.o)
+                0x0000000000000f3b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_back.24x24x24.o)
                                         0x238 (size before relaxing)
  .debug_line_str
-                0x0000000000000f2c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_front.24x24x24.o)
+                0x0000000000000f3b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_front.24x24x24.o)
                                         0x23c (size before relaxing)
  .debug_line_str
-                0x0000000000000f2c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_front_step.24x24x24.o)
+                0x0000000000000f3b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_front_step.24x24x24.o)
                                         0x250 (size before relaxing)
  .debug_line_str
-                0x0000000000000f2c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_left.24x24x24.o)
+                0x0000000000000f3b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_left.24x24x24.o)
                                         0x238 (size before relaxing)
  .debug_line_str
-                0x0000000000000f2c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_left_step.24x24x24.o)
+                0x0000000000000f3b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_left_step.24x24x24.o)
                                         0x24c (size before relaxing)
  .debug_line_str
-                0x0000000000000f2c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_right.24x24x24.o)
+                0x0000000000000f3b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_right.24x24x24.o)
                                         0x23c (size before relaxing)
  .debug_line_str
-                0x0000000000000f2c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_right_step.24x24x24.o)
+                0x0000000000000f3b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_right_step.24x24x24.o)
                                         0x250 (size before relaxing)
  .debug_line_str
-                0x0000000000000f2c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_room_meadow_real.320x208x24.o)
+                0x0000000000000f3b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_room_meadow_real.320x208x24.o)
                                         0x25a (size before relaxing)
  .debug_line_str
-                0x0000000000000f2c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_room_creek_real.320x208x24.o)
+                0x0000000000000f3b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_room_creek_real.320x208x24.o)
                                         0x256 (size before relaxing)
  .debug_line_str
-                0x0000000000000f2c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_room_links_house_bedroom.240x160x24.o)
+                0x0000000000000f3b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_room_links_house_bedroom.240x160x24.o)
                                         0x27a (size before relaxing)
  .debug_line_str
-                0x0000000000000f2c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_room_links_house_entrance.240x160x24.o)
+                0x0000000000000f3b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_room_links_house_entrance.240x160x24.o)
                                         0x27e (size before relaxing)
  .debug_line_str
-                0x0000000000000f2c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_room_links_house_smith.240x160x24.o)
+                0x0000000000000f3b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_room_links_house_smith.240x160x24.o)
                                         0x272 (size before relaxing)
 
 .debug_loclists

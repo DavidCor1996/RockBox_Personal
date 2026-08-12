@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 import json
+import logging
 
 from PIL import Image, ImageOps, UnidentifiedImageError
 
@@ -19,6 +20,53 @@ DEVICE_PHOTO_JPEG_QUALITY = 85
 THUMBNAIL_MAX_SIZE = (64, 48)
 PREVIEW_MAX_SIZE = (320, 320)
 HIDDEN_PHOTOS_FILE = ".hidden_photos.json"
+
+logger = logging.getLogger(__name__)
+
+PHOTO_RUNTIME_ARTIFACTS = (
+    (
+        os.path.join("apps", "plugins", "photos.rock"),
+        ".rockbox/rocks/apps/photos.rock",
+        "photo_runtime_plugin",
+    ),
+    (
+        os.path.join("apps", "plugins", "imageviewer.rock"),
+        ".rockbox/rocks/viewers/imageviewer.rock",
+        "photo_runtime_plugin",
+    ),
+    (
+        os.path.join("apps", "plugins", "imageviewer", "bmp.ovl"),
+        ".rockbox/rocks/viewers/bmp.ovl",
+        "photo_runtime_overlay",
+    ),
+    (
+        os.path.join("apps", "plugins", "imageviewer", "gif.ovl"),
+        ".rockbox/rocks/viewers/gif.ovl",
+        "photo_runtime_overlay",
+    ),
+    (
+        os.path.join("apps", "plugins", "imageviewer", "jpeg.ovl"),
+        ".rockbox/rocks/viewers/jpeg.ovl",
+        "photo_runtime_overlay",
+    ),
+    (
+        os.path.join("apps", "plugins", "imageviewer", "jpegp.ovl"),
+        ".rockbox/rocks/viewers/jpegp.ovl",
+        "photo_runtime_overlay",
+    ),
+    (
+        os.path.join("apps", "plugins", "imageviewer", "png.ovl"),
+        ".rockbox/rocks/viewers/png.ovl",
+        "photo_runtime_overlay",
+    ),
+    (
+        os.path.join("apps", "plugins", "imageviewer", "ppm.ovl"),
+        ".rockbox/rocks/viewers/ppm.ovl",
+        "photo_runtime_overlay",
+    ),
+)
+
+PHOTO_RUNTIME_GUARD_ID = "photos-runtime-viewers"
 
 
 class RockboxPhotoService:
@@ -262,11 +310,29 @@ class RockboxPhotoService:
         )
         if index_asset:
             assets.append(index_asset)
-        return {
+
+        runtime_assets, runtime_required = self._photo_runtime_assets(profile, target_mode)
+        if runtime_assets:
+            assets.extend(runtime_assets)
+
+        bundle = {
             "id": f"photos-sync-{profile['id']}",
             "name": "Rockbox Photo Sync",
             "assets": assets,
         }
+        if runtime_required:
+            bundle["atomic"] = True
+            bundle["deployment_guards"] = [
+                {
+                    "id": PHOTO_RUNTIME_GUARD_ID,
+                    "description": (
+                        "Photo runtime plugin set "
+                        "(photos/imageviewer and required overlays)"
+                    ),
+                    "required_destinations": runtime_required,
+                }
+            ]
+        return bundle
 
     def build_remove_bundle(self, profile, photos, target_mode="device"):
         target_dir = self._photo_target_dir(profile, target_mode).rstrip("/")
@@ -395,6 +461,105 @@ class RockboxPhotoService:
         if target_mode == "simulator":
             return str(profile.get("photos_simulator_target_dir") or PHOTO_TARGET_DIR).strip() or PHOTO_TARGET_DIR
         return str(profile.get("photos_device_target_dir") or PHOTO_TARGET_DIR).strip() or PHOTO_TARGET_DIR
+
+    def _photo_runtime_assets(self, profile, target_mode):
+        build_dir = self._runtime_build_dir(profile, target_mode)
+        if not build_dir:
+            return [], []
+
+        marker_paths = (
+            os.path.join(build_dir, "apps", "plugins", "photos.rock"),
+            os.path.join(build_dir, "apps", "plugins", "imageviewer.rock"),
+        )
+        if not any(os.path.isfile(path) for path in marker_paths):
+            return [], []
+
+        repo_root = os.path.abspath(profile.get("source_repo_path") or os.getcwd())
+        assets = []
+        required = []
+        missing = []
+        for source_rel, destination_rel, kind in PHOTO_RUNTIME_ARTIFACTS:
+            source_abs = os.path.join(build_dir, source_rel)
+            exists = os.path.isfile(source_abs)
+            assets.append(
+                {
+                    "kind": kind,
+                    "source_rel": os.path.relpath(source_abs, repo_root).replace("\\", "/"),
+                    "source_abs": source_abs,
+                    "destination_rel": destination_rel,
+                    "exists": exists,
+                    "size": os.path.getsize(source_abs) if exists else 0,
+                }
+            )
+            required.append(destination_rel)
+            if not exists:
+                missing.append(source_abs)
+
+        assets.extend(
+            [
+                {
+                    "kind": "plugin_cache",
+                    "source_rel": "",
+                    "source_abs": "",
+                    "destination_rel": ".rockbox/rocks/plugin.dat",
+                    "exists": False,
+                    "action": "remove",
+                },
+                {
+                    "kind": "plugin_cache",
+                    "source_rel": "",
+                    "source_abs": "",
+                    "destination_rel": ".rockbox/rocks/rb_plugins.dat",
+                    "exists": False,
+                    "action": "remove",
+                },
+            ]
+        )
+
+        if missing:
+            logger.warning(
+                "Photo runtime sync blocked until all viewer artifacts are built: %s",
+                ", ".join(missing),
+            )
+
+        return assets, required
+
+    @staticmethod
+    def _runtime_build_dir(profile, target_mode):
+        repo_root = os.path.abspath(profile.get("source_repo_path") or os.getcwd())
+        if target_mode == "simulator":
+            selected = str(profile.get("simulator_target") or "").strip()
+            if selected:
+                candidate = os.path.join(repo_root, selected)
+                if os.path.isdir(candidate):
+                    return candidate
+            resolution = str(profile.get("screen_resolution") or "").strip()
+            fallback = {
+                "320x240": ["build-sim-video-5g", "build-sim"],
+                "176x132": ["build-sim-nano2g"],
+                "160x128": ["build-sim-3g"],
+            }.get(resolution, ["build-sim-video-5g", "build-sim"])
+            for name in fallback:
+                candidate = os.path.join(repo_root, name)
+                if os.path.isdir(candidate):
+                    return candidate
+            return ""
+
+        model = str(profile.get("target_device_model") or "").lower()
+        resolution = str(profile.get("screen_resolution") or "").strip()
+        if "ipod 3g" in model or resolution == "160x128":
+            preferred = ["build-hw-ipod3g", "build-hw-ipodvideo", "build-hw-ipodvideo-5g"]
+        elif "nano" in model or resolution == "176x132":
+            preferred = ["build-hw-ipodnano2g"]
+        elif "video" in model or "5g" in model:
+            preferred = ["build-hw-ipodvideo-5g", "build-hw-ipodvideo"]
+        else:
+            preferred = ["build-hw-ipod6g", "build-hw-ipodvideo-5g", "build-hw-ipodvideo"]
+        for name in preferred:
+            candidate = os.path.join(repo_root, name)
+            if os.path.isdir(candidate):
+                return candidate
+        return ""
 
     def _photo_thumb_dir(self, profile, target_mode="device"):
         target_dir = self._photo_target_dir(profile, target_mode).rstrip("/")

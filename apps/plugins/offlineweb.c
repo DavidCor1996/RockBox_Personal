@@ -15,6 +15,14 @@
 #define OW_ROOT          ROCKBOX_DIR "/offlineweb"
 #define OW_INDEX         OW_ROOT "/index.html"
 #define OW_SHORTCUTS     "rockbox:shortcuts"
+#define OW_GOOGLE        "rockbox:google"
+#define OW_GOOGLE_SEARCH "rockbox:google-search"
+#define OW_LIVE_PAGE     ROCKBOX_DIR "/offlineweb/cache/live.html"
+#define OW_LIVE_TEMP     ROCKBOX_DIR "/offlineweb/cache/live.tmp"
+#define OW_LIVE_BITMAP   ROCKBOX_DIR "/offlineweb/cache/live.bmp"
+#define OW_BROWSER_PORT  47702
+#define OW_BROWSER_MAX   (256 * 1024)
+#define OW_BROWSER_PACKET_MAX 1400
 #define OW_PAGES         OW_ROOT "/cache/pages.tsv"
 #define OW_HISTORY       OW_ROOT "/cache/history.tsv"
 #define OW_FAVORITES     OW_ROOT "/cache/favorites.tsv"
@@ -48,6 +56,7 @@
 #define OW_SCROLL_STEP   6
 #define OW_SCROLL_REPEAT 14
 #define OW_IMAGE_MAX_H   (LCD_HEIGHT - OW_TOP_H - OW_BOTTOM_H - 8)
+#define OW_IMAGE_DECODE_SLACK (64 * 1024 / sizeof(fb_data))
 #define OW_BROWSER_CONTINUE -1000
 #define OW_BROWSER_BACK     -1001
 
@@ -138,15 +147,433 @@ static int back_count;
 static int browser_scroll;
 static int browser_selected_link;
 static int browser_zoom;
-static fb_data image_pixels[LCD_WIDTH * OW_IMAGE_MAX_H];
+/* Decoder workspace is plugin-owned.  Keep it separate from Rockbox's audio
+ * and playback buffers so browser artwork can never interrupt music. */
+static fb_data image_pixels[LCD_WIDTH * OW_IMAGE_MAX_H +
+                            OW_IMAGE_DECODE_SLACK];
 static int image_cache_line = -1;
 static int image_cache_width;
 static int image_cache_height;
 static int youtube_frame_fd = -1;
+static bool online_mode;
+static uint32_t live_request_id;
+struct ow_live_transfer {
+    bool active;
+    uint32_t request_id;
+    uint32_t expected_size;
+    uint32_t expected_crc;
+    uint32_t received;
+    uint32_t crc;
+    long deadline;
+    int fd;
+};
+static struct ow_live_transfer live_transfer;
+static int live_visual_scroll;
+static int live_queued_scroll;
+/* Shared transfer buffer keeps 1360-byte payloads out of the plugin stack and
+ * cuts a typical live viewport from dozens of stop-and-wait USB packets to a
+ * small handful. */
+static unsigned char live_packet[OW_BROWSER_PACKET_MAX];
+#ifdef SIMULATOR
+static bool remote_preview_mode;
+#endif
 
 static const char *ow_basename(const char *path);
 static int ow_line_height(void);
 static int ow_line_for_link(int link);
+
+static bool ow_online_connected(void)
+{
+#ifdef USB_ENABLE_ETHERNET
+    return rb->usb_internet_connected();
+#else
+    return false;
+#endif
+}
+
+static uint32_t ow_get_be32(const unsigned char *p)
+{
+    return ((uint32_t)p[0] << 24) | ((uint32_t)p[1] << 16) |
+           ((uint32_t)p[2] << 8) | p[3];
+}
+
+static void ow_put_be32(unsigned char *p, uint32_t value)
+{
+    p[0] = value >> 24;
+    p[1] = value >> 16;
+    p[2] = value >> 8;
+    p[3] = value;
+}
+
+static bool ow_browser_send(const void *packet, int length, int retry_ticks)
+{
+#ifdef USB_ENABLE_ETHERNET
+    long deadline = *rb->current_tick + MAX(1, retry_ticks);
+
+    do
+    {
+        rb->usb_internet_service();
+        if (rb->usb_internet_send(OW_BROWSER_PORT, packet, length) >= 0)
+            return true;
+        rb->sleep(1);
+    }
+    while (ow_online_connected() &&
+           TIME_BEFORE(*rb->current_tick, deadline));
+#else
+    (void)packet;
+    (void)length;
+    (void)retry_ticks;
+#endif
+    return false;
+}
+
+static void ow_browser_ack(uint32_t request_id, uint32_t offset)
+{
+#ifdef USB_ENABLE_ETHERNET
+    unsigned char packet[13] = { 'R', 'P', 'B', '1', 5 };
+    ow_put_be32(packet + 5, request_id);
+    ow_put_be32(packet + 9, offset);
+    ow_browser_send(packet, sizeof(packet), HZ / 5);
+#else
+    (void)request_id;
+    (void)offset;
+#endif
+}
+
+static void ow_draw_loading(const char *message)
+{
+    rb->lcd_set_viewport(NULL);
+    rb->lcd_set_drawmode(DRMODE_SOLID);
+    rb->lcd_set_background(LCD_WHITE);
+    rb->lcd_set_foreground(LCD_WHITE);
+    rb->lcd_clear_display();
+    rb->lcd_set_foreground(LCD_BLACK);
+    rb->lcd_putsxy(8, 8, "Safari");
+    rb->lcd_putsxy(8, LCD_HEIGHT / 2 - 5, message);
+    rb->lcd_update();
+}
+
+static bool ow_install_live_bundle(void)
+{
+    unsigned char header[12];
+    unsigned char buffer[512];
+    uint32_t html_size;
+    uint32_t bitmap_size;
+    int source = -1;
+    int output = -1;
+    bool ok = false;
+
+    source = rb->open(OW_LIVE_TEMP, O_RDONLY);
+    if (source < 0 || rb->read(source, header, sizeof(header)) !=
+                      (int)sizeof(header) || rb->memcmp(header, "RPWB", 4))
+        goto done;
+    html_size = ow_get_be32(header + 4);
+    bitmap_size = ow_get_be32(header + 8);
+    if (!html_size || html_size + bitmap_size + sizeof(header) >
+                       OW_BROWSER_MAX)
+        goto done;
+
+    output = rb->open(OW_LIVE_PAGE, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+    if (output < 0)
+        goto done;
+    for (uint32_t left = html_size; left > 0;)
+    {
+        int chunk = MIN(left, (uint32_t)sizeof(buffer));
+        if (rb->read(source, buffer, chunk) != chunk ||
+            rb->write(output, buffer, chunk) != chunk)
+            goto done;
+        left -= chunk;
+    }
+    rb->close(output);
+    output = -1;
+
+    if (bitmap_size)
+    {
+        output = rb->open(OW_LIVE_BITMAP,
+                          O_WRONLY | O_CREAT | O_TRUNC, 0666);
+        if (output < 0)
+            goto done;
+        for (uint32_t left = bitmap_size; left > 0;)
+        {
+            int chunk = MIN(left, (uint32_t)sizeof(buffer));
+            if (rb->read(source, buffer, chunk) != chunk ||
+                rb->write(output, buffer, chunk) != chunk)
+                goto done;
+            left -= chunk;
+        }
+        rb->close(output);
+        output = -1;
+    }
+    ok = true;
+
+done:
+    if (output >= 0)
+        rb->close(output);
+    if (source >= 0)
+        rb->close(source);
+    rb->remove(OW_LIVE_TEMP);
+    return ok;
+}
+
+static bool ow_fetch_live_request(unsigned char request_type,
+                                  const char *value)
+{
+#if defined(USB_ENABLE_ETHERNET)
+    unsigned char *packet = live_packet;
+    uint32_t expected_size = 0;
+    uint32_t expected_crc = 0;
+    uint32_t received = 0;
+    uint32_t crc = 0xffffffff;
+    long deadline;
+    int fd = -1;
+    int length;
+
+    if (!ow_online_connected())
+        return false;
+    live_request_id++;
+    if (!live_request_id)
+        live_request_id = 1;
+    rb->memcpy(packet, "RPB1", 4);
+    packet[4] = request_type;
+    ow_put_be32(packet + 5, live_request_id);
+    rb->strlcpy((char *)packet + 9, value, OW_BROWSER_PACKET_MAX - 9);
+    length = 9 + rb->strlen((char *)packet + 9);
+    if (!ow_browser_send(packet, length, HZ))
+        return false;
+
+    ow_draw_loading("Loading web page...");
+    deadline = *rb->current_tick + 25 * HZ;
+    while (TIME_BEFORE(*rb->current_tick, deadline))
+    {
+        rb->usb_internet_service();
+        length = rb->usb_internet_receive(OW_BROWSER_PORT, packet,
+                                          OW_BROWSER_PACKET_MAX);
+        if (length <= 0)
+        {
+            rb->sleep(1);
+            continue;
+        }
+        if (length < 9 || rb->memcmp(packet, "RPB1", 4) ||
+            ow_get_be32(packet + 5) != live_request_id)
+            continue;
+        if (packet[4] == 2 && length == 17)
+        {
+            expected_size = ow_get_be32(packet + 9);
+            expected_crc = ow_get_be32(packet + 13);
+            if (!expected_size || expected_size > OW_BROWSER_MAX)
+                break;
+            if (fd >= 0)
+                rb->close(fd);
+            fd = rb->open(OW_LIVE_TEMP, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+            if (fd < 0)
+                break;
+            received = 0;
+            crc = 0xffffffff;
+            ow_browser_ack(live_request_id, 0);
+        }
+        else if (packet[4] == 3 && length > 13 && fd >= 0)
+        {
+            uint32_t offset = ow_get_be32(packet + 9);
+            int payload = length - 13;
+            if (offset < received && offset + payload <= received)
+            {
+                ow_browser_ack(live_request_id, received);
+                continue;
+            }
+            if (offset != received || received + payload > expected_size ||
+                rb->write(fd, packet + 13, payload) != payload)
+                break;
+            crc = rb->crc_32(packet + 13, payload, crc);
+            received += payload;
+            ow_browser_ack(live_request_id, received);
+        }
+        else if (packet[4] == 4 && fd >= 0)
+        {
+            bool valid = received == expected_size &&
+                         (!expected_crc || crc == expected_crc);
+            rb->close(fd);
+            fd = -1;
+            if (valid && ow_install_live_bundle())
+            {
+                ow_browser_ack(live_request_id, 0xffffffff);
+                return true;
+            }
+            break;
+        }
+        else if (packet[4] == 6)
+        {
+            packet[MIN(length, OW_BROWSER_PACKET_MAX - 1)] = '\0';
+            rb->splashf(HZ * 2, "Web error: %s", packet + 9);
+            break;
+        }
+    }
+    if (fd >= 0)
+        rb->close(fd);
+    rb->remove(OW_LIVE_TEMP);
+#else
+    (void)request_type;
+    (void)value;
+#endif
+    return false;
+}
+
+static bool ow_fetch_live_page(const char *url)
+{
+    return ow_fetch_live_request(1, url);
+}
+
+static bool ow_remote_command(const char *command)
+{
+    return ow_fetch_live_request(8, command);
+}
+
+static void ow_live_transfer_reset(void)
+{
+    if (live_transfer.fd >= 0)
+        rb->close(live_transfer.fd);
+    live_transfer.fd = -1;
+    live_transfer.active = false;
+    rb->remove(OW_LIVE_TEMP);
+}
+
+static void ow_live_scroll_cancel(void)
+{
+    ow_live_transfer_reset();
+    live_visual_scroll = 0;
+    live_queued_scroll = 0;
+}
+
+/* Start a viewport refresh without blocking the click-wheel/UI thread. */
+static bool ow_live_command_begin(int scroll)
+{
+#if defined(USB_ENABLE_ETHERNET)
+    unsigned char packet[64];
+    char command[32];
+    int length;
+
+    if (live_transfer.active || !ow_online_connected() || !scroll)
+        return false;
+    live_request_id++;
+    if (!live_request_id)
+        live_request_id = 1;
+    rb->snprintf(command, sizeof(command), "scroll:%d", scroll);
+    rb->memcpy(packet, "RPB1", 4);
+    packet[4] = 8;
+    ow_put_be32(packet + 5, live_request_id);
+    rb->strlcpy((char *)packet + 9, command, sizeof(packet) - 9);
+    length = 9 + rb->strlen((char *)packet + 9);
+    if (!ow_browser_send(packet, length, HZ / 4))
+        return false;
+
+    rb->memset(&live_transfer, 0, sizeof(live_transfer));
+    live_transfer.active = true;
+    live_transfer.request_id = live_request_id;
+    live_transfer.crc = 0xffffffff;
+    live_transfer.deadline = *rb->current_tick + 25 * HZ;
+    live_transfer.fd = -1;
+    rb->remove(OW_LIVE_TEMP);
+    return true;
+#else
+    (void)scroll;
+    return false;
+#endif
+}
+
+/* Returns 1 for a newly installed viewport, 0 while pending, and -1 on error. */
+static int ow_live_command_service(void)
+{
+#if defined(USB_ENABLE_ETHERNET)
+    unsigned char *packet = live_packet;
+    int length;
+
+    if (!live_transfer.active)
+        return 0;
+    if (!ow_online_connected() ||
+        !TIME_BEFORE(*rb->current_tick, live_transfer.deadline))
+    {
+        ow_live_transfer_reset();
+        return -1;
+    }
+    rb->usb_internet_service();
+    while ((length = rb->usb_internet_receive(OW_BROWSER_PORT, packet,
+                                               OW_BROWSER_PACKET_MAX)) > 0)
+    {
+        if (length < 9 || rb->memcmp(packet, "RPB1", 4) ||
+            ow_get_be32(packet + 5) != live_transfer.request_id)
+            continue;
+        if (packet[4] == 2 && length == 17)
+        {
+            live_transfer.expected_size = ow_get_be32(packet + 9);
+            live_transfer.expected_crc = ow_get_be32(packet + 13);
+            if (!live_transfer.expected_size ||
+                live_transfer.expected_size > OW_BROWSER_MAX)
+            {
+                ow_live_transfer_reset();
+                return -1;
+            }
+            if (live_transfer.fd >= 0)
+                rb->close(live_transfer.fd);
+            live_transfer.fd = rb->open(OW_LIVE_TEMP,
+                O_WRONLY | O_CREAT | O_TRUNC, 0666);
+            if (live_transfer.fd < 0)
+            {
+                ow_live_transfer_reset();
+                return -1;
+            }
+            live_transfer.received = 0;
+            live_transfer.crc = 0xffffffff;
+            ow_browser_ack(live_transfer.request_id, 0);
+        }
+        else if (packet[4] == 3 && length > 13 && live_transfer.fd >= 0)
+        {
+            uint32_t offset = ow_get_be32(packet + 9);
+            int payload = length - 13;
+            if (offset < live_transfer.received &&
+                offset + payload <= live_transfer.received)
+            {
+                ow_browser_ack(live_transfer.request_id,
+                               live_transfer.received);
+                continue;
+            }
+            if (offset != live_transfer.received ||
+                live_transfer.received + payload >
+                    live_transfer.expected_size ||
+                rb->write(live_transfer.fd, packet + 13, payload) != payload)
+            {
+                ow_live_transfer_reset();
+                return -1;
+            }
+            live_transfer.crc = rb->crc_32(packet + 13, payload,
+                                           live_transfer.crc);
+            live_transfer.received += payload;
+            ow_browser_ack(live_transfer.request_id, live_transfer.received);
+        }
+        else if (packet[4] == 4 && live_transfer.fd >= 0)
+        {
+            bool valid = live_transfer.received ==
+                         live_transfer.expected_size &&
+                         (!live_transfer.expected_crc ||
+                          live_transfer.crc == live_transfer.expected_crc);
+            rb->close(live_transfer.fd);
+            live_transfer.fd = -1;
+            if (valid && ow_install_live_bundle())
+            {
+                ow_browser_ack(live_transfer.request_id, 0xffffffff);
+                live_transfer.active = false;
+                return 1;
+            }
+            ow_live_transfer_reset();
+            return -1;
+        }
+        else if (packet[4] == 6)
+        {
+            ow_live_transfer_reset();
+            return -1;
+        }
+    }
+#endif
+    return 0;
+}
 
 #ifdef HAVE_LCD_COLOR
 static bool ow_dark(void)
@@ -499,6 +926,12 @@ static void ow_join_path(char *out, size_t size, const char *base,
 
     if (!rb->strncasecmp(href, "file://", 7))
         href += 7;
+
+    if (!rb->strncasecmp(href, "rockbox:", 8))
+    {
+        rb->strlcpy(out, href, size);
+        return;
+    }
 
     if (!rb->strncmp(href, OW_ROOT, rb->strlen(OW_ROOT)) &&
         (href[rb->strlen(OW_ROOT)] == '/' ||
@@ -950,6 +1383,22 @@ static void ow_render_shortcuts(void)
     }
 }
 
+static void ow_render_google(void)
+{
+    int link;
+
+    rb->memset(&render, 0, sizeof(render));
+    ow_add_blank();
+    ow_add_blank();
+    ow_add_line_styled("Google", OW_STYLE_HEADING, -1);
+    ow_add_line("Search the web from your iPod");
+    ow_add_blank();
+    link = ow_add_direct_link(OW_GOOGLE_SEARCH, "Google Search");
+    ow_add_line_styled("Google Search", OW_STYLE_LINK, link);
+    ow_add_line_styled("Select, then use the Click Wheel keyboard",
+                       OW_STYLE_META, link);
+}
+
 static void ow_render_html(const char *path)
 {
     int fd;
@@ -1231,7 +1680,13 @@ static void ow_render_path(const char *path)
         rb->close(youtube_frame_fd);
     youtube_frame_fd = -1;
     rb->memset(&youtube_page, 0, sizeof(youtube_page));
-    if (ow_is_shortcuts_path(path))
+    if (online_mode && !rb->strcmp(path, OW_GOOGLE))
+        ow_render_google();
+    else if (online_mode &&
+             (!rb->strncasecmp(path, "http://", 7) ||
+              !rb->strncasecmp(path, "https://", 8)))
+        ow_render_html(OW_LIVE_PAGE);
+    else if (ow_is_shortcuts_path(path))
         ow_render_shortcuts();
     else
         ow_render_html(path);
@@ -1243,6 +1698,12 @@ static const char *ow_title_for_path(const char *path)
 {
     int page = ow_find_page_by_path(path);
 
+    if (online_mode && !rb->strcmp(path, OW_GOOGLE))
+        return "Google";
+    if (online_mode &&
+        (!rb->strncasecmp(path, "http://", 7) ||
+         !rb->strncasecmp(path, "https://", 8)))
+        return "Safari";
     if (ow_is_shortcuts_path(path))
         return "Offline Websites";
     if (page >= 0 && pages[page].title[0])
@@ -1669,7 +2130,20 @@ static void ow_draw_header(const char *path)
         (page >= 0 && rb->strcasestr(pages[page].url, "onlyfans.com")) ||
         rb->strcasestr(path, "onlyfans.com");
 
-    if (ow_is_shortcuts_path(path))
+    if (online_mode && !rb->strcmp(path, OW_GOOGLE))
+        rb->strlcpy(address, "google.com", sizeof(address));
+    else if (online_mode &&
+             (!rb->strncasecmp(path, "http://", 7) ||
+              !rb->strncasecmp(path, "https://", 8)))
+    {
+        const char *url = path;
+        if (!rb->strncasecmp(url, "https://", 8))
+            url += 8;
+        else if (!rb->strncasecmp(url, "http://", 7))
+            url += 7;
+        rb->strlcpy(address, url, sizeof(address));
+    }
+    else if (ow_is_shortcuts_path(path))
         rb->strlcpy(address, "Saved Pages", sizeof(address));
     else if (page >= 0 && pages[page].url[0])
     {
@@ -2172,6 +2646,363 @@ static int ow_play_youtube_video(void)
     return rb->plugin_open(OW_MPEGPLAYER, launch_path);
 }
 
+static void ow_draw_remote_page(const char *path, int cursor_x)
+{
+    struct bitmap bm;
+    int old_fg = rb->lcd_get_foreground();
+    int old_bg = rb->lcd_get_background();
+    int rc;
+    int screen_x = 5 + cursor_x;
+    int screen_y = OW_TOP_H + 2 + 85;
+
+    rb->lcd_set_viewport(NULL);
+    rb->lcd_set_drawmode(DRMODE_SOLID);
+    rb->lcd_set_background(LCD_WHITE);
+    rb->lcd_set_foreground(LCD_WHITE);
+    rb->lcd_clear_display();
+    ow_draw_header(path);
+
+    rb->memset(&bm, 0, sizeof(bm));
+    bm.width = 310;
+    bm.height = 170;
+    bm.data = (unsigned char *)image_pixels;
+    {
+        unsigned char magic[2] = { 0, 0 };
+        int fd = rb->open(OW_LIVE_BITMAP, O_RDONLY);
+        if (fd >= 0)
+        {
+            rb->read(fd, magic, sizeof(magic));
+            rb->close(fd);
+        }
+        if (magic[0] == 0xff && magic[1] == 0xd8)
+            rc = rb->read_jpeg_file(OW_LIVE_BITMAP, &bm,
+                                    sizeof(image_pixels),
+                                    FORMAT_NATIVE | FORMAT_RESIZE, NULL);
+        else
+            rc = rb->read_bmp_file(OW_LIVE_BITMAP, &bm,
+                                   sizeof(image_pixels),
+                                   FORMAT_NATIVE | FORMAT_RESIZE, NULL);
+    }
+    if (rc > 0)
+    {
+        int width = MIN(bm.width, 310);
+        int height = MIN(bm.height, 170);
+        /* Keep the last complete viewport on screen while the iPhone renders
+         * and transfers the next one. Translating the old bitmap exposed a
+         * white strip at its trailing edge and made a healthy scroll look
+         * like a partially loaded page. */
+        int offset = 0;
+        if (offset >= 0)
+            rb->lcd_bitmap(image_pixels + offset * bm.width, 5,
+                           OW_TOP_H + 2, width, height - offset);
+        else
+            rb->lcd_bitmap(image_pixels, 5, OW_TOP_H + 2 - offset,
+                           width, height + offset);
+    }
+    else
+    {
+        rb->lcd_set_foreground(LCD_BLACK);
+        rb->lcd_set_background(LCD_WHITE);
+        rb->lcd_putsxy(12, 96, "Live page unavailable");
+    }
+
+#ifdef HAVE_LCD_COLOR
+    rb->lcd_set_foreground(OW_IPODJS_ACTIVE_BOTTOM);
+#else
+    rb->lcd_set_foreground(LCD_BLACK);
+#endif
+    rb->lcd_hline(screen_x - 3, screen_x + 3, screen_y - 7);
+    rb->lcd_hline(screen_x - 3, screen_x + 3, screen_y + 7);
+    rb->lcd_vline(screen_x - 7, screen_y - 3, screen_y + 3);
+    rb->lcd_vline(screen_x + 7, screen_y - 3, screen_y + 3);
+    rb->lcd_drawline(screen_x - 6, screen_y - 4,
+                     screen_x - 4, screen_y - 6);
+    rb->lcd_drawline(screen_x + 4, screen_y - 6,
+                     screen_x + 6, screen_y - 4);
+    rb->lcd_drawline(screen_x - 6, screen_y + 4,
+                     screen_x - 4, screen_y + 6);
+    rb->lcd_drawline(screen_x + 4, screen_y + 6,
+                     screen_x + 6, screen_y + 4);
+    rb->lcd_fillrect(screen_x - 1, screen_y - 1, 3, 3);
+
+#ifdef HAVE_LCD_COLOR
+    rb->lcd_set_foreground(ow_dark() ? OW_IPODJS_DARK_PANEL :
+                           OW_IPODJS_TOOLBAR_MID);
+#else
+    rb->lcd_set_foreground(LCD_WHITE);
+#endif
+    rb->lcd_fillrect(0, 212, LCD_WIDTH, LCD_HEIGHT - 212);
+#ifdef HAVE_LCD_COLOR
+    rb->lcd_set_foreground(ow_color_split());
+#else
+    rb->lcd_set_foreground(LCD_BLACK);
+#endif
+    rb->lcd_hline(0, LCD_WIDTH - 1, 212);
+    rb->lcd_set_background(ow_dark() ? OW_IPODJS_DARK_PANEL :
+                           OW_IPODJS_TOOLBAR_MID);
+    rb->lcd_set_foreground(ow_color_text());
+    ow_draw_bar_text(5, 215, LCD_WIDTH - 10,
+                     "Wheel Scroll   Select Tap   Play URL");
+    rb->lcd_set_foreground(old_fg);
+    rb->lcd_set_background(old_bg);
+    rb->lcd_update();
+}
+
+static void ow_input_to_url(const char *input, char *url, size_t size)
+{
+    char encoded[220];
+    size_t out = 0;
+    static const char hex[] = "0123456789ABCDEF";
+
+    if (!rb->strncasecmp(input, "http://", 7) ||
+        !rb->strncasecmp(input, "https://", 8))
+    {
+        rb->strlcpy(url, input, size);
+        return;
+    }
+    if (!rb->strchr(input, ' ') && rb->strchr(input, '.'))
+    {
+        rb->snprintf(url, size, "https://%s", input);
+        return;
+    }
+    for (size_t i = 0; input[i] && out + 3 < sizeof(encoded); i++)
+    {
+        unsigned char c = input[i];
+        if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') ||
+            (c >= '0' && c <= '9') || c == '-' || c == '_' || c == '.')
+            encoded[out++] = c;
+        else if (c == ' ')
+            encoded[out++] = '+';
+        else
+        {
+            encoded[out++] = '%';
+            encoded[out++] = hex[c >> 4];
+            encoded[out++] = hex[c & 15];
+        }
+    }
+    encoded[out] = '\0';
+    rb->snprintf(url, size, "https://www.google.com/search?q=%s", encoded);
+}
+
+static int ow_show_remote_page(const char *initial_path)
+{
+    char path[MAX_PATH];
+    int cursor_x = 155;
+    bool redraw = true;
+
+    rb->strlcpy(path, initial_path, sizeof(path));
+    rb->memset(&live_transfer, 0, sizeof(live_transfer));
+    live_transfer.fd = -1;
+    live_visual_scroll = 0;
+    live_queued_scroll = 0;
+    while (true)
+    {
+        int button;
+        char command[224];
+
+        if (redraw)
+        {
+            ow_draw_remote_page(path, cursor_x);
+            redraw = false;
+        }
+        button = rb->button_get_w_tmo(HZ / 4);
+        if (button == BUTTON_NONE)
+        {
+            int refreshed = ow_live_command_service();
+            if (refreshed != 0)
+            {
+                if (refreshed > 0)
+                    live_visual_scroll = 0;
+                redraw = true;
+                if (live_queued_scroll)
+                {
+                    int queued = live_queued_scroll;
+                    live_queued_scroll = 0;
+                    if (!ow_live_command_begin(queued))
+                        live_queued_scroll = queued;
+                }
+            }
+#ifdef SIMULATOR
+            if (remote_preview_mode)
+                continue;
+#endif
+            if (!ow_online_connected())
+            {
+                ow_live_scroll_cancel();
+                rb->splash(HZ, "Internet connection lost");
+                return PLUGIN_OK;
+            }
+            continue;
+        }
+        if ((button & BUTTON_MENU) && (button & BUTTON_SELECT))
+        {
+            ow_live_scroll_cancel();
+            return PLUGIN_OK;
+        }
+#ifdef SIMULATOR
+        if (remote_preview_mode)
+        {
+            if (button == BUTTON_MENU || button == (BUTTON_MENU | BUTTON_REL))
+            {
+                ow_live_scroll_cancel();
+                return PLUGIN_OK;
+            }
+            if (button == (BUTTON_SCROLL_FWD | BUTTON_REL))
+                button = BUTTON_SCROLL_FWD;
+            else if (button == (BUTTON_SCROLL_BACK | BUTTON_REL))
+                button = BUTTON_SCROLL_BACK;
+            if (button != BUTTON_SCROLL_FWD &&
+                button != (BUTTON_SCROLL_FWD | BUTTON_REPEAT) &&
+                button != BUTTON_SCROLL_BACK &&
+                button != (BUTTON_SCROLL_BACK | BUTTON_REPEAT))
+                continue;
+        }
+#endif
+
+        switch (button)
+        {
+            case BUTTON_SCROLL_FWD:
+            case BUTTON_SCROLL_FWD | BUTTON_REPEAT:
+            {
+                int delta = button & BUTTON_REPEAT ? 42 : 18;
+                live_visual_scroll = MIN(64, live_visual_scroll + delta);
+                if (live_transfer.active)
+                    live_queued_scroll += delta;
+                else if (!ow_live_command_begin(delta))
+                    live_queued_scroll += delta;
+                redraw = true;
+                break;
+            }
+
+            case BUTTON_SCROLL_BACK:
+            case BUTTON_SCROLL_BACK | BUTTON_REPEAT:
+            {
+                int delta = button & BUTTON_REPEAT ? -42 : -18;
+                live_visual_scroll = MAX(-64, live_visual_scroll + delta);
+                if (live_transfer.active)
+                    live_queued_scroll += delta;
+                else if (!ow_live_command_begin(delta))
+                    live_queued_scroll += delta;
+                redraw = true;
+                break;
+            }
+
+            case BUTTON_LEFT:
+                cursor_x = MAX(8, cursor_x - 24);
+                redraw = true;
+                break;
+
+            case BUTTON_RIGHT:
+                cursor_x = MIN(302, cursor_x + 24);
+                redraw = true;
+                break;
+
+            case BUTTON_LEFT | BUTTON_REPEAT:
+                ow_live_scroll_cancel();
+                ow_draw_loading("Going back...");
+                ow_remote_command("back");
+                redraw = true;
+                break;
+
+            case BUTTON_RIGHT | BUTTON_REPEAT:
+                ow_live_scroll_cancel();
+                ow_draw_loading("Going forward...");
+                ow_remote_command("forward");
+                redraw = true;
+                break;
+
+            case BUTTON_SELECT:
+                ow_live_scroll_cancel();
+                rb->snprintf(command, sizeof(command), "tap:%d:85", cursor_x);
+                ow_draw_loading("Opening...");
+                ow_remote_command(command);
+                redraw = true;
+                break;
+
+            case BUTTON_SELECT | BUTTON_REPEAT:
+#if defined(HAVE_IPODJS_UI) && defined(HAVE_TAGCACHE)
+            {
+                char input[160] = "";
+                if (rb->root_menu_ipodjs_text_input("Form Text", input,
+                                                     sizeof(input)))
+                {
+                    ow_live_scroll_cancel();
+                    char encoded[180];
+                    size_t out = 0;
+                    static const char hex[] = "0123456789ABCDEF";
+                    for (size_t i = 0; input[i] && out + 3 < sizeof(encoded); i++)
+                    {
+                        unsigned char c = input[i];
+                        if ((c >= 'A' && c <= 'Z') ||
+                            (c >= 'a' && c <= 'z') ||
+                            (c >= '0' && c <= '9') || c == '-' ||
+                            c == '_' || c == '.' || c == ' ')
+                            encoded[out++] = c == ' ' ? '+' : c;
+                        else
+                        {
+                            encoded[out++] = '%';
+                            encoded[out++] = hex[c >> 4];
+                            encoded[out++] = hex[c & 15];
+                        }
+                    }
+                    encoded[out] = '\0';
+                    rb->snprintf(command, sizeof(command), "text:%s", encoded);
+                    ow_remote_command(command);
+                    redraw = true;
+                }
+                break;
+            }
+#else
+                break;
+#endif
+
+            case BUTTON_PLAY:
+#if defined(HAVE_IPODJS_UI) && defined(HAVE_TAGCACHE)
+            {
+                char input[160] = "";
+                char url[MAX_PATH];
+                if (rb->root_menu_ipodjs_text_input("Address or Search", input,
+                                                     sizeof(input)))
+                {
+                    ow_live_scroll_cancel();
+                    ow_input_to_url(input, url, sizeof(url));
+                    ow_draw_loading("Loading live page...");
+                    if (ow_fetch_live_page(url))
+                    {
+                        rb->strlcpy(path, url, sizeof(path));
+                    }
+                    redraw = true;
+                }
+                break;
+            }
+#else
+                break;
+#endif
+
+            case BUTTON_PLAY | BUTTON_REPEAT:
+                ow_live_scroll_cancel();
+                ow_draw_loading("Reloading...");
+                ow_remote_command("reload");
+                redraw = true;
+                break;
+
+            case BUTTON_MENU:
+            case BUTTON_MENU | BUTTON_REL:
+                ow_live_scroll_cancel();
+                return PLUGIN_OK;
+
+            default:
+                if (button == SYS_USB_CONNECTED ||
+                    rb->default_event_handler(button) == SYS_USB_CONNECTED)
+                {
+                    ow_live_scroll_cancel();
+                    return PLUGIN_USB_CONNECTED;
+                }
+                break;
+        }
+    }
+}
+
 static int ow_follow_selected_link(void)
 {
     int link = browser_selected_link;
@@ -2182,6 +3013,51 @@ static int ow_follow_selected_link(void)
     {
         rb->splash(HZ, "No link here");
         return OW_BROWSER_CONTINUE;
+    }
+
+    if (online_mode &&
+        !rb->strcmp(render.links[link].target, OW_GOOGLE_SEARCH))
+    {
+#if defined(HAVE_IPODJS_UI) && defined(HAVE_TAGCACHE)
+        char input[160] = "";
+        char url[MAX_PATH];
+        char encoded[220];
+        size_t out = 0;
+
+        if (!rb->root_menu_ipodjs_text_input("Google", input,
+                                             sizeof(input)))
+            return OW_BROWSER_CONTINUE;
+        if (!rb->strncasecmp(input, "http://", 7) ||
+            !rb->strncasecmp(input, "https://", 8))
+            rb->strlcpy(url, input, sizeof(url));
+        else
+        {
+            static const char hex[] = "0123456789ABCDEF";
+            for (size_t i = 0; input[i] && out + 3 < sizeof(encoded); i++)
+            {
+                unsigned char c = input[i];
+                if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') ||
+                    (c >= '0' && c <= '9') || c == '-' || c == '_' ||
+                    c == '.')
+                    encoded[out++] = c;
+                else if (c == ' ')
+                    encoded[out++] = '+';
+                else
+                {
+                    encoded[out++] = '%';
+                    encoded[out++] = hex[c >> 4];
+                    encoded[out++] = hex[c & 15];
+                }
+            }
+            encoded[out] = '\0';
+            rb->snprintf(url, sizeof(url),
+                         "https://www.google.com/search?q=%s", encoded);
+        }
+        return ow_open_path(url, true);
+#else
+        rb->splash(HZ, "Native keyboard unavailable");
+        return OW_BROWSER_CONTINUE;
+#endif
     }
 
     return ow_open_path(render.links[link].target, true);
@@ -2227,6 +3103,19 @@ static int ow_show_page(const char *path)
         switch (button)
         {
             case BUTTON_NONE:
+                /* Keep draining companion heartbeats while a live page is
+                 * displayed.  The fetch loop already services USB, but the
+                 * steady-state browser loop previously only inspected the
+                 * timestamp and let an otherwise healthy link expire. */
+#ifdef USB_ENABLE_ETHERNET
+                if (online_mode)
+                    rb->usb_internet_service();
+#endif
+                if (online_mode && !ow_online_connected())
+                {
+                    rb->splash(HZ, "Internet connection lost");
+                    return PLUGIN_OK;
+                }
                 if (youtube_page.active && !youtube_paused)
                 {
                     int frame = (int)(
@@ -2412,6 +3301,21 @@ static int ow_open_path(const char *path, bool push_back)
     if (ow_is_shortcuts_path(path_copy))
         return ow_show_page(path_copy);
 
+    if (online_mode &&
+        (!rb->strncasecmp(path_copy, "http://", 7) ||
+         !rb->strncasecmp(path_copy, "https://", 8)))
+    {
+        if (!ow_fetch_live_page(path_copy))
+        {
+            if (!ow_online_connected())
+                rb->splash(HZ * 2, "No USB Internet connection");
+            else
+                rb->splash(HZ * 2, "Page could not be loaded");
+            return OW_BROWSER_CONTINUE;
+        }
+        return ow_show_remote_page(path_copy);
+    }
+
     if (ow_has_ext(path_copy, ".gif.png.jpg.jpeg.bmp"))
     {
         attr = rb->filetype_get_attr(path_copy);
@@ -2447,8 +3351,38 @@ enum plugin_status plugin_start(const void *parameter)
     ow_mkdirs();
     ow_load_pages();
 
+#ifdef SIMULATOR
+    if (start_path && !rb->strcmp(start_path, "rockbox:remote-preview"))
+    {
+        remote_preview_mode = true;
+        online_mode = true;
+        return ow_show_remote_page("https://www.google.com/");
+    }
+#endif
+
+    online_mode = start_path && !rb->strcmp(start_path, "online");
+    if (online_mode)
+    {
+#ifdef USB_ENABLE_ETHERNET
+        if (!ow_online_connected())
+        {
+            rb->splash(HZ * 2, "Connect USB Internet first");
+            return PLUGIN_OK;
+        }
+#else
+        rb->splash(HZ * 2, "USB Internet is unavailable");
+        return PLUGIN_OK;
+#endif
+        start_path = "https://www.google.com/";
+    }
+
     ret = ow_open_path(start_path && start_path[0] ?
                        start_path : OW_SHORTCUTS, false);
+    /* A failed initial live fetch means "stay in Safari", not "close the
+     * plugin".  Keep the native Google landing/search surface available so
+     * the user can retry or enter another address after a relay timeout. */
+    if (ret == OW_BROWSER_CONTINUE && online_mode)
+        ret = ow_show_page(OW_GOOGLE);
     if (ret == PLUGIN_USB_CONNECTED)
         return PLUGIN_USB_CONNECTED;
     if (ret == PLUGIN_GOTO_PLUGIN)

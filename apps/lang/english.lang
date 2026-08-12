@@ -12352,6 +12352,34 @@
   </voice>
 </phrase>
 <phrase>
+  id: LANG_USB_MODE_INTERNET
+  desc: in Settings -> General -> System -> USB Mode: Internet
+  user: core
+  <source>
+    *: "Internet"
+  </source>
+  <dest>
+    *: "Internet"
+  </dest>
+  <voice>
+    *: "Internet"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_USB_MODE_IPHONE_TETHER
+  desc: in Settings -> General -> System -> USB Mode: iPhone Tether
+  user: core
+  <source>
+    *: "iPhone Tether"
+  </source>
+  <dest>
+    *: "iPhone Tether"
+  </dest>
+  <voice>
+    *: "iPhone Tether"
+  </voice>
+</phrase>
+<phrase>
   id: LANG_ACTION_ENABLED
   desc: Selective Actions
   user: core
@@ -16996,6 +17024,20 @@
   <voice>
     *: none
     erosqnative: "Headphone"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_COMPOSITE_VIDEO_OUTPUT
+  desc: Enables the iPod Classic dock composite video framebuffer mirror
+  user: core
+  <source>
+    *: "Composite Video Output"
+  </source>
+  <dest>
+    *: "Composite Video Output"
+  </dest>
+  <voice>
+    *: "Composite Video Output"
   </voice>
 </phrase>
 <phrase>

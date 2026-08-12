@@ -28,6 +28,7 @@
 #include "system.h"
 #include "cpu.h"
 #include "debug.h"
+#include "font.h"
 #include "lcd.h"
 #ifdef IPOD_6G
 #include "pmu-target.h"
@@ -124,6 +125,12 @@ int lcd_type; /* also needed in debug-s5l8702.c */
 static struct mutex lcd_mutex;
 static uint16_t lcd_dblbuf[LCD_HEIGHT][LCD_WIDTH] CACHEALIGN_ATTR;
 static bool lcd_ispowered;
+#if defined(IPOD_6G) && !defined(BOOTLOADER)
+static volatile bool lcd_external_capture;
+static volatile bool lcd_external_only;
+static volatile long lcd_external_yuv_tick;
+static volatile uint16_t lcd_external_generation = 1;
+#endif
 
 /* TODO: there is no info about these specific drivers,
    some useful info on similar HW such as ILI9320, ILI9326, ILI9340 and */
@@ -895,6 +902,7 @@ void lcd_update_rect(int, int, int, int) ICODE_ATTR;
 void lcd_update_rect(int x, int y, int width, int height)
 {
     int pixels = width * height;
+    int original_height = height;
     fb_data* p = FBADDR(x,y);
     uint16_t* out = lcd_dblbuf[0];
 
@@ -925,7 +933,22 @@ void lcd_update_rect(int x, int y, int width, int height)
             } while (--height);
         }
 
-        displaylcd_dma(pixels);
+#ifdef HAVE_IPODJS_UI
+        {
+            int row;
+
+            for (row = 0; row < original_height; ++row)
+                lcd_compose_overlay_row(y + row, x, width,
+                                        lcd_dblbuf[0] + row * width);
+        }
+#endif
+
+#if defined(IPOD_6G) && !defined(BOOTLOADER)
+        if (++lcd_external_generation == 0)
+            lcd_external_generation = 1;
+        if (!lcd_external_only)
+#endif
+            displaylcd_dma(pixels);
     }
     mutex_unlock(&lcd_mutex);
 }
@@ -959,11 +982,21 @@ void lcd_blit_yuv(unsigned char * const src[3],
 
     /* TODO: ISR()->panicf()->lcd_update() blocks forever */
     mutex_lock(&lcd_mutex);
+#if defined(IPOD_6G) && !defined(BOOTLOADER)
+        lcd_external_yuv_tick = current_tick;
+        if (++lcd_external_generation == 0)
+            lcd_external_generation = 1;
+        if (lcd_ispowered || lcd_external_capture)
+#else
     if (lcd_ispowered)
+#endif
     {
         displaylcd_wait_dma();
 
-        displaylcd_setup(x, y, width, height);
+#if defined(IPOD_6G) && !defined(BOOTLOADER)
+        if (lcd_ispowered && !lcd_external_only)
+#endif
+            displaylcd_setup(x, y, width, height);
 
         height >>= 1;
 
@@ -975,10 +1008,193 @@ void lcd_blit_yuv(unsigned char * const src[3],
             out += width << 1;
         } while (--height);
 
-        displaylcd_dma(pixels);
+#ifdef HAVE_IPODJS_UI
+        {
+            int row;
+
+            for (row = 0; row < pixels / width; ++row)
+                lcd_compose_overlay_row(y + row, x, width,
+                                        lcd_dblbuf[0] + row * width);
+        }
+#endif
+
+#if defined(IPOD_6G) && !defined(BOOTLOADER)
+        if (lcd_external_capture)
+        {
+            uint16_t *source = lcd_dblbuf[0];
+            fb_data *destination = FBADDR(x, y);
+            int rows = pixels / width;
+
+            while (rows-- > 0)
+            {
+                memcpy(destination, source, width * sizeof(*source));
+                destination += LCD_WIDTH;
+                source += width;
+            }
+        }
+
+        {
+            extern void ipod6g_videoout_mirror_rgb565(const void *source,
+                    int x, int y, int width, int height, int stride);
+
+            ipod6g_videoout_mirror_rgb565(lcd_dblbuf[0], x, y, width,
+                                          pixels / width, width);
+        }
+#endif
+
+#if defined(IPOD_6G) && !defined(BOOTLOADER)
+        if (!lcd_external_only)
+#endif
+            displaylcd_dma(pixels);
     }
     mutex_unlock(&lcd_mutex);
 }
+
+#if defined(IPOD_6G) && !defined(BOOTLOADER)
+static void external_status_fill(int x, int y, int width, int height,
+                                 uint16_t color)
+{
+    int row;
+
+    x = MAX(0, x);
+    y = MAX(0, y);
+    width = MIN(width, LCD_WIDTH - x);
+    height = MIN(height, LCD_HEIGHT - y);
+    for (row = 0; row < height; ++row)
+    {
+        uint16_t *out = lcd_dblbuf[0] + (y + row) * LCD_WIDTH + x;
+        int col;
+
+        for (col = 0; col < width; ++col)
+            out[col] = color;
+    }
+}
+
+static int external_status_text_width(struct font *font, const char *text,
+                                      int scale)
+{
+    int width = 0;
+
+    while (*text != '\0')
+        width += font_get_width(font, (unsigned char)*text++) * scale;
+    return width;
+}
+
+static void external_status_text(struct font *font, int x, int y,
+                                 const char *text, int scale,
+                                 uint16_t color)
+{
+    while (*text != '\0')
+    {
+        unsigned char ch = *text++;
+        int glyph_width = font_get_width(font, ch);
+        const unsigned char *bits = font_get_bits(font, ch);
+        int col;
+
+        for (col = 0; col < glyph_width; ++col)
+        {
+            const unsigned char *source = bits + col;
+            int row;
+
+            for (row = 0; row < (int)font->height; ++row)
+            {
+                if (source[(row >> 3) * glyph_width] &
+                    (1u << (row & 7)))
+                    external_status_fill(x + col * scale, y + row * scale,
+                                         scale, scale, color);
+            }
+        }
+        x += glyph_width * scale;
+    }
+}
+
+static void external_status_centered(struct font *font, int y,
+                                     const char *text, int scale,
+                                     uint16_t color)
+{
+    int width = external_status_text_width(font, text, scale);
+
+    external_status_text(font, (LCD_WIDTH - width) / 2, y, text, scale,
+                         color);
+}
+
+/* Present a Classic-style TV Out accessory page directly from the existing
+ * LCD DMA staging buffer.  FBADDR remains the external screen source, so the
+ * player and menus can continue changing independently. */
+static void external_status_present_locked(void)
+{
+    struct font *font = font_get(FONT_SYSFIXED);
+    int y;
+    int pin;
+
+    displaylcd_wait_dma();
+    displaylcd_setup(0, 0, LCD_WIDTH, LCD_HEIGHT);
+
+    /* Quiet silver-white vertical gradient used by the stock Classic UI. */
+    for (y = 0; y < LCD_HEIGHT; ++y)
+    {
+        int shade = 250 - y * 22 / LCD_HEIGHT;
+        external_status_fill(0, y, LCD_WIDTH, 1,
+                             LCD_RGBPACK(shade, shade, shade + 2));
+    }
+    external_status_fill(0, 0, LCD_WIDTH, 1, LCD_RGBPACK(255, 255, 255));
+    external_status_fill(0, LCD_HEIGHT - 1, LCD_WIDTH, 1,
+                         LCD_RGBPACK(174, 174, 178));
+
+    /* Dock-connector cable: shadow, metal shell, contacts, neck and cable. */
+    external_status_fill(124, 55, 76, 24, LCD_RGBPACK(178, 178, 182));
+    external_status_fill(122, 53, 76, 24, LCD_RGBPACK(94, 94, 98));
+    external_status_fill(124, 55, 72, 20, LCD_RGBPACK(246, 246, 248));
+    external_status_fill(127, 58, 66, 5, LCD_RGBPACK(205, 205, 209));
+    for (pin = 0; pin < 15; ++pin)
+        external_status_fill(130 + pin * 4, 59, 2, 3,
+                             LCD_RGBPACK(112, 112, 116));
+    external_status_fill(146, 77, 28, 13, LCD_RGBPACK(112, 112, 116));
+    external_status_fill(149, 77, 22, 11, LCD_RGBPACK(242, 242, 244));
+    external_status_fill(154, 88, 12, 28, LCD_RGBPACK(105, 105, 109));
+    external_status_fill(157, 88, 6, 28, LCD_RGBPACK(245, 245, 247));
+    external_status_fill(158, 116, 4, 31, LCD_RGBPACK(104, 104, 108));
+    external_status_fill(159, 116, 2, 31, LCD_RGBPACK(248, 248, 250));
+
+    if (font != NULL && font->depth == 0)
+    {
+        external_status_centered(font, 164, "TV Out Enabled", 2,
+                                 LCD_RGBPACK(24, 24, 26));
+        external_status_centered(font, 195, "RockPod Video Accessory", 1,
+                                 LCD_RGBPACK(76, 76, 80));
+        external_status_centered(font, 209, "Use the click wheel to control",
+                                 1, LCD_RGBPACK(112, 112, 116));
+    }
+    displaylcd_dma(LCD_WIDTH * LCD_HEIGHT);
+}
+
+void lcd_external_capture_set(bool enabled, bool external_only)
+{
+    bool present_status = enabled && external_only && !lcd_external_only;
+
+    lcd_external_capture = enabled;
+    lcd_external_only = enabled && external_only;
+    if (!enabled)
+        lcd_external_yuv_tick = 0;
+    else if (present_status && lcd_ispowered)
+    {
+        mutex_lock(&lcd_mutex);
+        external_status_present_locked();
+        mutex_unlock(&lcd_mutex);
+    }
+}
+
+bool lcd_external_capture_video_active(void)
+{
+    return lcd_external_capture && lcd_external_yuv_tick != 0 &&
+           TIME_BEFORE(current_tick, lcd_external_yuv_tick + HZ / 2);
+}
+
+uint16_t lcd_external_capture_generation(void)
+{
+    return lcd_external_generation;
+}
+#endif
 
 
 /*** hardware configuration ***/

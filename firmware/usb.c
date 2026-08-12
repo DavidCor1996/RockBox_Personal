@@ -39,6 +39,9 @@
 #ifdef HAVE_USBSTACK
 #include "usb_core.h"
 #endif
+#ifdef USB_ENABLE_IPHETH_HOST
+#include "usb_iphone_tether.h"
+#endif
 #include "logf.h"
 #include "screendump.h"
 #include "powermgmt.h"
@@ -98,6 +101,9 @@ static bool usb_hid = true;
 #endif
 #ifdef USB_ENABLE_AUDIO
 static int usb_audio = 0;
+#endif
+#ifdef USB_ENABLE_IPHETH_HOST
+static bool iphone_host_active = false;
 #endif
 static bool usb_host_present = false;
 static int usb_num_acks_to_expect = 0;
@@ -201,6 +207,13 @@ static inline void usb_handle_hotswap(long id)
 
 static inline void usb_configure_drivers(int for_state)
 {
+#ifdef USB_ENABLE_IPHETH_HOST
+    if (iphone_host_active)
+    {
+        (void)for_state;
+        return;
+    }
+#endif
 #ifdef USB_ENABLE_AUDIO
     // FIXME: doesn't seem to get set when loaded at boot...
     usb_audio = global_settings.usb_audio;
@@ -218,8 +231,16 @@ static inline void usb_configure_drivers(int for_state)
         usb_core_enable_driver(USB_DRIVER_HID, true);
 #endif /* USB_ENABLE_CHARGING_ONLY */
 #endif /* USB_ENABLE_HID */
+#ifdef USB_ENABLE_ETHERNET
+        usb_core_enable_driver(USB_DRIVER_ETHERNET,
+                               usb_mode == USB_MODE_INTERNET
+#ifdef USB_ENABLE_IPHETH_HOST
+                               || usb_mode == USB_MODE_IPHONE_TETHER
+#endif
+                               );
+#endif
 #ifdef USB_ENABLE_AUDIO
-        usb_core_enable_driver(USB_DRIVER_AUDIO, true); /* config 2: always available, host selects */
+        usb_core_enable_driver(USB_DRIVER_AUDIO, true);
 #endif /* USB_ENABLE_AUDIO */
 #ifdef USB_ENABLE_IAP_HID
         usb_core_enable_driver(USB_DRIVER_IAP_HID, true);
@@ -235,13 +256,30 @@ static inline void usb_configure_drivers(int for_state)
 
     case USB_INSERTED:
 #ifdef USB_ENABLE_STORAGE
-        usb_core_enable_driver(USB_DRIVER_MASS_STORAGE, true);
+        usb_core_enable_driver(USB_DRIVER_MASS_STORAGE,
+                               usb_mode == USB_MODE_MASS_STORAGE);
 #endif
 #ifdef USB_ENABLE_HID
-        usb_core_enable_driver(USB_DRIVER_HID, usb_hid);
+        usb_core_enable_driver(USB_DRIVER_HID,
+                               usb_hid
+#ifdef USB_ENABLE_ETHERNET
+                               && usb_mode != USB_MODE_INTERNET
+#ifdef USB_ENABLE_IPHETH_HOST
+                               && usb_mode != USB_MODE_IPHONE_TETHER
+#endif
+#endif
+                               );
+#endif
+#ifdef USB_ENABLE_ETHERNET
+        usb_core_enable_driver(USB_DRIVER_ETHERNET,
+                               usb_mode == USB_MODE_INTERNET
+#ifdef USB_ENABLE_IPHETH_HOST
+                               || usb_mode == USB_MODE_IPHONE_TETHER
+#endif
+                               );
 #endif
 #ifdef USB_ENABLE_AUDIO
-        usb_core_enable_driver(USB_DRIVER_AUDIO, true); /* config 2: always available, host selects */
+        usb_core_enable_driver(USB_DRIVER_AUDIO, true);
 #endif /* USB_ENABLE_AUDIO */
 #ifdef USB_ENABLE_IAP_HID
         usb_core_enable_driver(USB_DRIVER_IAP_HID, true);
@@ -476,7 +514,7 @@ static void NORETURN_ATTR usb_thread(void)
 #endif
 #ifdef HAVE_USB_POWER
             /* Power (charging-only) button */
-            usb_power_only = usb_mode != USB_MODE_MASS_STORAGE;
+            usb_power_only = usb_mode == USB_MODE_CHARGE;
             if(button_status() & ~USBPOWER_BTN_IGNORE) {
                 usb_power_only = !usb_power_only;
             }

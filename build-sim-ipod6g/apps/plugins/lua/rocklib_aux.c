@@ -477,6 +477,16 @@ static int rock_reset_poweroff_timer(lua_State *L)
 	return 0;
 }
 
+static int rock_root_menu_ipodjs_text_input(lua_State *L)
+{
+	const char * title = (const char *) luaL_checkstring(L, 1);
+	char * text = (char *) luaL_checkstring(L, 2);
+	size_t size = (size_t) luaL_checkint(L, 3);
+	bool result = rb->root_menu_ipodjs_text_input(title, text, size);
+	lua_pushboolean(L, result);
+	return 1;
+}
+
 static int rock_sb_set_persistent_title(lua_State *L)
 {
 	const char* title = (const char*) luaL_checkstring(L, 1);
@@ -550,9 +560,9 @@ static int rock_strchr(lua_State *L)
 
 static int rock_strcmp(lua_State *L)
 {
-	const char * omebs = (const char *) luaL_checkstring(L, 1);
-	const char * eucaf = (const char *) luaL_checkstring(L, 2);
-	int result = rb->strcmp(omebs, eucaf);
+	const char * nbndr = (const char *) luaL_checkstring(L, 1);
+	const char * nmvoo = (const char *) luaL_checkstring(L, 2);
+	int result = rb->strcmp(nbndr, nmvoo);
 	lua_pushinteger(L, result);
 	return 1;
 }
@@ -643,6 +653,29 @@ static int rock_usb_inserted(lua_State *L)
 	(void)L;
 	bool result = rb->usb_inserted();
 	lua_pushboolean(L, result);
+	return 1;
+}
+
+static int rock_usb_internet_connected(lua_State *L)
+{
+	(void)L;
+	bool result = rb->usb_internet_connected();
+	lua_pushboolean(L, result);
+	return 1;
+}
+
+static int rock_usb_internet_service(lua_State *L)
+{
+	(void)L;
+	rb->usb_internet_service();
+	return 0;
+}
+
+static int rock_usb_internet_weather_generation(lua_State *L)
+{
+	(void)L;
+	unsigned long result = rb->usb_internet_weather_generation();
+	lua_pushinteger(L, result);
 	return 1;
 }
 
@@ -755,6 +788,7 @@ const luaL_Reg rocklib_aux[] =
 	{"plugin_open", rock_plugin_open},
 	{"plugin_reserve_buffer", rock_plugin_reserve_buffer},
 	{"reset_poweroff_timer", rock_reset_poweroff_timer},
+	{"root_menu_ipodjs_text_input", rock_root_menu_ipodjs_text_input},
 	{"sb_set_persistent_title", rock_sb_set_persistent_title},
 	{"sb_set_title_text", rock_sb_set_title_text},
 	{"set_sleeptimer_duration", rock_set_sleeptimer_duration},
@@ -776,6 +810,9 @@ const luaL_Reg rocklib_aux[] =
 	{"talk_fullpath", rock_talk_fullpath},
 	{"talk_value_decimal", rock_talk_value_decimal},
 	{"usb_inserted", rock_usb_inserted},
+	{"usb_internet_connected", rock_usb_internet_connected},
+	{"usb_internet_service", rock_usb_internet_service},
+	{"usb_internet_weather_generation", rock_usb_internet_weather_generation},
 	{"utf8length", rock_utf8length},
 	{"utf8seek", rock_utf8seek},
 	{"warn_on_pl_erase", rock_warn_on_pl_erase},

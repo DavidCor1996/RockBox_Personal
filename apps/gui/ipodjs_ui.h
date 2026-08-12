@@ -67,6 +67,7 @@ void ipodjs_ui_draw_shuffle_indicator(struct screen *display, int x, int y);
 void ipodjs_ui_draw_header_battery(struct screen *display, int x, int y);
 void ipodjs_ui_prepare_bluetooth_indicator(void);
 void ipodjs_ui_draw_bluetooth_indicator(struct screen *display, int x, int y);
+void ipodjs_ui_draw_wifi_indicator(struct screen *display, int x, int y);
 void ipodjs_ui_airpods_connected_animation(void);
 bool ipodjs_ui_fast_scroll_available(void);
 /* Returns #/A-Z bucket 0..26, or -1 for an unsupported script. */
@@ -82,6 +83,7 @@ bool ipodjs_ui_draw_search_surface(struct screen *display,
                                    enum ipodjs_ui_search_surface surface,
                                    int x, int y, int width, int height);
 void ipodjs_ui_transition_begin(int direction);
+void ipodjs_ui_transition_begin_vertical(int direction);
 bool ipodjs_ui_transition_present(struct screen *display);
 void ipodjs_ui_transition_cancel(void);
 /* Returns true only when USB interrupted the launch. */
@@ -191,6 +193,11 @@ static inline void ipodjs_ui_draw_bluetooth_indicator(
 {
     (void)display; (void)x; (void)y;
 }
+static inline void ipodjs_ui_draw_wifi_indicator(
+    struct screen *display, int x, int y)
+{
+    (void)display; (void)x; (void)y;
+}
 static inline void ipodjs_ui_airpods_connected_animation(void) { }
 static inline void ipodjs_ui_fast_scroll_show(const char *label)
 {
@@ -226,6 +233,10 @@ static inline bool ipodjs_ui_draw_search_surface(
     return false;
 }
 static inline void ipodjs_ui_transition_begin(int direction)
+{
+    (void)direction;
+}
+static inline void ipodjs_ui_transition_begin_vertical(int direction)
 {
     (void)direction;
 }

@@ -35,6 +35,9 @@
 #include "crc32.h"
 #include "sound.h"
 #include "settings.h"
+#if defined(IPOD_6G) && !defined(SIMULATOR)
+#include "videoout-6g.h"
+#endif
 #include "debug.h"
 #include "usb.h"
 #include "backlight.h"
@@ -867,6 +870,19 @@ void sound_settings_apply(void)
 #endif
 }
 
+#if defined(IPOD_6G) && !defined(SIMULATOR)
+void settings_apply_ipod6g_videoout(int mode)
+{
+    /* Composite output is not yet qualified on physical 6G/7G hardware.
+     * Keep normal settings load/apply paths fail-closed: the staged debug
+     * diagnostic is the sole owner of experimental SVID register writes. */
+    (void)mode;
+    global_settings.composite_video_output = IPOD6G_VIDEOOUT_OFF;
+    ipod6g_videoout_set_mode(IPOD6G_VIDEOOUT_OFF, FBADDR(0, 0),
+                             LCD_WIDTH, LCD_HEIGHT);
+}
+#endif
+
 void settings_apply(bool read_disk)
 {
     logf("%s", __func__);
@@ -1095,6 +1111,10 @@ void settings_apply(bool read_disk)
     lcd_set_sleep_after_backlight_off(global_settings.lcd_sleep_after_backlight_off);
 #endif
 #endif /* HAVE_BACKLIGHT */
+
+#if defined(IPOD_6G) && !defined(SIMULATOR)
+    settings_apply_ipod6g_videoout(global_settings.composite_video_output);
+#endif
 
 #ifndef HAS_BUTTON_HOLD
     set_selective_softlock_actions(

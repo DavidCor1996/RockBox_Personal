@@ -22,5 +22,11 @@
 
 #ifndef __STRLCPY_H__
 #define __STRLCPY_H__
+/* Darwin's fortified string header exposes strlcpy as a function-like macro.
+ * Rockbox provides the symbol itself, so its declaration must remain a real
+ * function when the simulator core is embedded in an iOS application. */
+#ifdef strlcpy
+#undef strlcpy
+#endif
 size_t  strlcpy(char *dst, const char *src, size_t siz);
 #endif

@@ -835,6 +835,9 @@ struct user_settings
 #ifdef HAVE_BACKLIGHT_BRIGHTNESS
     int brightness;
 #endif
+#if defined(IPOD_6G) && !defined(SIMULATOR)
+    int composite_video_output;
+#endif
 
 #ifdef HAVE_REMOTE_LCD
     /* remote lcd */
@@ -1025,6 +1028,16 @@ struct user_settings
     int ui_engine_video_appearance; /* native Videos catalog style */
     int ui_engine_games_appearance; /* native Games library style */
     int ui_engine_extras_pane; /* native Extras right-pane content */
+    bool notifications_enabled; /* local notification history */
+    bool notification_banners; /* transient notification banners */
+    bool notification_achievements; /* achievement notification source */
+    bool notification_music; /* music and playback notification source */
+    bool notification_sitekick; /* Sitekick notification source */
+    bool notification_livetv; /* Live TV reminder source */
+    bool notification_weather; /* weather freshness notification source */
+    bool notification_battery; /* battery warning notification source */
+    bool notification_storage; /* storage warning notification source */
+    bool notification_sound; /* notification reward cue */
 };
 
 /* global settings */

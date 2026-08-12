@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import glob
+import logging
 import os
 import shutil
 import subprocess
@@ -14,6 +15,8 @@ from services.file_safety import atomic_write_text
 
 
 _PREVIEW_AUDIO_EXTENSIONS = (".flac", ".mp3", ".ogg", ".wav", ".m4a", ".aac", ".opus")
+
+logger = logging.getLogger(__name__)
 
 
 def _guess_resolution(name):
@@ -95,7 +98,7 @@ class RockboxSimulatorService:
         return updated
 
     def simulator_profile(self, profile, target):
-        simdisk_path = profile.get("simulator_simdisk_path") or target["simdisk_path"]
+        simdisk_path = target.get("simdisk_path") or profile.get("simulator_simdisk_path") or ""
         return {
             "id": f"{profile['id']}-sim",
             "name": f"{profile['name']} Simulator",
@@ -391,17 +394,36 @@ class RockboxSimulatorService:
         atomic_write_text(path, "".join(output))
 
     def launch(self, target, detached=True):
-        cmd = [target["binary_path"], "--nobackground", "--root", target["simdisk_path"]]
+        binary_path = str(target.get("binary_path") or "").strip()
+        simdisk_path = str(target.get("simdisk_path") or "").strip()
+        build_dir = str(target.get("build_dir") or "").strip()
+        if not binary_path or not os.path.isfile(binary_path):
+            raise ValueError("Simulator binary is missing")
+        if not simdisk_path or not os.path.isdir(simdisk_path):
+            raise ValueError("Simulator simdisk is missing")
+        if not build_dir or not os.path.isdir(build_dir):
+            raise ValueError("Simulator build directory is missing")
+
+        cmd = [binary_path, "--nobackground", "--root", simdisk_path]
         if "video" in target["id"]:
             cmd.extend(["--zoom", "2"])
+        env = os.environ.copy()
+        env["RBROOT"] = os.path.dirname(os.path.abspath(simdisk_path))
         kwargs = {
-            "cwd": target["build_dir"],
+            "cwd": build_dir,
+            "env": env,
             "stdout": subprocess.DEVNULL,
             "stderr": subprocess.DEVNULL,
             "start_new_session": detached,
         }
         process = subprocess.Popen(cmd, **kwargs)
-        return {"pid": process.pid, "command": cmd, "build_dir": target["build_dir"]}
+        logger.info(
+            "Launched simulator %s (pid=%s, root=%s)",
+            str(target.get("id") or "simulator"),
+            process.pid,
+            simdisk_path,
+        )
+        return {"pid": process.pid, "command": cmd, "build_dir": build_dir}
 
     def launch_with_rom(self, target, rom_path=None, detached=True):
         launched = self.launch(target, detached=detached)

@@ -2267,6 +2267,166 @@ static int livetv_options_run(void)
     return repaint ? 1 : 0;
 }
 
+#ifdef HAVE_IPODJS_UI
+static uint32_t livetv_reminder_id(const struct livetv_slot *slot, int chan)
+{
+    uint32_t hash = 2166136261u;
+    const unsigned char *text = (const unsigned char *)
+        livetv_slot_display_title(slot);
+
+    hash = (hash ^ (uint32_t)chan) * 16777619u;
+    hash = (hash ^ slot->day) * 16777619u;
+    hash = (hash ^ slot->block_start) * 16777619u;
+    while (*text)
+        hash = (hash ^ *text++) * 16777619u;
+    return hash ? hash : 1;
+}
+
+static long livetv_reminder_start_delta(const struct livetv_slot *slot,
+                                        uint32_t offset)
+{
+    return guide.cursor - (long)offset -
+        ((long)slot->start - (long)slot->block_start);
+}
+
+static void livetv_reminder_draw(const struct livetv_slot *slot, int chan,
+                                 int selected)
+{
+    static const char * const labels[] = {
+        "Set Reminder", "Cancel Reminder", "Back to Guide"
+    };
+    const struct livetv_channel *channel = livetv_channel(chan);
+    int text_h = livetv_font_height();
+    int row_h = text_h + 7;
+    int w = 238;
+    int h = 58 + row_h * (int)ARRAYLEN(labels);
+    int x = (LIVETV_GUIDE_W - w) / 2;
+    int y = MAX(2, (LIVETV_GUIDE_H - h) / 2);
+    char clock[16];
+    char details[64];
+
+    livetv_fill(x, y, w, 22, LIVETV_SEL_BG);
+    livetv_text_at(x + 7, y + 4, LIVETV_SEL_TEXT, LIVETV_SEL_BG,
+                   "Upcoming Program");
+    livetv_fill(x, y + 22, w, h - 22, LIVETV_DESC_BG);
+    livetv_text_fit(x + 7, y + 27, w - 14, LIVETV_TEXT, LIVETV_DESC_BG,
+                    livetv_slot_display_title(slot));
+    livetv_format_clock(clock, sizeof(clock), slot->block_start);
+    rb->snprintf(details, sizeof(details), "%s  Ch %d %s", clock,
+                 channel ? channel->number : 0,
+                 channel ? channel->callsign : "");
+    livetv_text_fit(x + 7, y + 29 + text_h, w - 14, LIVETV_DIM_TEXT,
+                    LIVETV_DESC_BG, details);
+
+    for (int i = 0; i < (int)ARRAYLEN(labels); i++)
+    {
+        int row_y = y + 54 + i * row_h;
+        unsigned bg = LIVETV_DESC_BG;
+        unsigned fg = LIVETV_TEXT;
+
+        if (i == selected)
+        {
+            bg = LIVETV_SEL_BG;
+            fg = LIVETV_SEL_TEXT;
+            livetv_fill(x + 3, row_y, w - 6, row_h, bg);
+        }
+        livetv_text_fit(x + 10, row_y + 3, w - 20, fg, bg, labels[i]);
+    }
+    rb->lcd_set_foreground(LCD_WHITE);
+    rb->lcd_drawrect(x, y, w, h);
+    livetv_update(x, y, w, h);
+}
+
+static bool livetv_set_reminder(const struct livetv_slot *slot, int chan,
+                                uint32_t offset)
+{
+    const struct livetv_channel *channel = livetv_channel(chan);
+    struct notification_request request;
+    long now = (long)rb->mktime(rb->get_time());
+    long start = now + livetv_reminder_start_delta(slot, offset);
+    long notify_at = start - 5 * 60;
+    char clock[16];
+
+    if (now <= 0 || start <= now)
+        return false;
+    if (notify_at <= now)
+        notify_at = now + 1;
+    rb->memset(&request, 0, sizeof(request));
+    request.source = NOTIFICATION_SOURCE_LIVETV;
+    request.kind = NOTIFICATION_LIVETV_SHOW_REMINDER;
+    request.stable_id = livetv_reminder_id(slot, chan);
+    livetv_format_clock(clock, sizeof(clock), slot->block_start);
+    rb->strlcpy(request.title, livetv_slot_display_title(slot),
+                sizeof(request.title));
+    rb->snprintf(request.body, sizeof(request.body),
+                 "Starts at %s on %d %s", clock,
+                 channel ? channel->number : 0,
+                 channel ? channel->callsign : "");
+    rb->strlcpy(request.route, "guide", sizeof(request.route));
+    return rb->notification_schedule(&request, notify_at);
+}
+
+static void livetv_reminder_run(void)
+{
+    int chan = livetv_guide_selected_channel();
+    const struct livetv_slot *slot;
+    uint32_t offset = 0;
+    int selected = 0;
+    bool done = false;
+
+    slot = livetv_slot_at(chan, guide.cursor, &offset);
+    if (!slot)
+        return;
+    rb->button_clear_queue();
+    livetv_reminder_draw(slot, chan, selected);
+    while (!done)
+    {
+        int button = mpeg_button_get(HZ / 4);
+
+        if (mpeg_sysevent() != 0)
+            return;
+        switch (button)
+        {
+        case LIVETV_BTN_UP:
+        case LIVETV_BTN_UP | BUTTON_REPEAT:
+            selected = (selected + 2) % 3;
+            livetv_reminder_draw(slot, chan, selected);
+            break;
+        case LIVETV_BTN_DOWN:
+        case LIVETV_BTN_DOWN | BUTTON_REPEAT:
+            selected = (selected + 1) % 3;
+            livetv_reminder_draw(slot, chan, selected);
+            break;
+        case LIVETV_BTN_SELECT:
+            if (selected == 0)
+            {
+                if (livetv_set_reminder(slot, chan, offset))
+                    rb->splash(HZ, "Reminder set");
+                else
+                    rb->splash(HZ * 2,
+                               "Enable Live TV in Notification Settings");
+            }
+            else if (selected == 1)
+            {
+                rb->notification_cancel(NOTIFICATION_SOURCE_LIVETV,
+                    NOTIFICATION_LIVETV_SHOW_REMINDER,
+                    livetv_reminder_id(slot, chan));
+                rb->splash(HZ, "Reminder cancelled");
+            }
+            done = true;
+            break;
+        case LIVETV_BTN_EXIT:
+        case LIVETV_BTN_LEFT:
+            done = true;
+            break;
+        default:
+            break;
+        }
+    }
+    rb->button_clear_queue();
+}
+#endif
+
 int livetv_guide_run(void)
 {
     int result = LIVETV_GUIDE_EXIT;
@@ -2357,10 +2517,14 @@ int livetv_guide_run(void)
             int chan = livetv_guide_selected_channel();
 
             /* Selecting a programme that is not on yet snaps the guide to
-             * it rather than tuning, the same as the receiver. */
+             * its DIRECTV-style reminder sheet rather than tuning. */
             if (!livetv_guide_selection_is_live())
             {
+#ifdef HAVE_IPODJS_UI
+                livetv_reminder_run();
+#else
                 livetv_guide_reset_to_now();
+#endif
                 livetv_guide_draw();
                 break;
             }

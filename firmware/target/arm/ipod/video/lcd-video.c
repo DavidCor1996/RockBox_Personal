@@ -383,6 +383,10 @@ void lcd_init_device(void)
 
 /*** update functions ***/
 
+#ifdef HAVE_IPODJS_UI
+static fb_data lcd_overlay_line[LCD_WIDTH] CACHEALIGN_ATTR;
+#endif
+
 /* Update a fraction of the display. */
 void lcd_update_rect(int x, int y, int width, int height)
 {
@@ -415,17 +419,51 @@ void lcd_update_rect(int x, int y, int width, int height)
 
     if (width == LCD_WIDTH)
     {
+#ifdef HAVE_IPODJS_UI
+        int row = 0;
+
+        while (row < height)
+        {
+            int run;
+
+            if (lcd_compose_overlay_row(y + row, x, width,
+                                        lcd_overlay_line))
+            {
+                bcm_write_addr(bcmaddr + (LCD_WIDTH * 2) * row);
+                lcd_write_data(lcd_overlay_line, width);
+                row++;
+                continue;
+            }
+            run = 1;
+            while (row + run < height &&
+                   !lcd_compose_overlay_row(y + row + run, x, width,
+                                            lcd_overlay_line))
+                run++;
+            bcm_write_addr(bcmaddr + (LCD_WIDTH * 2) * row);
+            lcd_write_data(addr + LCD_WIDTH * row, width * run);
+            row += run;
+        }
+#else
         bcm_write_addr(bcmaddr);
         lcd_write_data(addr, width * height);
+#endif
     }
     else
     {
+        int row_y = y;
         do
         {
             bcm_write_addr(bcmaddr);
             bcmaddr += (LCD_WIDTH*2);
+#ifdef HAVE_IPODJS_UI
+            if (lcd_compose_overlay_row(row_y, x, width,
+                                        lcd_overlay_line))
+                lcd_write_data(lcd_overlay_line, width);
+            else
+#endif
             lcd_write_data(addr, width);
             addr += LCD_WIDTH;
+            row_y++;
         }
         while (--height > 0);
     }
@@ -451,6 +489,10 @@ void lcd_blit_yuv(unsigned char * const src[3],
                   int x, int y, int width, int height)
 {
     unsigned bcmaddr;
+#ifdef HAVE_IPODJS_UI
+    int destination_y = y;
+    int destination_height = height;
+#endif
     off_t z;
     unsigned char const * yuv_src[3];
 
@@ -482,6 +524,23 @@ void lcd_blit_yuv(unsigned char * const src[3],
         yuv_src[2] += stride >> 1;
     }
     while (--height > 0);
+
+#ifdef HAVE_IPODJS_UI
+    {
+        int row;
+
+        for (row = 0; row < destination_height; ++row)
+        {
+            if (!lcd_compose_overlay_row(destination_y + row, x, width,
+                                         lcd_overlay_line))
+                continue;
+            bcm_write_addr(BCMA_CMDPARAM +
+                           (LCD_WIDTH * 2) * (destination_y + row) +
+                           (x << 1));
+            lcd_write_data(lcd_overlay_line, width);
+        }
+    }
+#endif
 
     lcd_unblock_and_update();
 }

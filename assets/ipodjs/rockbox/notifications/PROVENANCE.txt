@@ -1,0 +1,52 @@
+# iOS 5 notification surfaces
+
+These are rendered-source assets from original iOS 5-era captures, not
+replacement theme artwork.
+
+## Notification Center
+
+Source page:
+https://theapplewiki.com/wiki/File:Notifications_Center_in_ios_5.png
+
+Original capture:
+https://theapplewiki.com/images/applewiki/d/dd/Notifications_Center_in_ios_5.png
+
+Original SHA-256:
+`7fc5cbc545fee928fbcaff802a41eaf8e93c2bd6f5026a2084d0f8c96b766f31`
+
+The 640x960 Retina capture was reduced to its 320px logical rendering with a
+box filter. Exact 32x32 linen, 32x24 section-header, and 22x22 close-button
+regions were then cropped. No pixels were painted.
+
+## Notification banner
+
+Source page:
+https://www.businessinsider.com/iphone-notifications-2011-6
+
+Original capture:
+https://i.insider.com/4ded15a14bd7c8195d2d0000
+
+Original SHA-256:
+`ecd44cee567641787e5109b6ac9781062b7bf4e02e500a00bba0da3612222eed`
+
+The photographed banner plane was perspective-corrected. A clean vertical
+slice of Apple's rendered BannerGradient surface was extended to 320x42.
+Dynamic notification text and source icons are rendered by Rockbox over it.
+
+All shipped BMPs are uncompressed RGB24. The two source-icon BMPs use
+Rockbox's top-left magenta color key for transparent pixels; their retained
+edge pixels are preblended against the iOS 5 app-header tone:
+
+- `achievement-icon.22x22x24.bmp` — a Lanczos reduction of the packaged
+  32x32 Xbox 360 sphere source icon with a soft circular alpha mask, used so
+  Notification Center draws a complete mark without its original square
+  background;
+  `ffa8ffaf60d5fcb411219b018851cb407476ed741684df2ddcd8a302b0ea6d84`
+- `sitekick-icon.22x22x24.bmp` — a Lanczos reduction of Sitekick's packaged
+  YTV source icon for the same fixed app-header slot, converted from its
+  original alpha channel to the native color key;
+  `c6fc664d15ddb329e97e4ae50dfab33997e63a8c5caf57f3bd59f0164fc03e6f`
+- `notification-banner.ios5.320x42x24.bmp` — `9fee12e586ba6beb8543c62af70592148fddc8736f72a198a3a998a05c5c075b`
+- `notification-center-linen.ios5.32x32x24.bmp` — `4d7152031e9baa894b15c0cce4fbc261115d0bf719aa8d0df0541466c3da1b2e`
+- `notification-close.ios5.22x22x24.bmp` — `9931d3e650324382adedf58bb1f365d61392e222b0097c9ff2f43daeb1f62f43`
+- `notification-section.ios5.32x24x24.bmp` — `7518a4f61bf53a47030a018dd4fc06e77c21db1cd4f80cef102ed1b870cdfa9a`

@@ -252,6 +252,16 @@ rb.system.global_settings = {
 	ui_engine_video_appearance = "0x7a8, 4, i",
 	ui_engine_games_appearance = "0x7ac, 4, i",
 	ui_engine_extras_pane = "0x7b0, 4, i",
+	notifications_enabled = "0x7b4, 1, b",
+	notification_banners = "0x7b5, 1, b",
+	notification_achievements = "0x7b6, 1, b",
+	notification_music = "0x7b7, 1, b",
+	notification_sitekick = "0x7b8, 1, b",
+	notification_livetv = "0x7b9, 1, b",
+	notification_weather = "0x7ba, 1, b",
+	notification_battery = "0x7bb, 1, b",
+	notification_storage = "0x7bc, 1, b",
+	notification_sound = "0x7bd, 1, b",
 }
 
 rb.system.replaygain_settings = {

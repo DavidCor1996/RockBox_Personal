@@ -202,9 +202,6 @@ long tagcache_increase_serial(void);
 bool tagcache_import_changelog(void);
 bool tagcache_create_changelog(struct tagcache_search *tcs);
 void tagcache_update_numeric(int idx_id, int tag, long data);
-bool tagcache_modify_numeric_entry(struct tagcache_search *tcs, 
-                                   int tag, long data);
-
 struct tagcache_stat* tagcache_get_stat(void);
 int tagcache_get_commit_step(void);
 bool tagcache_commit_active(void);

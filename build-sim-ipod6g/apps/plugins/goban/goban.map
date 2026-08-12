@@ -9,9 +9,6 @@ Archive member included to satisfy reference by file (symbol)
 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_core.o)
                               /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_draw.o) (get_framebuffer)
 
-Merging object attributes
-
-
 Merging program properties
 
 Removed property 0xc0000002 to merge /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crti.o (0x3) and /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/goban.o (not found)
@@ -101,7 +98,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/libgcc_s.so.1
 LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a
 END GROUP
 LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/libatomic_asneeded.so
-LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/libatomic.a
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/libatomic.so
 LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/libc.so
 START GROUP
 LOAD /usr/lib/libc.so.6
@@ -875,22 +872,22 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x79dad
+.debug_info     0x0000000000000000    0x7c1b0
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x9c57 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/goban.o
- .debug_info    0x0000000000009c57     0x8680 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/board.o
- .debug_info    0x00000000000122d7     0x9177 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/display.o
- .debug_info    0x000000000001b44e     0x80d3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/game.o
- .debug_info    0x0000000000023521     0xae0c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/sgf.o
- .debug_info    0x000000000002e32d     0x8bf0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/sgf_output.o
- .debug_info    0x0000000000036f1d     0x8ec5 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/sgf_parse.o
- .debug_info    0x000000000003fde2     0x86cf /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/sgf_storage.o
- .debug_info    0x00000000000484b1     0x8a4d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/util.o
- .debug_info    0x0000000000050efe     0x7da8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
- .debug_info    0x0000000000058ca6     0x7df1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(configfile.o)
- .debug_info    0x0000000000060a97     0x99c0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
- .debug_info    0x000000000006a457     0x835c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_draw.o)
- .debug_info    0x00000000000727b3     0x75fa /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_core.o)
+ .debug_info    0x0000000000000000     0x9ee8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/goban.o
+ .debug_info    0x0000000000009ee8     0x8911 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/board.o
+ .debug_info    0x00000000000127f9     0x9408 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/display.o
+ .debug_info    0x000000000001bc01     0x8364 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/game.o
+ .debug_info    0x0000000000023f65     0xb09d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/sgf.o
+ .debug_info    0x000000000002f002     0x8e81 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/sgf_output.o
+ .debug_info    0x0000000000037e83     0x9156 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/sgf_parse.o
+ .debug_info    0x0000000000040fd9     0x8960 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/sgf_storage.o
+ .debug_info    0x0000000000049939     0x8cde /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/util.o
+ .debug_info    0x0000000000052617     0x8039 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+ .debug_info    0x000000000005a650     0x8082 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(configfile.o)
+ .debug_info    0x00000000000626d2     0x9c66 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
+ .debug_info    0x000000000006c338     0x85ed /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_draw.o)
+ .debug_info    0x0000000000074925     0x788b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_core.o)
 
 .debug_abbrev   0x0000000000000000     0x46b5
  *(.debug_abbrev)
@@ -909,56 +906,56 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
  .debug_abbrev  0x0000000000003ef7      0x4cd /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_draw.o)
  .debug_abbrev  0x00000000000043c4      0x2f1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_core.o)
 
-.debug_line     0x0000000000000000     0x856d
+.debug_line     0x0000000000000000     0x85b3
  *(.debug_line .debug_line.* .debug_line_end)
- .debug_line    0x0000000000000000      0xd4b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/goban.o
- .debug_line    0x0000000000000d4b      0x875 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/board.o
- .debug_line    0x00000000000015c0     0x119f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/display.o
- .debug_line    0x000000000000275f      0x42b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/game.o
- .debug_line    0x0000000000002b8a     0x1f46 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/sgf.o
- .debug_line    0x0000000000004ad0      0x6f9 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/sgf_output.o
- .debug_line    0x00000000000051c9      0xcd1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/sgf_parse.o
- .debug_line    0x0000000000005e9a      0x800 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/sgf_storage.o
- .debug_line    0x000000000000669a      0x8f4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/util.o
- .debug_line    0x0000000000006f8e      0x2bd /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
- .debug_line    0x000000000000724b      0x5b0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(configfile.o)
- .debug_line    0x00000000000077fb      0x39b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
- .debug_line    0x0000000000007b96      0x801 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_draw.o)
- .debug_line    0x0000000000008397      0x1d6 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_core.o)
+ .debug_line    0x0000000000000000      0xd50 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/goban.o
+ .debug_line    0x0000000000000d50      0x87a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/board.o
+ .debug_line    0x00000000000015ca     0x11a4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/display.o
+ .debug_line    0x000000000000276e      0x430 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/game.o
+ .debug_line    0x0000000000002b9e     0x1f4b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/sgf.o
+ .debug_line    0x0000000000004ae9      0x6fe /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/sgf_output.o
+ .debug_line    0x00000000000051e7      0xcd6 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/sgf_parse.o
+ .debug_line    0x0000000000005ebd      0x805 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/sgf_storage.o
+ .debug_line    0x00000000000066c2      0x8f9 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/util.o
+ .debug_line    0x0000000000006fbb      0x2c2 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+ .debug_line    0x000000000000727d      0x5b5 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(configfile.o)
+ .debug_line    0x0000000000007832      0x3a0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
+ .debug_line    0x0000000000007bd2      0x806 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_draw.o)
+ .debug_line    0x00000000000083d8      0x1db /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_core.o)
 
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0xcf47
+.debug_str      0x0000000000000000     0xd179
  *(.debug_str)
- .debug_str     0x0000000000000000     0xcf47 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/goban.o
-                                       0x7616 (size before relaxing)
- .debug_str     0x000000000000cf47        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/board.o
-                                       0x52a3 (size before relaxing)
- .debug_str     0x000000000000cf47        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/display.o
-                                       0x553c (size before relaxing)
- .debug_str     0x000000000000cf47        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/game.o
-                                       0x5340 (size before relaxing)
- .debug_str     0x000000000000cf47        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/sgf.o
-                                       0x5e26 (size before relaxing)
- .debug_str     0x000000000000cf47        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/sgf_output.o
-                                       0x5890 (size before relaxing)
- .debug_str     0x000000000000cf47        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/sgf_parse.o
-                                       0x58d1 (size before relaxing)
- .debug_str     0x000000000000cf47        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/sgf_storage.o
-                                       0x57ca (size before relaxing)
- .debug_str     0x000000000000cf47        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/util.o
-                                       0x5750 (size before relaxing)
- .debug_str     0x000000000000cf47        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
-                                       0x52bf (size before relaxing)
- .debug_str     0x000000000000cf47        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(configfile.o)
-                                       0x4a35 (size before relaxing)
- .debug_str     0x000000000000cf47        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
-                                       0xa32d (size before relaxing)
- .debug_str     0x000000000000cf47        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_draw.o)
-                                       0x4b25 (size before relaxing)
- .debug_str     0x000000000000cf47        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_core.o)
-                                       0x4979 (size before relaxing)
+ .debug_str     0x0000000000000000     0xd179 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/goban.o
+                                       0x7802 (size before relaxing)
+ .debug_str     0x000000000000d179        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/board.o
+                                       0x548f (size before relaxing)
+ .debug_str     0x000000000000d179        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/display.o
+                                       0x5728 (size before relaxing)
+ .debug_str     0x000000000000d179        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/game.o
+                                       0x552c (size before relaxing)
+ .debug_str     0x000000000000d179        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/sgf.o
+                                       0x6012 (size before relaxing)
+ .debug_str     0x000000000000d179        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/sgf_output.o
+                                       0x5a7c (size before relaxing)
+ .debug_str     0x000000000000d179        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/sgf_parse.o
+                                       0x5abd (size before relaxing)
+ .debug_str     0x000000000000d179        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/sgf_storage.o
+                                       0x59b6 (size before relaxing)
+ .debug_str     0x000000000000d179        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/util.o
+                                       0x593c (size before relaxing)
+ .debug_str     0x000000000000d179        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+                                       0x54ab (size before relaxing)
+ .debug_str     0x000000000000d179        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(configfile.o)
+                                       0x4c21 (size before relaxing)
+ .debug_str     0x000000000000d179        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
+                                       0xa568 (size before relaxing)
+ .debug_str     0x000000000000d179        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_draw.o)
+                                       0x4d11 (size before relaxing)
+ .debug_str     0x000000000000d179        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_core.o)
+                                       0x4b65 (size before relaxing)
 
 .debug_loc
  *(.debug_loc)
@@ -988,53 +985,53 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
  *(.debug_addr)
 
 .debug_line_str
-                0x0000000000000000      0xaed
+                0x0000000000000000      0xafc
  *(.debug_line_str)
  .debug_line_str
-                0x0000000000000000      0xaed /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/goban.o
-                                        0x6db (size before relaxing)
+                0x0000000000000000      0xafc /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/goban.o
+                                        0x6ea (size before relaxing)
  .debug_line_str
-                0x0000000000000aed        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/board.o
-                                        0x661 (size before relaxing)
+                0x0000000000000afc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/board.o
+                                        0x670 (size before relaxing)
  .debug_line_str
-                0x0000000000000aed        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/display.o
-                                        0x69c (size before relaxing)
+                0x0000000000000afc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/display.o
+                                        0x6ab (size before relaxing)
  .debug_line_str
-                0x0000000000000aed        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/game.o
-                                        0x68b (size before relaxing)
+                0x0000000000000afc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/game.o
+                                        0x69a (size before relaxing)
  .debug_line_str
-                0x0000000000000aed        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/sgf.o
+                0x0000000000000afc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/sgf.o
+                                        0x67e (size before relaxing)
+ .debug_line_str
+                0x0000000000000afc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/sgf_output.o
+                                        0x689 (size before relaxing)
+ .debug_line_str
+                0x0000000000000afc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/sgf_parse.o
+                                        0x686 (size before relaxing)
+ .debug_line_str
+                0x0000000000000afc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/sgf_storage.o
                                         0x66f (size before relaxing)
  .debug_line_str
-                0x0000000000000aed        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/sgf_output.o
-                                        0x67a (size before relaxing)
+                0x0000000000000afc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/util.o
+                                        0x655 (size before relaxing)
  .debug_line_str
-                0x0000000000000aed        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/sgf_parse.o
-                                        0x677 (size before relaxing)
+                0x0000000000000afc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+                                        0x69a (size before relaxing)
  .debug_line_str
-                0x0000000000000aed        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/sgf_storage.o
-                                        0x660 (size before relaxing)
+                0x0000000000000afc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(configfile.o)
+                                        0x63e (size before relaxing)
  .debug_line_str
-                0x0000000000000aed        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/util.o
-                                        0x646 (size before relaxing)
+                0x0000000000000afc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
+                                        0x684 (size before relaxing)
  .debug_line_str
-                0x0000000000000aed        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
-                                        0x68b (size before relaxing)
+                0x0000000000000afc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_draw.o)
+                                        0x635 (size before relaxing)
  .debug_line_str
-                0x0000000000000aed        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(configfile.o)
-                                        0x62f (size before relaxing)
- .debug_line_str
-                0x0000000000000aed        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
-                                        0x675 (size before relaxing)
- .debug_line_str
-                0x0000000000000aed        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_draw.o)
-                                        0x626 (size before relaxing)
- .debug_line_str
-                0x0000000000000aed        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_core.o)
-                                        0x61f (size before relaxing)
+                0x0000000000000afc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_core.o)
+                                        0x62e (size before relaxing)
 
 .debug_loclists
-                0x0000000000000000     0x45b0
+                0x0000000000000000     0x45ac
  *(.debug_loclists)
  .debug_loclists
                 0x0000000000000000      0x5be /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/goban.o
@@ -1045,25 +1042,25 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
  .debug_loclists
                 0x0000000000000f23       0xda /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/game.o
  .debug_loclists
-                0x0000000000000ffd     0x119c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/sgf.o
+                0x0000000000000ffd     0x1198 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/sgf.o
  .debug_loclists
-                0x0000000000002199      0x243 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/sgf_output.o
+                0x0000000000002195      0x243 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/sgf_output.o
  .debug_loclists
-                0x00000000000023dc      0x5e9 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/sgf_parse.o
+                0x00000000000023d8      0x5e9 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/sgf_parse.o
  .debug_loclists
-                0x00000000000029c5      0x2ce /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/sgf_storage.o
+                0x00000000000029c1      0x2ce /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/sgf_storage.o
  .debug_loclists
-                0x0000000000002c93      0x6b3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/util.o
+                0x0000000000002c8f      0x6b3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/goban/util.o
  .debug_loclists
-                0x0000000000003346       0x9e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+                0x0000000000003342       0x9e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
  .debug_loclists
-                0x00000000000033e4      0x36a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(configfile.o)
+                0x00000000000033e0      0x36a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(configfile.o)
  .debug_loclists
-                0x000000000000374e       0x8e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
+                0x000000000000374a       0x8e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
  .debug_loclists
-                0x00000000000037dc      0xd9f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_draw.o)
+                0x00000000000037d8      0xd9f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_draw.o)
  .debug_loclists
-                0x000000000000457b       0x35 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_core.o)
+                0x0000000000004577       0x35 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_core.o)
 
 .debug_macro
  *(.debug_macro)

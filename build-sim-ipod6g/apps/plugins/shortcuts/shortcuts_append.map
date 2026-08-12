@@ -1,7 +1,4 @@
 
-Merging object attributes
-
-
 Merging program properties
 
 Removed property 0xc0000002 to merge /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crti.o (0x3) and /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/shortcuts/shortcuts_common.o (not found)
@@ -48,7 +45,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/libgcc_s.so.1
 LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a
 END GROUP
 LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/libatomic_asneeded.so
-LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/libatomic.a
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/libatomic.so
 LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/libc.so
 START GROUP
 LOAD /usr/lib/libc.so.6
@@ -495,11 +492,11 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x18048
+.debug_info     0x0000000000000000    0x187fb
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x883f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/shortcuts/shortcuts_common.o
- .debug_info    0x000000000000883f     0x7a61 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/shortcuts/shortcuts_append.o
- .debug_info    0x00000000000102a0     0x7da8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+ .debug_info    0x0000000000000000     0x8ad0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/shortcuts/shortcuts_common.o
+ .debug_info    0x0000000000008ad0     0x7cf2 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/shortcuts/shortcuts_append.o
+ .debug_info    0x00000000000107c2     0x8039 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
 
 .debug_abbrev   0x0000000000000000      0xd48
  *(.debug_abbrev)
@@ -507,23 +504,23 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
  .debug_abbrev  0x0000000000000531      0x3d5 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/shortcuts/shortcuts_append.o
  .debug_abbrev  0x0000000000000906      0x442 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
 
-.debug_line     0x0000000000000000      0xd6c
+.debug_line     0x0000000000000000      0xd7b
  *(.debug_line .debug_line.* .debug_line_end)
- .debug_line    0x0000000000000000      0x7d2 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/shortcuts/shortcuts_common.o
- .debug_line    0x00000000000007d2      0x2dd /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/shortcuts/shortcuts_append.o
- .debug_line    0x0000000000000aaf      0x2bd /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+ .debug_line    0x0000000000000000      0x7d7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/shortcuts/shortcuts_common.o
+ .debug_line    0x00000000000007d7      0x2e2 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/shortcuts/shortcuts_append.o
+ .debug_line    0x0000000000000ab9      0x2c2 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
 
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x4e6a
+.debug_str      0x0000000000000000     0x504d
  *(.debug_str)
- .debug_str     0x0000000000000000     0x4e6a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/shortcuts/shortcuts_common.o
-                                       0x532f (size before relaxing)
- .debug_str     0x0000000000004e6a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/shortcuts/shortcuts_append.o
-                                       0x4b0f (size before relaxing)
- .debug_str     0x0000000000004e6a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
-                                       0x52bf (size before relaxing)
+ .debug_str     0x0000000000000000     0x504d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/shortcuts/shortcuts_common.o
+                                       0x551b (size before relaxing)
+ .debug_str     0x000000000000504d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/shortcuts/shortcuts_append.o
+                                       0x4cfb (size before relaxing)
+ .debug_str     0x000000000000504d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+                                       0x54ab (size before relaxing)
 
 .debug_loc
  *(.debug_loc)
@@ -553,17 +550,17 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
  *(.debug_addr)
 
 .debug_line_str
-                0x0000000000000000      0x70b
+                0x0000000000000000      0x71a
  *(.debug_line_str)
  .debug_line_str
-                0x0000000000000000      0x70b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/shortcuts/shortcuts_common.o
-                                        0x666 (size before relaxing)
+                0x0000000000000000      0x71a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/shortcuts/shortcuts_common.o
+                                        0x675 (size before relaxing)
  .debug_line_str
-                0x000000000000070b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/shortcuts/shortcuts_append.o
-                                        0x64c (size before relaxing)
+                0x000000000000071a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/shortcuts/shortcuts_append.o
+                                        0x65b (size before relaxing)
  .debug_line_str
-                0x000000000000070b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
-                                        0x68b (size before relaxing)
+                0x000000000000071a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+                                        0x69a (size before relaxing)
 
 .debug_loclists
                 0x0000000000000000      0x8fe

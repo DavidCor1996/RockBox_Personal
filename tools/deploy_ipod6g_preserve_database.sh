@@ -6,6 +6,8 @@ mount_path="${1:-}"
 build_dir="${2:-${repo_root}/build-hw-ipod6g}"
 firmware="${build_dir}/rockbox.ipod"
 package="${build_dir}/rockbox.zip"
+build_info="${build_dir}/rockbox-info.txt"
+installed_info="${mount_path}/.rockbox/rockbox-info.txt"
 desktop_portable_bundle="${DESKTOP_MODE_PORTABLE_BUNDLE:-${repo_root}/.rockpod-private/desktop-mode-portable}"
 backup_dir=""
 had_database=0
@@ -160,6 +162,17 @@ if [ ! -s "${firmware}" ] || [ ! -s "${package}" ]; then
     echo "missing iPod 6G hardware build outputs in ${build_dir}" >&2
     exit 1
 fi
+if [ ! -s "${build_info}" ] ||
+   ! awk '$1 == "Target:" && $2 == "ipod6g" { found = 1 } END { exit !found }' "${build_info}"; then
+    echo "hardware guard: local build is not identified as target ipod6g" >&2
+    exit 1
+fi
+if [ ! -s "${installed_info}" ] ||
+   ! awk '$1 == "Target:" && $2 == "ipod6g" { found = 1 } END { exit !found }' "${installed_info}"; then
+    echo "hardware guard: mounted Rockbox installation is not target ipod6g" >&2
+    exit 1
+fi
+echo "hardware guard: local build and mounted installation both identify as ipod6g"
 
 unzip -tq "${package}" >/dev/null
 backup_dir="$(mktemp -d)"
@@ -218,6 +231,7 @@ rm -f "${mount_path}/.rockbox/database_tmp.tcd" \
 install_recovery_snapshot
 enable_tagcache_autoupdate
 verify_database_unchanged
+"${repo_root}/tools/generate_rockpod_library_catalog.py" "${mount_path}"
 cp "${firmware}" "${mount_path}/rockbox.ipod"
 cp "${firmware}" "${mount_path}/.rockbox/rockbox.ipod"
 

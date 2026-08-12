@@ -34,7 +34,17 @@ ifdef APP_TYPE
 else
  CODECLDFLAGS = -T$(CODECLINK_LDS) -Wl,--gc-sections
 endif
-CODECLDFLAGS += -Wl,$(LDMAP_OPT),$(CODECDIR)/$*.map $(GLOBAL_LDOPTS)
+ifneq ($(findstring -DROCKPOD_IOS_EMBED,$(EXTRA_DEFINES)),)
+ CODECLDFLAGS += $(GLOBAL_LDOPTS)
+else
+ CODECLDFLAGS += -Wl,$(LDMAP_OPT),$(CODECDIR)/$*.map $(GLOBAL_LDOPTS)
+endif
+
+ifneq ($(findstring -DROCKPOD_IOS_EMBED,$(EXTRA_DEFINES)),)
+CODEC_RUNTIME_LIBS =
+else
+CODEC_RUNTIME_LIBS = -lgcc
+endif
 
 ifdef USE_LTO
  CODECLDFLAGS += -fno-builtin -ffreestanding
@@ -238,11 +248,11 @@ $(CODECDIR)/%-pre.map: $(CODEC_CRT0) $(CODECLINK_LDS) $(CODECDIR)/%.o $(CODEC_LI
 	$(call PRINTS,LD $(@F))$(CC) $(CODECFLAGS) -o $(CODECDIR)/$*-pre.elf \
 		$(filter %.o, $^) \
 		$(filter-out $(CODECLIB),$(filter %.a, $+)) $(CODECLIB) \
-		-lgcc $(subst .map,-pre.map,$(CODECLDFLAGS))
+		$(CODEC_RUNTIME_LIBS) $(subst .map,-pre.map,$(CODECLDFLAGS))
 
 $(CODECDIR)/%.codec: $(CODECDIR)/%.o
 	$(call PRINTS,LD $(@F))$(CC) $(CODECFLAGS) -o $(CODECDIR)/$*.elf \
 		$(filter %.o, $^) \
 		$(filter %.a, $+) \
-		-lgcc $(CODECLDFLAGS)
+		$(CODEC_RUNTIME_LIBS) $(CODECLDFLAGS)
 	$(SILENT)$(call objcopy_plugin,$(CODECDIR)/$*.elf,$@)

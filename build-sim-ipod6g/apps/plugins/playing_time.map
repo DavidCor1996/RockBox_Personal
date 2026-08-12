@@ -1,7 +1,4 @@
 
-Merging object attributes
-
-
 Merging program properties
 
 Removed property 0xc0000002 to merge /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crti.o (0x3) and /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/playing_time.o (not found)
@@ -45,7 +42,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/libgcc_s.so.1
 LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a
 END GROUP
 LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/libatomic_asneeded.so
-LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/libatomic.a
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/libatomic.so
 LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/libc.so
 START GROUP
 LOAD /usr/lib/libc.so.6
@@ -469,30 +466,30 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x12e3a
+.debug_info     0x0000000000000000    0x13371
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0xb092 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/playing_time.o
- .debug_info    0x000000000000b092     0x7da8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+ .debug_info    0x0000000000000000     0xb338 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/playing_time.o
+ .debug_info    0x000000000000b338     0x8039 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
 
 .debug_abbrev   0x0000000000000000      0xaf9
  *(.debug_abbrev)
  .debug_abbrev  0x0000000000000000      0x6b7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/playing_time.o
  .debug_abbrev  0x00000000000006b7      0x442 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
 
-.debug_line     0x0000000000000000      0xf42
+.debug_line     0x0000000000000000      0xf4c
  *(.debug_line .debug_line.* .debug_line_end)
- .debug_line    0x0000000000000000      0xc85 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/playing_time.o
- .debug_line    0x0000000000000c85      0x2bd /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+ .debug_line    0x0000000000000000      0xc8a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/playing_time.o
+ .debug_line    0x0000000000000c8a      0x2c2 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
 
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0xb194
+.debug_str      0x0000000000000000     0xb3c6
  *(.debug_str)
- .debug_str     0x0000000000000000     0xb194 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/playing_time.o
-                                       0xb784 (size before relaxing)
- .debug_str     0x000000000000b194        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
-                                       0x52bf (size before relaxing)
+ .debug_str     0x0000000000000000     0xb3c6 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/playing_time.o
+                                       0xb9bf (size before relaxing)
+ .debug_str     0x000000000000b3c6        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+                                       0x54ab (size before relaxing)
 
 .debug_loc
  *(.debug_loc)
@@ -522,14 +519,14 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
  *(.debug_addr)
 
 .debug_line_str
-                0x0000000000000000      0x667
+                0x0000000000000000      0x676
  *(.debug_line_str)
  .debug_line_str
-                0x0000000000000000      0x667 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/playing_time.o
-                                        0x64d (size before relaxing)
+                0x0000000000000000      0x676 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/playing_time.o
+                                        0x65c (size before relaxing)
  .debug_line_str
-                0x0000000000000667        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
-                                        0x68b (size before relaxing)
+                0x0000000000000676        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+                                        0x69a (size before relaxing)
 
 .debug_loclists
                 0x0000000000000000      0xae2

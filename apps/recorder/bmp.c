@@ -57,6 +57,12 @@
 #else
 #define BDEBUGF(...)
 #endif
+
+/* Upper bound on a BMP's stored dimensions.  Chosen so width*height*bytes
+ * cannot overflow the int size arithmetic in read_bmp_fd(), while sitting far
+ * above any bitmap Rockbox actually loads. */
+#define BMP_MAX_DIMENSION 8192
+
 #ifndef __PCTOOL__
 #include "config.h"
 #include "resize.h"
@@ -571,6 +577,9 @@ int read_bmp_fd(int fd,
     src_dim.width = letoh32(bmph.width);
     src_dim.height = letoh32(bmph.height);
     if (src_dim.height < 0) {     /* Top-down BMP file */
+        /* Bound before negating: INT_MIN has no positive counterpart. */
+        if (src_dim.height < -BMP_MAX_DIMENSION)
+            return -3;
         src_dim.height = -src_dim.height;
         rset.rowstep = 1;
     } else {              /* normal BMP */
@@ -578,6 +587,20 @@ int read_bmp_fd(int fd,
     }
 
     depth = letoh16(bmph.bit_count);
+
+    /* The dimensions above are raw header fields.  Unchecked they overflow
+     * the int arithmetic below -- BM_SIZE() in particular -- which makes the
+     * "too large for buffer" test pass on a negative total and lets the row
+     * output run past the end of the caller's buffer.  No real bitmap comes
+     * near this bound, so reject a corrupt header before any of that math. */
+    if (src_dim.width <= 0 || src_dim.height <= 0 ||
+        src_dim.width > BMP_MAX_DIMENSION ||
+        src_dim.height > BMP_MAX_DIMENSION) {
+        DEBUGF("read_bmp_fd: Implausible dimensions %dx%d.\n",
+               src_dim.width, src_dim.height);
+        return -3;
+    }
+
     /* 4-byte boundary aligned */
     read_width = ((src_dim.width * (depth == 15 ? 16 : depth) + 7) >> 3);
     padded_width = (read_width + 3) & ~3;

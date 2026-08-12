@@ -22,5 +22,8 @@
 
 #ifndef __STRLCAT_H__
 #define __STRLCAT_H__
+#ifdef strlcat
+#undef strlcat
+#endif
 size_t  strlcat(char *dst, const char *src, size_t siz);
 #endif

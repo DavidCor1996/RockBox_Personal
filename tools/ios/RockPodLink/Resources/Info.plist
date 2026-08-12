@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleDisplayName</key>
+    <string>RockPod Link</string>
+    <key>CFBundleExecutable</key>
+    <string>RockPodLink</string>
+    <key>CFBundleIdentifier</key>
+    <string>com.rockpod.link</string>
+    <key>CFBundleIcons</key>
+    <dict>
+        <key>CFBundlePrimaryIcon</key>
+        <dict>
+            <key>CFBundleIconFiles</key>
+            <array>
+                <string>AppIcon29x29</string>
+                <string>AppIcon40x40</string>
+                <string>AppIcon60x60</string>
+            </array>
+            <key>UIPrerenderedIcon</key>
+            <true/>
+        </dict>
+    </dict>
+    <key>CFBundleInfoDictionaryVersion</key>
+    <string>6.0</string>
+    <key>CFBundleName</key>
+    <string>RockPodLink</string>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+    <key>CFBundleShortVersionString</key>
+    <string>7.3.2</string>
+    <key>CFBundleSupportedPlatforms</key>
+    <array><string>iPhoneOS</string></array>
+    <key>CFBundleVersion</key>
+    <string>732</string>
+    <key>LSRequiresIPhoneOS</key>
+    <true/>
+    <key>MinimumOSVersion</key>
+    <string>12.0</string>
+    <key>NSLocalNetworkUsageDescription</key>
+    <string>RockPod Link uses the USB connection for internet, device status, Sitekick and media sync.</string>
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>RockPod Link saves your iPhone's precise last-known position to Maps on your iPod when they connect.</string>
+    <key>NSAppTransportSecurity</key>
+    <dict>
+        <key>NSAllowsArbitraryLoads</key>
+        <true/>
+        <key>NSAllowsArbitraryLoadsInWebContent</key>
+        <true/>
+        <key>NSAllowsLocalNetworking</key>
+        <true/>
+    </dict>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>Select individual photos and videos to sync or add to the Rockbox simulator.</string>
+    <key>NSAppleMusicUsageDescription</key>
+    <string>Select individual locally owned tracks to sync or add to the Rockbox simulator.</string>
+    <key>UIBackgroundModes</key>
+    <array>
+        <string>external-accessory</string>
+        <string>fetch</string>
+        <string>audio</string>
+    </array>
+    <key>UIDeviceFamily</key>
+    <array><integer>1</integer></array>
+    <key>UIRequiredDeviceCapabilities</key>
+    <array><string>arm64</string></array>
+    <key>UILaunchScreen</key>
+    <dict/>
+    <key>UISupportedInterfaceOrientations</key>
+    <array><string>UIInterfaceOrientationPortrait</string></array>
+	<key>UIFileSharingEnabled</key>
+	<true/>
+	<key>LSSupportsOpeningDocumentsInPlace</key>
+	<true/>
+</dict>
+</plist>

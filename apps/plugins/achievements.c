@@ -1453,13 +1453,37 @@ static unsigned long next_event_sequence(void)
     return sequence + 1;
 }
 
-static void record_unlock_event(const char *id)
+static uint32_t achievement_notification_id(const char *game_key,
+                                            const char *achievement_id)
+{
+    uint32_t hash = 2166136261u;
+    const unsigned char *text;
+
+    for (text = (const unsigned char *)game_key; *text; ++text)
+    {
+        hash ^= *text;
+        hash *= 16777619u;
+    }
+    hash ^= ':';
+    hash *= 16777619u;
+    for (text = (const unsigned char *)achievement_id; *text; ++text)
+    {
+        hash ^= *text;
+        hash *= 16777619u;
+    }
+    return hash ? hash : 1;
+}
+
+static void record_unlock_event(const struct achievement_item *item)
 {
     long timestamp;
     unsigned long sequence;
+    bool unlock_written = false;
+    bool event_written = false;
     int fd;
 
-    if (unlock_is_known(id) || known_unlock_count >= MAX_ACHIEVEMENTS)
+    if (unlock_is_known(item->id) ||
+        known_unlock_count >= MAX_ACHIEVEMENTS)
         return;
     timestamp = (long)rb->mktime(rb->get_time());
     sequence = next_event_sequence();
@@ -1469,8 +1493,8 @@ static void record_unlock_event(const char *id)
         if (rb->lseek(fd, 0, SEEK_END) == 0)
             rb->fdprintf(fd,
                          "game_key\tachievement_id\tunlock_time\tsource\n");
-        rb->fdprintf(fd, "%s\t%s\t%ld\trockpod-local\n",
-                     games[selected_game].key, id, timestamp);
+        unlock_written = rb->fdprintf(fd, "%s\t%s\t%ld\trockpod-local\n",
+                     games[selected_game].key, item->id, timestamp) > 0;
         rb->close(fd);
     }
     fd = rb->open(ACH_EVENTS, O_WRONLY | O_CREAT | O_APPEND, 0666);
@@ -1479,13 +1503,35 @@ static void record_unlock_event(const char *id)
         if (rb->lseek(fd, 0, SEEK_END) == 0)
             rb->fdprintf(fd,
                          "sequence\tgame_key\tachievement_id\tevent_time\tmode\tclient\n");
-        rb->fdprintf(fd, "%lu\t%s\t%s\t%ld\tlocal\tipod\n", sequence,
-                     games[selected_game].key, id, timestamp);
+        event_written = rb->fdprintf(fd,
+                     "%lu\t%s\t%s\t%ld\tlocal\tipod\n", sequence,
+                     games[selected_game].key, item->id, timestamp) > 0;
         rb->close(fd);
     }
-    rb->strlcpy(known_unlocks[known_unlock_count++], id,
+    if (!unlock_written || !event_written)
+        return;
+    rb->strlcpy(known_unlocks[known_unlock_count++], item->id,
                 sizeof(known_unlocks[0]));
     known_unlock_hardcore[known_unlock_count - 1] = false;
+#ifdef HAVE_IPODJS_UI
+    {
+        struct notification_request request;
+
+        rb->memset(&request, 0, sizeof(request));
+        request.source = NOTIFICATION_SOURCE_ACHIEVEMENTS;
+        request.kind = NOTIFICATION_ACHIEVEMENT_UNLOCKED;
+        request.stable_id = achievement_notification_id(
+            games[selected_game].key, item->id);
+        request.timestamp = timestamp;
+        rb->strlcpy(request.title, "Achievement Unlocked",
+                    sizeof(request.title));
+        rb->snprintf(request.body, sizeof(request.body), "%s — %s",
+                     games[selected_game].title, item->title);
+        rb->strlcpy(request.route, "achievements",
+                    sizeof(request.route));
+        rb->notification_post(&request);
+    }
+#endif
 }
 
 static bool load_achievements(void)
@@ -1531,7 +1577,7 @@ static bool load_achievements(void)
         }
         if (item->unlocked &&
             !rb->strcmp(games[selected_game].kind, "local-baseline"))
-            record_unlock_event(item->id);
+            record_unlock_event(item);
         if (!locked_only || !item->unlocked)
             ++achievement_count;
     }

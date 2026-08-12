@@ -20,8 +20,29 @@
  ****************************************************************************/
 
 #include "plugin.h"
+#include <stdarg.h>
 #include "imageviewer.h"
 #include "image_decoder.h"
+
+#define IMGVIEW_DEBUG_LOG ROCKBOX_DIR "/logs/imageviewer.log"
+
+static void decoder_log(const char *fmt, ...)
+{
+    int fd;
+    char msg[200];
+    va_list ap;
+
+    fd = rb->open(IMGVIEW_DEBUG_LOG, O_WRONLY | O_CREAT | O_APPEND, 0666);
+    if (fd < 0)
+        return;
+
+    va_start(ap, fmt);
+    rb->vsnprintf(msg, sizeof(msg), fmt, ap);
+    va_end(ap);
+
+    rb->fdprintf(fd, "[%08lx] %s\n", *rb->current_tick, msg);
+    rb->close(fd);
+}
 
 static const char *decoder_names[MAX_IMAGE_TYPES] = {
     "bmp",
@@ -125,6 +146,7 @@ const struct image_decoder *load_decoder(struct loader_info *loader_info)
 
     if (loader_info->type < 0 || loader_info->type >= MAX_IMAGE_TYPES)
     {
+        decoder_log("invalid decoder type=%d", loader_info->type);
         rb->splashf(2*HZ, "Unknown type: %d", loader_info->type);
         goto error;
     }
@@ -133,18 +155,41 @@ const struct image_decoder *load_decoder(struct loader_info *loader_info)
 
     name = decoder_names[loader_info->type];
     rb->snprintf(filename, MAX_PATH, VIEWERS_DIR "/%s.ovl", name);
+    decoder_log("load decoder name=%s type=%d size=%lu", name,
+                loader_info->type, (unsigned long)loader_info->size);
 
     /* load decoder to the buffer. */
     decoder_handle = rb->lc_open(filename, loader_info->buffer, loader_info->size);
     if (!decoder_handle)
     {
-        rb->splashf(2*HZ, "Can't open %s", filename);
+        /* "Can't open" covered six different lc_open failures with one
+         * message, and lc_open_last_error() is not reachable through the
+         * plugin API (adding it would change PLUGIN_API_VERSION and
+         * invalidate every .rock already on the player).  Report what can be
+         * observed from here instead, so the failing condition is named. */
+        int probe = rb->open(filename, O_RDONLY);
+        if (probe < 0)
+        {
+            decoder_log("lc_open failed missing=%s", filename);
+            rb->splashf(3*HZ, "Missing/unreadable %s", filename);
+        }
+        else
+        {
+            off_t need = rb->filesize(probe);
+            rb->close(probe);
+            decoder_log("lc_open failed need=%ld have=%lu ovl=%s",
+                        (long)need, (unsigned long)loader_info->size,
+                        filename);
+            rb->splashf(3*HZ, "%s: %ld byte overlay, %lu buffer",
+                        name, (long)need, (unsigned long)loader_info->size);
+        }
         goto error;
     }
 
     hdr = rb->lc_get_header(decoder_handle);
     if (!hdr)
     {
+        decoder_log("lc_get_header failed decoder=%s", name);
         rb->splash(2*HZ, "Can't get header");
         goto error_close;
     }
@@ -152,6 +197,8 @@ const struct image_decoder *load_decoder(struct loader_info *loader_info)
 
     if (lc_hdr->magic != PLUGIN_MAGIC || lc_hdr->target_id != TARGET_ID)
     {
+        decoder_log("decoder incompatible model=%s magic=0x%lx target=%u",
+                    name, lc_hdr->magic, lc_hdr->target_id);
         rb->splashf(2*HZ, "%s decoder: Incompatible model.", name);
         goto error_close;
     }
@@ -161,9 +208,18 @@ const struct image_decoder *load_decoder(struct loader_info *loader_info)
         hdr->plugin_api_version != PLUGIN_API_VERSION ||
         hdr->plugin_api_size > sizeof(struct plugin_api))
     {
+        decoder_log("decoder incompatible version=%s lc_api=%u img_api=%lu/%lu plugin_api=%u/%u plugin_api_size=%lu/%lu",
+                    name, lc_hdr->api_version,
+                    (unsigned long)hdr->img_api_size,
+                    (unsigned long)sizeof(struct imgdec_api),
+                    hdr->plugin_api_version, PLUGIN_API_VERSION,
+                    (unsigned long)hdr->plugin_api_size,
+                    (unsigned long)sizeof(struct plugin_api));
         rb->splashf(2*HZ, "%s decoder: Incompatible version.", name);
         goto error_close;
     }
+
+    decoder_log("decoder loaded name=%s", name);
 
     *(hdr->api) = rb;
     *(hdr->img_api) = loader_info->iv;

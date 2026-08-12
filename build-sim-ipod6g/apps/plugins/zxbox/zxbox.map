@@ -3,9 +3,6 @@ Archive member included to satisfy reference by file (symbol)
 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(configfile.o)
                               /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/spmain.o (configfile_save)
 
-Merging object attributes
-
-
 Merging program properties
 
 Removed property 0xc0000002 to merge /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crti.o (0x3) and /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/compr.o (not found)
@@ -159,7 +156,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/libgcc_s.so.1
 LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a
 END GROUP
 LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/libatomic_asneeded.so
-LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/libatomic.a
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/libatomic.so
 LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/libc.so
 START GROUP
 LOAD /usr/lib/libc.so.6
@@ -1933,40 +1930,40 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x8a454
+.debug_info     0x0000000000000000    0x8cad3
  *(.debug_info .gnu.linkonce.wi.*)
  .debug_info    0x0000000000000000      0x36d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/compr.o
- .debug_info    0x000000000000036d     0x7766 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/helpers.o
- .debug_info    0x0000000000007ad3     0x7ac7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/interf.o
- .debug_info    0x000000000000f59a       0xb1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/keynames.o
- .debug_info    0x000000000000f64b       0x6d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/loadim.o
- .debug_info    0x000000000000f6b8     0x7b7f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/zxmisc.o
- .debug_info    0x0000000000017237       0x70 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/rom_imag.o
- .debug_info    0x00000000000172a7     0x98cf /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/snapshot.o
- .debug_info    0x0000000000020b76     0x7de0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/spconf.o
- .debug_info    0x0000000000028956      0x44e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/spect.o
- .debug_info    0x0000000000028da4     0x107d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/spkey.o
- .debug_info    0x0000000000029e21     0x8c3a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/spmain.o
- .debug_info    0x0000000000032a5b      0xa67 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/spperif.o
- .debug_info    0x00000000000334c2      0x9d3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/spscr.o
- .debug_info    0x0000000000033e95      0x531 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/spsound.o
- .debug_info    0x00000000000343c6     0x89b7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/sptape.o
- .debug_info    0x000000000003cd7d     0x7aac /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/sptiming.o
- .debug_info    0x0000000000044829     0xa20b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/tapefile.o
- .debug_info    0x000000000004ea34     0x7cf9 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/z80.o
- .debug_info    0x000000000005672d     0x146c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/z80_op1.o
- .debug_info    0x0000000000057b99     0x13df /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/z80_op2.o
- .debug_info    0x0000000000058f78     0x2818 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/z80_op3.o
- .debug_info    0x000000000005b790     0x1860 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/z80_op4.o
- .debug_info    0x000000000005cff0     0x1332 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/z80_op5.o
- .debug_info    0x000000000005e322     0x276e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/z80_op6.o
- .debug_info    0x0000000000060a90      0x8da /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/z80_step.o
- .debug_info    0x000000000006136a     0x1c1b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/z80optab.o
- .debug_info    0x0000000000062f85     0x7de5 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/zxbox.o
- .debug_info    0x000000000006ad6a     0x7f9c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/zxbox_keyb.o
- .debug_info    0x0000000000072d06     0x7bb5 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/zxvid_16bpp.o
- .debug_info    0x000000000007a8bb     0x7da8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
- .debug_info    0x0000000000082663     0x7df1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(configfile.o)
+ .debug_info    0x000000000000036d     0x79f7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/helpers.o
+ .debug_info    0x0000000000007d64     0x7d58 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/interf.o
+ .debug_info    0x000000000000fabc       0xb1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/keynames.o
+ .debug_info    0x000000000000fb6d       0x6d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/loadim.o
+ .debug_info    0x000000000000fbda     0x7e10 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/zxmisc.o
+ .debug_info    0x00000000000179ea       0x70 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/rom_imag.o
+ .debug_info    0x0000000000017a5a     0x9b60 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/snapshot.o
+ .debug_info    0x00000000000215ba     0x8071 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/spconf.o
+ .debug_info    0x000000000002962b      0x44e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/spect.o
+ .debug_info    0x0000000000029a79     0x107d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/spkey.o
+ .debug_info    0x000000000002aaf6     0x8ecb /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/spmain.o
+ .debug_info    0x00000000000339c1      0xa67 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/spperif.o
+ .debug_info    0x0000000000034428      0x9d3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/spscr.o
+ .debug_info    0x0000000000034dfb      0x531 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/spsound.o
+ .debug_info    0x000000000003532c     0x8c48 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/sptape.o
+ .debug_info    0x000000000003df74     0x7d3d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/sptiming.o
+ .debug_info    0x0000000000045cb1     0xa49c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/tapefile.o
+ .debug_info    0x000000000005014d     0x7f8a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/z80.o
+ .debug_info    0x00000000000580d7     0x146c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/z80_op1.o
+ .debug_info    0x0000000000059543     0x13df /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/z80_op2.o
+ .debug_info    0x000000000005a922     0x2818 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/z80_op3.o
+ .debug_info    0x000000000005d13a     0x1860 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/z80_op4.o
+ .debug_info    0x000000000005e99a     0x1332 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/z80_op5.o
+ .debug_info    0x000000000005fccc     0x276e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/z80_op6.o
+ .debug_info    0x000000000006243a      0x8da /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/z80_step.o
+ .debug_info    0x0000000000062d14     0x1c1b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/z80optab.o
+ .debug_info    0x000000000006492f     0x8076 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/zxbox.o
+ .debug_info    0x000000000006c9a5     0x822d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/zxbox_keyb.o
+ .debug_info    0x0000000000074bd2     0x7e46 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/zxvid_16bpp.o
+ .debug_info    0x000000000007ca18     0x8039 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+ .debug_info    0x0000000000084a51     0x8082 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(configfile.o)
 
 .debug_abbrev   0x0000000000000000     0x5eca
  *(.debug_abbrev)
@@ -2003,110 +2000,110 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
  .debug_abbrev  0x0000000000005664      0x442 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
  .debug_abbrev  0x0000000000005aa6      0x424 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(configfile.o)
 
-.debug_line     0x0000000000000000    0x19392
+.debug_line     0x0000000000000000    0x193dd
  *(.debug_line .debug_line.* .debug_line_end)
  .debug_line    0x0000000000000000      0x350 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/compr.o
- .debug_line    0x0000000000000350      0x278 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/helpers.o
- .debug_line    0x00000000000005c8      0x203 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/interf.o
- .debug_line    0x00000000000007cb       0x3a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/keynames.o
- .debug_line    0x0000000000000805       0x3a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/loadim.o
- .debug_line    0x000000000000083f     0x10a0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/zxmisc.o
- .debug_line    0x00000000000018df       0x3a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/rom_imag.o
- .debug_line    0x0000000000001919     0x2e10 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/snapshot.o
- .debug_line    0x0000000000004729      0x701 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/spconf.o
- .debug_line    0x0000000000004e2a      0x277 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/spect.o
- .debug_line    0x00000000000050a1     0x169f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/spkey.o
- .debug_line    0x0000000000006740      0xbd4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/spmain.o
- .debug_line    0x0000000000007314      0x9d1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/spperif.o
- .debug_line    0x0000000000007ce5     0x13ef /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/spscr.o
- .debug_line    0x00000000000090d4       0x99 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/spsound.o
- .debug_line    0x000000000000916d     0x109e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/sptape.o
- .debug_line    0x000000000000a20b      0x24a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/sptiming.o
- .debug_line    0x000000000000a455     0x2a87 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/tapefile.o
- .debug_line    0x000000000000cedc      0x791 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/z80.o
- .debug_line    0x000000000000d66d     0x11ab /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/z80_op1.o
- .debug_line    0x000000000000e818      0xeee /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/z80_op2.o
- .debug_line    0x000000000000f706      0xea7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/z80_op3.o
- .debug_line    0x00000000000105ad     0x245c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/z80_op4.o
- .debug_line    0x0000000000012a09     0x1e52 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/z80_op5.o
- .debug_line    0x000000000001485b     0x15f4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/z80_op6.o
- .debug_line    0x0000000000015e4f      0xa3c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/z80_step.o
- .debug_line    0x000000000001688b      0x1c3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/z80optab.o
- .debug_line    0x0000000000016a4e      0x508 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/zxbox.o
- .debug_line    0x0000000000016f56     0x18dc /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/zxbox_keyb.o
- .debug_line    0x0000000000018832      0x2f3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/zxvid_16bpp.o
- .debug_line    0x0000000000018b25      0x2bd /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
- .debug_line    0x0000000000018de2      0x5b0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(configfile.o)
+ .debug_line    0x0000000000000350      0x27d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/helpers.o
+ .debug_line    0x00000000000005cd      0x208 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/interf.o
+ .debug_line    0x00000000000007d5       0x3a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/keynames.o
+ .debug_line    0x000000000000080f       0x3a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/loadim.o
+ .debug_line    0x0000000000000849     0x10a5 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/zxmisc.o
+ .debug_line    0x00000000000018ee       0x3a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/rom_imag.o
+ .debug_line    0x0000000000001928     0x2e15 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/snapshot.o
+ .debug_line    0x000000000000473d      0x706 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/spconf.o
+ .debug_line    0x0000000000004e43      0x277 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/spect.o
+ .debug_line    0x00000000000050ba     0x169f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/spkey.o
+ .debug_line    0x0000000000006759      0xbd9 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/spmain.o
+ .debug_line    0x0000000000007332      0x9d1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/spperif.o
+ .debug_line    0x0000000000007d03     0x13ef /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/spscr.o
+ .debug_line    0x00000000000090f2       0x99 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/spsound.o
+ .debug_line    0x000000000000918b     0x10a3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/sptape.o
+ .debug_line    0x000000000000a22e      0x24f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/sptiming.o
+ .debug_line    0x000000000000a47d     0x2a8c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/tapefile.o
+ .debug_line    0x000000000000cf09      0x796 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/z80.o
+ .debug_line    0x000000000000d69f     0x11ab /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/z80_op1.o
+ .debug_line    0x000000000000e84a      0xeee /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/z80_op2.o
+ .debug_line    0x000000000000f738      0xea7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/z80_op3.o
+ .debug_line    0x00000000000105df     0x245c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/z80_op4.o
+ .debug_line    0x0000000000012a3b     0x1e52 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/z80_op5.o
+ .debug_line    0x000000000001488d     0x15f4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/z80_op6.o
+ .debug_line    0x0000000000015e81      0xa3c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/z80_step.o
+ .debug_line    0x00000000000168bd      0x1c3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/z80optab.o
+ .debug_line    0x0000000000016a80      0x50d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/zxbox.o
+ .debug_line    0x0000000000016f8d     0x18e1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/zxbox_keyb.o
+ .debug_line    0x000000000001886e      0x2f8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/zxvid_16bpp.o
+ .debug_line    0x0000000000018b66      0x2c2 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+ .debug_line    0x0000000000018e28      0x5b5 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(configfile.o)
 
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x89bd
+.debug_str      0x0000000000000000     0x8ba0
  *(.debug_str)
- .debug_str     0x0000000000000000     0x89bd /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/compr.o
+ .debug_str     0x0000000000000000     0x8ba0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/compr.o
                                         0x10e (size before relaxing)
- .debug_str     0x00000000000089bd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/helpers.o
-                                       0x49cd (size before relaxing)
- .debug_str     0x00000000000089bd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/interf.o
-                                       0x5170 (size before relaxing)
- .debug_str     0x00000000000089bd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/keynames.o
+ .debug_str     0x0000000000008ba0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/helpers.o
+                                       0x4bb9 (size before relaxing)
+ .debug_str     0x0000000000008ba0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/interf.o
+                                       0x535c (size before relaxing)
+ .debug_str     0x0000000000008ba0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/keynames.o
                                         0x16f (size before relaxing)
- .debug_str     0x00000000000089bd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/loadim.o
+ .debug_str     0x0000000000008ba0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/loadim.o
                                         0x117 (size before relaxing)
- .debug_str     0x00000000000089bd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/zxmisc.o
-                                       0x4a53 (size before relaxing)
- .debug_str     0x00000000000089bd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/rom_imag.o
+ .debug_str     0x0000000000008ba0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/zxmisc.o
+                                       0x4c3f (size before relaxing)
+ .debug_str     0x0000000000008ba0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/rom_imag.o
                                         0x11b (size before relaxing)
- .debug_str     0x00000000000089bd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/snapshot.o
-                                       0x549d (size before relaxing)
- .debug_str     0x00000000000089bd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/spconf.o
-                                       0x521e (size before relaxing)
- .debug_str     0x00000000000089bd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/spect.o
+ .debug_str     0x0000000000008ba0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/snapshot.o
+                                       0x5689 (size before relaxing)
+ .debug_str     0x0000000000008ba0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/spconf.o
+                                       0x540a (size before relaxing)
+ .debug_str     0x0000000000008ba0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/spect.o
                                         0x31e (size before relaxing)
- .debug_str     0x00000000000089bd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/spkey.o
+ .debug_str     0x0000000000008ba0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/spkey.o
                                         0xcab (size before relaxing)
- .debug_str     0x00000000000089bd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/spmain.o
-                                       0x56ac (size before relaxing)
- .debug_str     0x00000000000089bd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/spperif.o
+ .debug_str     0x0000000000008ba0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/spmain.o
+                                       0x5898 (size before relaxing)
+ .debug_str     0x0000000000008ba0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/spperif.o
                                         0xb48 (size before relaxing)
- .debug_str     0x00000000000089bd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/spscr.o
+ .debug_str     0x0000000000008ba0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/spscr.o
                                         0xb29 (size before relaxing)
- .debug_str     0x00000000000089bd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/spsound.o
+ .debug_str     0x0000000000008ba0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/spsound.o
                                         0x9a0 (size before relaxing)
- .debug_str     0x00000000000089bd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/sptape.o
-                                       0x54a1 (size before relaxing)
- .debug_str     0x00000000000089bd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/sptiming.o
-                                       0x5152 (size before relaxing)
- .debug_str     0x00000000000089bd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/tapefile.o
-                                       0x5469 (size before relaxing)
- .debug_str     0x00000000000089bd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/z80.o
-                                       0x5229 (size before relaxing)
- .debug_str     0x00000000000089bd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/z80_op1.o
+ .debug_str     0x0000000000008ba0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/sptape.o
+                                       0x568d (size before relaxing)
+ .debug_str     0x0000000000008ba0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/sptiming.o
+                                       0x533e (size before relaxing)
+ .debug_str     0x0000000000008ba0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/tapefile.o
+                                       0x5655 (size before relaxing)
+ .debug_str     0x0000000000008ba0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/z80.o
+                                       0x5415 (size before relaxing)
+ .debug_str     0x0000000000008ba0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/z80_op1.o
                                         0x7fa (size before relaxing)
- .debug_str     0x00000000000089bd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/z80_op2.o
+ .debug_str     0x0000000000008ba0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/z80_op2.o
                                         0x9a0 (size before relaxing)
- .debug_str     0x00000000000089bd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/z80_op3.o
+ .debug_str     0x0000000000008ba0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/z80_op3.o
                                         0x852 (size before relaxing)
- .debug_str     0x00000000000089bd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/z80_op4.o
+ .debug_str     0x0000000000008ba0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/z80_op4.o
                                         0x67c (size before relaxing)
- .debug_str     0x00000000000089bd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/z80_op5.o
+ .debug_str     0x0000000000008ba0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/z80_op5.o
                                         0x5d0 (size before relaxing)
- .debug_str     0x00000000000089bd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/z80_op6.o
+ .debug_str     0x0000000000008ba0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/z80_op6.o
                                        0x1008 (size before relaxing)
- .debug_str     0x00000000000089bd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/z80_step.o
+ .debug_str     0x0000000000008ba0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/z80_step.o
                                         0xa50 (size before relaxing)
- .debug_str     0x00000000000089bd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/z80optab.o
+ .debug_str     0x0000000000008ba0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/z80optab.o
                                        0x31cf (size before relaxing)
- .debug_str     0x00000000000089bd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/zxbox.o
-                                       0x536e (size before relaxing)
- .debug_str     0x00000000000089bd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/zxbox_keyb.o
-                                       0x5237 (size before relaxing)
- .debug_str     0x00000000000089bd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/zxvid_16bpp.o
-                                       0x5211 (size before relaxing)
- .debug_str     0x00000000000089bd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
-                                       0x52bf (size before relaxing)
- .debug_str     0x00000000000089bd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(configfile.o)
-                                       0x4a35 (size before relaxing)
+ .debug_str     0x0000000000008ba0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/zxbox.o
+                                       0x555a (size before relaxing)
+ .debug_str     0x0000000000008ba0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/zxbox_keyb.o
+                                       0x5423 (size before relaxing)
+ .debug_str     0x0000000000008ba0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/zxvid_16bpp.o
+                                       0x53fd (size before relaxing)
+ .debug_str     0x0000000000008ba0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+                                       0x54ab (size before relaxing)
+ .debug_str     0x0000000000008ba0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(configfile.o)
+                                       0x4c21 (size before relaxing)
 
 .debug_loc
  *(.debug_loc)
@@ -2136,104 +2133,104 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
  *(.debug_addr)
 
 .debug_line_str
-                0x0000000000000000     0x1100
+                0x0000000000000000     0x110f
  *(.debug_line_str)
  .debug_line_str
-                0x0000000000000000     0x1100 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/compr.o
+                0x0000000000000000     0x110f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/compr.o
                                         0x120 (size before relaxing)
  .debug_line_str
-                0x0000000000001100        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/helpers.o
-                                        0x61d (size before relaxing)
- .debug_line_str
-                0x0000000000001100        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/interf.o
-                                        0x63d (size before relaxing)
- .debug_line_str
-                0x0000000000001100        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/keynames.o
-                                        0x121 (size before relaxing)
- .debug_line_str
-                0x0000000000001100        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/loadim.o
-                                        0x11b (size before relaxing)
- .debug_line_str
-                0x0000000000001100        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/zxmisc.o
+                0x000000000000110f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/helpers.o
                                         0x62c (size before relaxing)
  .debug_line_str
-                0x0000000000001100        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/rom_imag.o
+                0x000000000000110f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/interf.o
+                                        0x64c (size before relaxing)
+ .debug_line_str
+                0x000000000000110f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/keynames.o
                                         0x121 (size before relaxing)
  .debug_line_str
-                0x0000000000001100        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/snapshot.o
-                                        0x682 (size before relaxing)
+                0x000000000000110f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/loadim.o
+                                        0x11b (size before relaxing)
  .debug_line_str
-                0x0000000000001100        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/spconf.o
-                                        0x657 (size before relaxing)
+                0x000000000000110f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/zxmisc.o
+                                        0x63b (size before relaxing)
  .debug_line_str
-                0x0000000000001100        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/spect.o
+                0x000000000000110f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/rom_imag.o
+                                        0x121 (size before relaxing)
+ .debug_line_str
+                0x000000000000110f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/snapshot.o
+                                        0x691 (size before relaxing)
+ .debug_line_str
+                0x000000000000110f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/spconf.o
+                                        0x666 (size before relaxing)
+ .debug_line_str
+                0x000000000000110f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/spect.o
                                         0x13b (size before relaxing)
  .debug_line_str
-                0x0000000000001100        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/spkey.o
+                0x000000000000110f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/spkey.o
                                         0x2db (size before relaxing)
  .debug_line_str
-                0x0000000000001100        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/spmain.o
-                                        0x711 (size before relaxing)
+                0x000000000000110f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/spmain.o
+                                        0x720 (size before relaxing)
  .debug_line_str
-                0x0000000000001100        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/spperif.o
+                0x000000000000110f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/spperif.o
                                         0x29f (size before relaxing)
  .debug_line_str
-                0x0000000000001100        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/spscr.o
+                0x000000000000110f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/spscr.o
                                         0x2a1 (size before relaxing)
  .debug_line_str
-                0x0000000000001100        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/spsound.o
+                0x000000000000110f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/spsound.o
                                         0x28e (size before relaxing)
  .debug_line_str
-                0x0000000000001100        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/sptape.o
-                                        0x675 (size before relaxing)
+                0x000000000000110f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/sptape.o
+                                        0x684 (size before relaxing)
  .debug_line_str
-                0x0000000000001100        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/sptiming.o
-                                        0x63a (size before relaxing)
+                0x000000000000110f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/sptiming.o
+                                        0x649 (size before relaxing)
  .debug_line_str
-                0x0000000000001100        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/tapefile.o
-                                        0x661 (size before relaxing)
- .debug_line_str
-                0x0000000000001100        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/z80.o
-                                        0x646 (size before relaxing)
- .debug_line_str
-                0x0000000000001100        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/z80_op1.o
-                                        0x14e (size before relaxing)
- .debug_line_str
-                0x0000000000001100        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/z80_op2.o
-                                        0x144 (size before relaxing)
- .debug_line_str
-                0x0000000000001100        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/z80_op3.o
-                                        0x144 (size before relaxing)
- .debug_line_str
-                0x0000000000001100        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/z80_op4.o
-                                        0x14e (size before relaxing)
- .debug_line_str
-                0x0000000000001100        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/z80_op5.o
-                                        0x143 (size before relaxing)
- .debug_line_str
-                0x0000000000001100        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/z80_op6.o
-                                        0x143 (size before relaxing)
- .debug_line_str
-                0x0000000000001100        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/z80_step.o
-                                        0x2ac (size before relaxing)
- .debug_line_str
-                0x0000000000001100        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/z80optab.o
-                                        0x2de (size before relaxing)
- .debug_line_str
-                0x0000000000001100        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/zxbox.o
+                0x000000000000110f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/tapefile.o
                                         0x670 (size before relaxing)
  .debug_line_str
-                0x0000000000001100        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/zxbox_keyb.o
-                                        0x640 (size before relaxing)
+                0x000000000000110f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/z80.o
+                                        0x655 (size before relaxing)
  .debug_line_str
-                0x0000000000001100        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/zxvid_16bpp.o
-                                        0x677 (size before relaxing)
+                0x000000000000110f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/z80_op1.o
+                                        0x14e (size before relaxing)
  .debug_line_str
-                0x0000000000001100        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
-                                        0x68b (size before relaxing)
+                0x000000000000110f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/z80_op2.o
+                                        0x144 (size before relaxing)
  .debug_line_str
-                0x0000000000001100        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(configfile.o)
-                                        0x62f (size before relaxing)
+                0x000000000000110f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/z80_op3.o
+                                        0x144 (size before relaxing)
+ .debug_line_str
+                0x000000000000110f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/z80_op4.o
+                                        0x14e (size before relaxing)
+ .debug_line_str
+                0x000000000000110f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/z80_op5.o
+                                        0x143 (size before relaxing)
+ .debug_line_str
+                0x000000000000110f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/z80_op6.o
+                                        0x143 (size before relaxing)
+ .debug_line_str
+                0x000000000000110f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/z80_step.o
+                                        0x2ac (size before relaxing)
+ .debug_line_str
+                0x000000000000110f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/z80optab.o
+                                        0x2de (size before relaxing)
+ .debug_line_str
+                0x000000000000110f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/zxbox.o
+                                        0x67f (size before relaxing)
+ .debug_line_str
+                0x000000000000110f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/zxbox_keyb.o
+                                        0x64f (size before relaxing)
+ .debug_line_str
+                0x000000000000110f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/zxbox/zxvid_16bpp.o
+                                        0x686 (size before relaxing)
+ .debug_line_str
+                0x000000000000110f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+                                        0x69a (size before relaxing)
+ .debug_line_str
+                0x000000000000110f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(configfile.o)
+                                        0x63e (size before relaxing)
 
 .debug_loclists
                 0x0000000000000000     0xca7a

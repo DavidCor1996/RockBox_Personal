@@ -23,6 +23,9 @@
 #include "lcd-sdl.h"
 #include "sim-ui-defines.h"
 #include "system.h" /* for MIN() and MAX() */
+#ifdef HAVE_IPODJS_UI
+#include "lcd.h"
+#endif
 #if SDL_MAJOR_VERSION > 1
 #include "window-sdl.h"
 #endif
@@ -52,6 +55,32 @@ void sdl_update_rect(SDL_Surface *surface, int x_start, int y_start, int width,
     dest = src;
     SDL_BlitSurface(lcd, &src, surface, &dest);
     SDL_FreeSurface(lcd);
+#ifdef HAVE_IPODJS_UI
+    {
+        static fb_data overlay_line[LCD_WIDTH];
+        SDL_Surface *overlay = SDL_CreateRGBSurfaceFrom(
+            overlay_line, width, 1, LCD_DEPTH, width * LCD_DEPTH / 8,
+            0xf800, 0x07e0, 0x001f, 0);
+        int y;
+
+        if (overlay)
+        {
+            for (y = y_start; y < y_start + height && y < max_y; ++y)
+            {
+                if (lcd_compose_overlay_row(y, x_start, width,
+                                            overlay_line))
+                {
+                    dest.x = x_start;
+                    dest.y = y;
+                    dest.w = width;
+                    dest.h = 1;
+                    SDL_BlitSurface(overlay, NULL, surface, &dest);
+                }
+            }
+            SDL_FreeSurface(overlay);
+        }
+    }
+#endif
 #else
     int x, y;
     int xmax, ymax;

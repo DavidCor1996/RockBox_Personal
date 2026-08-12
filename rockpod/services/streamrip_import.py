@@ -7,6 +7,7 @@ import shutil
 import sys
 import sysconfig
 import time
+import unicodedata
 from dataclasses import dataclass
 from pathlib import Path
 from urllib.parse import urlparse
@@ -167,10 +168,133 @@ def streamrip_source_tag_matches(tags, source, media_type, item_id):
     return False
 
 
-def find_existing_streamrip_source_file(library_root, source, media_type, item_id):
+def _integer_tag(tags, name, fallback=0):
+    for key, value in (tags or {}).items():
+        if str(key or "").casefold().split(":")[-1] != name.casefold():
+            continue
+        values = _flatten_tag_values(value)
+        if not values:
+            continue
+        try:
+            return int(str(values[0]).split("/", 1)[0].strip())
+        except (TypeError, ValueError):
+            continue
+    return fallback
+
+
+def _first_tag(tags, *names):
+    wanted = {name.casefold() for name in names}
+    for key, value in (tags or {}).items():
+        if str(key or "").casefold().split(":")[-1] not in wanted:
+            continue
+        values = _flatten_tag_values(value)
+        if values:
+            return str(values[0]).strip()
+    return ""
+
+
+def _normalized_metadata_text(value):
+    value = unicodedata.normalize("NFKC", str(value or "")).replace("\u00a0", " ").casefold()
+    return "".join(character for character in value if character.isalnum())
+
+
+def _track_position(tags):
+    raw = _first_tag(tags, "tracknumber")
+    parts = raw.split("/", 1)
+    try:
+        number = int(parts[0].strip())
+    except (TypeError, ValueError):
+        number = 0
+    total = _integer_tag(tags, "tracktotal") or _integer_tag(tags, "totaltracks")
+    if not total and len(parts) == 2:
+        try:
+            total = int(parts[1].strip())
+        except (TypeError, ValueError):
+            total = 0
+    return number, total
+
+
+def _disc_position(tags):
+    raw = _first_tag(tags, "discnumber")
+    parts = raw.split("/", 1)
+    try:
+        number = int(parts[0].strip()) or 1
+    except (TypeError, ValueError):
+        number = 1
+    total = _integer_tag(tags, "disctotal") or _integer_tag(tags, "totaldiscs")
+    if not total and len(parts) == 2:
+        try:
+            total = int(parts[1].strip())
+        except (TypeError, ValueError):
+            total = 0
+    return number, total or 1
+
+
+def _complete_ordered_audio_rows(rows):
+    if not rows or any(row["track"] < 1 for row in rows):
+        return []
+    unique_positions = {(row["disc"], row["track"]) for row in rows}
+    if len(unique_positions) != len(rows):
+        return []
+    expected_discs = max(row["disc_total"] for row in rows)
+    if {row["disc"] for row in rows} != set(range(1, expected_discs + 1)):
+        return []
+    for disc in range(1, expected_discs + 1):
+        disc_rows = [row for row in rows if row["disc"] == disc]
+        expected_tracks = max([row["track_total"] for row in disc_rows] + [max(row["track"] for row in disc_rows)])
+        if {row["track"] for row in disc_rows} != set(range(1, expected_tracks + 1)):
+            return []
+    return [row["path"] for row in sorted(rows, key=lambda row: (row["disc"], row["track"], row["path"]))]
+
+
+def find_existing_library_item_files(library_root, media_type, title, artist):
+    """Match the complete local RockPod item by normalized tags when provider IDs are absent."""
     root = Path(library_root).expanduser()
     if not root.is_dir():
-        return ""
+        return []
+    expected_title = _normalized_metadata_text(title)
+    expected_artist = _normalized_metadata_text(artist)
+    grouped = {}
+    for path in root.rglob("*"):
+        if not path.is_file() or path.suffix.lower() not in SUPPORTED_AUDIO_EXTENSIONS:
+            continue
+        try:
+            audio = mutagen.File(str(path), easy=True)
+        except Exception:
+            continue
+        tags = getattr(audio, "tags", None) if audio is not None else None
+        if not tags:
+            continue
+        tagged_title = _first_tag(tags, "title")
+        tagged_artist = _first_tag(tags, "albumartist", "album artist", "artist")
+        tagged_album = _first_tag(tags, "album")
+        if media_type == "track":
+            if (_normalized_metadata_text(tagged_title) == expected_title
+                    and (not expected_artist or _normalized_metadata_text(tagged_artist) == expected_artist)):
+                return [str(path)]
+            continue
+        if (_normalized_metadata_text(tagged_album) != expected_title
+                or (expected_artist and _normalized_metadata_text(tagged_artist) != expected_artist)):
+            continue
+        track, track_total = _track_position(tags)
+        disc, disc_total = _disc_position(tags)
+        grouped.setdefault(str(path.parent), []).append({
+            "path": str(path), "disc": disc, "disc_total": disc_total,
+            "track": track, "track_total": track_total,
+        })
+    for directory in sorted(grouped):
+        complete = _complete_ordered_audio_rows(grouped[directory])
+        if complete:
+            return complete
+    return []
+
+
+def find_existing_streamrip_source_files(library_root, source, media_type, item_id):
+    """Return a complete, source-ID-matched local track or album in disc order."""
+    root = Path(library_root).expanduser()
+    if not root.is_dir():
+        return []
+    matches = []
     for path in root.rglob("*"):
         if not path.is_file() or path.suffix.lower() not in SUPPORTED_AUDIO_EXTENSIONS:
             continue
@@ -181,8 +305,25 @@ def find_existing_streamrip_source_file(library_root, source, media_type, item_i
         if audio is None or not getattr(audio, "tags", None):
             continue
         if streamrip_source_tag_matches(audio.tags, source, media_type, item_id):
-            return str(path)
-    return ""
+            matches.append({
+                "path": str(path),
+                "disc": _integer_tag(audio.tags, "discnumber", 1),
+                "disc_total": _integer_tag(audio.tags, "disctotal", 1),
+                "track": _integer_tag(audio.tags, "tracknumber"),
+                "track_total": _integer_tag(audio.tags, "tracktotal"),
+            })
+
+    if media_type == "track":
+        return [matches[0]["path"]] if matches else []
+    if not matches or any(row["track"] < 1 or row["track_total"] < 1 for row in matches):
+        return []
+
+    return _complete_ordered_audio_rows(matches)
+
+
+def find_existing_streamrip_source_file(library_root, source, media_type, item_id):
+    files = find_existing_streamrip_source_files(library_root, source, media_type, item_id)
+    return files[0] if files else ""
 
 
 def streamrip_quality_for_url(value, requested_quality=4):

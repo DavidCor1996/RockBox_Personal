@@ -41,6 +41,12 @@
 #include "ipodjs_trace.h"
 #include "ipodjs_ui.h"
 
+/* Bitmap payloads are handed to the BMP decoder as bm->data, which casts them
+ * to fb_data * and writes them with halfword stores.  A plain char array only
+ * guarantees one-byte alignment, and an unaligned strh data-aborts on the
+ * iPod Video's core -- so force the base of every payload. */
+#define IPODJS_BM_ALIGN __attribute__((aligned(4)))
+
 #ifdef HAVE_IPODJS_UI
 
 #define IPODJS_UI_HEADER_TOP       LCD_RGBPACK(252, 253, 253)
@@ -96,6 +102,8 @@
 #define IPODJS_STOCK_SHUFFLE_H     19
 #define IPODJS_STOCK_BLUETOOTH_W   12
 #define IPODJS_STOCK_BLUETOOTH_H   19
+#define IPODJS_STOCK_WIFI_W         18
+#define IPODJS_STOCK_WIFI_H         13
 #define IPODJS_AIRPODS_W           124
 #define IPODJS_AIRPODS_H           109
 #define IPODJS_AIRPODS_ANIMATION_FPS 20
@@ -603,7 +611,7 @@ stop:
 #endif
 }
 
-void ipodjs_ui_transition_begin(int direction)
+static void ipodjs_ui_transition_begin_mode(int direction, bool vertical)
 {
 #ifdef IPODJS_UI_HAS_ANIMATION_WORKSPACE
     ipodjs_ui_transition_cancel();
@@ -613,10 +621,23 @@ void ipodjs_ui_transition_begin(int direction)
     screens[SCREEN_MAIN].set_viewport(NULL);
     memcpy(ipodjs_ui_animation_old, FBADDR(0, 0), FRAMEBUFFER_SIZE);
     ipodjs_ui_transition_direction = direction < 0 ? -1 : 1;
+    if (vertical)
+        ipodjs_ui_transition_direction *= 2;
     ipodjs_ui_transition_deadline = current_tick + HZ;
 #else
     (void)direction;
+    (void)vertical;
 #endif
+}
+
+void ipodjs_ui_transition_begin(int direction)
+{
+    ipodjs_ui_transition_begin_mode(direction, false);
+}
+
+void ipodjs_ui_transition_begin_vertical(int direction)
+{
+    ipodjs_ui_transition_begin_mode(direction, true);
 }
 
 bool ipodjs_ui_transition_present(struct screen *display)
@@ -625,6 +646,7 @@ bool ipodjs_ui_transition_present(struct screen *display)
     int direction;
     int frame;
     long start_tick;
+    bool vertical;
 
     if (display->screen_type != SCREEN_MAIN ||
         ipodjs_ui_transition_direction == 0)
@@ -635,6 +657,7 @@ bool ipodjs_ui_transition_present(struct screen *display)
         return false;
     }
     direction = ipodjs_ui_transition_direction;
+    vertical = direction < -1 || direction > 1;
     display->set_viewport(NULL);
     memcpy(ipodjs_ui_animation_new, FBADDR(0, 0), FRAMEBUFFER_SIZE);
     start_tick = current_tick;
@@ -646,11 +669,32 @@ bool ipodjs_ui_transition_present(struct screen *display)
         int divisor = (IPODJS_UI_ANIMATION_SAMPLES - 1) *
             (IPODJS_UI_ANIMATION_SAMPLES - 1) *
             (IPODJS_UI_ANIMATION_SAMPLES - 1);
-        int reveal = LCD_WIDTH * progress / divisor;
+        int reveal = (vertical ? LCD_HEIGHT : LCD_WIDTH) *
+                     progress / divisor;
 
         ipodjs_ui_animation_wait(start_tick, frame);
 
-        if (direction > 0)
+        if (vertical && direction > 0)
+        {
+            memcpy(FBADDR(0, 0), ipodjs_ui_animation_old,
+                   FRAMEBUFFER_SIZE);
+            if (reveal > 0)
+                memcpy(FBADDR(0, 0),
+                       ipodjs_ui_animation_new +
+                           (LCD_HEIGHT - reveal) * LCD_WIDTH,
+                       reveal * LCD_WIDTH * sizeof(fb_data));
+        }
+        else if (vertical)
+        {
+            memcpy(FBADDR(0, 0), ipodjs_ui_animation_new,
+                   FRAMEBUFFER_SIZE);
+            if (LCD_HEIGHT - reveal > 0)
+                memcpy(FBADDR(0, 0),
+                       ipodjs_ui_animation_old + reveal * LCD_WIDTH,
+                       (LCD_HEIGHT - reveal) * LCD_WIDTH *
+                           sizeof(fb_data));
+        }
+        else if (direction > 0)
         {
             if (LCD_WIDTH - reveal > 0)
                 display->bitmap_part(ipodjs_ui_animation_old, reveal, 0,
@@ -677,7 +721,8 @@ bool ipodjs_ui_transition_present(struct screen *display)
         }
         display->update();
         ipodjs_trace_screen("Transition",
-                            direction > 0 ? "forward" : "back",
+                            vertical ? (direction > 0 ? "down" : "up") :
+                            (direction > 0 ? "forward" : "back"),
                             reveal, frame, IPODJS_UI_ANIMATION_SAMPLES,
                             0, 0, LCD_WIDTH, LCD_HEIGHT);
     }
@@ -810,35 +855,39 @@ struct ipodjs_ui_stock_status_cache {
     struct bitmap battery;
     unsigned char battery_data[
         BM_SIZE(IPODJS_APPLE_BATTERY_W, IPODJS_APPLE_BATTERY_H,
-                FORMAT_NATIVE, false)];
+                FORMAT_NATIVE, false)] IPODJS_BM_ALIGN;
     struct bitmap playing;
     unsigned char playing_data[
         BM_SIZE(IPODJS_STOCK_PLAYING_W, IPODJS_STOCK_PLAYING_H,
-                FORMAT_NATIVE, false)];
+                FORMAT_NATIVE, false)] IPODJS_BM_ALIGN;
     struct bitmap hold;
     unsigned char hold_data[
         BM_SIZE(IPODJS_STOCK_HOLD_W, IPODJS_STOCK_HOLD_H,
-                FORMAT_NATIVE, false)];
+                FORMAT_NATIVE, false)] IPODJS_BM_ALIGN;
     struct bitmap header;
     unsigned char header_data[
         BM_SIZE(IPODJS_STOCK_HEADER_W, IPODJS_STOCK_HEADER_H,
-                FORMAT_NATIVE, false)];
+                FORMAT_NATIVE, false)] IPODJS_BM_ALIGN;
     struct bitmap repeat;
     unsigned char repeat_data[
         BM_SIZE(IPODJS_STOCK_REPEAT_W, IPODJS_STOCK_REPEAT_H,
-                FORMAT_NATIVE, false)];
+                FORMAT_NATIVE, false)] IPODJS_BM_ALIGN;
     struct bitmap shuffle;
     unsigned char shuffle_data[
         BM_SIZE(IPODJS_STOCK_SHUFFLE_W, IPODJS_STOCK_SHUFFLE_H,
-                FORMAT_NATIVE, false)];
+                FORMAT_NATIVE, false)] IPODJS_BM_ALIGN;
     struct bitmap bluetooth;
     unsigned char bluetooth_data[
         BM_SIZE(IPODJS_STOCK_BLUETOOTH_W, IPODJS_STOCK_BLUETOOTH_H,
-                FORMAT_NATIVE, false)];
+                FORMAT_NATIVE, false)] IPODJS_BM_ALIGN;
+    struct bitmap wifi;
+    unsigned char wifi_data[
+        BM_SIZE(IPODJS_STOCK_WIFI_W, IPODJS_STOCK_WIFI_H,
+                FORMAT_NATIVE, false)] IPODJS_BM_ALIGN;
     struct bitmap airpods;
     unsigned char airpods_data[
         BM_SIZE(IPODJS_AIRPODS_W, IPODJS_AIRPODS_H,
-                FORMAT_NATIVE, false)];
+                FORMAT_NATIVE, false)] IPODJS_BM_ALIGN;
     bool battery_tried, battery_valid;
     bool playing_tried, playing_valid;
     bool hold_tried, hold_valid;
@@ -846,6 +895,7 @@ struct ipodjs_ui_stock_status_cache {
     bool repeat_tried, repeat_valid;
     bool shuffle_tried, shuffle_valid;
     bool bluetooth_tried, bluetooth_valid;
+    bool wifi_tried, wifi_valid;
     bool airpods_tried, airpods_valid;
 };
 
@@ -853,7 +903,7 @@ static struct ipodjs_ui_stock_status_cache ipodjs_ui_stock_status;
 static struct bitmap ipodjs_ui_fast_scroll_overlay;
 static unsigned char ipodjs_ui_fast_scroll_overlay_data[
     BM_SIZE(IPODJS_FAST_SCROLL_W, IPODJS_FAST_SCROLL_H,
-            FORMAT_NATIVE, false) + IPODJS_FAST_SCROLL_ALPHA_BYTES];
+            FORMAT_NATIVE, false) + IPODJS_FAST_SCROLL_ALPHA_BYTES] IPODJS_BM_ALIGN;
 static bool ipodjs_ui_fast_scroll_overlay_tried[2];
 static bool ipodjs_ui_fast_scroll_overlay_valid;
 static int ipodjs_ui_fast_scroll_overlay_kind = -1;
@@ -862,11 +912,11 @@ struct ipodjs_ui_search_surface_cache {
     struct bitmap field;
     unsigned char field_data[
         BM_SIZE(IPODJS_SEARCH_SURFACE_W, IPODJS_SEARCH_SURFACE_H,
-                FORMAT_NATIVE, false)];
+                FORMAT_NATIVE, false)] IPODJS_BM_ALIGN;
     struct bitmap selected;
     unsigned char selected_data[
         BM_SIZE(IPODJS_SEARCH_SURFACE_W, IPODJS_SEARCH_SURFACE_H,
-                FORMAT_NATIVE, false)];
+                FORMAT_NATIVE, false)] IPODJS_BM_ALIGN;
     bool field_tried, field_valid;
     bool selected_tried, selected_valid;
 };
@@ -985,6 +1035,18 @@ static struct bitmap *ipodjs_ui_stock_bluetooth(void)
         IPODJS_STOCK_BLUETOOTH_W, IPODJS_STOCK_BLUETOOTH_H,
         &ipodjs_ui_stock_status.bluetooth_tried,
         &ipodjs_ui_stock_status.bluetooth_valid);
+}
+
+static struct bitmap *ipodjs_ui_stock_wifi(void)
+{
+    return ipodjs_ui_load_stock_status(
+        IPODJS_UI_APPLE_ASSET_DIR "/status-wifi.apple.18x13x24.bmp",
+        &ipodjs_ui_stock_status.wifi,
+        ipodjs_ui_stock_status.wifi_data,
+        sizeof(ipodjs_ui_stock_status.wifi_data),
+        IPODJS_STOCK_WIFI_W, IPODJS_STOCK_WIFI_H,
+        &ipodjs_ui_stock_status.wifi_tried,
+        &ipodjs_ui_stock_status.wifi_valid);
 }
 
 static struct bitmap *ipodjs_ui_airpods(void)
@@ -1899,7 +1961,18 @@ void ipodjs_ui_prepare_bluetooth_indicator(void)
 {
     /* Screen-entry service point: the draw path below remains I/O-free. */
     ipodjs_ui_stock_bluetooth();
+    ipodjs_ui_stock_wifi();
     ipodjs_ui_airpods();
+}
+
+void ipodjs_ui_draw_wifi_indicator(struct screen *display, int x, int y)
+{
+    if (!display || !ipodjs_ui_stock_status.wifi_valid)
+        return;
+
+    display->transparent_bitmap(ipodjs_ui_stock_status.wifi.data, x, y,
+                                ipodjs_ui_stock_status.wifi.width,
+                                ipodjs_ui_stock_status.wifi.height);
 }
 
 void ipodjs_ui_draw_bluetooth_indicator(struct screen *display, int x, int y)

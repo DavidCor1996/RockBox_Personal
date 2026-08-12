@@ -103,11 +103,16 @@ static unsigned long get_lcd_pixel(int x, int y)
     return colorindex[(bits | (bits >> 7)) & 3];
 #endif
 #elif LCD_DEPTH == 16
+    fb_data pixel;
+#ifdef HAVE_IPODJS_UI
+    if (!lcd_compose_overlay_row(y, x, 1, &pixel))
+#endif
+        pixel = *FBADDR(x, y);
 #if LCD_PIXELFORMAT == RGB565SWAPPED
-    unsigned bits = *FBADDR(x, y);
+    unsigned bits = pixel;
     return (bits >> 8) | (bits << 8);
 #else
-    return *FBADDR(x, y);
+    return pixel;
 #endif
 #elif LCD_DEPTH >= 24
     return FB_UNPACK_SCALAR_LCD(*FBADDR(x, y));

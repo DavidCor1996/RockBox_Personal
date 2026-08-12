@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+    <key>CFBundleDisplayName</key><string>DIRECTV</string>
+    <key>CFBundleExecutable</key><string>DirectTV</string>
+    <key>CFBundleIdentifier</key><string>com.rockpod.directtv</string>
+    <key>CFBundleInfoDictionaryVersion</key><string>6.0</string>
+    <key>CFBundleName</key><string>DirectTV</string>
+    <key>CFBundlePackageType</key><string>APPL</string>
+    <key>CFBundleShortVersionString</key><string>0.2.2</string>
+    <key>CFBundleVersion</key><string>22</string>
+    <key>CFBundleIconFiles</key><array>
+        <string>AppIcon57x57.png</string><string>AppIcon57x57@2x.png</string>
+    </array>
+    <key>LSRequiresIPhoneOS</key><true/>
+    <key>MinimumOSVersion</key><string>6.0</string>
+    <key>UIDeviceFamily</key><array><integer>1</integer></array>
+    <key>UIRequiredDeviceCapabilities</key><array><string>armv7</string></array>
+    <key>UIPrerenderedIcon</key><true/>
+    <key>UIStatusBarHidden</key><true/>
+    <key>UIViewControllerBasedStatusBarAppearance</key><false/>
+    <key>UIInterfaceOrientation</key><string>UIInterfaceOrientationLandscapeRight</string>
+    <key>UISupportedInterfaceOrientations</key><array>
+        <string>UIInterfaceOrientationLandscapeLeft</string>
+        <string>UIInterfaceOrientationLandscapeRight</string>
+    </array>
+</dict></plist>

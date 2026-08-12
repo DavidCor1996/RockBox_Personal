@@ -273,6 +273,11 @@ void system_init(void)
 
 void system_reboot(void)
 {
+#if defined(IPOD_6G) && !defined(BOOTLOADER)
+    extern bool ipod6g_videoout_disable(void);
+    ipod6g_videoout_disable();
+#endif
+
     /* Reset the SoC */
     asm volatile("msr CPSR_c, #0xd3   \n"
                  "mov r0, #0x100000   \n");

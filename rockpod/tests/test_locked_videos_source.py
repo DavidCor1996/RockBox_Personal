@@ -54,7 +54,8 @@ def test_settings_menu_can_use_the_shared_video_pin_gate():
 
     assert "videos_unlock_settings_menu" in source
     assert 'videos_unlock_with_shared_pin("Unlock Settings"' in source
-    assert "global_settings.ui_engine_lock_settings" in launcher
+    assert "global_settings.ui_engine_lock_settings" in source
+    assert "videos_settings_lock_active()" in launcher
     assert launcher.index("videos_unlock_settings_menu()") < launcher.index(
         "root_menu_video_settings_menu()"
     )

@@ -40,6 +40,10 @@
 #include "usb_serial.h"
 #endif
 
+#if defined(USB_ENABLE_ETHERNET)
+#include "usb_ethernet.h"
+#endif
+
 #if defined(USB_ENABLE_CHARGING_ONLY)
 #include "usb_charging_only.h"
 #endif
@@ -139,6 +143,13 @@ USB_STRING_INITIALIZER(u"Rockbox media player");
 static struct usb_string_descriptor usb_string_iSerial =
 USB_STRING_INITIALIZER(u"00000000000000000000000000000000000000000");
 
+#ifdef USB_ENABLE_ETHERNET
+static const struct usb_string_descriptor usb_string_ethernet_mac =
+/* CDC ECM/NCM exposes the host-side MAC address in iMACAddress.  The
+ * iPod-side network service uses 02:00:00:00:00:02. */
+USB_STRING_INITIALIZER(u"020000000001");
+#endif
+
 /* Generic for all targets */
 
 /* this is stringid #0: languages supported */
@@ -152,6 +163,9 @@ static const struct usb_string_descriptor* const usb_strings[USB_STRING_INDEX_MA
     [USB_STRING_INDEX_MANUFACTURER] = &usb_string_iManufacturer,
     [USB_STRING_INDEX_PRODUCT] = &usb_string_iProduct,
     [USB_STRING_INDEX_SERIAL] = &usb_string_iSerial,
+#ifdef USB_ENABLE_ETHERNET
+    [USB_STRING_INDEX_ETHERNET_MAC] = &usb_string_ethernet_mac,
+#endif
 };
 
 static int usb_address = 0;
@@ -236,6 +250,29 @@ static struct usb_class_driver drivers[USB_NUM_DRIVERS] =
         .disconnect = usb_serial_disconnect,
         .transfer_complete = usb_serial_transfer_complete,
         .control_request = usb_serial_control_request,
+#ifdef HAVE_HOTSWAP
+        .notify_hotswap = NULL,
+#endif
+    },
+#endif
+#ifdef USB_ENABLE_ETHERNET
+    [USB_DRIVER_ETHERNET] = {
+        .enabled = false,
+        .needs_exclusive_storage = false,
+        .config = 1,
+        .first_interface = 0,
+        .last_interface = 0,
+        .ep_allocs_size = ARRAYLEN(usb_ethernet_ep_allocs),
+        .ep_allocs = usb_ethernet_ep_allocs,
+        .set_first_interface = usb_ethernet_set_first_interface,
+        .get_config_descriptor = usb_ethernet_get_config_descriptor,
+        .init_connection = usb_ethernet_init_connection,
+        .init = usb_ethernet_init,
+        .disconnect = usb_ethernet_disconnect,
+        .transfer_complete = usb_ethernet_transfer_complete,
+        .control_request = usb_ethernet_control_request,
+        .set_interface = usb_ethernet_set_interface,
+        .get_interface = usb_ethernet_get_interface,
 #ifdef HAVE_HOTSWAP
         .notify_hotswap = NULL,
 #endif

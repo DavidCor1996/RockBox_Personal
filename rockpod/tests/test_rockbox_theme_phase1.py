@@ -350,6 +350,110 @@ def test_apply_diff_rejects_destination_outside_device_root(tmp_dir):
     assert not os.path.exists(os.path.join(tmp_dir, "escaped.cfg"))
 
 
+def test_deploy_guard_blocks_partial_runtime_bundle(tmp_dir):
+    _config, store = _make_store(tmp_dir)
+    mount_path = os.path.join(tmp_dir, "device")
+    os.makedirs(mount_path, exist_ok=True)
+    source_path = os.path.join(tmp_dir, "photos.rock")
+    with open(source_path, "w", encoding="utf-8") as handle:
+        handle.write("plugin\n")
+
+    profile = store.current_profile()
+    profile["device_mount_path"] = mount_path
+    profile["backup_location"] = os.path.join(tmp_dir, ".backups", profile["id"])
+    profile = store.save_profile(profile)
+
+    bundle = {
+        "id": "photos-runtime-sync",
+        "atomic": True,
+        "deployment_guards": [
+            {
+                "id": "photos-runtime-viewers",
+                "description": "Photo runtime plugin set",
+                "required_destinations": [
+                    ".rockbox/rocks/apps/photos.rock",
+                    ".rockbox/rocks/viewers/imageviewer.rock",
+                ],
+            }
+        ],
+        "assets": [
+            {
+                "kind": "plugin",
+                "source_rel": "photos.rock",
+                "source_abs": source_path,
+                "destination_rel": ".rockbox/rocks/apps/photos.rock",
+                "exists": True,
+            }
+        ],
+    }
+
+    deploy = RockboxDeployService()
+    diff = deploy.build_diff(profile, bundle)
+
+    assert diff["guard_blocking"] is True
+    result = deploy.apply_diff(profile, diff)
+    assert result["success"] is False
+    assert result["copied_count"] == 0
+    assert any("Photo runtime plugin set" in message for message in result["failures"])
+    assert not os.path.exists(
+        os.path.join(mount_path, ".rockbox", "rocks", "apps", "photos.rock")
+    )
+
+
+def test_atomic_deploy_rolls_back_when_copy_fails(tmp_dir):
+    _config, store = _make_store(tmp_dir)
+    mount_path = os.path.join(tmp_dir, "device")
+    os.makedirs(os.path.join(mount_path, ".rockbox", "themes"), exist_ok=True)
+    first_dest = os.path.join(mount_path, ".rockbox", "themes", "first.cfg")
+    with open(first_dest, "w", encoding="utf-8") as handle:
+        handle.write("old\n")
+
+    good_source = os.path.join(tmp_dir, "first-new.cfg")
+    with open(good_source, "w", encoding="utf-8") as handle:
+        handle.write("new\n")
+    bad_source_dir = os.path.join(tmp_dir, "bad-source")
+    os.makedirs(bad_source_dir, exist_ok=True)
+
+    profile = store.current_profile()
+    profile["device_mount_path"] = mount_path
+    profile["backup_location"] = os.path.join(tmp_dir, ".backups", profile["id"])
+    profile = store.save_profile(profile)
+
+    bundle = {
+        "id": "atomic-copy",
+        "atomic": True,
+        "assets": [
+            {
+                "kind": "cfg",
+                "source_rel": "first-new.cfg",
+                "source_abs": good_source,
+                "destination_rel": ".rockbox/themes/first.cfg",
+                "exists": True,
+            },
+            {
+                "kind": "cfg",
+                "source_rel": "bad-source",
+                "source_abs": bad_source_dir,
+                "destination_rel": ".rockbox/themes/second.cfg",
+                "exists": True,
+            },
+        ],
+    }
+
+    deploy = RockboxDeployService()
+    diff = deploy.build_diff(profile, bundle)
+    result = deploy.apply_diff(profile, diff)
+
+    assert result["success"] is False
+    assert result["copied_count"] == 0
+    assert any("rolled back" in message.lower() for message in result["failures"])
+    with open(first_dest, "r", encoding="utf-8") as handle:
+        assert handle.read() == "old\n"
+    assert not os.path.exists(
+        os.path.join(mount_path, ".rockbox", "themes", "second.cfg")
+    )
+
+
 def test_backup_creation_path_and_rollback_restore(tmp_dir):
     _config, store = _make_store(tmp_dir)
     mount_path = os.path.join(tmp_dir, "device")

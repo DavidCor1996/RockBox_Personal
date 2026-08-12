@@ -172,13 +172,28 @@ extern const char rbversion[];
 /*#define AUTOROCK*/ /* define this to check for "autostart.rock" on boot */
 
 static void init(void);
+
+#ifdef ROCKPOD_IOS_EMBED
+/* The companion has no console: stdout is redirected to a file it displays.
+ * Print a checkpoint per init stage so a hang names the last stage reached
+ * instead of showing an empty panel. */
+#define RP_INIT_MARK(stage) do { printf("init: %s\n", stage); fflush(stdout); } while (0)
+#else
+#define RP_INIT_MARK(stage) do { } while (0)
+#endif
+
 /* main(), and various functions called by main() and init() may be
  * be INIT_ATTR. These functions must not be called after the final call
  * to root_menu() at the end of main()
  * see definition of INIT_ATTR in config.h */
 #ifdef HAVE_ARGV_MAIN
-int main(int argc, char *argv[]) INIT_ATTR MAIN_NORETURN_ATTR ;
-int main(int argc, char *argv[])
+#ifdef ROCKPOD_IOS_EMBED
+#define ROCKBOX_MAIN rockbox_sim_main
+#else
+#define ROCKBOX_MAIN main
+#endif
+int ROCKBOX_MAIN(int argc, char *argv[]) INIT_ATTR MAIN_NORETURN_ATTR ;
+int ROCKBOX_MAIN(int argc, char *argv[])
 {
     sys_handle_argv(argc, argv);
 #else
@@ -301,6 +316,9 @@ int main(void)
     CHART(">root_menu");
     root_menu();
 }
+#ifdef ROCKPOD_IOS_EMBED
+#undef ROCKBOX_MAIN
+#endif
 
 /* The disk isn't ready at boot, rblogo is stored in bin and erased after boot */
 int show_logo_boot( void ) INIT_ATTR;
@@ -346,9 +364,13 @@ int show_logo_boot( void )
     lcd_remote_setfont(FONT_UI);
     lcd_remote_update();
 #endif
-#ifdef SIMULATOR
+#if defined(SIMULATOR) && !defined(ROCKPOD_IOS_EMBED)
     sleep(HZ); /* sim is too fast to see logo */
 #endif
+    /* No artificial delay in the companion: this sleep() blocks on the
+     * Rockbox tick, and if the tick is not yet running on that host the whole
+     * boot stops here -- one logo frame published and nothing further.  The
+     * panel is on screen continuously there, so the pause bought nothing. */
     return 0;
 }
 
@@ -385,7 +407,8 @@ static int INIT_ATTR init_dircache(bool preinit)
                 splash(0, str(LANG_SCANNING_DISK));
                 dircache_wait();
                 backlight_on();
-                show_logo_boot();
+                RP_INIT_MARK("show_logo_boot");
+    show_logo_boot();
             }
 
             struct dircache_info info;
@@ -404,6 +427,7 @@ static int INIT_ATTR init_dircache(bool preinit)
 static void init_tagcache(void) INIT_ATTR;
 static void init_tagcache(void)
 {
+    RP_INIT_MARK("tagcache_init");
     tagcache_init();
 
     while (!tagcache_is_initialized())
@@ -417,23 +441,32 @@ static void init_tagcache(void)
 static void init(void)
 {
     system_init();
+    RP_INIT_MARK("core_allocator_init");
     core_allocator_init();
+    RP_INIT_MARK("kernel_init");
     kernel_init();
 #ifdef APPLICATION
     paths_init();
 #endif
     enable_irq();
+    RP_INIT_MARK("lcd_init");
     lcd_init();
 #ifdef HAVE_REMOTE_LCD
     lcd_remote_init();
 #endif
     FOR_NB_SCREENS(i)
         global_status.font_id[i] = FONT_SYSFIXED;
+    RP_INIT_MARK("font_init");
     font_init();
+    RP_INIT_MARK("show_logo_boot");
     show_logo_boot();
+    RP_INIT_MARK("button_init");
     button_init();
+    RP_INIT_MARK("powermgmt_init");
     powermgmt_init();
+    RP_INIT_MARK("backlight_init");
     backlight_init();
+    RP_INIT_MARK("unicode_init");
     unicode_init();
 #ifdef HAVE_MULTIVOLUME
     init_volume_names();
@@ -459,11 +492,15 @@ static void init(void)
     sb_skin_init();
     viewportmanager_init();
 
+    RP_INIT_MARK("storage_init");
     storage_init();
+    RP_INIT_MARK("pcm_init");
     pcm_init();
+    RP_INIT_MARK("dsp_init");
     dsp_init();
     settings_reset();
     settings_load();
+    RP_INIT_MARK("settings_apply");
     settings_apply(true);
     init_battery_tables();
 #ifdef HAVE_DIRCACHE
@@ -474,10 +511,13 @@ static void init(void)
     init_tagcache();
 #endif
     tree_mem_init();
+    RP_INIT_MARK("filetype_init");
     filetype_init();
+    RP_INIT_MARK("playlist_init");
     playlist_init();
     shortcuts_init();
 
+    RP_INIT_MARK("audio_init");
     audio_init();
     talk_announce_voice_invalid(); /* notify user w/ voice prompt if voice file invalid */
     settings_apply_skins();

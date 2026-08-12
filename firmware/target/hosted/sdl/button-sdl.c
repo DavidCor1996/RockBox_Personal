@@ -513,7 +513,6 @@ static bool event_handler(SDL_Event *event)
 
     return false;
 }
-
 #ifdef __APPLE__
 int sdl_event_filter(void *userdata, SDL_Event * event)
 {

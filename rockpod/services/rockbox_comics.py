@@ -12,6 +12,8 @@ import sys
 import tempfile
 import zipfile
 
+from services.device_pin import DevicePinError, write_pin as write_device_pin
+
 
 COMIC_TARGET_DIR = "Comics"
 DEFAULT_CATEGORY = "Uncategorized"
@@ -458,14 +460,10 @@ class RockboxComicService:
             self._replace_directory(source, os.path.join(target, issue_id))
             copied += 1
         if any(bool(issue.get("locked")) for issue in issues):
-            pin_dir = os.path.join(mount, ".rockbox", "videolist")
-            os.makedirs(pin_dir, exist_ok=True)
-            temporary_pin = os.path.join(pin_dir, "locked.pin.tmp")
-            with open(
-                temporary_pin, "w", encoding="ascii", newline="\n"
-            ) as output:
-                output.write(locked_pin + "\n")
-            os.replace(temporary_pin, os.path.join(pin_dir, "locked.pin"))
+            try:
+                write_device_pin(mount, locked_pin)
+            except DevicePinError as exc:
+                raise ComicSyncError(str(exc))
         self._write_catalog(target)
         return copied
 

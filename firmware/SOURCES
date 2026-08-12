@@ -815,6 +815,10 @@ target/arm/s5l8702/debug-s5l8702.c
 #if !defined(BOOTLOADER) || defined(HAVE_BOOTLOADER_USB_MODE)
 target/arm/s5l8702/usb-s5l8702.c
 #endif
+#if defined(USB_ENABLE_IPHETH_HOST) && !defined(SIMULATOR)
+target/arm/s5l8702/usb-iphone-tether.c
+target/arm/s5l8702/usb-iphone-network.c
+#endif
 #ifdef HAVE_SERIAL
 target/arm/uc87xx.c
 target/arm/s5l8702/uart-s5l8702.c
@@ -954,6 +958,9 @@ usbstack/usb_storage.c
 #endif
 #ifdef USB_ENABLE_SERIAL
 usbstack/usb_serial.c
+#endif
+#ifdef USB_ENABLE_ETHERNET
+usbstack/usb_ethernet.c
 #endif
 #ifdef USB_ENABLE_AUDIO
 usbstack/usb_audio.c
@@ -1651,6 +1658,9 @@ target/arm/s5l8702/ipodnano4g/cscodec-nano4g.c
 
 #ifdef IPOD_6G
 target/arm/s5l8702/ipod6g/lcd-6g.c
+#ifndef BOOTLOADER
+target/arm/s5l8702/ipod6g/videoout-6g.c
+#endif
 target/arm/s5l8702/ipod6g/backlight-6g.c
 target/arm/s5l8702/ipod6g/piezo-6g.c
 target/arm/s5l8702/ipod6g/pmu-6g.c

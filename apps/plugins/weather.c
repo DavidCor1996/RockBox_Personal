@@ -69,6 +69,7 @@ struct weather_state
     int selected;
     bool detail;
     bool loaded;
+    bool has_current;
 };
 
 static struct weather_state weather;
@@ -219,7 +220,8 @@ static void weather_status(void)
 {
     struct tm *tm = rb->get_time();
 
-    rb->strcpy(weather.status, "Synced forecast");
+    rb->strcpy(weather.status, weather.has_current ?
+               "Live conditions" : "Synced forecast");
     if (!weather.generated[0] || !weather_valid_time(tm))
         return;
 
@@ -236,7 +238,7 @@ static void weather_status(void)
         }
     }
 
-    if (weather.day_count > 0)
+    if (weather.day_count > 0 && !weather.has_current)
         rb->strcpy(weather.status, "Updated by RockPod");
 }
 
@@ -289,6 +291,9 @@ static int current_hour_index(void)
     int best_future = -1;
     int best_past_index = -1;
     int best_future_index = -1;
+
+    if (weather.has_current && weather.hour_count > 0)
+        return 0;
 
     for (int i = 0; i < weather.hour_count; i++)
     {
@@ -357,7 +362,8 @@ static bool load_forecast(void)
             continue;
         cursor = line;
         copy_field(first, sizeof(first), &cursor);
-        if (!rb->strcmp(first, "hourly"))
+        if (!rb->strcmp(first, "current") ||
+            !rb->strcmp(first, "hourly"))
         {
             struct weather_hour *hour;
 
@@ -374,6 +380,8 @@ static bool load_forecast(void)
             copy_field(hour->wind_dir, sizeof(hour->wind_dir), &cursor);
             copy_field(hour->is_day, sizeof(hour->is_day), &cursor);
             copy_field(hour->source, sizeof(hour->source), &cursor);
+            if (!rb->strcmp(first, "current"))
+                weather.has_current = true;
             weather.hour_count++;
             continue;
         }
@@ -897,14 +905,30 @@ enum plugin_status plugin_start(const void *parameter)
 {
     int action;
     bool done = false;
+#ifdef USB_ENABLE_ETHERNET
+    unsigned long weather_generation;
+#endif
 
     (void)parameter;
     weather.loaded = load_forecast();
+#ifdef USB_ENABLE_ETHERNET
+    weather_generation = rb->usb_internet_weather_generation();
+#endif
     draw_weather();
 
     while (!done)
     {
-        action = rb->get_action(CONTEXT_LIST, TIMEOUT_BLOCK);
+#ifdef USB_ENABLE_ETHERNET
+        rb->usb_internet_service();
+        if (weather_generation != rb->usb_internet_weather_generation())
+        {
+            weather_generation = rb->usb_internet_weather_generation();
+            weather.loaded = load_forecast();
+            weather.selected = 0;
+            draw_weather();
+        }
+#endif
+        action = rb->get_action(CONTEXT_LIST, HZ / 4);
         switch (action)
         {
             case ACTION_STD_PREV:

@@ -55,12 +55,20 @@ class RockboxDeployService:
                 }
             )
 
+        guard_reports = self._evaluate_deployment_guards(
+            theme_bundle.get("deployment_guards", []),
+            items,
+        )
+
         return {
             "profile_id": profile["id"],
             "theme_id": theme_bundle["id"],
             "mount_path": mount_path,
             "items": items,
             "counts": counts,
+            "atomic": bool(theme_bundle.get("atomic")),
+            "guard_reports": guard_reports,
+            "guard_blocking": any(not report.get("ready") for report in guard_reports),
             "summary": {
                 "add": counts.get("add", 0),
                 "overwrite": counts.get("overwrite", 0),
@@ -72,6 +80,19 @@ class RockboxDeployService:
 
     def apply_diff(self, profile, diff_report):
         mount_path = validate_device_root(diff_report.get("mount_path") or profile.get("device_mount_path") or "")
+        guard_failures = self._guard_failures(diff_report)
+        if guard_failures:
+            return {
+                "success": False,
+                "copied_count": 0,
+                "failure_count": len(guard_failures),
+                "failures": guard_failures,
+                "backup_dir": "",
+                "manifest_path": "",
+                "rollback_available": False,
+            }
+
+        atomic = bool(diff_report.get("atomic"))
         actionable = [
             item for item in diff_report["items"]
             if item["status"] in ("add", "overwrite", "remove")
@@ -90,10 +111,13 @@ class RockboxDeployService:
         }
         copied = 0
         failures = []
+        applied_items = []
         for item in actionable:
             dest_abs = item["destination_abs"]
             if not self._within_mount(mount_path, dest_abs):
                 failures.append(f"{item['destination_rel']}: destination escapes device root")
+                if atomic:
+                    break
                 continue
             existed = os.path.exists(dest_abs)
             backup_rel = item["destination_rel"].lstrip("/")
@@ -101,18 +125,19 @@ class RockboxDeployService:
                 backup_abs = resolve_under_root(backup_dir, backup_rel)
             except ValueError as exc:
                 failures.append(f"{item['destination_rel']}: {exc}")
+                if atomic:
+                    break
                 continue
             if existed:
                 os.makedirs(os.path.dirname(backup_abs), exist_ok=True)
                 shutil.copy2(dest_abs, backup_abs)
-            manifest["items"].append(
-                {
-                    "destination_rel": item["destination_rel"],
-                    "destination_abs": dest_abs,
-                    "backup_rel": backup_rel,
-                    "existed": existed,
-                }
-            )
+            manifest_item = {
+                "destination_rel": item["destination_rel"],
+                "destination_abs": dest_abs,
+                "backup_rel": backup_rel,
+                "existed": existed,
+            }
+            manifest["items"].append(manifest_item)
             try:
                 if item.get("action") == "remove":
                     if os.path.exists(dest_abs):
@@ -127,8 +152,29 @@ class RockboxDeployService:
                     if not self._same_file(item["source_abs"], dest_abs):
                         raise OSError("verification mismatch after copy")
                 copied += 1
+                applied_items.append(manifest_item)
             except OSError as exc:
                 failures.append(f"{item['destination_rel']}: {exc}")
+                if atomic:
+                    rollback_items = list(applied_items)
+                    rollback_items.append(manifest_item)
+                    rollback_failures = self._rollback_items(backup_dir, rollback_items)
+                    failures.extend(rollback_failures)
+                    failures.append(
+                        "Deployment rolled back because this update requires all files together."
+                    )
+                    copied = 0
+                    break
+
+        if atomic and failures and applied_items and not any(
+            "rolled back" in str(msg).lower() for msg in failures
+        ):
+            rollback_failures = self._rollback_items(backup_dir, applied_items)
+            failures.extend(rollback_failures)
+            failures.append(
+                "Deployment rolled back because this update requires all files together."
+            )
+            copied = 0
 
         manifest_path = os.path.join(backup_dir, "manifest.json")
         atomic_write_json(manifest_path, manifest)
@@ -142,6 +188,97 @@ class RockboxDeployService:
             "manifest_path": manifest_path,
             "rollback_available": bool(manifest["items"]),
         }
+
+    @classmethod
+    def _evaluate_deployment_guards(cls, guards, items):
+        reports = []
+        if not guards:
+            return reports
+
+        by_destination = {}
+        for item in items:
+            rel = cls._normalize_relpath(item.get("destination_rel", ""))
+            if rel:
+                by_destination[rel] = item
+
+        for index, guard in enumerate(guards, start=1):
+            required = [
+                cls._normalize_relpath(value)
+                for value in guard.get("required_destinations", [])
+                if cls._normalize_relpath(value)
+            ]
+            missing_entries = []
+            missing_sources = []
+            remove_actions = []
+            for rel in required:
+                item = by_destination.get(rel)
+                if not item:
+                    missing_entries.append(rel)
+                    continue
+                if item.get("status") == "missing_source":
+                    missing_sources.append(rel)
+                if item.get("action") == "remove":
+                    remove_actions.append(rel)
+
+            reports.append(
+                {
+                    "id": str(guard.get("id") or f"guard-{index}"),
+                    "description": str(guard.get("description") or "").strip(),
+                    "required_destinations": required,
+                    "missing_entries": missing_entries,
+                    "missing_sources": missing_sources,
+                    "remove_actions": remove_actions,
+                    "ready": not (missing_entries or missing_sources or remove_actions),
+                }
+            )
+        return reports
+
+    @classmethod
+    def _guard_failures(cls, diff_report):
+        reports = diff_report.get("guard_reports") or cls._evaluate_deployment_guards(
+            diff_report.get("deployment_guards", []),
+            diff_report.get("items", []),
+        )
+        failures = []
+        for report in reports:
+            if report.get("ready"):
+                continue
+            name = report.get("description") or report.get("id") or "deployment guard"
+            details = []
+            if report.get("missing_entries"):
+                details.append("missing manifest entries: " + ", ".join(report["missing_entries"]))
+            if report.get("missing_sources"):
+                details.append("missing source files: " + ", ".join(report["missing_sources"]))
+            if report.get("remove_actions"):
+                details.append("unexpected remove actions: " + ", ".join(report["remove_actions"]))
+            if details:
+                failures.append(f"{name}: " + "; ".join(details))
+            else:
+                failures.append(f"{name}: deployment guard did not pass")
+        return failures
+
+    @classmethod
+    def _rollback_items(cls, backup_dir, items):
+        failures = []
+        for item in reversed(items):
+            destination_rel = item.get("destination_rel", "")
+            destination_abs = item.get("destination_abs", "")
+            backup_rel = item.get("backup_rel", "")
+            existed = bool(item.get("existed"))
+            try:
+                if existed:
+                    backup_abs = resolve_under_root(backup_dir, backup_rel)
+                    os.makedirs(os.path.dirname(destination_abs), exist_ok=True)
+                    shutil.copy2(backup_abs, destination_abs)
+                elif destination_abs and os.path.exists(destination_abs):
+                    os.remove(destination_abs)
+            except (OSError, ValueError) as exc:
+                failures.append(f"{destination_rel}: rollback failed ({exc})")
+        return failures
+
+    @staticmethod
+    def _normalize_relpath(value):
+        return str(value or "").replace("\\", "/").lstrip("/")
 
     def restore_latest_backup(self, profile):
         mount_path = validate_device_root(profile.get("device_mount_path") or "")

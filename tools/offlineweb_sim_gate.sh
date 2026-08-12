@@ -13,6 +13,7 @@ plugin_binary="${build_dir}/apps/plugins/offlineweb.rock"
 mpegplayer_binary="${build_dir}/apps/plugins/mpegplayer/mpegplayer.rock"
 sim_root=""
 sim_pid=""
+wheel_gate=""
 
 require_file()
 {
@@ -70,7 +71,8 @@ require_command xdotool
 require_command import
 
 trap cleanup EXIT INT TERM
-sim_root="$(mktemp -d /tmp/offlineweb-sim.XXXXXX)"
+sim_root="$(mktemp -d "${TMPDIR:-/tmp}/offlineweb-sim.XXXXXX")"
+wheel_gate="${sim_root}/scroll-forward.gate"
 mkdir -p "${sim_root}/.rockbox"
 cp -a "${source_root}/.rockbox/." "${sim_root}/.rockbox/"
 cp "${plugin_binary}" \
@@ -131,11 +133,12 @@ mkdir -p "${out_dir}"
 RBROOT="${sim_root}" \
 ROCKBOX_SIM_PLUGIN="/.rockbox/rocks/apps/offlineweb.rock" \
 ROCKBOX_SIM_PLUGIN_PARAM="${start_path}" \
+ROCKPOD_SIM_SCROLL_FWD_GATE="${wheel_gate}" \
 "${rockboxui}" --zoom 2 --nobackground --root "${sim_root}" \
     >"${out_dir}/simulator.log" 2>&1 &
 sim_pid=$!
 
-sleep 7
+sleep "${ROCKBOX_SIM_START_DELAY:-7}"
 window_id="$(xdotool search --pid "${sim_pid}" | head -1)"
 if [ -z "${window_id}" ]; then
     printf "unable to find OfflineWeb simulator window\n" >&2
@@ -144,7 +147,13 @@ fi
 
 if [ "${start_path}" != "rockbox:shortcuts" ]; then
     capture "${window_id}" "01-page-top"
-    if [ -z "${direct_action}" ]; then
+    if [ "${direct_action}" = "natural-scroll" ]; then
+        touch "${wheel_gate}"
+        sleep 1
+        rm -f "${wheel_gate}"
+        sleep 1
+        capture "${window_id}" "02-page-scrolled"
+    elif [ -z "${direct_action}" ]; then
         tap "${window_id}" Down
         sleep 1
         capture "${window_id}" "02-page-scrolled"

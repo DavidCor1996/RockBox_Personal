@@ -36,6 +36,11 @@
 /* define this if you have a colour LCD */
 #define HAVE_LCD_COLOR
 
+/* Native Apple-style shell shared with the 320x240 Classic target.  The
+ * 64 MiB Video profile has the same framebuffer geometry and enough memory
+ * for iPodJS without borrowing playback/plugin audio buffers. */
+#define HAVE_IPODJS_UI
+
 /* define this if you want album art for this target */
 #define HAVE_ALBUMART
 

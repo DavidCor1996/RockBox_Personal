@@ -3,7 +3,7 @@ set -euo pipefail
 
 photos_dir="/run/media/david/DAVID_S IPO/Photos"
 thumb_dir="$photos_dir/.photo_thumbs"
-thumb_size="${THUMB_SIZE:-80x80}"
+thumb_size="${THUMB_SIZE:-80x60>}"
 rebuild_all=0
 
 usage() {
@@ -14,7 +14,7 @@ Usage:
 Behavior:
   - Scans PHOTOS_DIR for supported image files.
   - Writes missing or invalid thumbnails to PHOTOS_DIR/.photo_thumbs.
-  - Thumbnail format is 80x80 Windows BMP3 with a black background.
+  - Matches RockPod: aspect-preserving, at most 80x60, Windows BMP3.
 
 Examples:
   tools/generate_ipod_photo_thumbs.sh
@@ -40,11 +40,18 @@ relative_path() {
 thumb_is_valid() {
     local thumb="$1"
     local desc
+    local dimensions
+    local width
+    local height
 
     [[ -s "$thumb" ]] || return 1
     desc="$(file -b "$thumb" 2>/dev/null || true)"
     [[ "$desc" == *"PC bitmap"* ]] || return 1
-    [[ "$desc" == *"80 x 80 x 24"* ]] || return 1
+    [[ "$desc" == *" x 24"* ]] || return 1
+    dimensions="$(magick identify -format '%w %h' "$thumb" 2>/dev/null || true)"
+    read -r width height <<<"$dimensions"
+    [[ "$width" =~ ^[0-9]+$ && "$height" =~ ^[0-9]+$ ]] || return 1
+    (( width > 0 && width <= 80 && height > 0 && height <= 60 )) || return 1
     return 0
 }
 
@@ -55,11 +62,9 @@ generate_thumb() {
     magick "$src" \
         -auto-orient \
         -thumbnail "$thumb_size" \
-        -background black \
+        -background white \
         -alpha remove \
         -alpha off \
-        -gravity center \
-        -extent "$thumb_size" \
         "BMP3:$dst"
 }
 
@@ -108,7 +113,9 @@ while IFS= read -r -d '' src; do
     fi
 done < <(
     find "$photos_dir" \
-        \( -path "$thumb_dir" -o -path "$thumb_dir/*" \) -prune -o \
+        \( -path "$thumb_dir" -o -path "$thumb_dir/*" \
+           -o -path "$photos_dir/.photo_previews" \
+           -o -path "$photos_dir/.photo_previews/*" \) -prune -o \
         -type f -print0 |
     while IFS= read -r -d '' candidate; do
         if is_supported_photo "$candidate"; then

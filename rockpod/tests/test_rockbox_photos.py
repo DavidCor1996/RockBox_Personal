@@ -449,3 +449,76 @@ def test_photo_sync_writes_preview_index_and_remove_updates_it(tmp_dir):
         lines = [line.rstrip("\n") for line in handle if line.strip()]
     remaining = [line.split("\t")[0] for line in lines[1:]]
     assert remaining == ["Trip/IMG_0002.jpg.bmp"]
+
+
+def test_photo_sync_bundle_includes_atomic_runtime_plugins_and_overlays(tmp_dir):
+    repo_root = os.path.join(tmp_dir, "repo")
+    photos = os.path.join(tmp_dir, "photos")
+    device = os.path.join(tmp_dir, "device")
+    _make_image(os.path.join(photos, "Trip", "IMG_0001.jpg"), size=(640, 480))
+    for rel_path in (
+        "apps/plugins/photos.rock",
+        "apps/plugins/imageviewer.rock",
+        "apps/plugins/imageviewer/bmp.ovl",
+        "apps/plugins/imageviewer/gif.ovl",
+        "apps/plugins/imageviewer/jpeg.ovl",
+        "apps/plugins/imageviewer/jpegp.ovl",
+        "apps/plugins/imageviewer/png.ovl",
+        "apps/plugins/imageviewer/ppm.ovl",
+    ):
+        _make_file(os.path.join(repo_root, "build-hw-ipod6g", rel_path), b"rb")
+    os.makedirs(device, exist_ok=True)
+
+    _config, store = _make_store(tmp_dir, repo_root)
+    profile = store.current_profile()
+    profile["source_repo_path"] = repo_root
+    profile["photos_library_path"] = photos
+    profile["device_mount_path"] = device
+    profile["target_device_model"] = "iPod Classic / Video"
+    profile = store.save_profile(profile)
+
+    service = RockboxPhotoService()
+    bundle = service.build_sync_bundle(profile, service.list_photos(profile), "device")
+
+    assert bundle.get("atomic") is True
+    guard = bundle.get("deployment_guards", [])[0]
+    assert guard["id"] == "photos-runtime-viewers"
+    destinations = {asset["destination_rel"] for asset in bundle["assets"]}
+    required = set(guard["required_destinations"])
+    assert required <= destinations
+    assert ".rockbox/rocks/apps/photos.rock" in destinations
+    assert ".rockbox/rocks/viewers/imageviewer.rock" in destinations
+    assert ".rockbox/rocks/viewers/jpeg.ovl" in destinations
+    assert ".rockbox/rocks/viewers/jpegp.ovl" in destinations
+
+
+def test_photo_sync_guard_blocks_when_runtime_overlay_is_missing(tmp_dir):
+    repo_root = os.path.join(tmp_dir, "repo")
+    photos = os.path.join(tmp_dir, "photos")
+    device = os.path.join(tmp_dir, "device")
+    _make_image(os.path.join(photos, "Trip", "IMG_0001.jpg"), size=(640, 480))
+    _make_file(os.path.join(repo_root, "build-hw-ipod6g", "apps/plugins/photos.rock"), b"rb")
+    _make_file(os.path.join(repo_root, "build-hw-ipod6g", "apps/plugins/imageviewer.rock"), b"rb")
+    _make_file(os.path.join(repo_root, "build-hw-ipod6g", "apps/plugins/imageviewer/bmp.ovl"), b"rb")
+    os.makedirs(device, exist_ok=True)
+
+    _config, store = _make_store(tmp_dir, repo_root)
+    profile = store.current_profile()
+    profile["source_repo_path"] = repo_root
+    profile["photos_library_path"] = photos
+    profile["device_mount_path"] = device
+    profile["target_device_model"] = "iPod Classic / Video"
+    profile = store.save_profile(profile)
+
+    service = RockboxPhotoService()
+    deploy = RockboxDeployService()
+    deploy_profile = service.deploy_profile(profile, "device")
+    bundle = service.build_sync_bundle(profile, service.list_photos(profile), "device")
+    diff = deploy.build_diff(deploy_profile, bundle)
+    result = deploy.apply_diff(deploy_profile, diff)
+
+    assert diff["guard_blocking"] is True
+    assert result["success"] is False
+    assert result["copied_count"] == 0
+    assert any("Photo runtime plugin set" in message for message in result["failures"])
+    assert not os.path.exists(os.path.join(device, "Photos", "Trip", "IMG_0001.jpg"))

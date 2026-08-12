@@ -98,7 +98,9 @@ pacbox
 infones
 pokemini
 minivmac
+#ifndef ROCKPOD_IOS_EMBED
 flashplayer
+#endif
 #endif
 
 #if defined(HAVE_LCD_COLOR) && (LCD_WIDTH >= 320) && (LCD_HEIGHT >= 240) \
@@ -111,9 +113,13 @@ tamagotchi
 gwatch
 #if (defined(CPU_ARM) || defined(SIMULATOR)) && (MEMORYSIZE >= 32)
 snes_lite
+#ifndef ROCKPOD_IOS_EMBED
 openlara
+#endif
 #if defined(IPOD_6G) || defined(SIMULATOR)
+#ifndef ROCKPOD_IOS_EMBED
 sm64
+#endif
 animalcrossing
 diablo
 #endif
@@ -127,7 +133,9 @@ runescape_classic
 
 #if defined(HAVE_LCD_COLOR) && (LCD_WIDTH >= 320) && (LCD_HEIGHT >= 240) \
     && (PLUGIN_BUFFER_SIZE >= 0x100000)
+#ifndef ROCKPOD_IOS_EMBED
 scummvm
+#endif
 #endif
 
 #if (defined(HAVE_LCD_COLOR) || defined(MROBE_100) || defined(SANSA_CLIPPLUS) \

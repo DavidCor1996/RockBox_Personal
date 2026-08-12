@@ -154,6 +154,7 @@ from ui.library_views import (
 )
 from ui.track_adapter import normalize_track_for_ui, normalize_tracks_for_ui
 from ui.simulator_panel import SimulatorPanel
+from ui.video_out_panel import VideoOutPanel
 from ui.plugin_manager import PluginManagerWidget
 from ui.game_manager import GameManagerWidget
 from ui.maker_lite_creator import MakerLiteCreator
@@ -196,6 +197,7 @@ from ui.process_helpers import (
 from ui.dialogs.metadata_editor import MetadataEditor
 from ui.dialogs.album_info import AlbumInfoDialog
 from ui.dialogs.album_metadata import AlbumMetadataDialog
+from ui.dialogs.device_pin import DevicePinDialog
 from ui.dialogs.device_settings import DeviceSettingsDialog
 from ui.dialogs.preferences import PreferencesDialog
 from ui.dialogs.sync_dialog import SyncDialog
@@ -526,6 +528,7 @@ class MainWindow(QMainWindow):
         self._store_page.addTab(self._game_browser_panel, "iPod Games")
         self._store_page.currentChanged.connect(self._on_store_tab_changed)
         self._simulator_panel = SimulatorPanel()
+        self._video_out_panel = VideoOutPanel()
         self._device_summary.set_options(
             self._config.auto_sync_on_connect,
             self._config.resync_metadata_changes,
@@ -562,6 +565,7 @@ class MainWindow(QMainWindow):
         self._content_stack.addWidget(self._linux_manager)
         self._content_stack.addWidget(self._android_manager)
         self._content_stack.addWidget(self._simulator_panel)
+        self._content_stack.addWidget(self._video_out_panel)
         self._content_stack.addWidget(self._website_sync_panel)
         content_layout.addWidget(self._content_stack)
 
@@ -620,7 +624,10 @@ class MainWindow(QMainWindow):
         device_menu = menubar.addMenu("Device")
         device_menu.addAction("Sync to iPod", self._start_sync, "Ctrl+S")
         device_menu.addAction("Sync Weather", self._sync_weather_only)
-        device_menu.addAction("Sync Maps Current Location...", self._sync_maps_current_location)
+        device_menu.addAction(
+            "Refresh Maps Location & Hotspots",
+            self._sync_maps_current_location,
+        )
         device_menu.addAction("Sync Maps Photo Tags...", self._sync_maps_photo_tags)
         device_menu.addAction("Sync Maps Route (GPX)...", self._sync_maps_route)
         device_menu.addAction("Sync Maps World Satellite Atlas...", self._sync_maps_world_atlas)
@@ -639,6 +646,7 @@ class MainWindow(QMainWindow):
         device_menu.addAction("Regenerate iPod Artwork", self._regenerate_ipod_artwork)
         device_menu.addAction("Show Device Diff", self._show_device_diff)
         device_menu.addAction("Device Settings...", self._show_device_settings)
+        device_menu.addAction("Set Device PIN...", self._show_device_pin)
         device_menu.addAction("Rename Connected iPod...", self._rename_connected_device)
         device_menu.addAction("Forget Device", self._forget_device)
         device_menu.addSeparator()
@@ -1260,6 +1268,8 @@ class MainWindow(QMainWindow):
             tracks = []
         elif self._current_view == "rockbox_simulator":
             tracks = []
+        elif self._current_view == "rockbox_video_out":
+            tracks = []
         elif self._current_view.startswith("device_playlist_"):
             try:
                 playlist_id = int(self._current_view.replace("device_playlist_", ""))
@@ -1489,6 +1499,7 @@ class MainWindow(QMainWindow):
             "rockbox_browser": "Store",
             "rockbox_website_sync": "Website Sync",
             "rockbox_simulator": "Simulator",
+            "rockbox_video_out": "Video Out / Dock Lab",
             "device_root": "Device",
             "device_desktop_mode": "Desktop Mode",
             "device_music": "On This iPod",
@@ -1687,6 +1698,19 @@ class MainWindow(QMainWindow):
         dialog.settings_saved.connect(self._apply_device_settings)
         dialog.exec()
 
+    def _show_device_pin(self):
+        device = self._device_detector.current_device
+        if not device:
+            QMessageBox.warning(self, "No Device", "No Rockbox device is connected.")
+            return
+        mount_path = str(getattr(device, "mount_path", "") or "").strip()
+        if not mount_path or not os.path.isdir(mount_path):
+            QMessageBox.warning(
+                self, "No Device", "The connected device is not mounted."
+            )
+            return
+        DevicePinDialog(mount_path, parent=self).exec()
+
     def _rename_connected_device(self):
         device = self._device_detector.current_device
         if not device:
@@ -1810,6 +1834,8 @@ class MainWindow(QMainWindow):
         elif self._current_view == "rockbox_simulator":
             self._content_stack.setCurrentWidget(self._simulator_panel)
             self._refresh_simulator_panel()
+        elif self._current_view == "rockbox_video_out":
+            self._content_stack.setCurrentWidget(self._video_out_panel)
         else:
             self._content_stack.setCurrentWidget(self._table_page)
 
@@ -4376,21 +4402,33 @@ class MainWindow(QMainWindow):
         profile = self._maps_profile_or_warn()
         if not profile:
             return
-        name, ok = QInputDialog.getText(self, "Sync Maps Location", "Location name:", text=str(profile.get("weather_location_name") or "Current Location"))
-        if not ok:
-            return
-        latitude, ok = QInputDialog.getDouble(self, "Sync Maps Location", "Latitude:", float(profile.get("weather_latitude") or 0), -90, 90, 6)
-        if not ok:
-            return
-        longitude, ok = QInputDialog.getDouble(self, "Sync Maps Location", "Longitude:", float(profile.get("weather_longitude") or 0), -180, 180, 6)
-        if not ok:
-            return
+        self._status_bar.set_left_text("Refreshing Maps location, hotspots, and satellite detail...")
+        QApplication.processEvents()
+        hotspot_source = "fresh"
         try:
-            result = self._rockbox_maps.write_bundle(profile, name, latitude, longitude)
+            name, latitude, longitude = self._rockbox_maps.resolve_location(profile)
+            try:
+                hotspots = self._rockbox_maps.nearby_hotspots(
+                    latitude, longitude
+                )
+            except OSError:
+                hotspots = self._rockbox_maps.cached_hotspots(profile)
+                hotspot_source = "last good"
+                if not hotspots:
+                    raise
+            result = self._rockbox_maps.write_bundle(
+                profile, name, latitude, longitude, hotspots=hotspots
+            )
+            atlas = self._rockbox_maps.sync_location_atlas(
+                profile, latitude, longitude
+            )
         except (OSError, ValueError) as exc:
             QMessageBox.warning(self, "Maps Sync Failed", str(exc))
             return
-        self._status_bar.set_left_text(f"Synced Maps location and {result['photos']} geotagged photo(s)")
+        self._status_bar.set_left_text(
+            f"Maps: {name}, {result['hotspots']} {hotspot_source} hotspots, "
+            f"{atlas['tiles']} detailed satellite tiles"
+        )
 
     def _sync_maps_photo_tags(self):
         profile = self._maps_profile_or_warn()
@@ -12034,7 +12072,12 @@ class MainWindow(QMainWindow):
         if not target:
             self._status_bar.set_left_text("No simulator target selected")
             return
-        launched = self._rockbox_simulator.launch(target)
+        try:
+            launched = self._rockbox_simulator.launch(target)
+        except ValueError as exc:
+            self._status_bar.set_left_text("Simulator launch failed")
+            QMessageBox.warning(self, "Simulator Launch Failed", str(exc))
+            return
         self._status_bar.set_left_text(f"Launched {target['id']} (pid {launched['pid']})")
 
     def _capture_simulator_screenshot(self):

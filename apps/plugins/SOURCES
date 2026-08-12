@@ -186,7 +186,7 @@ doom_play.c
 palmos.c
 #endif
 
-#if defined(HAVE_PLUGIN_CXX) && defined(IPOD_6G)
+#if defined(HAVE_PLUGIN_CXX) && defined(IPOD_6G) && !defined(ROCKPOD_IOS_EMBED)
 cxxprobe.cpp
 #endif
 

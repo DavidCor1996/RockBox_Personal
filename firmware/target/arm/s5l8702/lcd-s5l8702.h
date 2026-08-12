@@ -21,6 +21,7 @@
 #ifndef __LCD_S5L8702_H__
 #define __LCD_S5L8702_H__
 
+#include <stdbool.h>
 #include <stdint.h>
 
 #include "config.h"
@@ -81,6 +82,12 @@ struct lcd_info_rec {
 };
 
 void lcd_awake(void);
+
+#if defined(IPOD_6G) && !defined(BOOTLOADER)
+void lcd_external_capture_set(bool enabled, bool external_only);
+bool lcd_external_capture_video_active(void);
+uint16_t lcd_external_capture_generation(void);
+#endif
 
 #ifdef S5L_LCD_WITH_READID
 void lcd_read_display_id(int mupiface, uint8_t *lcd_id);

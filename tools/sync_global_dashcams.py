@@ -27,11 +27,11 @@ SOURCES = (
 )
 
 
-def commons_original_url(filename: str) -> str:
-    """Resolve a file through Commons' API; Special:FilePath rejects bots."""
+def commons_original_info(filename: str) -> tuple[str, int, float]:
+    """Resolve the current Commons original and its expected size/duration."""
     query = urllib.parse.urlencode({
         "action": "query", "format": "json", "prop": "imageinfo",
-        "titles": "File:" + filename, "iiprop": "url",
+        "titles": "File:" + filename, "iiprop": "url|size",
     })
     request = urllib.request.Request(
         "https://commons.wikimedia.org/w/api.php?" + query,
@@ -42,18 +42,30 @@ def commons_original_url(filename: str) -> str:
     for page in pages:
         info = page.get("imageinfo") or []
         if info:
-            return info[0]["url"]
+            original = info[0]
+            return original["url"], int(original["size"]), float(original["duration"])
     raise RuntimeError(f"Commons file not found: {filename}")
 
 
-def download(filename: str, destination: Path) -> None:
+def download(url: str, destination: Path) -> None:
+    temporary = destination.with_suffix(destination.suffix + ".download")
     request = urllib.request.Request(
-        commons_original_url(filename),
+        url,
         headers={"User-Agent": "RockPodMaps/1.0 (offline personal device sync)"},
     )
-    with urllib.request.urlopen(request) as response, destination.open("wb") as output:
+    with urllib.request.urlopen(request) as response, temporary.open("wb") as output:
         while chunk := response.read(1024 * 1024):
             output.write(chunk)
+    temporary.replace(destination)
+
+
+def media_duration(path: Path) -> float:
+    result = subprocess.run(
+        ["ffprobe", "-v", "error", "-show_entries", "format=duration",
+         "-of", "default=noprint_wrappers=1:nokey=1", str(path)],
+        check=True, capture_output=True, text=True,
+    )
+    return float(result.stdout.strip())
 
 
 def convert(source: Path, target: Path) -> None:
@@ -85,15 +97,26 @@ def main() -> None:
     for target_name, original_name in SOURCES:
         target = target_dir / target_name
         complete = target.with_suffix(target.suffix + ".complete")
+        source_url, source_size, source_duration = commons_original_info(original_name)
         if target.is_file() and target.stat().st_size > 0 and complete.is_file():
-            print(f"kept {target_name}")
-            continue
+            try:
+                duration_ok = abs(media_duration(target) - source_duration) <= 2.0
+            except (OSError, ValueError, subprocess.CalledProcessError):
+                duration_ok = False
+            if duration_ok:
+                print(f"kept {target_name}")
+                continue
+            print(f"refreshing incomplete or outdated encode: {target_name}")
         source = cache_dir / original_name
-        if not source.is_file() or not source.stat().st_size:
+        if not source.is_file() or source.stat().st_size != source_size:
             print(f"downloading {original_name}")
-            download(original_name, source)
+            download(source_url, source)
+            if source.stat().st_size != source_size:
+                raise RuntimeError(f"incomplete download: {original_name}")
         print(f"encoding complete drive: {target_name}")
         convert(source, target)
+        if abs(media_duration(target) - source_duration) > 2.0:
+            raise RuntimeError(f"incomplete encode: {target_name}")
         complete.touch()
         if not args.keep_sources:
             source.unlink(missing_ok=True)

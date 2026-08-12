@@ -261,6 +261,15 @@ extern bool lcd_putsxy_scroll_func(int x, int y, const unsigned char *string,
 /* update a fraction of the screen */
 extern void lcd_update_rect(int x, int y, int width, int height);
 
+#if defined(HAVE_LCD_COLOR) && defined(HAVE_IPODJS_UI)
+/* Presentation-only overlay hook. The callback fills an opaque output row
+ * without modifying the owner's framebuffer. */
+typedef bool (*lcd_overlay_row_hook_t)(int y, int x, int width,
+                                       fb_data *output);
+void lcd_set_overlay_row_hook(lcd_overlay_row_hook_t hook);
+bool lcd_compose_overlay_row(int y, int x, int width, fb_data *output);
+#endif
+
 #ifdef HAVE_REMOTE_LCD
     extern void lcd_remote_update(void);
     /* update a fraction of the screen */

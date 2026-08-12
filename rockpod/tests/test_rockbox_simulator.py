@@ -111,6 +111,32 @@ def test_fallback_ipodvideo_target_uses_local_video_sim_build(tmp_dir):
     ) is None
 
 
+def test_simulator_profile_prefers_selected_target_simdisk(tmp_dir):
+    repo_root = os.path.join(tmp_dir, "repo")
+    _build_dir, simdisk_primary = _make_sim_target(repo_root, "build-sim-video-5g")
+    _other_build, simdisk_other = _make_sim_target(repo_root, "build-sim-3g")
+    service = RockboxSimulatorService()
+    profile = {
+        "id": "ipod_320x240",
+        "name": "iPod Classic / Video",
+        "source_repo_path": repo_root,
+        "selected_theme": "iPone",
+        "screen_resolution": "320x240",
+        "simulator_simdisk_path": simdisk_other,
+        "target_device_model": "iPod Classic / Video",
+    }
+    target = {
+        "id": "build-sim-video-5g",
+        "simdisk_path": simdisk_primary,
+        "screen_resolution": "320x240",
+        "device_model": "iPod Classic / Video",
+    }
+
+    sim_profile = service.simulator_profile(profile, target)
+
+    assert sim_profile["device_mount_path"] == os.path.abspath(simdisk_primary)
+
+
 def test_profile_simulator_binding_persists(tmp_dir):
     repo_root = os.path.join(tmp_dir, "repo")
     build_dir, simdisk = _make_sim_target(repo_root)
@@ -639,3 +665,62 @@ def test_launch_with_rom_reports_no_autoload_support(tmp_dir, monkeypatch):
     assert result["rom_path"] == rom_path
     assert "--nobackground" in launched_cmd["cmd"]
     assert "--root" in launched_cmd["cmd"]
+
+
+def test_launch_sets_rbroot_to_simdisk_parent(tmp_dir, monkeypatch):
+    repo_root = os.path.join(tmp_dir, "repo")
+    build_dir, simdisk = _make_sim_target(repo_root)
+    service = RockboxSimulatorService()
+    target = {
+        "id": "build-sim-video-5g",
+        "build_dir": build_dir,
+        "binary_path": os.path.join(build_dir, "rockboxui"),
+        "simdisk_path": simdisk,
+    }
+
+    launched = {}
+
+    class _Proc:
+        pid = 99
+
+    def fake_popen(cmd, **kwargs):
+        launched["cmd"] = cmd
+        launched["kwargs"] = kwargs
+        return _Proc()
+
+    monkeypatch.setattr(subprocess, "Popen", fake_popen)
+
+    result = service.launch(target)
+
+    assert result["pid"] == 99
+    assert launched["kwargs"]["cwd"] == build_dir
+    assert launched["kwargs"]["env"]["RBROOT"] == os.path.dirname(os.path.abspath(simdisk))
+
+
+def test_launch_rejects_missing_binary_or_simdisk(tmp_dir):
+    service = RockboxSimulatorService()
+    missing_binary_target = {
+        "id": "build-sim-video-5g",
+        "build_dir": tmp_dir,
+        "binary_path": os.path.join(tmp_dir, "missing-rockboxui"),
+        "simdisk_path": tmp_dir,
+    }
+    try:
+        service.launch(missing_binary_target)
+    except ValueError as exc:
+        assert "binary" in str(exc).lower()
+    else:
+        raise AssertionError("launch accepted a missing simulator binary")
+
+    missing_simdisk_target = {
+        "id": "build-sim-video-5g",
+        "build_dir": tmp_dir,
+        "binary_path": __file__,
+        "simdisk_path": os.path.join(tmp_dir, "missing-simdisk"),
+    }
+    try:
+        service.launch(missing_simdisk_target)
+    except ValueError as exc:
+        assert "simdisk" in str(exc).lower()
+    else:
+        raise AssertionError("launch accepted a missing simulator simdisk")

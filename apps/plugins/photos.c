@@ -12,6 +12,7 @@
  ****************************************************************************/
 
 #include "plugin.h"
+#include <stdarg.h>
 #include "lib/pluginlib_actions.h"
 
 #define PHOTOS_DEFAULT_ROOT      "/Photos"
@@ -20,6 +21,7 @@
 #define PHOTOS_VIEWER    VIEWERS_DIR "/imageviewer.rock"
 #define PHOTOS_STATE     PLUGIN_APPS_DATA_DIR "/photos.state"
 #define PHOTOS_LOCKS     PLUGIN_APPS_DATA_DIR "/photos.locks"
+#define PHOTOS_DEBUG_LOG ROCKBOX_DIR "/logs/photos.log"
 #define PHOTOS_SHARED_PIN ROCKBOX_DIR "/videolist/locked.pin"
 #define PHOTOS_APPLE_DIR ROCKBOX_DIR "/ipodjs/apple"
 
@@ -109,6 +111,24 @@ static struct photo_move_dir photo_move_dirs[MAX_MOVE_DIRS];
 static int photo_lock_count;
 static int photo_move_dir_count;
 static char photos_root[MAX_PATH] = PHOTOS_DEFAULT_ROOT;
+
+static void photos_log(const char *fmt, ...)
+{
+    int fd;
+    char msg[200];
+    va_list ap;
+
+    fd = rb->open(PHOTOS_DEBUG_LOG, O_WRONLY | O_CREAT | O_APPEND, 0666);
+    if (fd < 0)
+        return;
+
+    va_start(ap, fmt);
+    rb->vsnprintf(msg, sizeof(msg), fmt, ap);
+    va_end(ap);
+
+    rb->fdprintf(fd, "[%08lx] %s\n", *rb->current_tick, msg);
+    rb->close(fd);
+}
 
 struct photos_pin_surfaces {
     struct bitmap panel;
@@ -1718,8 +1738,13 @@ static void photos_move_selection(int delta)
 
 static enum plugin_status photos_open_entry(struct photo_entry *entry)
 {
+    photos_log("open entry path=%s dir=%d", entry->path, entry->is_dir ? 1 : 0);
+
     if (!photos_unlock_if_needed(entry->path))
+    {
+        photos_log("open blocked by lock path=%s", entry->path);
         return PLUGIN_OK;
+    }
 
     if (entry->is_dir)
     {
@@ -1732,6 +1757,7 @@ static enum plugin_status photos_open_entry(struct photo_entry *entry)
     photos_set_selected_path_from_index();
     photos_save_resume_state();
     rb->plugin_tsr(photos_tsr_exit);
+    photos_log("launch viewer path=%s", entry->path);
     return rb->plugin_open(PHOTOS_VIEWER, entry->path);
 }
 
@@ -2388,20 +2414,42 @@ enum plugin_status plugin_start(const void *parameter)
     const char *path = parameter;
     bool resume = (parameter == rb->plugin_tsr);
 
+    photos_log("start parameter=%s resume=%d", path ? path : "(null)",
+               resume ? 1 : 0);
+
     if (path && !resume && path[0] && rb->file_exists(path))
+    {
+        photos_log("start direct open path=%s", path);
         return rb->plugin_open(PHOTOS_VIEWER, path);
+    }
 
     if (!photos_resolve_root() || !rb->dir_exists(photos_root))
     {
-        rb->splash(HZ * 2, "Create /Photos");
-        return PLUGIN_OK;
+        /* A fresh player has no /Photos until the companion syncs one, and
+         * an app launched from the root menu should not answer with an error
+         * the user has to fix over USB.  Create the folder and open it empty
+         * instead; only a filesystem that refuses the mkdir is a real fault. */
+        rb->mkdir(PHOTOS_DEFAULT_ROOT);
+        if (!rb->dir_exists(PHOTOS_DEFAULT_ROOT))
+        {
+            photos_log("cannot create photos root");
+            rb->splash(HZ * 2, "Cannot create /Photos");
+            return PLUGIN_ERROR;
+        }
+        rb->strlcpy(photos_root, PHOTOS_DEFAULT_ROOT, sizeof(photos_root));
     }
+
+    photos_log("resolved root=%s", photos_root);
 
     if (!photos_allocate_buffers())
     {
+        photos_log("photos_allocate_buffers failed");
         rb->splash(HZ * 2, "Photos buffer failed");
         return PLUGIN_ERROR;
     }
+
+    photos_log("buffers ready visible=%d entry_capacity=%d", photos.visible_count,
+               photos.entry_capacity);
 
     photos_load_locks();
     rb->strlcpy(photos.current_dir, photos_root, sizeof(photos.current_dir));

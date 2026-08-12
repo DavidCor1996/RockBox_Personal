@@ -5,9 +5,6 @@ Archive member included to satisfy reference by file (symbol)
 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_core.o)
                               /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_scroll.o) (get_framebuffer)
 
-Merging object attributes
-
-
 Merging program properties
 
 Removed property 0xc0000002 to merge /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crti.o (0x3) and /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/fractals/fractal.o (not found)
@@ -61,7 +58,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/libgcc_s.so.1
 LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a
 END GROUP
 LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/libatomic_asneeded.so
-LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/libatomic.a
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/libatomic.so
 LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/libc.so
 START GROUP
 LOAD /usr/lib/libc.so.6
@@ -544,14 +541,14 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x2707c
+.debug_info     0x0000000000000000    0x27d51
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x79e2 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/fractals/fractal.o
- .debug_info    0x00000000000079e2      0x8a1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/fractals/fractal_rect.o
- .debug_info    0x0000000000008283     0x80c3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/fractals/mandelbrot_set.o
- .debug_info    0x0000000000010346     0x7da8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
- .debug_info    0x00000000000180ee     0x7994 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_scroll.o)
- .debug_info    0x000000000001fa82     0x75fa /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_core.o)
+ .debug_info    0x0000000000000000     0x7c73 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/fractals/fractal.o
+ .debug_info    0x0000000000007c73      0x8a1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/fractals/fractal_rect.o
+ .debug_info    0x0000000000008514     0x8354 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/fractals/mandelbrot_set.o
+ .debug_info    0x0000000000010868     0x8039 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+ .debug_info    0x00000000000188a1     0x7c25 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_scroll.o)
+ .debug_info    0x00000000000204c6     0x788b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_core.o)
 
 .debug_abbrev   0x0000000000000000     0x155c
  *(.debug_abbrev)
@@ -562,32 +559,32 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
  .debug_abbrev  0x0000000000000f3a      0x331 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_scroll.o)
  .debug_abbrev  0x000000000000126b      0x2f1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_core.o)
 
-.debug_line     0x0000000000000000     0x1736
+.debug_line     0x0000000000000000     0x174f
  *(.debug_line .debug_line.* .debug_line_end)
- .debug_line    0x0000000000000000      0x36a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/fractals/fractal.o
- .debug_line    0x000000000000036a      0x351 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/fractals/fractal_rect.o
- .debug_line    0x00000000000006bb      0x7c0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/fractals/mandelbrot_set.o
- .debug_line    0x0000000000000e7b      0x2bd /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
- .debug_line    0x0000000000001138      0x428 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_scroll.o)
- .debug_line    0x0000000000001560      0x1d6 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_core.o)
+ .debug_line    0x0000000000000000      0x36f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/fractals/fractal.o
+ .debug_line    0x000000000000036f      0x351 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/fractals/fractal_rect.o
+ .debug_line    0x00000000000006c0      0x7c5 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/fractals/mandelbrot_set.o
+ .debug_line    0x0000000000000e85      0x2c2 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+ .debug_line    0x0000000000001147      0x42d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_scroll.o)
+ .debug_line    0x0000000000001574      0x1db /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_core.o)
 
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x4ec0
+.debug_str      0x0000000000000000     0x50a3
  *(.debug_str)
- .debug_str     0x0000000000000000     0x4ec0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/fractals/fractal.o
-                                       0x4b44 (size before relaxing)
- .debug_str     0x0000000000004ec0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/fractals/fractal_rect.o
+ .debug_str     0x0000000000000000     0x50a3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/fractals/fractal.o
+                                       0x4d30 (size before relaxing)
+ .debug_str     0x00000000000050a3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/fractals/fractal_rect.o
                                         0x9e5 (size before relaxing)
- .debug_str     0x0000000000004ec0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/fractals/mandelbrot_set.o
-                                       0x52c9 (size before relaxing)
- .debug_str     0x0000000000004ec0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
-                                       0x52bf (size before relaxing)
- .debug_str     0x0000000000004ec0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_scroll.o)
-                                       0x49cc (size before relaxing)
- .debug_str     0x0000000000004ec0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_core.o)
-                                       0x4979 (size before relaxing)
+ .debug_str     0x00000000000050a3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/fractals/mandelbrot_set.o
+                                       0x54b5 (size before relaxing)
+ .debug_str     0x00000000000050a3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+                                       0x54ab (size before relaxing)
+ .debug_str     0x00000000000050a3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_scroll.o)
+                                       0x4bb8 (size before relaxing)
+ .debug_str     0x00000000000050a3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_core.o)
+                                       0x4b65 (size before relaxing)
 
 .debug_loc
  *(.debug_loc)
@@ -617,26 +614,26 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
  *(.debug_addr)
 
 .debug_line_str
-                0x0000000000000000      0x85c
+                0x0000000000000000      0x86b
  *(.debug_line_str)
  .debug_line_str
-                0x0000000000000000      0x85c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/fractals/fractal.o
-                                        0x6a9 (size before relaxing)
+                0x0000000000000000      0x86b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/fractals/fractal.o
+                                        0x6b8 (size before relaxing)
  .debug_line_str
-                0x000000000000085c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/fractals/fractal_rect.o
+                0x000000000000086b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/fractals/fractal_rect.o
                                         0x2a8 (size before relaxing)
  .debug_line_str
-                0x000000000000085c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/fractals/mandelbrot_set.o
-                                        0x672 (size before relaxing)
+                0x000000000000086b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/fractals/mandelbrot_set.o
+                                        0x681 (size before relaxing)
  .debug_line_str
-                0x000000000000085c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
-                                        0x68b (size before relaxing)
+                0x000000000000086b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+                                        0x69a (size before relaxing)
  .debug_line_str
-                0x000000000000085c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_scroll.o)
-                                        0x62c (size before relaxing)
+                0x000000000000086b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_scroll.o)
+                                        0x63b (size before relaxing)
  .debug_line_str
-                0x000000000000085c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_core.o)
-                                        0x61f (size before relaxing)
+                0x000000000000086b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_core.o)
+                                        0x62e (size before relaxing)
 
 .debug_loclists
                 0x0000000000000000      0xb92

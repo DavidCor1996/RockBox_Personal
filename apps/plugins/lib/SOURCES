@@ -22,7 +22,7 @@ microui/microui.c
 microui/microui_rockbox.c
 #endif
 
-#ifdef HAVE_PLUGIN_CXX
+#if defined(HAVE_PLUGIN_CXX) && !defined(ROCKPOD_IOS_EMBED)
 cxx_support.cpp
 #endif
 

@@ -25,6 +25,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <inttypes.h>
+#ifdef ROCKPOD_IOS_EMBED
+#include <pthread.h>
+#endif
 #ifdef __unix__
 #include <unistd.h>
 #endif
@@ -127,7 +130,13 @@ static void sdl_apply_linux_renderer_workaround(void)
 }
 #endif
 
-#ifndef __APPLE__ /* MacOS requires events to be handled on main thread */
+/* The Apple special-case exists because macOS/Cocoa must pump events on the
+ * process main thread.  The iPhone companion does not use UIKit video at all
+ * -- it runs the offscreen driver and copies captured frames into its own
+ * UIImageView -- and its core runs on a background dispatch queue, so there
+ * is no main thread to hand events to.  Use the ordinary threaded event
+ * path there, which is the configuration the desktop simulator uses. */
+#if !defined(__APPLE__) || defined(ROCKPOD_IOS_EMBED)
 /*
  * This thread will read the buttons in an interrupt like fashion, and
  * also initializes SDL_INIT_VIDEO and the surfaces
@@ -260,7 +269,15 @@ void sim_do_exit()
 #endif
 
     SDL_Quit();
+#ifdef ROCKPOD_IOS_EMBED
+    /* The simulator is one screen inside RockPod Link. Powering it off must
+     * return to the companion rather than terminating the entire iOS app. */
+    extern void rockpod_ios_simulator_did_exit(void);
+    rockpod_ios_simulator_did_exit();
+    pthread_exit(NULL);
+#else
     exit(EXIT_SUCCESS);
+#endif
 }
 
 uintptr_t *stackbegin;
@@ -309,7 +326,7 @@ void system_init(void)
 #endif
 #endif
 
-#ifndef __APPLE__ /* MacOS requires events to be handled on main thread */
+#if !defined(__APPLE__) || defined(ROCKPOD_IOS_EMBED)
     s = SDL_CreateSemaphore(0); /* 0-count so it blocks */
 
     #if SDL_MAJOR_VERSION > 1
@@ -318,7 +335,18 @@ void system_init(void)
         evt_thread = SDL_CreateThread(sdl_event_thread, s);
     #endif /* SDL_MAJOR_VERSION */
 
-    SDL_SemWait(s);
+    /* A plain SDL_SemWait() deadlocks system_init() forever if the event
+     * thread never starts -- SDL_CreateThread() returning NULL, or the thread
+     * blocking before it posts.  Rockbox then never boots and the panel keeps
+     * showing the single frame produced by sdl_window_setup() above, which is
+     * exactly the "one black frame and nothing further" seen on iOS.  Wait
+     * with a deadline and carry on regardless; events are a nicety, a player
+     * that never starts is not. */
+    if (!evt_thread)
+        printf("sdl_event_thread failed to start: %s\n", SDL_GetError());
+    else if (SDL_SemWaitTimeout(s, 5000) != 0)
+        printf("sdl_event_thread did not signal within 5s; continuing\n");
+
     /* cleanup */
     SDL_DestroySemaphore(s);
 #else

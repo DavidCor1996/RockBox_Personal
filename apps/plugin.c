@@ -21,6 +21,7 @@
 #define DIRFUNCTIONS_DEFINED
 #define FILEFUNCTIONS_DEFINED
 #include "plugin.h"
+#include "notification_manager.h"
 #include "open_plugin.h"
 #include <ctype.h>
 #include <string.h>
@@ -71,6 +72,9 @@ extern const char rbversion[];
 
 #ifdef USB_ENABLE_AUDIO
 #include "usbstack/usb_audio.h"
+#endif
+#ifdef USB_ENABLE_ETHERNET
+#include "usb_internet.h"
 #endif
 
 #define WRAPPER(_x_) _x_ ## _wrapper
@@ -892,6 +896,21 @@ static const struct plugin_api rockbox_api = {
 #endif
     haptic_feedback_enabled,
     haptic_feedback,
+#ifdef HAVE_IPODJS_UI
+    notification_post,
+    notification_schedule,
+    notification_cancel,
+#endif
+#if defined(HAVE_IPODJS_UI) && defined(HAVE_TAGCACHE)
+    root_menu_ipodjs_text_input,
+#endif
+#ifdef USB_ENABLE_ETHERNET
+    usb_internet_connected,
+    usb_internet_service,
+    usb_internet_weather_generation,
+    usb_internet_send,
+    usb_internet_receive,
+#endif
 };
 
 static int plugin_buffer_handle;

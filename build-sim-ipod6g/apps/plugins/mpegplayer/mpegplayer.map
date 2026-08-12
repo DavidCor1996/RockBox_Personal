@@ -33,9 +33,6 @@ Archive member included to satisfy reference by file (symbol)
 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(ipodtiktok_heart.32x32x24.o)
                               /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpegplayer.o (ipodtiktok_heart)
 
-Merging object attributes
-
-
 Merging program properties
 
 Removed property 0xc0000002 to merge /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crti.o (0x3) and /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/decode.o (not found)
@@ -196,7 +193,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/libgcc_s.so.1
 LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a
 END GROUP
 LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/libatomic_asneeded.so
-LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/libatomic.a
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/libatomic.so
 LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/libc.so
 START GROUP
 LOAD /usr/lib/libc.so.6
@@ -249,7 +246,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
  .gnu.version_r
                 0x0000000000000698       0x30 /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crti.o
 
-.rela.dyn       0x00000000000006c8     0x1158
+.rela.dyn       0x00000000000006c8     0x11a0
  *(.rela.init)
  *(.rela.text .rela.text.* .rela.gnu.linkonce.t.*)
  .rela.text     0x00000000000006c8        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crti.o
@@ -261,29 +258,29 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
  .rela.data.rel.ro
                 0x0000000000000968      0x330 /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crti.o
  .rela.data.rel.ro.local
-                0x0000000000000c98      0xa50 /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crti.o
+                0x0000000000000c98      0xa98 /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crti.o
  *(.rela.tdata .rela.tdata.* .rela.gnu.linkonce.td.*)
  *(.rela.tbss .rela.tbss.* .rela.gnu.linkonce.tb.*)
  *(.rela.ctors)
  *(.rela.dtors)
  *(.rela.got)
- .rela.got      0x00000000000016e8      0x108 /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crti.o
+ .rela.got      0x0000000000001730      0x108 /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crti.o
  *(.rela.tls)
- .rela.tls      0x00000000000017f0        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crti.o
+ .rela.tls      0x0000000000001838        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crti.o
  *(.rela.bss .rela.bss.* .rela.gnu.linkonce.b.*)
  *(.rela.ldata .rela.ldata.* .rela.gnu.linkonce.l.*)
  *(.rela.lbss .rela.lbss.* .rela.gnu.linkonce.lb.*)
  *(.rela.lrodata .rela.lrodata.* .rela.gnu.linkonce.lr.*)
  *(.rela.ifunc)
- .rela.ifunc    0x00000000000017f0        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crti.o
+ .rela.ifunc    0x0000000000001838        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crti.o
  .rela.fini_array
-                0x00000000000017f0       0x18 /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crti.o
+                0x0000000000001838       0x18 /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crti.o
  .rela.init_array
-                0x0000000000001808       0x18 /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crti.o
+                0x0000000000001850       0x18 /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crti.o
 
-.rela.plt       0x0000000000001820       0x48
+.rela.plt       0x0000000000001868       0x48
  *(.rela.plt)
- .rela.plt      0x0000000000001820       0x48 /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crti.o
+ .rela.plt      0x0000000000001868       0x48 /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crti.o
  *(.rela.iplt)
 
 .relr.dyn
@@ -308,7 +305,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .plt.sec
  *(.plt.sec)
 
-.text           0x0000000000002060    0x25395
+.text           0x0000000000002060    0x25a81
  *(.text.unlikely .text.*_unlikely .text.unlikely.*)
  *(.text.exit .text.exit.*)
  *(.text.startup .text.startup.*)
@@ -482,340 +479,340 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
                 0x000000000001280f                stream_close
                 0x000000000001282d                stream_init
                 0x0000000000012aa2                stream_exit
- .text          0x0000000000012afc     0x64ca /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpegplayer.o
-                0x0000000000016753                mpegplayer_yuv_overlay_height
-                0x00000000000167a8                mpegplayer_yuv_overlay_y
-                0x00000000000167e1                mpegplayer_yuv_overlay_draw
-                0x0000000000017085                plugin_start
- .text          0x0000000000018fc6     0x158d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpeg_parser.o
-                0x00000000000191db                str_initialize
-                0x0000000000019203                str_end_of_stream
-                0x0000000000019777                mpeg_parser_scan_start_code
-                0x0000000000019832                mpeg_parser_scan_pes
-                0x00000000000198e1                mpeg_parser_scan_scr
-                0x0000000000019a08                mpeg_parser_scan_pts
-                0x0000000000019fa7                parser_prepare_image
-                0x000000000001a161                parser_seek_time
-                0x000000000001a185                parser_prepare_streaming
-                0x000000000001a2e7                parser_init_stream
-                0x000000000001a53f                parser_close_stream
-                0x000000000001a54b                parser_init
- .text          0x000000000001a553      0x25c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpeg_misc.o
-                0x000000000001a553                stream_scan_init
-                0x000000000001a55c                stream_scan_normalize
-                0x000000000001a580                stream_scan_offset
-                0x000000000001a594                ts_to_hms
-                0x000000000001a5d6                hms_format
-                0x000000000001a614                muldiv_uint32
-                0x000000000001a654                list_is_empty
-                0x000000000001a65c                list_is_member
-                0x000000000001a676                list_remove_item
-                0x000000000001a68e                list_add_item
-                0x000000000001a6ad                list_clear_all
-                0x000000000001a6c0                list_enum_items
-                0x000000000001a6ff                mpeg_sysevent_clear
-                0x000000000001a709                mpeg_sysevent_set
-                0x000000000001a715                mpeg_sysevent
-                0x000000000001a71d                mpeg_sysevent_callback
-                0x000000000001a741                mpeg_sysevent_handle
-                0x000000000001a75e                mpeg_button_get
- .text          0x000000000001a7af     0x5c34 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/livetv_guide.o
-                0x000000000001bf71                livetv_save_state
-                0x000000000001c03c                livetv_is_active
-                0x000000000001c043                livetv_channel_count
-                0x000000000001c04a                livetv_channel
-                0x000000000001c06d                livetv_current_channel
-                0x000000000001c074                livetv_set_current_channel
-                0x000000000001c087                livetv_slot_title
-                0x000000000001c0a2                livetv_slot_rating
-                0x000000000001c0bd                livetv_slot_desc
-                0x000000000001c0d8                livetv_slot_path
-                0x000000000001c13c                livetv_now_secs
-                0x000000000001c6e4                livetv_now_day
-                0x000000000001ca3d                livetv_load
-                0x000000000001cba9                livetv_slot_at
-                0x000000000001cc65                livetv_step_channel
-                0x000000000001d327                livetv_slot_next
-                0x000000000001d3aa                livetv_tune
-                0x000000000001d458                livetv_advance
-                0x000000000001d46c                livetv_guide_reset_to_now
-                0x000000000001d4dc                livetv_guide_enter
-                0x000000000001d4e3                livetv_guide_selected_channel
-                0x000000000001dad7                livetv_guide_selection_is_live
-                0x000000000001dae3                livetv_guide_filter_name
-                0x000000000001db00                livetv_guide_cycle_filter
-                0x000000000001db69                livetv_guide_jump_hours
-                0x000000000001db99                livetv_guide_move
-                0x000000000001dd1c                livetv_guide_draw
-                0x000000000001e639                livetv_guide_draw_rows
-                0x000000000001e63e                livetv_options_label
-                0x000000000001e658                livetv_options_draw
-                0x000000000001e7ff                livetv_options_activate
-                0x000000000001e84c                livetv_draw_info_banner
-                0x000000000001ead5                livetv_draw_mini_guide
-                0x000000000001ed66                livetv_desktop_prepare
-                0x000000000001edcf                livetv_desktop_draw_window
-                0x000000000001f20d                livetv_clear_overlay
-                0x000000000001f266                livetv_guide_run
-                0x000000000001f4ca                livetv_channel_is_weather
-                0x000000000001f4fb                livetv_weather_program_active
-                0x000000000001f52b                livetv_weather_commercial_active
-                0x000000000001f55b                livetv_weather_program_seconds
-                0x000000000001f585                livetv_weather_wants_video
-                0x000000000001f588                livetv_weather_enter
-                0x000000000001f5ec                livetv_weather_draw
-                0x000000000001fe9d                livetv_weather_tick
-                0x000000000001ff11                livetv_weather_draw_commercial_overlay
-                0x0000000000020251                livetv_weather_commercial_text
- .text          0x00000000000203e3       0xe3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
-                0x00000000000203f2                plugin__start
-                0x0000000000020446                rb_atexit
-                0x000000000002045f                exit
-                0x0000000000020478                _exit
-                0x0000000000020487                exit_on_usb
- .text          0x00000000000204c6      0x68c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(frame.o)
-                0x00000000000206cc                mad_header_init
-                0x00000000000206e2                mad_header_decode
-                0x0000000000020a54                mad_frame_decode
-                0x0000000000020b0f                mad_frame_mute
-                0x0000000000020b44                mad_frame_init
- .text          0x0000000000020b52      0xbd4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(layer12.o)
-                0x0000000000020ca7                mad_layer_I
-                0x0000000000021072                mad_layer_II
- .text          0x0000000000021726     0x37bf /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(layer3.o)
-                0x00000000000248c9                mad_layer_III
- .text          0x0000000000024ee5      0x1fb /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(stream.o)
-                0x0000000000024ee5                mad_stream_init
-                0x0000000000024f2f                mad_stream_buffer
-                0x0000000000024f51                mad_stream_sync
-                0x0000000000024fa7                mad_stream_errorstr
- .text          0x00000000000250e0     0x1947 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(synth.o)
-                0x00000000000251d7                mad_synth_mute
-                0x00000000000251e3                mad_synth_init
-                0x00000000000251ff                mad_synth_frame
- .text          0x0000000000026a27      0x1fd /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(bit.o)
-                0x0000000000026a27                mad_bit_init
-                0x0000000000026a3b                mad_bit_length
-                0x0000000000026a42                mad_bit_nextbyte
-                0x0000000000026a4f                mad_bit_skip
-                0x0000000000026a53                mad_bit_read
-                0x0000000000026a9d                mad_bit_crc
- .text          0x0000000000026c24        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(huffman.o)
- .text          0x0000000000026c24       0xcd /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
-                0x0000000000026c24                memcpy
-                0x0000000000026c4f                memset
-                0x0000000000026c78                memmove
-                0x0000000000026cb8                memcmp
- .text          0x0000000000026cf1      0x11a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(helper.o)
-                0x0000000000026cf1                talk_val
-                0x0000000000026d09                backlight_force_on
-                0x0000000000026d2b                backlight_ignore_timeout
-                0x0000000000026d69                backlight_use_settings
-                0x0000000000026d9b                sw_poweroff_disable
-                0x0000000000026dc1                sw_poweroff_restore
-                0x0000000000026dd8                remote_backlight_force_on
-                0x0000000000026dd9                remote_backlight_ignore_timeout
-                0x0000000000026dda                remote_backlight_use_settings
-                0x0000000000026ddb                buttonlight_force_on
-                0x0000000000026ddc                buttonlight_force_off
-                0x0000000000026ddd                buttonlight_ignore_timeout
-                0x0000000000026dde                buttonlight_use_settings
-                0x0000000000026ddf                backlight_brightness_set
-                0x0000000000026def                backlight_brightness_use_setting
-                0x0000000000026e09                buttonlight_brightness_set
-                0x0000000000026e0a                buttonlight_brightness_use_setting
- .text          0x0000000000026e0b      0x5ea /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(configfile.o)
-                0x0000000000026ec5                configfile_save
-                0x0000000000026ff4                configfile_load
-                0x00000000000271de                configfile_get_value
-                0x00000000000272b8                configfile_update_entry
- .text          0x00000000000273f5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(mpegplayer_status_icons_8x8x1.o)
- .text          0x00000000000273f5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(mpegplayer_status_icons_12x12x1.o)
- .text          0x00000000000273f5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(mpegplayer_status_icons_16x16x1.o)
- .text          0x00000000000273f5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(ipodtiktok_header.320x40x24.o)
- .text          0x00000000000273f5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(ipodtiktok_scrim.320x96x24.o)
- .text          0x00000000000273f5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(ipodtiktok_heart.32x32x24.o)
- .text          0x00000000000273f5        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16/crtendS.o
- .text          0x00000000000273f5        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
+ .text          0x0000000000012afc     0x6617 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpegplayer.o
+                0x000000000001682f                mpegplayer_yuv_overlay_height
+                0x0000000000016884                mpegplayer_yuv_overlay_y
+                0x00000000000168bd                mpegplayer_yuv_overlay_draw
+                0x0000000000017161                plugin_start
+ .text          0x0000000000019113     0x158d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpeg_parser.o
+                0x0000000000019328                str_initialize
+                0x0000000000019350                str_end_of_stream
+                0x00000000000198c4                mpeg_parser_scan_start_code
+                0x000000000001997f                mpeg_parser_scan_pes
+                0x0000000000019a2e                mpeg_parser_scan_scr
+                0x0000000000019b55                mpeg_parser_scan_pts
+                0x000000000001a0f4                parser_prepare_image
+                0x000000000001a2ae                parser_seek_time
+                0x000000000001a2d2                parser_prepare_streaming
+                0x000000000001a434                parser_init_stream
+                0x000000000001a68c                parser_close_stream
+                0x000000000001a698                parser_init
+ .text          0x000000000001a6a0      0x25c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpeg_misc.o
+                0x000000000001a6a0                stream_scan_init
+                0x000000000001a6a9                stream_scan_normalize
+                0x000000000001a6cd                stream_scan_offset
+                0x000000000001a6e1                ts_to_hms
+                0x000000000001a723                hms_format
+                0x000000000001a761                muldiv_uint32
+                0x000000000001a7a1                list_is_empty
+                0x000000000001a7a9                list_is_member
+                0x000000000001a7c3                list_remove_item
+                0x000000000001a7db                list_add_item
+                0x000000000001a7fa                list_clear_all
+                0x000000000001a80d                list_enum_items
+                0x000000000001a84c                mpeg_sysevent_clear
+                0x000000000001a856                mpeg_sysevent_set
+                0x000000000001a862                mpeg_sysevent
+                0x000000000001a86a                mpeg_sysevent_callback
+                0x000000000001a88e                mpeg_sysevent_handle
+                0x000000000001a8ab                mpeg_button_get
+ .text          0x000000000001a8fc     0x61d3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/livetv_guide.o
+                0x000000000001c142                livetv_save_state
+                0x000000000001c20d                livetv_is_active
+                0x000000000001c214                livetv_channel_count
+                0x000000000001c21b                livetv_channel
+                0x000000000001c495                livetv_current_channel
+                0x000000000001c49c                livetv_set_current_channel
+                0x000000000001c4af                livetv_slot_title
+                0x000000000001c4ca                livetv_slot_rating
+                0x000000000001c4e5                livetv_slot_desc
+                0x000000000001c500                livetv_slot_path
+                0x000000000001c564                livetv_now_secs
+                0x000000000001cb0e                livetv_now_day
+                0x000000000001ce67                livetv_load
+                0x000000000001cfd3                livetv_slot_at
+                0x000000000001d08f                livetv_step_channel
+                0x000000000001d751                livetv_slot_next
+                0x000000000001d7d4                livetv_tune
+                0x000000000001d882                livetv_advance
+                0x000000000001d896                livetv_guide_reset_to_now
+                0x000000000001d906                livetv_guide_enter
+                0x000000000001d90d                livetv_guide_selected_channel
+                0x000000000001df01                livetv_guide_selection_is_live
+                0x000000000001df0d                livetv_guide_filter_name
+                0x000000000001df2a                livetv_guide_cycle_filter
+                0x000000000001df93                livetv_guide_jump_hours
+                0x000000000001dfc3                livetv_guide_move
+                0x000000000001e146                livetv_guide_draw
+                0x000000000001ea65                livetv_guide_draw_rows
+                0x000000000001ea6a                livetv_options_label
+                0x000000000001ea84                livetv_options_draw
+                0x000000000001ec2b                livetv_options_activate
+                0x000000000001ec78                livetv_draw_info_banner
+                0x000000000001ef01                livetv_draw_mini_guide
+                0x000000000001f192                livetv_desktop_prepare
+                0x000000000001f1fb                livetv_desktop_draw_window
+                0x000000000001f639                livetv_clear_overlay
+                0x000000000001f692                livetv_guide_run
+                0x000000000001fbb2                livetv_channel_is_weather
+                0x000000000001fbe3                livetv_weather_program_active
+                0x000000000001fc13                livetv_weather_commercial_active
+                0x000000000001fc43                livetv_weather_program_seconds
+                0x000000000001fc6d                livetv_weather_wants_video
+                0x000000000001fc70                livetv_weather_enter
+                0x000000000001fcd4                livetv_weather_draw
+                0x0000000000020587                livetv_weather_tick
+                0x00000000000205fb                livetv_weather_draw_commercial_overlay
+                0x000000000002093d                livetv_weather_commercial_text
+ .text          0x0000000000020acf       0xe3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+                0x0000000000020ade                plugin__start
+                0x0000000000020b32                rb_atexit
+                0x0000000000020b4b                exit
+                0x0000000000020b64                _exit
+                0x0000000000020b73                exit_on_usb
+ .text          0x0000000000020bb2      0x68c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(frame.o)
+                0x0000000000020db8                mad_header_init
+                0x0000000000020dce                mad_header_decode
+                0x0000000000021140                mad_frame_decode
+                0x00000000000211fb                mad_frame_mute
+                0x0000000000021230                mad_frame_init
+ .text          0x000000000002123e      0xbd4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(layer12.o)
+                0x0000000000021393                mad_layer_I
+                0x000000000002175e                mad_layer_II
+ .text          0x0000000000021e12     0x37bf /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(layer3.o)
+                0x0000000000024fb5                mad_layer_III
+ .text          0x00000000000255d1      0x1fb /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(stream.o)
+                0x00000000000255d1                mad_stream_init
+                0x000000000002561b                mad_stream_buffer
+                0x000000000002563d                mad_stream_sync
+                0x0000000000025693                mad_stream_errorstr
+ .text          0x00000000000257cc     0x1947 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(synth.o)
+                0x00000000000258c3                mad_synth_mute
+                0x00000000000258cf                mad_synth_init
+                0x00000000000258eb                mad_synth_frame
+ .text          0x0000000000027113      0x1fd /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(bit.o)
+                0x0000000000027113                mad_bit_init
+                0x0000000000027127                mad_bit_length
+                0x000000000002712e                mad_bit_nextbyte
+                0x000000000002713b                mad_bit_skip
+                0x000000000002713f                mad_bit_read
+                0x0000000000027189                mad_bit_crc
+ .text          0x0000000000027310        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(huffman.o)
+ .text          0x0000000000027310       0xcd /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
+                0x0000000000027310                memcpy
+                0x000000000002733b                memset
+                0x0000000000027364                memmove
+                0x00000000000273a4                memcmp
+ .text          0x00000000000273dd      0x11a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(helper.o)
+                0x00000000000273dd                talk_val
+                0x00000000000273f5                backlight_force_on
+                0x0000000000027417                backlight_ignore_timeout
+                0x0000000000027455                backlight_use_settings
+                0x0000000000027487                sw_poweroff_disable
+                0x00000000000274ad                sw_poweroff_restore
+                0x00000000000274c4                remote_backlight_force_on
+                0x00000000000274c5                remote_backlight_ignore_timeout
+                0x00000000000274c6                remote_backlight_use_settings
+                0x00000000000274c7                buttonlight_force_on
+                0x00000000000274c8                buttonlight_force_off
+                0x00000000000274c9                buttonlight_ignore_timeout
+                0x00000000000274ca                buttonlight_use_settings
+                0x00000000000274cb                backlight_brightness_set
+                0x00000000000274db                backlight_brightness_use_setting
+                0x00000000000274f5                buttonlight_brightness_set
+                0x00000000000274f6                buttonlight_brightness_use_setting
+ .text          0x00000000000274f7      0x5ea /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(configfile.o)
+                0x00000000000275b1                configfile_save
+                0x00000000000276e0                configfile_load
+                0x00000000000278ca                configfile_get_value
+                0x00000000000279a4                configfile_update_entry
+ .text          0x0000000000027ae1        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(mpegplayer_status_icons_8x8x1.o)
+ .text          0x0000000000027ae1        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(mpegplayer_status_icons_12x12x1.o)
+ .text          0x0000000000027ae1        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(mpegplayer_status_icons_16x16x1.o)
+ .text          0x0000000000027ae1        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(ipodtiktok_header.320x40x24.o)
+ .text          0x0000000000027ae1        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(ipodtiktok_scrim.320x96x24.o)
+ .text          0x0000000000027ae1        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(ipodtiktok_heart.32x32x24.o)
+ .text          0x0000000000027ae1        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16/crtendS.o
+ .text          0x0000000000027ae1        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
  *(.gnu.warning)
 
-.fini           0x00000000000273f8        0xd
+.fini           0x0000000000027ae4        0xd
  *(SORT_NONE(.fini))
- .fini          0x00000000000273f8        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crti.o
-                0x00000000000273f8                _fini
- .fini          0x0000000000027400        0x5 /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
+ .fini          0x0000000000027ae4        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crti.o
+                0x0000000000027ae4                _fini
+ .fini          0x0000000000027aec        0x5 /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
                 [!provide]                        PROVIDE (__etext = .)
                 [!provide]                        PROVIDE (_etext = .)
                 [!provide]                        PROVIDE (etext = .)
                 0x0000000000028000                . = ALIGN (CONSTANT (MAXPAGESIZE))
                 0x0000000000028000                . = SEGMENT_START ("rodata-segment", (ALIGN (CONSTANT (MAXPAGESIZE)) + (. & (CONSTANT (MAXPAGESIZE) - 0x1))))
 
-.rodata         0x0000000000028000    0x23cc0
+.rodata         0x0000000000028000    0x23d60
  *(.rodata .rodata.* .gnu.linkonce.r.*)
  .rodata.str1.1
-                0x0000000000028000     0x2402 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/decode.o
+                0x0000000000028000     0x24a6 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/decode.o
                                           0xe (size before relaxing)
- *fill*         0x000000000002a402       0x1e 
- .rodata        0x000000000002a420      0x280 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/header.o
-                0x000000000002a5e0                default_mpeg2_scan_alt
-                0x000000000002a620                default_mpeg2_scan_norm
- .rodata        0x000000000002a6a0      0xac4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/slice.o
+ *fill*         0x000000000002a4a6       0x1a 
+ .rodata        0x000000000002a4c0      0x280 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/header.o
+                0x000000000002a680                default_mpeg2_scan_alt
+                0x000000000002a6c0                default_mpeg2_scan_norm
+ .rodata        0x000000000002a740      0xac4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/slice.o
  .rodata.str1.1
-                0x000000000002b164        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/alloc.o
+                0x000000000002b204        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/alloc.o
                                         0x14f (size before relaxing)
- .rodata        0x000000000002b164       0x2c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/alloc.o
+ .rodata        0x000000000002b204       0x2c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/alloc.o
  .rodata.str1.1
-                0x000000000002b190        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/video_out_rockbox.o
+                0x000000000002b230        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/video_out_rockbox.o
                                         0x190 (size before relaxing)
  .rodata.str1.1
-                0x000000000002b190        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/video_thread.o
+                0x000000000002b230        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/video_thread.o
                                         0x352 (size before relaxing)
- .rodata        0x000000000002b190       0xc0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/video_thread.o
- .rodata.cst4   0x000000000002b250        0x8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/video_thread.o
+ .rodata        0x000000000002b230       0xc0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/video_thread.o
+ .rodata.cst4   0x000000000002b2f0        0x8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/video_thread.o
                                           0x4 (size before relaxing)
  .rodata.str1.1
-                0x000000000002b258        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/pcm_output.o
+                0x000000000002b2f8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/pcm_output.o
                                          0x1e (size before relaxing)
  .rodata.str1.1
-                0x000000000002b258        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/audio_thread.o
+                0x000000000002b2f8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/audio_thread.o
                                         0x1e6 (size before relaxing)
- .rodata        0x000000000002b258       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/audio_thread.o
+ .rodata        0x000000000002b2f8       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/audio_thread.o
  .rodata.str1.1
-                0x000000000002b288        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/disk_buf.o
+                0x000000000002b328        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/disk_buf.o
                                         0x1be (size before relaxing)
- .rodata        0x000000000002b288       0x38 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/disk_buf.o
+ .rodata        0x000000000002b328       0x38 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/disk_buf.o
  .rodata.str1.1
-                0x000000000002b2c0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpeg_settings.o
+                0x000000000002b360        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpeg_settings.o
                                         0x1cc (size before relaxing)
- .rodata        0x000000000002b2c0      0x140 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpeg_settings.o
+ .rodata        0x000000000002b360      0x140 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpeg_settings.o
  .rodata.str1.1
-                0x000000000002b400        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/stream_mgr.o
+                0x000000000002b4a0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/stream_mgr.o
                                         0x4de (size before relaxing)
- .rodata        0x000000000002b400       0x20 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/stream_mgr.o
+ .rodata        0x000000000002b4a0       0x20 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/stream_mgr.o
  .rodata.str1.1
-                0x000000000002b420        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpegplayer.o
-                                        0x762 (size before relaxing)
- .rodata        0x000000000002b420       0x44 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpegplayer.o
+                0x000000000002b4c0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpegplayer.o
+                                        0x76d (size before relaxing)
+ .rodata        0x000000000002b4c0       0x44 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpegplayer.o
  .rodata.str1.1
-                0x000000000002b464        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpeg_parser.o
+                0x000000000002b504        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpeg_parser.o
                                         0x4eb (size before relaxing)
- *fill*         0x000000000002b464       0x1c 
- .rodata        0x000000000002b480       0x40 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpeg_parser.o
+ *fill*         0x000000000002b504       0x1c 
+ .rodata        0x000000000002b520       0x40 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpeg_parser.o
  .rodata.str1.1
-                0x000000000002b4c0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpeg_misc.o
+                0x000000000002b560        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpeg_misc.o
                                          0x15 (size before relaxing)
  .rodata.str1.1
-                0x000000000002b4c0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/livetv_guide.o
-                                        0x53c (size before relaxing)
- .rodata.cst4   0x000000000002b4c0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/livetv_guide.o
+                0x000000000002b560        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/livetv_guide.o
+                                        0x5e3 (size before relaxing)
+ .rodata.cst4   0x000000000002b560        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/livetv_guide.o
                                           0x4 (size before relaxing)
- .rodata        0x000000000002b4c0       0x50 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/livetv_guide.o
- *fill*         0x000000000002b510       0x10 
- .rodata        0x000000000002b520      0x278 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(frame.o)
- *fill*         0x000000000002b798        0x8 
- .rodata        0x000000000002b7a0      0x360 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(layer12.o)
- .rodata        0x000000000002bb00     0x8780 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(layer3.o)
-                0x000000000002bba0                window_s
-                0x000000000002bc60                imdct_s
-                0x000000000002bcf0                ca
-                0x000000000002bd10                cs
-                0x000000000002bd30                root_table
+ .rodata        0x000000000002b560       0x50 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/livetv_guide.o
+ *fill*         0x000000000002b5b0       0x10 
+ .rodata        0x000000000002b5c0      0x278 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(frame.o)
+ *fill*         0x000000000002b838        0x8 
+ .rodata        0x000000000002b840      0x360 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(layer12.o)
+ .rodata        0x000000000002bba0     0x8780 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(layer3.o)
+                0x000000000002bc40                window_s
+                0x000000000002bd00                imdct_s
+                0x000000000002bd90                ca
+                0x000000000002bdb0                cs
+                0x000000000002bdd0                root_table
  .rodata.str1.1
-                0x0000000000034280        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(stream.o)
+                0x0000000000034320        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(stream.o)
                                         0x215 (size before relaxing)
- .rodata        0x0000000000034280       0x74 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(stream.o)
- *fill*         0x00000000000342f4        0x4 
- .rodata        0x00000000000342f8      0x880 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(synth.o)
- *fill*         0x0000000000034b78        0x8 
- .rodata        0x0000000000034b80      0x200 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(bit.o)
- .rodata        0x0000000000034d80     0x11d8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(huffman.o)
+ .rodata        0x0000000000034320       0x74 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(stream.o)
+ *fill*         0x0000000000034394        0x4 
+ .rodata        0x0000000000034398      0x880 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(synth.o)
+ *fill*         0x0000000000034c18        0x8 
+ .rodata        0x0000000000034c20      0x200 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(bit.o)
+ .rodata        0x0000000000034e20     0x11d8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(huffman.o)
  .rodata.str1.1
-                0x0000000000035f58        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(configfile.o)
+                0x0000000000035ff8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(configfile.o)
                                          0x54 (size before relaxing)
- *fill*         0x0000000000035f58        0x8 
- .rodata        0x0000000000035f60       0x28 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(mpegplayer_status_icons_8x8x1.o)
-                0x0000000000035f60                mpegplayer_status_icons_8x8x1
- *fill*         0x0000000000035f88       0x18 
- .rodata        0x0000000000035fa0       0x78 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(mpegplayer_status_icons_12x12x1.o)
-                0x0000000000035fa0                mpegplayer_status_icons_12x12x1
- *fill*         0x0000000000036018        0x8 
- .rodata        0x0000000000036020       0xa0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(mpegplayer_status_icons_16x16x1.o)
-                0x0000000000036020                mpegplayer_status_icons_16x16x1
- .rodata        0x00000000000360c0     0x6400 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(ipodtiktok_header.320x40x24.o)
-                0x00000000000360c0                ipodtiktok_header
- .rodata        0x000000000003c4c0     0xf000 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(ipodtiktok_scrim.320x96x24.o)
-                0x000000000003c4c0                ipodtiktok_scrim
- .rodata        0x000000000004b4c0      0x800 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(ipodtiktok_heart.32x32x24.o)
-                0x000000000004b4c0                ipodtiktok_heart
+ *fill*         0x0000000000035ff8        0x8 
+ .rodata        0x0000000000036000       0x28 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(mpegplayer_status_icons_8x8x1.o)
+                0x0000000000036000                mpegplayer_status_icons_8x8x1
+ *fill*         0x0000000000036028       0x18 
+ .rodata        0x0000000000036040       0x78 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(mpegplayer_status_icons_12x12x1.o)
+                0x0000000000036040                mpegplayer_status_icons_12x12x1
+ *fill*         0x00000000000360b8        0x8 
+ .rodata        0x00000000000360c0       0xa0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(mpegplayer_status_icons_16x16x1.o)
+                0x00000000000360c0                mpegplayer_status_icons_16x16x1
+ .rodata        0x0000000000036160     0x6400 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(ipodtiktok_header.320x40x24.o)
+                0x0000000000036160                ipodtiktok_header
+ .rodata        0x000000000003c560     0xf000 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(ipodtiktok_scrim.320x96x24.o)
+                0x000000000003c560                ipodtiktok_scrim
+ .rodata        0x000000000004b560      0x800 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(ipodtiktok_heart.32x32x24.o)
+                0x000000000004b560                ipodtiktok_heart
 
 .rodata1
  *(.rodata1)
 
-.eh_frame_hdr   0x000000000004bcc0      0xfb4
+.eh_frame_hdr   0x000000000004bd60      0xfc4
  *(.eh_frame_hdr)
- .eh_frame_hdr  0x000000000004bcc0      0xfb4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/decode.o
-                0x000000000004bcc0                __GNU_EH_FRAME_HDR
+ .eh_frame_hdr  0x000000000004bd60      0xfc4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/decode.o
+                0x000000000004bd60                __GNU_EH_FRAME_HDR
  *(.eh_frame_entry .eh_frame_entry.*)
 
-.eh_frame       0x000000000004cc78     0x4f90
+.eh_frame       0x000000000004cd28     0x5060
  *(.eh_frame)
- .eh_frame      0x000000000004cc78       0x40 /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crti.o
- .eh_frame      0x000000000004ccb8        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crti.o
- .eh_frame      0x000000000004ccb8      0x210 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/decode.o
+ .eh_frame      0x000000000004cd28       0x40 /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crti.o
+ .eh_frame      0x000000000004cd68        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crti.o
+ .eh_frame      0x000000000004cd68      0x210 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/decode.o
                                         0x228 (size before relaxing)
- .eh_frame      0x000000000004cec8      0x328 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/header.o
+ .eh_frame      0x000000000004cf78      0x328 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/header.o
                                         0x340 (size before relaxing)
- .eh_frame      0x000000000004d1f0       0xe8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/idct.o
+ .eh_frame      0x000000000004d2a0       0xe8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/idct.o
                                         0x100 (size before relaxing)
- .eh_frame      0x000000000004d2d8      0x800 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/slice.o
+ .eh_frame      0x000000000004d388      0x800 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/slice.o
                                         0x818 (size before relaxing)
- .eh_frame      0x000000000004dad8      0x140 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/motion_comp_c.o
+ .eh_frame      0x000000000004db88      0x140 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/motion_comp_c.o
                                         0x158 (size before relaxing)
- .eh_frame      0x000000000004dc18      0x160 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/alloc.o
+ .eh_frame      0x000000000004dcc8      0x160 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/alloc.o
                                         0x178 (size before relaxing)
- .eh_frame      0x000000000004dd78      0x448 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/video_out_rockbox.o
+ .eh_frame      0x000000000004de28      0x448 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/video_out_rockbox.o
                                         0x460 (size before relaxing)
- .eh_frame      0x000000000004e1c0      0x148 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/video_thread.o
+ .eh_frame      0x000000000004e270      0x148 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/video_thread.o
                                         0x160 (size before relaxing)
- .eh_frame      0x000000000004e308      0x218 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/pcm_output.o
+ .eh_frame      0x000000000004e3b8      0x218 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/pcm_output.o
                                         0x230 (size before relaxing)
- .eh_frame      0x000000000004e520      0x130 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/audio_thread.o
+ .eh_frame      0x000000000004e5d0      0x130 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/audio_thread.o
                                         0x148 (size before relaxing)
- .eh_frame      0x000000000004e650      0x320 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/disk_buf.o
+ .eh_frame      0x000000000004e700      0x320 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/disk_buf.o
                                         0x338 (size before relaxing)
- .eh_frame      0x000000000004e970      0x2d0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpeg_settings.o
+ .eh_frame      0x000000000004ea20      0x2d0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpeg_settings.o
                                         0x2e8 (size before relaxing)
- .eh_frame      0x000000000004ec40      0x638 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/stream_mgr.o
+ .eh_frame      0x000000000004ecf0      0x638 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/stream_mgr.o
                                         0x650 (size before relaxing)
- .eh_frame      0x000000000004f278      0xdc8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpegplayer.o
-                                        0xde0 (size before relaxing)
- .eh_frame      0x0000000000050040      0x358 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpeg_parser.o
+ .eh_frame      0x000000000004f328      0xdf0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpegplayer.o
+                                        0xe08 (size before relaxing)
+ .eh_frame      0x0000000000050118      0x358 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpeg_parser.o
                                         0x370 (size before relaxing)
- .eh_frame      0x0000000000050398      0x1b0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpeg_misc.o
+ .eh_frame      0x0000000000050470      0x1b0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpeg_misc.o
                                         0x1c8 (size before relaxing)
- .eh_frame      0x0000000000050548      0xe08 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/livetv_guide.o
-                                        0xe20 (size before relaxing)
- .eh_frame      0x0000000000051350       0x88 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+ .eh_frame      0x0000000000050620      0xeb0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/livetv_guide.o
+                                        0xec8 (size before relaxing)
+ .eh_frame      0x00000000000514d0       0x88 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
                                          0xa0 (size before relaxing)
- .eh_frame      0x00000000000513d8       0xe8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(frame.o)
+ .eh_frame      0x0000000000051558       0xe8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(frame.o)
                                         0x100 (size before relaxing)
- .eh_frame      0x00000000000514c0      0x100 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(layer12.o)
+ .eh_frame      0x0000000000051640      0x100 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(layer12.o)
                                         0x118 (size before relaxing)
- .eh_frame      0x00000000000515c0      0x190 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(layer3.o)
+ .eh_frame      0x0000000000051740      0x190 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(layer3.o)
                                         0x1a8 (size before relaxing)
- .eh_frame      0x0000000000051750       0x70 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(stream.o)
+ .eh_frame      0x00000000000518d0       0x70 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(stream.o)
                                          0x88 (size before relaxing)
- .eh_frame      0x00000000000517c0       0x90 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(synth.o)
+ .eh_frame      0x0000000000051940       0x90 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(synth.o)
                                          0xa8 (size before relaxing)
- .eh_frame      0x0000000000051850       0x90 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(bit.o)
+ .eh_frame      0x00000000000519d0       0x90 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(bit.o)
                                          0xa8 (size before relaxing)
- .eh_frame      0x00000000000518e0       0x50 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
+ .eh_frame      0x0000000000051a60       0x50 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
                                          0x68 (size before relaxing)
- .eh_frame      0x0000000000051930      0x178 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(helper.o)
+ .eh_frame      0x0000000000051ab0      0x178 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(helper.o)
                                         0x190 (size before relaxing)
- .eh_frame      0x0000000000051aa8      0x15c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(configfile.o)
+ .eh_frame      0x0000000000051c28      0x15c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(configfile.o)
                                         0x178 (size before relaxing)
- .eh_frame      0x0000000000051c04        0x4 /usr/lib/gcc/x86_64-pc-linux-gnu/16/crtendS.o
+ .eh_frame      0x0000000000051d84        0x4 /usr/lib/gcc/x86_64-pc-linux-gnu/16/crtendS.o
  *(.eh_frame.*)
 
 .sframe
@@ -835,92 +832,92 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
  *(.note.build-id)
 
 .note.GNU-stack
-                0x0000000000051c08        0x0
+                0x0000000000051d88        0x0
  *(.note.GNU-stack)
  .note.GNU-stack
-                0x0000000000051c08        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crti.o
+                0x0000000000051d88        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crti.o
  .note.GNU-stack
-                0x0000000000051c08        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16/crtbeginS.o
+                0x0000000000051d88        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16/crtbeginS.o
  .note.GNU-stack
-                0x0000000000051c08        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/decode.o
+                0x0000000000051d88        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/decode.o
  .note.GNU-stack
-                0x0000000000051c08        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/header.o
+                0x0000000000051d88        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/header.o
  .note.GNU-stack
-                0x0000000000051c08        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/idct.o
+                0x0000000000051d88        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/idct.o
  .note.GNU-stack
-                0x0000000000051c08        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/motion_comp.o
+                0x0000000000051d88        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/motion_comp.o
  .note.GNU-stack
-                0x0000000000051c08        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/slice.o
+                0x0000000000051d88        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/slice.o
  .note.GNU-stack
-                0x0000000000051c08        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/motion_comp_c.o
+                0x0000000000051d88        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/motion_comp_c.o
  .note.GNU-stack
-                0x0000000000051c08        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/alloc.o
+                0x0000000000051d88        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/alloc.o
  .note.GNU-stack
-                0x0000000000051c08        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/video_out_rockbox.o
+                0x0000000000051d88        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/video_out_rockbox.o
  .note.GNU-stack
-                0x0000000000051c08        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/video_thread.o
+                0x0000000000051d88        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/video_thread.o
  .note.GNU-stack
-                0x0000000000051c08        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/pcm_output.o
+                0x0000000000051d88        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/pcm_output.o
  .note.GNU-stack
-                0x0000000000051c08        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/audio_thread.o
+                0x0000000000051d88        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/audio_thread.o
  .note.GNU-stack
-                0x0000000000051c08        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/disk_buf.o
+                0x0000000000051d88        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/disk_buf.o
  .note.GNU-stack
-                0x0000000000051c08        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpeg_settings.o
+                0x0000000000051d88        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpeg_settings.o
  .note.GNU-stack
-                0x0000000000051c08        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/stream_mgr.o
+                0x0000000000051d88        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/stream_mgr.o
  .note.GNU-stack
-                0x0000000000051c08        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpegplayer.o
+                0x0000000000051d88        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpegplayer.o
  .note.GNU-stack
-                0x0000000000051c08        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpeg_parser.o
+                0x0000000000051d88        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpeg_parser.o
  .note.GNU-stack
-                0x0000000000051c08        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpeg_misc.o
+                0x0000000000051d88        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpeg_misc.o
  .note.GNU-stack
-                0x0000000000051c08        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/livetv_guide.o
+                0x0000000000051d88        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/livetv_guide.o
  .note.GNU-stack
-                0x0000000000051c08        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+                0x0000000000051d88        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
  .note.GNU-stack
-                0x0000000000051c08        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(frame.o)
+                0x0000000000051d88        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(frame.o)
  .note.GNU-stack
-                0x0000000000051c08        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(layer12.o)
+                0x0000000000051d88        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(layer12.o)
  .note.GNU-stack
-                0x0000000000051c08        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(layer3.o)
+                0x0000000000051d88        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(layer3.o)
  .note.GNU-stack
-                0x0000000000051c08        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(stream.o)
+                0x0000000000051d88        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(stream.o)
  .note.GNU-stack
-                0x0000000000051c08        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(synth.o)
+                0x0000000000051d88        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(synth.o)
  .note.GNU-stack
-                0x0000000000051c08        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(bit.o)
+                0x0000000000051d88        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(bit.o)
  .note.GNU-stack
-                0x0000000000051c08        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(huffman.o)
+                0x0000000000051d88        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(huffman.o)
  .note.GNU-stack
-                0x0000000000051c08        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
+                0x0000000000051d88        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
  .note.GNU-stack
-                0x0000000000051c08        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(helper.o)
+                0x0000000000051d88        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(helper.o)
  .note.GNU-stack
-                0x0000000000051c08        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(configfile.o)
+                0x0000000000051d88        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(configfile.o)
  .note.GNU-stack
-                0x0000000000051c08        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(mpegplayer_status_icons_8x8x1.o)
+                0x0000000000051d88        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(mpegplayer_status_icons_8x8x1.o)
  .note.GNU-stack
-                0x0000000000051c08        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(mpegplayer_status_icons_12x12x1.o)
+                0x0000000000051d88        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(mpegplayer_status_icons_12x12x1.o)
  .note.GNU-stack
-                0x0000000000051c08        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(mpegplayer_status_icons_16x16x1.o)
+                0x0000000000051d88        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(mpegplayer_status_icons_16x16x1.o)
  .note.GNU-stack
-                0x0000000000051c08        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(ipodtiktok_header.320x40x24.o)
+                0x0000000000051d88        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(ipodtiktok_header.320x40x24.o)
  .note.GNU-stack
-                0x0000000000051c08        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(ipodtiktok_scrim.320x96x24.o)
+                0x0000000000051d88        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(ipodtiktok_scrim.320x96x24.o)
  .note.GNU-stack
-                0x0000000000051c08        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(ipodtiktok_heart.32x32x24.o)
+                0x0000000000051d88        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(ipodtiktok_heart.32x32x24.o)
  .note.GNU-stack
-                0x0000000000051c08        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16/crtendS.o
+                0x0000000000051d88        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16/crtendS.o
  .note.GNU-stack
-                0x0000000000051c08        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
+                0x0000000000051d88        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 
 .note.gnu.property
-                0x0000000000051c08       0x30
+                0x0000000000051d88       0x30
  *(.note.gnu.property)
  .note.gnu.property
-                0x0000000000051c08       0x30 /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crti.o
+                0x0000000000051d88       0x30 /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crti.o
 
 .note.ABI-tag
  *(.note.ABI-tag)
@@ -936,7 +933,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 
 .note.openbsd.ident
  *(.note.openbsd.ident)
-                0x0000000000052550                . = DATA_SEGMENT_ALIGN (CONSTANT (MAXPAGESIZE), CONSTANT (COMMONPAGESIZE))
+                0x0000000000052530                . = DATA_SEGMENT_ALIGN (CONSTANT (MAXPAGESIZE), CONSTANT (COMMONPAGESIZE))
 
 .eh_frame
  *(.eh_frame)
@@ -965,15 +962,15 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .preinit_array
  *(.preinit_array)
 
-.init_array     0x0000000000052550        0x8
+.init_array     0x0000000000052530        0x8
  *(SORT_BY_INIT_PRIORITY(.init_array.*) SORT_BY_INIT_PRIORITY(.ctors.*))
  *(.init_array EXCLUDE_FILE(*crtend?.o *crtend.o *crtbegin?.o *crtbegin.o) .ctors)
- .init_array    0x0000000000052550        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/16/crtbeginS.o
+ .init_array    0x0000000000052530        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/16/crtbeginS.o
 
-.fini_array     0x0000000000052558        0x8
+.fini_array     0x0000000000052538        0x8
  *(SORT_BY_INIT_PRIORITY(.fini_array.*) SORT_BY_INIT_PRIORITY(.dtors.*))
  *(.fini_array EXCLUDE_FILE(*crtend?.o *crtend.o *crtbegin?.o *crtbegin.o) .dtors)
- .fini_array    0x0000000000052558        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/16/crtbeginS.o
+ .fini_array    0x0000000000052538        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/16/crtbeginS.o
 
 .ctors
  *crtbegin.o(.ctors)
@@ -992,18 +989,18 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .jcr
  *(.jcr)
 
-.data.rel.ro    0x0000000000052560      0x858
+.data.rel.ro    0x0000000000052540      0x878
  *(.data.rel.ro.local* .gnu.linkonce.d.rel.ro.local.*)
  .data.rel.ro.local
-                0x0000000000052560       0x48 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/header.o
- *fill*         0x00000000000525a8       0x18 
+                0x0000000000052540       0x48 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/header.o
+ *fill*         0x0000000000052588       0x18 
  .data.rel.ro.local
-                0x00000000000525c0       0xd0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpeg_settings.o
- *fill*         0x0000000000052690       0x10 
+                0x00000000000525a0       0xd0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpeg_settings.o
+ *fill*         0x0000000000052670       0x10 
  .data.rel.ro.local
-                0x00000000000526a0       0x20 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpegplayer.o
+                0x0000000000052680       0x20 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpegplayer.o
  .data.rel.ro.local
-                0x00000000000526c0       0x98 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/livetv_guide.o
+                0x00000000000526a0       0xb8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/livetv_guide.o
  *fill*         0x0000000000052758        0x8 
  .data.rel.ro.local
                 0x0000000000052760       0x38 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
@@ -1169,7 +1166,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
  .bss           0x000000000007f240    0x142c8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/stream_mgr.o
                 0x000000000007f240                stream_mgr
  *fill*         0x0000000000093508       0x18 
- .bss           0x0000000000093520    0x3ee41 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpegplayer.o
+ .bss           0x0000000000093520    0x3ee42 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpegplayer.o
                 0x0000000000093520                mpegplayer_livetv_weather_active
                 0x0000000000093521                mpegplayer_livetv_weather_hidden
                 0x0000000000093522                mpegplayer_livetv_pin_active
@@ -1180,7 +1177,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
                 0x0000000000093527                mpegplayer_youtube_embedded
                 0x0000000000093528                mpegplayer_youtube_launch
                 0x0000000000093529                mpegplayer_netflix_launch
- *fill*         0x00000000000d2361       0x1f 
+ *fill*         0x00000000000d2362       0x1e 
  .bss           0x00000000000d2380       0xe8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpeg_parser.o
                 0x00000000000d2380                str_parser
  .bss           0x00000000000d2468        0x8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpeg_misc.o
@@ -1412,45 +1409,45 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0xc3480
+.debug_info     0x0000000000000000    0xc6c7d
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x91c0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/decode.o
- .debug_info    0x00000000000091c0     0x98dc /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/header.o
- .debug_info    0x0000000000012a9c      0x9fe /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/idct.o
- .debug_info    0x000000000001349a      0x6f1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/motion_comp.o
- .debug_info    0x0000000000013b8b     0x56d2 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/slice.o
- .debug_info    0x000000000001925d      0x6d6 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/motion_comp_c.o
- .debug_info    0x0000000000019933     0x8134 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/alloc.o
- .debug_info    0x0000000000021a67     0x96d6 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/video_out_rockbox.o
- .debug_info    0x000000000002b13d     0x9ace /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/video_thread.o
- .debug_info    0x0000000000034c0b     0x8334 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/pcm_output.o
- .debug_info    0x000000000003cf3f     0x96ff /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/audio_thread.o
- .debug_info    0x000000000004663e     0x9451 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/disk_buf.o
- .debug_info    0x000000000004fa8f     0xc473 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpeg_settings.o
- .debug_info    0x000000000005bf02     0xabbd /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/stream_mgr.o
- .debug_info    0x0000000000066abf    0x12d49 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpegplayer.o
- .debug_info    0x0000000000079808     0x97bc /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpeg_parser.o
- .debug_info    0x0000000000082fc4     0x853a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpeg_misc.o
- .debug_info    0x000000000008b4fe    0x108a3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/livetv_guide.o
- .debug_info    0x000000000009bda1     0x7da8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
- .debug_info    0x00000000000a3b49     0x102a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(frame.o)
- .debug_info    0x00000000000a4b73      0xffb /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(layer12.o)
- .debug_info    0x00000000000a5b6e     0x31ed /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(layer3.o)
- .debug_info    0x00000000000a8d5b      0x446 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(stream.o)
- .debug_info    0x00000000000a91a1     0x1bd3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(synth.o)
- .debug_info    0x00000000000aad74      0x6e0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(bit.o)
- .debug_info    0x00000000000ab454      0x7a4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(huffman.o)
- .debug_info    0x00000000000abbf8     0x77d8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
- .debug_info    0x00000000000b33d0     0x7ba0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(helper.o)
- .debug_info    0x00000000000baf70     0x7df1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(configfile.o)
- .debug_info    0x00000000000c2d61      0x11d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(mpegplayer_status_icons_8x8x1.o)
- .debug_info    0x00000000000c2e7e      0x11d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(mpegplayer_status_icons_12x12x1.o)
- .debug_info    0x00000000000c2f9b      0x11d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(mpegplayer_status_icons_16x16x1.o)
- .debug_info    0x00000000000c30b8      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(ipodtiktok_header.320x40x24.o)
- .debug_info    0x00000000000c31fb      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(ipodtiktok_scrim.320x96x24.o)
- .debug_info    0x00000000000c333e      0x142 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(ipodtiktok_heart.32x32x24.o)
+ .debug_info    0x0000000000000000     0x9439 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/decode.o
+ .debug_info    0x0000000000009439     0x9b55 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/header.o
+ .debug_info    0x0000000000012f8e      0x9fe /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/idct.o
+ .debug_info    0x000000000001398c      0x6f1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/motion_comp.o
+ .debug_info    0x000000000001407d     0x56d2 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/slice.o
+ .debug_info    0x000000000001974f      0x6d6 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/motion_comp_c.o
+ .debug_info    0x0000000000019e25     0x83c5 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/alloc.o
+ .debug_info    0x00000000000221ea     0x9967 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/video_out_rockbox.o
+ .debug_info    0x000000000002bb51     0x9d5f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/video_thread.o
+ .debug_info    0x00000000000358b0     0x85c5 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/pcm_output.o
+ .debug_info    0x000000000003de75     0x9990 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/audio_thread.o
+ .debug_info    0x0000000000047805     0x96e2 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/disk_buf.o
+ .debug_info    0x0000000000050ee7     0xc719 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpeg_settings.o
+ .debug_info    0x000000000005d600     0xae4e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/stream_mgr.o
+ .debug_info    0x000000000006844e    0x1302a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpegplayer.o
+ .debug_info    0x000000000007b478     0x9a4d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpeg_parser.o
+ .debug_info    0x0000000000084ec5     0x87cb /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpeg_misc.o
+ .debug_info    0x000000000008d690    0x114a0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/livetv_guide.o
+ .debug_info    0x000000000009eb30     0x8039 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+ .debug_info    0x00000000000a6b69     0x102a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(frame.o)
+ .debug_info    0x00000000000a7b93      0xffb /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(layer12.o)
+ .debug_info    0x00000000000a8b8e     0x31ed /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(layer3.o)
+ .debug_info    0x00000000000abd7b      0x446 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(stream.o)
+ .debug_info    0x00000000000ac1c1     0x1bd3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(synth.o)
+ .debug_info    0x00000000000add94      0x6e0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(bit.o)
+ .debug_info    0x00000000000ae474      0x7a4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(huffman.o)
+ .debug_info    0x00000000000aec18     0x7a69 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
+ .debug_info    0x00000000000b6681     0x7e31 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(helper.o)
+ .debug_info    0x00000000000be4b2     0x8082 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(configfile.o)
+ .debug_info    0x00000000000c6534      0x124 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(mpegplayer_status_icons_8x8x1.o)
+ .debug_info    0x00000000000c6658      0x124 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(mpegplayer_status_icons_12x12x1.o)
+ .debug_info    0x00000000000c677c      0x124 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(mpegplayer_status_icons_16x16x1.o)
+ .debug_info    0x00000000000c68a0      0x14a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(ipodtiktok_header.320x40x24.o)
+ .debug_info    0x00000000000c69ea      0x14a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(ipodtiktok_scrim.320x96x24.o)
+ .debug_info    0x00000000000c6b34      0x149 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(ipodtiktok_heart.32x32x24.o)
 
-.debug_abbrev   0x0000000000000000     0x9178
+.debug_abbrev   0x0000000000000000     0x9169
  *(.debug_abbrev)
  .debug_abbrev  0x0000000000000000      0x5fb /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/decode.o
  .debug_abbrev  0x00000000000005fb      0x630 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/header.o
@@ -1469,138 +1466,138 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
  .debug_abbrev  0x0000000000004ab2      0x9d8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpegplayer.o
  .debug_abbrev  0x000000000000548a      0x6f7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpeg_parser.o
  .debug_abbrev  0x0000000000005b81      0x48d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpeg_misc.o
- .debug_abbrev  0x000000000000600e      0x8d8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/livetv_guide.o
- .debug_abbrev  0x00000000000068e6      0x442 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
- .debug_abbrev  0x0000000000006d28      0x39d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(frame.o)
- .debug_abbrev  0x00000000000070c5      0x318 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(layer12.o)
- .debug_abbrev  0x00000000000073dd      0x502 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(layer3.o)
- .debug_abbrev  0x00000000000078df      0x1c7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(stream.o)
- .debug_abbrev  0x0000000000007aa6      0x387 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(synth.o)
- .debug_abbrev  0x0000000000007e2d      0x274 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(bit.o)
- .debug_abbrev  0x00000000000080a1      0x1a7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(huffman.o)
- .debug_abbrev  0x0000000000008248      0x327 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
- .debug_abbrev  0x000000000000856f      0x3c2 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(helper.o)
- .debug_abbrev  0x0000000000008931      0x424 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(configfile.o)
- .debug_abbrev  0x0000000000008d55       0xa3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(mpegplayer_status_icons_8x8x1.o)
- .debug_abbrev  0x0000000000008df8       0xa3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(mpegplayer_status_icons_12x12x1.o)
- .debug_abbrev  0x0000000000008e9b       0xa3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(mpegplayer_status_icons_16x16x1.o)
- .debug_abbrev  0x0000000000008f3e       0xbe /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(ipodtiktok_header.320x40x24.o)
- .debug_abbrev  0x0000000000008ffc       0xbe /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(ipodtiktok_scrim.320x96x24.o)
- .debug_abbrev  0x00000000000090ba       0xbe /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(ipodtiktok_heart.32x32x24.o)
+ .debug_abbrev  0x000000000000600e      0x8c9 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/livetv_guide.o
+ .debug_abbrev  0x00000000000068d7      0x442 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+ .debug_abbrev  0x0000000000006d19      0x39d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(frame.o)
+ .debug_abbrev  0x00000000000070b6      0x318 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(layer12.o)
+ .debug_abbrev  0x00000000000073ce      0x502 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(layer3.o)
+ .debug_abbrev  0x00000000000078d0      0x1c7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(stream.o)
+ .debug_abbrev  0x0000000000007a97      0x387 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(synth.o)
+ .debug_abbrev  0x0000000000007e1e      0x274 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(bit.o)
+ .debug_abbrev  0x0000000000008092      0x1a7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(huffman.o)
+ .debug_abbrev  0x0000000000008239      0x327 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
+ .debug_abbrev  0x0000000000008560      0x3c2 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(helper.o)
+ .debug_abbrev  0x0000000000008922      0x424 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(configfile.o)
+ .debug_abbrev  0x0000000000008d46       0xa3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(mpegplayer_status_icons_8x8x1.o)
+ .debug_abbrev  0x0000000000008de9       0xa3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(mpegplayer_status_icons_12x12x1.o)
+ .debug_abbrev  0x0000000000008e8c       0xa3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(mpegplayer_status_icons_16x16x1.o)
+ .debug_abbrev  0x0000000000008f2f       0xbe /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(ipodtiktok_header.320x40x24.o)
+ .debug_abbrev  0x0000000000008fed       0xbe /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(ipodtiktok_scrim.320x96x24.o)
+ .debug_abbrev  0x00000000000090ab       0xbe /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(ipodtiktok_heart.32x32x24.o)
 
-.debug_line     0x0000000000000000    0x1f750
+.debug_line     0x0000000000000000    0x1fc3f
  *(.debug_line .debug_line.* .debug_line_end)
- .debug_line    0x0000000000000000      0x8eb /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/decode.o
- .debug_line    0x00000000000008eb     0x16fa /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/header.o
- .debug_line    0x0000000000001fe5      0x7df /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/idct.o
- .debug_line    0x00000000000027c4       0x7f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/motion_comp.o
- .debug_line    0x0000000000002843     0x5947 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/slice.o
- .debug_line    0x000000000000818a      0x301 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/motion_comp_c.o
- .debug_line    0x000000000000848b      0x479 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/alloc.o
- .debug_line    0x0000000000008904     0x111e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/video_out_rockbox.o
- .debug_line    0x0000000000009a22     0x105e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/video_thread.o
- .debug_line    0x000000000000aa80      0x739 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/pcm_output.o
- .debug_line    0x000000000000b1b9      0xbef /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/audio_thread.o
- .debug_line    0x000000000000bda8      0xf10 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/disk_buf.o
- .debug_line    0x000000000000ccb8     0x1047 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpeg_settings.o
- .debug_line    0x000000000000dcff     0x11e4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/stream_mgr.o
- .debug_line    0x000000000000eee3     0x4837 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpegplayer.o
- .debug_line    0x000000000001371a     0x10e2 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpeg_parser.o
- .debug_line    0x00000000000147fc      0x48b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpeg_misc.o
- .debug_line    0x0000000000014c87     0x4560 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/livetv_guide.o
- .debug_line    0x00000000000191e7      0x2bd /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
- .debug_line    0x00000000000194a4      0x68f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(frame.o)
- .debug_line    0x0000000000019b33      0xcbe /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(layer12.o)
- .debug_line    0x000000000001a7f1     0x2bab /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(layer3.o)
- .debug_line    0x000000000001d39c      0x209 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(stream.o)
- .debug_line    0x000000000001d5a5     0x1129 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(synth.o)
- .debug_line    0x000000000001e6ce      0x345 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(bit.o)
- .debug_line    0x000000000001ea13       0x51 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(huffman.o)
- .debug_line    0x000000000001ea64      0x2c0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
- .debug_line    0x000000000001ed24      0x2b4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(helper.o)
- .debug_line    0x000000000001efd8      0x5b0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(configfile.o)
- .debug_line    0x000000000001f588       0x4c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(mpegplayer_status_icons_8x8x1.o)
- .debug_line    0x000000000001f5d4       0x4c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(mpegplayer_status_icons_12x12x1.o)
- .debug_line    0x000000000001f620       0x4c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(mpegplayer_status_icons_16x16x1.o)
- .debug_line    0x000000000001f66c       0x4c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(ipodtiktok_header.320x40x24.o)
- .debug_line    0x000000000001f6b8       0x4c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(ipodtiktok_scrim.320x96x24.o)
- .debug_line    0x000000000001f704       0x4c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(ipodtiktok_heart.32x32x24.o)
+ .debug_line    0x0000000000000000      0x8f0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/decode.o
+ .debug_line    0x00000000000008f0     0x16ff /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/header.o
+ .debug_line    0x0000000000001fef      0x7df /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/idct.o
+ .debug_line    0x00000000000027ce       0x7f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/motion_comp.o
+ .debug_line    0x000000000000284d     0x5947 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/slice.o
+ .debug_line    0x0000000000008194      0x301 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/motion_comp_c.o
+ .debug_line    0x0000000000008495      0x47e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/alloc.o
+ .debug_line    0x0000000000008913     0x1123 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/video_out_rockbox.o
+ .debug_line    0x0000000000009a36     0x1063 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/video_thread.o
+ .debug_line    0x000000000000aa99      0x73e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/pcm_output.o
+ .debug_line    0x000000000000b1d7      0xbf4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/audio_thread.o
+ .debug_line    0x000000000000bdcb      0xf15 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/disk_buf.o
+ .debug_line    0x000000000000cce0     0x104c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpeg_settings.o
+ .debug_line    0x000000000000dd2c     0x11e9 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/stream_mgr.o
+ .debug_line    0x000000000000ef15     0x493d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpegplayer.o
+ .debug_line    0x0000000000013852     0x10e7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpeg_parser.o
+ .debug_line    0x0000000000014939      0x490 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpeg_misc.o
+ .debug_line    0x0000000000014dc9     0x48f9 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/livetv_guide.o
+ .debug_line    0x00000000000196c2      0x2c2 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+ .debug_line    0x0000000000019984      0x68f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(frame.o)
+ .debug_line    0x000000000001a013      0xcbe /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(layer12.o)
+ .debug_line    0x000000000001acd1     0x2bab /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(layer3.o)
+ .debug_line    0x000000000001d87c      0x209 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(stream.o)
+ .debug_line    0x000000000001da85     0x1129 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(synth.o)
+ .debug_line    0x000000000001ebae      0x345 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(bit.o)
+ .debug_line    0x000000000001eef3       0x51 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(huffman.o)
+ .debug_line    0x000000000001ef44      0x2c5 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
+ .debug_line    0x000000000001f209      0x2b9 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(helper.o)
+ .debug_line    0x000000000001f4c2      0x5b5 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(configfile.o)
+ .debug_line    0x000000000001fa77       0x4c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(mpegplayer_status_icons_8x8x1.o)
+ .debug_line    0x000000000001fac3       0x4c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(mpegplayer_status_icons_12x12x1.o)
+ .debug_line    0x000000000001fb0f       0x4c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(mpegplayer_status_icons_16x16x1.o)
+ .debug_line    0x000000000001fb5b       0x4c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(ipodtiktok_header.320x40x24.o)
+ .debug_line    0x000000000001fba7       0x4c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(ipodtiktok_scrim.320x96x24.o)
+ .debug_line    0x000000000001fbf3       0x4c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(ipodtiktok_heart.32x32x24.o)
 
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000    0x120d0
+.debug_str      0x0000000000000000    0x12767
  *(.debug_str)
- .debug_str     0x0000000000000000    0x120d0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/decode.o
-                                       0x5d14 (size before relaxing)
- .debug_str     0x00000000000120d0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/header.o
-                                       0x5d88 (size before relaxing)
- .debug_str     0x00000000000120d0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/idct.o
+ .debug_str     0x0000000000000000    0x12767 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/decode.o
+                                       0x5eec (size before relaxing)
+ .debug_str     0x0000000000012767        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/header.o
+                                       0x5f60 (size before relaxing)
+ .debug_str     0x0000000000012767        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/idct.o
                                         0x284 (size before relaxing)
- .debug_str     0x00000000000120d0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/motion_comp.o
+ .debug_str     0x0000000000012767        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/motion_comp.o
                                         0x9fe (size before relaxing)
- .debug_str     0x00000000000120d0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/slice.o
+ .debug_str     0x0000000000012767        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/slice.o
                                        0x11cc (size before relaxing)
- .debug_str     0x00000000000120d0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/motion_comp_c.o
+ .debug_str     0x0000000000012767        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/motion_comp_c.o
                                         0x214 (size before relaxing)
- .debug_str     0x00000000000120d0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/alloc.o
-                                       0x554f (size before relaxing)
- .debug_str     0x00000000000120d0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/video_out_rockbox.o
-                                       0x5bc9 (size before relaxing)
- .debug_str     0x00000000000120d0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/video_thread.o
-                                       0x5efd (size before relaxing)
- .debug_str     0x00000000000120d0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/pcm_output.o
-                                       0x56b7 (size before relaxing)
- .debug_str     0x00000000000120d0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/audio_thread.o
-                                       0x6157 (size before relaxing)
- .debug_str     0x00000000000120d0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/disk_buf.o
-                                       0x5ab5 (size before relaxing)
- .debug_str     0x00000000000120d0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpeg_settings.o
-                                       0xc0af (size before relaxing)
- .debug_str     0x00000000000120d0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/stream_mgr.o
-                                       0x5fa5 (size before relaxing)
- .debug_str     0x00000000000120d0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpegplayer.o
-                                       0x8791 (size before relaxing)
- .debug_str     0x00000000000120d0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpeg_parser.o
-                                       0x5a1f (size before relaxing)
- .debug_str     0x00000000000120d0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpeg_misc.o
-                                       0x6678 (size before relaxing)
- .debug_str     0x00000000000120d0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/livetv_guide.o
-                                       0x65a4 (size before relaxing)
- .debug_str     0x00000000000120d0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
-                                       0x52bf (size before relaxing)
- .debug_str     0x00000000000120d0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(frame.o)
+ .debug_str     0x0000000000012767        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/alloc.o
+                                       0x573b (size before relaxing)
+ .debug_str     0x0000000000012767        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/video_out_rockbox.o
+                                       0x5db5 (size before relaxing)
+ .debug_str     0x0000000000012767        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/video_thread.o
+                                       0x60e9 (size before relaxing)
+ .debug_str     0x0000000000012767        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/pcm_output.o
+                                       0x5899 (size before relaxing)
+ .debug_str     0x0000000000012767        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/audio_thread.o
+                                       0x6343 (size before relaxing)
+ .debug_str     0x0000000000012767        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/disk_buf.o
+                                       0x5ca1 (size before relaxing)
+ .debug_str     0x0000000000012767        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpeg_settings.o
+                                       0xc2ea (size before relaxing)
+ .debug_str     0x0000000000012767        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/stream_mgr.o
+                                       0x6191 (size before relaxing)
+ .debug_str     0x0000000000012767        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpegplayer.o
+                                       0x8992 (size before relaxing)
+ .debug_str     0x0000000000012767        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpeg_parser.o
+                                       0x5c0b (size before relaxing)
+ .debug_str     0x0000000000012767        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpeg_misc.o
+                                       0x6864 (size before relaxing)
+ .debug_str     0x0000000000012767        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/livetv_guide.o
+                                       0x6bf4 (size before relaxing)
+ .debug_str     0x0000000000012767        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+                                       0x54ab (size before relaxing)
+ .debug_str     0x0000000000012767        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(frame.o)
                                         0xcbb (size before relaxing)
- .debug_str     0x00000000000120d0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(layer12.o)
+ .debug_str     0x0000000000012767        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(layer12.o)
                                         0xc81 (size before relaxing)
- .debug_str     0x00000000000120d0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(layer3.o)
+ .debug_str     0x0000000000012767        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(layer3.o)
                                        0x11ce (size before relaxing)
- .debug_str     0x00000000000120d0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(stream.o)
+ .debug_str     0x0000000000012767        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(stream.o)
                                         0x454 (size before relaxing)
- .debug_str     0x00000000000120d0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(synth.o)
+ .debug_str     0x0000000000012767        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(synth.o)
                                         0xb20 (size before relaxing)
- .debug_str     0x00000000000120d0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(bit.o)
+ .debug_str     0x0000000000012767        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(bit.o)
                                         0x6e5 (size before relaxing)
- .debug_str     0x00000000000120d0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(huffman.o)
+ .debug_str     0x0000000000012767        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(huffman.o)
                                         0x73d (size before relaxing)
- .debug_str     0x00000000000120d0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
-                                       0x4966 (size before relaxing)
- .debug_str     0x00000000000120d0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(helper.o)
-                                       0x52b6 (size before relaxing)
- .debug_str     0x00000000000120d0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(configfile.o)
-                                       0x4a35 (size before relaxing)
- .debug_str     0x00000000000120d0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(mpegplayer_status_icons_8x8x1.o)
-                                        0x169 (size before relaxing)
- .debug_str     0x00000000000120d0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(mpegplayer_status_icons_12x12x1.o)
-                                        0x16d (size before relaxing)
- .debug_str     0x00000000000120d0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(mpegplayer_status_icons_16x16x1.o)
-                                        0x16d (size before relaxing)
- .debug_str     0x00000000000120d0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(ipodtiktok_header.320x40x24.o)
-                                        0x176 (size before relaxing)
- .debug_str     0x00000000000120d0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(ipodtiktok_scrim.320x96x24.o)
-                                        0x174 (size before relaxing)
- .debug_str     0x00000000000120d0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(ipodtiktok_heart.32x32x24.o)
-                                        0x174 (size before relaxing)
+ .debug_str     0x0000000000012767        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
+                                       0x4b52 (size before relaxing)
+ .debug_str     0x0000000000012767        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(helper.o)
+                                       0x54a2 (size before relaxing)
+ .debug_str     0x0000000000012767        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(configfile.o)
+                                       0x4c21 (size before relaxing)
+ .debug_str     0x0000000000012767        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(mpegplayer_status_icons_8x8x1.o)
+                                        0x16f (size before relaxing)
+ .debug_str     0x0000000000012767        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(mpegplayer_status_icons_12x12x1.o)
+                                        0x173 (size before relaxing)
+ .debug_str     0x0000000000012767        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(mpegplayer_status_icons_16x16x1.o)
+                                        0x173 (size before relaxing)
+ .debug_str     0x0000000000012767        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(ipodtiktok_header.320x40x24.o)
+                                        0x17c (size before relaxing)
+ .debug_str     0x0000000000012767        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(ipodtiktok_scrim.320x96x24.o)
+                                        0x17a (size before relaxing)
+ .debug_str     0x0000000000012767        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(ipodtiktok_heart.32x32x24.o)
+                                        0x17a (size before relaxing)
 
 .debug_loc
  *(.debug_loc)
@@ -1630,116 +1627,116 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
  *(.debug_addr)
 
 .debug_line_str
-                0x0000000000000000     0x1661
+                0x0000000000000000     0x1670
  *(.debug_line_str)
  .debug_line_str
-                0x0000000000000000     0x1661 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/decode.o
-                                        0x669 (size before relaxing)
+                0x0000000000000000     0x1670 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/decode.o
+                                        0x678 (size before relaxing)
  .debug_line_str
-                0x0000000000001661        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/header.o
-                                        0x669 (size before relaxing)
+                0x0000000000001670        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/header.o
+                                        0x678 (size before relaxing)
  .debug_line_str
-                0x0000000000001661        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/idct.o
+                0x0000000000001670        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/idct.o
                                         0x179 (size before relaxing)
  .debug_line_str
-                0x0000000000001661        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/motion_comp.o
+                0x0000000000001670        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/motion_comp.o
                                         0x2e6 (size before relaxing)
  .debug_line_str
-                0x0000000000001661        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/slice.o
+                0x0000000000001670        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/slice.o
                                         0x2f0 (size before relaxing)
  .debug_line_str
-                0x0000000000001661        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/motion_comp_c.o
+                0x0000000000001670        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/motion_comp_c.o
                                         0x175 (size before relaxing)
  .debug_line_str
-                0x0000000000001661        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/alloc.o
-                                        0x6a2 (size before relaxing)
+                0x0000000000001670        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/alloc.o
+                                        0x6b1 (size before relaxing)
  .debug_line_str
-                0x0000000000001661        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/video_out_rockbox.o
-                                        0x705 (size before relaxing)
+                0x0000000000001670        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/video_out_rockbox.o
+                                        0x714 (size before relaxing)
  .debug_line_str
-                0x0000000000001661        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/video_thread.o
-                                        0x716 (size before relaxing)
+                0x0000000000001670        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/video_thread.o
+                                        0x725 (size before relaxing)
  .debug_line_str
-                0x0000000000001661        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/pcm_output.o
-                                        0x6d3 (size before relaxing)
+                0x0000000000001670        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/pcm_output.o
+                                        0x6e2 (size before relaxing)
  .debug_line_str
-                0x0000000000001661        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/audio_thread.o
-                                        0x779 (size before relaxing)
+                0x0000000000001670        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/audio_thread.o
+                                        0x788 (size before relaxing)
  .debug_line_str
-                0x0000000000001661        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/disk_buf.o
-                                        0x6e9 (size before relaxing)
+                0x0000000000001670        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/disk_buf.o
+                                        0x6f8 (size before relaxing)
  .debug_line_str
-                0x0000000000001661        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpeg_settings.o
-                                        0x73d (size before relaxing)
+                0x0000000000001670        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpeg_settings.o
+                                        0x74c (size before relaxing)
  .debug_line_str
-                0x0000000000001661        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/stream_mgr.o
-                                        0x706 (size before relaxing)
+                0x0000000000001670        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/stream_mgr.o
+                                        0x715 (size before relaxing)
  .debug_line_str
-                0x0000000000001661        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpegplayer.o
-                                        0x7a8 (size before relaxing)
+                0x0000000000001670        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpegplayer.o
+                                        0x7b7 (size before relaxing)
  .debug_line_str
-                0x0000000000001661        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpeg_parser.o
-                                        0x696 (size before relaxing)
+                0x0000000000001670        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpeg_parser.o
+                                        0x6a5 (size before relaxing)
  .debug_line_str
-                0x0000000000001661        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpeg_misc.o
-                                        0x66e (size before relaxing)
+                0x0000000000001670        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpeg_misc.o
+                                        0x67d (size before relaxing)
  .debug_line_str
-                0x0000000000001661        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/livetv_guide.o
-                                        0x675 (size before relaxing)
+                0x0000000000001670        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/livetv_guide.o
+                                        0x684 (size before relaxing)
  .debug_line_str
-                0x0000000000001661        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
-                                        0x68b (size before relaxing)
+                0x0000000000001670        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+                                        0x69a (size before relaxing)
  .debug_line_str
-                0x0000000000001661        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(frame.o)
+                0x0000000000001670        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(frame.o)
                                         0x23d (size before relaxing)
  .debug_line_str
-                0x0000000000001661        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(layer12.o)
+                0x0000000000001670        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(layer12.o)
                                         0x21a (size before relaxing)
  .debug_line_str
-                0x0000000000001661        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(layer3.o)
+                0x0000000000001670        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(layer3.o)
                                         0x237 (size before relaxing)
  .debug_line_str
-                0x0000000000001661        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(stream.o)
+                0x0000000000001670        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(stream.o)
                                         0x161 (size before relaxing)
  .debug_line_str
-                0x0000000000001661        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(synth.o)
+                0x0000000000001670        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(synth.o)
                                         0x223 (size before relaxing)
  .debug_line_str
-                0x0000000000001661        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(bit.o)
+                0x0000000000001670        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(bit.o)
                                         0x252 (size before relaxing)
  .debug_line_str
-                0x0000000000001661        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(huffman.o)
+                0x0000000000001670        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(huffman.o)
                                         0x1ce (size before relaxing)
  .debug_line_str
-                0x0000000000001661        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
-                                        0x62e (size before relaxing)
+                0x0000000000001670        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
+                                        0x63d (size before relaxing)
  .debug_line_str
-                0x0000000000001661        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(helper.o)
-                                        0x630 (size before relaxing)
+                0x0000000000001670        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(helper.o)
+                                        0x63f (size before relaxing)
  .debug_line_str
-                0x0000000000001661        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(configfile.o)
-                                        0x62f (size before relaxing)
+                0x0000000000001670        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(configfile.o)
+                                        0x63e (size before relaxing)
  .debug_line_str
-                0x0000000000001661        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(mpegplayer_status_icons_8x8x1.o)
+                0x0000000000001670        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(mpegplayer_status_icons_8x8x1.o)
                                         0x241 (size before relaxing)
  .debug_line_str
-                0x0000000000001661        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(mpegplayer_status_icons_12x12x1.o)
+                0x0000000000001670        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(mpegplayer_status_icons_12x12x1.o)
                                         0x249 (size before relaxing)
  .debug_line_str
-                0x0000000000001661        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(mpegplayer_status_icons_16x16x1.o)
+                0x0000000000001670        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(mpegplayer_status_icons_16x16x1.o)
                                         0x249 (size before relaxing)
  .debug_line_str
-                0x0000000000001661        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(ipodtiktok_header.320x40x24.o)
+                0x0000000000001670        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(ipodtiktok_header.320x40x24.o)
                                         0x233 (size before relaxing)
  .debug_line_str
-                0x0000000000001661        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(ipodtiktok_scrim.320x96x24.o)
+                0x0000000000001670        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(ipodtiktok_scrim.320x96x24.o)
                                         0x22f (size before relaxing)
  .debug_line_str
-                0x0000000000001661        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(ipodtiktok_heart.32x32x24.o)
+                0x0000000000001670        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(ipodtiktok_heart.32x32x24.o)
                                         0x22c (size before relaxing)
 
 .debug_loclists
-                0x0000000000000000    0x28646
+                0x0000000000000000    0x28b7d
  *(.debug_loclists)
  .debug_loclists
                 0x0000000000000000      0x4f1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/decode.o
@@ -1768,33 +1765,33 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
  .debug_loclists
                 0x000000000000a8ec      0xb9d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/stream_mgr.o
  .debug_loclists
-                0x000000000000b489     0x36d9 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpegplayer.o
+                0x000000000000b489     0x3735 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpegplayer.o
  .debug_loclists
-                0x000000000000eb62      0x89e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpeg_parser.o
+                0x000000000000ebbe      0x89e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpeg_parser.o
  .debug_loclists
-                0x000000000000f400      0x28f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpeg_misc.o
+                0x000000000000f45c      0x28f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpeg_misc.o
  .debug_loclists
-                0x000000000000f68f     0x313a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/livetv_guide.o
+                0x000000000000f6eb     0x3615 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/livetv_guide.o
  .debug_loclists
-                0x00000000000127c9       0x9e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+                0x0000000000012d00       0x9e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
  .debug_loclists
-                0x0000000000012867      0x380 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(frame.o)
+                0x0000000000012d9e      0x380 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(frame.o)
  .debug_loclists
-                0x0000000000012be7      0xa02 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(layer12.o)
+                0x000000000001311e      0xa02 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(layer12.o)
  .debug_loclists
-                0x00000000000135e9    0x10fe3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(layer3.o)
+                0x0000000000013b20    0x10fe3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(layer3.o)
  .debug_loclists
-                0x00000000000245cc       0xcc /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(stream.o)
+                0x0000000000024b03       0xcc /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(stream.o)
  .debug_loclists
-                0x0000000000024698     0x3795 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(synth.o)
+                0x0000000000024bcf     0x3795 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(synth.o)
  .debug_loclists
-                0x0000000000027e2d      0x2a3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(bit.o)
+                0x0000000000028364      0x2a3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(bit.o)
  .debug_loclists
-                0x00000000000280d0      0x1ad /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
+                0x0000000000028607      0x1ad /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
  .debug_loclists
-                0x000000000002827d       0x5f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(helper.o)
+                0x00000000000287b4       0x5f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(helper.o)
  .debug_loclists
-                0x00000000000282dc      0x36a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(configfile.o)
+                0x0000000000028813      0x36a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(configfile.o)
 
 .debug_macro
  *(.debug_macro)
@@ -1803,7 +1800,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
  *(.debug_names)
 
 .debug_rnglists
-                0x0000000000000000     0x11b2
+                0x0000000000000000     0x1215
  *(.debug_rnglists)
  .debug_rnglists
                 0x0000000000000000       0x34 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/libmpeg2/decode.o
@@ -1830,23 +1827,23 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
  .debug_rnglists
                 0x00000000000007cc       0x63 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/stream_mgr.o
  .debug_rnglists
-                0x000000000000082f      0x30b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpegplayer.o
+                0x000000000000082f      0x32d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpegplayer.o
  .debug_rnglists
-                0x0000000000000b3a       0xaf /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpeg_parser.o
+                0x0000000000000b5c       0xaf /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpeg_parser.o
  .debug_rnglists
-                0x0000000000000be9       0x27 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpeg_misc.o
+                0x0000000000000c0b       0x27 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/mpeg_misc.o
  .debug_rnglists
-                0x0000000000000c10      0x338 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/livetv_guide.o
+                0x0000000000000c32      0x379 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/mpegplayer/livetv_guide.o
  .debug_rnglists
-                0x0000000000000f48       0x22 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(frame.o)
+                0x0000000000000fab       0x22 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(frame.o)
  .debug_rnglists
-                0x0000000000000f6a       0x2d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(layer12.o)
+                0x0000000000000fcd       0x2d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(layer12.o)
  .debug_rnglists
-                0x0000000000000f97      0x1b1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(layer3.o)
+                0x0000000000000ffa      0x1b1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(layer3.o)
  .debug_rnglists
-                0x0000000000001148       0x2c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(synth.o)
+                0x00000000000011ab       0x2c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(synth.o)
  .debug_rnglists
-                0x0000000000001174       0x3e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(bit.o)
+                0x00000000000011d7       0x3e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libmad-mpeg.a(bit.o)
 
 .debug_str_offsets
  *(.debug_str_offsets)

@@ -32,6 +32,17 @@
 /rockpod/.wallpaper_apply/
 /rockpod/.wallpaper_clock/
 /tmp/
+/build-ios-ipod6g/
+/tools/ios/**/.theos/
+/tools/ios/**/packages/
+/tools/ios/**/Resources/SimulatorInstall/
+/tools/ios/**/Resources/Frameworks/
+
+# Local generated deliverables and scratch work
+/.tmp-*/
+/.tmp_*/
+/dist/
+/rockpod/.generated/
 
 # RockPod iPone Designer generated theme variants
 /wps/iPoneDesigner-*

@@ -39,6 +39,15 @@ else
 endif
 	$(SILENT)$(call objcopy,$@,$@)
 
+# The iPhone companion links the same simulator core into its application.
+# Keeping this as an archive preserves the normal desktop simulator target and
+# avoids introducing a second, visually divergent implementation of Rockbox.
+ifeq ($(ROCKPOD_IOS_EMBED),yes)
+$(BUILDDIR)/librockbox-ios.a: $$(OBJ) $(FIRMLIB) $(VOICESPEEXLIB) $(CORE_LIBS) $(SIMLIB)
+	$(SILENT)rm -f $@
+	$(call PRINTS,LIBTOOL $(@F))$(IOS_LIBTOOL) -static -o $@ $^
+endif
+
 $(BUILDDIR)/uisimulator/%.o: $(ROOTDIR)/uisimulator/%.c
 	$(SILENT)mkdir -p $(dir $@)
 	$(call PRINTS,CC $(subst $(ROOTDIR)/,,$<))$(CC) $(SIMFLAGS) -c $< -o $@

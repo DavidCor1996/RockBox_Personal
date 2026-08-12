@@ -332,6 +332,7 @@ void pcm_play_dma_stop(void)
 #endif
 
 debug_close:
+    ;
 #ifdef DEBUG
     if (udata.debug != NULL) {
         fclose(udata.debug);

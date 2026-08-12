@@ -40,6 +40,10 @@
 #include "splash.h"
 #include "settings.h"
 #include "misc.h"
+#ifdef HAVE_IPODJS_UI
+#include "notification_manager.h"
+#include "usb_internet.h"
+#endif
 
 #if defined(IPOD_NANO2G)
 #include "lcd.h"
@@ -1433,6 +1437,35 @@ void action_wait_for_release(void)
     button_clear_pressed();
 }
 
+#ifdef HAVE_IPODJS_UI
+/* The USB companion relay is serviced on the way out of get_action(), so a
+ * screen that waits with TIMEOUT_BLOCK stops answering the phone entirely
+ * until a button is pressed.  Streamed audio then stalls mid-track and the
+ * companion decides the link died.  While the cable is in and the link is up,
+ * wake often enough to keep the relay fed; callers already treat the
+ * resulting ACTION_NONE as "nothing happened".  With no companion attached
+ * the timeout is untouched, so idle power behaviour is unchanged. */
+#define COMPANION_SERVICE_TICKS (HZ / 50 > 0 ? HZ / 50 : 1)
+
+static int action_companion_timeout(int timeout)
+{
+    /* Only the indefinite wait is shortened.  A caller that asked for a real
+     * timeout is measuring elapsed time with it -- auto-dismissed prompts,
+     * the quickscreen, plugin menus -- and would fire far too early if this
+     * shortened it; those callers already wake without help. */
+    if (timeout != TIMEOUT_BLOCK)
+        return timeout;
+    if (!usb_internet_needs_service())
+        return timeout;
+    return COMPANION_SERVICE_TICKS;
+}
+#else
+static int action_companion_timeout(int timeout)
+{
+    return timeout;
+}
+#endif
+
 int get_action(int context, int timeout)
 {
 #if defined(IPOD_NANO2G)
@@ -1440,6 +1473,7 @@ int get_action(int context, int timeout)
 #endif
 
     action_cur_t current;
+    timeout = action_companion_timeout(timeout);
     init_act_cur(&current, context, timeout, NULL);
 
     int action = get_action_worker(&action_last, &current);
@@ -1452,6 +1486,9 @@ int get_action(int context, int timeout)
 #endif
 
     action = do_backlight(&action_last, &current, action);
+#ifdef HAVE_IPODJS_UI
+    notification_manager_service();
+#endif
 
     return action;
 }
@@ -1546,11 +1583,15 @@ int get_custom_action(int context,int timeout,
                       const struct button_mapping* (*get_context_map)(int))
 {
     action_cur_t current;
+    timeout = action_companion_timeout(timeout);
     init_act_cur(&current, context, timeout, get_context_map);
 
     int action = get_action_worker(&action_last, &current);
 
     action = do_backlight(&action_last, &current, action);
+#ifdef HAVE_IPODJS_UI
+    notification_manager_service();
+#endif
 
     return action;
 }

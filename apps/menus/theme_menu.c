@@ -45,6 +45,9 @@
 #include "skin_engine/skin_engine.h"
 #include "splash.h"
 #include "icons.h"
+#ifdef HAVE_IPODJS_UI
+#include "notification_manager.h"
+#endif
 #ifdef HAVE_LCD_COLOR
 #include "filetypes.h"
 #endif
@@ -413,6 +416,54 @@ MENUITEM_SETTING_W_TEXT(ui_engine_lock_settings,
                         "Lock Settings Menu", NULL);
 MENUITEM_SETTING_W_TEXT(ui_engine_dark_mode, &global_settings.ui_engine_dark_mode,
                         "iPod Dark Mode", NULL);
+MENUITEM_SETTING_W_TEXT(notifications_enabled,
+                        &global_settings.notifications_enabled,
+                        "Notifications", NULL);
+MENUITEM_SETTING_W_TEXT(notification_banners,
+                        &global_settings.notification_banners,
+                        "Banners", NULL);
+MENUITEM_SETTING_W_TEXT(notification_achievements,
+                        &global_settings.notification_achievements,
+                        "Achievements", NULL);
+MENUITEM_SETTING_W_TEXT(notification_music,
+                        &global_settings.notification_music,
+                        "Music & Playback", NULL);
+MENUITEM_SETTING_W_TEXT(notification_sitekick,
+                        &global_settings.notification_sitekick,
+                        "Sitekick", NULL);
+MENUITEM_SETTING_W_TEXT(notification_livetv,
+                        &global_settings.notification_livetv,
+                        "Live TV", NULL);
+MENUITEM_SETTING_W_TEXT(notification_weather,
+                        &global_settings.notification_weather,
+                        "Weather", NULL);
+MENUITEM_SETTING_W_TEXT(notification_battery,
+                        &global_settings.notification_battery,
+                        "Battery", NULL);
+MENUITEM_SETTING_W_TEXT(notification_storage,
+                        &global_settings.notification_storage,
+                        "Storage", NULL);
+MENUITEM_SETTING_W_TEXT(notification_sound,
+                        &global_settings.notification_sound,
+                        "Sound", NULL);
+static int notification_test_banner(void)
+{
+    notification_manager_test_banner();
+    return 0;
+}
+MENUITEM_FUNCTION(notification_test_banner_item, 0, "Test Notification",
+                  notification_test_banner, NULL, Icon_NOICON);
+MAKE_MENU(notification_apps_menu, "Apps",
+          NULL, Icon_Config,
+          &notification_achievements, &notification_music,
+          &notification_sitekick, &notification_livetv,
+          &notification_weather, &notification_battery,
+          &notification_storage);
+MAKE_MENU(notification_settings_menu, "Notification Settings",
+          NULL, Icon_Config,
+          &notifications_enabled, &notification_banners,
+          &notification_sound, &notification_test_banner_item,
+          &notification_apps_menu);
 #endif
 MENUITEM_FUNCTION_W_PARAM(browse_themes, 0, ID2P(LANG_CUSTOM_THEME),
                           browse_folder, (void*)&themes, NULL, Icon_Config);
@@ -458,6 +509,7 @@ MAKE_MENU(theme_menu, ID2P(LANG_THEME_MENU),
             &ui_engine_extras_pane,
             &ui_engine_lock_settings,
             &ui_engine_dark_mode,
+            &notification_settings_menu,
 #endif
             &show_icons,
 #ifdef HAVE_BACKDROP_IMAGE

@@ -80,6 +80,11 @@ screen_access.c
 gui/icon.c
 #ifdef HAVE_IPODJS_UI
 gui/ipodjs_ui.c
+notification_manager.c
+usb_internet.c
+#if defined(USB_ENABLE_IPHETH_HOST) && !defined(SIMULATOR)
+usb_iphone_preflight.c
+#endif
 gui/qrcode/qrcodegen.c
 #ifdef SIMULATOR
 gui/ipodjs_trace.c

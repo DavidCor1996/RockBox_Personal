@@ -32,6 +32,9 @@
 #include "backlight.h"
 #include "sound.h"
 #include "settings.h"
+#if defined(IPOD_6G) && !defined(SIMULATOR)
+void settings_apply_ipod6g_videoout(int mode);
+#endif
 #include "rbpaths.h"
 #include "settings_list.h"
 #include "usb.h"
@@ -1182,6 +1185,12 @@ const struct settings_list settings[] = {
     OFFON_SETTING(0, flip_display, LANG_FLIP_DISPLAY, false, "flip display",
                   NULL),
 #endif
+#if defined(IPOD_6G) && !defined(SIMULATOR)
+    CHOICE_SETTING(0, composite_video_output, LANG_COMPOSITE_VIDEO_OUTPUT,
+                   0, "composite video output", "off,auto,on",
+                   settings_apply_ipod6g_videoout, 3,
+                   ID2P(LANG_OFF), ID2P(LANG_AUTO), ID2P(LANG_ON)),
+#endif
     /* display */
      CHOICE_SETTING(F_TEMPVAR|F_THEMESETTING, cursor_style, LANG_INVERT_CURSOR,
  #ifdef HAVE_LCD_COLOR
@@ -1288,6 +1297,26 @@ const struct settings_list settings[] = {
                   "ui engine lock settings", NULL),
     OFFON_SETTING(0, ui_engine_dark_mode, -1, false,
                   "ui engine dark mode", NULL),
+    OFFON_SETTING(0, notifications_enabled, -1, true,
+                  "notifications", NULL),
+    OFFON_SETTING(0, notification_banners, -1, true,
+                  "notification banners", NULL),
+    OFFON_SETTING(0, notification_achievements, -1, true,
+                  "achievement notifications", NULL),
+    OFFON_SETTING(0, notification_music, -1, true,
+                  "music notifications", NULL),
+    OFFON_SETTING(0, notification_sitekick, -1, false,
+                  "sitekick notifications", NULL),
+    OFFON_SETTING(0, notification_livetv, -1, true,
+                  "live tv notifications", NULL),
+    OFFON_SETTING(0, notification_weather, -1, true,
+                  "weather sync notifications", NULL),
+    OFFON_SETTING(0, notification_battery, -1, true,
+                  "battery notifications", NULL),
+    OFFON_SETTING(0, notification_storage, -1, true,
+                  "storage notifications", NULL),
+    OFFON_SETTING(0, notification_sound, -1, false,
+                  "notification sound", NULL),
 #endif
     CHOICE_SETTING(F_THEMESETTING, album_list_layout, LANG_ALBUM_LIST_LAYOUT,
                    ALBUM_LIST_LAYOUT_FULL,
@@ -2489,6 +2518,12 @@ const struct settings_list settings[] = {
                    USBMODE_DEFAULT,
                    "usb mode",
                    "mass storage,charge"
+#if defined(USB_ENABLE_ETHERNET)
+                   ",internet"
+#endif
+#if defined(USB_ENABLE_IPHETH_HOST)
+                   ",iphone tether"
+#endif
 #if defined(DX50) || defined(DX90) || defined(HIBY_R3PROII) || defined(HIBY_R1)
                    ",adb"
 #endif
@@ -2500,12 +2535,24 @@ const struct settings_list settings[] = {
                    usb_set_mode,
 #if defined(HIBY_R3PROII) || defined(HIBY_R1)
                    3,
+#elif defined(USB_ENABLE_ETHERNET)
+#ifdef USB_ENABLE_IPHETH_HOST
+                   4,
+#else
+                   3,
+#endif
 #else
                    2,
 #endif
 #endif
                    ID2P(LANG_USB_MODE_MASS_STORAGE),
                    ID2P(LANG_USB_MODE_CHARGE)
+#if defined(USB_ENABLE_ETHERNET)
+                   ,ID2P(LANG_USB_MODE_INTERNET)
+#endif
+#if defined(USB_ENABLE_IPHETH_HOST)
+                   ,ID2P(LANG_USB_MODE_IPHONE_TETHER)
+#endif
 #if defined(DX50) || defined(DX90) || defined(HIBY_R3PROII) || defined(HIBY_R1)
                    ,ID2P(LANG_USB_MODE_ADB)
 #endif

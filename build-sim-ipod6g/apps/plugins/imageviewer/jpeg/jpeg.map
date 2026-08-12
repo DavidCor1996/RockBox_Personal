@@ -1,7 +1,4 @@
 
-Merging object attributes
-
-
 Merging program properties
 
 Removed property 0xc0000002 to merge /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crti.o (0x3) and /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/imageviewer/jpeg/jpeg.o (not found)
@@ -48,7 +45,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/libgcc_s.so.1
 LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a
 END GROUP
 LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/libatomic_asneeded.so
-LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/libatomic.a
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/libatomic.so
 LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/libc.so
 START GROUP
 LOAD /usr/lib/libc.so.6
@@ -483,11 +480,11 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x1a0e2
+.debug_info     0x0000000000000000    0x1a895
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x8839 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/imageviewer/jpeg/jpeg.o
- .debug_info    0x0000000000008839     0x91a0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/imageviewer/jpeg/jpeg_decoder.o
- .debug_info    0x00000000000119d9     0x8709 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/imageviewer/jpeg/yuv2rgb.o
+ .debug_info    0x0000000000000000     0x8aca /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/imageviewer/jpeg/jpeg.o
+ .debug_info    0x0000000000008aca     0x9431 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/imageviewer/jpeg/jpeg_decoder.o
+ .debug_info    0x0000000000011efb     0x899a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/imageviewer/jpeg/yuv2rgb.o
 
 .debug_abbrev   0x0000000000000000      0xf1b
  *(.debug_abbrev)
@@ -495,23 +492,23 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
  .debug_abbrev  0x0000000000000454      0x5a1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/imageviewer/jpeg/jpeg_decoder.o
  .debug_abbrev  0x00000000000009f5      0x526 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/imageviewer/jpeg/yuv2rgb.o
 
-.debug_line     0x0000000000000000     0x293b
+.debug_line     0x0000000000000000     0x294a
  *(.debug_line .debug_line.* .debug_line_end)
- .debug_line    0x0000000000000000      0x619 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/imageviewer/jpeg/jpeg.o
- .debug_line    0x0000000000000619     0x1926 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/imageviewer/jpeg/jpeg_decoder.o
- .debug_line    0x0000000000001f3f      0x9fc /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/imageviewer/jpeg/yuv2rgb.o
+ .debug_line    0x0000000000000000      0x61e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/imageviewer/jpeg/jpeg.o
+ .debug_line    0x000000000000061e     0x192b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/imageviewer/jpeg/jpeg_decoder.o
+ .debug_line    0x0000000000001f49      0xa01 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/imageviewer/jpeg/yuv2rgb.o
 
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x532b
+.debug_str      0x0000000000000000     0x550e
  *(.debug_str)
- .debug_str     0x0000000000000000     0x532b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/imageviewer/jpeg/jpeg.o
-                                       0x55f9 (size before relaxing)
- .debug_str     0x000000000000532b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/imageviewer/jpeg/jpeg_decoder.o
-                                       0x5558 (size before relaxing)
- .debug_str     0x000000000000532b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/imageviewer/jpeg/yuv2rgb.o
-                                       0x5316 (size before relaxing)
+ .debug_str     0x0000000000000000     0x550e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/imageviewer/jpeg/jpeg.o
+                                       0x57e5 (size before relaxing)
+ .debug_str     0x000000000000550e        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/imageviewer/jpeg/jpeg_decoder.o
+                                       0x5744 (size before relaxing)
+ .debug_str     0x000000000000550e        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/imageviewer/jpeg/yuv2rgb.o
+                                       0x5502 (size before relaxing)
 
 .debug_loc
  *(.debug_loc)
@@ -541,17 +538,17 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
  *(.debug_addr)
 
 .debug_line_str
-                0x0000000000000000      0x71b
+                0x0000000000000000      0x72a
  *(.debug_line_str)
  .debug_line_str
-                0x0000000000000000      0x71b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/imageviewer/jpeg/jpeg.o
-                                        0x6d4 (size before relaxing)
+                0x0000000000000000      0x72a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/imageviewer/jpeg/jpeg.o
+                                        0x6e3 (size before relaxing)
  .debug_line_str
-                0x000000000000071b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/imageviewer/jpeg/jpeg_decoder.o
-                                        0x679 (size before relaxing)
+                0x000000000000072a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/imageviewer/jpeg/jpeg_decoder.o
+                                        0x688 (size before relaxing)
  .debug_line_str
-                0x000000000000071b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/imageviewer/jpeg/yuv2rgb.o
-                                        0x657 (size before relaxing)
+                0x000000000000072a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/imageviewer/jpeg/yuv2rgb.o
+                                        0x666 (size before relaxing)
 
 .debug_loclists
                 0x0000000000000000     0x3a22

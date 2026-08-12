@@ -243,6 +243,60 @@ static bool sk_logo_loaded;
 static struct sk_chip sk_chips[SK_MAX_CHIPS];
 static int sk_chip_count;
 static bool sk_chips_truncated;
+static uint32_t sk_now(void);
+
+#ifdef HAVE_IPODJS_UI
+static void sk_notification_request(struct notification_request *request,
+                                    unsigned kind, uint32_t stable_id,
+                                    const char *title, const char *body,
+                                    const char *route)
+{
+    rb->memset(request, 0, sizeof(*request));
+    request->source = NOTIFICATION_SOURCE_SITEKICK;
+    request->kind = kind;
+    request->stable_id = stable_id;
+    rb->strlcpy(request->title, title, sizeof(request->title));
+    rb->strlcpy(request->body, body, sizeof(request->body));
+    rb->strlcpy(request->route, route, sizeof(request->route));
+}
+
+static void sk_notify_ready(unsigned kind, uint32_t stable_id,
+                            const char *title, const char *body,
+                            const char *route)
+{
+    struct notification_request request;
+
+    sk_notification_request(&request, kind, stable_id, title, body, route);
+    rb->notification_post(&request);
+}
+
+static void sk_schedule_ready(unsigned kind, uint32_t deadline,
+                              const char *title, const char *body,
+                              const char *route)
+{
+    struct notification_request request;
+
+    if (!deadline)
+        return;
+    sk_notification_request(&request, kind, deadline, title, body, route);
+    rb->notification_schedule(&request, deadline);
+}
+
+static void sk_notify_chip(int index, const char *origin)
+{
+    struct notification_request request;
+    char body[NOTIFICATION_BODY_SIZE];
+
+    if (index < 0 || index >= sk_chip_count)
+        return;
+    rb->snprintf(body, sizeof(body), "%s (%s)", sk_chips[index].name,
+                 origin);
+    sk_notification_request(&request, NOTIFICATION_SITEKICK_CHIP_ACQUIRED,
+                            (uint32_t)sk_chips[index].id, "New Sitekick Chip",
+                            body, "workshop-view");
+    rb->notification_post(&request);
+}
+#endif
 
 /* --- save state --------------------------------------------------------- */
 #define SK_OWNED_WORDS  ((SK_MAX_CHIPS + 31) / 32)
@@ -1603,7 +1657,22 @@ static void sk_apply_inbox(void)
         /* Consumed grants must not reapply on the next launch. */
         rb->remove(SK_INBOX_FILE);
         if (sk_inbox_applied > 0)
+        {
+#ifdef HAVE_IPODJS_UI
+            struct notification_request request;
+            char body[NOTIFICATION_BODY_SIZE];
+
+            rb->snprintf(body, sizeof(body), "%d inbox item%s applied",
+                         sk_inbox_applied,
+                         sk_inbox_applied == 1 ? "" : "s");
+            sk_notification_request(&request,
+                                    NOTIFICATION_SITEKICK_INBOX_APPLIED,
+                                    sk_now(), "Sitekick Updated", body,
+                                    "workshop-view");
+            rb->notification_post(&request);
+#endif
             sk_play(SK_SND_REWARD);
+        }
     }
 }
 
@@ -2769,6 +2838,7 @@ static int sk_random_unowned_chip(int rarity)
 static bool sk_dump_service(void)
 {
     uint32_t now = sk_now();
+    uint32_t ready_id = sk_dump_ready_at;
     int roll, rarity;
 
     if (sk_dump_index >= 0 && sk_dump_index < sk_chip_count &&
@@ -2789,7 +2859,18 @@ static bool sk_dump_service(void)
 
     sk_dump_ready_at = 0;
     sk_dirty = true;
-    sk_write_save();
+    if (!sk_write_save())
+        return false;
+#ifdef HAVE_IPODJS_UI
+    if (ready_id)
+    {
+        sk_notify_ready(NOTIFICATION_SITEKICK_DUMP_READY, ready_id,
+                        "The Dump is Ready", "A rescued chip is waiting",
+                        "dump-view");
+        rb->notification_cancel(NOTIFICATION_SOURCE_SITEKICK,
+                                NOTIFICATION_SITEKICK_DUMP_READY, ready_id);
+    }
+#endif
     return true;
 }
 
@@ -2811,7 +2892,18 @@ static void sk_dump_claim(void)
     sk_dump_index = -1;
     sk_dump_ready_at = now ? now + 30 + (rb->rand() % 91) : 0;
     sk_dirty = true;
-    sk_write_save();
+    if (!sk_write_save())
+    {
+        sk_set_message("Could not save Sitekick");
+        sk_play(SK_SND_BACK);
+        return;
+    }
+#ifdef HAVE_IPODJS_UI
+    sk_notify_chip(index, "The Dump");
+    sk_schedule_ready(NOTIFICATION_SITEKICK_DUMP_READY, sk_dump_ready_at,
+                      "The Dump is Ready", "A rescued chip is waiting",
+                      "dump-view");
+#endif
     sk_publish_preview(true);
     sk_set_message("Chip rescued from the Dump!");
     sk_play(SK_SND_REWARD);
@@ -2863,6 +2955,7 @@ skip2:
 static void sk_shop_rotate(bool force)
 {
     uint32_t now = sk_now();
+    uint32_t previous_deadline = sk_shop_ready_at;
     int slot;
 
     if (!force && sk_shop_ready_at && now && now < sk_shop_ready_at)
@@ -2880,7 +2973,22 @@ static void sk_shop_rotate(bool force)
     }
     sk_shop_ready_at = now ? now + SK_SHOP_PERIOD_SEC : 0;
     sk_dirty = true;
-    sk_write_save();
+    if (!sk_write_save())
+        return;
+#ifdef HAVE_IPODJS_UI
+    if (!force && previous_deadline)
+    {
+        sk_notify_ready(NOTIFICATION_SITEKICK_SHOP_READY, previous_deadline,
+                        "Sitekick Shop Restocked", "New chips are in stock",
+                        "shop-view");
+        rb->notification_cancel(NOTIFICATION_SOURCE_SITEKICK,
+                                NOTIFICATION_SITEKICK_SHOP_READY,
+                                previous_deadline);
+    }
+    sk_schedule_ready(NOTIFICATION_SITEKICK_SHOP_READY, sk_shop_ready_at,
+                      "Sitekick Shop Restocked", "New chips are in stock",
+                      "shop-view");
+#endif
 }
 
 static void sk_shop_buy(int slot)
@@ -2911,7 +3019,15 @@ static void sk_shop_buy(int slot)
     sk_owned_set(index, true);
     sk_shop_stock[slot] = -1;
     sk_dirty = true;
-    sk_write_save();
+    if (!sk_write_save())
+    {
+        sk_set_message("Could not save Sitekick");
+        sk_play(SK_SND_BACK);
+        return;
+    }
+#ifdef HAVE_IPODJS_UI
+    sk_notify_chip(index, "Shop");
+#endif
     sk_publish_preview(true);
     sk_set_message(sk_chips[index].name);
     sk_play(SK_SND_REWARD);
@@ -4505,6 +4621,12 @@ static enum plugin_status sk_finish(enum plugin_status status)
 enum plugin_status plugin_start(const void *parameter)
 {
     bool quit = false;
+    bool dump_view = parameter &&
+        !rb->strcmp((const char *)parameter, "dump-view");
+    bool shop_view = parameter &&
+        !rb->strcmp((const char *)parameter, "shop-view");
+    bool workshop_view = parameter &&
+        !rb->strcmp((const char *)parameter, "workshop-view");
 #if LCD_WIDTH >= 1920
     sk_desktop_mode = parameter &&
         !rb->strcmp((const char *)parameter, "-desktop");
@@ -4515,17 +4637,11 @@ enum plugin_status plugin_start(const void *parameter)
     bool self_test_only = parameter &&
         (!rb->strcmp((const char *)parameter, "self-test") ||
          costume_self_test);
-    bool dump_view = parameter &&
-        !rb->strcmp((const char *)parameter, "dump-view");
     bool costume_view = parameter &&
         (!rb->strcmp((const char *)parameter, "costume-view") ||
          costume_self_test);
     bool helmet_view = parameter &&
         !rb->strcmp((const char *)parameter, "helmet-view");
-#else
-#if LCD_WIDTH < 1920
-    (void)parameter;
-#endif
 #endif
 
     rb->lcd_setfont(FONT_UI);
@@ -4547,6 +4663,14 @@ enum plugin_status plugin_start(const void *parameter)
     }
     sk_load_save();
     sk_apply_inbox();
+#ifdef HAVE_IPODJS_UI
+    sk_schedule_ready(NOTIFICATION_SITEKICK_DUMP_READY, sk_dump_ready_at,
+                      "The Dump is Ready", "A rescued chip is waiting",
+                      "dump-view");
+    sk_schedule_ready(NOTIFICATION_SITEKICK_SHOP_READY, sk_shop_ready_at,
+                      "Sitekick Shop Restocked", "New chips are in stock",
+                      "shop-view");
+#endif
     sk_load_sounds();
 #ifdef SIMULATOR
     if (costume_view)
@@ -4588,9 +4712,16 @@ enum plugin_status plugin_start(const void *parameter)
     sk_self_test();
     if (self_test_only)
         return sk_finish(PLUGIN_OK);
+#endif
     if (dump_view)
         sk_scene = SK_SCENE_DUMP;
-#endif
+    else if (shop_view)
+    {
+        sk_scene = SK_SCENE_SHOP;
+        sk_shop_rotate(false);
+    }
+    else if (workshop_view)
+        sk_scene = SK_SCENE_WORKSHOP;
 
     sk_draw();
 

@@ -25,6 +25,11 @@
     SOFTWARE.
 */
 
+/* Rockbox has no host wall clock, and the plugin supplies observation time. */
+#if defined(ROCKBOX) && !defined(ASTRONOMY_ENGINE_NO_CURRENT_TIME)
+#define ASTRONOMY_ENGINE_NO_CURRENT_TIME
+#endif
+
 #include <math.h>
 #include <stdint.h>
 #include <stdio.h>

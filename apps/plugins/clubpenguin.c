@@ -90,6 +90,7 @@ static const struct button_mapping cp_main_ctx[] =
 {
     { PLA_EXIT,        BUTTON_MENU|BUTTON_SELECT,         BUTTON_NONE },
     { PLA_SELECT,      BUTTON_SELECT,                     BUTTON_NONE },
+    { PLA_SELECT_REPEAT, BUTTON_SELECT|BUTTON_REPEAT,     BUTTON_NONE },
     { PLA_UP,          BUTTON_MENU,                       BUTTON_NONE },
     { PLA_DOWN,        BUTTON_PLAY,                       BUTTON_NONE },
     { PLA_SELECT_REL,  BUTTON_PLAY|BUTTON_REL,            BUTTON_PLAY },
@@ -119,6 +120,7 @@ static const struct button_mapping *plugin_contexts[] = { pla_main_ctx };
 #define CP_RIGHT_ACTION PLA_RIGHT
 #define CP_SELECT_ACTION PLA_SELECT
 #define CP_PLAY_ACTION PLA_SELECT_REL
+#define CP_MULTIPLAYER_ACTION PLA_SELECT_REPEAT
 #define CP_UP_REPEAT PLA_UP_REPEAT
 #define CP_DOWN_REPEAT PLA_DOWN_REPEAT
 #define CP_LEFT_REPEAT PLA_LEFT_REPEAT
@@ -311,6 +313,19 @@ struct cp_game
     bool assets_loaded;
     bool dirty;
     bool map_chord_latched;
+#ifdef USB_ENABLE_ETHERNET
+    bool multiplayer_enabled;
+    bool remote_visible;
+    uint32_t multiplayer_session;
+    uint32_t remote_session;
+    int remote_x;
+    int remote_y;
+    int remote_direction;
+    int remote_frame;
+    char remote_room[24];
+    long multiplayer_next_send;
+    long remote_last_seen;
+#endif
 };
 
 static fb_data scene_pixels[CP_WORLD_W * CP_WORLD_H
@@ -324,6 +339,121 @@ static fb_data toolbar_pixels[CP_VIEW_W * CP_STATUS_H];
 static char text_buf[CP_TEXT_BUF];
 
 static struct cp_game game;
+static void cp_set_message(const char *text);
+
+#ifdef USB_ENABLE_ETHERNET
+#define CP_NET_PACKET_SIZE 44
+#define CP_NET_RATE MAX(1, HZ / 10)
+#define CP_NET_TIMEOUT (3 * HZ)
+
+static uint16_t cp_net_get_be16(const unsigned char *p)
+{
+    return ((uint16_t)p[0] << 8) | p[1];
+}
+
+static uint32_t cp_net_get_be32(const unsigned char *p)
+{
+    return ((uint32_t)p[0] << 24) | ((uint32_t)p[1] << 16) |
+           ((uint32_t)p[2] << 8) | p[3];
+}
+
+static void cp_net_put_be16(unsigned char *p, uint16_t value)
+{
+    p[0] = value >> 8;
+    p[1] = value;
+}
+
+static void cp_net_put_be32(unsigned char *p, uint32_t value)
+{
+    p[0] = value >> 24;
+    p[1] = value >> 16;
+    p[2] = value >> 8;
+    p[3] = value;
+}
+
+static const char *cp_net_room(void)
+{
+    if (game.scene_type == CP_SCENE_ROOM && game.room_index >= 0 &&
+        game.room_index < game.room_count)
+        return game.rooms[game.room_index].id;
+    return "";
+}
+
+static void cp_multiplayer_tick(void)
+{
+    unsigned char packet[CP_NET_PACKET_SIZE];
+    int length;
+
+    rb->usb_internet_service();
+    if (!game.multiplayer_enabled || !rb->usb_internet_connected())
+    {
+        if (game.remote_visible)
+        {
+            game.remote_visible = false;
+            game.dirty = true;
+        }
+        return;
+    }
+
+    if (!game.multiplayer_next_send ||
+        !TIME_BEFORE(*rb->current_tick, game.multiplayer_next_send))
+    {
+        rb->memset(packet, 0, sizeof(packet));
+        rb->memcpy(packet, "CPM1", 4);
+        packet[4] = 1;
+        cp_net_put_be32(packet + 5, game.multiplayer_session);
+        rb->strlcpy((char *)packet + 9, cp_net_room(), 24);
+        cp_net_put_be16(packet + 33, game.x);
+        cp_net_put_be16(packet + 35, game.y);
+        packet[37] = game.direction;
+        packet[38] = game.anim_frame;
+        packet[39] = game.scene_type;
+        rb->usb_internet_send(47701, packet, sizeof(packet));
+        game.multiplayer_next_send = *rb->current_tick + CP_NET_RATE;
+    }
+
+    while ((length = rb->usb_internet_receive(47701, packet,
+                                               sizeof(packet))) > 0)
+    {
+        uint32_t session;
+        if (length != CP_NET_PACKET_SIZE || rb->memcmp(packet, "CPM1", 4) ||
+            packet[4] != 1)
+            continue;
+        session = cp_net_get_be32(packet + 5);
+        if (session == game.multiplayer_session)
+            continue;
+        game.remote_session = session;
+        rb->memcpy(game.remote_room, packet + 9, 24);
+        game.remote_room[sizeof(game.remote_room) - 1] = '\0';
+        game.remote_x = cp_net_get_be16(packet + 33);
+        game.remote_y = cp_net_get_be16(packet + 35);
+        game.remote_direction = packet[37] % 4;
+        game.remote_frame = packet[38] % CP_PLAYER_ANIM_FRAMES;
+        game.remote_last_seen = *rb->current_tick;
+        game.remote_visible = true;
+        game.dirty = true;
+    }
+
+    if (game.remote_visible &&
+        TIME_AFTER(*rb->current_tick, game.remote_last_seen + CP_NET_TIMEOUT))
+    {
+        game.remote_visible = false;
+        game.dirty = true;
+    }
+}
+
+static void cp_toggle_multiplayer(void)
+{
+    game.multiplayer_enabled = !game.multiplayer_enabled;
+    game.remote_visible = false;
+    if (game.multiplayer_enabled)
+        cp_set_message(rb->usb_internet_connected() ?
+                       "Multiplayer on - looking for one penguin." :
+                       "Multiplayer on - connect USB Internet.");
+    else
+        cp_set_message("Multiplayer off.");
+}
+#endif
 
 static const unsigned char cp_cart_segments[] =
 {
@@ -1876,6 +2006,12 @@ static void cp_init(void)
     rb->memset(&game, 0, sizeof(game));
     game.coins = 500;
     game.direction = CP_DIR_DOWN;
+#ifdef USB_ENABLE_ETHERNET
+    game.multiplayer_session = (uint32_t)*rb->current_tick ^
+                               (uint32_t)(uintptr_t)&game;
+    if (game.multiplayer_session == 0)
+        game.multiplayer_session = 1;
+#endif
 
     if (!cp_load_rooms())
         cp_use_builtin_rooms();
@@ -2442,6 +2578,19 @@ static void cp_render(void)
     cp_draw_room_markers();
     if (game.scene_type == CP_SCENE_ROOM)
     {
+#ifdef USB_ENABLE_ETHERNET
+        if (game.multiplayer_enabled && game.remote_visible &&
+            !cp_streq(game.remote_room, cp_net_room()))
+            game.remote_visible = false;
+        if (game.multiplayer_enabled && game.remote_visible)
+        {
+            int remote_frame = game.remote_direction * CP_PLAYER_ANIM_FRAMES +
+                               game.remote_frame;
+            int remote_x = game.remote_x - game.cam_x - CP_PLAYER_W / 2;
+            int remote_y = game.remote_y - game.cam_y - CP_PLAYER_H / 2;
+            cp_draw_player_frame(remote_frame, remote_x, remote_y);
+        }
+#endif
         player_screen_x = game.x - game.cam_x - CP_PLAYER_W / 2;
         player_screen_y = game.y - game.cam_y - CP_PLAYER_H / 2;
         cp_draw_player(player_screen_x, player_screen_y);
@@ -2474,6 +2623,9 @@ enum plugin_status plugin_start(const void *parameter)
 
     while (running)
     {
+#ifdef USB_ENABLE_ETHERNET
+        cp_multiplayer_tick();
+#endif
         cp_cart_update_menu_latch();
         cp_cart_tick_if_due();
         cp_walk_tick_if_due();
@@ -2501,6 +2653,11 @@ enum plugin_status plugin_start(const void *parameter)
 
         switch (action)
         {
+#ifdef USB_ENABLE_ETHERNET
+            case CP_MULTIPLAYER_ACTION:
+                cp_toggle_multiplayer();
+                break;
+#endif
             case CP_QUIT_ACTION:
                 cp_quit(&status, &running);
                 break;

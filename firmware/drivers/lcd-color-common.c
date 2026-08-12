@@ -44,6 +44,21 @@ static void *lcd_frameaddress_default(int x, int y);
 static fb_data* lcd_backdrop = NULL;
 static long lcd_backdrop_offset IDATA_ATTR = 0;
 
+#ifdef HAVE_IPODJS_UI
+static lcd_overlay_row_hook_t lcd_overlay_row_hook;
+
+void lcd_set_overlay_row_hook(lcd_overlay_row_hook_t hook)
+{
+    lcd_overlay_row_hook = hook;
+}
+
+bool lcd_compose_overlay_row(int y, int x, int width, fb_data *output)
+{
+    return lcd_overlay_row_hook &&
+           lcd_overlay_row_hook(y, x, width, output);
+}
+#endif
+
 /* shouldn't be changed unless you want system-wide framebuffer changes! */
 struct frame_buffer_t lcd_framebuffer_default =
 {
