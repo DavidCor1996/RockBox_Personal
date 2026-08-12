@@ -16,14 +16,19 @@ title, and launches that title from a large Play button.
 - The content surface uses Steam's exact core client palette: header
   `#171a21`, body `#1b2838`, panel `#2a475e`, accent `#66c0f4`, and text
   `#c7d5e0`.
-- The landing page is a horizontally wrapping carousel. The selected cover is
-  large and centered while the previous and next covers peek in at the edges.
+- Steam opens with a console chooser so every installed platform is visible
+  before entering the cover library. `All Games` remains the first choice;
+  Uxn is kept directly below it when installed.
+- After choosing a console, the library is a horizontally wrapping carousel.
+  The selected cover is large and centered while the previous and next covers
+  peek in at the edges.
 - The detail page shows cover art, platform, year, genre, developer,
   publisher, description, and a green Steam-style Play button.
 - Menu returns and Select opens details/plays, matching click-wheel habits.
-- Holding Select opens a console filter list. The wheel chooses `All Games` or
-  an installed platform and Select applies it; the console names are derived
-  from the installed catalog rather than a hardcoded mock storefront.
+- Holding Select reopens the console filter list from the carousel. The wheel
+  chooses `All Games` or an installed platform and Select applies it; the
+  console names are derived from the installed catalog rather than a
+  hardcoded mock storefront.
 
 ## Library and artwork contract
 
@@ -55,7 +60,8 @@ draw callback.
 
 ## Interaction
 
-- Wheel up/down: previous/next title, wrapping at both ends.
+- On entry: wheel chooses a visible console section; Select opens it.
+- In a console: wheel selects the previous/next title, wrapping at both ends.
 - Select: title detail page; Select again: launch selected title.
 - Hold Select: console filters; wheel chooses, Select applies, Menu cancels.
 - Menu: back from details, then back to Extras/root.

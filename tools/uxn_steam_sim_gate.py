@@ -12,9 +12,9 @@ import tempfile
 
 from maker_lite_launcher_sim_gate import (
     frame_crc,
-    hold,
     last_sequence,
     pulse,
+    trace_rows,
     wait_for_screen,
 )
 
@@ -124,16 +124,29 @@ def run(build: Path, output: Path) -> None:
                 pulse(gate_paths["forward"])
                 sequence = last_sequence(trace)
                 pulse(gate_paths["select"])
-                wait_for_screen(process, trace, "Steam Games", sequence)
-                landing_crc = frame_crc(frame)
-
-                sequence = last_sequence(trace)
-                hold(gate_paths["select"])
-                wait_for_screen(process, trace, "Steam Consoles", sequence)
+                console_sequence = wait_for_screen(
+                    process, trace, "Steam Consoles", sequence
+                )
+                console_row = next(
+                    row for row in trace_rows(trace)
+                    if row[0] == str(console_sequence)
+                )
+                if len(console_row) <= 11 or console_row[11] != "2":
+                    raise SystemExit("Steam console list does not expose Uxn")
+                shutil.copy2(frame, output / "console-frame.bmp")
                 pulse(gate_paths["forward"])
                 sequence = last_sequence(trace)
                 pulse(gate_paths["select"])
-                wait_for_screen(process, trace, "Steam Games", sequence)
+                library_sequence = wait_for_screen(
+                    process, trace, "Steam Games", sequence
+                )
+                library_row = next(
+                    row for row in trace_rows(trace)
+                    if row[0] == str(library_sequence)
+                )
+                if len(library_row) <= 11 or library_row[11] != "3":
+                    raise SystemExit("Uxn console does not contain three games")
+                landing_crc = frame_crc(frame)
 
                 # Donsol, Niju, Worm are sorted alphabetically. Select Worm so
                 # the launch-return portion stays quick while still proving

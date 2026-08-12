@@ -45,6 +45,7 @@ def test_steam_library_uses_exact_palette_bounded_cache_and_real_art_contract():
     assert "IPODJS_STEAM_MAX_CONSOLES 24" in root_menu
     assert "case ACTION_STD_CONTEXT:" in root_menu
     assert 'ipodjs_trace_screen("Steam Consoles"' in root_menu
+    assert "!ipodjs_steam_console_picker()" in root_menu
     assert "BM_SCALED_SIZE(IPODJS_STEAM_COVER_W" in root_menu
     assert "core_alloc(" not in root_menu[root_menu.index("#define IPODJS_STEAM_MAX_GAMES"):root_menu.index("enum root_menu_video_qs_item")]
     assert "rockbox-manual-screenshot" in buildzip

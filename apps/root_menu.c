@@ -17372,7 +17372,16 @@ static struct ipodjs_steam_game_entry *ipodjs_steam_visible_game(int index)
 static int ipodjs_steam_compare_console_names(const void *left,
                                               const void *right)
 {
-    return strcasecmp((const char *)left, (const char *)right);
+    const char *a = left;
+    const char *b = right;
+
+    /* Keep newly installed Uxn titles visible without scrolling through
+     * every emulator platform in the console chooser. */
+    if (!strcasecmp(a, "Uxn"))
+        return strcasecmp(b, "Uxn") ? -1 : 0;
+    if (!strcasecmp(b, "Uxn"))
+        return 1;
+    return strcasecmp(a, b);
 }
 
 static void ipodjs_steam_build_consoles(void)
@@ -18140,6 +18149,15 @@ static int root_menu_video_steam_games_menu(void)
     root_menu_video_prepare_steam_logo();
     root_menu_video_enter_native_screen();
     button_clear_queue();
+
+    /* Console sections are a primary part of the Steam library.  Present
+     * them on entry instead of hiding them behind ACTION_STD_CONTEXT. */
+    if (ipodjs_steam_console_count > 1 &&
+        !ipodjs_steam_console_picker())
+    {
+        ipodjs_steam_cover_cache_clear();
+        return root_menu_video_finish_native_screen(GO_TO_ROOT);
+    }
 
     while (true)
     {

@@ -130,10 +130,6 @@ def pulse(gate: Path, duration: float = 0.14, settle: float = 0.30) -> None:
     time.sleep(settle)
 
 
-def hold(gate: Path, duration: float = 0.65) -> None:
-    pulse(gate, duration=duration, settle=0.35)
-
-
 def wait_for_session(process: subprocess.Popen, log: Path, previous: int) -> str:
     deadline = time.monotonic() + 15
     while time.monotonic() < deadline:
@@ -227,15 +223,12 @@ def run_mode(build_dir: Path, output: Path, appearance: str) -> str:
                 pulse(gate_paths["select"])
 
                 if appearance == "steam":
-                    wait_for_screen(process, trace, "Steam Games", sequence)
-                    landing_crc = frame_crc(frame)
-                    sequence = last_sequence(trace)
-                    hold(gate_paths["select"])
                     wait_for_screen(process, trace, "Steam Consoles", sequence)
                     pulse(gate_paths["forward"])
                     sequence = last_sequence(trace)
                     pulse(gate_paths["select"])
                     wait_for_screen(process, trace, "Steam Games", sequence)
+                    landing_crc = frame_crc(frame)
                     sequence = last_sequence(trace)
                     pulse(gate_paths["select"])
                     wait_for_screen(
