@@ -48,6 +48,9 @@
 #ifdef IPOD_ACCESSORY_PROTOCOL
 #include "iap.h"
 #endif
+#if defined(IPOD_6G) && !defined(SIMULATOR)
+#include "videoout-6g.h"
+#endif
 
 #ifdef HAVE_HOTSWAP
 #include "mv.h"
@@ -18846,14 +18849,18 @@ static void root_menu_video_qs_value(int item, char *buf, size_t buf_size)
 #if defined(IPOD_6G) && !defined(SIMULATOR)
         case IPODJS_QS_COMPOSITE_OUT:
         {
+            static const char * const states[] = {"Off", "Auto", "On"};
+            int mode = MAX(IPOD6G_VIDEOOUT_OFF,
+                           MIN(global_settings.composite_video_output,
+                               IPOD6G_VIDEOOUT_ON));
 #ifdef IPOD_ACCESSORY_PROTOCOL
-            if (iap_kokkia_present())
+            if (iap_kokkia_present() && mode != IPOD6G_VIDEOOUT_OFF)
             {
                 strmemccpy(buf, "Blocked", buf_size);
                 break;
             }
 #endif
-            strmemccpy(buf, "Debug only", buf_size);
+            strmemccpy(buf, states[mode], buf_size);
             break;
         }
 #endif
@@ -19021,17 +19028,18 @@ static bool root_menu_video_qs_adjust(int item, int delta)
 #if defined(IPOD_6G) && !defined(SIMULATOR)
         case IPODJS_QS_COMPOSITE_OUT:
         {
+            int value;
+
 #ifdef IPOD_ACCESSORY_PROTOCOL
             if (iap_kokkia_present())
                 break;
 #endif
             (void)delta;
-            /* Never enter the recovered SVID register sequence from the
-             * ordinary UI.  Its manual stages provide a known stop point and
-             * are the only supported path until a real dock is qualified. */
-            global_settings.composite_video_output = 0;
-            settings_apply_ipod6g_videoout(0);
-            splash(HZ * 2, "Use System > Debug\nTest composite video");
+            value = global_settings.composite_video_output ==
+                    IPOD6G_VIDEOOUT_ON ? IPOD6G_VIDEOOUT_OFF :
+                                        IPOD6G_VIDEOOUT_ON;
+            global_settings.composite_video_output = value;
+            settings_apply_ipod6g_videoout(value);
             changed = true;
             break;
         }
@@ -19330,7 +19338,7 @@ static void root_menu_video_draw_qs_footer(int selected, bool adjusting)
 #if defined(IPOD_6G) && !defined(SIMULATOR)
     else if (selected == IPODJS_QS_COMPOSITE_OUT)
         root_menu_video_draw_qs_footer_text(
-            "Hardware test: System > Debug");
+            "Select to turn composite output on or off");
 #endif
     else if (selected == IPODJS_QS_CACHE_MEMORY)
         root_menu_video_draw_qs_footer_text(

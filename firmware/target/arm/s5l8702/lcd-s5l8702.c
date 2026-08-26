@@ -41,6 +41,9 @@
 #include "lcd-s5l8702.h"
 #include "lcd-target.h"
 #include "ipodnano3g/bringup-nano3g.h"
+#if defined(IPOD_6G) && !defined(BOOTLOADER)
+#include "videoout-6g.h"
+#endif
 #if defined(IPOD_NANO3G) && defined(BOOTLOADER)
 #include "piezo.h"
 #endif
@@ -196,6 +199,10 @@ static struct dmac_ch_cfg lcd_dma_ch_cfg =
 
 /*** clocks ***/
 
+#if defined(IPOD_6G) && !defined(BOOTLOADER)
+static bool lcd_clocks_requested = true;
+#endif
+
 // TODO: In mks5lboot --mkraw put a command to specify the address of the binary,
 // for example --address 0x6000, it must be greater than 0x310 which would be the default address,
 // pass this address (0x310..128Kb) in the dfu_options flag
@@ -203,11 +210,33 @@ static struct dmac_ch_cfg lcd_dma_ch_cfg =
 // TODO: to lcd-target.c
 static void lcd_target_enable_clocks(bool enable)
 {
+#if defined(IPOD_6G) && !defined(BOOTLOADER)
+    lcd_clocks_requested = enable;
+
+    /* The Classic's external-video output mixer shares this nominal LCD
+     * AHB gate.  Let the panel sleep, but retain the gate until SVID stops. */
+    if (!enable && ipod6g_videoout_lcd_clock_required())
+        return;
+#endif
+
     clockgate_enable(CLOCKGATE_LCD, enable);
 #ifdef IPOD_NANO4G
     clockgate_enable(CLOCKGATE_LCD_2, enable);
 #endif
 }
+
+#if defined(IPOD_6G) && !defined(BOOTLOADER)
+void lcd_videoout_clock_acquire(void)
+{
+    clockgate_enable(CLOCKGATE_LCD, true);
+}
+
+void lcd_videoout_clock_release(void)
+{
+    if (!lcd_clocks_requested)
+        clockgate_enable(CLOCKGATE_LCD, false);
+}
+#endif
 
 #if defined(IPOD_NANO3G)
 #ifndef NANO3G_LCD_VERIFY_LOGS
@@ -946,6 +975,8 @@ void lcd_update_rect(int x, int y, int width, int height)
 #if defined(IPOD_6G) && !defined(BOOTLOADER)
         if (++lcd_external_generation == 0)
             lcd_external_generation = 1;
+        ipod6g_videoout_mirror_rgb565(lcd_dblbuf[0], x, y, width,
+                                      original_height, width);
         if (!lcd_external_only)
 #endif
             displaylcd_dma(pixels);
@@ -1255,6 +1286,14 @@ void lcd_shutdown(void)
 #ifdef HAVE_LCD_SLEEP
 void lcd_sleep(void)
 {
+#if defined(IPOD_6G) && !defined(BOOTLOADER)
+    /* Backlight idle must not switch the shared LCD/SVID block to command
+     * mode while composite output is scanning.  The backlight itself still
+     * turns off; the panel and shared controller remain initialized until
+     * video output is explicitly stopped. */
+    if (ipod6g_videoout_lcd_clock_required())
+        return;
+#endif
     lcd_powersave();
 }
 

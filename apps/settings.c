@@ -873,12 +873,11 @@ void sound_settings_apply(void)
 #if defined(IPOD_6G) && !defined(SIMULATOR)
 void settings_apply_ipod6g_videoout(int mode)
 {
-    /* Composite output is not yet qualified on physical 6G/7G hardware.
-     * Keep normal settings load/apply paths fail-closed: the staged debug
-     * diagnostic is the sole owner of experimental SVID register writes. */
-    (void)mode;
-    global_settings.composite_video_output = IPOD6G_VIDEOOUT_OFF;
-    ipod6g_videoout_set_mode(IPOD6G_VIDEOOUT_OFF, FBADDR(0, 0),
+    if (mode < IPOD6G_VIDEOOUT_OFF || mode > IPOD6G_VIDEOOUT_ON)
+        mode = IPOD6G_VIDEOOUT_OFF;
+
+    global_settings.composite_video_output = mode;
+    ipod6g_videoout_set_mode((enum ipod6g_videoout_mode)mode, FBADDR(0, 0),
                              LCD_WIDTH, LCD_HEIGHT);
 }
 #endif

@@ -87,6 +87,8 @@ void lcd_awake(void);
 void lcd_external_capture_set(bool enabled, bool external_only);
 bool lcd_external_capture_video_active(void);
 uint16_t lcd_external_capture_generation(void);
+void lcd_videoout_clock_acquire(void);
+void lcd_videoout_clock_release(void);
 #endif
 
 #ifdef S5L_LCD_WITH_READID

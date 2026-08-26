@@ -33,6 +33,7 @@
 #include "debug.h"
 #include "thread.h"
 #include "powermgmt.h"
+#include "backlight.h"
 #include "system.h"
 #include "font.h"
 #include "audio.h"
@@ -141,6 +142,7 @@
 
 #if defined(IPOD_6G) && !defined(SIMULATOR)
 #include "norboot-target.h"
+#include "pmu-target.h"
 #include "videoout-6g.h"
 #endif
 
@@ -2911,54 +2913,123 @@ static bool dbg_device_data(void)
 
 
 #if defined(IPOD_6G) && !defined(SIMULATOR)
-#define DBG_VIDEOOUT_STAGE_TIMEOUT (60 * HZ)
-
 static void dbg_videoout_text(const char *title, const char *detail)
 {
+#ifdef IPOD_ACCESSORY_PROTOCOL
+    struct iap_connection_info info;
+#endif
+
     lcd_set_background(LCD_RGBPACK(0, 0, 0));
     lcd_set_foreground(LCD_RGBPACK(255, 255, 255));
     lcd_clear_display();
     lcd_puts(0, 0, title);
     lcd_puts(0, 2, detail);
-    lcd_puts(0, 5, "SELECT: next");
-    lcd_puts(0, 6, "MENU: stop/exit");
+#ifdef IPOD_ACCESSORY_PROTOCOL
+    iap_get_connection_info(&info);
+    lcd_putsf(0, 4, "dock:%d rid:%d port:%d",
+              pmu_accessory_present(), adc_read_accessory_resistor(),
+              info.status == IAP_CONNECTION_DISCONNECTED ? 0 : 1);
+    lcd_putsf(0, 5, "rate:%d rx:%u link:%d",
+              info.bitrate, info.rx_bytes, info.status);
+#endif
+    lcd_puts(0, 7, "SELECT: next");
+    lcd_puts(0, 8, "MENU: stop/exit");
     lcd_update();
 }
 
-static void dbg_videoout_solid(void)
+static void dbg_videoout_draw_registers(
+    const struct ipod6g_videoout_diagnostics *diagnostics)
 {
-    lcd_set_foreground(LCD_RGBPACK(24, 96, 224));
-    lcd_fillrect(0, 0, LCD_WIDTH, LCD_HEIGHT);
+    lcd_putsf(0, 10, "M:%08lx C:%08lx",
+              (unsigned long)diagnostics->mixer_status,
+              (unsigned long)diagnostics->mixer_config);
+    lcd_putsf(0, 11, "V:%08lx T:%08lx",
+              (unsigned long)diagnostics->video_enable,
+              (unsigned long)diagnostics->video_mode);
+    lcd_putsf(0, 12, "I:%lux%lu S:%lux%lu",
+              (unsigned long)diagnostics->video_image_width,
+              (unsigned long)diagnostics->video_image_height,
+              (unsigned long)(diagnostics->video_source >> 16),
+              (unsigned long)(diagnostics->video_source & 0xffff));
+    lcd_putsf(0, 13, "Y:%08lx C:%08lx",
+              (unsigned long)diagnostics->video_plane0,
+              (unsigned long)diagnostics->video_plane2);
+    lcd_putsf(0, 14, "Q:%08lx %08lx",
+              (unsigned long)diagnostics->video_plane_mode,
+              (unsigned long)diagnostics->video_spans);
+    lcd_putsf(0, 15, "D:%08lx R:%08lx",
+              (unsigned long)diagnostics->video_destination,
+              (unsigned long)diagnostics->video_ratio);
     lcd_update();
 }
 
-static void dbg_videoout_bars(void)
+static void dbg_videoout_registers(
+    struct ipod6g_videoout_diagnostics *diagnostics)
 {
-    static const unsigned colors[] = {
-        LCD_RGBPACK(255, 255, 255), LCD_RGBPACK(255, 255, 0),
-        LCD_RGBPACK(0, 255, 255),   LCD_RGBPACK(0, 255, 0),
-        LCD_RGBPACK(255, 0, 255),   LCD_RGBPACK(255, 0, 0),
-        LCD_RGBPACK(0, 0, 255),     LCD_RGBPACK(0, 0, 0),
-    };
+    /* Allow one interlaced field boundary before taking the baseline. */
+    sleep(2);
+    ipod6g_videoout_get_diagnostics(diagnostics);
+    dbg_videoout_draw_registers(diagnostics);
+}
 
-    for (unsigned i = 0; i < ARRAYLEN(colors); i++)
-    {
-        int x0 = LCD_WIDTH * i / ARRAYLEN(colors);
-        int x1 = LCD_WIDTH * (i + 1) / ARRAYLEN(colors);
-        lcd_set_foreground(colors[i]);
-        lcd_fillrect(x0, 0, x1 - x0, LCD_HEIGHT);
-    }
-    lcd_update();
+static bool dbg_videoout_registers_changed(
+    const struct ipod6g_videoout_diagnostics *previous,
+    const struct ipod6g_videoout_diagnostics *current)
+{
+    return previous->mixer_status != current->mixer_status ||
+           previous->mixer_config != current->mixer_config ||
+           previous->video_enable != current->video_enable ||
+           previous->video_mode != current->video_mode ||
+           previous->video_image_width != current->video_image_width ||
+           previous->video_image_height != current->video_image_height ||
+           previous->video_plane0 != current->video_plane0 ||
+           previous->video_plane1 != current->video_plane1 ||
+           previous->video_plane2 != current->video_plane2 ||
+           previous->video_unused != current->video_unused ||
+           previous->video_plane_mode != current->video_plane_mode ||
+           previous->video_spans != current->video_spans ||
+           previous->video_source != current->video_source ||
+           previous->video_destination != current->video_destination ||
+           previous->video_ratio != current->video_ratio ||
+           previous->sdo_clock != current->sdo_clock ||
+           previous->sdo_config != current->sdo_config ||
+           previous->sdo_dac != current->sdo_dac;
+}
+
+static void dbg_videoout_poll_registers(
+    struct ipod6g_videoout_diagnostics *previous)
+{
+    struct ipod6g_videoout_diagnostics current;
+
+    ipod6g_videoout_get_diagnostics(&current);
+    if (dbg_videoout_registers_changed(previous, &current))
+        dbg_videoout_draw_registers(&current);
+    *previous = current;
 }
 
 static bool dbg_videoout(void)
 {
     unsigned stage = 0;
-    unsigned refresh_count = 0;
     bool enter_stage = true;
-    bool timed_out = false;
-    long stage_deadline = 0;
+    bool have_diagnostics = false;
+    int saved_videoout_mode = MAX(IPOD6G_VIDEOOUT_OFF,
+        MIN(global_settings.composite_video_output, IPOD6G_VIDEOOUT_ON));
+    long diagnostic_tick = current_tick;
+    struct ipod6g_videoout_diagnostics diagnostics;
 
+    /* Button activity repeatedly revived the external image during physical
+     * tests.  Hold the panel/backlight policy steady so a format result cannot
+     * be confused with the ordinary idle timeout, then restore user settings
+     * on exit. */
+    backlight_set_timeout(0);
+#if CONFIG_CHARGING
+    backlight_set_timeout_plugged(0);
+#endif
+    backlight_on();
+    /* Suspend, but do not alter, the user's persistent mode while the manual
+     * stages own the SVID blocks.  Restore it after the diagnostic exits. */
+    ipod6g_videoout_set_mode(IPOD6G_VIDEOOUT_OFF, FBADDR(0, 0),
+                             LCD_WIDTH, LCD_HEIGHT);
     ipod6g_videoout_disable();
 
     while (1)
@@ -2966,10 +3037,12 @@ static bool dbg_videoout(void)
         if (enter_stage)
         {
             enter_stage = false;
+
             switch (stage)
             {
                 case 0:
                     dbg_videoout_text("iPod6G composite", "Output is OFF");
+                    have_diagnostics = false;
                     break;
                 case 1:
                     if (!ipod6g_videoout_enable_sync())
@@ -2979,40 +3052,57 @@ static bool dbg_videoout(void)
                         break;
                     }
                     dbg_videoout_text("Stage 1: sync", "No framebuffer layer");
+                    dbg_videoout_registers(&diagnostics);
+                    have_diagnostics = true;
                     break;
                 case 2:
-                    dbg_videoout_solid();
-                    ipod6g_videoout_show_framebuffer(FBADDR(0, 0),
-                                                     LCD_WIDTH, LCD_HEIGHT);
+                    ipod6g_videoout_show_background(0x00eb8080u);
+                    dbg_videoout_text("Stage 2: white", "Mixer YCbCr background");
+                    dbg_videoout_registers(&diagnostics);
+                    have_diagnostics = true;
                     break;
                 case 3:
-                    dbg_videoout_bars();
-                    ipod6g_videoout_refresh(FBADDR(0, 0));
+                    dbg_videoout_text("Stage 3: fmt8 bars",
+                                      "Stock 320x240 H227 V128");
+                    ipod6g_videoout_test_p420_pattern();
+                    dbg_videoout_registers(&diagnostics);
+                    have_diagnostics = true;
                     break;
                 case 4:
-                    dbg_videoout_text("Stage 4: static FB", "Rockbox RGB565 frame");
-                    ipod6g_videoout_refresh(FBADDR(0, 0));
+                    dbg_videoout_text("Stage 4: fmt8 grid",
+                                      "Stock 320x240 H252 V142");
+                    ipod6g_videoout_test_p420_geometry_pattern(
+                        36, 24, 648, 432, 240, 142);
+                    dbg_videoout_registers(&diagnostics);
+                    have_diagnostics = true;
+                    break;
+                case 5:
+                    dbg_videoout_text("Stage 5: fmt8 live",
+                                      "Stock 320x240 H252 V142");
+                    ipod6g_videoout_test_p420_framebuffer_geometry(
+                        FBADDR(0, 0), LCD_WIDTH, LCD_HEIGHT,
+                        36, 24, 648, 432, 240, 142, true);
+                    dbg_videoout_registers(&diagnostics);
+                    have_diagnostics = true;
                     break;
                 default:
-                {
-                    char line[32];
-                    refresh_count++;
-                    snprintf(line, sizeof(line), "Manual refresh %u", refresh_count);
-                    dbg_videoout_text("Stage 5: refresh", line);
-                    ipod6g_videoout_refresh(FBADDR(0, 0));
+                    dbg_videoout_text("Stage 5: fmt8 live",
+                                      "Stock 320x240 H252 V142");
+                    ipod6g_videoout_test_p420_framebuffer_geometry(
+                        FBADDR(0, 0), LCD_WIDTH, LCD_HEIGHT,
+                        36, 24, 648, 432, 240, 142, true);
+                    dbg_videoout_registers(&diagnostics);
+                    have_diagnostics = true;
                     break;
-                }
             }
-
-            stage_deadline = stage > 0
-                ? current_tick + DBG_VIDEOOUT_STAGE_TIMEOUT : 0;
+            diagnostic_tick = current_tick + HZ / 2;
         }
 
         int action = get_action(CONTEXT_STD, HZ / 4);
-        if (stage_deadline && TIME_AFTER(current_tick, stage_deadline))
+        if (have_diagnostics && TIME_AFTER(current_tick, diagnostic_tick))
         {
-            timed_out = true;
-            break;
+            dbg_videoout_poll_registers(&diagnostics);
+            diagnostic_tick = current_tick + HZ / 2;
         }
         if (action == ACTION_STD_CANCEL)
             break;
@@ -3029,8 +3119,14 @@ static bool dbg_videoout(void)
     lcd_set_foreground(LCD_DEFAULT_FG);
     lcd_clear_display();
     lcd_update();
-    if (timed_out)
-        splash(2 * HZ, "Composite test timed out; output off");
+    backlight_set_timeout(global_settings.backlight_timeout);
+#if CONFIG_CHARGING
+    backlight_set_timeout_plugged(
+        global_settings.backlight_timeout_plugged);
+#endif
+    ipod6g_videoout_set_mode(
+        (enum ipod6g_videoout_mode)saved_videoout_mode,
+        FBADDR(0, 0), LCD_WIDTH, LCD_HEIGHT);
     return false;
 }
 
