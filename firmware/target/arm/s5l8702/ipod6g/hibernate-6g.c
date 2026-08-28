@@ -70,6 +70,11 @@ static int token_write_bytes(int offset, int count, uint8_t *bytes)
 #endif
 }
 
+#if IPOD6G_HIBERNATE_STAGE3
+static uint8_t token_crc8(const uint8_t *bytes) ICODE_ATTR;
+#else
+static uint8_t token_crc8(const uint8_t *bytes);
+#endif
 static uint8_t token_crc8(const uint8_t *bytes)
 {
     uint8_t crc = 0;
@@ -90,6 +95,9 @@ static bool token_state_valid(uint8_t state)
     return state == IPOD6G_HIBERNATE_TOKEN_ARMED ||
            state == IPOD6G_HIBERNATE_TOKEN_RESUMING ||
            state == IPOD6G_HIBERNATE_TOKEN_PASSED ||
+#if IPOD6G_HIBERNATE_STAGE3
+           state == IPOD6G_HIBERNATE_TOKEN_ENTRY_STALLED ||
+#endif
            state == IPOD6G_HIBERNATE_TOKEN_FAILED;
 }
 
@@ -380,6 +388,9 @@ bool ipod6g_hibernate_stage1_get_status(
     status->last_phase = IPOD6G_HIBERNATE_PHASE_NONE;
     status->failure = IPOD6G_HIBERNATE_FAILURE_NONE;
     status->observed_wake_reason = 0;
+    status->pmu_control = 0;
+    status->pmu_interrupts = 0;
+    status->pmu_power = 0;
     status->payload_expected_cookie = 0;
     status->payload_observed_cookie = 0;
     status->payload_observed_sp = 0;
@@ -414,6 +425,9 @@ bool ipod6g_hibernate_stage1_get_status(
     status->context_ttb_crc32 = record->ttb_crc32;
     status->context_observed_ttb_crc32 = record->observed_ttb_crc32;
     status->diagnostic_breadcrumb = record->reserved[0];
+    status->pmu_control = record->reserved[1];
+    status->pmu_interrupts = record->reserved[2];
+    status->pmu_power = record->reserved[3];
 #endif
     return true;
 }
@@ -959,6 +973,36 @@ static bool hibernate_i2c_write_reg(uint8_t reg, uint8_t value)
     return ok;
 }
 
+/*
+ * If execution reaches this after OOCSHDWN, the PMU did not stop the CPU.
+ * Only PMU-retained bytes are safe to change while SDRAM is in self-refresh.
+ * Publish the new CRC first, so a reset between writes remains Rockbox-owned
+ * but invalid and therefore takes the fail-closed recovery path.
+ */
+#if IPOD6G_HIBERNATE_STAGE3
+static bool hibernate_token_mark_entry_stalled(void) ICODE_ATTR;
+static bool hibernate_token_mark_entry_stalled(void)
+{
+    uint8_t bytes[7];
+    uint8_t crc;
+
+    bytes[0] = 'R';
+    bytes[1] = 'B';
+    bytes[2] = 'H';
+    bytes[3] = '6';
+    bytes[4] = IPOD6G_HIBERNATE_TOKEN_VERSION;
+    bytes[5] = IPOD6G_HIBERNATE_TOKEN_ENTRY_STALLED;
+    bytes[6] = IPOD6G_HIBERNATE_RESUME_ABI;
+    crc = token_crc8(bytes);
+
+    if (!hibernate_i2c_write_reg(PCF5063X_REG_MEMBYTE7, crc))
+        return false;
+
+    return hibernate_i2c_write_reg(PCF5063X_REG_MEMBYTE5,
+                    IPOD6G_HIBERNATE_TOKEN_ENTRY_STALLED);
+}
+#endif
+
 bool ipod6g_hibernate_stage1_i2c_preflight(void)
 {
     uint8_t expected;
@@ -1073,6 +1117,19 @@ void ipod6g_hibernate_stage1_enter(void)
     hibernate_i2c_write_reg(PCF5063X_REG_OOCSHDWN,
                             marker_written ? 2 : 1);
 
+#if IPOD6G_HIBERNATE_STAGE3
+    /*
+     * A real Standby transition resets the SoC on wake and can never return
+     * here. Give the PMU far longer than its normal transition time, then
+     * leave durable proof if this CPU is still executing. Keep retrying: a
+     * partial token update is safe, but an old valid ARMED token could make a
+     * later forced reset look like a genuine wake.
+     */
+    hibernate_delay_us(250000);
+    while (!hibernate_token_mark_entry_stalled())
+        hibernate_delay_us(10000);
+#endif
+
     while (1);
 }
 
@@ -1140,6 +1197,58 @@ void ipod6g_hibernate_stage3_enter(void)
 
 #else /* BOOTLOADER */
 
+void ipod6g_hibernate_capture_pmu_snapshot(
+        struct ipod6g_hibernate_pmu_snapshot *snapshot)
+{
+#if IPOD6G_HIBERNATE_STAGE3
+    uint8_t interrupts[5];
+    uint8_t interrupt6;
+#else
+    uint8_t interrupts[2];
+#endif
+    uint8_t oocstat;
+
+#if IPOD6G_HIBERNATE_STAGE3
+    interrupts[0] = 0xff;
+    interrupts[1] = 0xff;
+    interrupts[2] = 0xff;
+    interrupts[3] = 0xff;
+    interrupts[4] = 0xff;
+    oocstat = pmu_rd(PCF5063X_REG_OOCSTAT);
+    pmu_rd_multiple(PCF5063X_REG_INT1, 5, interrupts);
+    interrupt6 = pmu_rd(PCF50635_REG_INT6);
+
+    snapshot->wake_reason = oocstat |
+            ((uint32_t)interrupts[0] << 8) |
+            ((uint32_t)interrupts[1] << 16);
+    snapshot->control = pmu_rd(PCF5063X_REG_OOCSHDWN) |
+            ((uint32_t)pmu_rd(PCF5063X_REG_OOCWAKE) << 8) |
+            ((uint32_t)pmu_rd(PCF5063X_REG_OOCMODE) << 16) |
+            ((uint32_t)oocstat << 24);
+    snapshot->interrupts = interrupts[0] |
+            ((uint32_t)interrupts[1] << 8) |
+            ((uint32_t)interrupts[2] << 16) |
+            ((uint32_t)interrupts[3] << 24);
+    snapshot->power = interrupts[4] |
+            ((uint32_t)interrupt6 << 8) |
+            ((uint32_t)pmu_rd(PCF5063X_REG_GPIO3CFG) << 16) |
+            ((uint32_t)pmu_rd(PCF5063X_REG_OOCCTL) << 24);
+#else
+    interrupts[0] = 0;
+    interrupts[1] = 0;
+    oocstat = pmu_rd(PCF5063X_REG_OOCSTAT);
+    snapshot->wake_reason = oocstat;
+    if (pmu_rd_multiple(PCF5063X_REG_INT1, 2, interrupts) == 0)
+    {
+        snapshot->wake_reason |= (uint32_t)interrupts[0] << 8;
+        snapshot->wake_reason |= (uint32_t)interrupts[1] << 16;
+    }
+    snapshot->control = 0;
+    snapshot->interrupts = 0;
+    snapshot->power = 0;
+#endif
+}
+
 enum ipod6g_hibernate_boot_action ipod6g_hibernate_boot_action(void)
 {
     struct ipod6g_hibernate_token token;
@@ -1156,11 +1265,34 @@ enum ipod6g_hibernate_boot_action ipod6g_hibernate_boot_action(void)
         return IPOD6G_HIBERNATE_BOOT_ROCKBOX;
     }
 
+    if (ipod6g_hibernate_token_valid(&token) &&
+        token.state == IPOD6G_HIBERNATE_TOKEN_ENTRY_STALLED)
+    {
+        return IPOD6G_HIBERNATE_BOOT_STANDBY_STALLED;
+    }
+
     /* Full magic always establishes ownership, even with a bad payload. */
     return IPOD6G_HIBERNATE_BOOT_RECOVER;
 }
 
-static void record_failure(enum ipod6g_hibernate_failure failure)
+static void record_store_pmu_snapshot(
+        volatile struct ipod6g_hibernate_record *record,
+        const struct ipod6g_hibernate_pmu_snapshot *snapshot)
+{
+    if (snapshot == NULL)
+        return;
+
+    record->observed_wake_reason = snapshot->wake_reason;
+#if IPOD6G_HIBERNATE_STAGE3
+    record->reserved[1] = snapshot->control;
+    record->reserved[2] = snapshot->interrupts;
+    record->reserved[3] = snapshot->power;
+#endif
+}
+
+static void record_failure(
+        enum ipod6g_hibernate_failure failure,
+        const struct ipod6g_hibernate_pmu_snapshot *snapshot)
 {
     volatile struct ipod6g_hibernate_record *record =
             (volatile struct ipod6g_hibernate_record *)
@@ -1183,8 +1315,16 @@ static void record_failure(enum ipod6g_hibernate_failure failure)
          record->reserved[0] == IPOD6G_HIBERNATE_DIAG_RETURN_STUB ||
          record->reserved[0] == IPOD6G_HIBERNATE_DIAG_BOOT_RETURN))
     {
+        if (failure == IPOD6G_HIBERNATE_FAILURE_STANDBY_NOT_ENTERED &&
+            record->state == IPOD6G_HIBERNATE_RECORD_ARMED)
+        {
+            record->attempt_count++;
+        }
         record->state = IPOD6G_HIBERNATE_RECORD_FAILED;
-        record->failure = IPOD6G_HIBERNATE_FAILURE_CONTEXT_INTERRUPTED;
+        record->failure =
+                failure == IPOD6G_HIBERNATE_FAILURE_STANDBY_NOT_ENTERED ?
+                failure : IPOD6G_HIBERNATE_FAILURE_CONTEXT_INTERRUPTED;
+        record_store_pmu_snapshot(record, snapshot);
         record_commit_crc(record);
         commit_dcache();
         return;
@@ -1195,6 +1335,7 @@ static void record_failure(enum ipod6g_hibernate_failure failure)
     record_init(record, IPOD6G_HIBERNATE_RECORD_FAILED);
     record->failure = failure;
     record->last_phase = IPOD6G_HIBERNATE_PHASE_MIU_RESTORED;
+    record_store_pmu_snapshot(record, snapshot);
     record_commit_crc(record);
     commit_dcache();
 }
@@ -1319,7 +1460,8 @@ static bool stage3_restore_iram(
 }
 #endif /* IPOD6G_HIBERNATE_STAGE3 */
 
-bool ipod6g_hibernate_validate_after_wake(uint32_t wake_reason)
+bool ipod6g_hibernate_validate_after_wake(
+        const struct ipod6g_hibernate_pmu_snapshot *snapshot)
 {
     volatile struct ipod6g_hibernate_record *record =
             (volatile struct ipod6g_hibernate_record *)
@@ -1330,14 +1472,14 @@ bool ipod6g_hibernate_validate_after_wake(uint32_t wake_reason)
     if (!ipod6g_hibernate_record_valid(record) ||
         record->state != IPOD6G_HIBERNATE_RECORD_ARMED)
     {
-        record_failure(IPOD6G_HIBERNATE_FAILURE_RECORD);
+        record_failure(IPOD6G_HIBERNATE_FAILURE_RECORD, snapshot);
         token_finish(IPOD6G_HIBERNATE_TOKEN_FAILED);
         return false;
     }
 
     record->state = IPOD6G_HIBERNATE_RECORD_VALIDATING;
     record->attempt_count++;
-    record->observed_wake_reason = wake_reason;
+    record_store_pmu_snapshot(record, snapshot);
     record->last_phase = IPOD6G_HIBERNATE_PHASE_MIU_RESTORED;
     record_commit_crc(record);
     commit_dcache();
@@ -1508,9 +1650,10 @@ bool ipod6g_hibernate_validate_after_wake(uint32_t wake_reason)
 }
 
 void ipod6g_hibernate_stage1_mark_recovery(
-        enum ipod6g_hibernate_failure failure)
+        enum ipod6g_hibernate_failure failure,
+        const struct ipod6g_hibernate_pmu_snapshot *snapshot)
 {
-    record_failure(failure);
+    record_failure(failure, snapshot);
     token_finish(IPOD6G_HIBERNATE_TOKEN_FAILED);
 }
 
@@ -1546,7 +1689,7 @@ void ipod6g_hibernate_stage1_publish_capability(void)
         }
 
         /* Never replace evidence of an incomplete valid attempt with ready. */
-        record_failure(IPOD6G_HIBERNATE_FAILURE_RECORD);
+        record_failure(IPOD6G_HIBERNATE_FAILURE_RECORD, NULL);
         return;
     }
 

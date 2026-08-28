@@ -1864,7 +1864,9 @@ void main(void)
     bool hibernate_preinitialized = false;
     bool hibernate_publish_capability = true;
     bool hibernate_recover_stale = false;
-    uint32_t hibernate_wake_reason = 0;
+    enum ipod6g_hibernate_failure hibernate_recovery_failure =
+            IPOD6G_HIBERNATE_FAILURE_TOKEN_INVALID;
+    struct ipod6g_hibernate_pmu_snapshot hibernate_pmu_snapshot;
 #endif
 #ifdef IPOD_6G
 #if defined(N25_ANDROID_FORCE_VOLATILE_TEST)
@@ -1911,20 +1913,11 @@ void main(void)
         else
         {
             hibernate_publish_capability = false;
+            ipod6g_hibernate_capture_pmu_snapshot(
+                    &hibernate_pmu_snapshot);
 
             if (action == IPOD6G_HIBERNATE_BOOT_ROCKBOX)
             {
-                unsigned char wake_interrupts[2] = { 0, 0 };
-
-                hibernate_wake_reason = pmu_rd(PCF5063X_REG_OOCSTAT);
-                if (pmu_rd_multiple(PCF5063X_REG_INT1, 2,
-                                    wake_interrupts) == 0)
-                {
-                    hibernate_wake_reason |=
-                            (uint32_t)wake_interrupts[0] << 8;
-                    hibernate_wake_reason |=
-                            (uint32_t)wake_interrupts[1] << 16;
-                }
                 /* Full magic remains present if this update is interrupted. */
                 ipod6g_hibernate_token_set_state(
                         IPOD6G_HIBERNATE_TOKEN_RESUMING);
@@ -1938,14 +1931,18 @@ void main(void)
             if (action == IPOD6G_HIBERNATE_BOOT_ROCKBOX)
             {
                 ipod6g_hibernate_validate_after_wake(
-                        hibernate_wake_reason);
+                        &hibernate_pmu_snapshot);
             }
             else
             {
                 ipod6g_hibernate_stage1_mark_recovery(
+                        action ==
+                            IPOD6G_HIBERNATE_BOOT_STANDBY_STALLED ?
+                            IPOD6G_HIBERNATE_FAILURE_STANDBY_NOT_ENTERED :
                         action == IPOD6G_HIBERNATE_BOOT_TOKEN_IO_ERROR ?
-                        IPOD6G_HIBERNATE_FAILURE_TOKEN_IO :
-                        IPOD6G_HIBERNATE_FAILURE_TOKEN_INVALID);
+                            IPOD6G_HIBERNATE_FAILURE_TOKEN_IO :
+                            IPOD6G_HIBERNATE_FAILURE_TOKEN_INVALID,
+                        &hibernate_pmu_snapshot);
             }
         }
     }
@@ -1962,6 +1959,14 @@ void main(void)
         if (ipod6g_hibernate_token_read(&token) &&
             ipod6g_hibernate_token_owned(&token))
         {
+            ipod6g_hibernate_capture_pmu_snapshot(
+                    &hibernate_pmu_snapshot);
+            if (ipod6g_hibernate_token_valid(&token) &&
+                token.state == IPOD6G_HIBERNATE_TOKEN_ENTRY_STALLED)
+            {
+                hibernate_recovery_failure =
+                        IPOD6G_HIBERNATE_FAILURE_STANDBY_NOT_ENTERED;
+            }
             hibernate_recover_stale = true;
             hibernate_publish_capability = false;
         }
@@ -1990,7 +1995,7 @@ void main(void)
     if (hibernate_recover_stale)
     {
         ipod6g_hibernate_stage1_mark_recovery(
-                IPOD6G_HIBERNATE_FAILURE_TOKEN_INVALID);
+                hibernate_recovery_failure, &hibernate_pmu_snapshot);
     }
     else if (hibernate_publish_capability)
         ipod6g_hibernate_stage1_publish_capability();

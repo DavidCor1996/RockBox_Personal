@@ -3086,7 +3086,7 @@ static bool dbg_hibernate_stage3(void)
     lcd_set_foreground(LCD_RGBPACK(255, 255, 255));
     lcd_clear_display();
     lcd_puts(0, 0, "*** HIBERNATE TEST CORE ***");
-    lcd_puts(0, 1, "Stage 3A-R3 / ABI 5 / /.rbtv");
+    lcd_puts(0, 1, "Stage 3A-R4 / ABI 6 / /.rbtv");
     lcd_putsf(0, 2, "State:%s mode:%lu",
               status.valid ? dbg_hibernate_state_name(status.state) :
                              "invalid record",
@@ -3113,9 +3113,19 @@ static bool dbg_hibernate_stage3(void)
     lcd_putsf(0, 9, "Trail:%s %08lx",
               dbg_hibernate_breadcrumb_name(status.diagnostic_breadcrumb),
               (unsigned long)status.diagnostic_breadcrumb);
-    lcd_puts(0, 11, ready ? "SELECT: ARM + POWER OFF" :
-                            "Matching ABI-5 bootloader required");
-    lcd_puts(0, 12, "MENU: exit without testing");
+    lcd_putsf(0, 10, "PMU:%08lx IRQ:%08lx",
+              (unsigned long)status.pmu_control,
+              (unsigned long)status.pmu_interrupts);
+    lcd_putsf(0, 11, "PWR:%08lx",
+              (unsigned long)status.pmu_power);
+    if (status.failure ==
+        IPOD6G_HIBERNATE_FAILURE_STANDBY_NOT_ENTERED)
+    {
+        lcd_puts(0, 12, "RESULT: STANDBY NOT ENTERED");
+    }
+    lcd_puts(0, 13, ready ? "SELECT: ARM + POWER OFF" :
+                            "Matching ABI-6 bootloader required");
+    lcd_puts(0, 14, "MENU: exit without testing");
     lcd_update();
 
     while (1)

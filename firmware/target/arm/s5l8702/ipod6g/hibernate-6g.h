@@ -99,9 +99,9 @@
 #endif
 
 #if IPOD6G_HIBERNATE_STAGE3
-#define IPOD6G_HIBERNATE_TOKEN_VERSION      5
-#define IPOD6G_HIBERNATE_RESUME_ABI         5
-#define IPOD6G_HIBERNATE_RECORD_VERSION     5
+#define IPOD6G_HIBERNATE_TOKEN_VERSION      6
+#define IPOD6G_HIBERNATE_RESUME_ABI         6
+#define IPOD6G_HIBERNATE_RECORD_VERSION     6
 #else
 #define IPOD6G_HIBERNATE_TOKEN_VERSION      2
 #define IPOD6G_HIBERNATE_RESUME_ABI         2
@@ -136,6 +136,7 @@ enum ipod6g_hibernate_token_state
     IPOD6G_HIBERNATE_TOKEN_ARMED       = 0xa1,
     IPOD6G_HIBERNATE_TOKEN_RESUMING    = 0xa2,
     IPOD6G_HIBERNATE_TOKEN_PASSED      = 0xa3,
+    IPOD6G_HIBERNATE_TOKEN_ENTRY_STALLED = 0xae,
     IPOD6G_HIBERNATE_TOKEN_FAILED      = 0xaf,
 };
 
@@ -204,6 +205,15 @@ enum ipod6g_hibernate_failure
     IPOD6G_HIBERNATE_FAILURE_IRAM_RESTORE     = 13,
     IPOD6G_HIBERNATE_FAILURE_CONTEXT_RETURN   = 14,
     IPOD6G_HIBERNATE_FAILURE_CONTEXT_INTERRUPTED = 15,
+    IPOD6G_HIBERNATE_FAILURE_STANDBY_NOT_ENTERED = 16,
+};
+
+struct ipod6g_hibernate_pmu_snapshot
+{
+    uint32_t wake_reason;
+    uint32_t control;
+    uint32_t interrupts;
+    uint32_t power;
 };
 
 struct ipod6g_hibernate_status
@@ -217,6 +227,9 @@ struct ipod6g_hibernate_status
     uint32_t last_phase;
     uint32_t failure;
     uint32_t observed_wake_reason;
+    uint32_t pmu_control;
+    uint32_t pmu_interrupts;
+    uint32_t pmu_power;
     uint32_t payload_expected_cookie;
     uint32_t payload_observed_cookie;
     uint32_t payload_observed_sp;
@@ -336,12 +349,16 @@ enum ipod6g_hibernate_boot_action
 {
     IPOD6G_HIBERNATE_BOOT_RETAIL = 0,
     IPOD6G_HIBERNATE_BOOT_ROCKBOX,
+    IPOD6G_HIBERNATE_BOOT_STANDBY_STALLED,
     IPOD6G_HIBERNATE_BOOT_RECOVER,
     IPOD6G_HIBERNATE_BOOT_TOKEN_IO_ERROR,
 };
 
 enum ipod6g_hibernate_boot_action ipod6g_hibernate_boot_action(void);
-bool ipod6g_hibernate_validate_after_wake(uint32_t wake_reason);
+void ipod6g_hibernate_capture_pmu_snapshot(
+        struct ipod6g_hibernate_pmu_snapshot *snapshot);
+bool ipod6g_hibernate_validate_after_wake(
+        const struct ipod6g_hibernate_pmu_snapshot *snapshot);
 #if IPOD6G_HIBERNATE_STAGE2
 uint32_t ipod6g_hibernate_stage2_call(
         uintptr_t entry, uintptr_t stack_top,
@@ -355,7 +372,8 @@ uint32_t ipod6g_hibernate_stage3_resume_call(
 void ipod6g_hibernate_stage3_return(void);
 #endif
 void ipod6g_hibernate_stage1_mark_recovery(
-        enum ipod6g_hibernate_failure failure);
+        enum ipod6g_hibernate_failure failure,
+        const struct ipod6g_hibernate_pmu_snapshot *snapshot);
 void ipod6g_hibernate_clear_stale_token(void);
 void ipod6g_hibernate_stage1_publish_capability(void);
 #endif /* BOOTLOADER */
