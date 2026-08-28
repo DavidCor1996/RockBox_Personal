@@ -51,6 +51,14 @@ load; it does **not** jump back into the old kernel or UI. Production settings,
 a kernel resume jump, and automatic hibernation remain out of scope until the
 later gates pass.
 
+The compile-time-gated Stage 2 implementation is now present and passes its
+local build and linked-image audit. It advances the resume path by executing
+one 256-byte retained application payload on a dedicated 2 KiB retained DRAM
+stack, verifying its return cookie and observed stack pointer, and then using
+the same normal Rockbox cold-load fallback as Stage 1. It has not yet passed a
+real-hardware cycle, so it is not an instant UI resume and is not enabled in a
+normal build.
+
 ### First real-hardware retention result — 2026-08-28
 
 The first controlled cycle passed on the personal iPod Classic using the
@@ -547,16 +555,52 @@ reset must be reported before repeating the test.
 
 ### Stage 2: Controlled payload resume
 
-Resume a tiny retained test function on a dedicated DRAM stack. It should:
+Resume one tiny retained test function on a dedicated DRAM stack. The
+implemented Stage 2 gate deliberately keeps result display and device access
+out of the retained payload:
 
-- verify its context and IRAM shadow,
-- draw a bootloader-independent result,
-- read the wake reason,
-- clear ownership,
-- reboot normally.
+1. The application records the exact linked payload start, size, entry point,
+   CRC-32, return cookie, and fixed stack bounds in the retained record. It
+   writes guard words at the bottom of the 2 KiB stack.
+2. On wake, the bootloader first performs all Stage 1 IRAM-shadow and SDRAM
+   probe checks, then independently validates the payload bounds, entry point,
+   CRC-32, stack bounds, and guards.
+3. A 40-byte assembly wrapper resident in bootloader IRAM1 saves the
+   bootloader stack, switches to the retained stack, and calls the payload.
+4. The linked payload is exactly 256 bytes in the audited build. It has no
+   calls, global-data dependencies, storage access, PMU access, LCD access, or
+   branch outside its own section. It records a cookie, its observed stack
+   pointer, and a return value before returning through the wrapper.
+5. The bootloader verifies the returned state, cookie, stack pointer, and
+   guards, commits a CRC-protected PASS or FAIL record, clears PMU ownership,
+   and continues through the established normal Rockbox load.
 
-This proves the complete bootloader-to-retained-code handoff without involving
-the scheduler.
+Keeping the payload hardware-independent means this gate proves the complete
+bootloader-to-retained-application-code handoff without involving the
+scheduler, drivers, or a second reset. A payload hang still requires a hard
+reset; automatic watchdog recovery is a later gate.
+
+Stage 2 must be enabled in both images with both
+`-DIPOD6G_HIBERNATE_STAGE1=1` and
+`-DIPOD6G_HIBERNATE_STAGE2=1`. It uses token, record, and resume ABI version 2,
+so it cannot accidentally handshake with the already-tested Stage 1 ABI-1
+pair. A normal build keeps both gates off and does not link the retained
+payload section or handoff wrapper.
+
+The isolated Rolo application is the only application image used for the
+hardware gate; the main personal firmware remains untouched. A matching
+dual-boot Stage 2 bootloader is still required because the ownership decision
+and retained call happen before any disk image is loaded. Never install it as
+a single-boot image.
+
+After one armed wake and a return to the Rolo debug action, success must show:
+
+- `State:PASSED`, `mode:2`, `attempts:1`, `Phase:8`, and `failure:0`;
+- expected cookie, observed cookie, and return value all equal `48365032`;
+- observed SP in `0x0bfec800` through `0x0bfecfff`.
+
+Any other value is a failed Stage 2 gate and must be documented before another
+attempt.
 
 ### Stage 3: Kernel resume with hardware stopped
 

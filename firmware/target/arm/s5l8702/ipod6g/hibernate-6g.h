@@ -30,6 +30,14 @@
 #define IPOD6G_HIBERNATE_STAGE1 0
 #endif
 
+#ifndef IPOD6G_HIBERNATE_STAGE2
+#define IPOD6G_HIBERNATE_STAGE2 0
+#endif
+
+#if IPOD6G_HIBERNATE_STAGE2 && !IPOD6G_HIBERNATE_STAGE1
+#error iPod 6G hibernate Stage 2 requires Stage 1
+#endif
+
 #define IPOD6G_HIBERNATE_AREA_ADDR          0x0bfec000
 #define IPOD6G_HIBERNATE_AREA_SIZE          0x00010000
 #define IPOD6G_HIBERNATE_CONTROL_ADDR       IPOD6G_HIBERNATE_AREA_ADDR
@@ -39,9 +47,26 @@
 #define IPOD6G_HIBERNATE_PROBE_ADDR         0x0bff9000
 #define IPOD6G_HIBERNATE_PROBE_SIZE         0x00003000
 
-#define IPOD6G_HIBERNATE_TOKEN_VERSION      1
-#define IPOD6G_HIBERNATE_RESUME_ABI         1
-#define IPOD6G_HIBERNATE_RECORD_VERSION     1
+/* Stage 2 uses the upper half of the control page as a dedicated stack. */
+#define IPOD6G_HIBERNATE_PAYLOAD_STACK_BOTTOM \
+        (IPOD6G_HIBERNATE_CONTROL_ADDR + 0x00000800)
+#define IPOD6G_HIBERNATE_PAYLOAD_STACK_TOP  \
+        (IPOD6G_HIBERNATE_CONTROL_ADDR + IPOD6G_HIBERNATE_CONTROL_SIZE)
+#define IPOD6G_HIBERNATE_PAYLOAD_STACK_SIZE 0x00000800
+#define IPOD6G_HIBERNATE_PAYLOAD_MAX_SIZE   0x00001000
+
+#define IPOD6G_HIBERNATE_PAYLOAD_COOKIE     0x48365032 /* "H6P2" */
+#define IPOD6G_HIBERNATE_STACK_GUARD         0x5354414b /* "STAK" */
+
+#if IPOD6G_HIBERNATE_PAYLOAD_STACK_TOP - \
+        IPOD6G_HIBERNATE_PAYLOAD_STACK_BOTTOM != \
+        IPOD6G_HIBERNATE_PAYLOAD_STACK_SIZE
+#error The iPod 6G hibernate payload stack layout is inconsistent
+#endif
+
+#define IPOD6G_HIBERNATE_TOKEN_VERSION      2
+#define IPOD6G_HIBERNATE_RESUME_ABI         2
+#define IPOD6G_HIBERNATE_RECORD_VERSION     2
 
 #if IPOD6G_HIBERNATE_CONTROL_SIZE + \
         IPOD6G_HIBERNATE_IRAM_SHADOW_SIZE + \
@@ -72,6 +97,21 @@ enum ipod6g_hibernate_record_state
     IPOD6G_HIBERNATE_RECORD_VALIDATING = 4,
     IPOD6G_HIBERNATE_RECORD_PASSED     = 5,
     IPOD6G_HIBERNATE_RECORD_FAILED     = 6,
+    IPOD6G_HIBERNATE_RECORD_PAYLOAD_ENTERING = 7,
+    IPOD6G_HIBERNATE_RECORD_PAYLOAD_RETURNED = 8,
+};
+
+enum ipod6g_hibernate_mode
+{
+    IPOD6G_HIBERNATE_MODE_NONE               = 0,
+    IPOD6G_HIBERNATE_MODE_RETENTION          = 1,
+    IPOD6G_HIBERNATE_MODE_CONTROLLED_PAYLOAD = 2,
+};
+
+enum ipod6g_hibernate_capability
+{
+    IPOD6G_HIBERNATE_CAP_RETENTION          = 1u << 0,
+    IPOD6G_HIBERNATE_CAP_CONTROLLED_PAYLOAD = 1u << 1,
 };
 
 enum ipod6g_hibernate_phase
@@ -83,6 +123,8 @@ enum ipod6g_hibernate_phase
     IPOD6G_HIBERNATE_PHASE_BOOT_CLAIMED  = 4,
     IPOD6G_HIBERNATE_PHASE_MIU_RESTORED  = 5,
     IPOD6G_HIBERNATE_PHASE_DATA_VERIFIED = 6,
+    IPOD6G_HIBERNATE_PHASE_PAYLOAD_ENTERED  = 7,
+    IPOD6G_HIBERNATE_PHASE_PAYLOAD_RETURNED = 8,
 };
 
 enum ipod6g_hibernate_failure
@@ -94,6 +136,10 @@ enum ipod6g_hibernate_failure
     IPOD6G_HIBERNATE_FAILURE_IRAM_CRC      = 4,
     IPOD6G_HIBERNATE_FAILURE_PROBE_CRC     = 5,
     IPOD6G_HIBERNATE_FAILURE_I2C_PREFLIGHT = 6,
+    IPOD6G_HIBERNATE_FAILURE_PAYLOAD_METADATA = 7,
+    IPOD6G_HIBERNATE_FAILURE_PAYLOAD_CRC      = 8,
+    IPOD6G_HIBERNATE_FAILURE_PAYLOAD_RETURN   = 9,
+    IPOD6G_HIBERNATE_FAILURE_PAYLOAD_STACK    = 10,
 };
 
 struct ipod6g_hibernate_status
@@ -102,8 +148,15 @@ struct ipod6g_hibernate_status
     uint32_t state;
     uint32_t sequence;
     uint32_t attempt_count;
+    uint32_t capabilities;
+    uint32_t mode;
     uint32_t last_phase;
     uint32_t failure;
+    uint32_t observed_wake_reason;
+    uint32_t payload_expected_cookie;
+    uint32_t payload_observed_cookie;
+    uint32_t payload_observed_sp;
+    uint32_t payload_return_value;
 };
 
 struct ipod6g_hibernate_token
@@ -137,6 +190,8 @@ struct ipod6g_hibernate_record
     uint32_t state;
     uint32_t sequence;
     uint32_t attempt_count;
+    uint32_t capabilities;
+    uint32_t mode;
     uint32_t build_fingerprint[4];
     struct ipod6g_hibernate_cpu_context cpu;
     uint32_t area_addr;
@@ -150,6 +205,16 @@ struct ipod6g_hibernate_record
     uint32_t probe_crc32;
     uint32_t requested_wake_mask;
     uint32_t observed_wake_reason;
+    uint32_t payload_start;
+    uint32_t payload_size;
+    uint32_t payload_crc32;
+    uint32_t payload_entry;
+    uint32_t payload_stack_bottom;
+    uint32_t payload_stack_top;
+    uint32_t payload_expected_cookie;
+    uint32_t payload_observed_cookie;
+    uint32_t payload_observed_sp;
+    uint32_t payload_return_value;
     uint32_t last_phase;
     uint32_t failure;
     uint32_t record_crc32;
@@ -174,8 +239,9 @@ bool ipod6g_hibernate_record_valid(
 bool ipod6g_hibernate_stage1_get_status(
         struct ipod6g_hibernate_status *status);
 bool ipod6g_hibernate_stage1_request(uint32_t sequence);
-bool ipod6g_hibernate_stage1_consume_request(uint32_t *sequence);
-bool ipod6g_hibernate_stage1_prepare(uint32_t sequence);
+bool ipod6g_hibernate_stage2_request(uint32_t sequence);
+bool ipod6g_hibernate_consume_request(uint32_t *sequence, uint32_t *mode);
+bool ipod6g_hibernate_prepare(uint32_t sequence, uint32_t mode);
 bool ipod6g_hibernate_stage1_i2c_preflight(void);
 bool ipod6g_hibernate_stage1_arm(void);
 void ipod6g_hibernate_stage1_fail(
@@ -186,13 +252,18 @@ void ipod6g_hibernate_stage1_enter(void)
 enum ipod6g_hibernate_boot_action
 {
     IPOD6G_HIBERNATE_BOOT_RETAIL = 0,
-    IPOD6G_HIBERNATE_BOOT_STAGE1,
+    IPOD6G_HIBERNATE_BOOT_ROCKBOX,
     IPOD6G_HIBERNATE_BOOT_RECOVER,
     IPOD6G_HIBERNATE_BOOT_TOKEN_IO_ERROR,
 };
 
 enum ipod6g_hibernate_boot_action ipod6g_hibernate_boot_action(void);
-bool ipod6g_hibernate_stage1_validate_after_wake(void);
+bool ipod6g_hibernate_validate_after_wake(uint32_t wake_reason);
+#if IPOD6G_HIBERNATE_STAGE2
+uint32_t ipod6g_hibernate_stage2_call(
+        uintptr_t entry, uintptr_t stack_top,
+        volatile struct ipod6g_hibernate_record *record);
+#endif
 void ipod6g_hibernate_stage1_mark_recovery(
         enum ipod6g_hibernate_failure failure);
 void ipod6g_hibernate_clear_stale_token(void);
@@ -203,7 +274,8 @@ typedef char ipod6g_hibernate_token_must_be_eight_bytes
         [(sizeof(struct ipod6g_hibernate_token) == 8) ? 1 : -1];
 typedef char ipod6g_hibernate_record_must_fit_control_page
         [(sizeof(struct ipod6g_hibernate_record) <=
-          IPOD6G_HIBERNATE_CONTROL_SIZE) ? 1 : -1];
+          IPOD6G_HIBERNATE_PAYLOAD_STACK_BOTTOM -
+          IPOD6G_HIBERNATE_CONTROL_ADDR) ? 1 : -1];
 
 #endif /* !ASM */
 #endif /* __HIBERNATE_6G_H__ */

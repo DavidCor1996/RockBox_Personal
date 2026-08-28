@@ -31,6 +31,15 @@
 
 #define IPOD6G_HIBERNATE_PROBE_SEED 0x68364731u /* "h6G1" */
 
+#if IPOD6G_HIBERNATE_STAGE2
+#define IPOD6G_HIBERNATE_COMPILED_CAPABILITIES \
+        (IPOD6G_HIBERNATE_CAP_RETENTION | \
+         IPOD6G_HIBERNATE_CAP_CONTROLLED_PAYLOAD)
+#else
+#define IPOD6G_HIBERNATE_COMPILED_CAPABILITIES \
+        IPOD6G_HIBERNATE_CAP_RETENTION
+#endif
+
 static const uint8_t token_magic[4] = { 'R', 'B', 'H', '6' };
 static const uint8_t record_magic[8] =
         { 'R', 'B', 'H', '6', 'R', 'E', 'C', '1' };
@@ -248,6 +257,11 @@ static bool record_layout_valid(
            record->record_size == sizeof(*record) &&
            record->target_id == MODEL_NUMBER &&
            record->resume_abi == IPOD6G_HIBERNATE_RESUME_ABI &&
+           (record->capabilities & IPOD6G_HIBERNATE_CAP_RETENTION) != 0 &&
+           (record->capabilities &
+            ~(IPOD6G_HIBERNATE_CAP_RETENTION |
+              IPOD6G_HIBERNATE_CAP_CONTROLLED_PAYLOAD)) == 0 &&
+           record->mode <= IPOD6G_HIBERNATE_MODE_CONTROLLED_PAYLOAD &&
            record->area_addr == IPOD6G_HIBERNATE_AREA_ADDR &&
            record->area_size == IPOD6G_HIBERNATE_AREA_SIZE &&
            record->iram_shadow_addr == IPOD6G_HIBERNATE_IRAM_SHADOW_ADDR &&
@@ -284,6 +298,8 @@ static void record_init(volatile struct ipod6g_hibernate_record *record,
     record->target_id = MODEL_NUMBER;
     record->resume_abi = IPOD6G_HIBERNATE_RESUME_ABI;
     record->state = state;
+    record->capabilities = IPOD6G_HIBERNATE_COMPILED_CAPABILITIES;
+    record->mode = IPOD6G_HIBERNATE_MODE_NONE;
     record->area_addr = IPOD6G_HIBERNATE_AREA_ADDR;
     record->area_size = IPOD6G_HIBERNATE_AREA_SIZE;
     record->iram_shadow_addr = IPOD6G_HIBERNATE_IRAM_SHADOW_ADDR;
@@ -314,8 +330,15 @@ bool ipod6g_hibernate_stage1_get_status(
     status->state = IPOD6G_HIBERNATE_RECORD_EMPTY;
     status->sequence = 0;
     status->attempt_count = 0;
+    status->capabilities = 0;
+    status->mode = IPOD6G_HIBERNATE_MODE_NONE;
     status->last_phase = IPOD6G_HIBERNATE_PHASE_NONE;
     status->failure = IPOD6G_HIBERNATE_FAILURE_NONE;
+    status->observed_wake_reason = 0;
+    status->payload_expected_cookie = 0;
+    status->payload_observed_cookie = 0;
+    status->payload_observed_sp = 0;
+    status->payload_return_value = 0;
 
     if (!ipod6g_hibernate_record_valid(record))
         return false;
@@ -324,8 +347,15 @@ bool ipod6g_hibernate_stage1_get_status(
     status->state = record->state;
     status->sequence = record->sequence;
     status->attempt_count = record->attempt_count;
+    status->capabilities = record->capabilities;
+    status->mode = record->mode;
     status->last_phase = record->last_phase;
     status->failure = record->failure;
+    status->observed_wake_reason = record->observed_wake_reason;
+    status->payload_expected_cookie = record->payload_expected_cookie;
+    status->payload_observed_cookie = record->payload_observed_cookie;
+    status->payload_observed_sp = record->payload_observed_sp;
+    status->payload_return_value = record->payload_return_value;
     return true;
 }
 
@@ -333,48 +363,82 @@ bool ipod6g_hibernate_stage1_get_status(
 #define IPOD6G_HIBERNATE_REQUEST_LIFETIME (30 * HZ)
 #define IPOD6G_HIBERNATE_I2C_TIMEOUT_US    20000u
 
-static volatile bool stage1_requested;
-static uint32_t stage1_request_sequence;
-static long stage1_request_deadline;
+static volatile bool hibernate_requested;
+static uint32_t hibernate_request_sequence;
+static uint32_t hibernate_request_mode;
+static long hibernate_request_deadline;
 
-static bool stage1_record_proves_bootloader(
-        const volatile struct ipod6g_hibernate_record *record)
+static bool hibernate_record_proves_bootloader(
+        const volatile struct ipod6g_hibernate_record *record,
+        uint32_t required_capability)
 {
     if (!ipod6g_hibernate_record_valid(record))
         return false;
 
-    return record->state == IPOD6G_HIBERNATE_RECORD_CAPABLE ||
-           record->state == IPOD6G_HIBERNATE_RECORD_PASSED ||
-           record->state == IPOD6G_HIBERNATE_RECORD_FAILED;
+    return (record->capabilities & required_capability) != 0 &&
+           (record->state == IPOD6G_HIBERNATE_RECORD_CAPABLE ||
+            record->state == IPOD6G_HIBERNATE_RECORD_PASSED ||
+            record->state == IPOD6G_HIBERNATE_RECORD_FAILED);
 }
 
-bool ipod6g_hibernate_stage1_request(uint32_t sequence)
+static bool hibernate_request(uint32_t sequence, uint32_t mode,
+                              uint32_t required_capability)
 {
     const volatile struct ipod6g_hibernate_record *record =
             (const volatile struct ipod6g_hibernate_record *)
             IPOD6G_HIBERNATE_CONTROL_ADDR;
 
-    if (!stage1_record_proves_bootloader(record))
+    if (!hibernate_record_proves_bootloader(record, required_capability))
         return false;
 
-    stage1_request_sequence = sequence;
-    stage1_request_deadline = current_tick +
+    hibernate_request_sequence = sequence;
+    hibernate_request_mode = mode;
+    hibernate_request_deadline = current_tick +
             IPOD6G_HIBERNATE_REQUEST_LIFETIME;
-    stage1_requested = true;
+    hibernate_requested = true;
     return true;
 }
 
-bool ipod6g_hibernate_stage1_consume_request(uint32_t *sequence)
+bool ipod6g_hibernate_stage1_request(uint32_t sequence)
 {
-    bool requested = stage1_requested;
+    return hibernate_request(sequence, IPOD6G_HIBERNATE_MODE_RETENTION,
+                             IPOD6G_HIBERNATE_CAP_RETENTION);
+}
 
-    stage1_requested = false;
-    if (!requested || !TIME_BEFORE(current_tick, stage1_request_deadline))
+bool ipod6g_hibernate_stage2_request(uint32_t sequence)
+{
+#if IPOD6G_HIBERNATE_STAGE2
+    return hibernate_request(sequence,
+            IPOD6G_HIBERNATE_MODE_CONTROLLED_PAYLOAD,
+            IPOD6G_HIBERNATE_CAP_CONTROLLED_PAYLOAD);
+#else
+    (void)sequence;
+    return false;
+#endif
+}
+
+bool ipod6g_hibernate_consume_request(uint32_t *sequence, uint32_t *mode)
+{
+    bool requested = hibernate_requested;
+
+    hibernate_requested = false;
+    if (!requested || !TIME_BEFORE(current_tick, hibernate_request_deadline))
         return false;
 
-    *sequence = stage1_request_sequence;
+    *sequence = hibernate_request_sequence;
+    *mode = hibernate_request_mode;
     return true;
 }
+
+#if IPOD6G_HIBERNATE_STAGE2
+extern unsigned char _hibernate_payload_start[];
+extern unsigned char _hibernate_payload_end[];
+
+static uint32_t ipod6g_hibernate_stage2_payload(
+        volatile struct ipod6g_hibernate_record *record,
+        uint32_t expected_stack_top)
+        __attribute__((section(".hibernate_payload"), noinline, used));
+#endif
 
 static uint32_t probe_pattern(uint32_t index, uint32_t seed)
 {
@@ -388,7 +452,7 @@ static uint32_t probe_pattern(uint32_t index, uint32_t seed)
     return value;
 }
 
-bool ipod6g_hibernate_stage1_prepare(uint32_t sequence)
+bool ipod6g_hibernate_prepare(uint32_t sequence, uint32_t mode)
 {
     volatile struct ipod6g_hibernate_record *record =
             (volatile struct ipod6g_hibernate_record *)
@@ -400,8 +464,19 @@ bool ipod6g_hibernate_stage1_prepare(uint32_t sequence)
     volatile uint32_t *probe = (volatile uint32_t *)
             IPOD6G_HIBERNATE_PROBE_ADDR;
 
+    uint32_t required_capability = mode ==
+            IPOD6G_HIBERNATE_MODE_CONTROLLED_PAYLOAD ?
+            IPOD6G_HIBERNATE_CAP_CONTROLLED_PAYLOAD :
+            IPOD6G_HIBERNATE_CAP_RETENTION;
+
+    if (mode != IPOD6G_HIBERNATE_MODE_RETENTION &&
+        mode != IPOD6G_HIBERNATE_MODE_CONTROLLED_PAYLOAD)
+    {
+        return false;
+    }
+
     /* A retained result also proves that this bootloader speaks our ABI. */
-    if (!stage1_record_proves_bootloader(record))
+    if (!hibernate_record_proves_bootloader(record, required_capability))
         return false;
 
     if (ipod6g_hibernate_token_clear() != 0)
@@ -419,17 +494,107 @@ bool ipod6g_hibernate_stage1_prepare(uint32_t sequence)
 
     record_init(record, IPOD6G_HIBERNATE_RECORD_PREPARED);
     record->sequence = sequence;
+    record->mode = mode;
+    record->requested_wake_mask =
+            PCF5063X_OOCWAKE_EXTON2 | PCF5063X_OOCWAKE_EXTON1;
     record->iram_shadow_crc32 = crc32_region(
             IPOD6G_HIBERNATE_IRAM_SHADOW_ADDR,
             IPOD6G_HIBERNATE_IRAM_SHADOW_SIZE);
     record->probe_crc32 = crc32_region(IPOD6G_HIBERNATE_PROBE_ADDR,
                                        IPOD6G_HIBERNATE_PROBE_SIZE);
+#if IPOD6G_HIBERNATE_STAGE2
+    if (mode == IPOD6G_HIBERNATE_MODE_CONTROLLED_PAYLOAD)
+    {
+        uintptr_t payload_start = (uintptr_t)_hibernate_payload_start;
+        uintptr_t payload_end = (uintptr_t)_hibernate_payload_end;
+        uintptr_t payload_entry =
+                (uintptr_t)ipod6g_hibernate_stage2_payload;
+        uint32_t payload_size = payload_end - payload_start;
+        volatile uint32_t *stack_guard = (volatile uint32_t *)
+                IPOD6G_HIBERNATE_PAYLOAD_STACK_BOTTOM;
+
+        if (payload_start < DRAM_ORIG ||
+            payload_end > IPOD6G_HIBERNATE_AREA_ADDR ||
+            payload_end <= payload_start ||
+            payload_size > IPOD6G_HIBERNATE_PAYLOAD_MAX_SIZE ||
+            payload_entry < payload_start || payload_entry >= payload_end ||
+            (payload_entry & 3u) != 0)
+        {
+            return false;
+        }
+
+        for (unsigned i = 0; i < 4; i++)
+            stack_guard[i] = IPOD6G_HIBERNATE_STACK_GUARD ^ i;
+
+        record->payload_start = payload_start;
+        record->payload_size = payload_size;
+        record->payload_crc32 = crc32_region(payload_start, payload_size);
+        record->payload_entry = payload_entry;
+        record->payload_stack_bottom =
+                IPOD6G_HIBERNATE_PAYLOAD_STACK_BOTTOM;
+        record->payload_stack_top = IPOD6G_HIBERNATE_PAYLOAD_STACK_TOP;
+        record->payload_expected_cookie = IPOD6G_HIBERNATE_PAYLOAD_COOKIE;
+    }
+#else
+    if (mode == IPOD6G_HIBERNATE_MODE_CONTROLLED_PAYLOAD)
+        return false;
+#endif
     record->last_phase = IPOD6G_HIBERNATE_PHASE_RECORD_READY;
     record_commit_crc(record);
     commit_dcache();
 
     return ipod6g_hibernate_record_valid(record);
 }
+
+#if IPOD6G_HIBERNATE_STAGE2
+/*
+ * This is the only retained application code executed by the Stage 2 gate.
+ * It deliberately has no calls, no globals, no device access, and no return
+ * path except the bootloader-provided LR. The volatile locals force real use
+ * of the dedicated retained stack; the linked image is disassembled before a
+ * hardware build is accepted.
+ */
+static uint32_t ipod6g_hibernate_stage2_payload(
+        volatile struct ipod6g_hibernate_record *record,
+        uint32_t expected_stack_top)
+{
+    volatile uint32_t stack_probe[4];
+    uintptr_t observed_sp;
+
+    stack_probe[0] = IPOD6G_HIBERNATE_STACK_GUARD;
+    stack_probe[1] = IPOD6G_HIBERNATE_PAYLOAD_COOKIE;
+    stack_probe[2] = (uintptr_t)record;
+    stack_probe[3] = expected_stack_top;
+    asm volatile("mov %0, sp" : "=r"(observed_sp));
+
+    if (record != (volatile struct ipod6g_hibernate_record *)
+                    IPOD6G_HIBERNATE_CONTROL_ADDR ||
+        expected_stack_top != IPOD6G_HIBERNATE_PAYLOAD_STACK_TOP ||
+        record->state != IPOD6G_HIBERNATE_RECORD_PAYLOAD_ENTERING ||
+        record->mode != IPOD6G_HIBERNATE_MODE_CONTROLLED_PAYLOAD ||
+        record->payload_stack_bottom !=
+                    IPOD6G_HIBERNATE_PAYLOAD_STACK_BOTTOM ||
+        record->payload_stack_top != IPOD6G_HIBERNATE_PAYLOAD_STACK_TOP ||
+        record->payload_expected_cookie !=
+                    IPOD6G_HIBERNATE_PAYLOAD_COOKIE ||
+        observed_sp < IPOD6G_HIBERNATE_PAYLOAD_STACK_BOTTOM ||
+        observed_sp >= IPOD6G_HIBERNATE_PAYLOAD_STACK_TOP ||
+        stack_probe[0] != IPOD6G_HIBERNATE_STACK_GUARD ||
+        stack_probe[1] != IPOD6G_HIBERNATE_PAYLOAD_COOKIE ||
+        stack_probe[2] != (uintptr_t)record ||
+        stack_probe[3] != expected_stack_top)
+    {
+        return ~IPOD6G_HIBERNATE_PAYLOAD_COOKIE;
+    }
+
+    record->payload_observed_cookie = IPOD6G_HIBERNATE_PAYLOAD_COOKIE;
+    record->payload_observed_sp = observed_sp;
+    record->payload_return_value = IPOD6G_HIBERNATE_PAYLOAD_COOKIE;
+    record->last_phase = IPOD6G_HIBERNATE_PHASE_PAYLOAD_RETURNED;
+    record->state = IPOD6G_HIBERNATE_RECORD_PAYLOAD_RETURNED;
+    return IPOD6G_HIBERNATE_PAYLOAD_COOKIE;
+}
+#endif /* IPOD6G_HIBERNATE_STAGE2 */
 
 static bool hibernate_i2c_wait_ready(void) ICODE_ATTR;
 static bool hibernate_i2c_wait_ready(void)
@@ -682,15 +847,23 @@ bool ipod6g_hibernate_stage1_request(uint32_t sequence)
     return false;
 }
 
-bool ipod6g_hibernate_stage1_consume_request(uint32_t *sequence)
+bool ipod6g_hibernate_stage2_request(uint32_t sequence)
 {
     (void)sequence;
     return false;
 }
 
-bool ipod6g_hibernate_stage1_prepare(uint32_t sequence)
+bool ipod6g_hibernate_consume_request(uint32_t *sequence, uint32_t *mode)
 {
     (void)sequence;
+    (void)mode;
+    return false;
+}
+
+bool ipod6g_hibernate_prepare(uint32_t sequence, uint32_t mode)
+{
+    (void)sequence;
+    (void)mode;
     return false;
 }
 
@@ -732,7 +905,7 @@ enum ipod6g_hibernate_boot_action ipod6g_hibernate_boot_action(void)
     if (ipod6g_hibernate_token_valid(&token) &&
         token.state == IPOD6G_HIBERNATE_TOKEN_ARMED)
     {
-        return IPOD6G_HIBERNATE_BOOT_STAGE1;
+        return IPOD6G_HIBERNATE_BOOT_ROCKBOX;
     }
 
     /* Full magic always establishes ownership, even with a bad payload. */
@@ -763,7 +936,47 @@ static void token_finish(enum ipod6g_hibernate_token_state state)
     ipod6g_hibernate_token_clear();
 }
 
-bool ipod6g_hibernate_stage1_validate_after_wake(void)
+#if IPOD6G_HIBERNATE_STAGE2
+static bool stage2_payload_metadata_valid(
+        const volatile struct ipod6g_hibernate_record *record)
+{
+    uintptr_t payload_end = record->payload_start + record->payload_size;
+
+    return record->mode == IPOD6G_HIBERNATE_MODE_CONTROLLED_PAYLOAD &&
+           (record->capabilities &
+            IPOD6G_HIBERNATE_CAP_CONTROLLED_PAYLOAD) != 0 &&
+           record->payload_start >= DRAM_ORIG &&
+           record->payload_size != 0 &&
+           record->payload_size <= IPOD6G_HIBERNATE_PAYLOAD_MAX_SIZE &&
+           payload_end > record->payload_start &&
+           payload_end <= IPOD6G_HIBERNATE_AREA_ADDR &&
+           record->payload_entry >= record->payload_start &&
+           record->payload_entry < payload_end &&
+           (record->payload_entry & 3u) == 0 &&
+           record->payload_stack_bottom ==
+                    IPOD6G_HIBERNATE_PAYLOAD_STACK_BOTTOM &&
+           record->payload_stack_top ==
+                    IPOD6G_HIBERNATE_PAYLOAD_STACK_TOP &&
+           record->payload_expected_cookie ==
+                    IPOD6G_HIBERNATE_PAYLOAD_COOKIE;
+}
+
+static bool stage2_stack_guard_valid(void)
+{
+    const volatile uint32_t *stack_guard = (const volatile uint32_t *)
+            IPOD6G_HIBERNATE_PAYLOAD_STACK_BOTTOM;
+
+    for (unsigned i = 0; i < 4; i++)
+    {
+        if (stack_guard[i] != (IPOD6G_HIBERNATE_STACK_GUARD ^ i))
+            return false;
+    }
+
+    return true;
+}
+#endif /* IPOD6G_HIBERNATE_STAGE2 */
+
+bool ipod6g_hibernate_validate_after_wake(uint32_t wake_reason)
 {
     volatile struct ipod6g_hibernate_record *record =
             (volatile struct ipod6g_hibernate_record *)
@@ -781,6 +994,7 @@ bool ipod6g_hibernate_stage1_validate_after_wake(void)
 
     record->state = IPOD6G_HIBERNATE_RECORD_VALIDATING;
     record->attempt_count++;
+    record->observed_wake_reason = wake_reason;
     record->last_phase = IPOD6G_HIBERNATE_PHASE_MIU_RESTORED;
     record_commit_crc(record);
     commit_dcache();
@@ -796,12 +1010,79 @@ bool ipod6g_hibernate_stage1_validate_after_wake(void)
         failure = IPOD6G_HIBERNATE_FAILURE_PROBE_CRC;
     }
 
+    if (failure == IPOD6G_HIBERNATE_FAILURE_NONE &&
+        record->mode == IPOD6G_HIBERNATE_MODE_CONTROLLED_PAYLOAD)
+    {
+#if IPOD6G_HIBERNATE_STAGE2
+        uint32_t payload_return = 0;
+
+        if (!stage2_payload_metadata_valid(record))
+        {
+            failure = IPOD6G_HIBERNATE_FAILURE_PAYLOAD_METADATA;
+        }
+        else if (crc32_region(record->payload_start,
+                              record->payload_size) !=
+                 record->payload_crc32)
+        {
+            failure = IPOD6G_HIBERNATE_FAILURE_PAYLOAD_CRC;
+        }
+        else if (!stage2_stack_guard_valid())
+        {
+            failure = IPOD6G_HIBERNATE_FAILURE_PAYLOAD_STACK;
+        }
+        else
+        {
+            record->state = IPOD6G_HIBERNATE_RECORD_PAYLOAD_ENTERING;
+            record->last_phase = IPOD6G_HIBERNATE_PHASE_PAYLOAD_ENTERED;
+            record_commit_crc(record);
+            commit_discard_idcache();
+
+            payload_return = ipod6g_hibernate_stage2_call(
+                    record->payload_entry, record->payload_stack_top, record);
+
+            record->payload_return_value = payload_return;
+            if (!record_layout_valid(record) ||
+                !stage2_payload_metadata_valid(record) ||
+                record->state !=
+                    IPOD6G_HIBERNATE_RECORD_PAYLOAD_RETURNED ||
+                record->last_phase !=
+                    IPOD6G_HIBERNATE_PHASE_PAYLOAD_RETURNED ||
+                record->payload_observed_cookie !=
+                    record->payload_expected_cookie ||
+                payload_return != record->payload_expected_cookie)
+            {
+                failure = IPOD6G_HIBERNATE_FAILURE_PAYLOAD_RETURN;
+            }
+            else if (!stage2_stack_guard_valid() ||
+                     record->payload_observed_sp <
+                        record->payload_stack_bottom ||
+                     record->payload_observed_sp >=
+                        record->payload_stack_top)
+            {
+                failure = IPOD6G_HIBERNATE_FAILURE_PAYLOAD_STACK;
+            }
+        }
+#else
+        failure = IPOD6G_HIBERNATE_FAILURE_PAYLOAD_METADATA;
+#endif
+    }
+    else if (failure == IPOD6G_HIBERNATE_FAILURE_NONE &&
+             record->mode != IPOD6G_HIBERNATE_MODE_RETENTION)
+    {
+        failure = IPOD6G_HIBERNATE_FAILURE_RECORD;
+    }
+
     record->failure = failure;
     record->state = failure == IPOD6G_HIBERNATE_FAILURE_NONE ?
             IPOD6G_HIBERNATE_RECORD_PASSED :
             IPOD6G_HIBERNATE_RECORD_FAILED;
     if (failure == IPOD6G_HIBERNATE_FAILURE_NONE)
-        record->last_phase = IPOD6G_HIBERNATE_PHASE_DATA_VERIFIED;
+    {
+        record->last_phase = record->mode ==
+                IPOD6G_HIBERNATE_MODE_CONTROLLED_PAYLOAD ?
+                IPOD6G_HIBERNATE_PHASE_PAYLOAD_RETURNED :
+                IPOD6G_HIBERNATE_PHASE_DATA_VERIFIED;
+    }
     record_commit_crc(record);
     commit_dcache();
 

@@ -55,6 +55,21 @@ SECTIONS
     } >IRAM AT> DRAM
     _intvectcopy = LOADADDR(.intvect) ;
 
+#if defined(IPOD_6G) && IPOD6G_HIBERNATE_STAGE2
+    .hibernate_payload :
+    {
+        . = ALIGN(0x20);
+        _hibernate_payload_start = .;
+        KEEP(*(.hibernate_payload))
+        . = ALIGN(0x20);
+        _hibernate_payload_end = .;
+    } > DRAM
+
+    ASSERT(_hibernate_payload_end - _hibernate_payload_start <=
+           IPOD6G_HIBERNATE_PAYLOAD_MAX_SIZE,
+           "iPod 6G hibernate payload exceeds retained-code limit")
+#endif
+
     .text :
     {
         _loadaddress = .;

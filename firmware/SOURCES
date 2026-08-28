@@ -1659,6 +1659,7 @@ target/arm/s5l8702/ipodnano4g/cscodec-nano4g.c
 
 #ifdef IPOD_6G
 target/arm/s5l8702/ipod6g/hibernate-6g.c
+target/arm/s5l8702/ipod6g/hibernate-handoff-6g.S
 target/arm/s5l8702/ipod6g/lcd-6g.c
 #ifndef BOOTLOADER
 target/arm/s5l8702/ipod6g/videoout-6g.c

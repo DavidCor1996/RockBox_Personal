@@ -54,9 +54,10 @@ void power_off(void)
 
 #if !defined(BOOTLOADER) && IPOD6G_HIBERNATE_STAGE1
     uint32_t sequence;
-    if (ipod6g_hibernate_stage1_consume_request(&sequence))
+    uint32_t mode;
+    if (ipod6g_hibernate_consume_request(&sequence, &mode))
     {
-        if (!ipod6g_hibernate_stage1_prepare(sequence))
+        if (!ipod6g_hibernate_prepare(sequence, mode))
         {
             ipod6g_hibernate_stage1_fail(
                     IPOD6G_HIBERNATE_FAILURE_RECORD);

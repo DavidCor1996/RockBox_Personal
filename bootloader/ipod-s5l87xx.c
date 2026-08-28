@@ -1863,6 +1863,7 @@ void main(void)
 #if defined(IPOD_6G) && IPOD6G_HIBERNATE_STAGE1
     bool hibernate_preinitialized = false;
     bool hibernate_publish_capability = true;
+    uint32_t hibernate_wake_reason = 0;
 #endif
 #ifdef IPOD_6G
 #if defined(N25_ANDROID_FORCE_VOLATILE_TEST)
@@ -1910,8 +1911,9 @@ void main(void)
         {
             hibernate_publish_capability = false;
 
-            if (action == IPOD6G_HIBERNATE_BOOT_STAGE1)
+            if (action == IPOD6G_HIBERNATE_BOOT_ROCKBOX)
             {
+                hibernate_wake_reason = pmu_rd(PCF5063X_REG_OOCSTAT);
                 /* Full magic remains present if this update is interrupted. */
                 ipod6g_hibernate_token_set_state(
                         IPOD6G_HIBERNATE_TOKEN_RESUMING);
@@ -1922,9 +1924,10 @@ void main(void)
             memory_init();
             hibernate_preinitialized = true;
 
-            if (action == IPOD6G_HIBERNATE_BOOT_STAGE1)
+            if (action == IPOD6G_HIBERNATE_BOOT_ROCKBOX)
             {
-                ipod6g_hibernate_stage1_validate_after_wake();
+                ipod6g_hibernate_validate_after_wake(
+                        hibernate_wake_reason);
             }
             else
             {

@@ -2925,6 +2925,10 @@ static const char *dbg_hibernate_state_name(uint32_t state)
         case IPOD6G_HIBERNATE_RECORD_VALIDATING: return "validating";
         case IPOD6G_HIBERNATE_RECORD_PASSED: return "PASSED";
         case IPOD6G_HIBERNATE_RECORD_FAILED: return "FAILED";
+        case IPOD6G_HIBERNATE_RECORD_PAYLOAD_ENTERING:
+            return "payload entering";
+        case IPOD6G_HIBERNATE_RECORD_PAYLOAD_RETURNED:
+            return "payload returned";
         default: return "unavailable";
     }
 }
@@ -2933,6 +2937,7 @@ static bool dbg_hibernate_stage1(void)
 {
     struct ipod6g_hibernate_status status;
     bool ready = ipod6g_hibernate_stage1_get_status(&status) &&
+            (status.capabilities & IPOD6G_HIBERNATE_CAP_RETENTION) != 0 &&
             (status.state == IPOD6G_HIBERNATE_RECORD_CAPABLE ||
              status.state == IPOD6G_HIBERNATE_RECORD_PASSED ||
              status.state == IPOD6G_HIBERNATE_RECORD_FAILED);
@@ -2982,6 +2987,72 @@ static bool dbg_hibernate_stage1(void)
     lcd_set_foreground(LCD_DEFAULT_FG);
     return false;
 }
+
+#if IPOD6G_HIBERNATE_STAGE2
+static bool dbg_hibernate_stage2(void)
+{
+    struct ipod6g_hibernate_status status;
+    bool ready = ipod6g_hibernate_stage1_get_status(&status) &&
+            (status.capabilities &
+             IPOD6G_HIBERNATE_CAP_CONTROLLED_PAYLOAD) != 0 &&
+            (status.state == IPOD6G_HIBERNATE_RECORD_CAPABLE ||
+             status.state == IPOD6G_HIBERNATE_RECORD_PASSED ||
+             status.state == IPOD6G_HIBERNATE_RECORD_FAILED);
+
+    lcd_set_background(LCD_RGBPACK(0, 0, 0));
+    lcd_set_foreground(LCD_RGBPACK(255, 255, 255));
+    lcd_clear_display();
+    lcd_puts(0, 0, "iPod6G payload-resume test");
+    lcd_putsf(0, 2, "State:%s mode:%lu",
+              status.valid ? dbg_hibernate_state_name(status.state) :
+                             "invalid record",
+              (unsigned long)status.mode);
+    lcd_putsf(0, 3, "Seq:%lu attempts:%lu",
+              (unsigned long)status.sequence,
+              (unsigned long)status.attempt_count);
+    lcd_putsf(0, 4, "Phase:%lu failure:%lu wake:%02lx",
+              (unsigned long)status.last_phase,
+              (unsigned long)status.failure,
+              (unsigned long)status.observed_wake_reason);
+    lcd_putsf(0, 5, "Cookie:%08lx/%08lx",
+              (unsigned long)status.payload_expected_cookie,
+              (unsigned long)status.payload_observed_cookie);
+    lcd_putsf(0, 6, "SP:%08lx return:%08lx",
+              (unsigned long)status.payload_observed_sp,
+              (unsigned long)status.payload_return_value);
+    lcd_puts(0, 9, ready ? "SELECT: arm payload + power off" :
+                           "Matching Stage 2 bootloader required");
+    lcd_puts(0, 10, "MENU: cancel");
+    lcd_update();
+
+    while (1)
+    {
+        int action = get_action(CONTEXT_STD, HZ / 4);
+        if (action == ACTION_STD_CANCEL)
+            break;
+
+        if (action == ACTION_STD_OK && ready)
+        {
+            if (!ipod6g_hibernate_stage2_request((uint32_t)current_tick))
+            {
+                splash(HZ * 2, "Payload test refused");
+                break;
+            }
+
+            lcd_clear_display();
+            lcd_puts(0, 0, "Payload test armed");
+            lcd_puts(0, 2, "Flushing and powering off...");
+            lcd_update();
+            sys_poweroff();
+            break;
+        }
+    }
+
+    lcd_set_background(LCD_DEFAULT_BG);
+    lcd_set_foreground(LCD_DEFAULT_FG);
+    return false;
+}
+#endif /* IPOD6G_HIBERNATE_STAGE2 */
 #endif /* IPOD6G_HIBERNATE_STAGE1 */
 
 static void dbg_videoout_text(const char *title, const char *detail)
@@ -3495,6 +3566,9 @@ static const struct {
 #if defined(IPOD_6G) && !defined(SIMULATOR)
 #if IPOD6G_HIBERNATE_STAGE1
         {"Test retained standby", dbg_hibernate_stage1 },
+#if IPOD6G_HIBERNATE_STAGE2
+        {"Test retained payload", dbg_hibernate_stage2 },
+#endif
 #endif
         {"Test composite video", dbg_videoout },
         {"View SysCfg", dbg_syscfg },
