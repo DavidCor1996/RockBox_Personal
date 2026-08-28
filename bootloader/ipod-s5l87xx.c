@@ -63,6 +63,7 @@
 #include "pmu-target.h"
 #ifdef IPOD_6G
 #include "dma-s5l8702.h"
+#include "hibernate-6g.h"
 #endif
 #if defined(IPOD_6G) || defined(IPOD_NANO3G)
 #include "norboot-target.h"
@@ -1859,6 +1860,10 @@ static void __attribute__((noinline)) n25_android_boot(void)
 void main(void)
 {
     int rc = 0;
+#if defined(IPOD_6G) && IPOD6G_HIBERNATE_STAGE1
+    bool hibernate_preinitialized = false;
+    bool hibernate_publish_capability = true;
+#endif
 #ifdef IPOD_6G
 #if defined(N25_ANDROID_FORCE_VOLATILE_TEST)
     bool android_boot_requested = n25_android_force_volatile_test();
@@ -1888,6 +1893,55 @@ void main(void)
     nano3g_nand_stage_diag_run(0);
 #endif
 
+#if defined(IPOD_6G) && IPOD6G_HIBERNATE_STAGE1
+#if !defined(N25_ANDROID_FORCE_VOLATILE_TEST)
+    bool hibernated = pmu_is_hibernated();
+
+    if (hibernated)
+    {
+        enum ipod6g_hibernate_boot_action action =
+                ipod6g_hibernate_boot_action();
+
+        if (action == IPOD6G_HIBERNATE_BOOT_RETAIL)
+        {
+            rc = launch_onb(1); /* Preserve the established RetailOS path. */
+        }
+        else
+        {
+            hibernate_publish_capability = false;
+
+            if (action == IPOD6G_HIBERNATE_BOOT_STAGE1)
+            {
+                /* Full magic remains present if this update is interrupted. */
+                ipod6g_hibernate_token_set_state(
+                        IPOD6G_HIBERNATE_TOKEN_RESUMING);
+            }
+
+            /* Exit self-refresh without clearing retained SDRAM. */
+            system_preinit();
+            memory_init();
+            hibernate_preinitialized = true;
+
+            if (action == IPOD6G_HIBERNATE_BOOT_STAGE1)
+            {
+                ipod6g_hibernate_stage1_validate_after_wake();
+            }
+            else
+            {
+                ipod6g_hibernate_stage1_mark_recovery(
+                        action == IPOD6G_HIBERNATE_BOOT_TOKEN_IO_ERROR ?
+                        IPOD6G_HIBERNATE_FAILURE_TOKEN_IO :
+                        IPOD6G_HIBERNATE_FAILURE_TOKEN_INVALID);
+            }
+        }
+    }
+    else
+    {
+        /* Clearing retained ownership is only safe outside hibernation. */
+        ipod6g_hibernate_clear_stale_token();
+    }
+#endif /* !N25_ANDROID_FORCE_VOLATILE_TEST */
+#else /* normal boot path, intentionally unchanged */
 #if !defined(IPOD_NANO3G) || !NANO3G_VISIBILITY_ONLY
 #if !defined(IPOD_6G) || !defined(N25_ANDROID_FORCE_VOLATILE_TEST)
     if (pmu_is_hibernated()) {
@@ -1895,15 +1949,27 @@ void main(void)
     }
 #endif
 #endif
+#endif /* IPOD_6G && IPOD6G_HIBERNATE_STAGE1 */
 #ifdef IPOD_NANO3G
     nano3g_nand_stage_diag_run(1);
 #endif
 
+#if defined(IPOD_6G) && IPOD6G_HIBERNATE_STAGE1
+    if (!hibernate_preinitialized)
+    {
+        system_preinit();
+        memory_init();
+    }
+
+    if (hibernate_publish_capability)
+        ipod6g_hibernate_stage1_publish_capability();
+#else
     system_preinit();
 #ifdef IPOD_NANO3G
     nano3g_nand_stage_diag_run(2);
 #endif
     memory_init();
+#endif
 #ifdef IPOD_NANO3G
     nano3g_nand_stage_diag_run(3);
 #endif

@@ -2,6 +2,9 @@
 #include "config.h"
 #include "cpu.h"
 #include "crypto-s5l8702.h"     /* IM3HDR_SZ */
+#ifdef IPOD_6G
+#include "hibernate-6g.h"
+#endif
 
 ENTRY(start)
 #ifdef ROCKBOX_LITTLE_ENDIAN
@@ -28,9 +31,14 @@ MEMORY
     MOVE_AREA : ORIGIN = IRAM1_ORIG + IM3HDR_SZ,
                 LENGTH = IRAM1_SIZE - IM3HDR_SZ
 
-    /* DRAM region for BSS */
+    /* DRAM region for BSS.  Keep the retained snapshot area untouched. */
     BSS_AREA  : ORIGIN = DRAM_ORIG + MAX_LOADSIZE,
+#ifdef IPOD_6G
                 LENGTH = DRAM_SIZE - MAX_LOADSIZE - TTB_SIZE
+                         - IPOD6G_HIBERNATE_AREA_SIZE
+#else
+                LENGTH = DRAM_SIZE - MAX_LOADSIZE - TTB_SIZE
+#endif
 }
 #define LOAD_AREA   MOVE_AREA
 #else
@@ -102,4 +110,13 @@ SECTIONS
     . = ALIGN(0x20);  /* align bzero size */
      _end = .;
   } > BSS_AREA
+
+#ifdef IPOD_6G
+  ASSERT(ORIGIN(BSS_AREA) + LENGTH(BSS_AREA) ==
+         IPOD6G_HIBERNATE_AREA_ADDR,
+         "bootloader BSS overlaps iPod 6G hibernate reserve")
+  ASSERT(IPOD6G_HIBERNATE_AREA_ADDR + IPOD6G_HIBERNATE_AREA_SIZE ==
+         TTB_BASE_ADDR,
+         "iPod 6G hibernate reserve must end at the TTB")
+#endif
 }

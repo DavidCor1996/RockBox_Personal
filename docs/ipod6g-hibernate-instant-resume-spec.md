@@ -11,6 +11,32 @@ this document pass on real hardware.
 The target is the existing `IPOD_6G` Rockbox target. Rockbox uses that target
 for both the 6th- and 7th-generation Classic hardware.
 
+### Implementation status
+
+The first non-destructive implementation slice is now present:
+
+- the application and bootloader linker scripts protect the fixed 64 KiB
+  range `0x0bfec000` through `0x0bffbfff`;
+- `hibernate-6g.c` implements the retained PCF `MEMBYTE0..7` ownership token,
+  ordered publication, CRC-8 validation, the fixed SDRAM control record,
+  CRC-32 validation, the 48 KiB IRAM shadow, and a 12 KiB deterministic
+  retention pattern;
+- the bootloader has an early Rockbox ownership decision and Stage 1
+  validation/fallback path;
+- the application-side Stage 1 preparation and arming functions are separate,
+  so a caller cannot publish ownership merely by preparing a pattern;
+- an enabled bootloader publishes a CRC-protected capability record on cold
+  Rockbox boots, and the application refuses to prepare or arm without that
+  matching resume ABI handshake;
+- the bootloader gate is compile-time disabled by default through
+  `IPOD6G_HIBERNATE_STAGE1=0`.
+
+No sleep command, user-visible setting, kernel resume jump, or hardware deploy
+is part of this slice. Enabling the gate only teaches the bootloader how to
+handle a deliberately armed Rockbox probe; it does not make Rockbox enter
+retained standby. The next implementation boundary is the IRAM-only MIU/PMU
+entry stub after the exact MIU self-refresh entry command is confirmed.
+
 ## Desired User Experience
 
 When the user chooses Hibernate:

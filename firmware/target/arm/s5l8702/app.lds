@@ -1,6 +1,9 @@
 #define ASM
 #include "config.h"
 #include "cpu.h"
+#ifdef IPOD_6G
+#include "hibernate-6g.h"
+#endif
 
 ENTRY(start)
 
@@ -17,7 +20,14 @@ STARTUP(target/arm/s5l8702/crt0.o)
 /* End of the audio buffer, where the codec buffer starts */
 #define ENDAUDIOADDR  (DRAMORIG + DRAMSIZE)
 
-#define DRAMSIZE (DRAM_SIZE - PLUGINSIZE - CODECSIZE - TTB_SIZE)
+#ifdef IPOD_6G
+#define HIBERNATESIZE IPOD6G_HIBERNATE_AREA_SIZE
+#else
+#define HIBERNATESIZE 0
+#endif
+
+#define DRAMSIZE (DRAM_SIZE - PLUGINSIZE - CODECSIZE - TTB_SIZE \
+                  - HIBERNATESIZE)
 #define CODECORIG (ENDAUDIOADDR)
 #define IRAMSIZE (48*1024)  /* 256KB total - 48KB for core, 200KB for codecs */
 
@@ -28,6 +38,10 @@ MEMORY
 {
     IRAM : ORIGIN = IRAMORIG, LENGTH = IRAMSIZE
     DRAM : ORIGIN = DRAMORIG, LENGTH = DRAMSIZE
+#ifdef IPOD_6G
+    HIBERNATE : ORIGIN = IPOD6G_HIBERNATE_AREA_ADDR,
+                LENGTH = IPOD6G_HIBERNATE_AREA_SIZE
+#endif
 }
 
 SECTIONS
@@ -138,4 +152,21 @@ SECTIONS
         _pluginbuf = .;
         pluginbuf = .;
     }
+
+#ifdef IPOD_6G
+    .hibernate IPOD6G_HIBERNATE_AREA_ADDR (NOLOAD) :
+    {
+        hibernatebuffer = .;
+        _hibernatebuffer = .;
+        . += IPOD6G_HIBERNATE_AREA_SIZE;
+        hibernatebufferend = .;
+        _hibernatebufferend = .;
+    } > HIBERNATE
+
+    ASSERT(ENDADDR + PLUGINSIZE == IPOD6G_HIBERNATE_AREA_ADDR,
+           "plugin buffer overlaps iPod 6G hibernate reserve")
+    ASSERT(IPOD6G_HIBERNATE_AREA_ADDR + IPOD6G_HIBERNATE_AREA_SIZE ==
+           TTB_BASE_ADDR,
+           "iPod 6G hibernate reserve must end at the TTB")
+#endif
 }
