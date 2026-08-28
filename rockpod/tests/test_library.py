@@ -633,6 +633,117 @@ class TestIncrementalLibraryRefresh:
         assert scanner.scan_sync() == 0
         assert db.get_track_count() == 1
 
+    def test_force_full_rescan_keeps_a_matched_video_identity(self, config, db, monkeypatch):
+        """A matched show must survive Force Full Rescan.
+
+        The scanner re-derives identity from the filename, which for a scene
+        release would put the series back to its release-pack folder name and
+        every episode back to "Episode N".
+        """
+        from services import library_scanner
+        from services.library_scanner import LibraryScanner
+
+        video_path = os.path.join(
+            config.video_dir, "The.Office.US.S02", "The.Office.US.S02E01.x265-RARBG.mp4"
+        )
+        stat = self._write_file(video_path, b"video")
+        db.upsert_track({
+            "file_path": video_path,
+            "media_type": "video",
+            "video_kind": "show",
+            "title": "The Dundies",
+            "show_title": "The Office",
+            "season_number": 2,
+            "episode_number": 1,
+            "year": 2005,
+            "genre": "Comedy",
+            "imdb_id": "tt0386676",
+            "file_size": stat.st_size,
+            "last_modified": stat.st_mtime,
+        })
+        db.commit()
+
+        def fake_read_metadata_details(filepath):
+            track = Track(
+                file_path=filepath,
+                media_type="video",
+                video_kind="show",
+                title="Episode 1",
+                show_title="The Office US",
+                season_number=2,
+                episode_number=1,
+                file_size=os.path.getsize(filepath),
+                last_modified=os.stat(filepath).st_mtime,
+            )
+            return track, {"parsed_ok": True, "warnings": []}
+
+        monkeypatch.setattr(
+            library_scanner, "read_metadata_details", fake_read_metadata_details
+        )
+        LibraryScanner(db, config).scan_sync(force_full=True)
+
+        row = dict(db.fetchall(
+            "SELECT * FROM tracks WHERE file_path = ?", (video_path,)
+        )[0])
+        assert row["title"] == "The Dundies"
+        assert row["show_title"] == "The Office"
+        assert row["year"] == 2005
+        assert row["genre"] == "Comedy"
+
+    def test_missing_synced_video_becomes_device_only_but_missing_music_is_removed(
+            self, config, db):
+        """Clearing laptop video storage must not change music semantics."""
+        from services.library_scanner import LibraryScanner
+
+        missing_video = os.path.join(config.video_dir, "Movies", "On iPod.mp4")
+        missing_audio = os.path.join(config.music_dir, "Artist", "Gone.mp3")
+        db.upsert_track({
+            "file_path": missing_video,
+            "media_type": "video",
+            "video_kind": "show",
+            "title": "The Dundies",
+            "show_title": "The Office",
+            "season_number": 2,
+            "episode_number": 1,
+            "content_rating": "TV-14",
+            "metadata_source": "IMDb",
+            "metadata_locked": 1,
+            "intro_start": 12,
+            "intro_end": 47,
+            "credits_start": 1240,
+            "video_locked": 1,
+            "synced_to_device": 1,
+            "device_path": "Videos/.Locked/The Dundies.mpg",
+        })
+        db.upsert_track({
+            "file_path": missing_audio,
+            "media_type": "audio",
+            "title": "Gone",
+            "synced_to_device": 1,
+            "device_path": "Music/Artist/Gone.mp3",
+        })
+        db.commit()
+
+        scanner = LibraryScanner(db, config)
+        assert scanner.scan_sync(force_full=True) == 1
+
+        retained = dict(db.get_track_by_path(missing_video))
+        assert retained["title"] == "The Dundies"
+        assert retained["show_title"] == "The Office"
+        assert retained["season_number"] == 2
+        assert retained["episode_number"] == 1
+        assert retained["content_rating"] == "TV-14"
+        assert retained["metadata_source"] == "IMDb"
+        assert retained["metadata_locked"] == 1
+        assert retained["intro_start"] == 12
+        assert retained["intro_end"] == 47
+        assert retained["credits_start"] == 1240
+        assert retained["video_locked"] == 1
+        assert retained["device_path"] == "Videos/.Locked/The Dundies.mpg"
+        assert db.get_track_by_path(missing_audio) is None
+        assert scanner.last_report["total_device_only_videos_preserved"] == 1
+        assert scanner.last_report["total_files_removed"] == 1
+
     def test_incremental_detects_new_removed_and_changed_files(self, config, db, monkeypatch):
         from services import library_scanner
         from services.library_scanner import LibraryScanner

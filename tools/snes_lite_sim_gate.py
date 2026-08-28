@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import os
+import re
 import shutil
 import struct
 import subprocess
@@ -54,7 +55,8 @@ def prepare(build_dir: Path, rom: Path) -> Path:
     plugin_target.parent.mkdir(parents=True, exist_ok=True)
     rom_target.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(plugin_source, plugin_target)
-    shutil.copy2(rom, rom_target)
+    if rom.resolve() != rom_target.resolve():
+        shutil.copy2(rom, rom_target)
 
     entry = bytearray(OPEN_PLUGIN_ENTRY_SIZE)
     checksum = open_plugin_lang_checksum(build_dir)
@@ -92,6 +94,10 @@ def main() -> int:
     parser.add_argument("--preset", type=int, choices=range(4), default=0)
     parser.add_argument("--video", type=int, choices=range(2))
     parser.add_argument("--audio", choices=("off", "auto", "on", "low"), default="off")
+    parser.add_argument("--input-profile", type=int, choices=range(6), default=0)
+    parser.add_argument("--autoplay", action="store_true")
+    parser.add_argument("--controls-only", action="store_true")
+    parser.add_argument("--require-full-speed", action="store_true")
     args = parser.parse_args()
     build_dir = args.build_dir.resolve()
     simdisk = prepare(build_dir, args.rom.expanduser().resolve())
@@ -103,7 +109,7 @@ def main() -> int:
     config_text = (
         "frameskip=auto\n"
         f"audio={args.audio}\n"
-        "input_profile=0\n"
+        f"input_profile={args.input_profile}\n"
         "show_fps=0\n"
         f"performance_mode={1 if args.preset != 3 else 0}\n"
         f"{video_config}"
@@ -118,6 +124,10 @@ def main() -> int:
         return 0
     environment = os.environ.copy()
     environment["SNES_LITE_TEST_FRAMES"] = str(max(1, args.frames))
+    if args.autoplay:
+        environment["SNES_LITE_TEST_AUTOPLAY"] = "1"
+    if args.controls_only:
+        environment["SNES_LITE_TEST_CONTROLS"] = "1"
     log_path = simdisk / ".rockbox" / "logs" / "snes_lite.log"
     log_path.unlink(missing_ok=True)
     process = subprocess.Popen([str(build_dir / "rockboxui")], cwd=build_dir, env=environment)
@@ -137,7 +147,35 @@ def main() -> int:
     if log_path.exists():
         log_text = log_path.read_text(encoding="utf-8", errors="replace")
         print(log_text)
-        return 0 if "exit status=0" in log_text else 1
+        if "exit status=0" not in log_text:
+            return 1
+        if args.controls_only:
+            return 0 if (
+                "controls selftest=pass coverage=0xfff expected=0xfff"
+                in log_text
+            ) else 1
+        profile = re.search(
+            r"profile loops=(\d+) rendered=(\d+) skipped=(\d+) ticks=(\d+) .* "
+            r"emu_fps=(\d+) draw_fps=(\d+)",
+            log_text,
+        )
+        if not profile:
+            return 1
+        loops, rendered, skipped, ticks, emu_fps, draw_fps = map(
+            int, profile.groups()
+        )
+        if loops != max(1, args.frames) or rendered + skipped != loops:
+            return 1
+        average_fps_milli = loops * 100 * 1000 // max(1, ticks)
+        print(
+            f"Gate average={average_fps_milli / 1000:.3f} fps "
+            f"rolling={emu_fps}/{draw_fps} fps"
+        )
+        if args.require_full_speed and (
+            rendered != loops or skipped != 0 or average_fps_milli < 58000
+        ):
+            return 1
+        return 0
     return process.returncode or 1
 
 

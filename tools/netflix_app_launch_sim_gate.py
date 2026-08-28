@@ -116,18 +116,33 @@ def wait_for_launch(frame: Path, timeout: float = 8.0) -> None:
     deadline = time.monotonic() + timeout
     while time.monotonic() < deadline:
         top = pixel_rgb(frame, 160, 5)
+        bottom = pixel_rgb(frame, 160, 234)
         center = pixel_rgb(frame, 160, 120)
-        if top and center and max(top) < 8 and max(center) > 30:
+        if (
+            top and bottom and center
+            and top[0] > 40 and top[0] > top[1] * 2
+            and bottom[0] > 40 and bottom[0] > bottom[1] * 2
+            and max(center) > 30
+        ):
             return
         time.sleep(0.04)
-    raise SystemExit("modern Netflix app launch frame did not appear")
+    raise SystemExit("full-screen modern Netflix app launch frame did not appear")
 
 
 def wait_for_landing(frame: Path, timeout: float = 8.0) -> None:
     deadline = time.monotonic() + timeout
     while time.monotonic() < deadline:
-        pixel = pixel_rgb(frame, 10, 10)
-        if pixel and pixel[0] > 100 and pixel[0] > pixel[1] * 3:
+        header_left = pixel_rgb(frame, 105, 5)
+        header_right = pixel_rgb(frame, 310, 5)
+        body = pixel_rgb(frame, 100, 80)
+        if (
+            header_left and header_right and body
+            and header_left[0] > 100
+            and header_left[0] > header_left[1] * 3
+            and header_right[0] > 100
+            and header_right[0] > header_right[1] * 3
+            and max(body) < 40
+        ):
             return
         time.sleep(0.08)
     raise SystemExit("Netflix landing screen did not follow launch ident")
@@ -180,7 +195,7 @@ def main() -> int:
             early = args.output / "netflix-launch-early.png"
             late = args.output / "netflix-launch-late.png"
             capture(frame, early)
-            time.sleep(2.1)
+            time.sleep(0.7)
             capture(frame, late)
             if changed_pixels(early, late) < 1_000:
                 raise SystemExit("modern Netflix app launch animation did not advance")
@@ -208,7 +223,7 @@ def main() -> int:
             second_early = args.output / "netflix-second-launch-early.png"
             second_late = args.output / "netflix-second-launch-late.png"
             capture(frame, second_early)
-            time.sleep(2.1)
+            time.sleep(0.7)
             capture(frame, second_late)
             if changed_pixels(second_early, second_late) < 1_000:
                 raise SystemExit("second Netflix launch froze on the boot frame")

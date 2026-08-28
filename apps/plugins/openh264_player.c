@@ -63,6 +63,8 @@
 #define RAW_NETFLIX_RED LCD_RGBPACK(180, 19, 29)
 #define RAW_NETFLIX_BG LCD_RGBPACK(20, 20, 20)
 #define RAW_NETFLIX_TRACK LCD_RGBPACK(72, 72, 72)
+#define RAW_NETFLIX_INDEX ROCKBOX_DIR "/videolist/index.tsv"
+#define RAW_NETFLIX_MARKER_FIELDS 27
 
 enum raw_fit_mode {
     RAW_FIT_UNKNOWN = 0,
@@ -108,6 +110,12 @@ struct raw_osd_state {
     long current_frame;
     long total_frames;
     int fps;
+};
+
+enum raw_netflix_skip_kind {
+    RAW_NETFLIX_SKIP_NONE = 0,
+    RAW_NETFLIX_SKIP_INTRO,
+    RAW_NETFLIX_SKIP_CREDITS,
 };
 
 struct raw_stock_assets {
@@ -195,6 +203,10 @@ static unsigned long raw_saved_offset;
 static unsigned int raw_saved_mixer_freq;
 static const char *raw_current_path;
 static bool raw_netflix_launch;
+static enum raw_netflix_skip_kind raw_netflix_skip_active;
+static long raw_netflix_intro_start_frame;
+static long raw_netflix_intro_end_frame;
+static long raw_netflix_credits_start_frame;
 
 static void raw_audio_stop(void);
 
@@ -284,6 +296,8 @@ enum raw_input_command {
     RAW_INPUT_SEEK_FORWARD,
     RAW_INPUT_COMMIT_SEEK,
     RAW_INPUT_RESTART_VIDEO,
+    RAW_INPUT_SKIP_INTRO,
+    RAW_INPUT_SKIP_CREDITS,
 };
 
 static void append_raw_control_state(const char *stage)
@@ -376,6 +390,22 @@ static void raw_osd_set_position(long frame)
     raw_osd.current_frame = frame;
     if (raw_osd.paused || raw_osd.seeking || raw_osd.scrubbing)
         raw_osd.needs_redraw = true;
+}
+
+static void raw_netflix_update_skip(void)
+{
+    enum raw_netflix_skip_kind active = RAW_NETFLIX_SKIP_NONE;
+    long frame = raw_osd.current_frame;
+
+    if (raw_netflix_launch &&
+        raw_netflix_intro_end_frame > raw_netflix_intro_start_frame &&
+        frame >= raw_netflix_intro_start_frame &&
+        frame < raw_netflix_intro_end_frame)
+        active = RAW_NETFLIX_SKIP_INTRO;
+    else if (raw_netflix_launch && raw_netflix_credits_start_frame > 0 &&
+             frame >= raw_netflix_credits_start_frame)
+        active = RAW_NETFLIX_SKIP_CREDITS;
+    raw_netflix_skip_active = active;
 }
 
 static void raw_osd_format_time(long frames, char *buf, size_t size)
@@ -630,7 +660,12 @@ static void raw_osd_draw_netflix(void)
     char current[24];
     char duration[24];
     char title[RAW_OSD_TITLE_SIZE];
-    const char *status = raw_osd.paused ? "PAUSED" :
+    const char *status =
+                         raw_netflix_skip_active == RAW_NETFLIX_SKIP_INTRO ?
+                         "SKIP INTRO" :
+                         raw_netflix_skip_active == RAW_NETFLIX_SKIP_CREDITS ?
+                         "SKIP CREDITS" :
+                         raw_osd.paused ? "PAUSED" :
                          raw_osd.seeking ? "SEEKING" : "PLAYING";
     int duration_w;
     int status_w;
@@ -1137,6 +1172,75 @@ static void raw_resume_clear(const char *path)
 
     raw_resume_filename(path, filename, sizeof(filename), NULL);
     rb->remove(filename);
+}
+
+static bool raw_netflix_split_marker_row(
+    char *line, char *fields[RAW_NETFLIX_MARKER_FIELDS])
+{
+    int i;
+
+    for (i = 0; i < RAW_NETFLIX_MARKER_FIELDS; i++)
+    {
+        char *tab;
+
+        fields[i] = line;
+        tab = rb->strchr(line, '\t');
+        if (tab == NULL)
+            return i == RAW_NETFLIX_MARKER_FIELDS - 1;
+        *tab = '\0';
+        line = tab + 1;
+    }
+    return true;
+}
+
+static void raw_netflix_load_markers(const char *path, int fps,
+                                     long total_frames)
+{
+    char line[1024];
+    const char *device_path = path != NULL && path[0] == '/' ? path + 1 : path;
+    int fd;
+
+    raw_netflix_skip_active = RAW_NETFLIX_SKIP_NONE;
+    raw_netflix_intro_start_frame = 0;
+    raw_netflix_intro_end_frame = 0;
+    raw_netflix_credits_start_frame = 0;
+    if (!raw_netflix_launch || device_path == NULL || fps <= 0)
+        return;
+
+    fd = rb->open(RAW_NETFLIX_INDEX, O_RDONLY);
+    if (fd < 0)
+        return;
+    while (rb->read_line(fd, line, sizeof(line)) > 0)
+    {
+        char *fields[RAW_NETFLIX_MARKER_FIELDS];
+
+        if (line[0] == '#' || !raw_netflix_split_marker_row(line, fields) ||
+            rb->strcmp(fields[6], device_path))
+            continue;
+        raw_netflix_intro_start_frame = (long)rb->atoi(fields[23]) * fps;
+        raw_netflix_intro_end_frame = (long)rb->atoi(fields[24]) * fps;
+        raw_netflix_credits_start_frame =
+            (long)rb->atoi(fields[25]) * fps;
+        if (raw_netflix_credits_start_frame <= 0)
+        {
+            long credits_duration_frame =
+                (long)rb->atoi(fields[26]) * fps;
+            if (credits_duration_frame > 0 &&
+                total_frames > credits_duration_frame)
+                raw_netflix_credits_start_frame =
+                    total_frames - credits_duration_frame;
+        }
+        if (raw_netflix_intro_end_frame <=
+            raw_netflix_intro_start_frame)
+        {
+            raw_netflix_intro_start_frame = 0;
+            raw_netflix_intro_end_frame = 0;
+        }
+        if (raw_netflix_credits_start_frame >= total_frames)
+            raw_netflix_credits_start_frame = 0;
+        break;
+    }
+    rb->close(fd);
 }
 
 /* Netflix "watched" record.
@@ -1769,6 +1873,10 @@ static enum raw_input_command handle_playback_input(void)
 
         case ACTION_WPS_BROWSE:
         case ACTION_STD_OK:
+            if (raw_netflix_skip_active == RAW_NETFLIX_SKIP_INTRO)
+                return RAW_INPUT_SKIP_INTRO;
+            if (raw_netflix_skip_active == RAW_NETFLIX_SKIP_CREDITS)
+                return RAW_INPUT_SKIP_CREDITS;
             return RAW_INPUT_TOGGLE_SCRUBBER;
 
         case ACTION_WPS_SEEKBACK:
@@ -2163,12 +2271,13 @@ static int raw_yuv_text_width(const char *text)
     return width;
 }
 
-static void raw_yuv_text_2x(unsigned char * const *planes,
-                            int x, int y, const char *text)
+static void raw_yuv_text_scaled(unsigned char * const *planes,
+                                int x, int y, const char *text, int scale,
+                                int red, int green, int blue)
 {
     struct font *font = rb->font_get(FONT_SYSFIXED);
 
-    if (font == NULL || font->depth != 0)
+    if (font == NULL || font->depth != 0 || scale < 1)
         return;
 
     while (*text != '\0')
@@ -2186,11 +2295,11 @@ static void raw_yuv_text_2x(unsigned char * const *planes,
             for (row = 0; row < (int)font->height; row++)
             {
                 if (src[(row >> 3) * glyph_w] & (1u << (row & 7)))
-                    raw_yuv_rect(planes, x + col * 2, y + row * 2,
-                                 2, 2, 32, 255, 80);
+                    raw_yuv_rect(planes, x + col * scale, y + row * scale,
+                                 scale, scale, red, green, blue);
             }
         }
-        x += glyph_w * 2;
+        x += glyph_w * scale;
     }
 }
 
@@ -2231,10 +2340,10 @@ static bool raw_blit_netflix_volume(unsigned char * const *planes,
     group_w = label_w + 12 + RAW_VIDEO_VOLUME_BAR_W;
     group_x = (LCD_WIDTH - group_w) / 2;
     bar_x = group_x + label_w + 12;
-    raw_yuv_text_2x(overlay, group_x,
-                    (RAW_VIDEO_VOLUME_H -
-                     (font != NULL ? font->height * 2 : 16)) / 2,
-                    "VOLUME");
+    raw_yuv_text_scaled(overlay, group_x,
+                        (RAW_VIDEO_VOLUME_H -
+                         (font != NULL ? font->height * 2 : 16)) / 2,
+                        "VOLUME", 2, 32, 255, 80);
 
     min_volume = rb->sound_min(SOUND_VOLUME);
     max_volume = rb->sound_max(SOUND_VOLUME);
@@ -2270,8 +2379,62 @@ static bool raw_blit_netflix_volume(unsigned char * const *planes,
                      LCD_HEIGHT - top - RAW_VIDEO_VOLUME_H);
     return true;
 }
+
+static bool raw_blit_netflix_skip(unsigned char * const *planes,
+                                  int stride, int x, int y,
+                                  int width, int height)
+{
+    unsigned char *overlay[3] = {
+        raw_volume_y, raw_volume_u, raw_volume_v
+    };
+    const char *label;
+    int top = LCD_HEIGHT - RAW_VIDEO_VOLUME_H;
+    int text_w;
+    int button_w;
+    int button_h = 28;
+    int button_x;
+    int button_y = (RAW_VIDEO_VOLUME_H - button_h) / 2;
+
+    raw_netflix_update_skip();
+    if (!raw_netflix_launch ||
+        raw_netflix_skip_active == RAW_NETFLIX_SKIP_NONE ||
+        x != 0 || y != 0 || width != LCD_WIDTH || height != LCD_HEIGHT)
+        return false;
+
+    label = raw_netflix_skip_active == RAW_NETFLIX_SKIP_INTRO ?
+            "SKIP INTRO" : "SKIP CREDITS";
+    text_w = raw_yuv_text_width(label);
+    button_w = text_w + 24;
+    button_x = LCD_WIDTH - button_w - 10;
+    rb->memcpy(overlay[0], planes[0] + top * stride,
+               sizeof(raw_volume_y));
+    rb->memcpy(overlay[1], planes[1] + (top / 2) * (stride / 2),
+               sizeof(raw_volume_u));
+    rb->memcpy(overlay[2], planes[2] + (top / 2) * (stride / 2),
+               sizeof(raw_volume_v));
+
+    raw_yuv_rect(overlay, button_x, button_y, button_w, button_h,
+                 20, 20, 20);
+    raw_yuv_rect(overlay, button_x, button_y, button_w, 2,
+                 255, 255, 255);
+    raw_yuv_rect(overlay, button_x, button_y + button_h - 2,
+                 button_w, 2, 255, 255, 255);
+    raw_yuv_rect(overlay, button_x, button_y, 2, button_h,
+                 255, 255, 255);
+    raw_yuv_rect(overlay, button_x + button_w - 2, button_y,
+                 2, button_h, 255, 255, 255);
+    raw_yuv_text_scaled(overlay,
+                        button_x + (button_w - text_w) / 2,
+                        button_y + 9, label, 1, 255, 255, 255);
+
+    rb->lcd_blit_yuv(planes, 0, 0, stride, 0, 0, LCD_WIDTH, top);
+    rb->lcd_blit_yuv(overlay, 0, 0, LCD_WIDTH, 0, top,
+                     LCD_WIDTH, RAW_VIDEO_VOLUME_H);
+    return true;
+}
 #else
 #define raw_blit_netflix_volume(planes, stride, x, y, width, height) false
+#define raw_blit_netflix_skip(planes, stride, x, y, width, height) false
 #endif
 
 static bool raw_render_frame(unsigned char *frame_buf,
@@ -2297,7 +2460,9 @@ static bool raw_render_frame(unsigned char *frame_buf,
         planes[1] = planes[0] + dst_luma;
         planes[2] = planes[1] + dst_chroma;
         if (!raw_blit_netflix_volume(planes, dst_width, x, y,
-                                     dst_width, dst_height))
+                                     dst_width, dst_height) &&
+            !raw_blit_netflix_skip(planes, dst_width, x, y,
+                                   dst_width, dst_height))
             rb->lcd_blit_yuv(planes, 0, 0, dst_width, x, y,
                              dst_width, dst_height);
     }
@@ -2307,7 +2472,9 @@ static bool raw_render_frame(unsigned char *frame_buf,
         planes[1] = frame_buf + src_luma;
         planes[2] = planes[1] + src_chroma;
         if (!raw_blit_netflix_volume(planes, src_width, x, y,
-                                     dst_width, dst_height))
+                                     dst_width, dst_height) &&
+            !raw_blit_netflix_skip(planes, src_width, x, y,
+                                   dst_width, dst_height))
             rb->lcd_blit_yuv(planes, 0, 0, src_width, x, y,
                              dst_width, dst_height);
     }
@@ -2641,6 +2808,40 @@ static int play_raw_segment(const char *display_path, const char *yuv_path,
             }
             force_render = true;
         }
+        else if (command == RAW_INPUT_SKIP_INTRO)
+        {
+            long candidate = raw_netflix_intro_end_frame -
+                             segment_frame_offset;
+
+            raw_audio_stop();
+            raw_netflix_skip_active = RAW_NETFLIX_SKIP_NONE;
+            if (candidate >= frames)
+            {
+                if (segment_move_out != NULL)
+                    *segment_move_out = 2;
+                goto stopped;
+            }
+            frame_index = MAX(0, candidate);
+            if (rb->lseek(vfd, (off_t)frame_index * (off_t)frame_size,
+                          SEEK_SET) < 0 ||
+                load_file(vfd, frame_buf, frame_size) < 0)
+                goto out;
+            have_frame = true;
+            start_tick = *rb->current_tick - (frame_index * HZ) / fps;
+            if (!paused &&
+                !raw_audio_start_at_frame(audio_buf, audio_size, frame_index,
+                                          segment_audio_frame_size))
+                goto stopped;
+            force_render = true;
+        }
+        else if (command == RAW_INPUT_SKIP_CREDITS)
+        {
+            raw_audio_stop();
+            raw_netflix_skip_active = RAW_NETFLIX_SKIP_NONE;
+            if (segment_move_out != NULL)
+                *segment_move_out = -3;
+            goto stopped;
+        }
 
         if (paused || seek_active)
         {
@@ -2871,6 +3072,7 @@ static int play_raw_rvp(const char *path, bool netflix_launch,
         total_video_frames += raw_segment_frame_counts[i];
     }
     raw_osd_reset(total_video_frames, raw_config.fps);
+    raw_netflix_load_markers(path, raw_config.fps, total_video_frames);
     resume_frame = raw_resume_load(path, total_video_frames, raw_config.fps);
     if (netflix_restart)
         resume_frame = 0;
@@ -3022,6 +3224,33 @@ static int play_raw_rvp(const char *path, bool netflix_launch,
             i = 0;
             segment_frame_offset = 0;
             initial_frame = 0;
+            seeking = false;
+            raw_osd.scrubbing = false;
+            continue;
+        }
+        if (segment_move == -3)
+        {
+            last_position = total_video_frames;
+            i = segment_count;
+            break;
+        }
+        if (segment_move == 2)
+        {
+            long target = raw_netflix_intro_end_frame;
+
+            audio_ready[0] = false;
+            audio_ready[1] = false;
+            i = 0;
+            segment_frame_offset = 0;
+            while (i < segment_count &&
+                   target >= segment_frame_offset +
+                             raw_segment_frame_counts[i])
+            {
+                segment_frame_offset += raw_segment_frame_counts[i];
+                i++;
+            }
+            initial_frame = i < segment_count ?
+                            target - segment_frame_offset : 0;
             seeking = false;
             raw_osd.scrubbing = false;
             continue;

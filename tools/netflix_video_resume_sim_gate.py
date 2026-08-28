@@ -133,34 +133,67 @@ def prepare_root(
     return resume
 
 
-def pixel_rgb(frame: Path, x: int, y: int) -> tuple[int, int, int] | None:
+def ident_pixels(
+    frame: Path,
+) -> tuple[tuple[int, int, int], ...] | None:
+    points = ((160, 5), (160, 234), (160, 120), (30, 120))
+    pixel_format = "|".join(
+        f"%[pixel:p{{{x},{y}}}]" for x, y in points
+    )
     result = subprocess.run(
-        ["magick", str(frame), "-format", f"%[pixel:p{{{x},{y}}}]", "info:"],
+        ["magick", str(frame), "-format", pixel_format, "info:"],
         check=False,
         capture_output=True,
         text=True,
     )
-    values = [int(value) for value in re.findall(r"\d+", result.stdout)]
-    return tuple(values[:3]) if len(values) >= 3 else None
+    pixels = []
+    for sample in result.stdout.split("|"):
+        values = [int(value) for value in re.findall(r"\d+", sample)]
+        if len(values) < 3:
+            return None
+        pixels.append(tuple(values[:3]))
+    return tuple(pixels) if len(pixels) == len(points) else None
 
 
-def is_2013_ident(frame: Path) -> bool:
-    top = pixel_rgb(frame, 160, 5)
-    center = pixel_rgb(frame, 160, 120)
-    side = pixel_rgb(frame, 30, 120)
+def is_2013_ident_surface(frame: Path) -> bool:
+    pixels = ident_pixels(frame)
+    if not pixels:
+        return False
+    top, bottom, center, side = pixels
     return bool(
-        top and center and side and max(top) < 10
+        min(top) > 40 and min(bottom) > 150
         and min(center) > 150 and min(side) > 120
     )
 
 
-def wait_for_2013_ident(frame: Path, timeout: float = 10.0) -> None:
+def is_2013_wordmark(frame: Path) -> bool:
+    pixels = ident_pixels(frame)
+    if not pixels:
+        return False
+    top, bottom, center, side = pixels
+    return bool(
+        min(top) > 40 and min(bottom) > 150
+        and center[0] > 180 and center[1] < 80 and center[2] < 80
+        and min(side) > 120
+    )
+
+
+def wait_for_2013_ident_surface(frame: Path, timeout: float = 10.0) -> None:
     deadline = time.monotonic() + timeout
     while time.monotonic() < deadline:
-        if is_2013_ident(frame):
+        if is_2013_ident_surface(frame):
             return
         time.sleep(0.04)
-    raise SystemExit("official 2013 Netflix video ident did not appear")
+    raise SystemExit("full-screen 2013 Netflix video ident did not appear")
+
+
+def wait_for_2013_wordmark(frame: Path, timeout: float = 3.0) -> None:
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        if is_2013_wordmark(frame):
+            return
+        time.sleep(0.01)
+    raise SystemExit("2013 Netflix video ident did not reach its wordmark")
 
 
 def simulator_environment(frame: Path, audio: Path) -> dict[str, str]:
@@ -206,7 +239,8 @@ def run_fresh_case(
     try:
         window_id(process.pid)
         wait_for_file(frame)
-        wait_for_2013_ident(frame)
+        wait_for_2013_ident_surface(frame)
+        wait_for_2013_wordmark(frame)
         capture(frame, output / "video-ident-2013.png")
         time.sleep(1.5)
     finally:
@@ -236,7 +270,7 @@ def run_resume_case(
         wait_for_file(frame)
         deadline = time.monotonic() + 2.0
         while time.monotonic() < deadline:
-            if is_2013_ident(frame):
+            if is_2013_ident_surface(frame):
                 raise SystemExit("2013 Netflix ident replayed during resume")
             time.sleep(0.04)
         capture(frame, output / "video-resumed-direct.png")

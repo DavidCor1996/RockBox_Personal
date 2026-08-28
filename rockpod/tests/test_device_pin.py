@@ -115,6 +115,33 @@ def test_settings_lock_needs_a_valid_pin_before_it_locks_anyone_out():
     assert unlock.count("return false;") >= 3
 
 
+def test_only_extras_files_uses_the_shared_settings_pin_gate():
+    root = ROOT_MENU.read_text(encoding="utf-8")
+
+    assert 'videos_unlock_with_shared_pin("Unlock Files"' in root
+    assert "static bool videos_files_lock_active(void)" in root
+    files_lock = root.split(
+        "static bool videos_files_lock_active(void)", 1
+    )[1].split("\n}", 1)[0]
+    assert "global_settings.ui_engine_lock_settings" in files_lock
+    assert "videos_read_shared_pin(expected, sizeof(expected)) == 0" in files_lock
+
+    extras = root.split("static int root_menu_video_extras_menu(void)", 1)[1]
+    extras = extras.split("struct root_menu_video_application_item", 1)[0]
+    assert "GO_TO_FILEBROWSER &&" in extras
+    assert "videos_files_lock_active() &&" in extras
+    assert "!videos_unlock_files_browser())" in extras
+
+    # Music's database and Files rows both reach the shared root dispatcher.
+    # That dispatcher must remain free of the Extras-only PIN check.
+    dispatcher = root.split("void root_menu(void)", 1)[1]
+    dispatcher = dispatcher.split("static int load_context_screen", 1)[0]
+    assert "case GO_TO_DBBROWSER:" in dispatcher
+    assert "case GO_TO_FILEBROWSER:" in dispatcher
+    assert "videos_files_lock_active()" not in dispatcher
+    assert "videos_unlock_files_browser()" not in dispatcher
+
+
 def test_rockpod_exposes_the_pin_editor_under_the_device_menu():
     main_window = (ROOT / "rockpod" / "ui" / "main_window.py").read_text(
         encoding="utf-8"

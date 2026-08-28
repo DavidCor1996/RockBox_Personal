@@ -4,6 +4,10 @@ This procedure is for the opt-in composite-video diagnostic in the custom
 Rockbox `ipod6g` build. It does not apply to an iPod touch. Do not connect or
 deploy this firmware to an iPod touch.
 
+This is the procedure; the authoritative physical observations and current
+qualification build are recorded in
+[`ipod6g-dcp750-videoout-results.md`](ipod6g-dcp750-videoout-results.md).
+
 ## Before the DCP750 arrives
 
 - Keep the known-good stock or current Rockbox firmware available for recovery.
@@ -45,6 +49,12 @@ ejecting.
 5. Before touching video, enable `Accessory Power Supply`, `Line Out`, and
    automatic `Serial Bitrate` in Rockbox. Play a music track and verify the
    DCP750 speakers, charging state, remote buttons, and physical clickwheel.
+   Then open Live TV and verify Previous/Next changes exactly one channel and
+   Play opens the full guide. In the guide, verify Previous/Next taps change
+   channel rows, holding them moves through time, and Play tunes the selection.
+   Test any transmitted Menu, Select, Up, and Down events too. Open Desktop
+   Mode and verify Previous/Next moves focus and Play opens the focused item.
+   Keep the clickwheel usable in both applications.
 6. Stop audio and video playback before opening the diagnostic.
 7. Open `System` > `Debug (Keep Out!)` > `Test composite video`.
 

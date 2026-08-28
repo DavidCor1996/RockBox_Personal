@@ -414,3 +414,65 @@ destination `(36,24) 648x432`, H/V ratios `252/142`, and mixer config `0x12`.
 Do not alter this qualified color, geometry, packing, or field state while
 optimizing throughput.  UI and video motion are currently choppy; that is a
 separate performance issue in the live framebuffer mirror path.
+
+## FPS qualification build: dormant undocked, optimized while docked
+
+Firmware SHA-256:
+`8bc7969a57f414a31d88f68fbff154800d86fa1a266bdcb4e2e8821eaddb7eea`.
+
+Two independent causes were found.  First, the `On` setting treated accessory
+state `NONE` as safe.  That started SVID, mirrored every LCD update, retained
+the shared LCD/output clock, and held a CPU/HCLK boost even with no dock
+attached.  `On` now arms the preference but SVID starts only when serial dock
+classification publishes `VIDEO`.  `NONE`, `PENDING`, and `BLOCKED` cannot
+start SVID; a transition away from `VIDEO` schedules normal-context shutdown,
+which stops mirroring and releases its boost and output-clock ownership.  This
+still supports the silent DCP750: a responsive video dock qualifies after
+three seconds and a silent legacy video dock after the bounded ten-second
+identification window.
+
+`Auto` is now the default preference.  The Composite Quick Setting toggles
+between `Off` and `Auto`; while armed it reads `Auto` when no qualified dock is
+active and `On` after detection has actually started SVID.  A deliberate
+`Off` remains a hard veto, so automatic detection never defeats the user's
+manual disable.  Plug and unplug events change only the effective runtime
+state and do not rewrite the configuration file.
+
+Second, compiled ARM disassembly identified the docked UI mirror bottleneck.
+The qualified converter called `__aeabi_idiv` three times for every RGB565
+pixel.  A complete 320x240 update converted all 76,800 pixels once for luma
+and four pixels for each of 19,200 chroma samples: 153,600 conversions and
+460,800 software divisions per frame.  The dirty path also issued one cache
+clean per luma row and two per chroma row, up to 480 calls for one full frame,
+while the LCD mutex was held.
+
+The optimized docked paths are:
+
+- ordinary UI updates use exact 32-entry RGB5 and 64-entry RGB6 expansion
+  tables.  Their total BSS cost is 96 bytes; they do not allocate, shrink, or
+  borrow core/plugin/playback memory;
+- even 4:2:0 rectangles convert each RGB565 source pixel once while producing
+  luma and averaged chroma in one pass, reducing a full frame to 76,800
+  conversions and zero software divisions;
+- dirty output is cache-cleaned once per Y, Cb, and Cr plane instead of once
+  per row;
+- decoded video now copies its native Y, Cb, and Cr planes directly into the
+  qualified VP planes.  The external path no longer performs the redundant
+  YUV420 -> RGB565 -> YUV420 round trip.  The normal RGB fallback runs only if
+  direct planar mirroring is unavailable or a presentation overlay was
+  actually composed;
+- the YUV presentation path also retains its original height directly, so its
+  compiled hot path contains no recovery division;
+- an exhaustive host gate confirms that all 65,536 RGB565 inputs produce the
+  same Y, Cb, and Cr bytes as the physically passed implementation;
+- compiled disassembly confirms exactly three decoded-video plane copies,
+  three batched cache cleans, no RGB conversion in the direct-video mirror,
+  and no `__aeabi_idiv` in either live conversion path;
+- compiled shutdown restores the saved platform state and releases both the
+  shared LCD/output clock and the bus-boost reference.
+
+The physically qualified native 320x240 YUV420 layout, Cb/Cr order,
+destination `(36,24) 648x432`, H/V ratios `252/142`, mixer config `0x12`, SDO
+setup, and output clocks are unchanged.  Hardware and simulator builds pass,
+as does the complete video-output gate.  Physical docked UI/video FPS
+qualification remains pending because the iPod was unavailable for this pass.

@@ -269,6 +269,17 @@ class VideoOutPanel(QWidget):
         self._frame_generation = 0
         self._frame_is_video = False
         self._frame_times = []
+        # Native-rate accounting. lcd_external_generation ticks once per
+        # decoded frame on the iPod, and every packet header carries it, so
+        # the gap between two displayed frames is exactly how many frames the
+        # device produced that we never showed.
+        self._last_shown_generation = 0
+        self._native_deltas = []
+        self._request_sent = 0.0
+        self._decode_seconds = 0.0
+        self._transport_ms = 0.0
+        self._decode_ms = 0.0
+        self._paint_ms = 0.0
         self._last_transport_log = 0.0
         self._remote_events = []
         self._auto_connect_attempted = False
@@ -538,11 +549,13 @@ class VideoOutPanel(QWidget):
             self._status_label.setText(f"iPod framebuffer request failed: {error}")
             return
         self._awaiting_frame = True
-        self._request_deadline = time.monotonic() + 2.0
+        self._request_sent = time.monotonic()
+        self._request_deadline = self._request_sent + 2.0
         self._frame_buffer = None
         self._frame_offsets = set()
         self._frame_received = 0
         self._frame_total = 0
+        self._decode_seconds = 0.0
 
     def _poll_network(self):
         if self._socket is None:
@@ -586,12 +599,14 @@ class VideoOutPanel(QWidget):
             self._awaiting_frame = False
             QTimer.singleShot(60, self._send_frame_request)
             return
-        if packet_type not in (0x10, 0x11, 0x13):
+        if packet_type not in (0x10, 0x11, 0x13, 0x14):
             return
         if total != width * height * 2 or total > FRAMEBUFFER_MAX_BYTES:
             return
-        if packet_type == 0x11:
+        if packet_type in (0x11, 0x14):
+            decode_started = time.monotonic()
             payload = self._decode_packbits_rgb565(payload, total - offset)
+            self._decode_seconds += time.monotonic() - decode_started
             if payload is None:
                 return
         if not payload or offset + len(payload) > total:
@@ -602,7 +617,7 @@ class VideoOutPanel(QWidget):
             self._frame_height = height
             self._frame_total = total
             self._frame_generation = generation
-            self._frame_is_video = packet_type == 0x13
+            self._frame_is_video = packet_type in (0x13, 0x14)
         if generation != self._frame_generation:
             return
         if offset in self._frame_offsets:
@@ -613,6 +628,7 @@ class VideoOutPanel(QWidget):
         if self._frame_received < self._frame_total:
             return
 
+        complete = time.monotonic()
         frame = QImage(
             bytes(self._frame_buffer),
             self._frame_width,
@@ -623,25 +639,58 @@ class VideoOutPanel(QWidget):
         if frame.isNull():
             return
         self._preview.set_frame(frame)
-        self._awaiting_frame = False
         now = time.monotonic()
+        self._awaiting_frame = False
+
+        # Transport is request-sent to last-packet-in; paint is the QImage
+        # copy and the widget update. Together with the frame interval they
+        # account for the whole budget, so the slow half is identifiable
+        # without guessing.
+        self._transport_ms = ((complete - self._request_sent) * 1000.0
+                              if self._request_sent else 0.0)
+        self._decode_ms = self._decode_seconds * 1000.0
+        self._paint_ms = (now - complete) * 1000.0
+
+        # How many frames the iPod rendered since the one we last showed. A
+        # steady 1 means we are at native rate; 2 means we are showing every
+        # other frame.
+        delta = (generation - self._last_shown_generation) & 0xFFFF
+        self._last_shown_generation = generation
+        if 1 <= delta <= 64:
+            self._native_deltas.append(delta)
+            del self._native_deltas[:-60]
+
         self._frame_times = [stamp for stamp in self._frame_times if now - stamp < 2.0]
         self._frame_times.append(now)
         fps = len(self._frame_times) / min(2.0, max(0.25, now - self._frame_times[0] + 0.25))
+        if self._native_deltas:
+            mean_delta = sum(self._native_deltas) / len(self._native_deltas)
+        else:
+            mean_delta = 1.0
+        native_fps = fps * mean_delta
+        dropped = (1.0 - 1.0 / mean_delta) * 100.0 if mean_delta > 0 else 0.0
+
         if now - self._last_transport_log >= 2.0:
             LOGGER.info(
-                "Physical iPod video out: %.1f fps %dx%d mode=%s",
-                fps, self._frame_width, self._frame_height,
-                "video" if self._frame_is_video else "ui",
+                "Physical iPod video out: %.1f fps (native %.1f fps, %.0f%% of "
+                "frames dropped) %dx%d mode=%s transport=%.1fms decode=%.1fms "
+                "paint=%.1fms",
+                fps, native_fps, dropped, self._frame_width,
+                self._frame_height, "video" if self._frame_is_video else "ui",
+                self._transport_ms, self._decode_ms, self._paint_ms,
             )
             self._last_transport_log = now
         self._status_label.setText(
-            f"LIVE PHYSICAL IPOD · {self._interface} · {fps:.1f} fps · "
-            f"{self._frame_width}×{self._frame_height} low-latency RGB565 · "
-            "audio: laptop USB monitor"
+            f"LIVE PHYSICAL IPOD · {self._interface} · {fps:.1f} of "
+            f"{native_fps:.1f} native fps · {self._frame_width}×"
+            f"{self._frame_height} low-latency RGB565 · "
+            f"transport {self._transport_ms:.0f}ms · "
+            f"paint {self._paint_ms:.0f}ms · audio: laptop USB monitor"
         )
-        delay = 0 if self._frame_is_video else 30
-        QTimer.singleShot(delay, self._send_frame_request)
+        # A fixed floor here capped the UI path near 30fps no matter how fast
+        # the link ran. The loop is self-limiting: one request per completed
+        # frame, so the request rate can never exceed the frame rate.
+        QTimer.singleShot(0, self._send_frame_request)
 
     @staticmethod
     def _decode_packbits_rgb565(payload, capacity):

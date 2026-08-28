@@ -6,6 +6,10 @@ tests are about determinism and about the file format both sides parse.
 """
 
 import json
+import os
+import threading
+import shutil
+import time
 from pathlib import Path
 
 import pytest
@@ -29,9 +33,51 @@ REPO = Path(__file__).parents[2]
 GUIDE_C = REPO / "apps" / "plugins" / "mpegplayer" / "livetv_guide.c"
 GUIDE_H = REPO / "apps" / "plugins" / "mpegplayer" / "livetv.h"
 PLAYER_C = REPO / "apps" / "plugins" / "mpegplayer" / "mpegplayer.c"
+IAP_LINGO4_C = REPO / "apps" / "iap" / "iap-lingo4.c"
 VIDEO_OUT_C = (
     REPO / "apps" / "plugins" / "mpegplayer" / "video_out_rockbox.c"
 )
+
+
+def test_ipod_dock_remote_controls_live_tv_watch_and_guide():
+    player = PLAYER_C.read_text(encoding="utf-8")
+    guide = GUIDE_C.read_text(encoding="utf-8")
+
+    for mapping in (
+        "#define MPEG_RC_MENU    BUTTON_RC_MENU",
+        "#define MPEG_RC_STOP    BUTTON_RC_STOP",
+        "#define MPEG_RC_PAUSE   (BUTTON_RC_PLAY | BUTTON_REL)",
+        "#define MPEG_RC_RW      BUTTON_RC_LEFT",
+        "#define MPEG_RC_FF      BUTTON_RC_RIGHT",
+        "#define MPEG_RC_ZOOM    (BUTTON_RC_SELECT | BUTTON_REL)",
+        "#define MPEG_RC_GUIDE   BUTTON_RC_PLAY",
+    ):
+        assert mapping in player
+    assert "&& button != MPEG_RC_MENU" in player
+    assert "case MPEG_RC_ZOOM:" in player
+    assert "case MPEG_RC_GUIDE:" in player
+
+    assert "static int livetv_remote_button(int button)" in guide
+    assert "case BUTTON_RC_UP:" in guide
+    assert "case BUTTON_RC_DOWN:" in guide
+    assert "case BUTTON_RC_LEFT:" in guide
+    assert "case BUTTON_RC_RIGHT:" in guide
+    assert "case BUTTON_RC_PLAY:" in guide
+    assert "case BUTTON_RC_SELECT:" in guide
+    assert "case BUTTON_RC_MENU:" in guide
+    assert "case BUTTON_RC_STOP:" in guide
+    assert "return repeat ? LIVETV_BTN_LEFT : LIVETV_BTN_UP;" in guide
+    assert "return repeat ? LIVETV_BTN_RIGHT : LIVETV_BTN_DOWN;" in guide
+    assert guide.count(
+        "livetv_remote_button(mpeg_button_get("
+    ) == 4
+
+    iap = IAP_LINGO4_C.read_text(encoding="utf-8")
+    play_control = iap[
+        iap.index("case 0x0029: /* PlayControl */") :
+        iap.index("case 0x002A: /* GetTrackArtworkTimes */")
+    ]
+    assert play_control.count("iap_timeoutbtn = 3;") == 4
 
 
 def test_live_tv_volume_uses_owned_green_crt_overlay():
@@ -105,6 +151,123 @@ def test_youtube_live_channels_have_stable_names_icons_and_assignments(
         "majority-report", ["/old/one.mp4", "/old/two.mp4"],
         ["/old/two.mp4"])
     assert stale == ["shows/The_Majority_Report/one.mpg"]
+
+
+def test_youtube_download_pins_the_player_client(tmp_path, monkeypatch):
+    """yt-dlp's default android_vr client hands back DASH URLs YouTube then
+    refuses with HTTP 403, so the fetch pins a client that works."""
+    monkeypatch.setenv("HOME", str(tmp_path))
+
+    class Config:
+        video_dir = str(tmp_path / "Videos")
+        video_dirs = [video_dir]
+        ffmpeg_binary = "ffmpeg"
+        youtube_movie_binary = "yt-dlp"
+
+        def get(self, key, default=None):
+            return getattr(self, key, default)
+
+    commands = []
+
+    class Result:
+        returncode = 0
+        stdout = ""
+        stderr = ""
+
+    def runner(command, **kwargs):
+        commands.append(list(command))
+        return Result()
+
+    library = livetv.LiveTvLibrary(Config())
+    youtube = livetv.LiveTvYoutubeChannelSync(library, Config(), runner)
+    youtube._recent_full_episodes = lambda spec: [
+        {"id": "abc", "title": "Episode", "url": "https://example/watch?v=abc"},
+    ]
+
+    youtube.download("majority-report")
+
+    assert len(commands) == 1
+    command = commands[0]
+    index = command.index("--extractor-args")
+    assert command[index + 1] == "youtube:player_client=android"
+
+
+def test_reconcile_keeps_channels_sourced_outside_the_scanned_roots(
+        tmp_path, monkeypatch):
+    """A TV information or YouTube station must survive any sync.
+
+    Their material lives outside ~/Videos/Live, so a plain Live TV sync is
+    never handed it and used to publish a guide with those channels missing.
+    """
+    monkeypatch.setenv("HOME", str(tmp_path))
+
+    class Config:
+        video_dir = str(tmp_path / "Videos")
+        video_dirs = [video_dir]
+        ffmpeg_binary = "ffmpeg"
+
+        def get(self, key, default=None):
+            return getattr(self, key, default)
+
+    reel = tmp_path / "cache" / "tv-information" / "nasa" / "nasa-current.mkv"
+    reel.parent.mkdir(parents=True)
+    reel.write_bytes(b"x" * 2048)
+
+    library = livetv.LiveTvLibrary(Config())
+    library._probe_duration = lambda path: 1800
+    sync = livetv.LiveTvSync(library)
+    lineup = LiveTvLineup(library)
+    lineup.channels.append(livetv.LiveTvChannel(
+        number=109, callsign="NASA", name="NASA",
+        category=livetv.LIVETV_TV_INFORMATION_CATEGORY_PREFIX + "NASA"))
+    lineup.channels[0].shows = [str(reel)]
+
+    shows, _ads = sync.reconcile_missing_sources(lineup, [], [])
+
+    assert [item.key for item in shows] == [str(reel)]
+    # The series comes from the channel, not the filename, so the recovered
+    # item points at the clip already on the iPod instead of a new path.
+    assert shows[0].device_relative() == "shows/NASA/nasa-current.mpg"
+
+
+def test_autobuild_leaves_youtube_series_to_their_station(tmp_path,
+                                                          monkeypatch):
+    """A station whose name differs from its series must not duplicate.
+
+    scan() walks the staging area, so downloaded episodes reappear under the
+    series they were filed as.  Grouping them here used to create a second
+    channel beside the one ensure_channel() maintains.
+    """
+    monkeypatch.setenv("HOME", str(tmp_path))
+
+    class Config:
+        video_dir = str(tmp_path / "Videos")
+        video_dirs = [video_dir]
+        ffmpeg_binary = "ffmpeg"
+
+        def get(self, key, default=None):
+            return getattr(self, key, default)
+
+    library = livetv.LiveTvLibrary(Config())
+    lineup = LiveTvLineup(library)
+    episodes = [
+        LiveTvMedia(str(tmp_path / f"c5-{index}.mp4"), "show", "Episode",
+                    "Channel 5 with Andrew Callaghan", duration=1800)
+        for index in range(3)
+    ]
+
+    lineup.autobuild(episodes, [])
+
+    assert lineup.channels == []
+
+    youtube = livetv.LiveTvYoutubeChannelSync(library, Config())
+    youtube._logo_path = lambda spec: ""
+    channel = youtube.ensure_channel(lineup, "channel-5", episodes)
+
+    lineup.autobuild(episodes, [])
+
+    assert [item.callsign for item in lineup.channels] == ["C5"]
+    assert channel.shows == [item.key for item in episodes]
 
 
 def test_weather_news_breaks_are_distinct_from_long_forecast_reports():
@@ -1298,12 +1461,23 @@ class _StubLibraryForSync:
     device-write paths, without touching ffmpeg, the network or state
     files on disk."""
 
-    def __init__(self, cache_root, roots):
+    def __init__(self, cache_root, roots, manifest_path=None):
         self._cache_root = cache_root
         self._roots = [str(r) for r in roots]
+        # Opt-in: tests that do not pass a path keep the pre-manifest
+        # behaviour, so their expectations are unaffected.
+        self._manifest_path = str(manifest_path) if manifest_path else None
+        self._manifest = None
 
     def cache_dir(self):
         return str(self._cache_root)
+
+    def clip_manifest(self):
+        if self._manifest_path is None:
+            return livetv._NoClipManifest()
+        if self._manifest is None:
+            self._manifest = livetv.LiveTvClipManifest(self._manifest_path)
+        return self._manifest
 
     def staging_dir(self):
         return str(self._cache_root / "staging")
@@ -1379,6 +1553,48 @@ def test_a_show_missing_locally_is_rebuilt_from_its_cached_copy(tmp_path):
     assert slots and all(slot.channel == 103 for slot in slots)
 
 
+def test_a_show_missing_from_laptop_and_cache_uses_mounted_ipod_copy(
+        tmp_path):
+    """Clearing both source and disposable encode cache keeps Live TV when
+    the scheduled MPEG is still physically present on the mounted iPod."""
+    root = tmp_path / "live"
+    mount = tmp_path / "mounted-ipod"
+    library = _StubLibraryForSync(tmp_path / "cache", [root])
+    sync = livetv.LiveTvSync(library)
+
+    path = str(root / "WWE_Monday_Night_Raw_2006_01_02_SHD.mp4")
+    item = LiveTvMedia(
+        path=path,
+        kind="show",
+        title="Raw",
+        series=series_name(path, str(root)),
+    )
+    device_copy = Path(sync.device_root(str(mount))) / item.device_relative()
+    device_copy.parent.mkdir(parents=True)
+    device_copy.write_bytes(b"authoritative-device-mpeg")
+    assert not Path(path).exists()
+    assert not Path(sync.cached_mpeg_path(item)).exists()
+
+    channel = LiveTvChannel(
+        number=103,
+        callsign="USA",
+        name="USA Network",
+        shows=[path],
+        ads=[],
+    )
+    lineup = _Lineup([channel])
+
+    shows, ads = sync.reconcile_missing_sources(
+        lineup, [], [], str(mount)
+    )
+
+    assert ads == []
+    assert len(shows) == 1
+    assert shows[0].path == path
+    assert shows[0].device_only is True
+    assert shows[0].duration == 42
+
+
 def test_reconcile_drops_a_path_with_no_cached_copy_either(tmp_path):
     """A show that is neither on disk nor ever synced stays dropped."""
     root = tmp_path / "live"
@@ -1439,3 +1655,245 @@ def test_sync_never_writes_a_guide_row_for_a_slot_that_failed_to_copy(
     assert "\tGOOD\t" in channels_text
     assert "\tBAD\t" not in channels_text
     assert summary["channels"] == 1
+
+
+def _sync_with_manifest(tmp_path, monkeypatch):
+    """A one-channel sync whose only encode is counted, not really run."""
+    root = tmp_path / "live"
+    root.mkdir(parents=True, exist_ok=True)
+    source = root / "show.mp4"
+    source.write_bytes(b"source-bytes")
+
+    library = _StubLibraryForSync(tmp_path / "cache", [root],
+                                  manifest_path=tmp_path / "clips.db")
+    sync = livetv.LiveTvSync(library)
+    monkeypatch.setattr(sync, "install_logos", lambda *a, **k: None)
+
+    item = _media(str(source), "show", 1000, "Show", "Show")
+    lineup = _Lineup([LiveTvChannel(number=100, callsign="CH", name="Channel",
+                                    shows=[item.path], ads=[])])
+
+    calls = []
+
+    def counting_ensure_mpeg(media):
+        calls.append(media.path)
+        target = Path(sync.cached_mpeg_path(media))
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(b"x" * 4096)
+        return str(target)
+
+    monkeypatch.setattr(sync, "ensure_mpeg", counting_ensure_mpeg)
+    return sync, lineup, item, calls, source
+
+
+def test_clearing_the_encode_cache_does_not_re_encode_clips_already_on_device(
+        tmp_path, monkeypatch):
+    """Freeing disk by deleting the encode cache must stay cheap.
+
+    The cache is disposable, but it used to be the only record that a clip
+    had been produced, so sync() re-encoded every clip just to learn its size
+    before skipping the copy. The manifest keeps that size, so a wiped cache
+    costs no ffmpeg time for clips already on the iPod.
+    """
+    sync, lineup, item, calls, _source = _sync_with_manifest(tmp_path,
+                                                             monkeypatch)
+    mount = tmp_path / "ipod"
+
+    first = sync.sync(str(mount), lineup, [item], [])
+    assert calls, "the first sync must actually encode"
+    assert first["copied"] >= 1
+    encodes_after_first = len(calls)
+
+    # Exactly what "delete the cache to reclaim disk" does.
+    shutil.rmtree(sync._library.cache_dir(), ignore_errors=True)
+
+    second = sync.sync(str(mount), lineup, [item], [])
+
+    assert len(calls) == encodes_after_first, (
+        "a cleared cache re-encoded clips that were already on the device")
+    assert second["reused"] >= 1
+    assert second["converted"] == 0
+    assert second["copied"] == 0
+
+    device_clip = Path(sync.device_root(str(mount))) / item.device_relative()
+    assert device_clip.is_file()
+
+
+def test_deleted_source_and_cache_keep_live_tv_clip_from_mounted_ipod(
+        tmp_path, monkeypatch):
+    """The iPod copy is authoritative once both laptop copies are cleared."""
+    sync, lineup, item, calls, source = _sync_with_manifest(
+        tmp_path, monkeypatch
+    )
+    # Match the real scanner: a root-level file derives its series from the
+    # filename, so reconciliation computes the same deterministic path.
+    item.series = livetv.series_name(item.path, str(source.parent))
+    mount = tmp_path / "ipod"
+
+    first = sync.sync(str(mount), lineup, [item], [])
+    assert first["copied"] >= 1
+    encodes_after_first = len(calls)
+    device_clip = Path(sync.device_root(str(mount))) / item.device_relative()
+    assert device_clip.is_file()
+
+    source.unlink()
+    shutil.rmtree(sync._library.cache_dir(), ignore_errors=True)
+
+    # A real scan now returns no local media. Reconciliation must recover the
+    # scheduled item from the mounted device rather than erase its channel.
+    second = sync.sync(str(mount), lineup, [], [])
+
+    assert len(calls) == encodes_after_first
+    assert second["converted"] == 0
+    assert second["copied"] == 0
+    assert second["reused"] == 1
+    assert second["channels"] == 1
+    assert second["errors"] == []
+    assert device_clip.is_file()
+
+
+def test_a_changed_source_still_rebuilds_even_though_it_is_on_the_device(
+        tmp_path, monkeypatch):
+    """Reuse must never outlive the source it was made from."""
+    sync, lineup, item, calls, source = _sync_with_manifest(tmp_path,
+                                                            monkeypatch)
+    mount = tmp_path / "ipod"
+
+    sync.sync(str(mount), lineup, [item], [])
+    encodes_after_first = len(calls)
+
+    shutil.rmtree(sync._library.cache_dir(), ignore_errors=True)
+    # Re-cut the same programme: same device path, different content.
+    source.write_bytes(b"different-source-bytes-entirely")
+    os.utime(source, (time.time() + 10, time.time() + 10))
+
+    summary = sync.sync(str(mount), lineup, [item], [])
+
+    assert len(calls) > encodes_after_first, (
+        "an edited source was served from a stale manifest entry")
+    assert summary["converted"] >= 1
+
+
+def test_recutting_a_programme_rebuilds_it_even_though_the_source_is_untouched(
+        tmp_path, monkeypatch):
+    """The manifest, not the clock, decides whether a clip is still right.
+
+    Trimming a programme changes the encode but leaves the source file
+    completely alone, so any freshness rule based on timestamps still sees a
+    device clip that is newer than its source and would happily keep airing
+    the old cut. Only the recorded fingerprint catches this.
+    """
+    sync, lineup, item, calls, _source = _sync_with_manifest(tmp_path,
+                                                             monkeypatch)
+    mount = tmp_path / "ipod"
+
+    sync.sync(str(mount), lineup, [item], [])
+    encodes_after_first = len(calls)
+    shutil.rmtree(sync._library.cache_dir(), ignore_errors=True)
+
+    # Same file, same mtime, same device path - only the cut changed.
+    recut = _media(item.path, "show", 1000, "Show", "Show")
+    recut.cuts = [[10, 20]]
+    assert recut.device_relative() == item.device_relative()
+
+    summary = sync.sync(str(mount), lineup, [recut], [])
+
+    assert len(calls) > encodes_after_first, (
+        "a re-cut programme kept airing the clip made from the old cut")
+    assert summary["converted"] >= 1
+
+
+def test_manifest_survives_being_used_from_another_thread(tmp_path):
+    """sync() runs on a worker thread, the library is cached on the UI thread.
+
+    A connection opened with sqlite3's default check_same_thread would raise
+    ProgrammingError here - and because that is a DatabaseError, the manifest
+    would swallow it, return None for every lookup and quietly fall back to
+    reusing clips without ever checking the fingerprint.
+    """
+    manifest = livetv.LiveTvClipManifest(str(tmp_path / "clips.db"))
+    manifest.record("p", "shows/a.mpg", "fp1", 4096)
+
+    seen = []
+
+    def read_it():
+        seen.append(manifest.expected_size("p", "shows/a.mpg", "fp1"))
+        manifest.record("p", "shows/b.mpg", "fp2", 8192)
+
+    worker = threading.Thread(target=read_it)
+    worker.start()
+    worker.join()
+
+    assert seen == [4096], "the manifest was unusable from a worker thread"
+    assert manifest.expected_size("p", "shows/b.mpg", "fp2") == 8192
+    manifest.close()
+
+
+class _WeatherSyncSpy:
+    """Records how ensure_weather_channel called into the carrier build."""
+
+    def __init__(self):
+        self.kwargs = None
+
+    def ensure_weather_sources(self, music_files, config=None, **kwargs):
+        self.kwargs = kwargs
+        return []
+
+
+def test_weather_phase_is_given_the_progress_and_cancel_hooks(monkeypatch):
+    """The weather build runs before sync() and used to report nothing.
+
+    ensure_weather_channel() is called first and takes minutes of ffmpeg, so
+    without these hooks the UI sat on a blank progress bar for the whole
+    phase and closing the window could not stop it.
+    """
+    monkeypatch.setattr(livetv, "weather_forecast_synced", lambda config: True)
+    monkeypatch.setattr(livetv, "weather_music_files",
+                        lambda config: ["/music/a.mp3"])
+    spy = _WeatherSyncSpy()
+
+    def progress(done, total, label):
+        return None
+
+    def cancel():
+        return False
+
+    livetv.ensure_weather_channel(spy, _Lineup([]), object(), [], [],
+                                  progress=progress, cancel=cancel)
+
+    assert spy.kwargs is not None, "the carrier build was never reached"
+    assert spy.kwargs.get("progress") is progress
+    assert spy.kwargs.get("cancel") is cancel
+
+
+def test_sync_stops_at_the_next_clip_when_cancelled(tmp_path, monkeypatch):
+    """Closing the window must stop the sync, not orphan it.
+
+    A worker that keeps running after the window closes outlives the
+    single-instance lock, which is how two RockPods ended up transcoding
+    into the same cache and iPod at once.
+    """
+    sync, lineup, item, calls, _source = _sync_with_manifest(tmp_path,
+                                                             monkeypatch)
+    mount = tmp_path / "ipod"
+
+    summary = sync.sync(str(mount), lineup, [item], [],
+                        cancel=lambda: True)
+
+    assert calls == [], "a cancelled sync still ran ffmpeg"
+    assert summary["converted"] == 0
+
+
+def test_reused_clips_are_not_also_counted_as_skipped_copies(tmp_path,
+                                                             monkeypatch):
+    """"Skipped" means a copy was skipped; reuse skips the encode as well."""
+    sync, lineup, item, calls, _source = _sync_with_manifest(tmp_path,
+                                                             monkeypatch)
+    mount = tmp_path / "ipod"
+
+    sync.sync(str(mount), lineup, [item], [])
+    shutil.rmtree(sync._library.cache_dir(), ignore_errors=True)
+    second = sync.sync(str(mount), lineup, [item], [])
+
+    assert second["reused"] == 1
+    assert second["skipped"] == 0

@@ -199,6 +199,18 @@ enum plugin_status plugin_start(const void *parameter)
     }
     snes_lite_arena_init(buffer, buffer_size);
     open_log();
+#ifdef SIMULATOR
+    if (getenv("SNES_LITE_TEST_CONTROLS"))
+    {
+        unsigned coverage = 0;
+        bool passed = snes_lite_input_selftest(&coverage);
+
+        snes_lite_log("controls selftest=%s coverage=0x%03x expected=0xfff",
+                      passed ? "pass" : "fail", coverage);
+        result = passed ? PLUGIN_OK : PLUGIN_ERROR;
+        goto cleanup;
+    }
+#endif
     if (!snes_lite_video_selftest())
     {
         rb->splash(HZ * 3, "SNES video self-test failed");

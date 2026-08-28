@@ -87,6 +87,11 @@ int do_user_menu(void) {
 
     backlight_use_settings();
 
+    /* Persist cartridge SRAM before a save-state or USB-related failure can
+     * strand an in-game save in emulator memory. */
+    if (!sram_save())
+        rb->splash(HZ, "Cartridge save failed");
+
     /* Clean out the button Queue */
     while (rb->button_get(false) != BUTTON_NONE)
         rb->yield();
@@ -188,9 +193,43 @@ static void build_slot_path(char *buf, size_t bufsiz, int slot_id) {
  * If no description is provided, set @desc to NULL.
  *
  */
+static bool read_exact(int fd, void *buffer, size_t size)
+{
+    unsigned char *cursor = buffer;
+
+    while (size > 0)
+    {
+        ssize_t count = read(fd, cursor, size);
+
+        if (count <= 0)
+            return false;
+        cursor += count;
+        size -= count;
+    }
+    return true;
+}
+
+static bool write_exact(int fd, const void *buffer, size_t size)
+{
+    const unsigned char *cursor = buffer;
+
+    while (size > 0)
+    {
+        ssize_t count = write(fd, cursor, size);
+
+        if (count <= 0)
+            return false;
+        cursor += count;
+        size -= count;
+    }
+    return true;
+}
+
 static bool do_file(char *path, char *desc, bool is_load) {
     char desc_buf[DESC_SIZE];
+    char temporary[MAX_PATH];
     int fd, file_mode;
+    bool ok;
 
     if (is_load && rockachievements_any_hardcore_active())
     {
@@ -198,24 +237,30 @@ static bool do_file(char *path, char *desc, bool is_load) {
         return false;
     }
 
-    /* set file mode */
-    file_mode = is_load ? O_RDONLY : (O_WRONLY | O_CREAT);
+    if (!is_load &&
+        snprintf(temporary, sizeof(temporary), "%s.tmp", path) >=
+        (int)sizeof(temporary))
+        return false;
+
+    /* Write new states separately so a failed save cannot destroy the last
+     * good slot. */
+    file_mode = is_load ? O_RDONLY : (O_WRONLY | O_CREAT | O_TRUNC);
 
     /* attempt to open file descriptor here */
-    if ((fd = open(path, file_mode, 0666)) < 0)
+    if ((fd = open(is_load ? path : temporary, file_mode, 0666)) < 0)
         return false;
 
     /* load/save state */
     if (is_load)
     {
         /* load description */
-        read(fd, desc_buf, sizeof(desc_buf));
-
-        /* load state */
-        loadstate(fd);
+        ok = read_exact(fd, desc_buf, sizeof(desc_buf)) && loadstate(fd);
 
         /* print out a status message so the user knows the state loaded */
-        rb->splashf(HZ * 1, "Loaded state from \"%s\"", path);
+        if (ok)
+            rb->splashf(HZ * 1, "Loaded state from \"%s\"", path);
+        else
+            rb->splash(HZ, "Invalid save state");
     }
     else
     {
@@ -225,15 +270,26 @@ static bool do_file(char *path, char *desc, bool is_load) {
             strlcpy(desc_buf, desc, sizeof(desc_buf));
 
         /* save state */
-        write(fd, desc_buf, sizeof(desc_buf));
-        savestate(fd);
+        ok = write_exact(fd, desc_buf, sizeof(desc_buf)) && savestate(fd);
     }
 
     /* close file descriptor */
-    close(fd);
+    if (close(fd) < 0)
+        ok = false;
 
-    /* return true (for success) */
-    return true;
+    if (!is_load)
+    {
+        if (ok && rb->rename(temporary, path) == 0)
+            rb->splash(HZ / 2, "Game state saved");
+        else
+        {
+            rb->remove(temporary);
+            rb->splash(HZ, "Save state failed");
+            ok = false;
+        }
+    }
+
+    return ok;
 }
 
 /*
@@ -322,7 +378,7 @@ static int list_action_callback(int action, struct gui_synclist *lists)
  */
 static void do_slot_menu(bool is_load) {
     bool done=false;
-    char items[SLOT_COUNT][DESC_SIZE];
+    static char items[SLOT_COUNT][DESC_SIZE];
     int result;
     int i;
     struct simplelist_info info;

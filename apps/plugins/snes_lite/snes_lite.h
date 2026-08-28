@@ -144,6 +144,7 @@ void snes_lite_video_refresh(const void *data, unsigned width,
                              unsigned height, size_t pitch);
 void snes_lite_video_redraw(void);
 bool snes_lite_video_selftest(void);
+bool snes_lite_input_selftest(unsigned *coverage);
 void snes_lite_input_poll(void);
 int16_t snes_lite_input_state(unsigned port, unsigned device,
                               unsigned index, unsigned id);

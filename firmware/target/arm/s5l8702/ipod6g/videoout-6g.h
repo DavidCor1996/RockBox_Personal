@@ -84,6 +84,12 @@ void ipod6g_videoout_get_diagnostics(
 bool ipod6g_videoout_disable(void);
 bool ipod6g_videoout_active(void);
 bool ipod6g_videoout_lcd_clock_required(void);
+bool ipod6g_videoout_mirror_yuv420(const unsigned char *luma,
+                                   const unsigned char *cb,
+                                   const unsigned char *cr,
+                                   int source_x, int source_y,
+                                   int source_stride,
+                                   int x, int y, int width, int height);
 void ipod6g_videoout_mirror_rgb565(const void *source, int x, int y,
                                    int width, int height, int stride);
 void ipod6g_videoout_set_mode(enum ipod6g_videoout_mode mode,

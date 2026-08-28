@@ -141,6 +141,11 @@ enum ui_engine_games_appearance {
     UI_ENGINE_GAMES_STEAM = 1,
 };
 
+enum ui_engine_applications_appearance {
+    UI_ENGINE_APPLICATIONS_CLASSIC = 0,
+    UI_ENGINE_APPLICATIONS_IOS3 = 1,
+};
+
 enum ui_engine_extras_pane {
     UI_ENGINE_EXTRAS_CLOCK = 0,
     UI_ENGINE_EXTRAS_AVATAR = 1,
@@ -1038,6 +1043,7 @@ struct user_settings
     bool notification_battery; /* battery warning notification source */
     bool notification_storage; /* storage warning notification source */
     bool notification_sound; /* notification reward cue */
+    int ui_engine_applications_appearance; /* native Applications style */
 };
 
 /* global settings */

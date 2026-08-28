@@ -176,8 +176,8 @@ void ipodjs_ui_transition_cancel(void)
 #define IPODJS_NETFLIX_PACK IPODJS_NETFLIX_DIR "/intro-106x60.nfr"
 #define IPODJS_NETFLIX_SOUND \
     IPODJS_NETFLIX_DIR "/intro-20000-mono.mulaw"
-#define IPODJS_NETFLIX_OUTPUT_WIDTH 320
-#define IPODJS_NETFLIX_OUTPUT_HEIGHT 180
+#define IPODJS_NETFLIX_OUTPUT_WIDTH LCD_WIDTH
+#define IPODJS_NETFLIX_OUTPUT_HEIGHT LCD_HEIGHT
 #define IPODJS_NETFLIX_SOURCE_RATE 20000
 #define IPODJS_NETFLIX_PACK_HEADER 16
 #define IPODJS_NETFLIX_PCM_CHUNK_FRAMES 512
@@ -334,28 +334,52 @@ static void ipodjs_netflix_render(const unsigned char *pack,
 {
     static unsigned short source_x_map[IPODJS_NETFLIX_OUTPUT_WIDTH];
     static int mapped_width;
+    static int mapped_height;
     fb_data palette[16];
-    fb_data *output = FBADDR(
-        0, (LCD_HEIGHT - IPODJS_NETFLIX_OUTPUT_HEIGHT) / 2);
+    fb_data *output = FBADDR(0, 0);
     int width = ipodjs_netflix_read_le16(pack + 4);
     int height = ipodjs_netflix_read_le16(pack + 6);
     int palette_count = ipodjs_netflix_read_le16(pack + 12);
     bool rgb565 = !memcmp(pack, "NFR1", 4);
+    int crop_x = 0;
+    int crop_y = 0;
+    int crop_width = width;
+    int crop_height = height;
     int previous_source_y = -1;
 
-    if (mapped_width != width)
+    /* Fill 320x240 without distorting the 16:9 source.  The source is wider
+     * than the LCD, so retain its full height and crop equal amounts from the
+     * left and right before nearest-neighbour scaling. */
+    if (width * IPODJS_NETFLIX_OUTPUT_HEIGHT >
+        height * IPODJS_NETFLIX_OUTPUT_WIDTH)
+    {
+        crop_width = height * IPODJS_NETFLIX_OUTPUT_WIDTH /
+                     IPODJS_NETFLIX_OUTPUT_HEIGHT;
+        crop_x = (width - crop_width) / 2;
+    }
+    else if (width * IPODJS_NETFLIX_OUTPUT_HEIGHT <
+             height * IPODJS_NETFLIX_OUTPUT_WIDTH)
+    {
+        crop_height = width * IPODJS_NETFLIX_OUTPUT_HEIGHT /
+                      IPODJS_NETFLIX_OUTPUT_WIDTH;
+        crop_y = (height - crop_height) / 2;
+    }
+
+    if (mapped_width != width || mapped_height != height)
     {
         for (int x = 0; x < IPODJS_NETFLIX_OUTPUT_WIDTH; ++x)
-            source_x_map[x] = x * (width - 1) /
-                (IPODJS_NETFLIX_OUTPUT_WIDTH - 1);
+            source_x_map[x] = crop_x + x * crop_width /
+                IPODJS_NETFLIX_OUTPUT_WIDTH;
         mapped_width = width;
+        mapped_height = height;
     }
     for (int index = 0; index < palette_count; ++index)
         palette[index] = (fb_data)ipodjs_netflix_read_le16(
             pack + IPODJS_NETFLIX_PACK_HEADER + index * 2);
     for (int y = 0; y < IPODJS_NETFLIX_OUTPUT_HEIGHT; ++y)
     {
-        int source_y = y * height / IPODJS_NETFLIX_OUTPUT_HEIGHT;
+        int source_y = crop_y + y * crop_height /
+            IPODJS_NETFLIX_OUTPUT_HEIGHT;
         size_t source_row = (size_t)source_y * width;
         fb_data *destination =
             output + (size_t)y * IPODJS_NETFLIX_OUTPUT_WIDTH;
@@ -378,8 +402,7 @@ static void ipodjs_netflix_render(const unsigned char *pack,
             }
             else
             {
-                size_t source = source_row +
-                    x * width / IPODJS_NETFLIX_OUTPUT_WIDTH;
+                size_t source = source_row + source_x_map[x];
                 destination[x] =
                     palette[ipodjs_netflix_index_get(indices, source)];
             }

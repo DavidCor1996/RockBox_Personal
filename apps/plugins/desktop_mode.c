@@ -4620,6 +4620,38 @@ static bool dm_button(long button, long mask)
     return (button & mask) == mask;
 }
 
+/* Desktop Mode consumes raw plugin buttons rather than Rockbox actions.
+ * Translate the standard 30-pin iAP remote controls to their clickwheel
+ * equivalents so a dock's Previous/Next, Play, Menu and Stop keys remain
+ * useful.  Up/Down stay as remote values and are handled as vertical pointer
+ * movement in the main loop below. */
+static long dm_remote_button(long button)
+{
+#ifdef BUTTON_RC_PLAY
+    long flags = button & (BUTTON_REPEAT | BUTTON_REL);
+    long base = button & ~(BUTTON_REPEAT | BUTTON_REL);
+
+    switch (base)
+    {
+    case BUTTON_RC_LEFT:
+        return BUTTON_LEFT | flags;
+    case BUTTON_RC_RIGHT:
+        return BUTTON_RIGHT | flags;
+    case BUTTON_RC_PLAY:
+    case BUTTON_RC_SELECT:
+        return BUTTON_SELECT | flags;
+    case BUTTON_RC_MENU:
+    case BUTTON_RC_STOP:
+        return BUTTON_MENU | flags;
+    default:
+        break;
+    }
+#else
+    (void)button;
+#endif
+    return button;
+}
+
 static enum plugin_status dm_missing_assets_screen(void)
 {
     rb->lcd_setfont(FONT_UI);
@@ -4838,6 +4870,25 @@ enum plugin_status plugin_start(const void *parameter)
             result = PLUGIN_USB_CONNECTED;
             break;
         }
+#ifdef BUTTON_RC_UP
+        if (button & BUTTON_RC_UP)
+        {
+            if (button & BUTTON_REL)
+                dm_held_dir_release_y(&state, -1);
+            else
+                dm_held_dir_touch(&state, 0, -1, *rb->current_tick);
+            continue;
+        }
+        if (button & BUTTON_RC_DOWN)
+        {
+            if (button & BUTTON_REL)
+                dm_held_dir_release_y(&state, 1);
+            else
+                dm_held_dir_touch(&state, 0, 1, *rb->current_tick);
+            continue;
+        }
+#endif
+        button = dm_remote_button(button);
 #ifdef BUTTON_SELECT
         if (button == BUTTON_SELECT)
         {

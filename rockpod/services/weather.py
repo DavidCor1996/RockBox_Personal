@@ -9,7 +9,8 @@ import shutil
 import time
 import urllib.parse
 import urllib.request
-from dataclasses import dataclass
+from concurrent.futures import ThreadPoolExecutor, wait
+from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -25,6 +26,9 @@ RADAR_FRAME_COUNT = 4
 RADAR_ZOOM = 7
 RADAR_WIDTH = 640
 RADAR_HEIGHT = 480
+WEATHER_HTTP_TIMEOUT_SECONDS = 8
+RADAR_DOWNLOAD_WORKERS = 16
+RADAR_BATCH_TIMEOUT_SECONDS = 15
 IPODJS_WEATHER_PREVIEW_FRAMES = 4
 IPODJS_WEATHER_PREVIEW_SIZE = (174, 240)
 
@@ -34,6 +38,7 @@ class WeatherOutput:
     files: list[tuple[str, str, str]]
     errors: list[str]
     output_root: str
+    warnings: list[str] = field(default_factory=list)
 
 
 def _config_value(config, key, default=None, device=None):
@@ -111,7 +116,8 @@ def _fetch_open_meteo(latitude, longitude, units):
     )
     url = f"https://api.open-meteo.com/v1/forecast?{query}"
     request = urllib.request.Request(url, headers={"User-Agent": "RockPod weather sync"})
-    with urllib.request.urlopen(request, timeout=20) as response:
+    with urllib.request.urlopen(
+            request, timeout=WEATHER_HTTP_TIMEOUT_SECONDS) as response:
         return json.loads(response.read().decode("utf-8"))
 
 
@@ -181,6 +187,44 @@ def _num(values, idx):
         return ""
 
 
+def _read_cached_forecast(path):
+    """Return cached daily/hourly rows when the on-disk bundle is valid."""
+    try:
+        lines = [
+            line.rstrip("\r\n").split("\t")
+            for line in Path(path).read_text(encoding="utf-8").splitlines()
+            if line.strip()
+        ]
+    except OSError:
+        return [], []
+    if not lines or not lines[0] or lines[0][0] != "rockpod_weather_v1":
+        return [], []
+    daily_rows = [row for row in lines[1:] if row and row[0] != "hourly"]
+    hourly_rows = [row for row in lines[1:] if row and row[0] == "hourly"]
+    return daily_rows, hourly_rows
+
+
+def _cache_is_fresh(path, max_age_minutes):
+    try:
+        age_seconds = max(0.0, time.time() - Path(path).stat().st_mtime)
+    except OSError:
+        return False
+    try:
+        max_age_seconds = max(0.0, float(max_age_minutes)) * 60.0
+    except (TypeError, ValueError):
+        max_age_seconds = 3600.0
+    return age_seconds <= max_age_seconds
+
+
+def _cached_radar_files(bundle_dir):
+    radar_dir = Path(bundle_dir) / "maps"
+    frames = sorted(radar_dir.glob("radar-*.png"))
+    metadata = radar_dir / "radar.json"
+    if not frames or not metadata.is_file():
+        return []
+    return frames + [metadata]
+
+
 def _copy_backgrounds(bundle_dir):
     copied = []
     bg_dir = bundle_dir / "backgrounds"
@@ -214,8 +258,33 @@ def _download_rgba(url):
 
     request = urllib.request.Request(
         url, headers={"User-Agent": "RockPod Weather personal display"})
-    with urllib.request.urlopen(request, timeout=20) as response:
+    with urllib.request.urlopen(
+            request, timeout=WEATHER_HTTP_TIMEOUT_SECONDS) as response:
         return Image.open(BytesIO(response.read())).convert("RGBA")
+
+
+def _download_rgba_batch(urls):
+    """Download a bounded radar tile batch without serial network stalls."""
+    urls = list(urls)
+    if not urls:
+        return []
+
+    executor = ThreadPoolExecutor(
+        max_workers=min(RADAR_DOWNLOAD_WORKERS, len(urls)),
+        thread_name_prefix="rockpod-weather",
+    )
+    futures = [executor.submit(_download_rgba, url) for url in urls]
+    done, pending = wait(futures, timeout=RADAR_BATCH_TIMEOUT_SECONDS)
+    if pending:
+        for future in pending:
+            future.cancel()
+        executor.shutdown(wait=False, cancel_futures=True)
+        raise TimeoutError(
+            f"radar tile download exceeded {RADAR_BATCH_TIMEOUT_SECONDS}s"
+        )
+
+    executor.shutdown(wait=True)
+    return [future.result() for future in futures]
 
 
 def _slippy_pixel(latitude, longitude, zoom):
@@ -246,7 +315,8 @@ def _fetch_radar_maps(bundle_dir, latitude, longitude):
     request = urllib.request.Request(
         "https://api.rainviewer.com/public/weather-maps.json",
         headers={"User-Agent": "RockPod Weather personal display"})
-    with urllib.request.urlopen(request, timeout=20) as response:
+    with urllib.request.urlopen(
+            request, timeout=WEATHER_HTTP_TIMEOUT_SECONDS) as response:
         radar_payload = json.loads(response.read().decode("utf-8"))
 
     host = str(radar_payload.get("host") or "").rstrip("/")
@@ -290,27 +360,41 @@ def _fetch_radar_maps(bundle_dir, latitude, longitude):
     if base is None or base.size != (RADAR_WIDTH, RADAR_HEIGHT):
         base = Image.new(
             "RGBA", (RADAR_WIDTH, RADAR_HEIGHT), (17, 34, 49, 255))
-        for tile_x, tile_y, paste_x, paste_y in tile_positions:
-            tile = _download_rgba(
+        base_urls = [
+            (
                 "https://tile.openstreetmap.org/"
-                f"{RADAR_ZOOM}/{tile_x}/{tile_y}.png")
+                f"{RADAR_ZOOM}/{tile_x}/{tile_y}.png"
+            )
+            for tile_x, tile_y, _paste_x, _paste_y in tile_positions
+        ]
+        for position, tile in zip(
+                tile_positions, _download_rgba_batch(base_urls)):
+            _tile_x, _tile_y, paste_x, paste_y = position
             base.alpha_composite(tile, (paste_x, paste_y))
         temporary = base_path.with_suffix(".png.tmp")
         base.convert("RGB").save(temporary, "PNG", optimize=True)
         os.replace(temporary, base_path)
 
-    outputs = []
-    metadata_frames = []
+    frame_specs = []
+    radar_urls = []
     for index, frame in enumerate(frames):
         path = str(frame.get("path") or "")
         stamp = int(frame.get("time") or 0)
         if not path or stamp <= 0:
             continue
+        frame_specs.append((index, stamp))
+        radar_urls.extend(
+            f"{host}{path}/256/{RADAR_ZOOM}/{tile_x}/{tile_y}/2/1_1.png"
+            for tile_x, tile_y, _paste_x, _paste_y in tile_positions
+        )
+
+    downloaded_radar = iter(_download_rgba_batch(radar_urls))
+    outputs = []
+    metadata_frames = []
+    for index, stamp in frame_specs:
         composite = base.copy()
         for tile_x, tile_y, paste_x, paste_y in tile_positions:
-            radar = _download_rgba(
-                f"{host}{path}/256/{RADAR_ZOOM}/"
-                f"{tile_x}/{tile_y}/2/1_1.png")
+            radar = next(downloaded_radar)
             composite.alpha_composite(radar, (paste_x, paste_y))
         target = map_dir / f"radar-{index}.png"
         temporary = target.with_suffix(".png.tmp")
@@ -449,14 +533,17 @@ def _render_ipodjs_weather_previews(
     return generated
 
 
-def build_weather_bundle(config, output_root=None, device=None, force=False):
+def build_weather_bundle(
+        config, output_root=None, device=None, force=False,
+        allow_network=True):
     errors = []
+    warnings = []
     enabled = bool(_config_value(config, "weather_enabled", True, device=device))
     cache_root = Path(output_root or Path(config.cache_dir) / "weather")
     bundle_dir = cache_root / WEATHER_REL_DIR
     bundle_dir.mkdir(parents=True, exist_ok=True)
     if not enabled:
-        return WeatherOutput([], [], str(cache_root))
+        return WeatherOutput([], [], str(cache_root), [])
 
     location = _sanitize(_config_value(config, "weather_location_name", "Moncton, NB", device=device)) or "Moncton, NB"
     latitude = _config_value(config, "weather_latitude", 46.0878, device=device)
@@ -467,11 +554,30 @@ def build_weather_bundle(config, output_root=None, device=None, force=False):
 
     forecast_path = bundle_dir / "forecast.tsv"
     manifest_path = bundle_dir / "manifest.json"
+    max_age_minutes = _config_value(
+        config, "weather_cache_max_age_minutes", 60, device=device)
+    allow_stale_cache = bool(_config_value(
+        config, "weather_sync_stale_cache", True, device=device))
+    cached_rows, cached_hourly_rows = _read_cached_forecast(forecast_path)
+    cached_forecast_available = bool(cached_rows or cached_hourly_rows)
+    cached_forecast_fresh = (
+        cached_forecast_available
+        and _cache_is_fresh(forecast_path, max_age_minutes)
+    )
     payload = None
-    try:
-        payload = _fetch_open_meteo(latitude, longitude, units)
-    except Exception as exc:
-        errors.append(f"Weather forecast fetch failed: {exc}")
+    if allow_network and (force or not cached_forecast_fresh):
+        try:
+            payload = _fetch_open_meteo(latitude, longitude, units)
+        except Exception as exc:
+            message = f"Weather forecast fetch failed: {exc}"
+            if cached_forecast_available and allow_stale_cache:
+                warnings.append(f"{message}; using cached forecast")
+            else:
+                errors.append(message)
+    elif not cached_forecast_available:
+        warnings.append(
+            "Weather cache is empty; use Device > Sync Weather to refresh it"
+        )
 
     rows = _rows_from_payload(payload or {}) if payload else []
     hourly_rows = _hourly_rows_from_payload(payload or {}) if payload else []
@@ -492,27 +598,60 @@ def build_weather_bundle(config, output_root=None, device=None, force=False):
         lines.extend("\t".join(_sanitize(part) for part in row) for row in rows)
         lines.extend("\t".join(_sanitize(part) for part in row) for row in hourly_rows)
         atomic_write_text(forecast_path, "\n".join(lines) + "\n")
-    elif not forecast_path.exists():
-        generated = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-        atomic_write_text(
-            forecast_path,
-            "\t".join(["rockpod_weather_v1", location, str(latitude), str(longitude), "", generated, "", units]) + "\n",
+    elif cached_forecast_available and (
+            cached_forecast_fresh or allow_stale_cache):
+        rows = cached_rows
+        hourly_rows = cached_hourly_rows
+
+    forecast_available = bool(rows or hourly_rows)
+    if not allow_network:
+        if not forecast_available:
+            return WeatherOutput([], errors, str(cache_root), warnings)
+        cached_paths = [forecast_path]
+        if manifest_path.is_file():
+            cached_paths.append(manifest_path)
+        cached_paths.extend(
+            path for path in (bundle_dir / "backgrounds").glob("*.bmp")
+            if path.is_file()
         )
+        cached_paths.extend(
+            path for path in (bundle_dir / "icons").glob("*.bmp")
+            if path.is_file()
+        )
+        cached_paths.extend(_cached_radar_files(bundle_dir))
+        cached_paths.extend(
+            path for path in (
+                cache_root / ".rockbox" / "ipodjs" / "previews" /
+                "weather-loop"
+            ).glob("frame-*.bmp")
+            if path.is_file()
+        )
+        files = []
+        for path in dict.fromkeys(cached_paths):
+            rel = path.relative_to(cache_root).as_posix()
+            files.append((str(path), rel, compute_file_hash(str(path))))
+        return WeatherOutput(files, errors, str(cache_root), warnings)
 
     copied_backgrounds = _copy_backgrounds(bundle_dir)
     copied_icons = _copy_icons(bundle_dir)
     radar_files = []
     if bool(_config_value(
             config, "weather_maps_enabled", True, device=device)):
-        try:
-            radar_files = _fetch_radar_maps(
-                bundle_dir, latitude, longitude)
-        except Exception as exc:
-            errors.append(f"Weather radar update failed: {exc}")
-            radar_dir = bundle_dir / "maps"
-            radar_files = sorted(radar_dir.glob("radar-*.png"))
-            if (radar_dir / "radar.json").is_file():
-                radar_files.append(radar_dir / "radar.json")
+        cached_radar = _cached_radar_files(bundle_dir)
+        cached_radar_fresh = bool(cached_radar) and _cache_is_fresh(
+            bundle_dir / "maps" / "radar.json", max_age_minutes)
+        if cached_radar_fresh and not force:
+            radar_files = cached_radar
+        elif allow_network:
+            try:
+                radar_files = _fetch_radar_maps(
+                    bundle_dir, latitude, longitude)
+            except Exception as exc:
+                warnings.append(f"Weather radar update failed: {exc}")
+                if cached_radar and allow_stale_cache:
+                    radar_files = cached_radar
+        elif cached_radar and allow_stale_cache:
+            radar_files = cached_radar
     preview_files = _render_ipodjs_weather_previews(
         cache_root, radar_files, location, units, rows, hourly_rows)
     manifest = {
@@ -529,22 +668,25 @@ def build_weather_bundle(config, output_root=None, device=None, force=False):
             path for path in radar_files if path.suffix.lower() == ".png"
         ]),
         "right_pane_frames": len(preview_files),
-        "warnings": errors,
+        "warnings": warnings,
+        "errors": errors,
     }
     atomic_write_json(manifest_path, manifest)
 
     files = []
+    forecast_files = [forecast_path] if forecast_available else []
     for path in (
-            [forecast_path, manifest_path] + copied_backgrounds +
+            forecast_files + [manifest_path] + copied_backgrounds +
             copied_icons + radar_files + preview_files):
         if not path.is_file():
             continue
         rel = path.relative_to(cache_root).as_posix()
         files.append((str(path), rel, compute_file_hash(str(path))))
-    return WeatherOutput(files, errors, str(cache_root))
+    return WeatherOutput(files, errors, str(cache_root), warnings)
 
 
 def format_weather_report(report):
     lines = [f"Output: {report.output_root}", f"Files: {len(report.files)}"]
+    lines.extend(f"Warning: {warning}" for warning in report.warnings)
     lines.extend(f"Warning: {err}" for err in report.errors)
     return "\n".join(lines)

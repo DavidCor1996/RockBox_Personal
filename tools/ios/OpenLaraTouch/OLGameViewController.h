@@ -1,6 +1,6 @@
-#import <UIKit/UIKit.h>
+#import <GLKit/GLKit.h>
 
-@interface OLGameViewController : UIViewController
+@interface OLGameViewController : GLKViewController
 - (void)pauseGame;
 - (void)resumeGame;
 @end

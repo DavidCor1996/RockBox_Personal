@@ -33,6 +33,7 @@
 #include "sound.h"
 #include "settings.h"
 #if defined(IPOD_6G) && !defined(SIMULATOR)
+#include "videoout-6g.h"
 void settings_apply_ipod6g_videoout(int mode);
 #endif
 #include "rbpaths.h"
@@ -1187,7 +1188,8 @@ const struct settings_list settings[] = {
 #endif
 #if defined(IPOD_6G) && !defined(SIMULATOR)
     CHOICE_SETTING(0, composite_video_output, LANG_COMPOSITE_VIDEO_OUTPUT,
-                   0, "composite video output", "off,auto,on",
+                   IPOD6G_VIDEOOUT_AUTO, "composite video output",
+                   "off,auto,on",
                    settings_apply_ipod6g_videoout, 3,
                    ID2P(LANG_OFF), ID2P(LANG_AUTO), ID2P(LANG_ON)),
 #endif
@@ -1289,6 +1291,10 @@ const struct settings_list settings[] = {
                    UI_ENGINE_GAMES_CLASSIC,
                    "ui engine games appearance", "classic,steam",
                    NULL, 2, "Classic", "Steam"),
+    CHOICE_SETTING(0, ui_engine_applications_appearance, -1,
+                   UI_ENGINE_APPLICATIONS_CLASSIC,
+                   "ui engine applications appearance", "classic,ios3",
+                   NULL, 2, "Classic", "iOS 3 Grid"),
     CHOICE_SETTING(0, ui_engine_extras_pane, -1,
                    UI_ENGINE_EXTRAS_CLOCK,
                    "ui engine extras pane", "clock,avatar,sitekick",
@@ -2570,7 +2576,9 @@ const struct settings_list settings[] = {
     "auto,headphone,lineout", hp_lo_select_apply, 3,
     ID2P(LANG_AUTO), ID2P(LANG_HEADPHONE), ID2P(LANG_LINEOUT)),
 #endif
-    OFFON_SETTING(0, playback_log, LANG_LOGGING, false, "play log", NULL),
+    /* Spotify Wrapped needs calendar timestamps; existing devices are
+     * migrated during deploy, while new installs log by default. */
+    OFFON_SETTING(0, playback_log, LANG_LOGGING, true, "play log", NULL),
 #if defined(HAVE_GENERAL_PURPOSE_LED)
     OFFON_SETTING(0, use_led_indicators, LANG_USE_LED_INDICATORS, false, "LED indicators", NULL),
 #endif

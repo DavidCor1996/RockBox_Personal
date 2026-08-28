@@ -71,7 +71,9 @@ def main():
     summary = sync.sync(mount, lineup, shows, ads, progress=progress)
 
     print(f"\nConverted {summary['converted']}, copied {summary['copied']}, "
-          f"unchanged {summary['skipped']}")
+          f"unchanged {summary['skipped']} "
+          f"(reused {summary.get('reused', 0)} already on the device, "
+          f"adopted {summary.get('adopted', 0)})")
     print(f"{summary['channels']} channels, {summary['slots']} listings")
     if summary.get("cache_pruned"):
         print(f"Removed {summary['cache_pruned']} unused cached clip(s)")

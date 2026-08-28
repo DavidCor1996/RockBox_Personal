@@ -19,6 +19,30 @@ COMICS_ICON_PATH = (
     Path(__file__).resolve().parents[1]
     / "assets" / "icons" / "comics-book-sidebar@2x.png"
 )
+TIKTOK_ICON_PATH = (
+    Path(__file__).resolve().parents[1]
+    / "assets"
+    / "icons"
+    / "tiktok-official.png"
+)
+ONLYFANS_ICON_PATH = (
+    Path(__file__).resolve().parents[1]
+    / "assets"
+    / "icons"
+    / "onlyfans-official.png"
+)
+INSTAGRAM_ICON_PATH = (
+    Path(__file__).resolve().parents[1]
+    / "assets"
+    / "icons"
+    / "instagram-official.png"
+)
+REDDIT_ICON_PATH = (
+    Path(__file__).resolve().parents[1]
+    / "assets"
+    / "icons"
+    / "reddit-official.png"
+)
 
 
 def _asset_icon(path):
@@ -121,6 +145,11 @@ class Sidebar(QWidget):
     ROCKBOX_ACHIEVEMENTS_AVATAR = "rockbox_achievements_avatar"
     ROCKBOX_SITEKICK = "rockbox_sitekick"
     ROCKBOX_CALM = "rockbox_calm"
+    ROCKBOX_YOUTUBE = "rockbox_youtube"
+    ROCKBOX_TIKTOK = "rockbox_tiktok"
+    ROCKBOX_ONLYFANS = "rockbox_onlyfans"
+    ROCKBOX_INSTAGRAM = "rockbox_instagram"
+    ROCKBOX_REDDIT = "rockbox_reddit"
     ROCKBOX_LIVETV = "rockbox_livetv"
     ROCKBOX_GAMES = "rockbox_games"
     ROCKBOX_PHOTOS = "rockbox_photos"
@@ -309,6 +338,31 @@ class Sidebar(QWidget):
         )
         self._rockbox_header.setExpanded(True)
 
+        # ── APPLICATIONS section ──
+        self._applications_header = self._add_section("APPLICATIONS")
+        self._youtube_item = self._add_item(
+            self._applications_header, "YouTube", self.ROCKBOX_YOUTUBE,
+            _make_icon("#cc0000", "device")
+        )
+        self._tiktok_item = self._add_item(
+            self._applications_header, "TikTok", self.ROCKBOX_TIKTOK,
+            _asset_icon(TIKTOK_ICON_PATH),
+        )
+        self._onlyfans_item = self._add_item(
+            self._applications_header, "OnlyFans", self.ROCKBOX_ONLYFANS,
+            _asset_icon(ONLYFANS_ICON_PATH),
+        )
+        self._instagram_item = self._add_item(
+            self._applications_header, "Instagram", self.ROCKBOX_INSTAGRAM,
+            _asset_icon(INSTAGRAM_ICON_PATH),
+        )
+        self._reddit_item = self._add_item(
+            self._applications_header, "Reddit", self.ROCKBOX_REDDIT,
+            _asset_icon(REDDIT_ICON_PATH),
+        )
+        self._applications_header.setExpanded(True)
+        self._onlyfans_item.setHidden(True)
+
         # ── DEVICES section ──
         self._device_header = self._add_section("DEVICES")
         self._device_item = self._add_item(
@@ -342,6 +396,12 @@ class Sidebar(QWidget):
         item.setForeground(0, QColor("#636363"))
         item.setFlags(Qt.ItemIsEnabled)  # Not selectable
         return item
+
+    def set_onlyfans_visible(self, visible):
+        """Expose the private application only for an unlocked UI session."""
+        self._onlyfans_item.setHidden(not bool(visible))
+        if not visible and self._tree.currentItem() is self._onlyfans_item:
+            self._select_default()
 
     def _add_item(self, parent, text, item_id, icon=None):
         """Add a selectable item under a section."""

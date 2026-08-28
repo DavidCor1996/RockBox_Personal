@@ -1,0 +1,15 @@
+DIRECTV receiver boot screen
+============================
+
+Source recording of a DIRECTV receiver powering up, used only to cut the
+start-up animation the Live TV launcher plays while it sets up playback.
+The recording is silent, so the ident is picture only.
+
+tools/prepare_directv_boot_assets.sh cuts the segment, centre-cuts it to
+320x240 the same way Live TV treats its own channels, and packs the frames
+as RGB565 deltas into
+assets/ipodjs/rockbox/livetv/boot/boot-320x240.nfr, which buildzip.pl
+copies to .rockbox/ipodjs/livetv/boot on the iPod.
+
+Personal offline build only. No DIRECTV service, account, or stream is
+involved; the Live TV channels themselves are the user's own files.

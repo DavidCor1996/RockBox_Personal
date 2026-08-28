@@ -406,6 +406,46 @@ palette, using a live clock, so the PC shows exactly what the iPod is playing.
 
 ---
 
+## 6a. Boot ident
+
+Launching Live TV used to hold a black screen from the moment the launcher
+handed over until the tuned channel produced its first field. That window is
+now covered by the receiver's own start-up screen.
+
+* Asset: `assets/ipodjs/rockbox/livetv/boot/boot-320x240.nfr`, which
+  `tools/buildzip.pl` tree-copies to `.rockbox/ipodjs/livetv/boot`. A real
+  receiver takes the better part of a minute to start up, most of it holding
+  one still screen, so the ident is a montage of the screens a user actually
+  sees, in order: "Hello.  Your DIRECTV receiver is starting up." for two
+  seconds, "Almost there.  A few more seconds please..." for two, then four
+  seconds of the branded "Searching for satellite signal..." screen. The
+  diagnostic-test screen between them is left out; it is not part of a
+  normal power-up. `tools/prepare_directv_boot_assets.sh` cuts the segments
+  from the recording under `assets/ipodjs/sources/directv/boot/`, centre-cuts
+  them to 320x240 with the same filter Live TV applies to its own channels,
+  and stores them as RGB565 delta frames. The recording has no soundtrack,
+  so the ident is picture only.
+* Player: `apps/plugins/directv_boot.h`, called from `plugin_start()` in
+  `mpegplayer.c` ahead of `livetv_load()` - parsing a full week of guide
+  lines is the longest black screen of the launch, not the shortest, so the
+  ident has to start before it rather than after. It is outside
+  the play loop, so a channel change or a guide tune never replays it, and it
+  is skipped in desktop mode, where Live TV renders windowed over a captured
+  underlay.
+* The clip only has to cover the screens themselves: the player leaves its
+  last frame on the LCD, so the guide parse, the tune and the first
+  channel's buffering all happen under the boot screen. Holding any button
+  once the ident has settled skips to that held frame.
+* The first frame is painted as soon as its own bytes have arrived rather
+  than after the whole two megabyte pack has loaded; reading that much off
+  the player is itself long enough to see as black.
+* Frame memory comes from `plugin_get_audio_buffer()`, the same single
+  allocation `stream_init()` takes moments later. Nothing here touches the
+  mixer or playback state, so the matrix in
+  `docs/plugin-audio-lifecycle-steering.md` is unaffected.
+
+---
+
 ## 7. Verification
 
 * `tools/livetv_guide_sim_gate.py` — drives the simulator into the guide and
@@ -426,3 +466,5 @@ palette, using a live clock, so the PC shows exactly what the iPod is playing.
   <https://content.abt.com/documents/23796/d12_manual.pdf>
 * DirecTV Channel Guide EPG (2000-2005) reference template.
   <https://www.deviantart.com/blumaster2006/art/DirecTV-Channel-Guide-EPG-2000-2005-template-1220296652>
+* DIRECTV receiver boot screen recording, used for the launch ident.
+  <https://www.youtube.com/watch?v=cEH8uNnbrgc>

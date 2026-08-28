@@ -143,12 +143,116 @@ static inline void yuv_blit(uint8_t * const * buf, int src_x, int src_y,
 }
 
 #if defined(HAVE_LCD_COLOR) && LCD_WIDTH == 320 && LCD_HEIGHT == 240
-#define VO_YUV_OVERLAY_MAX_H 64
+#define VO_YUV_OVERLAY_MAX_H LCD_HEIGHT
 static uint8_t vo_overlay_y[LCD_WIDTH * VO_YUV_OVERLAY_MAX_H];
 static uint8_t vo_overlay_u[(LCD_WIDTH / 2) *
                             (VO_YUV_OVERLAY_MAX_H / 2)];
 static uint8_t vo_overlay_v[(LCD_WIDTH / 2) *
                             (VO_YUV_OVERLAY_MAX_H / 2)];
+/* One fixed outgoing-card cache enables TikTok's real two-card push without
+ * allocating from core or playback memory. Cost at 320x240 YUV420: 115200
+ * bytes. The existing vo_overlay buffer remains the incoming/output card. */
+static uint8_t vo_transition_y[LCD_WIDTH * VO_YUV_OVERLAY_MAX_H];
+static uint8_t vo_transition_u[(LCD_WIDTH / 2) *
+                               (VO_YUV_OVERLAY_MAX_H / 2)];
+static uint8_t vo_transition_v[(LCD_WIDTH / 2) *
+                               (VO_YUV_OVERLAY_MAX_H / 2)];
+static bool vo_transition_valid;
+
+static void vo_capture_yuv_overlay(uint8_t * const *overlay,
+                                   int width, int height)
+{
+    rb->memcpy(vo_transition_y, overlay[0], width * height);
+    rb->memcpy(vo_transition_u, overlay[1], width * height / 4);
+    rb->memcpy(vo_transition_v, overlay[2], width * height / 4);
+    vo_transition_valid = true;
+}
+
+static void vo_push_yuv_overlay(uint8_t * const *overlay,
+                                int width, int height, int amount,
+                                int direction)
+{
+    uint8_t *outgoing[3] = {
+        vo_transition_y, vo_transition_u, vo_transition_v
+    };
+    int chroma_w = width / 2;
+    int chroma_h = height / 2;
+    int plane_width;
+    int plane_height;
+    int plane_amount;
+    int plane;
+
+    if (!vo_transition_valid)
+        return;
+    amount = MIN(height, MAX(0, amount)) & ~1;
+    for (plane = 0; plane < 3; plane++)
+    {
+        plane_width = plane == 0 ? width : chroma_w;
+        plane_height = plane == 0 ? height : chroma_h;
+        plane_amount = plane == 0 ? amount : amount / 2;
+        if (direction > 0)
+        {
+            /* Next: old card exits upward, new card enters from below. */
+            rb->memmove(
+                overlay[plane] + (plane_height - plane_amount) * plane_width,
+                overlay[plane], plane_amount * plane_width);
+            rb->memcpy(
+                overlay[plane], outgoing[plane] + plane_amount * plane_width,
+                (plane_height - plane_amount) * plane_width);
+        }
+        else
+        {
+            /* Previous: old card exits downward, new enters from above. */
+            rb->memmove(overlay[plane],
+                        overlay[plane] +
+                        (plane_height - plane_amount) * plane_width,
+                        plane_amount * plane_width);
+            rb->memcpy(
+                overlay[plane] + plane_amount * plane_width,
+                outgoing[plane],
+                (plane_height - plane_amount) * plane_width);
+        }
+    }
+    if (amount >= height)
+        vo_transition_valid = false;
+}
+
+static void vo_resist_yuv_overlay(uint8_t * const *overlay,
+                                  int width, int height, int offset)
+{
+    int plane;
+
+    for (plane = 0; plane < 3; plane++)
+    {
+        int plane_width = plane == 0 ? width : width / 2;
+        int plane_height = plane == 0 ? height : height / 2;
+        int amount = (offset < 0 ? -offset : offset) /
+                     (plane == 0 ? 1 : 2);
+        uint8_t *pixels = overlay[plane];
+        int row;
+
+        amount = MIN(plane_height - 1, amount);
+        if (amount <= 0)
+            continue;
+        if (offset > 0)
+        {
+            rb->memmove(pixels, pixels + amount * plane_width,
+                        (plane_height - amount) * plane_width);
+            for (row = plane_height - amount; row < plane_height; row++)
+                rb->memcpy(pixels + row * plane_width,
+                           pixels + (plane_height - amount - 1) * plane_width,
+                           plane_width);
+        }
+        else
+        {
+            rb->memmove(pixels + amount * plane_width, pixels,
+                        (plane_height - amount) * plane_width);
+            for (row = 0; row < amount; row++)
+                rb->memcpy(pixels + row * plane_width,
+                           pixels + amount * plane_width, plane_width);
+        }
+    }
+}
 
 static void vo_draw_yuv_overlay(uint8_t * const *buf)
 {
@@ -159,6 +263,13 @@ static void vo_draw_yuv_overlay(uint8_t * const *buf)
     int screen_y;
     int x;
     int y;
+    struct vo_rect instagram_rect;
+    bool instagram_inline =
+        mpegplayer_instagram_inline_rect(&instagram_rect);
+    int instagram_src_x = 0;
+    int instagram_src_y = 0;
+    int instagram_src_w = vo.image_width;
+    int instagram_src_h = vo.image_height;
     bool weather_panel =
         mpegplayer_livetv_launch &&
         mpegplayer_livetv_weather_active &&
@@ -172,6 +283,24 @@ static void vo_draw_yuv_overlay(uint8_t * const *buf)
     if (buf == NULL || height <= 0 || height > VO_YUV_OVERLAY_MAX_H)
         return;
 
+    if (instagram_inline)
+    {
+        int dst_w = instagram_rect.r - instagram_rect.l;
+        int dst_h = instagram_rect.b - instagram_rect.t;
+
+        /* Aspect-fill the decoded picture into the native feed card. This is
+         * the same bounded picture-in-guide technique used by Live TV, and
+         * avoids storing a second preview video for every Instagram post. */
+        if (instagram_src_w * dst_h > instagram_src_h * dst_w)
+            instagram_src_w = instagram_src_h * dst_w / dst_h;
+        else
+            instagram_src_h = instagram_src_w * dst_h / dst_w;
+        instagram_src_w = MAX(2, instagram_src_w & ~1);
+        instagram_src_h = MAX(2, instagram_src_h & ~1);
+        instagram_src_x = ((vo.image_width - instagram_src_w) / 2) & ~1;
+        instagram_src_y = ((vo.image_height - instagram_src_h) / 2) & ~1;
+    }
+
     screen_y = mpegplayer_yuv_overlay_y();
     if (screen_y < 0 || screen_y + height > LCD_HEIGHT)
         return;
@@ -181,7 +310,25 @@ static void vo_draw_yuv_overlay(uint8_t * const *buf)
 
         for (x = 0; x < LCD_WIDTH; x++)
         {
-            if (weather_panel)
+            if (instagram_inline && x >= instagram_rect.l &&
+                x < instagram_rect.r && display_y >= instagram_rect.t &&
+                display_y < instagram_rect.b)
+            {
+                int src_x = instagram_src_x +
+                    (x - instagram_rect.l) * instagram_src_w /
+                    (instagram_rect.r - instagram_rect.l);
+                int src_y = instagram_src_y +
+                    (display_y - instagram_rect.t) * instagram_src_h /
+                    (instagram_rect.b - instagram_rect.t);
+
+                overlay[0][y * LCD_WIDTH + x] =
+                    buf[0][src_y * vo.image_width + src_x];
+            }
+            else if (instagram_inline)
+            {
+                overlay[0][y * LCD_WIDTH + x] = 16;
+            }
+            else if (weather_panel)
             {
                 overlay[0][y * LCD_WIDTH + x] = panel_y;
             }
@@ -212,7 +359,29 @@ static void vo_draw_yuv_overlay(uint8_t * const *buf)
             int display_x = x * 2;
             int index = y * (LCD_WIDTH / 2) + x;
 
-            if (weather_panel)
+            if (instagram_inline && display_x >= instagram_rect.l &&
+                display_x < instagram_rect.r &&
+                display_y >= instagram_rect.t &&
+                display_y < instagram_rect.b)
+            {
+                int src_x = instagram_src_x +
+                    (display_x - instagram_rect.l) * instagram_src_w /
+                    (instagram_rect.r - instagram_rect.l);
+                int src_y = instagram_src_y +
+                    (display_y - instagram_rect.t) * instagram_src_h /
+                    (instagram_rect.b - instagram_rect.t);
+                int src_index =
+                    (src_y / 2) * (vo.image_width / 2) + src_x / 2;
+
+                overlay[1][index] = buf[1][src_index];
+                overlay[2][index] = buf[2][src_index];
+            }
+            else if (instagram_inline)
+            {
+                overlay[1][index] = 128;
+                overlay[2][index] = 128;
+            }
+            else if (weather_panel)
             {
                 overlay[1][index] = panel_u;
                 overlay[2][index] = panel_v;
@@ -239,6 +408,17 @@ static void vo_draw_yuv_overlay(uint8_t * const *buf)
     }
 
     mpegplayer_yuv_overlay_draw(overlay, LCD_WIDTH, height);
+    if (mpegplayer_yuv_overlay_resistance_offset() != 0)
+        vo_resist_yuv_overlay(
+            overlay, LCD_WIDTH, height,
+            mpegplayer_yuv_overlay_resistance_offset());
+    if (mpegplayer_yuv_overlay_capture_pending())
+        vo_capture_yuv_overlay(overlay, LCD_WIDTH, height);
+    else if (mpegplayer_yuv_overlay_transition_active())
+        vo_push_yuv_overlay(
+            overlay, LCD_WIDTH, height,
+            mpegplayer_yuv_overlay_offset(),
+            mpegplayer_yuv_overlay_transition_direction());
     yuv_blit(overlay, 0, 0, LCD_WIDTH, 0, screen_y,
              LCD_WIDTH, height);
 }
@@ -409,12 +589,13 @@ void vo_draw_frame(uint8_t * const * buf)
          * until it expires.
          */
         if (overlay_height > 0 &&
-            vo.output_y < overlay_top &&
+            vo.output_y < overlay_bottom &&
             video_bottom > overlay_top)
         {
-            int top_height = overlay_top - vo.output_y;
+            int top_height = MAX(0, MIN(video_bottom, overlay_top) -
+                                    vo.output_y);
             int bottom_y = MAX(vo.output_y, overlay_bottom);
-            int bottom_height = video_bottom - bottom_y;
+            int bottom_height = MAX(0, video_bottom - bottom_y);
 
             if (top_height > 0)
                 yuv_blit(buf, vo.src_x, vo.src_y, vo.image_width,
@@ -425,6 +606,10 @@ void vo_draw_frame(uint8_t * const * buf)
                          vo.src_y + bottom_y - vo.output_y,
                          vo.image_width, vo.output_x, bottom_y,
                          vo.output_width, bottom_height);
+            /* A full-screen compositor (TikTok feed or profile) leaves both
+             * heights at zero. In that case the raw decoded frame is never
+             * presented; vo_draw_yuv_overlay() below performs the one and
+             * only LCD blit for this frame. */
         }
         else
         {
@@ -1068,6 +1253,9 @@ void vo_dimensions(struct vo_ext *sz)
 bool vo_init(void)
 {
     vo.flags = 0;
+#if defined(HAVE_LCD_COLOR) && LCD_WIDTH == 320 && LCD_HEIGHT == 240
+    vo_transition_valid = false;
+#endif
     vo_rect_set_ext(&vo.rc_clip, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
     video_lock_init();
     return true;

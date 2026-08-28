@@ -236,6 +236,25 @@ def test_video_manifest_merge_preserves_present_uncached_device_rows(env):
     }
 
 
+def test_video_manifest_merge_drops_missing_existing_device_rows(env):
+    missing_rel = os.path.join(
+        "Videos", "TV Shows", "Removed Show", "Season 01", "S01E01.rvp"
+    )
+    manifest_dir = os.path.join(env["device_path"], VIDEO_LIST_DEVICE_DIR)
+    os.makedirs(manifest_dir, exist_ok=True)
+    manifest_path = os.path.join(manifest_dir, "index.tsv")
+    with open(manifest_path, "w", encoding="utf-8") as handle:
+        handle.write("# rockpod videolist v7\n")
+        handle.write("video_id\ttitle\tdevice_path\n")
+        handle.write(f"removed-id\tRemoved Episode\t{missing_rel}\n")
+
+    merged = _merge_existing_video_manifest_entries(
+        [], SyncPlan(), env["device_path"]
+    )
+
+    assert merged == []
+
+
 def test_video_manifest_merge_keeps_untouched_existing_metadata(env):
     existing_rel = os.path.join("Videos", "Movies", "Existing Movie.rvp")
     existing_path = os.path.join(env["device_path"], existing_rel)
@@ -282,6 +301,47 @@ def test_video_manifest_merge_keeps_untouched_existing_metadata(env):
     assert by_path[new_rel]["video_id"] == "new-id"
 
 
+def test_video_manifest_merge_applies_explicit_catalog_refresh(env):
+    existing_rel = os.path.join(
+        "Videos", "TV Shows", "Avatar", "Season 01", "S01E01.rvp"
+    )
+    existing_path = os.path.join(env["device_path"], existing_rel)
+    os.makedirs(os.path.dirname(existing_path), exist_ok=True)
+    with open(existing_path, "w", encoding="utf-8") as handle:
+        handle.write("ROCKPOD_RVP_V1\n")
+
+    manifest_dir = os.path.join(env["device_path"], VIDEO_LIST_DEVICE_DIR)
+    os.makedirs(manifest_dir, exist_ok=True)
+    with open(
+        os.path.join(manifest_dir, "index.tsv"), "w", encoding="utf-8"
+    ) as handle:
+        handle.write("# rockpod videolist v6\n")
+        handle.write("video_id\ttitle\tdevice_path\tshow\n")
+        handle.write(
+            f"old-id\tEpisode\t{existing_rel}\tFolder-Derived Avatar\n"
+        )
+
+    plan = SyncPlan()
+    plan.video_manifest_refresh_paths.add(existing_rel)
+    merged = _merge_existing_video_manifest_entries(
+        [{
+            "video_id": "catalog-id",
+            "title": "Episode",
+            "device_path": existing_rel,
+            "show": "Avatar: The Last Airbender",
+            "intro_start": "2",
+            "intro_end": "46",
+        }],
+        plan,
+        env["device_path"],
+    )
+
+    assert len(merged) == 1
+    assert merged[0]["video_id"] == "catalog-id"
+    assert merged[0]["show"] == "Avatar: The Last Airbender"
+    assert merged[0]["intro_end"] == "46"
+
+
 def test_video_manifest_merge_discovers_unindexed_physical_rvp(env):
     existing_rel = os.path.join(
         "Videos", "TV Shows", "Recess", "Season 03",
@@ -300,7 +360,7 @@ def test_video_manifest_merge_discovers_unindexed_physical_rvp(env):
     assert merged[0]["device_path"] == existing_rel
     assert merged[0]["title"] == "Space Cadet"
     assert merged[0]["show"] == "Recess"
-    assert merged[0]["season"] == "03"
+    assert merged[0]["season"] == "3"
     assert merged[0]["episode"] == "29"
 
 
@@ -827,6 +887,32 @@ class TestSyncWorkerCopy:
 # ===========================================================================
 
 class TestSyncWorkerRun:
+    def test_unexpected_worker_failure_emits_fatal_error(self, env, monkeypatch):
+        src = _make_source_file(env, "Art", "Alb", "Fatal")
+        plan = SyncPlan()
+        plan.to_copy.append((
+            {"id": 1, "file_path": src, "title": "Fatal"},
+            "Music/Art/Alb/01 - Fatal.mp3",
+        ))
+        worker = SyncWorker(plan, env["device_path"], env["config"].db_path)
+        monkeypatch.setattr(
+            worker,
+            "_copy_track_media",
+            lambda *args, **kwargs: (_ for _ in ()).throw(
+                RuntimeError("device disappeared")
+            ),
+        )
+
+        fatal_errors = []
+        finished = []
+        worker.fatal_error.connect(fatal_errors.append)
+        worker.finished.connect(lambda *args: finished.append(args))
+
+        worker.run()
+
+        assert fatal_errors == ["device disappeared"]
+        assert finished == []
+
     def test_copies_new_tracks(self, env):
         src = _make_source_file(env, "Art", "Alb", "NewSong")
         rel_path = "Music/Art/Alb/01 - NewSong.mp3"
@@ -1405,6 +1491,75 @@ class TestSyncEnginePlan:
             "the iPod before syncing"
         ]
 
+    def test_music_sync_treats_weather_failure_as_warning(self, env, monkeypatch):
+        engine = self._make_engine(env)
+        engine.set_current_device(engine._device_detector.current_device)
+
+        def fail_weather(*args, **kwargs):
+            raise RuntimeError("forecast service unavailable")
+
+        monkeypatch.setattr(
+            "services.sync_engine.build_weather_bundle",
+            fail_weather,
+        )
+        plan = SyncPlan()
+
+        engine._populate_weather_sync_plan(
+            plan,
+            env["device_path"],
+            errors_are_blocking=False,
+        )
+
+        assert plan.errors == []
+        assert plan.warnings == [
+            "Weather update skipped: forecast service unavailable"
+        ]
+
+    def test_weather_only_sync_keeps_weather_failure_blocking(self, env, monkeypatch):
+        engine = self._make_engine(env)
+        engine.set_current_device(engine._device_detector.current_device)
+
+        def fail_weather(*args, **kwargs):
+            raise RuntimeError("forecast service unavailable")
+
+        monkeypatch.setattr(
+            "services.sync_engine.build_weather_bundle",
+            fail_weather,
+        )
+        plan = SyncPlan()
+
+        engine._populate_weather_sync_plan(plan, env["device_path"])
+
+        assert plan.errors == [
+            "Weather update skipped: forecast service unavailable"
+        ]
+        assert plan.warnings == []
+
+    def test_weather_only_sync_does_not_build_livetv_carriers(
+            self, env, monkeypatch):
+        engine = self._make_engine(env)
+        engine.set_current_device(engine._device_detector.current_device)
+
+        class EmptyWeatherOutput:
+            files = []
+            errors = []
+            warnings = []
+
+        monkeypatch.setattr(
+            "services.sync_engine.build_weather_bundle",
+            lambda *_args, **_kwargs: EmptyWeatherOutput(),
+        )
+        # Importing Live TV here would mean the weather planner can once
+        # again enter its multi-hour carrier encoder.
+        monkeypatch.setitem(sys.modules, "services.livetv", None)
+        plan = SyncPlan()
+
+        engine._populate_weather_sync_plan(plan, env["device_path"])
+
+        assert plan.errors == []
+        assert plan.warnings == []
+        assert plan.generated_to_copy == []
+
     def test_playlist_track_ids_plan_copies_missing_playlist_media(self, env):
         src = _make_source_file(env, "Run River North", "Wake Up", "Wake Up")
         track = _insert_track(env["db"], "Wake Up", "Run River North", "Wake Up", file_path=src)
@@ -1704,7 +1859,9 @@ class TestSyncEnginePlan:
         plan = engine.build_sync_plan()
 
         assert plan.to_delete == []
-        assert any("safety limit" in error for error in plan.errors)
+        assert plan.errors == []
+        assert any("52 iPod files" in warning for warning in plan.warnings)
+        assert any("safety limit" in warning for warning in plan.warnings)
 
     def test_plan_skips_duplicate_deletes_when_limit_is_zero(self, env):
         env["config"].max_auto_duplicate_deletes_per_sync = 0
@@ -2303,6 +2460,240 @@ class TestSyncEnginePlan:
         row, rel_path = plan.to_copy[0]
         assert dict(row)["file_path"] == regular
         assert rel_path.endswith(".flac")
+
+    def test_device_only_netflix_video_is_kept_without_source_error(
+            self, env):
+        missing_source = os.path.join(env["tmp"], "removed", "Movie.mp4")
+        local = _insert_track(
+            env["db"],
+            "Movie",
+            "",
+            "",
+            file_path=missing_source,
+            media_type="video",
+            video_kind="movie",
+            synced_to_device=1,
+            device_path="Videos/Movies/Movie.mpg",
+            metadata_hash="movie-meta",
+            file_hash="movie-file",
+        )
+
+        engine = self._make_engine(env)
+        device_key = engine.set_current_device(
+            engine._device_detector.current_device
+        )
+        rel_path = "Videos/Movies/Movie.mpg"
+        device_path = os.path.join(env["device_path"], rel_path)
+        os.makedirs(os.path.dirname(device_path), exist_ok=True)
+        with open(device_path, "wb") as handle:
+            handle.write(b"already-on-ipod")
+        _insert_device_track(
+            env["db"],
+            "Movie",
+            "",
+            "",
+            rel_path,
+            device_id=device_key,
+            local_track_id=local["id"],
+            metadata_hash="movie-meta",
+            file_hash="movie-file",
+            file_size=len(b"already-on-ipod"),
+        )
+        engine.load_cached_device_inventory(device_key)
+
+        plan = engine.build_sync_plan(media_type="video")
+
+        assert plan.errors == []
+        assert plan.to_copy == []
+        assert plan.to_resync == []
+        assert rel_path not in plan.to_delete
+        assert any(
+            destination == os.path.join(VIDEO_LIST_DEVICE_DIR, "index.tsv")
+            for _source, destination, _key in plan.artwork_to_copy
+        )
+
+    def test_device_only_locked_show_keeps_private_path_and_tv_metadata(
+            self, env):
+        missing_source = os.path.join(env["tmp"], "removed", "Episode.mp4")
+        local = _insert_track(
+            env["db"],
+            "The Dundies",
+            "",
+            "",
+            file_path=missing_source,
+            media_type="video",
+            video_kind="show",
+            show_title="The Office",
+            season_number=2,
+            episode_number=1,
+            duration=1500,
+            content_rating="TV-14",
+            metadata_source="IMDb",
+            metadata_locked=1,
+            intro_start=12,
+            intro_end=47,
+            credits_start=1240,
+            video_locked=1,
+            synced_to_device=1,
+            device_path="Videos/.Locked/The Dundies.mpg",
+            metadata_hash="episode-meta",
+            file_hash="episode-file",
+        )
+        # The common sync fixture intentionally inserts only core tag fields;
+        # add the private-video and playback metadata this regression protects.
+        env["db"].update_track_metadata(local["id"], {
+            "content_rating": "TV-14",
+            "metadata_source": "IMDb",
+            "metadata_locked": 1,
+            "intro_start": 12,
+            "intro_end": 47,
+            "credits_start": 1240,
+            "video_locked": 1,
+        })
+        env["db"].commit()
+        local = env["db"].get_track_by_id(local["id"])
+        env["config"].set("video_locked_pin", "1234")
+
+        engine = self._make_engine(env)
+        device_key = engine.set_current_device(
+            engine._device_detector.current_device
+        )
+        rel_path = "Videos/.Locked/The Dundies.mpg"
+        device_path = os.path.join(env["device_path"], rel_path)
+        os.makedirs(os.path.dirname(device_path), exist_ok=True)
+        with open(device_path, "wb") as handle:
+            handle.write(b"private-device-copy")
+        _insert_device_track(
+            env["db"],
+            "The Dundies",
+            "",
+            "",
+            rel_path,
+            device_id=device_key,
+            local_track_id=local["id"],
+            metadata_hash="episode-meta",
+            file_hash="episode-file",
+            file_size=len(b"private-device-copy"),
+        )
+        engine.load_cached_device_inventory(device_key)
+
+        plan = engine.build_sync_plan(media_type="video")
+
+        assert plan.errors == []
+        assert plan.to_copy == []
+        assert plan.to_resync == []
+        assert plan.to_delete == []
+        manifest_source = next(
+            source
+            for source, destination, _key in plan.artwork_to_copy
+            if destination == os.path.join(VIDEO_LIST_DEVICE_DIR, "index.tsv")
+        )
+        lines = open(manifest_source, encoding="utf-8").read().splitlines()
+        header = lines[1].split("\t")
+        entry = dict(zip(header, lines[2].split("\t")))
+        assert entry["title"] == "The Dundies"
+        assert entry["device_path"] == rel_path
+        assert entry["show"] == "The Office"
+        assert entry["season"] == "2"
+        assert entry["episode"] == "1"
+        assert entry["content_rating"] == "TV-14"
+        assert entry["intro_start"] == "12"
+        assert entry["intro_end"] == "47"
+        assert entry["credits_start"] == "1240"
+        assert entry["locked"] == "1"
+
+    def test_global_plan_prefers_flac_over_same_release_mp3(self, env):
+        mp3 = _make_source_file(env, "Art", "Alb", "Same", ext=".mp3")
+        flac = _make_source_file(env, "Art", "Alb", "Same", ext=".flac")
+        _insert_track(
+            env["db"],
+            "Same",
+            "Art",
+            "Alb",
+            file_path=mp3,
+            metadata_hash="mp3_hash",
+            codec="mp3",
+            bitrate=320,
+            duration=180.02,
+            track_number=4,
+        )
+        _insert_track(
+            env["db"],
+            "Same",
+            "Art",
+            "Alb",
+            file_path=flac,
+            metadata_hash="flac_hash",
+            codec="flac",
+            bitrate=950,
+            duration=180.04,
+            track_number=4,
+        )
+
+        engine = self._make_engine(env)
+        plan = engine.build_sync_plan()
+
+        assert len(plan.to_copy) == 1
+        row, rel_path = plan.to_copy[0]
+        assert dict(row)["file_path"] == flac
+        assert rel_path.endswith(".flac")
+
+    def test_global_plan_removes_existing_lower_quality_alternate_encoding(self, env):
+        mp3 = _make_source_file(env, "Art", "Alb", "Same", ext=".mp3")
+        flac = _make_source_file(env, "Art", "Alb", "Same", ext=".flac")
+        mp3_row = _insert_track(
+            env["db"], "Same", "Art", "Alb", file_path=mp3, codec="mp3"
+        )
+        flac_row = _insert_track(
+            env["db"], "Same", "Art", "Alb", file_path=flac, codec="flac"
+        )
+
+        engine = self._make_engine(env)
+        engine.set_current_device(engine._device_detector.current_device)
+        flac_rel = "Music/Art/Alb/01 - Same.flac"
+        mp3_rel = "Music/Art/Alb/01 - Same.mp3"
+        _insert_device_track(
+            env["db"],
+            "Same",
+            "Art",
+            "Alb",
+            flac_rel,
+            device_id=engine.current_device_key,
+            codec="flac",
+            local_track_id=flac_row["id"],
+        )
+        _insert_device_track(
+            env["db"],
+            "Same",
+            "Art",
+            "Alb",
+            mp3_rel,
+            device_id=engine.current_device_key,
+            codec="mp3",
+            local_track_id=mp3_row["id"],
+        )
+        engine.load_cached_device_inventory(engine.current_device_key)
+
+        plan = engine.build_sync_plan()
+
+        assert mp3_rel in plan.to_delete
+        assert mp3_rel in plan.verified_duplicate_paths
+        assert flac_rel not in plan.to_delete
+
+    def test_global_plan_keeps_same_title_from_different_releases(self, env):
+        single = _make_source_file(env, "Art", "Single", "Same", ext=".mp3")
+        album = _make_source_file(env, "Art", "Album", "Same", ext=".flac")
+        _insert_track(
+            env["db"], "Same", "Art", "Single", file_path=single, codec="mp3"
+        )
+        _insert_track(
+            env["db"], "Same", "Art", "Album", file_path=album, codec="flac"
+        )
+
+        engine = self._make_engine(env)
+        plan = engine.build_sync_plan()
+
+        assert len(plan.to_copy) == 2
 
     def test_global_plan_repairs_crosslinked_managed_duplicate_without_suffix(self, env):
         managed = _make_source_file(

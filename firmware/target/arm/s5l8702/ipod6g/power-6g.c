@@ -116,11 +116,12 @@ void power_init(void)
      *   B7 (SUSP)  = 0 : not suspended, USB current enabled
      *   B6 (HPWR)  = 0 : conservative 100 mA limit initially
      *   C1 (CDIS)  = 1 : battery charge disabled until USB current is
-     *                     confirmed by usb_charging_maxcurrent_change()
+     *                     confirmed, unless the dedicated adapter input is
+     *                     already present
      */
     GPIOCMD = 0xb070e | 0;  /* B7 SUSP: not suspended */
     GPIOCMD = 0xb060e | 0;  /* B6 HPWR: 100 mA limit  */
-    GPIOCMD = 0xc010e | 1;  /* C1: disable charge until negotiated */
+    GPIOCMD = 0xc010e | (pmu_firewire_present() ? 0 : 1);
 }
 
 void ide_power_enable(bool on)
@@ -141,6 +142,7 @@ void usb_charging_maxcurrent_change(int maxcurrent)
 {
     bool suspend_charging = (maxcurrent < 100);
     bool fast_charging = (maxcurrent >= 500);
+    bool adapter_present = pmu_firewire_present();
 
     /* This GPIO is connected to the LTC4066's SUSP pin */
     /* Setting it high prevents any power being drawn over USB */
@@ -152,12 +154,11 @@ void usb_charging_maxcurrent_change(int maxcurrent)
     GPIOCMD = 0xb060e | (fast_charging ? 1 : 0);
 
     /* GPIO C1: disable battery charging when USB current commitment
-     * is insufficient (< 500mA).  This prevents charge oscillation
-     * when connected to MFi DACs without power bank, where the
-     * source can't deliver enough for device + charge current.
-     * Device still draws operating power from USB; battery only
-     * supplements if USB is insufficient. */
-    GPIOCMD = 0xc010e | (fast_charging ? 0 : 1);
+     * is insufficient (< 500mA).  The PMU's dedicated adapter input is
+     * independent of USB negotiation and is already classified as a main
+     * charger, so it must always be allowed to charge.  This is the path
+     * used by legacy powered 30-pin docks such as the Philips DCP750. */
+    GPIOCMD = 0xc010e | ((fast_charging || adapter_present) ? 0 : 1);
 
     /* Record high-current state so power_input_status() does not
      * override C1 back to disabled on its next 500 ms poll. */
@@ -187,6 +188,7 @@ unsigned int power_input_status(void)
     static bool monitoring;
     static int debounce;
     unsigned int status = POWER_INPUT_NONE;
+    bool adapter_present = pmu_firewire_present();
     if (usb_detect() == USB_INSERTED)
     {
         status |= POWER_INPUT_USB;
@@ -268,8 +270,15 @@ unsigned int power_input_status(void)
         prev_bl_on = false;
         debounce = 0;
     }
-    if (pmu_firewire_present())
+    if (adapter_present)
+    {
+        /* C1 disables charging from both USB and the dedicated adapter.
+         * USB policy above may have closed the gate, but a real adapter is
+         * not subject to USB current negotiation.  Keep the final write in
+         * this polling path so hot-docking also enables charge promptly. */
+        GPIOCMD = 0xc010e | 0;
         status |= POWER_INPUT_MAIN_CHARGER;
+    }
     return status;
 }
 

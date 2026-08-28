@@ -1,0 +1,689 @@
+--- a/SConstruct
++++ b/SConstruct
+@@ -63,6 +63,18 @@
+ 	])
+ Export('base_src')
+ 
++volatile_base_src = env.Localize([
++	'device.c',
++	'actions.c',
++	'commands.c',
++	'malloc.c',
++	'openiboot.c',
++	'printf.c',
++	'tasks.c',
++	'util.c',
++	])
++Export('volatile_base_src')
++
+ # Build-Environment Modules
+ henv.SConscript([
+ 	'images/SConscript',
+--- a/arch-arm/entry.sx
++++ b/arch-arm/entry.sx
+@@ -159,6 +159,13 @@
+ 	MSR	CPSR_c,	R1				// set mode to b10011 (supervisor mode)
+ 	LDR	SP, =GeneralStack			// set the stack to the GeneralStack
+ 
++#ifdef CONFIG_VOLATILE_NO_STORAGE
++	LDR	R1, =_start				// vectors execute in place at the SHAtter load address
++	MCR	p15, 0, R1, c12, c0, 0		// set VBAR before interrupts can be enabled
++	MOV	R0, #0
++	MCR	p15, 0, R0, c7, c5, 4		// instruction synchronization barrier
++#endif
++
+ 	LDR	R0, =OpenIBootStart			// call the Thumb routine OpenIBootStart()
+ 	MOV	LR, PC
+ 	BX	R0
+--- a/actions.c
++++ b/actions.c
+@@ -28,14 +28,18 @@
+ #include "lcd.h"
+ #include "mmu.h"
+ #include "util.h"
++#ifndef CONFIG_VOLATILE_NO_STORAGE
+ #include "hfs/fs.h"
++#endif
+ #include "wdt.h"
+ #include "dma.h"
++#ifndef CONFIG_VOLATILE_NO_STORAGE
+ #include "radio.h"
+ #include "syscfg.h"
+ #include "scripting.h"
+ #include "images.h"
+ #include "multitouch.h"
++#endif
+ #include "pmu.h"
+ #include "platform.h"
+ #include "timer.h"
+@@ -141,12 +145,14 @@
+ 	char    cmdline[1];
+ };
+ 
++#ifndef CONFIG_VOLATILE_NO_STORAGE
+ struct atag_iphone_nand {
+ 	uint32_t	nandID;
+ 	uint32_t	numBanks;
+ 	int		banksTable[8];
+ 	ExtentList	extentList;
+ };
++#endif
+ 
+ #define ATAG_IPHONE_WIFI_TYPE_2G 0
+ #define ATAG_IPHONE_WIFI_TYPE_IPHONE_3G 1
+@@ -175,7 +181,9 @@
+ 		struct atag_revision         revision;
+ 		struct atag_videolfb         videolfb;
+ 		struct atag_cmdline          cmdline;
++#ifndef CONFIG_VOLATILE_NO_STORAGE
+ 		struct atag_iphone_nand      nand;
++#endif
+ 		struct atag_iphone_wifi      wifi;
+ 		struct atag_iphone_cal_data  mt_cal;
+ 	} u;
+@@ -197,6 +205,10 @@
+ 
+ error_t chainload_image(char* name)
+ {
++#ifdef CONFIG_VOLATILE_NO_STORAGE
++	(void)name;
++	return ENOENT;
++#else
+ 	Image* image = images_get(fourcc(name));
+ 	if(image == NULL)
+ 		return ENOENT;
+@@ -204,6 +216,7 @@
+ 	void* imageData;
+ 	images_read(image, &imageData);
+ 	return chainload((uint32_t)imageData);
++#endif
+ }
+ 
+ #define tag_next(t)     ((struct atag *)((uint32_t *)(t) + (t)->hdr.size))
+@@ -324,6 +337,9 @@
+ 
+ static void setup_mt_tag()
+ {
++#ifdef CONFIG_VOLATILE_NO_STORAGE
++	return;
++#else
+ #ifndef CONFIG_IPHONE_2G
+ 	uint8_t* cal;
+ 	int cal_size;
+@@ -343,6 +359,7 @@
+ 
+ 	bufferPrintf("Multi-touch calibration data installed.\r\n");
+ #endif
++#endif
+ }
+ 
+ static void setup_end_tag()
+@@ -358,8 +375,17 @@
+ static uint32_t ramdiskRealSize;
+ 
+ void set_ramdisk(void* location, int size) {
++#ifdef CONFIG_VOLATILE_NO_STORAGE
++	if(size <= 0 || size > VOLATILE_INITRD_MAX)
++	{
++		ramdisk = NULL;
++		ramdiskSize = 0;
++		return;
++	}
++#else
+ 	if(ramdisk)
+ 		free(ramdisk);
++#endif
+ 
+ 	if(location && size && *((unsigned short*)location) == 0x8b1f)
+ 	{
+@@ -377,8 +403,14 @@
+ 
+ 	if(location)
+ 	{
++#ifdef CONFIG_VOLATILE_NO_STORAGE
++		ramdisk = (void*)INITRD_LOAD;
++		if(location != ramdisk)
++			memcpy(ramdisk, location, size);
++#else
+ 		ramdisk = malloc(size);
+ 		memcpy(ramdisk, location, size);
++#endif
+ 	}
+ 	else
+ 		ramdisk = NULL;
+@@ -387,12 +419,26 @@
+ }
+ 
+ void set_kernel(void* location, int size) {
++#ifdef CONFIG_VOLATILE_NO_STORAGE
++	if(location == NULL || size <= 0 || size > VOLATILE_KERNEL_MAX)
++	{
++		kernel = NULL;
++		kernelSize = 0;
++		return;
++	}
++
++	kernelSize = size;
++	kernel = (void*)KERNEL_LOAD;
++	if(location != kernel)
++		memcpy(kernel, location, size);
++#else
+ 	if(kernel)
+ 		free(kernel);
+ 
+ 	kernelSize = size;
+ 	kernel = malloc(size);
+ 	memcpy(kernel, location, size);
++#endif
+ }
+ 
+ 
+@@ -418,6 +464,9 @@
+ 
+ static error_t load_multitouch_images()
+ {
++#ifdef CONFIG_VOLATILE_NO_STORAGE
++	return SUCCESS;
++#else
+ #ifdef CONFIG_IPHONE_2G
+ 	Image* image = images_get(fourcc("mtza"));
+ 	if (image == NULL)
+@@ -451,6 +500,7 @@
+ #endif
+ 
+     return SUCCESS;
++#endif
+ }
+ 
+ void boot_linux(const char* args, uint32_t mach_type) {
+@@ -618,15 +668,23 @@
+ 	switch(currentEntry->type)
+ 	{
+ 	case kBootAuto:
++#ifdef CONFIG_VOLATILE_NO_STORAGE
++		return ENOENT;
++#else
+ 		// This should be the default node,
+ 		// try and boot ibox, failing that
+ 		// boot ibot.
+ 		if(chainload_image("ibox") != 0)
+ 			return chainload_image("ibot");
+ 		return SUCCESS;
++#endif
+ 
+ 	case kBootImage:
++#ifdef CONFIG_VOLATILE_NO_STORAGE
++		return ENOENT;
++#else
+ 		return chainload_image(currentEntry->path);
++#endif
+ 
+ 	case kBootLinux:
+ 		{
+@@ -637,6 +695,13 @@
+ 			}
+ 
+ 			uint32_t size;
++#ifdef CONFIG_VOLATILE_NO_STORAGE
++			(void)size;
++			if(currentEntry->path == NULL)
++				boot_linux("console=tty root=/dev/ram0 init=/init rw", currentEntry->machine);
++			else
++				boot_linux(currentEntry->path, currentEntry->machine);
++#else
+ 			uint8_t *data = script_load_file(currentEntry->kernel, &size);
+ 			if(data == NULL)
+ 			{
+@@ -666,6 +731,7 @@
+ 				boot_linux("console=tty root=/dev/ram0 init=/init rw", currentEntry->machine);
+ 			else
+ 				boot_linux(currentEntry->path, currentEntry->machine);
++#endif
+ 
+ 			return SUCCESS;
+ 		}
+@@ -723,6 +789,19 @@
+ static error_t cmd_setup_kernel(int argc, char **argv)
+ 
+ {
++#ifdef CONFIG_VOLATILE_NO_STORAGE
++	if(argc > 2 || received_file_size <= 0
++			|| received_file_size > VOLATILE_KERNEL_MAX)
++	{
++		bufferPrintf("Usage: %s [command line], after sendfile to 0x%08x (%d byte max)\n",
++				argv[0], VOLATILE_UPLOAD, VOLATILE_KERNEL_MAX);
++		return EINVAL;
++	}
++
++	memcpy((void*)KERNEL_LOAD, (void*)VOLATILE_UPLOAD, received_file_size);
++	set_kernel((void*)KERNEL_LOAD, received_file_size);
++	setup_kernel("ram-upload", argc == 2 ? argv[1] : NULL);
++#else
+ 	if(argc <= 1)
+ 	{
+ 		// No arguments, just use the last sent file, with no command line
+@@ -747,6 +826,7 @@
+ 		bufferPrintf("Usage: %s [kernel] [command line]\n", argv[0]);
+ 		return EINVAL;
+ 	}
++#endif
+ 
+ 	return SUCCESS;
+ }
+@@ -754,6 +834,17 @@
+ 
+ static error_t cmd_setup_initrd(int argc, char **argv)
+ {
++#ifdef CONFIG_VOLATILE_NO_STORAGE
++	if(argc != 1 || received_file_size <= 0
++			|| received_file_size > VOLATILE_INITRD_MAX)
++	{
++		bufferPrintf("Usage: %s, after sendfile to 0x%08x (%d byte max)\n",
++				argv[0], VOLATILE_UPLOAD, VOLATILE_INITRD_MAX);
++		return EINVAL;
++	}
++	memcpy((void*)INITRD_LOAD, (void*)VOLATILE_UPLOAD, received_file_size);
++	set_ramdisk((void*)INITRD_LOAD, received_file_size);
++#else
+ 	if(argc <= 1)
+ 	{
+ 		char *ptr = malloc(received_file_size);
+@@ -769,11 +860,13 @@
+ 		bufferPrintf("Usage: %s [initrd]\n", argv[0]);
+ 		return EINVAL;
+ 	}
++#endif
+ 
+ 	return SUCCESS;
+ }
+ COMMAND("initrd", "Set the ramdisk for the current boot entry.", cmd_setup_initrd);
+ 
++#ifndef CONFIG_VOLATILE_NO_STORAGE
+ static error_t cmd_setup_image(int argc, char **argv)
+ {
+ 	if(argc != 2) {
+@@ -786,6 +879,7 @@
+ 	return SUCCESS;
+ }
+ COMMAND("image", "Set the image to chainload for the current boot entry.", cmd_setup_image);
++#endif
+ 
+ static error_t cmd_setup_machine(int argc, char **argv)
+ {
+@@ -823,6 +917,28 @@
+ }
+ COMMAND("boot", "Boot the current boot entry.", cmd_setup_boot);
+ 
++#ifdef CONFIG_VOLATILE_NO_STORAGE
++static error_t cmd_n81_state(int argc, char **argv)
++{
++	uint32_t sctlr;
++	uint32_t ttbr0;
++	uint32_t vbar;
++	uint32_t miu;
++
++	if(argc != 1)
++		return EINVAL;
++	asm volatile("MRC p15, 0, %0, c1, c0, 0" : "=r"(sctlr));
++	asm volatile("MRC p15, 0, %0, c2, c0, 0" : "=r"(ttbr0));
++	asm volatile("MRC p15, 0, %0, c12, c0, 0" : "=r"(vbar));
++	miu = *((volatile uint32_t*)0xBFC00000);
++	bufferPrintf("N81STATE sctlr=%08x ttbr0=%08x vbar=%08x miu=%08x\r\n",
++			sctlr, ttbr0, vbar, miu);
++	return SUCCESS;
++}
++COMMAND("n81state", "Report fixed volatile handoff state.", cmd_n81_state);
++#endif
++
++#ifndef CONFIG_VOLATILE_NO_STORAGE
+ static error_t cmd_go(int argc, char** argv)
+ {
+ 	uint32_t address;
+@@ -860,3 +976,4 @@
+ 	return SUCCESS;
+ }
+ COMMAND("jump", "jump to a specified address (interrupts enabled)", cmd_jump);
++#endif
+--- a/commands.c
++++ b/commands.c
+@@ -148,6 +148,7 @@
+ }
+ COMMAND("cat", "dumps a block of memory", cmd_cat);
+ 
++#ifndef CONFIG_VOLATILE_NO_STORAGE
+ static error_t cmd_mwb(int argc, char** argv)
+ {
+ 	if(argc < 3)
+@@ -197,6 +198,7 @@
+ 	return SUCCESS;
+ }
+ COMMAND("mw", "write a 32-bit dword into a memory address", cmd_mw);
++#endif
+ 
+ static error_t cmd_echo(int argc, char** argv)
+ {
+--- a/includes/util.h
++++ b/includes/util.h
+@@ -294,7 +294,7 @@
+ const char *strerr(error_t _e);
+ 
+ uint32_t next_power_of_two(uint32_t n);
+-inline void auto_store(void *_ptr, size_t _sz, uint32_t _val);
++void auto_store(void *_ptr, size_t _sz, uint32_t _val);
+ 
+ #include "printf.h"
+ #include "malloc-2.8.3.h"
+--- a/malloc.c
++++ b/malloc.c
+@@ -61,6 +61,12 @@
+ 
+ 	void *oldBreakValue = CurBreakValue;
+ 
++#ifdef CONFIG_VOLATILE_NO_STORAGE
++	if((incr > 0 && (uint32_t)CurBreakValue > HeapEnd - (uint32_t)incr)
++			|| (incr < 0 && (uint32_t)CurBreakValue < HeapStart - incr))
++		return (void*)-1;
++#endif
++
+ 	CurBreakValue = (void*)(((uint8_t*)CurBreakValue) + incr);
+ 
+ 	/*if(incr > 0) {
+--- a/plat-a4/SConscript
++++ b/plat-a4/SConscript
+@@ -4,6 +4,15 @@
+ env.Append(CPPPATH = [Dir('includes')])
+ env.Append(CPPDEFINES = ['ARM_A8', 'CONFIG_A4', 'MALLOC_NO_WDT', 'BIG_FONT'])
+ 
++volatile_env = env.Clone()
++volatile_env.Append(CPPDEFINES = ['CONFIG_VOLATILE_NO_STORAGE', 'NO_STBIMAGE'])
++volatile_env.Append(CPPFLAGS = ['-Wno-error'])
++volatile_env.AddModules([
++	"acm",
++	"usb-synopsys",
++	])
++Export('volatile_env')
++
+ env.AddModules([
+ 	"acm",
+ 	"usb-synopsys",
+@@ -38,6 +47,22 @@
+ 	]) + hfs_src
+ Export('plat_a4_src')
+ 
++volatile_plat_a4_src = arch_arm_src + volatile_base_src + volatile_env.Localize([
++	'a4.c',
++	'chipid.c',
++	'clock.c',
++	'event.c',
++	'gpio.c',
++	'interrupt.c',
++	'miu.c',
++	'mmu.c',
++	'power.c',
++	'timer.c',
++	'uart.c',
++	'usbphy.c',
++	])
++Export('volatile_plat_a4_src')
++
+ env.SConscript('iPhone4G.SConscript', 'env')
+ env.SConscript('iPad1G.SConscript', 'env')
+ env.SConscript('aTV2G.SConscript', 'env')
+--- a/plat-a4/a4.c
++++ b/plat-a4/a4.c
+@@ -23,42 +23,50 @@
+ void platform_init()
+ {
++#ifdef CONFIG_VOLATILE_NO_STORAGE
++	tasks_setup();
++	clock_setup();
++	interrupt_setup();
++	event_setup();
++	LeaveCriticalSection();
++#else
+ 	arm_setup();
+ 	mmu_setup();
+ 	tasks_setup();
+ 
+ 	// Basic prerequisites for everything else
+ 	miu_setup();
+ 	power_setup();
+ 
+ 	clock_setup();
+ 
+ 	// Need interrupts for everything afterwards
+ 	interrupt_setup();
+ 
+ 	gpio_setup();
+ 
+ 	// For scheduling/sleeping niceties
+ 	timer_setup();
+ 	event_setup();
+ 
+ 	// Other devices
+ 	uart_setup();
+ 	i2c_setup();
+ 
+ 	dma_setup();
+ 
+ 	spi_setup();
+ 
+ 	LeaveCriticalSection();
+ 
+ 	aes_setup();
+ 
+ 	if(!displaypipe_init()) {
+ 		framebuffer_setup();
+ 		framebuffer_setdisplaytext(TRUE);
+ 		lcd_set_backlight_level(1500);
+ 	}
+ 
+ 	pmu_setup_gpio(0, 1, 1);
+ 	pmu_setup_ldo(10, 1800, 0, 1);
++#endif
+ }
+ 
+ void platform_shutdown()
+--- a/plat-a4/cdma.c
++++ b/plat-a4/cdma.c
+@@ -1,7 +1,6 @@
+ #include "openiboot.h"
+ #include "arm/arm.h"
+ #include "util.h"
+-#include "malloc.h"
+ #include "hardware/dma.h"
+ #include "cdma.h"
+ #include "clock.h"
+--- a/plat-a4/iPodTouch4G.SConscript
++++ b/plat-a4/iPodTouch4G.SConscript
+@@ -11,7 +11,18 @@
+ 				])]
+ Export('ipt_4g_src')
+ 
++ipt_4g_volatile_src = [volatile_plat_a4_src]
++Export('ipt_4g_volatile_src')
++
+ env = env.Clone()
+ env.Append(CPPDEFINES=['OPENIBOOT_VERSION_CONFIG=\\" for iPod Touch 4G\\"', 'MACH_ID=3564'])
+ 
+ env.OpenIBootTarget('iPodTouch4G', 'ipt_4g_openiboot', 'CONFIG_IPOD_TOUCH_4G', ipt_4g_src, None)
++
++volatile_env = volatile_env.Clone()
++volatile_env.Append(CPPDEFINES=['OPENIBOOT_VERSION_CONFIG=\\" for iPod Touch 4G volatile\\"', 'MACH_ID=3564'])
++volatile_env['LINKFLAGS'] = [
++	'-Ttext=0x84000000' if flag == '-Ttext=0x0' else flag
++	for flag in volatile_env['LINKFLAGS']
++]
++volatile_env.OpenIBootTarget('iPodTouch4GVolatile', 'ipt_4g_volatile_openiboot', 'CONFIG_IPOD_TOUCH_4G', ipt_4g_volatile_src, None)
+--- a/plat-a4/includes/hardware/a4.h
++++ b/plat-a4/includes/hardware/a4.h
+@@ -20,11 +20,27 @@
+ #define PageTable (OpenIBootLoad + 0x24000)
+ #define HeapStart (PageTable + 0x4000)
+ #else
++#ifdef CONFIG_VOLATILE_NO_STORAGE
++#define OpenIBootLoad 0x84000000
++#define GeneralStack 0x8402E000
++#define HeapStart 0x84020000
++#define HeapEnd 0x8402B000
++#define PageTable (RAMEnd - 0x8000)
++#else
+ #define OpenIBootLoad 0x00000000
+ #define GeneralStack (PageTable - 4)
+ #define HeapStart (LargeMemoryStart + 0x02000000)
+ #define PageTable (RAMEnd - 0x8000)
++#endif
+ #endif
++
++#ifdef CONFIG_VOLATILE_NO_STORAGE
++#define KERNEL_LOAD 0x4A000000
++#define INITRD_LOAD 0x4B000000
++#define VOLATILE_UPLOAD 0x4D000000
++#define VOLATILE_KERNEL_MAX 0x00800000
++#define VOLATILE_INITRD_MAX 0x01400000
++#endif
+ 
+ /*
+  *	Devices
+--- a/includes/tasks.h
++++ b/includes/tasks.h
+@@ -26,7 +26,11 @@
+ 
+ #include "openiboot.h"
+ 
++#ifdef CONFIG_VOLATILE_NO_STORAGE
++#define TASK_DEFAULT_STACK_SIZE (8*1024)
++#else
+ #define TASK_DEFAULT_STACK_SIZE (1*1024*1024) // 1MB
++#endif
+ 
+ void tasks_setup();
+ void tasks_run();
+--- a/scons/ARMEnvironment.SConscript
++++ b/scons/ARMEnvironment.SConscript
+@@ -6,17 +6,17 @@
+ 
+ def ARMEnvironment(*a, **kw):
+ 	env = Environment(tools=['gas', 'gcc', 'gnulink', 'ar'], ENV=os.environ, *a, **kw)
+-	plat_flags = ['-mlittle-endian', '-mfpu=vfp', '-mthumb', '-mthumb-interwork', '-fPIC']
++	plat_flags = ['-mcpu=cortex-a8', '-mlittle-endian', '-mfpu=vfp', '-mthumb', '-mthumb-interwork', '-fPIC']
+ 	env.Append(CPPPATH = ['#includes'])
+ 	env.Append(CPPFLAGS = plat_flags+['-nostdlib'])
+ 	env.Append(ASPPFLAGS = ['-xassembler-with-cpp'])
+-	env.Append(LINKFLAGS = plat_flags+['-nostdlib', '--nostdlib', '-Ttext=0x0'])
++	env.Append(LINKFLAGS = plat_flags+['-nostdlib', '-Ttext=0x0'])
+ 	env.Append(LIBS = ['gcc'])
+ 
+ 	env['PROGSUFFIX'] = ''
+ 
+-	if not env.has_key("CROSS"):
+-		if env['ENV'].has_key("CROSS"):
++	if "CROSS" not in env:
++		if "CROSS" in env['ENV']:
+ 			env['CROSS'] = env['ENV']['CROSS']
+ 		else:
+ 			env["CROSS"] = 'arm-elf-'
+--- a/scons/Doxygen.SConscript
++++ b/scons/Doxygen.SConscript
+@@ -29,6 +29,9 @@
+    Parse a Doxygen source file and return a dictionary of all the values.
+    Values will be strings and lists of strings.
+    """
++   if isinstance(file_contents, bytes):
++      file_contents = file_contents.decode('utf-8')
++
+    data = {}
+ 
+    import shlex
+@@ -78,7 +81,7 @@
+          append_data( data, key, new_data, '\\' )
+ 
+    # compress lists of len 1 into single strings
+-   for k, v in data.items():
++   for k, v in list(data.items()):
+       if len(v) == 0:
+          data.pop(k)
+ 
+--- a/scons/Git.SConscript
++++ b/scons/Git.SConscript
+@@ -1,7 +1,11 @@
++import os
+ import subprocess
+ 
+ def GetGitCommit():
+ 	p = subprocess.Popen('git log | head -n1 | cut -b8-14', shell=True, stdout=subprocess.PIPE)
+ 	ret,smth = p.communicate()
+-	return ret[:-1]
++	commit = ret[:-1].decode('ascii')
++	if not commit:
++		commit = os.environ.get('OPENIBOOT_SOURCE_COMMIT', '')[:7]
++	return commit
+ Export('GetGitCommit')
+--- a/scons/Module.SConscript
++++ b/scons/Module.SConscript
+@@ -35,7 +35,7 @@
+ 			env.Append(**a)
+ 
+ def FindModule(env, name):
+-	if env['MODULES'] != None and env['MODULES'].has_key(name):
++	if env['MODULES'] is not None and name in env['MODULES']:
+ 		return env['MODULES'][name]
+ 
+ 	return None
+@@ -58,7 +58,7 @@
+ def AddModule(env, name):
+ 	mod = env.FindModule(name)
+ 	if mod is None:
+-		print "No such module %s." % name
++		print("No such module %s." % name)
+ 		return None
+ 
+ 	mod.Add(env)
+@@ -130,16 +130,6 @@
+ 		Alias(name, bin)
+ 		Alias(name+'D', dbin)
+ 
+-	locals()[elf_name] = elf
+-	locals()[delf_name] = delf
+-	locals()[bin_name] = bin
+-	locals()[dbin_name] = dbin
+-	locals()[img3_name] = img3
+-	locals()[dimg3_name] = dimg3
+-
+-	Export([elf_name, bin_name, img3_name,
+-			delf_name, dbin_name, dimg3_name])
+-
+ 	return elf, bin, img3
+ env.AddMethod(OpenIBootTarget, "OpenIBootTarget")
+ 
+--- a/util.c
++++ b/util.c
+@@ -856,7 +856,7 @@
+ 	return val;
+ }
+ 
+-inline void auto_store(void *_ptr, size_t _sz, uint32_t _val)
++void auto_store(void *_ptr, size_t _sz, uint32_t _val)
+ {
+ 	switch(_sz)
+ 	{
+--- a/plat-a4/clcd.c
++++ b/plat-a4/clcd.c
+@@ -310,14 +310,14 @@
+ 		SET_REG(RGBOUT + 0x54, some_value & 0xFFFE0F00);
+ 		uint32_t i;
+-		for (i = 0; i <= 0x100; i++) {
++		for (i = 0; i < 0x100; i++) {
+ 			SET_REG(RGBOUT + 0x54, i | some_value | 0x14000);
+ 			SET_REG(RGBOUT + 0x58, atv_values[i] & 0xFFFFF);
+ 		}
+-		for (i = 0; i <= 0x100; i++) {
++		for (i = 0; i < 0x100; i++) {
+ 			SET_REG(RGBOUT + 0x54, i | some_value | 0x15000);
+ 			SET_REG(RGBOUT + 0x58, atv_values[i] & 0xFFFFF);
+ 		}
+-		for (i = 0; i <= 0x100; i++) {
++		for (i = 0; i < 0x100; i++) {
+ 			SET_REG(RGBOUT + 0x54, i | some_value | 0x16000);
+ 			SET_REG(RGBOUT + 0x58, atv_values[i] & 0xFFFFF);
+ 		}

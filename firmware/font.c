@@ -43,6 +43,7 @@
 #include "rbunicode.h"
 #include "diacritic.h"
 #include "rbpaths.h"
+#include "social_emoji.h"
 
 /* Define LOGF_ENABLE to enable logf output in this file */
 //#define LOGF_ENABLE
@@ -1120,6 +1121,37 @@ int font_getstringnsize(const unsigned char *str, size_t maxbytes, int *w, int *
 
     for (str = utf8decode(str, &ch); ch != 0 && b < maxbytes; str = utf8decode(str, &ch), b--)
     {
+#if defined(HAVE_LCD_COLOR) && !defined(BOOTLOADER)
+        ucschar_t emoji_text[SOCIAL_EMOJI_MAX_SEQUENCE + 1];
+        const unsigned char *lookahead = str;
+        size_t remaining = b;
+        int emoji_count = 1;
+        int emoji_length;
+
+        emoji_text[0] = ch;
+        while (emoji_count < SOCIAL_EMOJI_MAX_SEQUENCE && remaining > 0)
+        {
+            lookahead = utf8decode(lookahead, &emoji_text[emoji_count]);
+            if (emoji_text[emoji_count] == 0)
+                break;
+            emoji_count++;
+            remaining--;
+        }
+        emoji_text[emoji_count] = 0;
+        emoji_length = social_emoji_lookup(emoji_text, NULL);
+        if (emoji_length > 0)
+        {
+            width += SOCIAL_EMOJI_WIDTH;
+            while (--emoji_length > 0)
+            {
+                str = utf8decode(str, &ch);
+                b--;
+            }
+            continue;
+        }
+        if (ch == 0xfe0f || ch == 0x200d)
+            continue;
+#endif
         if (IS_DIACRITIC(ch))
             continue;
 

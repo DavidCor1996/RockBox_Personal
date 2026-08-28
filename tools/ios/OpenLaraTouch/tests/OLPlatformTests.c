@@ -2,6 +2,7 @@
 
 #include <assert.h>
 #include <stdio.h>
+#include <string.h>
 
 static void test_icade(void)
 {
@@ -14,7 +15,7 @@ static void test_icade(void)
         {'a', 'q', OL_KEY_LEFT}, {'d', 'c', OL_KEY_RIGHT},
         {'y', 't', OL_KEY_A}, {'h', 'r', OL_KEY_B},
         {'u', 'f', OL_KEY_C}, {'j', 'n', OL_KEY_X},
-        {'i', 'm', OL_KEY_Y}, {'k', 'p', OL_KEY_SELECT},
+        {'i', 'm', OL_KEY_Y}, {'k', 'p', OL_KEY_START},
         {'o', 'g', OL_KEY_Z}, {'l', 'v', OL_KEY_SELECT}
     };
     uint32_t state = 0;
@@ -74,11 +75,48 @@ static void test_palette(void)
     assert(rgba[0] == 0 && rgba[1] == 0 && rgba[2] == 255);
 }
 
+static void put_u16(uint8_t *data, uint16_t value)
+{
+    data[0] = (uint8_t)value;
+    data[1] = (uint8_t)(value >> 8);
+}
+
+static void put_u32(uint8_t *data, uint32_t value)
+{
+    data[0] = (uint8_t)value;
+    data[1] = (uint8_t)(value >> 8);
+    data[2] = (uint8_t)(value >> 16);
+    data[3] = (uint8_t)(value >> 24);
+}
+
+static void test_pkd_header(void)
+{
+    uint8_t header[172];
+    unsigned int i;
+
+    memset(header, 0, sizeof(header));
+    put_u16(header + 4, 1);
+    put_u16(header + 6, 1);
+    for (i = 0; i < 35; ++i)
+        put_u32(header + 32 + i * 4, 172);
+    assert(ol_validate_pkd_header(header, sizeof(header), 228));
+    assert(!ol_validate_pkd_header(NULL, sizeof(header), 228));
+    assert(!ol_validate_pkd_header(header, sizeof(header) - 1, 228));
+    assert(!ol_validate_pkd_header(header, sizeof(header), 172));
+
+    put_u16(header + 6, 140);
+    assert(!ol_validate_pkd_header(header, sizeof(header), 10000));
+    put_u16(header + 6, 1);
+    put_u32(header + 32 + 3 * 4, 200);
+    assert(!ol_validate_pkd_header(header, sizeof(header), 228));
+}
+
 int main(void)
 {
     test_icade();
     test_touch();
     test_palette();
+    test_pkd_header();
     puts("OpenLara Touch platform tests: PASS");
     return 0;
 }

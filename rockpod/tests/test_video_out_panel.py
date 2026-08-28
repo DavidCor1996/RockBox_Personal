@@ -245,6 +245,32 @@ def test_packbits_frame_packet_expands_repeated_and_literal_rgb565():
     assert decoded == b"\x00\xf8" * 3 + b"\xe0\x07"
 
 
+def test_generation_gap_reports_frames_the_ipod_rendered_but_we_never_showed():
+    """The iPod bumps lcd_external_generation once per decoded frame, so the
+    gap between two displayed frames is the drop count. Without this the
+    panel can only report its own rate and cannot tell whether that rate is
+    the native one."""
+    _application()
+    panel = VideoOutPanel()
+    panel._awaiting_frame = True
+    pixels = b"\x00\x00" * (320 * 240)
+
+    for request_id, generation in ((30, 100), (31, 102)):
+        panel._request_id = request_id
+        panel._awaiting_frame = True
+        panel._frame_buffer = None
+        panel._frame_offsets = set()
+        panel._frame_received = 0
+        panel._accept_frame_packet(FRAMEBUFFER_HEADER.pack(
+            FRAMEBUFFER_MAGIC, 0x13, 1, 320, 240, generation,
+            request_id, len(pixels), 0,
+        ) + pixels)
+
+    # The second frame arrived two generations after the first, so the iPod
+    # rendered one frame in between that never reached the screen.
+    assert panel._native_deltas == [2]
+
+
 def test_unchanged_generation_schedules_poll_without_replacing_real_frame(monkeypatch):
     _application()
     panel = VideoOutPanel()

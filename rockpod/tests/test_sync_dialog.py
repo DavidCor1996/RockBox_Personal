@@ -44,3 +44,18 @@ def test_normal_sync_button_does_not_request_rockbox_build():
 
     assert media_sync == [True]
     assert rockbox_build == []
+
+
+def test_sync_results_show_file_failure_details():
+    app = QApplication.instance() or QApplication([])
+    del app
+    dialog = SyncDialog(SyncPlan())
+
+    dialog.add_file_error(
+        "/music/Artist/Album/Track.mp3",
+        "No space left on device",
+    )
+    dialog.show_results(0, 1, 0)
+
+    assert "1 failed" in dialog._results.text()
+    assert "Track.mp3: No space left on device" in dialog._results.text()

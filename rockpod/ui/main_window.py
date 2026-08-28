@@ -10,6 +10,7 @@ import shlex
 import secrets
 import shutil
 import signal
+import sys
 import time
 import xml.etree.ElementTree as ET
 from datetime import datetime
@@ -99,6 +100,11 @@ from services.rockbox_device import (
 from services import sitekick
 from services import livetv
 from services.calm import CalmService
+from services.youtube_app import YoutubeAppService
+from services.tiktok_app import TikTokAppService
+from services.onlyfans_app import OnlyFansAppService
+from services.instagram_app import InstagramAppService
+from services.reddit_app import RedditAppService
 from services.rockbox_deploy import RockboxDeployService
 from services.rockbox_boot import RockboxBootService, RockboxBuildSyncJob
 from services.rockbox_games import RockboxGameService
@@ -178,6 +184,11 @@ from ui.video_player import VideoPlayerWindow
 from ui.video_sync import VideoSyncPanel
 from ui.livetv_panel import LiveTvPanel, LiveTvStorePanel
 from ui.calm_panel import CalmLibraryPanel, CalmStorePanel
+from ui.youtube_panel import YoutubePanel
+from ui.tiktok_panel import TikTokPanel
+from ui.onlyfans_panel import OnlyFansPanel
+from ui.instagram_panel import InstagramPanel
+from ui.reddit_panel import RedditPanel
 from ui.dialogs.livetv_editor import LiveTvEditorDialog
 from ui.website_sync import WebsiteSyncPanel
 from ui.android_workflows import summarize_android_import
@@ -238,6 +249,15 @@ class MainWindow(QMainWindow):
         self._device_inventory = DeviceInventoryVerifier(self._config, self)
         self._theme_assets = ThemeAssetManager(self._config)
         self._repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+        self._youtube_app = YoutubeAppService(
+            self._db, self._config, self._repo_root
+        )
+        self._tiktok_app = TikTokAppService(
+            self._db, self._config, self._repo_root
+        )
+        self._onlyfans_app = OnlyFansAppService(self._config, self._repo_root)
+        self._instagram_app = InstagramAppService(self._config, self._repo_root)
+        self._reddit_app = RedditAppService(self._config, self._repo_root)
         self._comics_store_client = ArchiveOrgComicsClient(
             self._config, self._repo_root
         )
@@ -276,6 +296,7 @@ class MainWindow(QMainWindow):
         self._sync_dialog = None  # active sync dialog, if any
         self._active_sync_plan = None
         self._rockbox_build_sync_job = None
+        self._spotify_wrapped_message_process = None
         self._last_sync_time = None
         self._device_verification_running = False
         self._database_repair_pending = None
@@ -496,6 +517,26 @@ class MainWindow(QMainWindow):
         self._calm_panel = CalmLibraryPanel(
             self._calm_service, self._rockbox_profiles
         )
+        self._youtube_panel = YoutubePanel(
+            self._youtube_app,
+            lambda: self._device_detector.current_device,
+        )
+        self._tiktok_panel = TikTokPanel(
+            self._tiktok_app,
+            lambda: self._device_detector.current_device,
+        )
+        self._onlyfans_panel = OnlyFansPanel(
+            self._onlyfans_app,
+            lambda: self._device_detector.current_device,
+        )
+        self._instagram_panel = InstagramPanel(
+            self._instagram_app,
+            lambda: self._device_detector.current_device,
+        )
+        self._reddit_panel = RedditPanel(
+            self._reddit_app,
+            lambda: self._device_detector.current_device,
+        )
         self._livetv_panel = LiveTvPanel()
         self._photo_manager = PhotoManagerWidget()
         self._magazine_sync = MagazineSyncWidget()
@@ -557,6 +598,11 @@ class MainWindow(QMainWindow):
         self._content_stack.addWidget(self._avatar_editor)
         self._content_stack.addWidget(self._sitekick_panel)
         self._content_stack.addWidget(self._calm_panel)
+        self._content_stack.addWidget(self._youtube_panel)
+        self._content_stack.addWidget(self._tiktok_panel)
+        self._content_stack.addWidget(self._onlyfans_panel)
+        self._content_stack.addWidget(self._instagram_panel)
+        self._content_stack.addWidget(self._reddit_panel)
         self._content_stack.addWidget(self._livetv_panel)
         self._content_stack.addWidget(self._store_page)
         self._content_stack.addWidget(self._photo_manager)
@@ -594,6 +640,9 @@ class MainWindow(QMainWindow):
         file_menu.addAction("Write Library Metadata Back to Files...", self._write_library_metadata_back_to_files)
         file_menu.addAction("Fetch Timed Lyrics for Library...", self._fetch_library_timed_lyrics)
         file_menu.addAction("Fetch Missing Artwork", self._refresh_missing_artwork)
+        file_menu.addAction(
+            "Fill In Missing Video Metadata", self._fill_missing_video_metadata
+        )
         file_menu.addAction("New Playlist...", self._new_playlist, "Ctrl+N")
         file_menu.addSeparator()
         file_menu.addAction("Preferences...", self._show_preferences, "Ctrl+,")
@@ -613,7 +662,7 @@ class MainWindow(QMainWindow):
         self._browser_action.toggled.connect(self._toggle_column_browser)
         self._browser_action.setShortcut("Ctrl+B")
         view_menu.addAction(self._browser_action)
-        self._show_hidden_wallpapers_action = QAction("Show Hidden Wallpapers/Photos/Videos", self)
+        self._show_hidden_wallpapers_action = QAction("View Hidden Content", self)
         self._show_hidden_wallpapers_action.setCheckable(True)
         self._show_hidden_wallpapers_action.setChecked(False)
         self._show_hidden_wallpapers_action.toggled.connect(self._toggle_hidden_wallpapers)
@@ -983,6 +1032,7 @@ class MainWindow(QMainWindow):
 
         # Sync engine — same queued-connection pattern as the scanner.
         self._sync_engine.sync_progress.connect(self._on_sync_progress)
+        self._sync_engine.sync_file_error.connect(self._on_sync_file_error)
         self._sync_engine.sync_finished.connect(self._on_sync_done)
         self._sync_engine.sync_cancelled.connect(self._on_sync_cancelled)
         self._sync_engine.sync_error.connect(self._on_sync_error)
@@ -1071,8 +1121,12 @@ class MainWindow(QMainWindow):
         imported = report.get("total_files_inserted", 0) + report.get("total_files_updated", 0)
         skipped = report.get("total_files_skipped", 0)
         ignored = report.get("total_non_media_files_ignored", 0)
+        device_only = report.get("total_device_only_videos_preserved", 0)
         if total == 0 and skipped == 0:
-            self._status_bar.set_left_text("Library up to date")
+            status = "Library up to date"
+            if device_only:
+                status += f" · Kept {device_only} device-only video{'s' if device_only != 1 else ''}"
+            self._status_bar.set_left_text(status)
         else:
             parts = [
                 f"Scanned {scanned} items",
@@ -1083,6 +1137,10 @@ class MainWindow(QMainWindow):
                 parts.append(f"{audio} audio / {video} video")
             if ignored:
                 parts.append(f"Ignored {ignored} unsupported files")
+            if device_only:
+                parts.append(
+                    f"Kept {device_only} device-only video{'s' if device_only != 1 else ''}"
+                )
             self._status_bar.set_left_text(" · ".join(parts))
         self._finalize_pending_store_playlist_import()
         self._auto_apply_pending_youtube_import_metadata()
@@ -1107,6 +1165,7 @@ class MainWindow(QMainWindow):
         imported = report.get("total_files_inserted", 0) + report.get("total_files_updated", 0)
         skipped = report.get("total_files_skipped", 0)
         ignored = report.get("total_non_media_files_ignored", 0)
+        device_only = report.get("total_device_only_videos_preserved", 0)
         lines = [
             f"Scanned {scanned} media files",
             f"Audio files found: {audio}",
@@ -1116,6 +1175,11 @@ class MainWindow(QMainWindow):
             f"Removed {report.get('total_files_removed', 0)} stale tracks",
             f"Skipped {skipped} files",
         ]
+        if device_only:
+            lines.append(
+                f"Retained device-only videos: {device_only} "
+                "(laptop source missing; iPod copy preserved)"
+            )
         if ignored:
             lines.append(f"Ignored {ignored} unsupported files")
         partial = report.get("partial_import_folders") or []
@@ -1487,6 +1551,11 @@ class MainWindow(QMainWindow):
             "rockbox_achievements_avatar": "Achievements & Avatar",
             "rockbox_sitekick": "Sitekick",
             "rockbox_calm": "Calm Sync",
+            "rockbox_youtube": "YouTube",
+            "rockbox_tiktok": "TikTok",
+            "rockbox_onlyfans": "OnlyFans",
+            "rockbox_instagram": "Instagram",
+            "rockbox_reddit": "Reddit",
             "rockbox_livetv": "Live TV",
             "rockbox_games": "Store",
             "rockbox_movies": "Store",
@@ -1577,6 +1646,9 @@ class MainWindow(QMainWindow):
             return False
 
         for key, value in dict(settings or {}).items():
+            if key == "onlyfans_show_on_ipod":
+                self._config.set(key, bool(value))
+                continue
             baseline = "" if key == "display_name" else self._config.get(key)
             if value == baseline:
                 self._config.remove_device_override(key, device=device)
@@ -1622,6 +1694,18 @@ class MainWindow(QMainWindow):
                     self,
                     "Device Settings",
                     f"Saved the RockPod setting, but could not update Rockbox config.cfg:\n{exc}",
+                )
+        if "onlyfans_show_on_ipod" in dict(settings or {}):
+            try:
+                self._onlyfans_app.set_device_visibility(
+                    device.mount_path,
+                    settings["onlyfans_show_on_ipod"],
+                )
+            except OSError as exc:
+                QMessageBox.warning(
+                    self,
+                    "Device Settings",
+                    f"Saved the setting, but could not update OnlyFans visibility:\n{exc}",
                 )
         if "rockbox_ui_font_scale" in dict(settings or {}):
             try:
@@ -1798,6 +1882,21 @@ class MainWindow(QMainWindow):
         elif self._current_view == "rockbox_calm":
             self._content_stack.setCurrentWidget(self._calm_panel)
             self._calm_panel.refresh()
+        elif self._current_view == "rockbox_youtube":
+            self._content_stack.setCurrentWidget(self._youtube_panel)
+            self._youtube_panel.refresh()
+        elif self._current_view == "rockbox_tiktok":
+            self._content_stack.setCurrentWidget(self._tiktok_panel)
+            self._tiktok_panel.refresh()
+        elif self._current_view == "rockbox_onlyfans":
+            self._content_stack.setCurrentWidget(self._onlyfans_panel)
+            self._onlyfans_panel.refresh()
+        elif self._current_view == "rockbox_instagram":
+            self._content_stack.setCurrentWidget(self._instagram_panel)
+            self._instagram_panel.refresh()
+        elif self._current_view == "rockbox_reddit":
+            self._content_stack.setCurrentWidget(self._reddit_panel)
+            self._reddit_panel.refresh()
         elif self._current_view == "rockbox_games":
             self._content_stack.setCurrentWidget(self._store_page)
             self._store_page.setCurrentWidget(self._game_browser_panel)
@@ -3190,6 +3289,62 @@ class MainWindow(QMainWindow):
             else:
                 self._status_bar.set_left_text(f"No artwork lookups queued ({skipped} skipped)")
 
+    def _fill_missing_video_metadata(self):
+        """Resolve every series and fill the gaps, artwork included.
+
+        Each series costs one provider lookup, so this stays usable on a
+        library of hundreds of episodes. Fields the library already carries
+        are left alone and locked rows are skipped, so running it twice is
+        safe.
+        """
+        from services.video_metadata_jobs import VideoMetadataBackfillJob
+
+        rows = [
+            dict(row)
+            for row in self._db.get_tracks_by_media_type("video", order_by="id")
+            if str(row["video_kind"] or "") == "show"
+        ]
+        if not rows:
+            self._status_bar.set_left_text("No TV episodes in the library")
+            return
+
+        job = VideoMetadataBackfillJob(rows)
+        job.signals.progress.connect(
+            lambda index, total, title: self._status_bar.set_left_text(
+                f"Looking up video metadata ({index}/{total}): {title}"
+            )
+        )
+        job.signals.error.connect(
+            lambda message: self._status_bar.set_left_text(
+                f"Video metadata lookup failed: {message}"
+            )
+        )
+        job.signals.result.connect(self._on_video_metadata_backfilled)
+        self._status_bar.set_left_text("Looking up video metadata...")
+        QThreadPool.globalInstance().start(job)
+
+    def _on_video_metadata_backfilled(self, result):
+        updates = list((result or {}).get("updates") or [])
+        unmatched = list((result or {}).get("unmatched") or [])
+        with self._db.transaction():
+            for update in updates:
+                values = {
+                    key: value
+                    for key, value in update["values"].items()
+                    if key != "metadata_hash"
+                }
+                self._db.update_track_metadata(update["id"], values)
+        self._refresh_view()
+        self._refresh_browser()
+        if self._current_view == "library_video_sync":
+            self._refresh_video_sync_panel()
+        message = f"Filled in metadata for {len(updates)} videos"
+        if unmatched:
+            message += f"; no confident match for {', '.join(unmatched[:3])}"
+        if updates:
+            message += "; sync to refresh the iPod"
+        self._status_bar.set_left_text(message)
+
     def _video_artwork_groups(self):
         tracks = normalize_tracks_for_ui(
             self._db.get_tracks_by_media_type("video", order_by="artist, album, disc_number, track_number, title")
@@ -3827,9 +3982,53 @@ class MainWindow(QMainWindow):
         if self._device_config_value("verify_device_in_background", False):
             QTimer.singleShot(50, self._scan_device)
 
-        # Auto-sync if configured
+        # Auto-sync if configured. Wrapped discovery runs after that sync so it
+        # never races media/database writes; otherwise it can start now.
         if self._device_config_value("auto_sync_on_connect", False):
             QTimer.singleShot(1000, self._start_sync)
+        else:
+            QTimer.singleShot(750, self._start_spotify_wrapped_message_sync)
+
+    def _start_spotify_wrapped_message_sync(self):
+        if self._spotify_wrapped_message_process is not None:
+            return
+        device = self._device_detector.current_device
+        if not device or not getattr(device, "is_rockbox", False):
+            return
+        mount_path = str(getattr(device, "mount_path", "") or "")
+        if not mount_path:
+            return
+        script = os.path.join(
+            self._repo_root,
+            "rockpod",
+            "scripts",
+            "spotify_wrapped_artist_message.py",
+        )
+        process = QProcess(self)
+        process.setProcessChannelMode(QProcess.MergedChannels)
+        process.setWorkingDirectory(self._repo_root)
+        self._spotify_wrapped_message_process = process
+
+        def finished(exit_code, exit_status):
+            output = bytes(process.readAllStandardOutput()).decode(
+                "utf-8", "replace"
+            ).strip()
+            self._spotify_wrapped_message_process = None
+            process.deleteLater()
+            if exit_status == QProcess.NormalExit and int(exit_code) == 0:
+                if output:
+                    logger.info("Spotify Wrapped artist message sync: %s", output)
+            else:
+                logger.warning(
+                    "Spotify Wrapped artist message sync failed: %s",
+                    output or f"exit code {exit_code}",
+                )
+
+        process.finished.connect(finished)
+        process.start(
+            sys.executable,
+            [script, "--mount", mount_path],
+        )
 
     def _on_device_disconnected(self, path):
         logger.info("Device disconnected: %s", path)
@@ -5107,6 +5306,11 @@ class MainWindow(QMainWindow):
             self._sync_dialog.update_progress(current, total, desc)
         self._status_bar.set_sync_progress(current, total, desc)
 
+    def _on_sync_file_error(self, path, message):
+        if self._sync_dialog:
+            self._sync_dialog.add_file_error(path, message)
+        logger.error("Sync file error for %s: %s", path, message)
+
     def _on_sync_done(self, copied, failed, skipped):
         if self._sync_dialog:
             self._sync_dialog.show_results(copied, failed, skipped)
@@ -5154,6 +5358,8 @@ class MainWindow(QMainWindow):
         self._refresh_view()
         self._update_sync_status()
         self._update_device_summary()
+        if failed == 0:
+            QTimer.singleShot(250, self._start_spotify_wrapped_message_sync)
         logger.info("Sync done: %d copied, %d failed, %d skipped", copied, failed, skipped)
 
     def _post_sync_rockbox_integration(self):
@@ -5378,10 +5584,17 @@ class MainWindow(QMainWindow):
         self._toolbar.set_syncing(False)
 
     def _on_sync_error(self, msg):
+        if self._sync_dialog:
+            self._sync_dialog.show_error(msg)
         self._sync_dialog = None
         self._active_sync_plan = None
         self._toolbar.set_syncing(False)
+        self._device_state = (
+            "Connected" if self._device_detector.is_connected else "Disconnected"
+        )
         self._status_bar.set_left_text(f"Sync error: {msg}")
+        self._update_sync_status()
+        self._update_device_summary()
         logger.error("Sync error: %s", msg)
 
     def _delete_selected_from_device(self):
@@ -7373,6 +7586,9 @@ class MainWindow(QMainWindow):
                 self._show_hidden_wallpapers_action.blockSignals(False)
                 return
         self._show_hidden_wallpapers = checked
+        self._sidebar.set_onlyfans_visible(checked)
+        if not checked and self._current_view == "rockbox_onlyfans":
+            self._current_view = "library_music"
         self._refresh_ipone_wallpapers()
         self._refresh_photo_manager()
         self._refresh_browser()
@@ -7385,7 +7601,7 @@ class MainWindow(QMainWindow):
             return self._set_hidden_wallpaper_password()
         password, ok = QInputDialog.getText(
             self,
-            "Show Hidden Wallpapers/Photos/Videos",
+            "View Hidden Content",
             "Password:",
             QLineEdit.Password,
         )
@@ -7393,13 +7609,13 @@ class MainWindow(QMainWindow):
             return False
         if self._verify_hidden_wallpaper_password(password):
             return True
-        QMessageBox.warning(self, "Show Hidden Wallpapers/Photos/Videos", "Incorrect password.")
+        QMessageBox.warning(self, "View Hidden Content", "Incorrect password.")
         return False
 
     def _set_hidden_wallpaper_password(self):
         password, ok = QInputDialog.getText(
             self,
-            "Set Hidden Wallpapers/Photos/Videos Password",
+            "Set Hidden Content Password",
             "Create password:",
             QLineEdit.Password,
         )
@@ -7407,18 +7623,18 @@ class MainWindow(QMainWindow):
             return False
         password = str(password or "")
         if not password:
-            QMessageBox.warning(self, "Set Hidden Wallpapers/Photos/Videos Password", "Password cannot be empty.")
+            QMessageBox.warning(self, "Set Hidden Content Password", "Password cannot be empty.")
             return False
         confirm, ok = QInputDialog.getText(
             self,
-            "Set Hidden Wallpapers/Photos/Videos Password",
+            "Set Hidden Content Password",
             "Confirm password:",
             QLineEdit.Password,
         )
         if not ok:
             return False
         if password != str(confirm or ""):
-            QMessageBox.warning(self, "Set Hidden Wallpapers/Photos/Videos Password", "Passwords do not match.")
+            QMessageBox.warning(self, "Set Hidden Content Password", "Passwords do not match.")
             return False
         salt = secrets.token_bytes(16)
         digest = hashlib.pbkdf2_hmac("sha256", password.encode("utf-8"), salt, 120_000)
@@ -12109,6 +12325,20 @@ class MainWindow(QMainWindow):
 
     def closeEvent(self, event):
         """Save state on close."""
+        # A Live TV sync outlives the window: it runs on the global thread
+        # pool and keeps this process (and its ffmpeg children) alive after
+        # close, writing the encode cache and the iPod the whole time. Ask it
+        # to stop at the next clip boundary and give it a bounded grace
+        # period -- an ffmpeg call already in flight still has to finish, so
+        # this shortens the tail rather than guaranteeing an immediate exit.
+        livetv_job = getattr(self, "_livetv_sync_job", None)
+        if livetv_job is not None:
+            try:
+                livetv_job.cancel()
+                QThreadPool.globalInstance().waitForDone(3000)
+            except (RuntimeError, AttributeError):
+                pass
+
         self._device_detector.stop_polling()
         self._scanner.shutdown()
         self._android_importer.shutdown()

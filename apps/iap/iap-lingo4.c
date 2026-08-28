@@ -2098,18 +2098,22 @@ void iap_handlepkt_mode4(const unsigned int len, const unsigned char *buf)
             {
                 case 0x01: /* play/pause */
                     iap_remotebtn = BUTTON_RC_PLAY;
+                    iap_timeoutbtn = 3;
                     iap_repeatbtn = 2;
                     break;
                 case 0x02: /* stop */
                     iap_remotebtn = BUTTON_RC_PLAY|BUTTON_REPEAT;
+                    iap_timeoutbtn = 3;
                     iap_repeatbtn = 2;
                     break;
                 case 0x03: /* skip++ */
                     iap_remotebtn = BUTTON_RC_RIGHT;
+                    iap_timeoutbtn = 3;
                     iap_repeatbtn = 2;
                     break;
                 case 0x04: /* skip-- */
                     iap_remotebtn = BUTTON_RC_LEFT;
+                    iap_timeoutbtn = 3;
                     iap_repeatbtn = 2;
                     break;
                 case 0x05: /* ffwd */

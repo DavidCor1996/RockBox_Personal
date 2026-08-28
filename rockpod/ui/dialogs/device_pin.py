@@ -38,7 +38,7 @@ class DevicePinDialog(QDialog):
         layout = QVBoxLayout(self)
 
         intro = QLabel(
-            "This 4-digit PIN unlocks the Settings menu, Locked Videos, "
+            "This 4-digit PIN unlocks the Settings and Files menus, Locked Videos, "
             "locked Magazines and Comics, and parental-locked DIRECTV "
             "channels on the iPod."
         )

@@ -37,6 +37,10 @@ TAG_TRACKNUMBER = 11
 TAG_VIRT_CANONICALARTIST = 12
 TAG_BITRATE = 13
 TAG_LENGTH = 14
+TAG_PLAYCOUNT = 15
+TAG_RATING = 16
+TAG_PLAYTIME = 17
+TAG_LASTPLAYED = 18
 
 STRING_TAGS = {
     TAG_ARTIST: "database_0.tcd",
@@ -85,6 +89,10 @@ def _write_mock_tagcache(mount_path, entries):
         row[TAG_TRACKNUMBER] = entry.get(TAG_TRACKNUMBER, 0)
         row[TAG_BITRATE] = entry.get(TAG_BITRATE, 0)
         row[TAG_LENGTH] = entry.get(TAG_LENGTH, 0)
+        row[TAG_PLAYCOUNT] = entry.get(TAG_PLAYCOUNT, 0)
+        row[TAG_RATING] = entry.get(TAG_RATING, 0)
+        row[TAG_PLAYTIME] = entry.get(TAG_PLAYTIME, 0)
+        row[TAG_LASTPLAYED] = entry.get(TAG_LASTPLAYED, 0)
         rows.append(row)
 
     for tag, filename in STRING_TAGS.items():
@@ -118,6 +126,10 @@ def test_read_rockbox_tagcache_tracks_parses_audio_rows(tmp_dir):
                 TAG_TRACKNUMBER: 1,
                 TAG_BITRATE: 320,
                 TAG_LENGTH: 245000,
+                TAG_PLAYCOUNT: 12,
+                TAG_PLAYTIME: 2410000,
+                TAG_RATING: 8,
+                TAG_LASTPLAYED: 44,
             },
             {
                 TAG_ARTIST: "Second Artist",
@@ -134,7 +146,7 @@ def test_read_rockbox_tagcache_tracks_parses_audio_rows(tmp_dir):
         ],
     )
 
-    tracks = read_rockbox_tagcache_tracks(mount_path)
+    tracks = read_rockbox_tagcache_tracks(mount_path, include_runtime=True)
 
     assert len(tracks) == 2
     assert tracks[0]["device_path"] == "Music/Artist/Album/01 - Song.mp3"
@@ -142,6 +154,10 @@ def test_read_rockbox_tagcache_tracks_parses_audio_rows(tmp_dir):
     assert tracks[0]["album_artist"] == "Artist"
     assert tracks[0]["duration"] == 245.0
     assert tracks[0]["codec"] == "MP3"
+    assert tracks[0]["play_count"] == 12
+    assert tracks[0]["play_time"] == 2410000
+    assert tracks[0]["rating"] == 8
+    assert tracks[0]["last_played_serial"] == 44
     assert tracks[1]["device_path"].endswith("Second Song.flac")
     assert tracks[1]["codec"] == "FLAC"
 

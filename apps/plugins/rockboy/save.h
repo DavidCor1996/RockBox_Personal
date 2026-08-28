@@ -1,2 +1,2 @@
-void loadstate(int fd);
-void savestate(int fd);
+bool loadstate(int fd);
+bool savestate(int fd);

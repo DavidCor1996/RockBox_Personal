@@ -96,6 +96,7 @@ DEVICE_OVERRIDE_KEYS = frozenset(
         "rockbox_ui_hold_effect",
         "rockbox_ui_extras_pane",
         "rockbox_show_applications_menu",
+        "onlyfans_show_on_ipod",
         "weather_enabled",
         "weather_location_name",
         "weather_latitude",
@@ -146,6 +147,7 @@ class Config:
         "rockbox_ui_hold_effect": "lockscreen",
         "rockbox_ui_extras_pane": "clock",
         "rockbox_show_applications_menu": False,
+        "onlyfans_show_on_ipod": True,
         "weather_enabled": True,
         "weather_location_name": "Moncton, NB",
         "weather_latitude": 46.0878,
@@ -311,7 +313,11 @@ class Config:
     def save(self):
         os.makedirs(os.path.dirname(self._path), exist_ok=True)
         with open(self._path, "w") as f:
-            json.dump(self._data, f, indent=2)
+            values = dict(self._data)
+            persistent_db_path = getattr(self, "_persistent_db_path", "")
+            if persistent_db_path:
+                values["db_path"] = persistent_db_path
+            json.dump(values, f, indent=2)
 
     def get(self, key, default=None):
         return self._data.get(key, default if default is not None else self._defaults.get(key))

@@ -31,6 +31,7 @@
 #include <stdio.h>
 #include "string-extra.h"
 #include "diacritic.h"
+#include "social_emoji.h"
 
 #ifdef LOGF_ENABLE
 #include "panic.h"
@@ -42,6 +43,10 @@
 #define LCDM(ma) LCD_ ## ma
 #define LCDNAME "lcd_"
 #define MAIN_LCD
+#endif
+
+#if defined(MAIN_LCD) && defined(HAVE_LCD_COLOR) && !defined(BOOTLOADER)
+#include "bitmaps/twemoji_atlas.h"
 #endif
 
 #ifdef MAIN_LCD
@@ -433,6 +438,43 @@ static void LCDFN(putsxyofs)(int x, int y, int ofs, const unsigned char *str)
 
         if (x >= vp->width)
             break;
+
+#if defined(MAIN_LCD) && defined(HAVE_LCD_COLOR) && !defined(BOOTLOADER)
+        {
+            unsigned short emoji_cell;
+            int emoji_length = social_emoji_lookup(ucs, &emoji_cell);
+
+            if (emoji_length > 0)
+            {
+                int source_x =
+                    (emoji_cell % SOCIAL_EMOJI_ATLAS_COLUMNS) *
+                    SOCIAL_EMOJI_WIDTH;
+                int source_y =
+                    (emoji_cell / SOCIAL_EMOJI_ATLAS_COLUMNS) *
+                    SOCIAL_EMOJI_HEIGHT;
+
+                if (ofs > SOCIAL_EMOJI_WIDTH)
+                {
+                    ofs -= SOCIAL_EMOJI_WIDTH;
+                    ucs += emoji_length - 1;
+                    continue;
+                }
+                lcd_bitmap_transparent_part(
+                    twemoji_atlas, source_x + ofs, source_y,
+                    SOCIAL_EMOJI_ATLAS_WIDTH,
+                    x, y, SOCIAL_EMOJI_WIDTH - ofs, SOCIAL_EMOJI_HEIGHT);
+                ucs += emoji_length - 1;
+                if (ucs[1])
+                {
+                    x += SOCIAL_EMOJI_WIDTH - ofs;
+                    ofs = 0;
+                }
+                continue;
+            }
+        }
+        if (*ucs == 0xfe0f || *ucs == 0x200d)
+            continue;
+#endif
 
         is_diac = IS_DIACRITIC_RTL(*ucs, &is_rtl);
 

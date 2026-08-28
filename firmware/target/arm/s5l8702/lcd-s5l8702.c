@@ -1003,8 +1003,13 @@ void lcd_blit_yuv(unsigned char * const src[3],
 
     width = (width + 1) & ~1;       /* ensure width is even */
 
+    int original_height = height;
     int pixels = width * height;
     uint16_t* out = lcd_dblbuf[0];
+#if defined(IPOD_6G) && !defined(BOOTLOADER)
+    bool videoout_yuv_mirrored = false;
+    bool videoout_rgb_overlay = false;
+#endif
 
     z = stride * src_y;
     yuv_src[0] = src[0] + z + src_x;
@@ -1025,6 +1030,15 @@ void lcd_blit_yuv(unsigned char * const src[3],
         displaylcd_wait_dma();
 
 #if defined(IPOD_6G) && !defined(BOOTLOADER)
+        /* The external VP already consumes native planar YUV420.  Preserve
+         * decoded bytes directly instead of converting YUV -> RGB565 here
+         * and RGB565 -> YUV again in the composite mirror. */
+        videoout_yuv_mirrored = ipod6g_videoout_mirror_yuv420(
+            yuv_src[0], yuv_src[1], yuv_src[2], 0, 0, stride,
+            x, y, width, height);
+#endif
+
+#if defined(IPOD_6G) && !defined(BOOTLOADER)
         if (lcd_ispowered && !lcd_external_only)
 #endif
             displaylcd_setup(x, y, width, height);
@@ -1043,9 +1057,16 @@ void lcd_blit_yuv(unsigned char * const src[3],
         {
             int row;
 
-            for (row = 0; row < pixels / width; ++row)
-                lcd_compose_overlay_row(y + row, x, width,
-                                        lcd_dblbuf[0] + row * width);
+            for (row = 0; row < original_height; ++row)
+            {
+#if defined(IPOD_6G) && !defined(BOOTLOADER)
+                videoout_rgb_overlay |= lcd_compose_overlay_row(
+                    y + row, x, width, lcd_dblbuf[0] + row * width);
+#else
+                lcd_compose_overlay_row(
+                    y + row, x, width, lcd_dblbuf[0] + row * width);
+#endif
+            }
         }
 #endif
 
@@ -1054,7 +1075,7 @@ void lcd_blit_yuv(unsigned char * const src[3],
         {
             uint16_t *source = lcd_dblbuf[0];
             fb_data *destination = FBADDR(x, y);
-            int rows = pixels / width;
+            int rows = original_height;
 
             while (rows-- > 0)
             {
@@ -1064,13 +1085,12 @@ void lcd_blit_yuv(unsigned char * const src[3],
             }
         }
 
-        {
-            extern void ipod6g_videoout_mirror_rgb565(const void *source,
-                    int x, int y, int width, int height, int stride);
-
+        /* A presentation-only RGB overlay is composed after YUV conversion;
+         * in that uncommon case mirror the final RGB rows so the external
+         * display includes it too. */
+        if (!videoout_yuv_mirrored || videoout_rgb_overlay)
             ipod6g_videoout_mirror_rgb565(lcd_dblbuf[0], x, y, width,
-                                          pixels / width, width);
-        }
+                                          original_height, width);
 #endif
 
 #if defined(IPOD_6G) && !defined(BOOTLOADER)

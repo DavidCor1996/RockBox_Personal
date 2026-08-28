@@ -33,6 +33,12 @@ cue_playlist.c
 dart_scorer.c
 dict.c
 desktop_mode.c
+youtube.c
+spotify_wrapped.c
+onlyfans.c
+instagram.c
+reddit.c
+ipodtiktok.c
 offlineweb.c
 file_picker.c
 jackpot.c
@@ -133,6 +139,7 @@ wwe_backstage.c
 
 #if defined(IPOD_6G) && !defined(SIMULATOR)
 sm64.c
+zelda3.c
 animalcrossing.c
 #endif
 

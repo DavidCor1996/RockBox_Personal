@@ -23,7 +23,9 @@ import os
 import random
 import re
 import shutil
+import sqlite3
 import subprocess
+import threading
 import time
 from dataclasses import dataclass, field, asdict
 from datetime import datetime
@@ -74,6 +76,12 @@ LIVETV_BRAND_H = 22
 # Bump this whenever the encode changes so cached clips are rebuilt rather
 # than silently reused in the old framing.
 LIVETV_MPEG_PROFILE = "mpeg2-320x240-fill-v2"
+
+# Records what each clip encoded to, so clearing the encode cache does not
+# force ffmpeg to rebuild clips that are already on the iPod. Lives in
+# state_dir(), deliberately *outside* cache_dir(), so "delete the cache to
+# free space" stays a cheap operation. See LiveTvClipManifest.
+LIVETV_CLIP_DB_NAME = "clips.db"
 
 # The Weather channel is recognised by category, not by name, so a user
 # rename survives a rebuild exactly like any other channel (see
@@ -135,6 +143,75 @@ LIVETV_YOUTUBE_CANDIDATE_LIMIT = 24
 # Group). Wikimedia rejects arbitrary thumbnail widths, so ask for one of
 # the standard sizes. Failure is not fatal: the guide falls back to drawing
 # the brand text itself.
+# Real channel artwork for the stations RockPod builds itself.  Without
+# these the guide falls back to a drawn call-sign plate, which is what makes
+# them stand out beside the ripped channels' own logos.  Keyed by call sign;
+# the first URL that downloads wins, and a station with no entry (or no
+# reachable entry) keeps the plate.  Wikimedia rejects arbitrary thumbnail
+# widths, so ask for one of the standard sizes.
+LIVETV_CHANNEL_LOGO_SOURCES = {
+    "NASA": (
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/"
+        "NASA_logo.svg/320px-NASA_logo.svg.png",
+    ),
+    "NBT": (
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/"
+        "Global_Television_Network_logo.svg/320px-"
+        "Global_Television_Network_logo.svg.png",
+    ),
+    "NHL": (
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/"
+        "05_NHL_Shield.svg/320px-05_NHL_Shield.svg.png",
+    ),
+    "USA": (
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d6/"
+        "USA_Network_logo_%282016%29.svg/320px-"
+        "USA_Network_logo_%282016%29.svg.png",
+    ),
+    "NICK": (
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/"
+        "Nickelodeon_2009_logo.svg/320px-Nickelodeon_2009_logo.svg.png",
+    ),
+    "ABC": (
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/"
+        "American_Broadcasting_Company_Logo.svg/320px-"
+        "American_Broadcasting_Company_Logo.svg.png",
+    ),
+    "CN": (
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/"
+        "Cartoon_Network_2010_logo.svg/320px-Cartoon_Network_2010_logo.svg.png",
+    ),
+    "AS": (
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/"
+        "Adult_Swim_2003_logo.svg/320px-Adult_Swim_2003_logo.svg.png",
+    ),
+    "DISNEY": (
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/"
+        "Disney_Channel_logo_%282014%29.svg/320px-"
+        "Disney_Channel_logo_%282014%29.svg.png",
+    ),
+    "YTV": (
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/"
+        "YTV_logo_2017.svg/320px-YTV_logo_2017.svg.png",
+    ),
+    "TED": (
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/"
+        "TED_three_letter_logo.svg/320px-TED_three_letter_logo.svg.png",
+    ),
+    "GSN": (
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/"
+        "Game_Show_Network_logo.svg/320px-Game_Show_Network_logo.svg.png",
+    ),
+    "PBTV": (
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/"
+        "Playboy_logo.svg/320px-Playboy_logo.svg.png",
+    ),
+    "PHTV": (
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/"
+        "Pornhub-logo.svg/320px-Pornhub-logo.svg.png",
+    ),
+}
+
 BRAND_LOGO_SOURCES = (
     "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/"
     "DirecTV_logo_%282004-2011%29.svg/330px-DirecTV_logo_%282004-2011%29"
@@ -337,6 +414,7 @@ class LiveTvMedia:
     start: int = 0
     end: int = 0         # 0 means "to the end of the file"
     cuts: list = field(default_factory=list)   # [[start, end], ...]
+    device_only: bool = False
 
     @property
     def key(self) -> str:
@@ -457,6 +535,7 @@ class LiveTvLibrary:
         self._edits_path = os.path.join(self.state_dir(), "edits.json")
         self._edits = {}
         self._load_edits()
+        self._clip_manifest = None
 
     # -- paths ---------------------------------------------------------
 
@@ -469,6 +548,18 @@ class LiveTvLibrary:
         path = os.path.join(self.state_dir(), "cache")
         os.makedirs(path, exist_ok=True)
         return path
+
+    def clip_manifest(self) -> "LiveTvClipManifest":
+        """Record of what each clip encoded to.
+
+        Kept in state_dir() rather than cache_dir() on purpose: clearing the
+        encode cache to reclaim disk must not throw away the knowledge that
+        the clips are already on the iPod.
+        """
+        if self._clip_manifest is None:
+            self._clip_manifest = LiveTvClipManifest(
+                os.path.join(self.state_dir(), LIVETV_CLIP_DB_NAME))
+        return self._clip_manifest
 
     def staging_dir(self) -> str:
         path = os.path.join(self.state_dir(), "staging")
@@ -918,6 +1009,14 @@ class LiveTvLineup:
             grouped.setdefault(item.series or "Live TV", []).append(item.key)
 
         by_name = {channel.name: channel for channel in self.channels}
+        # A built-in YouTube station assigns its own episodes, in
+        # LiveTvYoutubeChannelSync.ensure_channel(), and files them under the
+        # station's name rather than the series they were downloaded as.
+        # Grouping them here as well produces a second channel airing exactly
+        # the same episodes whenever a spec's name differs from its series
+        # ("Channel 5" against "Channel 5 with Andrew Callaghan"), so leave
+        # those series to their owner.
+        claimed = {spec["series"] for spec in LIVETV_YOUTUBE_CHANNELS.values()}
         # Which channel already carries a given show. A renamed channel is
         # still recognised by what is assigned to it, so rebuilding never
         # resurrects a duplicate of a channel the user renamed.
@@ -926,6 +1025,8 @@ class LiveTvLineup:
             for path in channel.shows:
                 owner[path] = channel
         for name in sorted(grouped):
+            if name in claimed:
+                continue
             paths = sorted(grouped[name])
             channel = next((owner[path] for path in paths if path in owner),
                            None) or by_name.get(name)
@@ -2593,7 +2694,8 @@ def _weather_ad_keys(config, ads: list, now=None) -> list:
 
 
 def ensure_weather_channel(sync: "LiveTvSync", lineup: "LiveTvLineup",
-                           config, shows: list, ads=None) -> list:
+                           config, shows: list, ads=None, progress=None,
+                           cancel=None) -> list:
     """Add the Weather channel's programme media to *shows*, additive.
 
     Call this after LiveTvLineup.autobuild() (so autobuild never sees, and
@@ -2615,7 +2717,9 @@ def ensure_weather_channel(sync: "LiveTvSync", lineup: "LiveTvLineup",
     if not music_files:
         return shows
 
-    bumpers = sync.ensure_weather_sources(music_files, config)
+    bumpers = sync.ensure_weather_sources(music_files, config,
+                                          progress=progress,
+                                          cancel=cancel)
     if not bumpers:
         return shows
 
@@ -2953,9 +3057,21 @@ class LiveTvYoutubeChannelSync:
         return episodes
 
     def _logo_path(self, spec):
-        """Create a small, stable source logo which LiveTvSync turns into BMP."""
+        """The source logo which LiveTvSync turns into the guide BMP.
+
+        The station's own avatar is preferred wherever one has been fetched:
+        a drawn call-sign plate next to real channel artwork is exactly what
+        makes these stations look out of place in the guide.  The plate is
+        only the fallback for a station whose avatar is not on disk.
+        """
+        callsign = _safe_name(spec["callsign"])
+        official = os.path.join(self._library.state_dir(),
+                                f"{callsign}-official-youtube-thumbnail.jpg")
+        if os.path.isfile(official) and os.path.getsize(official) > 0:
+            return official
+
         path = os.path.join(self._library.state_dir(),
-                            f"{_safe_name(spec['callsign'])}-youtube-logo.png")
+                            f"{callsign}-youtube-logo.png")
         if os.path.isfile(path) and os.path.getsize(path) > 0:
             return path
         try:
@@ -3040,6 +3156,13 @@ class LiveTvYoutubeChannelSync:
                 progress(index, len(episodes), f"Downloading {spec['name']}: {episode['title']}")
             command = [
                 self._yt_dlp_bin(), "--no-playlist", "--no-progress",
+                # Left to itself yt-dlp picks the android_vr player client,
+                # which advertises DASH renditions whose media URLs YouTube
+                # then answers with HTTP 403.  Listing is unaffected, so only
+                # the fetch is pinned.  The android client returns the
+                # progressive 640x360 rendition, which is still well above
+                # the 320x240 the LIVETV_MPEG_PROFILE encode targets.
+                "--extractor-args", "youtube:player_client=android",
                 "-f", "bv*[height<=480]+ba/b[height<=480]",
                 "--merge-output-format", "mp4",
                 "-o", os.path.join(destination, "%(title)s [%(id)s].%(ext)s"),
@@ -3056,6 +3179,241 @@ class LiveTvYoutubeChannelSync:
         return episodes
 
 
+def clip_fingerprint(item: "LiveTvMedia", profile: str) -> str:
+    """Identity of the encode ``item`` should produce.
+
+    Covers everything the encode depends on: the source bytes (via mtime and
+    size), the profile, and the edit ranges. If any of them change, the clip
+    sitting on the device is no longer the right one and must be rebuilt.
+    """
+    try:
+        stat = os.stat(item.path)
+        source = f"{int(stat.st_mtime)}|{int(stat.st_size)}"
+    except OSError:
+        source = "missing"
+    material = "|".join([
+        os.path.abspath(item.path or ""),
+        source,
+        str(profile or ""),
+        str(item.segment or ""),
+        repr(item.keep_ranges()),
+    ])
+    return hashlib.sha256(material.encode("utf-8")).hexdigest()
+
+
+class _NoClipManifest:
+    """Stand-in used when a library provides no manifest.
+
+    Every clip looks unrecorded, so sync() falls back to exactly the
+    behaviour it had before the manifest existed: encode, then compare
+    sizes. Keeps LiveTvSync usable with any library-shaped object.
+    """
+
+    def lookup(self, profile, relative):
+        return None
+
+    def expected_size(self, profile, relative, fingerprint):
+        return None
+
+    def record(self, *args, **kwargs):
+        return None
+
+    def prune(self, profile, keep_relatives):
+        return 0
+
+    def close(self):
+        return None
+
+
+class LiveTvClipManifest:
+    """Remembers what each Live TV clip encoded to.
+
+    The encode cache under ``cache_dir()`` is disposable by design: it is tens
+    of gigabytes of MPEG that ffmpeg can always rebuild. But it used to be the
+    *only* record that a clip had ever been produced. ``sync()`` re-encoded a
+    clip purely to learn its byte size, compared that size against the copy
+    already on the iPod, and then skipped the copy -- so clearing the cache
+    cost a full re-encode of material that had not changed and was already on
+    the device.
+
+    Persisting that one number here, in SQLite and deliberately *outside* the
+    cache directory, lets the comparison survive the cache being deleted.
+    Losing this file is never fatal: it only costs the re-encode it exists to
+    avoid.
+    """
+
+    def __init__(self, path: str):
+        self._path = path
+        self._conn = None
+        self._failed = False
+        # sync() runs on a QRunnable worker while the library that owns this
+        # manifest is built and cached on the UI thread, and successive syncs
+        # land on different pool threads. The connection is therefore opened
+        # with check_same_thread=False and every use is serialised here.
+        self._lock = threading.RLock()
+
+    def _connection(self):
+        if self._conn is not None:
+            return self._conn
+        if self._failed:
+            return None
+        try:
+            parent = os.path.dirname(self._path)
+            if parent:
+                os.makedirs(parent, exist_ok=True)
+            conn = sqlite3.connect(self._path, timeout=5.0,
+                                   check_same_thread=False)
+            conn.row_factory = sqlite3.Row
+            conn.execute("PRAGMA busy_timeout = 5000")
+            try:
+                conn.execute("PRAGMA journal_mode=WAL")
+            except sqlite3.DatabaseError:
+                pass
+            conn.execute("PRAGMA synchronous=NORMAL")
+            conn.execute(
+                "CREATE TABLE IF NOT EXISTS livetv_clips ("
+                "  profile TEXT NOT NULL,"
+                "  device_relative TEXT NOT NULL,"
+                "  fingerprint TEXT NOT NULL,"
+                "  output_size INTEGER NOT NULL,"
+                "  source_path TEXT DEFAULT '',"
+                "  updated_at TEXT DEFAULT '',"
+                "  PRIMARY KEY (profile, device_relative)"
+                ")"
+            )
+            conn.commit()
+        except (sqlite3.DatabaseError, OSError) as error:
+            logger.warning("Live TV clip manifest unavailable (%s); clips will "
+                           "be re-encoded as before", error)
+            self._failed = True
+            self._conn = None
+            return None
+        self._conn = conn
+        return conn
+
+    def lookup(self, profile: str, relative: str):
+        """(fingerprint, output_size) for a clip, or None if never recorded.
+
+        The caller needs "never recorded" and "recorded but stale" kept
+        apart: the first can be adopted from the device, the second means the
+        clip genuinely changed and must be rebuilt.
+        """
+        with self._lock:
+            conn = self._connection()
+            if conn is None:
+                return None
+            try:
+                row = conn.execute(
+                    "SELECT fingerprint, output_size FROM livetv_clips "
+                    "WHERE profile = ? AND device_relative = ?",
+                    (str(profile or ""), str(relative or "")),
+                ).fetchone()
+            except sqlite3.DatabaseError:
+                return None
+        if row is None:
+            return None
+        try:
+            size = int(row["output_size"] or 0)
+        except (TypeError, ValueError):
+            return None
+        return (str(row["fingerprint"] or ""), size)
+
+    def expected_size(self, profile: str, relative: str, fingerprint: str):
+        """Bytes this clip encoded to last time, or None if unknown/stale."""
+        record = self.lookup(profile, relative)
+        if record is None or record[0] != fingerprint:
+            return None
+        return record[1] if record[1] > 0 else None
+
+    def record(self, profile: str, relative: str, fingerprint: str,
+               output_size: int, source_path: str = "") -> None:
+        with self._lock:
+            conn = self._connection()
+            if conn is None:
+                return
+            try:
+                conn.execute(
+                    "INSERT INTO livetv_clips (profile, device_relative, "
+                    "fingerprint, output_size, source_path, updated_at) "
+                    "VALUES (?, ?, ?, ?, ?, ?) "
+                    "ON CONFLICT(profile, device_relative) DO UPDATE SET "
+                    "fingerprint = excluded.fingerprint, "
+                    "output_size = excluded.output_size, "
+                    "source_path = excluded.source_path, "
+                    "updated_at = excluded.updated_at",
+                    (str(profile or ""), str(relative or ""),
+                     str(fingerprint or ""), int(output_size or 0),
+                     str(source_path or ""),
+                     datetime.now().isoformat(timespec="seconds")),
+                )
+                conn.commit()
+            except sqlite3.DatabaseError as error:
+                logger.warning("Could not record Live TV clip %s: %s",
+                               relative, error)
+
+    def prune(self, profile: str, keep_relatives) -> int:
+        """Forget clips the current schedule no longer contains.
+
+        Mirrors prune_orphaned_cache() so the manifest cannot outgrow the
+        schedule it describes.
+        """
+        keep = {str(name) for name in (keep_relatives or ())}
+        with self._lock:
+            conn = self._connection()
+            if conn is None:
+                return 0
+            try:
+                rows = conn.execute(
+                    "SELECT profile, device_relative FROM livetv_clips"
+                ).fetchall()
+                stale = [
+                    (row["profile"], row["device_relative"])
+                    for row in rows
+                    if row["profile"] != profile
+                    or row["device_relative"] not in keep
+                ]
+                if stale:
+                    conn.executemany(
+                        "DELETE FROM livetv_clips WHERE profile = ? AND "
+                        "device_relative = ?",
+                        stale,
+                    )
+                    conn.commit()
+            except sqlite3.DatabaseError:
+                return 0
+        return len(stale)
+
+    def close(self) -> None:
+        with self._lock:
+            if self._conn is not None:
+                try:
+                    self._conn.close()
+                except sqlite3.DatabaseError:
+                    pass
+                self._conn = None
+
+
+def channel_series_hint(channel: "LiveTvChannel") -> str:
+    """The series a channel's own shows were filed under, or "".
+
+    Channels whose material does not live under ~/Videos/Live cannot have
+    their series recovered from the file path: a TV information reel is
+    ~/.rockpod/cache/tv-information/nasa/nasa-current.mkv but is filed as
+    "NASA", and a staged YouTube download is filed under the publisher's
+    series rather than the episode title.  Both are recorded in the line-up
+    already, so recover the series from there instead of guessing.
+    """
+    category = str(getattr(channel, "category", "") or "")
+    if category.startswith(LIVETV_TV_INFORMATION_CATEGORY_PREFIX):
+        return str(getattr(channel, "name", "") or "")
+    if category == "YouTube":
+        callsign = str(getattr(channel, "callsign", "") or "")
+        for spec in LIVETV_YOUTUBE_CHANNELS.values():
+            if spec["callsign"] == callsign:
+                return spec["series"]
+    return ""
+
+
 class LiveTvSync:
     """Transcodes to MPEG and copies the whole line-up onto an iPod."""
 
@@ -3067,12 +3425,21 @@ class LiveTvSync:
 
     # -- reconciliation ---------------------------------------------------
 
-    def cached_stand_in_for(self, key: str, kind: str):
-        """Rebuild a schedulable item for a lineup entry whose source file
-        is no longer on this PC, from the copy a previous sync already
-        cached. This is what makes it safe to delete a source file from
-        ~/Videos/Live once it has reached the iPod: the schedule no longer
-        depends on the file still being there.
+    def cached_stand_in_for(
+            self, key: str, kind: str, series: str = "",
+            mount_path: str = ""):
+        """Rebuild a schedulable item for a lineup entry this sync was not
+        handed, from the source file, the disposable laptop encode cache, or
+        the finished copy already on the mounted iPod. This is what makes it
+        safe to delete a source file from ~/Videos/Live once it has reached
+        the iPod, and what
+        keeps a channel whose material is not scanned from ~/Videos/Live —
+        TV information and YouTube stations — in the guide no matter which
+        sync runs.
+
+        "series" overrides the series derived from the path.  See
+        channel_series_hint(): the derivation is only correct for material
+        filed under a scanned source root.
         """
         if "#" in key:
             path, segment = key.rsplit("#", 1)
@@ -3089,7 +3456,7 @@ class LiveTvSync:
             title = clean_title(Path(path).stem)
             description = ""
         else:
-            series = series_name(path, root)
+            series = series or series_name(path, root)
             rating = "TV-PG"
             title = program_title(path, series)
             description = program_description(path, series)
@@ -3111,40 +3478,67 @@ class LiveTvSync:
             if segment_override.get("description"):
                 item.description = segment_override["description"]
 
-        cached = self.cached_mpeg_path(item)
-        if not (os.path.isfile(cached) and os.path.getsize(cached) > 0):
-            return None
+        # The source itself is the better stand-in when it is still here:
+        # sync() can then re-encode or adopt it exactly as it would have if
+        # the scan had produced it.  The cached encode is the fallback for a
+        # source that has been deleted since it reached the iPod.
+        candidates = [
+            (path, False),
+            (self.cached_mpeg_path(item), False),
+        ]
+        if mount_path:
+            candidates.append((
+                os.path.join(
+                    self.device_root(mount_path), item.device_relative()
+                ),
+                True,
+            ))
+        for candidate, device_only in candidates:
+            if not (os.path.isfile(candidate) and os.path.getsize(candidate) > 0):
+                continue
+            duration = self._library._probe_duration(candidate)
+            if duration > 0:
+                item.duration = duration
+                item.device_only = device_only
+                return item
+        return None
 
-        duration = self._library._probe_duration(cached)
-        if duration <= 0:
-            return None
-        item.duration = duration
-        return item
+    def reconcile_missing_sources(
+            self, lineup: LiveTvLineup, shows, ads, mount_path: str = ""):
+        """Add back lineup entries this sync was not handed.
 
-    def reconcile_missing_sources(self, lineup: LiveTvLineup, shows, ads):
-        """Add back lineup entries whose source file has been deleted
-        locally but which are already cached from a previous sync.
+        Covers an entry whose source file has been deleted locally but whose
+        encode remains in the laptop cache or on the mounted iPod, plus one
+        whose source is still on disk but outside the scanned ~/Videos/Live
+        roots — every TV information and YouTube station. Without the latter,
+        which sync the user happened to run decided whether those channels
+        stayed in the guide.
 
         Additive only: shows/ads still on disk are untouched, and a path
-        that has neither a local file nor a cached copy is simply dropped,
-        the way it always was.
+        that has no local file, cached copy, or mounted-device copy is simply
+        dropped, the way it always was.
         """
         shows = list(shows)
         ads = list(ads)
         known = {item.key for item in shows} | {item.key for item in ads}
 
         for channel in lineup.channels:
+            hint = channel_series_hint(channel)
             for key in channel.shows:
                 if key in known:
                     continue
-                stand_in = self.cached_stand_in_for(key, "show")
+                stand_in = self.cached_stand_in_for(
+                    key, "show", hint, mount_path
+                )
                 if stand_in is not None:
                     shows.append(stand_in)
                     known.add(key)
             for key in channel.ads:
                 if key in known:
                     continue
-                stand_in = self.cached_stand_in_for(key, "ad")
+                stand_in = self.cached_stand_in_for(
+                    key, "ad", mount_path=mount_path
+                )
                 if stand_in is not None:
                     ads.append(stand_in)
                     known.add(key)
@@ -3226,7 +3620,8 @@ class LiveTvSync:
         os.makedirs(path, exist_ok=True)
         return path
 
-    def ensure_weather_sources(self, music_files, config=None) -> list:
+    def ensure_weather_sources(self, music_files, config=None,
+                               progress=None, cancel=None) -> list:
         """Build hour-long Weather carriers with a 120-second broadcast flow.
 
         The fixed video clock alternates rendered forecast panels with two
@@ -3440,6 +3835,15 @@ class LiveTvSync:
         out_dir = self.weather_state_dir()
         results = []
         for index in range(LIVETV_WEATHER_VARIANTS):
+            if cancel and cancel():
+                break
+            # Rendering a carrier is minutes of ffmpeg. Without this the UI
+            # sat blank for the whole weather phase, because sync() -- which
+            # does report progress -- has not started yet.
+            if progress:
+                progress(index + 1, LIVETV_WEATHER_VARIANTS,
+                         f"Weather channel: broadcast carrier "
+                         f"{index + 1} of {LIVETV_WEATHER_VARIANTS}")
             target = os.path.join(
                 out_dir, f"{LIVETV_WEATHER_FLOW_PROFILE}-{index}.mkv")
             if (os.path.isfile(target) and os.path.getsize(target) > 0 and
@@ -4075,6 +4479,25 @@ class LiveTvSync:
             target,
         ]
 
+    def _device_clip_is_current(self, target: str, item: LiveTvMedia) -> bool:
+        """Whether a clip on the device that predates the manifest is usable.
+
+        Applies exactly the freshness rule ensure_mpeg() uses for the local
+        encode cache -- the copy must not be older than its source -- so
+        adopting a clip is never a weaker test than reusing a cached one
+        would have been.
+        """
+        try:
+            device_mtime = os.path.getmtime(target)
+        except OSError:
+            return False
+        try:
+            source_mtime = os.path.getmtime(item.path)
+        except OSError:
+            return False
+        # FAT keeps timestamps to a two-second resolution.
+        return device_mtime + 2 >= source_mtime
+
     def ensure_mpeg(self, item: LiveTvMedia) -> str:
         """Convert once and reuse. Returns the cached .mpg path."""
         target = self.cached_mpeg_path(item)
@@ -4135,7 +4558,9 @@ class LiveTvSync:
     def sync(self, mount_path: str, lineup: LiveTvLineup, shows, ads,
              progress=None, cancel=None, remove_device_relatives=None):
         """Convert, copy and write the guide. Returns a summary dict."""
-        shows, ads = self.reconcile_missing_sources(lineup, shows, ads)
+        shows, ads = self.reconcile_missing_sources(
+            lineup, shows, ads, mount_path
+        )
         by_path = {item.key: item for item in list(shows) + list(ads)}
         # The device resolves channels by number, so never ship a duplicate.
         if lineup.ensure_unique_numbers():
@@ -4161,6 +4586,7 @@ class LiveTvSync:
         staging = self._library.staging_dir()
         summary = {
             "converted": 0, "copied": 0, "skipped": 0,
+            "reused": 0, "adopted": 0,
             "removed": 0,
             "staged_deleted": 0, "channels": len(lineup.channels),
             "slots": len(slots), "errors": [], "warnings": [],
@@ -4177,11 +4603,63 @@ class LiveTvSync:
 
         total = len(needed)
         on_device = set()
+        factory = getattr(self._library, "clip_manifest", None)
+        manifest = factory() if callable(factory) else _NoClipManifest()
         for index, (relative, item) in enumerate(sorted(needed.items()), 1):
             if cancel and cancel():
                 break
             if progress:
                 progress(index, total, item.title)
+
+            target = os.path.join(root, relative)
+            os.makedirs(os.path.dirname(target), exist_ok=True)
+            fingerprint = clip_fingerprint(item, LIVETV_MPEG_PROFILE)
+            device_size = -1
+            try:
+                if os.path.isfile(target):
+                    device_size = os.path.getsize(target)
+            except OSError:
+                device_size = -1
+
+            expected = None
+            record = manifest.lookup(LIVETV_MPEG_PROFILE, relative)
+            if item.device_only and device_size > 0:
+                # The source and disposable laptop encode are both gone, but
+                # this exact scheduled path is physically present on the
+                # mounted iPod.  Adopt it as the authoritative copy.  Should
+                # the source return later its fingerprint changes and normal
+                # rebuild rules take over again.
+                expected = device_size
+                if record is None or record[1] != device_size:
+                    manifest.record(
+                        LIVETV_MPEG_PROFILE, relative, fingerprint,
+                        device_size, item.path,
+                    )
+                    summary["adopted"] += 1
+            elif record is not None:
+                # A record whose fingerprint no longer matches means the
+                # source or its edits changed, so the clip must be rebuilt.
+                if record[0] == fingerprint:
+                    expected = record[1]
+            elif device_size > 0 and self._device_clip_is_current(target, item):
+                # Nothing recorded, but the device already holds a clip this
+                # machine encoded before the manifest existed. Adopt it on the
+                # same terms the local cache would have been reused, so an
+                # established library never pays for a full re-encode just to
+                # start keeping records.
+                manifest.record(LIVETV_MPEG_PROFILE, relative, fingerprint,
+                                device_size, item.path)
+                summary["adopted"] += 1
+                expected = device_size
+
+            # The copy already on the device is the finished article. When the
+            # manifest vouches for it there is nothing to encode and nothing to
+            # copy, so a cleared encode cache costs no ffmpeg time at all.
+            if device_size > 0 and expected == device_size:
+                summary["reused"] += 1
+                on_device.add(relative)
+                continue
+
             try:
                 cached = self.ensure_mpeg(item)
             except RuntimeError as error:
@@ -4189,9 +4667,9 @@ class LiveTvSync:
                 continue
             summary["converted"] += 1
 
-            target = os.path.join(root, relative)
-            os.makedirs(os.path.dirname(target), exist_ok=True)
             source_size = os.path.getsize(cached)
+            manifest.record(LIVETV_MPEG_PROFILE, relative, fingerprint,
+                            source_size, item.path)
             copied_to_device = False
             if os.path.isfile(target) and os.path.getsize(target) == source_size:
                 summary["skipped"] += 1
@@ -4237,6 +4715,7 @@ class LiveTvSync:
             )
 
         summary["cache_pruned"] = self.prune_orphaned_cache(needed.keys())
+        manifest.prune(LIVETV_MPEG_PROFILE, needed.keys())
 
         # Logos first: channels.tsv records where the artwork landed on
         # the device, so it cannot be written until conversion has run.
@@ -4304,6 +4783,8 @@ class LiveTvSync:
         for channel in lineup.channels:
             source = str(channel.logo or "").strip()
             if not source:
+                source = self.ensure_channel_logo(channel)
+            if not source:
                 continue
             target_name = f"{_safe_name(channel.callsign, 'chan')}.bmp"
             target = os.path.join(logo_dir, target_name)
@@ -4343,6 +4824,28 @@ class LiveTvSync:
         except OSError:
             return False
         return result.returncode == 0 and os.path.isfile(target)
+
+    def ensure_channel_logo(self, channel) -> str:
+        """Fetch a station's real artwork once; "" leaves the drawn plate.
+
+        Only stations RockPod builds itself have an entry: a channel made
+        from the user's own folders keeps whatever logo they chose.  Failure
+        is never fatal — install_logos() simply skips the channel, and the
+        guide falls back to the text call sign as it always did.
+        """
+        callsign = _safe_name(str(getattr(channel, "callsign", "") or ""))
+        sources = LIVETV_CHANNEL_LOGO_SOURCES.get(callsign)
+        if not sources:
+            return ""
+
+        cached = os.path.join(self._library.state_dir(),
+                              f"{callsign}-channel-logo.png")
+        if os.path.isfile(cached) and os.path.getsize(cached) > 0:
+            return cached
+        for url in sources:
+            if self._download(url, cached):
+                return cached
+        return ""
 
     def ensure_brand_logo(self) -> str:
         """Fetch a real DIRECTV wordmark once; text fallback if offline."""
@@ -4443,7 +4946,19 @@ else:
             # synced and local music is configured. See
             # ensure_weather_channel() and docs/livetv-weather-channel-spec.md.
             self._config = config
+            # Closing the window must not leave this job transcoding in an
+            # orphaned process: main() releases the single-instance lock as
+            # soon as it returns, so a lingering worker let a second RockPod
+            # start and run a competing sync against the same cache and iPod.
+            self._cancelled = False
             self.signals = LiveTvJobSignals()
+
+        def cancel(self):
+            """Ask the sync to stop at the next clip boundary."""
+            self._cancelled = True
+
+        def is_cancelled(self) -> bool:
+            return self._cancelled
 
         @Slot()
         def run(self):
@@ -4451,12 +4966,17 @@ else:
                 if self._config is not None:
                     self._shows = ensure_weather_channel(
                         self._sync, self._lineup, self._config, self._shows,
-                        self._ads)
+                        self._ads,
+                        progress=lambda done, total, label:
+                            _emit(self.signals.progress, done, total, label),
+                        cancel=self.is_cancelled)
                     self._lineup.save()
                 summary = self._sync.sync(
                     self._mount_path, self._lineup, self._shows, self._ads,
                     progress=lambda done, total, label:
-                        _emit(self.signals.progress, done, total, label),
+                        _emit(self.signals.progress, done, total,
+                              f"Live TV clip {done} of {total}: {label}"),
+                    cancel=self.is_cancelled,
                 )
                 summary["success"] = True
                 result = summary

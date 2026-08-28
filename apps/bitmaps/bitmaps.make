@@ -30,7 +30,8 @@ BMPOBJ = $(call full_path_subst,$(ROOTDIR)/%.bmp,$(BUILDDIR)/%.o,$(BMP))
 BMPHFILES = $(BMPINCDIR)/usblogo.h $(BMPINCDIR)/remote_usblogo.h \
 	$(BMPINCDIR)/default_icons.h $(BMPINCDIR)/remote_default_icons.h \
 	$(BMPINCDIR)/rockboxlogo.h $(BMPINCDIR)/remote_rockboxlogo.h \
-	$(BMPINCDIR)/rockboxicon.h $(BMPINCDIR)/toolsicon.h
+	$(BMPINCDIR)/rockboxicon.h $(BMPINCDIR)/toolsicon.h \
+	$(BMPINCDIR)/twemoji_atlas.h
 
 $(BMPHFILES): $(BMPOBJ)
 

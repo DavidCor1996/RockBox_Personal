@@ -231,9 +231,9 @@ re-enters the artwork service point, so it adds no storage access.
   **2 528 bytes (2.5 KiB)** against the 120 KiB ceiling. It is the 16x16 badge
   (512 B), the 256-entry watched CRC table (1 KiB), the landing synopsis
   buffer (192 B), and bitmap bookkeeping.
-- Worst-case manifest row over the real 20-row device library, with a full
-  series synopsis added, is **999 bytes** against the device's 1024-byte
-  parser limit, with every row still emitting 23 columns.
+- Worst-case manifest rows remain bounded below the device's 1024-byte parser
+  limit. Version 7 appends four compact playback-marker columns after the
+  original 23 columns; older positional fields never move.
 - `ipod6g` and `ipodvideo` hardware builds and the `ipod6g` simulator all
   build; `tools/netflix_app_launch_sim_gate.py` and
   `tools/netflix_video_resume_sim_gate.py` both pass.

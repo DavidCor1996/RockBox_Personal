@@ -12,7 +12,7 @@ import tempfile
 # Ensure the rockpod package root is on the path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from app.config import Config
+from app.config import Config, DEFAULT_DB_PATH
 from app.database import Database
 from services.itunes_asset_tools import (
     build_asset_review,
@@ -164,7 +164,9 @@ def launch_ui(args):
                     create_mock_device(config.mock_device_path)
 
         config.ensure_dirs()
-        configured_db_path = config.db_path
+        configured_db_path = _persistent_db_path(config, logger)
+        config.db_path = configured_db_path
+        config._persistent_db_path = configured_db_path
         runtime_db_path = _resolve_runtime_db_path(config, logger)
         config.db_path = runtime_db_path
         Database.init_db_once(config.db_path)
@@ -192,7 +194,15 @@ def launch_ui(args):
         logger.info("RockPod UI ready")
         return app.exec()
     finally:
-        _release_ui_instance_lock(instance_lock)
+        # Deliberately NOT released here. app.exec() returns as soon as the
+        # window closes, but a Live TV sync worker can keep this process
+        # alive for minutes afterwards, still writing the encode cache and
+        # the iPod. Releasing the lock at that moment let a second RockPod
+        # start and run a competing sync against both. Holding the handle
+        # until the process actually exits -- where the OS drops the flock --
+        # keeps "one RockPod at a time" true for the whole lifetime of the
+        # process, not just the lifetime of the window.
+        _retain_ui_instance_lock(instance_lock)
 
 
 def _ui_instance_lock_path():
@@ -219,6 +229,17 @@ def _acquire_ui_instance_lock(lock_path=None):
     return lock_handle
 
 
+# Keeps the lock file object alive for the life of the process, so it is
+# neither garbage-collected nor closed while a background sync is still
+# running. The OS releases the flock when the process exits.
+_RETAINED_INSTANCE_LOCKS = []
+
+
+def _retain_ui_instance_lock(lock_handle):
+    if lock_handle is not None:
+        _RETAINED_INSTANCE_LOCKS.append(lock_handle)
+
+
 def _release_ui_instance_lock(lock_handle):
     if lock_handle is None:
         return
@@ -243,6 +264,23 @@ def _resolve_runtime_db_path(config, logger):
     fallback = os.path.join(fallback_root, "library.db")
     logger.warning("Falling back to runtime database: %s", fallback)
     return fallback
+
+
+def _persistent_db_path(config, logger):
+    """Recover when a prior emergency runtime path leaked into config."""
+    configured = os.path.abspath(os.path.expanduser(config.db_path))
+    fallback = os.path.abspath(
+        os.path.join(tempfile.gettempdir(), "rockpod-runtime", "library.db")
+    )
+    persistent = os.path.abspath(os.path.expanduser(DEFAULT_DB_PATH))
+    if configured == fallback and os.path.isfile(persistent):
+        logger.warning(
+            "Recovering persistent database path %s from stale runtime path %s",
+            persistent,
+            configured,
+        )
+        return persistent
+    return configured
 
 
 def run_import_assets(args):

@@ -2,17 +2,20 @@
 
 ## Status
 
-Research and the software audit were refreshed on 2026-08-11. No Philips
-DCP750 hardware result has been claimed yet.
+Physical DCP750/37 testing began on 2026-08-25. Charging, analog audio, dock
+detection, NTSC sync, mixer backgrounds, and VP framebuffer DMA are proven on
+the real unit. Full-frame format-8 packing is still being qualified. The
+authoritative pass/fail ledger is
+[`ipod6g-dcp750-videoout-results.md`](ipod6g-dcp750-videoout-results.md); update
+that ledger before trying another register or geometry change.
 
 Audio, accessory power, line-out control, serial iAP input, remote-button
 translation, and iAP tracing already exist for the iPod Video and iPod Classic
-targets. An opt-in, staged Classic 6G/7G composite diagnostic now exists, but
-full-screen continuous mirroring is not qualified or enabled. The candidate
-register sequence came from earlier Apple-firmware reverse engineering; its
-decrypted input and disassembly evidence are not preserved in this tree, so the
-sequence must still be treated as unverified until that provenance is
-reproduced and the physical stages pass.
+targets. An opt-in, staged Classic 6G/7G composite diagnostic and Quick
+Settings toggle now exist, but full-screen continuous mirroring is not yet
+qualified. The candidate register sequence has now been checked against the
+decrypted Apple 35.2.0.4 firmware and physical stage results; see the ledger
+for the exact remaining failure.
 
 Do not add guessed register writes or guessed Broadcom command payloads. Follow
 the proof sequence in this document and record the observed result after every
@@ -114,6 +117,30 @@ The current tree already provides:
 - serial receive/error/relaunch/dropout counters on the 6G target;
 - settings for accessory power, line-out, and serial bitrate.
 
+The iPod plugin keymaps also accept standard iAP remote events in Desktop Mode
+and Live TV without replacing clickwheel input.  Before a DCP750 trace exists,
+the conservative receiver-style mapping is:
+
+| DCP/iAP event | Live TV while watching | Live TV guide | Desktop Mode |
+| --- | --- | --- | --- |
+| Previous / rewind | Previous playable channel | Previous programme/time | Previous control / left |
+| Next / fast-forward | Next playable channel | Next programme/time | Next control / right |
+| Play/pause | Full guide | Tune selected channel | Click / open |
+| Select | Information banner | Tune selected channel | Click / open |
+| Up / down | Volume up / down | Previous / next channel row | Scroll vertically |
+| Menu / stop | Guide / exit | Leave guide | Back / Apple menu |
+
+Philips only documents play/pause, search, and previous/next as docked-iPod
+controls.  The other rows are supported if the DCP750 actually transmits those
+standard iAP events; the physical trace remains authoritative.
+
+The DCP750 manual assigns the numeric keypad to direct disc title, track, or
+chapter entry and does not list it among the controls available for a docked
+iPod.  The Simple Remote contextual-button bitmap likewise has no numeric-key
+bits.  Direct Live TV channel entry therefore requires a trace proving that the
+DCP750 emits a distinct proprietary or dedicated-media packet for each digit;
+without such packets, iPod software cannot observe those infrared keypresses.
+
 The iPod Video LCD driver names two BCM2722 TV bitmap commands and one movie-off
 command:
 
@@ -211,6 +238,11 @@ With Apple firmware, set TV output on and NTSC, power the DCP750, select its
 - whether the charging indicator is stable;
 - every working and non-working DCP750 remote key;
 - whether the iPod's own controls remain usable.
+- whether Live TV Previous/Next changes one channel per press, Play opens the
+  mini guide, Menu returns to the full guide, and guide selection remains
+  responsive while the picture-in-guide continues playing;
+- whether Desktop Mode Previous/Next moves focus and Play opens the focused
+  control without disabling the clickwheel.
 
 Repeat on the 6G/7G only after recording the 5G reference. Do not infer 6G
 compatibility from a successful 5G test.

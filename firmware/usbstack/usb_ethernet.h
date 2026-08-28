@@ -9,7 +9,12 @@
 
 #define USB_ETHERNET_MTU 1500
 #define USB_ETHERNET_FRAME_MAX 1518
-#define USB_ETHERNET_UDP_BATCH_MAX 10
+/* One 320x240 frame is ~112 datagrams. Each transmit block costs a thread
+ * scheduling round trip on the background streaming worker -- measured at
+ * ~19ms on iPod Classic, against well under 1ms of actual wire time -- so
+ * frame rate tracks blocks-per-frame, not link bandwidth. Carry as many
+ * datagrams per block as the negotiated block size allows. */
+#define USB_ETHERNET_UDP_BATCH_MAX 22
 
 struct usb_ethernet_udp_datagram {
     const void *data;
@@ -37,6 +42,7 @@ int usb_ethernet_udp_send(uint16_t port, const void *data, int length);
 int usb_ethernet_udp_send_batch(
     uint16_t port, const struct usb_ethernet_udp_datagram *datagrams,
     int count);
+int usb_ethernet_udp_batch_capacity(int length);
 int usb_ethernet_udp_receive(uint16_t port, void *data, int capacity);
 
 #endif

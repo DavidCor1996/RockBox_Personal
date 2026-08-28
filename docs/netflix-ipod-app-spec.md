@@ -206,8 +206,9 @@ for the wordmark, thin rules, section tabs, progress fill, and Play button.
   family as this personal library skin.
 - Duration: 3.3 seconds from the visual lead-in through the complete sound
   logo; any queued input cancels it.
-- Visuals: twelve authentic 320x180 source frames at 10 fps, letterboxed on
-  the 320x240 display, followed by a hold on the final red wordmark.
+- Visuals: twelve authentic 320x180 source frames at 10 fps, aspect-filled on
+  the 320x240 display with a centered horizontal crop, followed by a hold on
+  the final red wordmark. The app-launch ident uses the same full-screen crop.
 - Audio: the original 44.1 kHz stereo sound logo on
   `PCM_MIXER_CHAN_PLAYBACK`.
 - Playback ownership: the selected viewer takes the shared plugin audio

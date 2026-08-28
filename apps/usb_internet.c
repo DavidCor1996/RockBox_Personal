@@ -313,32 +313,21 @@ static int framebuffer_copy_pixels(unsigned char *destination,
     uint32_t pixel = offset / sizeof(fb_data);
     int copied = 0;
 
-    while (capacity >= (int)sizeof(fb_data) &&
-           pixel < (uint32_t)framebuffer_capture_width *
-                   framebuffer_capture_height)
-    {
-        int x = pixel % framebuffer_capture_width;
-        int y = pixel / framebuffer_capture_width;
-        int count = MIN(capacity / (int)sizeof(fb_data),
-                        framebuffer_capture_width - x);
-        fb_data *output = (fb_data *)(destination + copied);
+    const fb_data *frame = FBADDR(0, 0);
+    uint32_t total_pixels = (uint32_t)framebuffer_capture_width *
+                            framebuffer_capture_height;
 
-        /* Native rows are contiguous.  Copy a strip at a time instead of
-         * paying one framebuffer address lookup for every pixel. */
-        memcpy(output, FBADDR(x, y), count * sizeof(*output));
-        copied += count * sizeof(fb_data);
-        capacity -= count * sizeof(fb_data);
-        pixel += count;
+    /* Native rows are contiguous, so the capture is one flat array: resolve
+     * the base once and copy the strip in a single go. */
+    if (pixel < total_pixels && capacity >= (int)sizeof(fb_data))
+    {
+        uint32_t count = MIN((uint32_t)(capacity / (int)sizeof(fb_data)),
+                             total_pixels - pixel);
+
+        memcpy(destination, frame + pixel, count * sizeof(fb_data));
+        copied = count * sizeof(fb_data);
     }
     return copied;
-}
-
-static fb_data framebuffer_pixel(uint32_t pixel)
-{
-    int x = pixel % framebuffer_capture_width;
-    int y = pixel / framebuffer_capture_width;
-
-    return *FBADDR(x, y);
 }
 
 /* PackBits-style RGB565 encoding.  Literal tokens 0..127 are followed by
@@ -349,19 +338,23 @@ static int framebuffer_pack_pixels(unsigned char *destination,
                                    uint32_t offset, int capacity,
                                    uint32_t *consumed_bytes)
 {
+    const fb_data *frame = FBADDR(0, 0);
     uint32_t pixel = offset / sizeof(fb_data);
     const uint32_t total_pixels = framebuffer_capture_width *
                                   framebuffer_capture_height;
     int written = 0;
 
+    /* Reaching each pixel through FBADDR() cost a software divide and an
+     * indirect get_address_fn() call on every comparison of the run scan.
+     * On a divide-less ARM926 that dominated the cost of a frame. */
     *consumed_bytes = 0;
     while (pixel < total_pixels && capacity - written >= 3)
     {
-        fb_data value = framebuffer_pixel(pixel);
+        fb_data value = frame[pixel];
         uint32_t run = 1;
 
         while (run < 129 && pixel + run < total_pixels &&
-               framebuffer_pixel(pixel + run) == value)
+               frame[pixel + run] == value)
             ++run;
 
         if (run >= 3)
@@ -380,10 +373,10 @@ static int framebuffer_pack_pixels(unsigned char *destination,
 
             while (literal < max_literal && pixel < total_pixels)
             {
-                value = framebuffer_pixel(pixel);
+                value = frame[pixel];
                 run = 1;
                 while (run < 3 && pixel + run < total_pixels &&
-                       framebuffer_pixel(pixel + run) == value)
+                       frame[pixel + run] == value)
                     ++run;
                 if (run >= 3 && literal > 0)
                     break;
@@ -395,7 +388,7 @@ static int framebuffer_pack_pixels(unsigned char *destination,
             destination[written++] = literal - 1;
             for (int i = 0; i < literal; ++i)
             {
-                value = framebuffer_pixel(literal_start + i);
+                value = frame[literal_start + i];
                 destination[written++] = value;
                 destination[written++] = value >> 8;
             }
@@ -432,17 +425,19 @@ static int framebuffer_build_packet(unsigned char *packet, uint32_t offset,
     consumed = MIN((uint32_t)FRAMEBUFFER_PAYLOAD_BYTES,
                    total - offset);
     payload = 0;
-    if (!framebuffer_video_active)
+
+    /* Pack video frames too.  Letterbox bars and static chrome collapse to
+     * almost nothing, and a strip that fails to compress falls back to raw,
+     * so this is lossless and never costs wire bytes.  Packing straight into
+     * the datagram means a rejected pass is simply overwritten below. */
     {
         uint32_t packed_consumed;
         int packed_size = framebuffer_pack_pixels(
-            framebuffer_request_message, offset,
+            packet + FRAMEBUFFER_HEADER_BYTES, offset,
             FRAMEBUFFER_PAYLOAD_BYTES, &packed_consumed);
 
         if (packed_size > 0 && packed_consumed > consumed)
         {
-            memcpy(packet + FRAMEBUFFER_HEADER_BYTES,
-                   framebuffer_request_message, packed_size);
             payload = packed_size;
             consumed = packed_consumed;
             packed = true;
@@ -456,7 +451,10 @@ static int framebuffer_build_packet(unsigned char *packet, uint32_t offset,
     }
 
     memcpy(packet, FRAMEBUFFER_MAGIC, 4);
-    packet[4] = framebuffer_video_active ? 0x13 :
+    /* The video bit is independent of the packed bit, so every packet of a
+     * frame agrees on whether it is video however the strips compressed and
+     * whatever order the datagrams arrive in. */
+    packet[4] = framebuffer_video_active ? (packed ? 0x14 : 0x13) :
                 (packed ? 0x11 : 0x10);
     packet[5] = 1; /* little-endian RGB565 */
     put_be16(packet + 6, framebuffer_capture_width);
@@ -477,10 +475,17 @@ static void framebuffer_stream_batch(void)
     const uint32_t total = framebuffer_capture_width *
                            framebuffer_capture_height * sizeof(fb_data);
     struct usb_ethernet_udp_datagram datagrams[FRAMEBUFFER_BATCH_PACKETS];
+    /* Size the batch to what one transmit block currently holds.  Asking for
+     * more than fits fails the whole batch, which would stall the stream for
+     * as long as the host kept that block size. */
+    const int batch_limit = MIN(FRAMEBUFFER_BATCH_PACKETS,
+                                usb_ethernet_udp_batch_capacity(
+                                    FRAMEBUFFER_HEADER_BYTES +
+                                    FRAMEBUFFER_PAYLOAD_BYTES));
     uint32_t next_offset = framebuffer_offset;
     int count = 0;
 
-    while (count < FRAMEBUFFER_BATCH_PACKETS &&
+    while (count < batch_limit &&
            (framebuffer_unchanged || next_offset < total))
     {
         unsigned char *packet =
@@ -543,8 +548,11 @@ static void framebuffer_worker(void)
             framebuffer_stream_batch();
             if (!framebuffer_active || framebuffer_offset != previous)
             {
+                /* wait_for_tx() already blocks until the controller has the
+                 * block; yielding again cost a second scheduler round trip
+                 * per block, and at background priority against a running
+                 * decoder each trip is most of a timeslice. */
                 usb_ethernet_wait_for_tx(HZ / 4);
-                yield();
             }
             else
                 sleep(1);

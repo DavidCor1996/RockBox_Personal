@@ -853,7 +853,8 @@ enum plugin_status plugin_start(const void* parameter)
         sn_save();
 
     savesettings();
-    cleanup();
+    if (!cleanup())
+        rb->splash(HZ * 2, "Cartridge save failed");
     rockboy_profile_log_summary(rom_path);
     rockboy_return_to_launcher = false;
     rb->plugin_release_audio_buffer();

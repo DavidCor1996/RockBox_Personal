@@ -1,6 +1,7 @@
 #ifndef OPENLARA_TOUCH_PLATFORM_H
 #define OPENLARA_TOUCH_PLATFORM_H
 
+#include <stddef.h>
 #include <stdint.h>
 
 enum ol_input_key {
@@ -26,6 +27,8 @@ uint32_t ol_icade_update(uint32_t state, uint16_t character,
                          int *recognized);
 uint32_t ol_touch_keys(float x, float y, float width, float height);
 void ol_palette_rgba(uint16_t color, uint8_t rgba[4]);
+int ol_validate_pkd_header(const uint8_t *header, size_t header_size,
+                           size_t file_size);
 
 #ifdef __cplusplus
 }

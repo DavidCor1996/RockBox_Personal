@@ -408,6 +408,9 @@ MENUITEM_SETTING_W_TEXT(ui_engine_video_appearance,
 MENUITEM_SETTING_W_TEXT(ui_engine_games_appearance,
                         &global_settings.ui_engine_games_appearance,
                         "iPod Games Appearance", NULL);
+MENUITEM_SETTING_W_TEXT(ui_engine_applications_appearance,
+                        &global_settings.ui_engine_applications_appearance,
+                        "iPod Applications Appearance", NULL);
 MENUITEM_SETTING_W_TEXT(ui_engine_extras_pane,
                         &global_settings.ui_engine_extras_pane,
                         "iPod Extras Right Pane", NULL);
@@ -506,6 +509,7 @@ MAKE_MENU(theme_menu, ID2P(LANG_THEME_MENU),
             &ui_engine_hold_effect,
             &ui_engine_video_appearance,
             &ui_engine_games_appearance,
+            &ui_engine_applications_appearance,
             &ui_engine_extras_pane,
             &ui_engine_lock_settings,
             &ui_engine_dark_mode,

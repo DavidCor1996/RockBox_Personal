@@ -145,13 +145,25 @@ if [ ! -d "${mount_path}/.rockbox" ]; then
 fi
 
 mount_source="$(findmnt -rn -o SOURCE --target "${mount_path}")"
-parent_disk="$(lsblk -no PKNAME "${mount_source}")"
+parent_disk="$(lsblk -no PKNAME "${mount_source}" 2>/dev/null || true)"
+if [ -z "${parent_disk}" ] && [ -n "${mount_source}" ]; then
+    block_name="${mount_source##*/}"
+    if [ -e "/sys/class/block/${block_name}/partition" ]; then
+        parent_disk="$(basename "$(readlink -f "/sys/class/block/${block_name}/..")")"
+    fi
+fi
 if [ -z "${mount_source}" ] || [ -z "${parent_disk}" ]; then
     echo "hardware guard: cannot identify the mounted block device" >&2
     exit 1
 fi
-disk_size="$(lsblk -bdno SIZE "/dev/${parent_disk}")"
-disk_serial="$(lsblk -dno SERIAL "/dev/${parent_disk}")"
+disk_size="$(lsblk -bdno SIZE "/dev/${parent_disk}" 2>/dev/null || true)"
+disk_serial="$(lsblk -dno SERIAL "/dev/${parent_disk}" 2>/dev/null || true)"
+if [ -z "${disk_size}" ] && [ -r "/sys/class/block/${parent_disk}/size" ]; then
+    disk_size="$(( $(<"/sys/class/block/${parent_disk}/size") * 512 ))"
+fi
+if [ -z "${disk_serial}" ] && [ -r "/sys/class/block/${parent_disk}/device/serial" ]; then
+    disk_serial="$(<"/sys/class/block/${parent_disk}/device/serial")"
+fi
 if [ "${disk_size}" -lt $((32 * 1024 * 1024 * 1024)) ]; then
     echo "hardware guard: refusing small device ${mount_source} (${disk_size} bytes, serial ${disk_serial})" >&2
     exit 1

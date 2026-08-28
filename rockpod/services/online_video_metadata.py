@@ -369,13 +369,95 @@ class TVmazeVideoMetadataProvider(VideoMetadataProvider):
         return []
 
     def search_show(self, query, year=None):
-        item = self._fetch_json("/singlesearch/shows", {"q": query})
-        if not item:
-            return []
-        result = self._show_result(item)
-        if year and result.get("year") and int(year) != int(result["year"]):
-            return []
-        return [result]
+        results = self.search_shows(query, year)
+        return results[:1]
+
+    def search_shows(self, query, year=None):
+        """Return show candidates ordered by how well they fit the query.
+
+        ``/singlesearch`` alone picks the most popular name match, which hands
+        back the 2024 "Avatar: The Last Airbender" for a 2005 library folder.
+        Scoring the full result set by release year keeps a remake from
+        stealing the identity of the show that is actually on disk.
+        """
+        candidates = []
+        payload = self._fetch_json("/search/shows", {"q": query})
+        for entry in payload if isinstance(payload, list) else []:
+            if not isinstance(entry, dict):
+                continue
+            item = entry.get("show")
+            if isinstance(item, dict) and item.get("id"):
+                candidates.append(dict(item))
+        if not candidates:
+            item = self._fetch_json("/singlesearch/shows", {"q": query})
+            if item:
+                candidates.append(item)
+        results = [self._show_result(item) for item in candidates]
+        if not year:
+            return results
+        year = int(year)
+        exact = [r for r in results if r.get("year") and int(r["year"]) == year]
+        if exact:
+            return exact + [r for r in results if r not in exact]
+        near = sorted(
+            (r for r in results if r.get("year")),
+            key=lambda r: abs(int(r["year"]) - year),
+        )
+        return near + [r for r in results if not r.get("year")]
+
+    def lookup_by_imdb(self, imdb_id):
+        """Resolve a show straight from a verified IMDb id."""
+        text = str(imdb_id or "").strip()
+        if not text:
+            return None
+        item = self._fetch_json("/lookup/shows", {"imdb": text})
+        return self._show_result(item) if item else None
+
+    def list_seasons(self, provider_id):
+        """Return every season with its published cover, when one exists."""
+        seasons = []
+        for item in self._fetch_json(f"/shows/{provider_id}/seasons") or []:
+            number = item.get("number")
+            if number is None:
+                continue
+            image = dict(item.get("image") or {})
+            seasons.append(
+                {
+                    "number": int(number),
+                    "episode_count": int(item.get("episodeOrder") or 0),
+                    "premiered": str(item.get("premiered") or ""),
+                    "summary": self._plain_text(item.get("summary")),
+                    "artwork_url": str(
+                        image.get("original") or image.get("medium") or ""
+                    ),
+                }
+            )
+        return seasons
+
+    def list_episodes(self, provider_id):
+        """Return every episode of a show keyed by ``season x episode``.
+
+        One request covers a whole series, so a library with hundreds of
+        episodes costs a single call per show rather than one per file.
+        """
+        episodes = {}
+        for item in self._fetch_json(f"/shows/{provider_id}/episodes") or []:
+            season = item.get("season")
+            number = item.get("number")
+            if season is None or number is None:
+                continue
+            image = dict(item.get("image") or {})
+            summary = self._plain_text(item.get("summary"))
+            episodes[(int(season), int(number))] = {
+                "title": str(item.get("name") or ""),
+                "plot_short": summary,
+                "plot_long": summary,
+                "release_date": str(item.get("airdate") or ""),
+                "year": self._year(item.get("airdate")),
+                "runtime_seconds": int(item.get("runtime") or 0) * 60,
+                "artwork_url": str(image.get("original") or image.get("medium") or ""),
+            }
+        return episodes
 
     def search_episode(self, show_title, season, episode, episode_title=None):
         shows = self.search_show(show_title)

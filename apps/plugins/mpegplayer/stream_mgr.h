@@ -34,6 +34,7 @@ struct stream_mgr
                                     stopped (or started) */
     bool seeked;                 /* A seek happened and things must be
                                     resynced */
+    bool clock_primed;           /* Streams may fill while PCM stays held */
     int    status;          /* Current playback status */
     void   *strl[MPEGPLAYER_MAX_STREAMS+1]; /* List of available streams */
     void   *actl[MPEGPLAYER_MAX_STREAMS+1]; /* List of active streams */
@@ -86,6 +87,13 @@ int stream_close(void);
 
 /* Plays from the current seekpoint if stopped */
 int stream_play(void);
+
+/* Start decoders and buffering while holding the PCM clock. This is used by
+ * card transitions so the first video frame and initial audio are both ready
+ * before the new clip is revealed. */
+int stream_play_primed(void);
+bool stream_primed_audio_ready(void);
+void stream_release_prime(void);
 
 /* Pauses playback if playing */
 int stream_pause(void);

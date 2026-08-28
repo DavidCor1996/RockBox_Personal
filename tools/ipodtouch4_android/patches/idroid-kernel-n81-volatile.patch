@@ -1,0 +1,124 @@
+--- a/include/linux/compiler-gcc9.h
++++ b/include/linux/compiler-gcc9.h
+@@ -0,0 +1,16 @@
++#ifndef __LINUX_COMPILER_H
++#error "Please don't include <linux/compiler-gcc9.h> directly, include <linux/compiler.h> instead."
++#endif
++
++/* Compatibility definitions needed to build this Linux 3.0 tree with GCC 9. */
++#define __used                  __attribute__((__used__))
++#define __must_check            __attribute__((warn_unused_result))
++#define __compiler_offsetof(a,b) __builtin_offsetof(a,b)
++#define __cold                  __attribute__((__cold__))
++#define unreachable()           __builtin_unreachable()
++#define __noclone               __attribute__((__noclone__))
++#define __compiletime_object_size(obj) __builtin_object_size(obj, 0)
++#if !defined(__CHECKER__)
++#define __compiletime_warning(message) __attribute__((warning(message)))
++#define __compiletime_error(message) __attribute__((error(message)))
++#endif
+--- a/kernel/timeconst.pl
++++ b/kernel/timeconst.pl
+@@ -370,7 +370,7 @@
+ 	}
+ 
+ 	@val = @{$canned_values{$hz}};
+-	if (!defined(@val)) {
++	if (!@val) {
+ 		@val = compute_values($hz);
+ 	}
+ 	output($hz, @val);
+--- a/arch/arm/include/asm/uaccess.h
++++ b/arch/arm/include/asm/uaccess.h
+@@ -137,15 +137,15 @@
+ 
+ #define __put_user_x(__r2,__p,__e,__s)					\
+ 	   __asm__ __volatile__ (					\
+-		__asmeq("%0", "r0") __asmeq("%2", "r2")			\
++		__asmeq("%0", "r0") __asmeq("%1", "r2")			\
+ 		"bl	__put_user_" #__s				\
+-		: "=&r" (__e)						\
+-		: "0" (__p), "r" (__r2)					\
++		: "=&r" (__e), "+r" (__r2)				\
++		: "0" (__p)						\
+ 		: "ip", "lr", "cc")
+ 
+ #define put_user(x,p)							\
+ 	({								\
+-		register const typeof(*(p)) __r2 asm("r2") = (x);	\
++		register typeof(*(p)) __r2 asm("r2") = (x);		\
+ 		register const typeof(*(p)) __user *__p asm("r0") = (p);\
+ 		register int __e asm("r0");				\
+ 		switch (sizeof(*(__p))) {				\
+--- a/arch/arm/mach-s5l8930/Kconfig
++++ b/arch/arm/mach-s5l8930/Kconfig
+@@ -11,7 +11,6 @@
+ 	select SERIAL_SAMSUNG
+ 	select SERIAL_S5L8900
+ 	select S3C_DEV_I2C1
+-	select S3C_DEV_HSMMC
+ 	select S3C_DEV_USB_HSOTG
+ 	select SPI_S5L
+ 	select S5L_CDMA
+--- a/arch/arm/mach-s5l8930/Makefile
++++ b/arch/arm/mach-s5l8930/Makefile
+@@ -4,7 +4,7 @@
+ #	(http://www.idroidproject.org/).
+ 
+ obj-$(CONFIG_CPU_S5L8930)			+= cpu.o time.o clock.o dev-spi.o gpiolib.o setup-mipi.o
+-obj-$(CONFIG_CPU_S5L8930)			+= dev-mipi-dsim.o dev-clcd.o dev-gpio-keys.o dev-h2fmi.o
++obj-$(CONFIG_CPU_S5L8930)			+= dev-mipi-dsim.o dev-clcd.o dev-gpio-keys.o
+ 
+ obj-$(CONFIG_MACH_IPHONE_4)			+= mach-iphone4.o
+ obj-$(CONFIG_MACH_IPOD_TOUCH_4G)		+= mach-ipodtouch4g.o
+--- a/arch/arm/mach-s5l8930/mach-ipodtouch4g.c
++++ b/arch/arm/mach-s5l8930/mach-ipodtouch4g.c
+@@ -115,11 +115,9 @@
+ {
+ 	s5l8930_init();
+ 
+-	s5l8930_register_h2fmi();
+-
+ 	//s5l8930_register_gpio_keys(buttons, ARRAY_SIZE(buttons));
+ 	s5l8930_register_mipi_dsim(&video_mode, 2, 57, 1, 3);
+-	s5l8930_register_clcd(&video_mode, 24, &clcd_info);
++	s5l8930_register_clcd(&video_mode, 32, &clcd_info);
+ 
+ 	//spi_register_board_info(spidevs, ARRAY_SIZE(spidevs));
+ }
+--- a/arch/arm/mach-s5l8930/cpu.c
++++ b/arch/arm/mach-s5l8930/cpu.c
+@@ -29,7 +29,6 @@
+ #include <plat/iic.h>
+ #include <plat/regs-uart.h>
+ #include <plat/irq-vic-timer.h>
+-#include <plat/sdhci.h>
+ 
+ static struct map_desc s5l8930_iodesc[] __initdata = {
+ 	{
+@@ -143,17 +142,6 @@
+ 	printk("%s done\n", __func__);
+ }
+ 
+-static char *sdio0_clocks[] = {
+-	"sdio",
+-	NULL,
+-	NULL,
+-	NULL,
+-};
+-
+-static struct s3c_sdhci_platdata sdio0_pdata = {
+-	.clocks = sdio0_clocks,
+-};
+-
+ static struct resource cdma_res[] = {
+ 	[0] = {
+ 		.start = PA_CDMA,
+@@ -198,7 +186,6 @@
+ 
+ static __init int s5l8930_cpu_init(void)
+ {
+-	s3c_sdhci0_set_platdata(&sdio0_pdata);
+ 	s3c_i2c0_set_platdata(NULL);
+ 	s3c_i2c1_set_platdata(NULL);
+ 	platform_add_devices(s5l8930_devices, ARRAY_SIZE(s5l8930_devices));

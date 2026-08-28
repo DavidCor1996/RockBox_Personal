@@ -17,8 +17,8 @@
 #define NETFLIX_INTRO_PCM \
     NETFLIX_INTRO_DIR "/intro-44100-stereo.pcm"
 #define NETFLIX_INTRO_FRAMES 12
-#define NETFLIX_INTRO_WIDTH 320
-#define NETFLIX_INTRO_HEIGHT 180
+#define NETFLIX_INTRO_SOURCE_WIDTH 320
+#define NETFLIX_INTRO_SOURCE_HEIGHT 180
 #define NETFLIX_INTRO_RATE 44100
 #define NETFLIX_INTRO_FRAME_TICKS MAX(1, HZ / 10)
 #define NETFLIX_INTRO_TIMEOUT (HZ * 4)
@@ -51,15 +51,34 @@ static bool netflix_intro_load_frame(int frame, struct bitmap *bitmap,
     rb->snprintf(path, sizeof(path),
                  NETFLIX_INTRO_DIR "/frame-%02d.320x180x24.bmp", frame);
     rb->memset(bitmap, 0, sizeof(*bitmap));
-    bitmap->width = NETFLIX_INTRO_WIDTH;
-    bitmap->height = NETFLIX_INTRO_HEIGHT;
+    bitmap->width = NETFLIX_INTRO_SOURCE_WIDTH;
+    bitmap->height = NETFLIX_INTRO_SOURCE_HEIGHT;
     bitmap->format = FORMAT_NATIVE;
     bitmap->data = buffer;
     result = rb->read_bmp_file(path, bitmap, (int)buffer_size,
                                FORMAT_NATIVE, NULL);
 
-    return result > 0 && bitmap->width == NETFLIX_INTRO_WIDTH &&
-           bitmap->height == NETFLIX_INTRO_HEIGHT;
+    return result > 0 && bitmap->width == NETFLIX_INTRO_SOURCE_WIDTH &&
+           bitmap->height == NETFLIX_INTRO_SOURCE_HEIGHT;
+}
+
+static void netflix_intro_scale_fullscreen(const fb_data *source,
+                                           fb_data *output,
+                                           const unsigned short *source_x_map)
+{
+    const int crop_y = 0;
+    const int crop_height = NETFLIX_INTRO_SOURCE_HEIGHT;
+
+    for (int y = 0; y < LCD_HEIGHT; ++y)
+    {
+        int source_y = crop_y + y * crop_height / LCD_HEIGHT;
+        const fb_data *source_row = source +
+            (size_t)source_y * NETFLIX_INTRO_SOURCE_WIDTH;
+        fb_data *output_row = output + (size_t)y * LCD_WIDTH;
+
+        for (int x = 0; x < LCD_WIDTH; ++x)
+            output_row[x] = source_row[source_x_map[x]];
+    }
 }
 
 static bool netflix_intro_input_pending(void)
@@ -78,8 +97,12 @@ static void netflix_intro_run(void *audio_pool, size_t pool_size)
     struct bitmap frame_bitmap;
     unsigned char *pcm = audio_pool;
     unsigned char *frame_buffer;
+    fb_data *output_frame;
+    unsigned short source_x_map[LCD_WIDTH];
     size_t frame_bytes;
     size_t all_frame_bytes;
+    size_t output_frame_bytes;
+    size_t frame_offset;
     off_t pcm_size;
     unsigned int old_frequency;
     long next_frame;
@@ -90,25 +113,34 @@ static void netflix_intro_run(void *audio_pool, size_t pool_size)
     if (audio_pool == NULL)
         return;
 
-    frame_bytes = BM_SIZE(NETFLIX_INTRO_WIDTH, NETFLIX_INTRO_HEIGHT,
+    frame_bytes = BM_SIZE(NETFLIX_INTRO_SOURCE_WIDTH,
+                          NETFLIX_INTRO_SOURCE_HEIGHT,
                           FORMAT_NATIVE, false);
     all_frame_bytes = frame_bytes * NETFLIX_INTRO_FRAMES;
+    output_frame_bytes = BM_SIZE(LCD_WIDTH, LCD_HEIGHT,
+                                 FORMAT_NATIVE, false);
     fd = rb->open(NETFLIX_INTRO_PCM, O_RDONLY);
     if (fd < 0)
         return;
 
     pcm_size = rb->filesize(fd);
     if (pcm_size <= 0 || (pcm_size & 3) != 0 ||
-        (off_t)(size_t)pcm_size != pcm_size ||
-        (size_t)pcm_size + all_frame_bytes + 4 > pool_size)
+        (off_t)(size_t)pcm_size != pcm_size)
     {
         rb->close(fd);
         return;
     }
 
-    frame_buffer = pcm + (size_t)pcm_size;
-    frame_buffer = (unsigned char *)
-        (((uintptr_t)frame_buffer + 3) & ~(uintptr_t)3);
+    frame_offset = ((size_t)pcm_size + 3) & ~(size_t)3;
+    if (frame_offset > pool_size ||
+        all_frame_bytes > pool_size - frame_offset ||
+        output_frame_bytes > pool_size - frame_offset - all_frame_bytes)
+    {
+        rb->close(fd);
+        return;
+    }
+    frame_buffer = pcm + frame_offset;
+    output_frame = (fb_data *)(frame_buffer + all_frame_bytes);
     if (!netflix_intro_read_all(fd, pcm, (size_t)pcm_size))
     {
         rb->close(fd);
@@ -124,14 +156,19 @@ static void netflix_intro_run(void *audio_pool, size_t pool_size)
             return;
     }
 
+    /* The 16:9 frames are aspect-filled into the 4:3 LCD: keep all 180
+     * source lines and center-crop 40 pixels from each horizontal edge. */
+    for (int x = 0; x < LCD_WIDTH; ++x)
+        source_x_map[x] = 40 + x * 240 / LCD_WIDTH;
+
     rb->button_clear_queue();
     rb->lcd_set_backdrop(NULL);
     rb->lcd_set_foreground(LCD_WHITE);
     rb->lcd_set_background(LCD_BLACK);
     rb->lcd_clear_display();
-    rb->lcd_bitmap((const fb_data *)frame_buffer, 0,
-                   (LCD_HEIGHT - NETFLIX_INTRO_HEIGHT) / 2,
-                   NETFLIX_INTRO_WIDTH, NETFLIX_INTRO_HEIGHT);
+    netflix_intro_scale_fullscreen((const fb_data *)frame_buffer,
+                                   output_frame, source_x_map);
+    rb->lcd_bitmap(output_frame, 0, 0, LCD_WIDTH, LCD_HEIGHT);
     rb->lcd_update();
 
     old_frequency = rb->mixer_get_frequency();
@@ -152,10 +189,10 @@ static void netflix_intro_run(void *audio_pool, size_t pool_size)
             rb->sleep(1);
         }
 
-        rb->lcd_bitmap((const fb_data *)
-                           (frame_buffer + frame * frame_bytes), 0,
-                       (LCD_HEIGHT - NETFLIX_INTRO_HEIGHT) / 2,
-                       NETFLIX_INTRO_WIDTH, NETFLIX_INTRO_HEIGHT);
+        netflix_intro_scale_fullscreen(
+            (const fb_data *)(frame_buffer + frame * frame_bytes),
+            output_frame, source_x_map);
+        rb->lcd_bitmap(output_frame, 0, 0, LCD_WIDTH, LCD_HEIGHT);
         rb->lcd_update();
         next_frame += NETFLIX_INTRO_FRAME_TICKS;
     }

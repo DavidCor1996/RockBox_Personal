@@ -169,6 +169,70 @@ def set_rockbox_applications_menu(device, enabled):
     )
 
 
+def set_rockbox_youtube_main_menu(device, enabled):
+    """Add or remove the optional standalone YouTube root-menu item."""
+    mount_path = getattr(device, "mount_path", "")
+    current = _get_rockbox_config_value(mount_path, ROCKBOX_ROOT_MENU_KEY)
+    default_items = [
+        "pictureflow",
+        "database",
+        "videos",
+        "directv",
+        "photos",
+        "internet",
+        "applications",
+        "settings",
+        "wps",
+    ]
+    items = [
+        item.strip()
+        for item in current.replace(";", ",").split(",")
+        if item.strip()
+    ] or default_items
+    items = [item for item in items if item != "youtube"]
+    if enabled:
+        insert_at = items.index("videos") + 1 if "videos" in items else 0
+        items.insert(insert_at, "youtube")
+    return _set_rockbox_config_value(
+        mount_path,
+        ROCKBOX_ROOT_MENU_KEY,
+        ", ".join(items) + ",",
+    )
+
+
+def set_rockbox_tiktok_main_menu(device, enabled):
+    """Add or remove the standalone TikTok root-menu item."""
+    mount_path = getattr(device, "mount_path", "")
+    current = _get_rockbox_config_value(mount_path, ROCKBOX_ROOT_MENU_KEY)
+    default_items = [
+        "pictureflow",
+        "database",
+        "videos",
+        "youtube",
+        "directv",
+        "photos",
+        "internet",
+        "applications",
+        "settings",
+        "wps",
+    ]
+    items = [
+        item.strip()
+        for item in current.replace(";", ",").split(",")
+        if item.strip()
+    ] or default_items
+    items = [item for item in items if item != "tiktok"]
+    if enabled:
+        anchor = "youtube" if "youtube" in items else "videos"
+        insert_at = items.index(anchor) + 1 if anchor in items else 0
+        items.insert(insert_at, "tiktok")
+    return _set_rockbox_config_value(
+        mount_path,
+        ROCKBOX_ROOT_MENU_KEY,
+        ", ".join(items) + ",",
+    )
+
+
 def set_rockbox_ui_font_scale(device, font_scale):
     mount_path = getattr(device, "mount_path", "")
     normalized = str(font_scale or "").strip().lower()

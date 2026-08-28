@@ -67,6 +67,11 @@ toolsicon.130x130x16.bmp
 
 #ifndef BOOTLOADER  /* We don't need these for the bootloader */
 
+#ifdef HAVE_LCD_COLOR
+/* Complete read-only Twemoji atlas used by the native shared renderer. */
+twemoji_atlas.224x3514x16.bmp
+#endif
+
 /* USB logo */
 #ifdef HAVE_LCD_COLOR
 #if LCD_WIDTH > 176

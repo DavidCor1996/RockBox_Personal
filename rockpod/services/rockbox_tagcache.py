@@ -480,7 +480,7 @@ def _decode_tag_entry(blob: bytes, offset: int, endian: str) -> str:
     return "" if value == UNTAGGED else value
 
 
-def _parse_row(row, mount_path: str) -> dict | None:
+def _parse_row(row, mount_path: str, include_runtime: bool = False) -> dict | None:
     flag = row[-1]
     if flag & FLAG_DELETED:
         return None
@@ -527,7 +527,7 @@ def _parse_row(row, mount_path: str) -> dict | None:
         "audio",
     )
 
-    return {
+    parsed = {
         "device_path": filename,
         "file_size": file_size,
         "title": title,
@@ -545,11 +545,20 @@ def _parse_row(row, mount_path: str) -> dict | None:
         "file_hash": "",
         "present_on_device": 1,
     }
+    if include_runtime:
+        parsed.update({
+            "play_count": max(int(row[TAG_PLAYCOUNT] or 0), 0),
+            "play_time": max(int(row[TAG_PLAYTIME] or 0), 0),
+            "rating": max(int(row[TAG_RATING] or 0), 0),
+            "last_played_serial": max(int(row[TAG_LASTPLAYED] or 0), 0),
+        })
+    return parsed
 
 
 def read_rockbox_tagcache_tracks(
     mount_path: str,
     allow_transaction: bool = False,
+    include_runtime: bool = False,
 ) -> list[dict]:
     """Return audio device-track rows from Rockbox tagcache files."""
     base = Path(mount_path) / ".rockbox"
@@ -615,7 +624,7 @@ def read_rockbox_tagcache_tracks(
             continue
         for tag, blob in tag_blobs.items():
             row[tag] = _decode_tag_entry(blob, row[tag], endian)
-        parsed = _parse_row(row, mount_path)
+        parsed = _parse_row(row, mount_path, include_runtime=include_runtime)
         if parsed:
             tracks.append(parsed)
 

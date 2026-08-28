@@ -12,7 +12,13 @@ from PySide6.QtCore import QObject, Signal, QThread, Slot, Qt
 from app.config import SUPPORTED_FORMATS, SUPPORTED_VIDEO_FORMATS
 from services.livetv import LIVETV_SOURCE_DIR_NAME
 from app.database import Database
-from services.metadata_reader import read_metadata, read_metadata_details, compute_file_hash
+from services.metadata_reader import (
+    read_metadata,
+    read_metadata_details,
+    compute_file_hash,
+    looks_like_release_group,
+    looks_like_specials_folder,
+)
 
 logger = logging.getLogger(__name__)
 _ORIGINAL_READ_METADATA = read_metadata
@@ -21,6 +27,57 @@ _STALE_VIDEO_RELEASE_NOISE_RE = re.compile(
     r"bluray|brrip|dvdrip|hdr10\+?|hdr|sdr|atvp|ddp\d(?:\.\d)?|ac-?3|e-?ac-?3|"
     r"10bit|8bit|yts(?:[ ._-]?am)?|galaxyrg\d*|pophd|nahom|vostf|vf2|multi)\b"
 )
+
+
+# Fields a verified video match owns. A rescan re-derives these from the
+# filename, which would put a matched series back to its release-pack folder
+# name and its episodes back to "Episode 1".
+_VERIFIED_VIDEO_FIELDS = (
+    "title", "show_title", "album", "artist", "album_artist", "year", "genre",
+    "artwork_path", "video_kind", "season_number", "episode_number",
+)
+
+
+def _preserve_verified_video_metadata(track_data, cached_row):
+    """Keep a deliberate video match from being overruled by the filename."""
+    if str(track_data.get("media_type") or "") != "video" or not cached_row:
+        return track_data
+    verified = bool(str(cached_row.get("imdb_id") or "").strip()) or bool(
+        cached_row.get("metadata_locked")
+    )
+    if not verified:
+        return track_data
+    return {
+        key: value
+        for key, value in track_data.items()
+        if key not in _VERIFIED_VIDEO_FIELDS
+    }
+
+
+def _is_device_only_video(row):
+    """A missing source whose playable copy is already tracked on an iPod."""
+    return (
+        str((row or {}).get("media_type") or "").lower() == "video"
+        and bool(
+            (row or {}).get("synced_to_device")
+            or str((row or {}).get("device_path") or "").strip()
+            or (row or {}).get("has_device_copy")
+        )
+    )
+
+
+def _missing_library_paths(cached, file_set):
+    """Split missing files into deletions and retained device-only videos.
+
+    A missing audio file keeps the established library semantics and is
+    removed.  A video already linked to an iPod is metadata for that device
+    copy, so deleting its laptop source must not erase the Netflix entry on
+    the next scan.
+    """
+    missing = sorted(set(cached) - set(file_set))
+    preserved = [path for path in missing if _is_device_only_video(cached[path])]
+    preserved_set = set(preserved)
+    return [path for path in missing if path not in preserved_set], preserved
 
 
 def _normalize_video_dirs(video_dirs=None, video_dir=None):
@@ -62,6 +119,7 @@ def _empty_scan_report(music_dir):
         "total_files_inserted": 0,
         "total_files_updated": 0,
         "total_files_removed": 0,
+        "total_device_only_videos_preserved": 0,
         "total_files_skipped": 0,
         "total_non_audio_files_ignored": 0,
         "total_non_video_files_ignored": 0,
@@ -362,7 +420,8 @@ class LibraryScanWorker(QObject):
                 return
             cached = db.get_track_file_states()
             file_set = set(files)
-            removed = sorted(set(cached) - file_set)
+            removed, preserved = _missing_library_paths(cached, file_set)
+            report["total_device_only_videos_preserved"] = len(preserved)
             to_read = self._files_requiring_metadata(files, cached)
             to_read_set = set(to_read)
             folder_stats = {
@@ -418,6 +477,9 @@ class LibraryScanWorker(QObject):
                         stats["skipped"] += 1
                         _record_issue(report["skipped_files"], filepath, "missing required fields")
                         continue
+                    track_data = _preserve_verified_video_metadata(
+                        track_data, cached.get(filepath)
+                    )
                     upsert_batch.append((track_data, cached.get(filepath) is None))
                     if info.get("parsed_ok"):
                         report["total_files_successfully_parsed"] += 1
@@ -562,6 +624,25 @@ class LibraryScanWorker(QObject):
                     for value in (title_text, show_title, artist_text, album_text, album_artist_text)
                     if value
                 ):
+                    to_read.append(filepath)
+                    continue
+                # A scene group left as the episode title ("RARBG"), a series
+                # name still carrying a "Seasons 1 to 3" pack label, or a
+                # "Pre-Season 5" folder parsed as a show all mean the stored
+                # row predates the current filename rules.
+                if looks_like_release_group(title_text) or looks_like_release_group(show_title):
+                    to_read.append(filepath)
+                    continue
+                if any(
+                    re.search(r"(?i)\bseasons?\s+\d{1,2}\s*(?:-|to|thru|through)\s*\d{1,2}\b", value)
+                    for value in (title_text, show_title, album_text, album_artist_text)
+                    if value
+                ):
+                    to_read.append(filepath)
+                    continue
+                if looks_like_specials_folder(
+                    os.path.basename(os.path.dirname(filepath))
+                ) and (row.get("season_number") or 0):
                     to_read.append(filepath)
                     continue
                 stem_text = os.path.splitext(os.path.basename(filepath))[0]
@@ -738,7 +819,8 @@ class LibraryScanner(QObject):
         )
         cached = self._db.get_track_file_states()
         file_set = set(files)
-        removed = sorted(set(cached) - file_set)
+        removed, preserved = _missing_library_paths(cached, file_set)
+        report["total_device_only_videos_preserved"] = len(preserved)
         to_read = worker._files_requiring_metadata(files, cached)
         to_read_set = set(to_read)
         folder_stats = {
@@ -777,6 +859,9 @@ class LibraryScanner(QObject):
                             stats["skipped"] += 1
                             _record_issue(report["skipped_files"], filepath, "missing required fields")
                             continue
+                        track_data = _preserve_verified_video_metadata(
+                            track_data, cached.get(filepath)
+                        )
                         self._db.upsert_track(track_data)
                         stats["imported"] += 1
                         if cached.get(filepath) is None:
@@ -794,7 +879,7 @@ class LibraryScanner(QObject):
                         _record_issue(report["skipped_files"], filepath, f"unexpected exception: {e}")
 
                 if force_full:
-                    self._db.delete_tracks_not_in(file_set)
+                    self._db.delete_tracks_not_in(file_set | set(preserved))
         except Exception as e:
             report["status"] = "failed"
             report["failure_reason"] = str(e)

@@ -161,6 +161,8 @@ class VideoRvpTranscoder:
         source_width, source_height, source_duration = self._probe_video_info(
             ffmpeg_bin, source_path
         )
+        if not self._positive_float(row.get("duration")):
+            row["duration"] = self._positive_float(source_duration) or 0.0
         video_width, video_height = self._fit_dimensions(
             source_width,
             source_height,
@@ -248,6 +250,10 @@ class VideoRvpTranscoder:
         self, row: dict, source_path: str, ffmpeg_bin: str, device_key: str
     ):
         media_info = self._probe_mpeg_info(ffmpeg_bin, source_path)
+        if not self._positive_float(row.get("duration")):
+            row["duration"] = (
+                self._positive_float(media_info.get("duration")) or 0.0
+            )
         # Structural codec compatibility is not enough for reliable Rockbox
         # controls. Rebuild even compatible inputs so the program stream has
         # bounded GOPs, predictable timestamps, and seek-friendly packetization.

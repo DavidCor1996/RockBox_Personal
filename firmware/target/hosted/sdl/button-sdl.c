@@ -927,6 +927,12 @@ int button_read_device(void)
         ROCKPOD_SIM_BUTTON_GATE("ROCKPOD_SIM_SCROLL_BACK_GATE",
                                 BUTTON_SCROLL_BACK);
 #endif
+#ifdef BUTTON_LEFT
+        ROCKPOD_SIM_BUTTON_GATE("ROCKPOD_SIM_LEFT_GATE", BUTTON_LEFT);
+#endif
+#ifdef BUTTON_RIGHT
+        ROCKPOD_SIM_BUTTON_GATE("ROCKPOD_SIM_RIGHT_GATE", BUTTON_RIGHT);
+#endif
 #undef ROCKPOD_SIM_BUTTON_GATE
         if (gated_buttons != previous_gated_buttons)
         {

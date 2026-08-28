@@ -62,7 +62,7 @@ def test_manifest_header_and_rows_come_from_one_column_list():
     # cannot drift out of step the way a hand-maintained pair would.
     assert '"\\t".join(self._MANIFEST_COLUMNS)' in body
     assert "for name in self._MANIFEST_COLUMNS" in body
-    assert len(_manifest_columns()) == 23
+    assert len(_manifest_columns()) == 27
 
 
 def test_manifest_appends_show_plot_without_moving_existing_columns():
@@ -76,8 +76,11 @@ def test_manifest_appends_show_plot_without_moving_existing_columns():
         "content_rating", "netflix_poster", "netflix_detail", "show_art_id",
         "season_art_id",
     ]
-    assert columns[22] == "show_plot"
-    assert "# rockpod videolist v6" in (
+    assert columns[22:] == [
+        "show_plot", "intro_start", "intro_end", "credits_start",
+        "credits_duration",
+    ]
+    assert "# rockpod videolist v7" in (
         ROCKPOD / "services/video_thumbnails.py"
     ).read_text()
 
@@ -114,8 +117,113 @@ def test_tracks_table_stores_content_rating_and_show_plot():
     # as a column, so every synced row shipped an empty rating.
     assert "content_rating TEXT DEFAULT ''" in source
     assert "show_plot TEXT DEFAULT ''" in source
-    assert "SCHEMA_VERSION = 13" in source
-    assert "if current_version < 13:" in source
+    assert "SCHEMA_VERSION = 15" in source
+    assert "if current_version < 14:" in source
+
+
+def test_avatar_has_verified_real_artwork_and_exact_episode_markers():
+    import json
+
+    catalog_path = ROCKPOD / "assets/imdb_video_artwork/catalog.json"
+    payload = json.loads(catalog_path.read_text())
+    avatar = next(
+        item for item in payload["titles"]
+        if item.get("imdb_id") == "tt0417299"
+    )
+    poster = catalog_path.parent / avatar["show_art"]
+    assert poster.is_file()
+    assert poster.read_bytes().startswith(b"\xff\xd8\xff")
+    assert avatar["source_image"].startswith("https://")
+    episodes = avatar["episodes"]
+    expected_episodes = {
+        *(f"1x{episode:02d}" for episode in range(1, 21)),
+        *(f"2x{episode:02d}" for episode in range(1, 21)),
+        *(f"3x{episode:02d}" for episode in range(1, 22)),
+    }
+    assert set(episodes) == expected_episodes
+    assert episodes["1x01"]["intro_end"] == 46
+    assert episodes["2x01"]["intro_end"] == 27
+    assert episodes["2x20"]["credits_duration"] == 4
+    assert all(item["intro_start"] < item["intro_end"]
+               for item in episodes.values())
+    assert all(item["credits_duration"] > 0
+               for item in episodes.values())
+
+
+def test_avatar_catalog_metadata_and_episode_markers_reach_sync():
+    from services.video_thumbnails import VideoThumbnailService
+
+    service = VideoThumbnailService.__new__(VideoThumbnailService)
+    from services.imdb_video_artwork import IMDbVideoArtworkCatalog
+    service._imdb_artwork = IMDbVideoArtworkCatalog()
+    episode = {
+        "video_kind": "show",
+        "show_title": "Avatar The Last Airbender 2005 Seasons 1 to 3",
+        "season_number": 1,
+        "episode_number": 1,
+        "duration": 23 * 60,
+    }
+    metadata = service.video_catalog_metadata(episode)
+    markers = service.video_playback_markers(episode)
+
+    assert metadata["imdb_id"] == "tt0417299"
+    assert metadata["show_title"] == "Avatar: The Last Airbender"
+    assert metadata["show_plot"]
+    assert markers == {
+        "intro_start": 2,
+        "intro_end": 46,
+        "credits_start": 23 * 60 - 20,
+        "credits_duration": 20,
+    }
+
+    no_duration = dict(episode, duration=0)
+    assert service.video_playback_markers(no_duration)["credits_duration"] == 20
+    assert service.video_playback_markers(no_duration)["credits_start"] == 0
+
+    finale = dict(episode, season_number=2, episode_number=20)
+    assert service.video_playback_markers(finale)["credits_duration"] == 4
+
+    extra = dict(episode, season_number=0)
+    assert service.video_playback_markers(extra) == {
+        "intro_start": 0,
+        "intro_end": 0,
+        "credits_start": 0,
+        "credits_duration": 0,
+    }
+
+
+def test_unmarked_video_never_receives_a_timing_guess():
+    from services.video_thumbnails import VideoThumbnailService
+    from services.imdb_video_artwork import IMDbVideoArtworkCatalog
+
+    service = VideoThumbnailService.__new__(VideoThumbnailService)
+    service._imdb_artwork = IMDbVideoArtworkCatalog()
+    markers = service.video_playback_markers({
+        "video_kind": "movie",
+        "title": "An Uncatalogued Movie",
+        "duration": 7200,
+    })
+    assert markers == {
+        "intro_start": 0,
+        "intro_end": 0,
+        "credits_start": 0,
+        "credits_duration": 0,
+    }
+
+
+def test_skip_buttons_do_not_bypass_the_netflix_launch_logo():
+    mpeg = (ROOT / "apps/plugins/mpegplayer/mpegplayer.c").read_text()
+    raw = (ROOT / "apps/plugins/openh264_player.c").read_text()
+
+    # Both players retain their pre-playback Netflix ident paths. Episode
+    # markers are loaded separately and only become active once stream time or
+    # decoded-frame position enters an intro/credits range.
+    assert "stream_init(play_netflix_intro)" in mpeg
+    assert "mpeg_netflix_load_markers(videofile);" in mpeg
+    assert "netflix_intro_run(raw_pool, raw_pool_size);" in raw
+    assert "raw_netflix_load_markers(path" in raw
+    assert '"SKIP INTRO"' in mpeg and '"SKIP CREDITS"' in mpeg
+    assert '"SKIP INTRO"' in raw and '"SKIP CREDITS"' in raw
 
 
 def test_show_level_match_writes_a_description_to_every_episode():

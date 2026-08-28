@@ -2036,6 +2036,55 @@ void livetv_clear_overlay(void)
 #define LIVETV_BTN_FWD12    (BUTTON_RIGHT | BUTTON_REPEAT)
 #endif
 
+/* mpegplayer reads raw plugin buttons, so the normal action/keymap layer does
+ * not translate 30-pin iAP remote events for this modal guide.  Normalize the
+ * standard remote buttons here and retain the clickwheel mapping above.  A
+ * remote Play press selects immediately (matching Rockbox's standard iPod
+ * remote keymap); its later release is consumed so it cannot tune twice. */
+static int livetv_remote_button(int button)
+{
+#ifdef BUTTON_RC_PLAY
+    int base = button & ~(BUTTON_REPEAT | BUTTON_REL);
+    bool repeat = (button & BUTTON_REPEAT) != 0;
+    bool release = (button & BUTTON_REL) != 0;
+
+    switch (base)
+    {
+    case BUTTON_RC_UP:
+        if (release)
+            return BUTTON_NONE;
+        return LIVETV_BTN_UP | (repeat ? BUTTON_REPEAT : 0);
+    case BUTTON_RC_DOWN:
+        if (release)
+            return BUTTON_NONE;
+        return LIVETV_BTN_DOWN | (repeat ? BUTTON_REPEAT : 0);
+    case BUTTON_RC_LEFT:
+        if (release)
+            return BUTTON_NONE;
+        return LIVETV_BTN_LEFT;
+    case BUTTON_RC_RIGHT:
+        if (release)
+            return BUTTON_NONE;
+        return LIVETV_BTN_RIGHT;
+    case BUTTON_RC_PLAY:
+    case BUTTON_RC_SELECT:
+        return (repeat || release) ? BUTTON_NONE : LIVETV_BTN_SELECT;
+    case BUTTON_RC_MENU:
+    case BUTTON_RC_STOP:
+#ifdef LIVETV_BTN_EXIT_REL
+        return release ? LIVETV_BTN_EXIT_REL : LIVETV_BTN_EXIT;
+#else
+        return release ? BUTTON_NONE : LIVETV_BTN_EXIT;
+#endif
+    default:
+        break;
+    }
+#else
+    (void)button;
+#endif
+    return button;
+}
+
 static void livetv_parental_draw_pin(const char *pin, int digit)
 {
     char masked[5];
@@ -2115,7 +2164,7 @@ static bool livetv_parental_prompt_pin(char *pin, size_t size)
         size_t length;
 
         livetv_parental_draw_pin(pin, digit);
-        button = mpeg_button_get(TIMEOUT_BLOCK);
+        button = livetv_remote_button(mpeg_button_get(TIMEOUT_BLOCK));
         if (mpeg_sysevent() != 0)
         {
             mpegplayer_livetv_pin_active = false;
@@ -2229,7 +2278,7 @@ static int livetv_options_run(void)
 
     while (!done)
     {
-        int button = mpeg_button_get(HZ / 4);
+        int button = livetv_remote_button(mpeg_button_get(HZ / 4));
 
         if (mpeg_sysevent() != 0)
             return -1;
@@ -2381,7 +2430,7 @@ static void livetv_reminder_run(void)
     livetv_reminder_draw(slot, chan, selected);
     while (!done)
     {
-        int button = mpeg_button_get(HZ / 4);
+        int button = livetv_remote_button(mpeg_button_get(HZ / 4));
 
         if (mpeg_sysevent() != 0)
             return;
@@ -2446,7 +2495,7 @@ int livetv_guide_run(void)
 
     while (!done)
     {
-        int button = mpeg_button_get(HZ / 4);
+        int button = livetv_remote_button(mpeg_button_get(HZ / 4));
 
         if (mpeg_sysevent() != 0)
             return LIVETV_GUIDE_EXIT;

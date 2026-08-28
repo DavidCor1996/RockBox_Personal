@@ -38,15 +38,16 @@ static bool hold_exit_requested(void)
     return false;
 }
 
+#ifdef SIMULATOR
 static void set_joy(unsigned id)
 {
     joypad |= 1u << id;
 }
+#endif
 
-#ifdef HAVE_WHEEL_POSITION
-static uint16_t wheel_direction(void)
+#if defined(HAVE_WHEEL_POSITION) || defined(IPOD_6G)
+static uint16_t wheel_direction_for_position(int position)
 {
-    int position = rb->wheel_status();
     int zone;
 
     if (position < 0)
@@ -70,8 +71,9 @@ static uint16_t wheel_direction(void)
 }
 #endif
 
-static void map_profile_buttons(int held, bool start_combo, bool select_combo,
-                                bool shoulder_left, bool shoulder_right)
+static uint16_t map_profile_buttons(unsigned profile, int held,
+                                    bool start_combo, bool select_combo,
+                                    bool shoulder_left, bool shoulder_right)
 {
     static const unsigned mappings[][4] = {
         /* Centre, Play, Previous, Next */
@@ -88,56 +90,50 @@ static void map_profile_buttons(int held, bool start_combo, bool select_combo,
         { RETRO_DEVICE_ID_JOYPAD_B, RETRO_DEVICE_ID_JOYPAD_A,
           RETRO_DEVICE_ID_JOYPAD_Y, RETRO_DEVICE_ID_JOYPAD_X },
     };
-    unsigned profile = snes_lite.config.input_profile;
+    uint16_t state = 0;
 
     if (profile >= ARRAYLEN(mappings))
         profile = SNES_INPUT_PLATFORMER;
 #ifdef BUTTON_SELECT
     if ((held & BUTTON_SELECT) && !start_combo &&
         !shoulder_left && !shoulder_right)
-        set_joy(mappings[profile][0]);
+        state |= 1u << mappings[profile][0];
 #endif
 #ifdef BUTTON_PLAY
     if ((held & BUTTON_PLAY) && !select_combo &&
         !shoulder_left && !shoulder_right)
-        set_joy(mappings[profile][1]);
+        state |= 1u << mappings[profile][1];
 #endif
 #ifdef BUTTON_LEFT
     if ((held & BUTTON_LEFT) && !shoulder_left)
-        set_joy(mappings[profile][2]);
+        state |= 1u << mappings[profile][2];
 #endif
 #ifdef BUTTON_RIGHT
     if ((held & BUTTON_RIGHT) && !shoulder_right)
-        set_joy(mappings[profile][3]);
+        state |= 1u << mappings[profile][3];
 #endif
+    return state;
 }
 
-void snes_lite_input_poll(void)
+static uint16_t map_held_state(unsigned profile, int held, int wheel_position)
 {
-    int held = rb->button_status();
-    int event = rb->button_get(false);
     bool start_combo = false;
     bool select_combo = false;
     bool shoulder_left = false;
     bool shoulder_right = false;
+    uint16_t state = 0;
 
-    joypad = 0;
-    if (hold_exit_requested())
-    {
-        snes_lite_log("exit requested by hold switch");
-        snes_lite.quit_requested = true;
-        return;
-    }
-#ifdef HAVE_WHEEL_POSITION
-    joypad |= wheel_direction();
+#if defined(HAVE_WHEEL_POSITION) || defined(IPOD_6G)
+    state |= wheel_direction_for_position(wheel_position);
 #else
+    (void)wheel_position;
 #ifdef BUTTON_UP
     if (held & BUTTON_UP)
-        set_joy(RETRO_DEVICE_ID_JOYPAD_UP);
+        state |= 1u << RETRO_DEVICE_ID_JOYPAD_UP;
 #endif
 #ifdef BUTTON_DOWN
     if (held & BUTTON_DOWN)
-        set_joy(RETRO_DEVICE_ID_JOYPAD_DOWN);
+        state |= 1u << RETRO_DEVICE_ID_JOYPAD_DOWN;
 #endif
 #endif
 #if defined(BUTTON_MENU) && defined(BUTTON_SELECT)
@@ -156,9 +152,96 @@ void snes_lite_input_poll(void)
     shoulder_right = (held & (BUTTON_MENU | BUTTON_RIGHT)) ==
                      (BUTTON_MENU | BUTTON_RIGHT);
 #endif
+    state |= map_profile_buttons(profile, held, start_combo, select_combo,
+                                 shoulder_left, shoulder_right);
+    if (start_combo)
+        state |= 1u << RETRO_DEVICE_ID_JOYPAD_START;
+    if (select_combo)
+        state |= 1u << RETRO_DEVICE_ID_JOYPAD_SELECT;
+    if (shoulder_left)
+        state |= 1u << RETRO_DEVICE_ID_JOYPAD_L;
+    if (shoulder_right)
+        state |= 1u << RETRO_DEVICE_ID_JOYPAD_R;
+    return state;
+}
 
-    map_profile_buttons(held, start_combo, select_combo,
-                        shoulder_left, shoulder_right);
+bool snes_lite_input_selftest(unsigned *coverage)
+{
+    uint16_t seen = 0;
+    bool passed = true;
+
+#if (defined(HAVE_WHEEL_POSITION) || defined(IPOD_6G)) && \
+    defined(BUTTON_SELECT) && \
+    defined(BUTTON_PLAY) && defined(BUTTON_LEFT) && \
+    defined(BUTTON_RIGHT) && defined(BUTTON_MENU)
+    static const struct {
+        int held;
+        int wheel_position;
+        uint16_t expected;
+    } tests[] = {
+        { BUTTON_SELECT, -1, 1u << RETRO_DEVICE_ID_JOYPAD_B },
+        { BUTTON_PLAY, -1, 1u << RETRO_DEVICE_ID_JOYPAD_A },
+        { BUTTON_LEFT, -1, 1u << RETRO_DEVICE_ID_JOYPAD_Y },
+        { BUTTON_RIGHT, -1, 1u << RETRO_DEVICE_ID_JOYPAD_X },
+        { BUTTON_MENU | BUTTON_SELECT, -1,
+          1u << RETRO_DEVICE_ID_JOYPAD_START },
+        { BUTTON_MENU | BUTTON_PLAY, -1,
+          1u << RETRO_DEVICE_ID_JOYPAD_SELECT },
+        { BUTTON_MENU | BUTTON_LEFT, -1,
+          1u << RETRO_DEVICE_ID_JOYPAD_L },
+        { BUTTON_MENU | BUTTON_RIGHT, -1,
+          1u << RETRO_DEVICE_ID_JOYPAD_R },
+        { 0, 0, 1u << RETRO_DEVICE_ID_JOYPAD_UP },
+        { 0, 12, (1u << RETRO_DEVICE_ID_JOYPAD_UP) |
+                 (1u << RETRO_DEVICE_ID_JOYPAD_RIGHT) },
+        { 0, 24, 1u << RETRO_DEVICE_ID_JOYPAD_RIGHT },
+        { 0, 36, (1u << RETRO_DEVICE_ID_JOYPAD_RIGHT) |
+                 (1u << RETRO_DEVICE_ID_JOYPAD_DOWN) },
+        { 0, 48, 1u << RETRO_DEVICE_ID_JOYPAD_DOWN },
+        { 0, 60, (1u << RETRO_DEVICE_ID_JOYPAD_DOWN) |
+                 (1u << RETRO_DEVICE_ID_JOYPAD_LEFT) },
+        { 0, 72, 1u << RETRO_DEVICE_ID_JOYPAD_LEFT },
+        { 0, 84, (1u << RETRO_DEVICE_ID_JOYPAD_LEFT) |
+                 (1u << RETRO_DEVICE_ID_JOYPAD_UP) },
+    };
+    unsigned i;
+
+    for (i = 0; i < ARRAYLEN(tests); ++i)
+    {
+        uint16_t actual = map_held_state(SNES_INPUT_ACTION,
+                                         tests[i].held,
+                                         tests[i].wheel_position);
+        seen |= actual;
+        if (actual != tests[i].expected)
+            passed = false;
+    }
+    if (seen != 0x0fff)
+        passed = false;
+#else
+    passed = false;
+#endif
+    if (coverage)
+        *coverage = seen;
+    return passed;
+}
+
+void snes_lite_input_poll(void)
+{
+    int held = rb->button_status();
+    int event = rb->button_get(false);
+    int wheel_position = -1;
+
+    if (hold_exit_requested())
+    {
+        snes_lite_log("exit requested by hold switch");
+        snes_lite.quit_requested = true;
+        return;
+    }
+#ifdef HAVE_WHEEL_POSITION
+    wheel_position = rb->wheel_status();
+#endif
+    joypad = map_held_state(snes_lite.config.input_profile, held,
+                            wheel_position);
 #ifdef SIMULATOR
     if (getenv("SNES_LITE_TEST_AUTOPLAY") &&
         snes_lite.profile_frames % 60 < 3)
@@ -169,20 +252,11 @@ void snes_lite_input_poll(void)
             set_joy(RETRO_DEVICE_ID_JOYPAD_START);
     }
 #endif
-    if (start_combo)
-        set_joy(RETRO_DEVICE_ID_JOYPAD_START);
-    if (select_combo)
-        set_joy(RETRO_DEVICE_ID_JOYPAD_SELECT);
-    if (shoulder_left)
-        set_joy(RETRO_DEVICE_ID_JOYPAD_L);
-    if (shoulder_right)
-        set_joy(RETRO_DEVICE_ID_JOYPAD_R);
-
     if ((event & BUTTON_REPEAT) != 0)
     {
 #ifdef BUTTON_MENU
-        if ((event & BUTTON_MENU) != 0 && !start_combo && !select_combo &&
-            !shoulder_left && !shoulder_right)
+        if ((event & BUTTON_MENU) != 0 &&
+            (held & ~BUTTON_MENU) == 0)
             snes_lite.menu_requested = true;
 #endif
     }

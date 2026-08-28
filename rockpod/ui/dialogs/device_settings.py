@@ -359,6 +359,17 @@ class DeviceSettingsDialog(QDialog):
             self._show_applications,
             "Extras always contains Maps and Weather.",
         )
+        self._show_onlyfans = QCheckBox(
+            "Show OnlyFans in Extras → Applications"
+        )
+        self._show_onlyfans.setChecked(
+            bool(self._config.get("onlyfans_show_on_ipod", True))
+        )
+        self._add_checkbox_row(
+            app_layout,
+            self._show_onlyfans,
+            "Turn this off to hide the OnlyFans application on the iPod.",
+        )
         options_layout.addWidget(app_group)
 
         weather_group = QGroupBox("Weather")
@@ -585,6 +596,7 @@ class DeviceSettingsDialog(QDialog):
             )
         )
         self._show_applications.setChecked(bool(self._config.get("rockbox_show_applications_menu", False)))
+        self._show_onlyfans.setChecked(bool(self._config.get("onlyfans_show_on_ipod", True)))
         self._weather_enabled.setChecked(bool(self._config.get("weather_enabled", True)))
         self._weather_location.setText(str(self._config.get("weather_location_name", "Moncton, NB") or ""))
         self._weather_latitude.setValue(float(self._config.get("weather_latitude", 46.0878) or 46.0878))
@@ -673,6 +685,7 @@ class DeviceSettingsDialog(QDialog):
                 0: "clock", 1: "avatar", 2: "sitekick",
             }.get(self._rockbox_ui_extras_pane.currentIndex(), "clock"),
             "rockbox_show_applications_menu": self._show_applications.isChecked(),
+            "onlyfans_show_on_ipod": self._show_onlyfans.isChecked(),
             "weather_enabled": self._weather_enabled.isChecked(),
             "weather_location_name": self._weather_location.text().strip() or "Moncton, NB",
             "weather_latitude": float(self._weather_latitude.value()),

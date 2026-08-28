@@ -104,10 +104,10 @@
 #elif defined(__IOS__)
     #define USE_DIV_TABLE
 
-    /* iPod touch uses the same compact software renderer as Rockbox. */
+    /* Match the native compact title asset and reduce iPod touch 4G fill. */
     #define MODE13
-    #define FRAME_WIDTH  320
-    #define FRAME_HEIGHT 240
+    #define FRAME_WIDTH  240
+    #define FRAME_HEIGHT 160
 
     #define USE_FMT     (LVL_FMT_PKD)
 

@@ -86,6 +86,12 @@
 #ifdef HAVE_LCD_COLOR
 int mpegplayer_yuv_overlay_height(void);
 int mpegplayer_yuv_overlay_y(void);
+int mpegplayer_yuv_overlay_offset(void);
+int mpegplayer_yuv_overlay_resistance_offset(void);
+int mpegplayer_yuv_overlay_transition_direction(void);
+bool mpegplayer_yuv_overlay_transition_active(void);
+bool mpegplayer_yuv_overlay_capture_pending(void);
+bool mpegplayer_instagram_inline_rect(struct vo_rect *rect);
 void mpegplayer_yuv_overlay_draw(uint8_t * const *planes,
                                  int width, int height);
 #endif

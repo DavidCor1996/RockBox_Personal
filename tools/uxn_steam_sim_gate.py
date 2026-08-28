@@ -133,9 +133,11 @@ def run(build: Path, output: Path) -> None:
                 )
                 if len(console_row) <= 11 or console_row[11] != "2":
                     raise SystemExit("Steam console list does not expose Uxn")
-                if console_row[9] != "1":
-                    raise SystemExit("Steam console list did not select Uxn")
+                if console_row[9] != "0":
+                    raise SystemExit("Steam console list did not select All Games")
                 shutil.copy2(frame, output / "console-frame.bmp")
+                sequence = last_sequence(trace)
+                pulse(gate_paths["forward"])
                 sequence = last_sequence(trace)
                 pulse(gate_paths["select"])
                 library_sequence = wait_for_screen(

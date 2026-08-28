@@ -67,6 +67,20 @@ def test_netflix_browser_marks_video_launch_parameters():
     assert '41, "RESUME", true' in source
 
 
+def test_netflix_season_paths_support_colons_in_show_titles():
+    source = (ROOT / "apps/root_menu.c").read_text()
+    season_browser = source.split(
+        'strncmp(state->current_path, "virtual:season:", 15) == 0', 1
+    )[1].split("static void videos_scan_folder", 1)[0]
+    show_plot = source.split("video_netflix_load_show_plot", 1)[1].split(
+        "static bool video_netflix_resume_progress", 1
+    )[0]
+
+    assert "strrchr(show_buf, ':')" in season_browser
+    assert "strchr(show_buf, ':')" not in season_browser
+    assert "strrchr(show_buf, ':')" in show_plot
+
+
 def test_netflix_detail_offers_resume_or_play_from_beginning():
     root_menu = (ROOT / "apps/root_menu.c").read_text()
     player = (

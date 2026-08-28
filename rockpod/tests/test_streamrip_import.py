@@ -2,8 +2,12 @@ import os
 
 import pytest
 
+from tomlkit import parse
+
 from services.streamrip_import import (
     StreamripImportError,
+    _align_streamrip_config,
+    patch_streamrip_tidal_lyrics,
     StreamripImporter,
     build_streamrip_command,
     discover_imported_audio_files,
@@ -260,3 +264,95 @@ def test_ensure_streamrip_config_sets_rockpod_album_defaults(config):
     assert 'embed = true' in text
     assert 'folder_format = "{albumartist} - {title} ({year})"' in text
     assert 'track_format = "{tracknumber:02}. {title}"' in text
+
+
+_SCHEMA_2_0_6 = """[deezer]
+arl = ""
+quality = 2
+
+[tidal]
+quality = 3
+access_token = ""
+
+[misc]
+version = "2.0.6"
+"""
+
+_SCHEMA_2_2_0 = """[deezer]
+arl = ""
+quality = 2
+lower_quality_if_not_available = false
+
+[tidal]
+quality = 3
+access_token = ""
+
+[misc]
+version = "2.2.0"
+"""
+
+
+def test_align_streamrip_config_drops_settings_the_installed_version_lacks():
+    data = parse(_SCHEMA_2_2_0)
+    data["tidal"]["access_token"] = "saved-token"
+
+    _align_streamrip_config(data, parse(_SCHEMA_2_0_6))
+
+    assert "lower_quality_if_not_available" not in data["deezer"]
+    assert data["misc"]["version"] == "2.0.6"
+    assert data["tidal"]["access_token"] == "saved-token"
+
+
+def test_align_streamrip_config_adds_settings_a_newer_version_expects():
+    data = parse(_SCHEMA_2_0_6)
+    data["tidal"]["access_token"] = "saved-token"
+
+    _align_streamrip_config(data, parse(_SCHEMA_2_2_0))
+
+    assert data["deezer"]["lower_quality_if_not_available"] is False
+    assert data["misc"]["version"] == "2.2.0"
+    assert data["tidal"]["access_token"] == "saved-token"
+
+
+def test_align_streamrip_config_reports_a_missing_section():
+    data = parse(_SCHEMA_2_0_6)
+    del data["deezer"]
+
+    with pytest.raises(StreamripImportError) as excinfo:
+        _align_streamrip_config(data, parse(_SCHEMA_2_0_6))
+
+    assert "deezer" in str(excinfo.value)
+
+
+def test_align_streamrip_config_reports_unexpected_settings():
+    data = parse(_SCHEMA_2_0_6)
+    data["tidal"]["mystery_setting"] = 1
+
+    with pytest.raises(StreamripImportError) as excinfo:
+        _align_streamrip_config(data, parse(_SCHEMA_2_0_6))
+
+    assert "tidal.mystery_setting" in str(excinfo.value)
+
+
+_TIDAL_LYRICS_CALL = """                resp = await self._api_request(
+                    f"tracks/{item_id!s}/lyrics", base="https://listen.tidal.com/v1"
+                )
+"""
+
+
+def test_patch_streamrip_tidal_lyrics_removes_the_redirecting_host():
+    patched = patch_streamrip_tidal_lyrics(_TIDAL_LYRICS_CALL)
+
+    assert 'base="https://tidal.com/v1"' in patched
+    assert "listen.tidal.com" not in patched
+
+
+def test_patch_streamrip_tidal_lyrics_leaves_a_patched_copy_alone():
+    patched = patch_streamrip_tidal_lyrics(_TIDAL_LYRICS_CALL)
+
+    assert patch_streamrip_tidal_lyrics(patched) is None
+
+
+def test_patch_streamrip_tidal_lyrics_reports_an_unknown_request():
+    with pytest.raises(StreamripImportError):
+        patch_streamrip_tidal_lyrics('resp = await self._api_request("tracks/1/lyrics")')

@@ -163,6 +163,11 @@ static bool svid_layer_xrgb;
 static bool svid_layer_planar;
 static bool svid_mirror_enabled;
 static bool svid_bus_boosted;
+/* 96 bytes total.  These target-owned tables replace three software
+ * divisions per mirrored pixel without taking core or playback memory. */
+static uint8_t svid_rgb5_to_8[32];
+static uint8_t svid_rgb6_to_8[64];
+static bool svid_rgb_expansion_ready;
 static uint32_t svid_output_framebuffer[SVID_NTSC_ACTIVE_HEIGHT]
                                        [SVID_NTSC_ACTIVE_WIDTH]
                                        CACHEALIGN_ATTR;
@@ -498,29 +503,36 @@ static void svid_copy_framebuffer_xrgb(const uint16_t *source,
                         sizeof(svid_output_framebuffer));
 }
 
-static uint8_t svid_clamp_byte(int value)
+static void svid_init_rgb_expansion(void)
 {
-    if (value < 0)
-        return 0;
-    if (value > 255)
-        return 255;
-    return value;
+    if (svid_rgb_expansion_ready)
+        return;
+
+    for (unsigned value = 0; value < ARRAYLEN(svid_rgb5_to_8); value++)
+        svid_rgb5_to_8[value] = value * 255 / 31;
+
+    for (unsigned value = 0; value < ARRAYLEN(svid_rgb6_to_8); value++)
+        svid_rgb6_to_8[value] = value * 255 / 63;
+
+    svid_rgb_expansion_ready = true;
 }
 
-static void svid_rgb565_to_ycbcr(uint16_t pixel, uint8_t *y,
-                                 uint8_t *cb, uint8_t *cr)
+static uint32_t svid_rgb565_to_ycbcr(uint16_t pixel)
 {
-    int red = ((pixel >> 11) & 0x1f) * 255 / 31;
-    int green = ((pixel >> 5) & 0x3f) * 255 / 63;
-    int blue = (pixel & 0x1f) * 255 / 31;
+    int red = svid_rgb5_to_8[(pixel >> 11) & 0x1f];
+    int green = svid_rgb6_to_8[(pixel >> 5) & 0x3f];
+    int blue = svid_rgb5_to_8[pixel & 0x1f];
+    int y;
+    int cb;
+    int cr;
 
     /* ITU-R BT.601 limited-range values, matching the SD mixer. */
-    *y = svid_clamp_byte(((66 * red + 129 * green + 25 * blue + 128) >> 8)
-                         + 16);
-    *cb = svid_clamp_byte(((-38 * red - 74 * green + 112 * blue + 128)
-                           >> 8) + 128);
-    *cr = svid_clamp_byte(((112 * red - 94 * green - 18 * blue + 128)
-                           >> 8) + 128);
+    /* The exhaustive color gate proves these limited-range expressions stay
+     * inside byte range for all 65,536 RGB565 inputs. */
+    y = ((66 * red + 129 * green + 25 * blue + 128) >> 8) + 16;
+    cb = ((-38 * red - 74 * green + 112 * blue + 128) >> 8) + 128;
+    cr = ((112 * red - 94 * green - 18 * blue + 128) >> 8) + 128;
+    return (uint32_t)y | ((uint32_t)cb << 8) | ((uint32_t)cr << 16);
 }
 
 static void svid_copy_framebuffer_planar(const uint16_t *source,
@@ -534,51 +546,36 @@ static void svid_copy_framebuffer_planar(const uint16_t *source,
     memset(cb, 128, SVID_PLANAR_C_SIZE);
     memset(cr, 128, SVID_PLANAR_C_SIZE);
 
-    for (int y = 0; y < height; y++)
-    {
-        uint8_t *luma0 = luma + y * SVID_PLANAR_Y_WIDTH;
-
-        for (int x = 0; x < width; x++)
-        {
-            uint8_t pixel_y;
-            uint8_t pixel_cb;
-            uint8_t pixel_cr;
-
-            svid_rgb565_to_ycbcr(source[y * width + x],
-                                 &pixel_y, &pixel_cb, &pixel_cr);
-            luma0[x] = pixel_y;
-        }
-    }
-
     for (int y = 0; y < height; y += 2)
     {
+        uint8_t *luma0 = luma + y * SVID_PLANAR_Y_WIDTH;
         uint8_t *cb0 = cb + (y / 2) * SVID_PLANAR_C_WIDTH;
         uint8_t *cr0 = cr + (y / 2) * SVID_PLANAR_C_WIDTH;
         int y1 = MIN(y + 1, height - 1);
+        uint8_t *luma1 = luma + y1 * SVID_PLANAR_Y_WIDTH;
+        const uint16_t *source0 = source + y * width;
+        const uint16_t *source1 = source + y1 * width;
 
         for (int x = 0; x < width; x += 2)
         {
-            uint8_t unused_y;
-            uint8_t cb00;
-            uint8_t cr00;
-            uint8_t cb01;
-            uint8_t cr01;
-            uint8_t cb10;
-            uint8_t cr10;
-            uint8_t cb11;
-            uint8_t cr11;
             int x1 = MIN(x + 1, width - 1);
+            uint32_t pixel00 = svid_rgb565_to_ycbcr(source0[x]);
+            uint32_t pixel01 = svid_rgb565_to_ycbcr(source0[x1]);
+            uint32_t pixel10 = svid_rgb565_to_ycbcr(source1[x]);
+            uint32_t pixel11 = svid_rgb565_to_ycbcr(source1[x1]);
 
-            svid_rgb565_to_ycbcr(source[y * width + x],
-                                 &unused_y, &cb00, &cr00);
-            svid_rgb565_to_ycbcr(source[y * width + x1],
-                                 &unused_y, &cb01, &cr01);
-            svid_rgb565_to_ycbcr(source[y1 * width + x],
-                                 &unused_y, &cb10, &cr10);
-            svid_rgb565_to_ycbcr(source[y1 * width + x1],
-                                 &unused_y, &cb11, &cr11);
-            cb0[x / 2] = (cb00 + cb01 + cb10 + cb11 + 2) / 4;
-            cr0[x / 2] = (cr00 + cr01 + cr10 + cr11 + 2) / 4;
+            luma0[x] = pixel00;
+            luma0[x1] = pixel01;
+            luma1[x] = pixel10;
+            luma1[x1] = pixel11;
+            cb0[x / 2] = (((pixel00 >> 8) & 0xff) +
+                           ((pixel01 >> 8) & 0xff) +
+                           ((pixel10 >> 8) & 0xff) +
+                           ((pixel11 >> 8) & 0xff) + 2) >> 2;
+            cr0[x / 2] = (((pixel00 >> 16) & 0xff) +
+                           ((pixel01 >> 16) & 0xff) +
+                           ((pixel10 >> 16) & 0xff) +
+                           ((pixel11 >> 16) & 0xff) + 2) >> 2;
         }
     }
 
@@ -651,13 +648,9 @@ static void svid_make_planar_grid(void)
         for (unsigned x = 0; x < LCD_WIDTH; x++)
         {
             uint16_t pixel = svid_grid_pixel(x, y);
-            uint8_t pixel_y;
-            uint8_t pixel_cb;
-            uint8_t pixel_cr;
+            uint32_t pixel_ycbcr = svid_rgb565_to_ycbcr(pixel);
 
-            svid_rgb565_to_ycbcr(pixel, &pixel_y, &pixel_cb, &pixel_cr);
-
-            luma[y * SVID_PLANAR_Y_WIDTH + x] = pixel_y;
+            luma[y * SVID_PLANAR_Y_WIDTH + x] = pixel_ycbcr;
         }
     }
 
@@ -665,28 +658,20 @@ static void svid_make_planar_grid(void)
     {
         for (unsigned x = 0; x < LCD_WIDTH; x += 2)
         {
-            uint8_t unused_y;
-            uint8_t cb00;
-            uint8_t cr00;
-            uint8_t cb01;
-            uint8_t cr01;
-            uint8_t cb10;
-            uint8_t cr10;
-            uint8_t cb11;
-            uint8_t cr11;
+            uint32_t pixel00 = svid_rgb565_to_ycbcr(svid_grid_pixel(x, y));
+            uint32_t pixel01 = svid_rgb565_to_ycbcr(
+                svid_grid_pixel(x + 1, y));
+            uint32_t pixel10 = svid_rgb565_to_ycbcr(
+                svid_grid_pixel(x, y + 1));
+            uint32_t pixel11 = svid_rgb565_to_ycbcr(
+                svid_grid_pixel(x + 1, y + 1));
 
-            svid_rgb565_to_ycbcr(svid_grid_pixel(x, y), &unused_y,
-                                 &cb00, &cr00);
-            svid_rgb565_to_ycbcr(svid_grid_pixel(x + 1, y), &unused_y,
-                                 &cb01, &cr01);
-            svid_rgb565_to_ycbcr(svid_grid_pixel(x, y + 1), &unused_y,
-                                 &cb10, &cr10);
-            svid_rgb565_to_ycbcr(svid_grid_pixel(x + 1, y + 1), &unused_y,
-                                 &cb11, &cr11);
             cb[(y / 2) * SVID_PLANAR_C_WIDTH + x / 2] =
-                (cb00 + cb01 + cb10 + cb11 + 2) / 4;
+                (((pixel00 >> 8) & 0xff) + ((pixel01 >> 8) & 0xff) +
+                 ((pixel10 >> 8) & 0xff) + ((pixel11 >> 8) & 0xff) + 2) >> 2;
             cr[(y / 2) * SVID_PLANAR_C_WIDTH + x / 2] =
-                (cr00 + cr01 + cr10 + cr11 + 2) / 4;
+                (((pixel00 >> 16) & 0xff) + ((pixel01 >> 16) & 0xff) +
+                 ((pixel10 >> 16) & 0xff) + ((pixel11 >> 16) & 0xff) + 2) >> 2;
         }
     }
 
@@ -695,6 +680,8 @@ static void svid_make_planar_grid(void)
 
 bool ipod6g_videoout_enable_sync(void)
 {
+    svid_init_rgb_expansion();
+
     if (svid_active)
         return true;
 
@@ -1143,12 +1130,144 @@ bool ipod6g_videoout_lcd_clock_required(void)
     return svid_platform_saved;
 }
 
+static void svid_commit_planar_rect(int x, int y, int width, int height)
+{
+    uint8_t *luma = (uint8_t *)svid_output_framebuffer;
+    uint8_t *cb = luma + SVID_PLANAR_Y_SIZE;
+    uint8_t *cr = cb + SVID_PLANAR_C_SIZE;
+    int first_chroma_column = x / 2;
+    int last_chroma_column = (x + width - 1) / 2;
+    int first_chroma_row = y / 2;
+    int last_chroma_row = (y + height - 1) / 2;
+    unsigned luma_span = (height - 1) * SVID_PLANAR_Y_WIDTH + width;
+    unsigned chroma_width = last_chroma_column - first_chroma_column + 1;
+    unsigned chroma_span =
+        (last_chroma_row - first_chroma_row) * SVID_PLANAR_C_WIDTH +
+        chroma_width;
+
+    /* One clean per touched plane replaces a clean/barrier for every row.
+     * The spans include untouched bytes between partial rows but never leave
+     * the fixed output buffer. */
+    commit_dcache_range(luma + y * SVID_PLANAR_Y_WIDTH + x, luma_span);
+    commit_dcache_range(cb + first_chroma_row * SVID_PLANAR_C_WIDTH +
+                        first_chroma_column, chroma_span);
+    commit_dcache_range(cr + first_chroma_row * SVID_PLANAR_C_WIDTH +
+                        first_chroma_column, chroma_span);
+}
+
+static void svid_copy_yuv_plane(uint8_t *destination,
+                                unsigned destination_stride,
+                                const uint8_t *source,
+                                unsigned source_stride,
+                                unsigned width, unsigned height)
+{
+    if (width == destination_stride && width == source_stride)
+    {
+        memcpy(destination, source, width * height);
+        return;
+    }
+
+    while (height-- > 0)
+    {
+        memcpy(destination, source, width);
+        destination += destination_stride;
+        source += source_stride;
+    }
+}
+
+bool ipod6g_videoout_mirror_yuv420(const unsigned char *source_luma,
+                                   const unsigned char *source_cb,
+                                   const unsigned char *source_cr,
+                                   int source_x, int source_y,
+                                   int source_stride,
+                                   int x, int y, int width, int height)
+{
+    uint8_t *luma = (uint8_t *)svid_output_framebuffer;
+    uint8_t *cb = luma + SVID_PLANAR_Y_SIZE;
+    uint8_t *cr = cb + SVID_PLANAR_C_SIZE;
+
+    if (!ipod6g_videoout_active() || !svid_mirror_enabled ||
+        !svid_layer_planar || source_luma == NULL || source_cb == NULL ||
+        source_cr == NULL || source_x < 0 || source_y < 0 ||
+        source_stride < width || x < 0 || y < 0 || width <= 0 ||
+        height <= 0 || x + width > LCD_WIDTH || y + height > LCD_HEIGHT ||
+        source_x + width > source_stride ||
+        ((source_x | source_y | source_stride | x | y | width | height) & 1))
+        return false;
+
+    source_luma += source_y * source_stride + source_x;
+    source_cb += (source_y / 2) * (source_stride / 2) + source_x / 2;
+    source_cr += (source_y / 2) * (source_stride / 2) + source_x / 2;
+
+    svid_copy_yuv_plane(luma + y * SVID_PLANAR_Y_WIDTH + x,
+                        SVID_PLANAR_Y_WIDTH, source_luma, source_stride,
+                        width, height);
+    svid_copy_yuv_plane(cb + (y / 2) * SVID_PLANAR_C_WIDTH + x / 2,
+                        SVID_PLANAR_C_WIDTH, source_cb, source_stride / 2,
+                        width / 2, height / 2);
+    svid_copy_yuv_plane(cr + (y / 2) * SVID_PLANAR_C_WIDTH + x / 2,
+                        SVID_PLANAR_C_WIDTH, source_cr, source_stride / 2,
+                        width / 2, height / 2);
+    svid_commit_planar_rect(x, y, width, height);
+    return true;
+}
+
+static void svid_mirror_rgb565_planar_even(const uint16_t *source,
+                                           int x, int y, int width,
+                                           int height, int stride)
+{
+    uint8_t *luma = (uint8_t *)svid_output_framebuffer;
+    uint8_t *cb = luma + SVID_PLANAR_Y_SIZE;
+    uint8_t *cr = cb + SVID_PLANAR_C_SIZE;
+
+    for (int row = 0; row < height; row += 2)
+    {
+        const uint16_t *source0 = source + row * stride;
+        const uint16_t *source1 = source0 + stride;
+        uint8_t *luma0 = luma + (y + row) * SVID_PLANAR_Y_WIDTH + x;
+        uint8_t *luma1 = luma0 + SVID_PLANAR_Y_WIDTH;
+        uint8_t *cb0 = cb + ((y + row) / 2) * SVID_PLANAR_C_WIDTH + x / 2;
+        uint8_t *cr0 = cr + ((y + row) / 2) * SVID_PLANAR_C_WIDTH + x / 2;
+
+        for (int column = 0; column < width; column += 2)
+        {
+            uint32_t pixel00 = svid_rgb565_to_ycbcr(source0[column]);
+            uint32_t pixel01 = svid_rgb565_to_ycbcr(source0[column + 1]);
+            uint32_t pixel10 = svid_rgb565_to_ycbcr(source1[column]);
+            uint32_t pixel11 = svid_rgb565_to_ycbcr(source1[column + 1]);
+
+            luma0[column] = pixel00;
+            luma0[column + 1] = pixel01;
+            luma1[column] = pixel10;
+            luma1[column + 1] = pixel11;
+            cb0[column / 2] = (((pixel00 >> 8) & 0xff) +
+                               ((pixel01 >> 8) & 0xff) +
+                               ((pixel10 >> 8) & 0xff) +
+                               ((pixel11 >> 8) & 0xff) + 2) >> 2;
+            cr0[column / 2] = (((pixel00 >> 16) & 0xff) +
+                               ((pixel01 >> 16) & 0xff) +
+                               ((pixel10 >> 16) & 0xff) +
+                               ((pixel11 >> 16) & 0xff) + 2) >> 2;
+        }
+    }
+}
+
 static void svid_mirror_rgb565_planar(const uint16_t *source, int x, int y,
                                       int width, int height, int stride)
 {
     uint8_t *luma = (uint8_t *)svid_output_framebuffer;
     uint8_t *cb = luma + SVID_PLANAR_Y_SIZE;
     uint8_t *cr = cb + SVID_PLANAR_C_SIZE;
+
+    /* LCD and decoded-video frames use even 4:2:0 rectangles.  Convert each
+     * source pixel exactly once, writing its luma and contributing its chroma
+     * in the same pass. */
+    if (((x | y | width | height) & 1) == 0)
+    {
+        svid_mirror_rgb565_planar_even(source, x, y, width, height, stride);
+        svid_commit_planar_rect(x, y, width, height);
+        return;
+    }
 
     for (int row = 0; row < height; row++)
     {
@@ -1157,16 +1276,8 @@ static void svid_mirror_rgb565_planar(const uint16_t *source, int x, int y,
 
         for (int column = 0; column < width; column++)
         {
-            uint8_t pixel_y;
-            uint8_t pixel_cb;
-            uint8_t pixel_cr;
-
-            svid_rgb565_to_ycbcr(source_row[column], &pixel_y,
-                                 &pixel_cb, &pixel_cr);
-            luma0[column] = pixel_y;
+            luma0[column] = svid_rgb565_to_ycbcr(source_row[column]);
         }
-
-        commit_dcache_range(luma0, width);
     }
 
     int first_chroma_column = x / 2;
@@ -1188,36 +1299,31 @@ static void svid_mirror_rgb565_planar(const uint16_t *source, int x, int y,
         for (int chroma_column = first_chroma_column;
              chroma_column <= last_chroma_column; chroma_column++)
         {
-            uint8_t unused_y;
-            uint8_t cb00;
-            uint8_t cr00;
-            uint8_t cb01;
-            uint8_t cr01;
-            uint8_t cb10;
-            uint8_t cr10;
-            uint8_t cb11;
-            uint8_t cr11;
             int source_x0 = MAX(chroma_column * 2, x) - x;
             int source_x1 = MIN(chroma_column * 2 + 1,
                                 x + width - 1) - x;
             int output_column = chroma_column - first_chroma_column;
+            uint32_t pixel00 =
+                svid_rgb565_to_ycbcr(source_row0[source_x0]);
+            uint32_t pixel01 =
+                svid_rgb565_to_ycbcr(source_row0[source_x1]);
+            uint32_t pixel10 =
+                svid_rgb565_to_ycbcr(source_row1[source_x0]);
+            uint32_t pixel11 =
+                svid_rgb565_to_ycbcr(source_row1[source_x1]);
 
-            svid_rgb565_to_ycbcr(source_row0[source_x0], &unused_y,
-                                 &cb00, &cr00);
-            svid_rgb565_to_ycbcr(source_row0[source_x1], &unused_y,
-                                 &cb01, &cr01);
-            svid_rgb565_to_ycbcr(source_row1[source_x0], &unused_y,
-                                 &cb10, &cr10);
-            svid_rgb565_to_ycbcr(source_row1[source_x1], &unused_y,
-                                 &cb11, &cr11);
-            cb0[output_column] = (cb00 + cb01 + cb10 + cb11 + 2) / 4;
-            cr0[output_column] = (cr00 + cr01 + cr10 + cr11 + 2) / 4;
+            cb0[output_column] = (((pixel00 >> 8) & 0xff) +
+                                  ((pixel01 >> 8) & 0xff) +
+                                  ((pixel10 >> 8) & 0xff) +
+                                  ((pixel11 >> 8) & 0xff) + 2) >> 2;
+            cr0[output_column] = (((pixel00 >> 16) & 0xff) +
+                                  ((pixel01 >> 16) & 0xff) +
+                                  ((pixel10 >> 16) & 0xff) +
+                                  ((pixel11 >> 16) & 0xff) + 2) >> 2;
         }
-
-        int chroma_width = last_chroma_column - first_chroma_column + 1;
-        commit_dcache_range(cb0, chroma_width);
-        commit_dcache_range(cr0, chroma_width);
     }
+
+    svid_commit_planar_rect(x, y, width, height);
 }
 
 void ipod6g_videoout_mirror_rgb565(const void *source, int x, int y,
@@ -1318,12 +1424,13 @@ bool ipod6g_videoout_disable(void)
 
 static void svid_apply_policy(void)
 {
-    bool accessory_safe =
-        svid_accessory != IPOD6G_VIDEOOUT_ACCESSORY_PENDING &&
-        svid_accessory != IPOD6G_VIDEOOUT_ACCESSORY_BLOCKED;
-    bool enable = (svid_mode == IPOD6G_VIDEOOUT_ON && accessory_safe) ||
-                  (svid_mode == IPOD6G_VIDEOOUT_AUTO &&
-                   svid_accessory == IPOD6G_VIDEOOUT_ACCESSORY_VIDEO);
+    /* ON arms the preference; it must not mean "run SVID with no cable".
+     * Starting while accessory state is NONE caused every LCD update to do
+     * a full mirror conversion and held the CPU/LCD clocks boosted even when
+     * the iPod was undocked.  PENDING must also remain off while serial code
+     * gives a possible Kokkia time to identify itself. */
+    bool enable = svid_mode != IPOD6G_VIDEOOUT_OFF &&
+                  svid_accessory == IPOD6G_VIDEOOUT_ACCESSORY_VIDEO;
 
     svid_policy_pending = false;
 

@@ -127,19 +127,133 @@ sub copy_clubpenguin_assets {
     glob_mkdir("$dest/covers");
     glob_mkdir("$dest/data");
     glob_mkdir("$dest/rooms");
+    glob_mkdir("$dest/backyard");
     glob_mkdir("$dest/shop");
+    glob_mkdir("$dest/shop/sport");
+    glob_mkdir("$dest/shop/costume");
+    glob_mkdir("$dest/shop/penguin_style");
+    glob_mkdir("$dest/shop/ninja");
+    glob_mkdir("$dest/avatar");
+    glob_mkdir("$dest/puffles");
+    glob_mkdir("$dest/puffles/adopt");
+    glob_mkdir("$dest/puffles/furniture");
+    glob_mkdir("$dest/puffles/food");
+    glob_mkdir("$dest/puffles/walk");
+    glob_mkdir("$dest/puffles/dig");
+    glob_mkdir("$dest/puffles/eat");
+    glob_mkdir("$dest/puffles/care");
+    glob_mkdir("$dest/puffles/tricks");
+    glob_mkdir("$dest/puffles/toys");
+    glob_mkdir("$dest/puffles/toys/icons");
+    glob_mkdir("$dest/puffles/hats");
+    glob_mkdir("$dest/puffles/hats/room");
+    glob_mkdir("$dest/igloo");
+    glob_mkdir("$dest/igloo/items");
+    glob_mkdir("$dest/igloo/buildings");
+    glob_mkdir("$dest/igloo/flooring");
+    glob_mkdir("$dest/igloo/locations");
+    glob_mkdir("$dest/igloo/masks");
+    glob_mkdir("$dest/igloo/catalog");
+    glob_mkdir("$dest/igloo/catalog/furniture");
+    glob_mkdir("$dest/igloo/catalog/upgrades");
     glob_mkdir("$dest/ui");
+    glob_mkdir("$dest/tutorial");
+    glob_mkdir("$dest/soundstudio");
     glob_mkdir("$dest/minigames");
     glob_mkdir("$dest/minigames/cart_surfer");
+    if($dest =~ m!/rocks/games/clubpenguin$!) {
+        glob_mkdir("$dest/concert");
+        glob_mkdir("$dest/music");
+        glob_mkdir("$dest/rooms/night_city");
+        foreach my $framedir (glob("$src/rooms/night_city/*_frames")) {
+            next unless -d $framedir;
+            (my $framename = $framedir) =~ s!.*/!!;
+            glob_mkdir("$dest/rooms/night_city/$framename");
+        }
+    }
     copy("$src/world.bmp", $dest);
     copy("$src/player.bmp", $dest);
     copy("$src/source.manifest", $dest);
     glob_copy("$src/covers/*.bmp", "$dest/covers");
     glob_copy("$src/data/*.tsv", "$dest/data");
     glob_copy("$src/rooms/*.bmp", "$dest/rooms");
+    copy("$src/rooms/preserved.manifest", "$dest/rooms");
+    if($dest =~ m!/rocks/games/clubpenguin$!) {
+        glob_copy("$src/concert/*.bmp", "$dest/concert");
+        glob_copy("$src/concert/*.pcm", "$dest/concert");
+        glob_copy("$src/music/*.pcm", "$dest/music");
+        copy("$src/music/source.manifest", "$dest/music");
+        foreach my $framedir (glob("$src/rooms/night_city/*_frames")) {
+            next unless -d $framedir;
+            (my $framename = $framedir) =~ s!.*/!!;
+            glob_copy("$framedir/strip.bmp",
+                      "$dest/rooms/night_city/$framename");
+        }
+    }
+    glob_copy("$src/tutorial/*.bmp", "$dest/tutorial");
+    glob_copy("$src/backyard/*.bmp", "$dest/backyard");
+    copy("$src/backyard/source.manifest", "$dest/backyard");
     glob_copy("$src/shop/*.bmp", "$dest/shop");
+    glob_copy("$src/shop/sport/*.bmp", "$dest/shop/sport");
+    copy("$src/shop/sport/source.manifest", "$dest/shop/sport");
+    glob_copy("$src/shop/costume/*.bmp", "$dest/shop/costume");
+    copy("$src/shop/costume/source.manifest", "$dest/shop/costume");
+    glob_copy("$src/shop/penguin_style/*.bmp",
+              "$dest/shop/penguin_style");
+    copy("$src/shop/penguin_style/source.manifest",
+         "$dest/shop/penguin_style");
+    glob_copy("$src/shop/ninja/*.bmp", "$dest/shop/ninja");
+    copy("$src/shop/ninja/source.manifest", "$dest/shop/ninja");
+    glob_copy("$src/avatar/*.bmp", "$dest/avatar");
+    copy("$src/avatar/source.manifest", "$dest/avatar");
+    glob_copy("$src/puffles/*.bmp", "$dest/puffles");
+    copy("$src/puffles/source.manifest", "$dest/puffles");
+    glob_copy("$src/puffles/adopt/*.bmp", "$dest/puffles/adopt");
+    copy("$src/puffles/adopt/source.manifest", "$dest/puffles/adopt");
+    glob_copy("$src/puffles/furniture/*.bmp", "$dest/puffles/furniture");
+    copy("$src/puffles/furniture/source.manifest",
+         "$dest/puffles/furniture");
+    copy("$src/puffles/motion.manifest", "$dest/puffles");
+    glob_copy("$src/puffles/food/*.bmp", "$dest/puffles/food");
+    copy("$src/puffles/food/source.manifest", "$dest/puffles/food");
+    glob_copy("$src/puffles/walk/*.bmp", "$dest/puffles/walk");
+    glob_copy("$src/puffles/dig/*.bmp", "$dest/puffles/dig");
+    glob_copy("$src/puffles/eat/*.bmp", "$dest/puffles/eat");
+    glob_copy("$src/puffles/care/*.bmp", "$dest/puffles/care");
+    copy("$src/puffles/care/source.manifest", "$dest/puffles/care");
+    glob_copy("$src/puffles/tricks/*.bmp", "$dest/puffles/tricks");
+    copy("$src/puffles/tricks/source.manifest", "$dest/puffles/tricks");
+    glob_copy("$src/puffles/toys/*.bmp", "$dest/puffles/toys");
+    glob_copy("$src/puffles/toys/icons/*.bmp",
+              "$dest/puffles/toys/icons");
+    copy("$src/puffles/toys/source.manifest", "$dest/puffles/toys");
+    glob_copy("$src/puffles/hats/*.bmp", "$dest/puffles/hats");
+    copy("$src/puffles/hats/source.manifest", "$dest/puffles/hats");
+    foreach my $hatdir (glob("$src/puffles/hats/room/*")) {
+        next unless -d $hatdir;
+        (my $hatname = $hatdir) =~ s!.*/!!;
+        glob_mkdir("$dest/puffles/hats/room/$hatname");
+        glob_copy("$hatdir/*.bmp",
+                  "$dest/puffles/hats/room/$hatname");
+    }
+    glob_copy("$src/igloo/*.bmp", "$dest/igloo");
+    glob_copy("$src/igloo/items/*.bmp", "$dest/igloo/items");
+    glob_copy("$src/igloo/buildings/*.bmp", "$dest/igloo/buildings");
+    glob_copy("$src/igloo/flooring/*.bmp", "$dest/igloo/flooring");
+    glob_copy("$src/igloo/locations/*.bmp", "$dest/igloo/locations");
+    glob_copy("$src/igloo/masks/*.msk", "$dest/igloo/masks");
+    glob_copy("$src/igloo/catalog/furniture/*.bmp",
+              "$dest/igloo/catalog/furniture");
+    glob_copy("$src/igloo/catalog/upgrades/*.bmp",
+              "$dest/igloo/catalog/upgrades");
+    copy("$src/igloo/catalog/source.manifest", "$dest/igloo/catalog");
+    copy("$src/igloo/source.manifest", "$dest/igloo");
+    copy("$src/igloo/layers.manifest", "$dest/igloo");
     glob_copy("$src/ui/*.bmp", "$dest/ui");
     copy("$src/ui/source.manifest", "$dest/ui");
+    glob_copy("$src/soundstudio/*.bmp", "$dest/soundstudio");
+    glob_copy("$src/soundstudio/*.cpsa", "$dest/soundstudio");
+    copy("$src/soundstudio/source.manifest", "$dest/soundstudio");
     glob_copy("$src/minigames/cart_surfer/*.bmp",
               "$dest/minigames/cart_surfer");
     copy("$src/minigames/cart_surfer/source.manifest",

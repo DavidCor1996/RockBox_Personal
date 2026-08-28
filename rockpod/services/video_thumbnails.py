@@ -1,6 +1,8 @@
 """Video thumbnail extraction and disk cache management."""
 
 import hashlib
+import json
+import math
 import os
 import shutil
 from pathlib import Path
@@ -33,13 +35,18 @@ class VideoThumbnailService:
     def __init__(self, cache_root, config=None, artwork_manager=None, command_runner=None):
         self._cache_dir = os.path.join(cache_root, "video_thumbs")
         self._video_list_dir = os.path.join(self._cache_dir, "list")
+        self._marker_cache_dir = os.path.join(
+            self._cache_dir, "playback_markers"
+        )
         self._config = config
         self._artwork = artwork_manager
         self._imdb_artwork = IMDbVideoArtworkCatalog()
         self._command_runner = command_runner or CommandRunner(log_dir=os.path.join(self._cache_dir, "logs"))
         os.makedirs(self._cache_dir, exist_ok=True)
         os.makedirs(self._video_list_dir, exist_ok=True)
+        os.makedirs(self._marker_cache_dir, exist_ok=True)
         self._ffmpeg = shutil.which("ffmpeg") or ""
+        self._ffprobe = shutil.which("ffprobe") or ""
 
     @property
     def is_available(self):
@@ -151,6 +158,172 @@ class VideoThumbnailService:
             f"{scope}|{identity}".encode("utf-8", "replace")
         ).hexdigest()[:24]
 
+    def video_catalog_metadata(self, track):
+        """Return verified catalog fields that are safe sync fallbacks."""
+        _poster, entry = self._imdb_artwork.resolve(track, scope="show")
+        if not entry:
+            return {}
+        return {
+            "imdb_id": str(entry.get("imdb_id") or ""),
+            "tmdb_id": str(entry.get("tmdb_id") or ""),
+            "show_title": str(entry.get("title") or ""),
+            "year": self._positive_int(entry.get("year")),
+            "genre": str(entry.get("genre") or ""),
+            "content_rating": str(entry.get("content_rating") or ""),
+            "show_plot": str(entry.get("show_plot") or ""),
+        }
+
+    def video_playback_markers(self, track):
+        """Resolve item-specific intro and credits markers.
+
+        Values are seconds. Explicit library values win, followed by an exact
+        catalog season/episode record and named chapters embedded in this
+        file. A series-wide timing guess is deliberately never used: showing
+        no button is preferable to jumping over programme content.
+        """
+        track = dict(track or {})
+        _poster, entry = self._imdb_artwork.resolve(track, scope="show")
+        duration = self._positive_int(track.get("duration"))
+        season_number = self._positive_int(track.get("season_number"))
+        episode_number = self._positive_int(track.get("episode_number"))
+        intro_start = self._positive_int(track.get("intro_start"))
+        intro_end = self._positive_int(track.get("intro_end"))
+        credits_start = self._positive_int(track.get("credits_start"))
+        credits_duration = 0
+
+        exact = {}
+        if entry and season_number > 0 and episode_number > 0:
+            exact = dict(
+                (entry.get("episodes") or {}).get(
+                    f"{season_number}x{episode_number:02d}"
+                )
+                or {}
+            )
+        needs_embedded_intro = (
+            not intro_start and not intro_end and not exact.get("intro_end")
+        )
+        needs_embedded_credits = (
+            not credits_start
+            and not exact.get("credits_start")
+            and not exact.get("credits_duration")
+        )
+        embedded = (
+            self._embedded_playback_markers(track)
+            if needs_embedded_intro or needs_embedded_credits
+            else {}
+        )
+
+        if not intro_start and not intro_end:
+            source = exact if exact.get("intro_end") else embedded
+            intro_start = self._positive_int(source.get("intro_start"))
+            intro_end = self._positive_int(source.get("intro_end"))
+        if not credits_start:
+            if exact.get("credits_start"):
+                credits_start = self._positive_int(
+                    exact.get("credits_start")
+                )
+            elif exact.get("credits_duration"):
+                credits_duration = self._positive_int(
+                    exact.get("credits_duration")
+                )
+            elif embedded.get("credits_start"):
+                credits_start = self._positive_int(
+                    embedded.get("credits_start")
+                )
+            if credits_duration and duration > credits_duration:
+                credits_start = duration - credits_duration
+
+        if intro_end <= intro_start:
+            intro_start = 0
+            intro_end = 0
+        if credits_start >= duration and duration:
+            credits_start = 0
+        return {
+            "intro_start": intro_start,
+            "intro_end": intro_end,
+            "credits_start": credits_start,
+            "credits_duration": credits_duration,
+        }
+
+    def _embedded_playback_markers(self, track):
+        """Read only explicitly named intro/credits chapters from one file."""
+        path = str((track or {}).get("file_path") or "")
+        ffprobe = str(getattr(self, "_ffprobe", "") or "")
+        runner = getattr(self, "_command_runner", None)
+        cache_dir = str(getattr(self, "_marker_cache_dir", "") or "")
+        if not path or not os.path.isfile(path) or not ffprobe or runner is None:
+            return {}
+        try:
+            stat = os.stat(path)
+        except OSError:
+            return {}
+        cache_key = hashlib.sha256(
+            f"chapters-v1|{path}|{stat.st_mtime_ns}|{stat.st_size}".encode(
+                "utf-8", "replace"
+            )
+        ).hexdigest()
+        cache_path = os.path.join(cache_dir, f"{cache_key}.json")
+        try:
+            with open(cache_path, "r", encoding="utf-8") as handle:
+                cached = json.load(handle)
+            return dict(cached or {})
+        except (OSError, ValueError, TypeError):
+            pass
+
+        command = [
+            ffprobe, "-v", "error", "-show_chapters", "-of", "json", path,
+        ]
+        markers = {}
+        try:
+            result = runner.run(
+                command, cwd=os.path.dirname(path) or os.getcwd()
+            )
+            payload = json.loads(result.stdout or "{}")
+        except (OSError, ValueError, TypeError, AttributeError):
+            payload = {}
+        for chapter in payload.get("chapters") or []:
+            tags = chapter.get("tags") or {}
+            title = str(tags.get("title") or tags.get("TITLE") or "")
+            normalized = " ".join(title.casefold().replace("_", " ").split())
+            start = self._nonnegative_float(chapter.get("start_time"))
+            end = self._nonnegative_float(chapter.get("end_time"))
+            if start is None or end is None or end <= start:
+                continue
+            if normalized in {"intro", "opening credits", "opening theme",
+                              "title sequence"}:
+                markers.setdefault("intro_start", int(math.ceil(start)))
+                markers.setdefault("intro_end", int(math.floor(end)))
+            if normalized in {"credits", "end credits", "closing credits",
+                              "closing titles"}:
+                # Rounding forward is intentionally conservative: the seek
+                # button cannot appear before the authored chapter boundary.
+                markers.setdefault("credits_start", int(math.ceil(start)))
+        if cache_dir:
+            try:
+                os.makedirs(cache_dir, exist_ok=True)
+                atomic_write_text(
+                    cache_path,
+                    json.dumps(markers, sort_keys=True) + "\n",
+                )
+            except OSError:
+                pass
+        return markers
+
+    @staticmethod
+    def _nonnegative_float(value):
+        try:
+            parsed = float(value)
+        except (TypeError, ValueError):
+            return None
+        return parsed if math.isfinite(parsed) and parsed >= 0 else None
+
+    @staticmethod
+    def _positive_int(value):
+        try:
+            return max(0, int(float(value or 0)))
+        except (TypeError, ValueError):
+            return 0
+
     def export_video_list_thumbnail(self, track, force=False, size=None, allow_online=None):
         target_size = size or _VIDEO_LIST_THUMB_SIZE
         width = max(int(target_size[0]), 1)
@@ -260,7 +433,8 @@ class VideoThumbnailService:
         "device_path", "show", "season", "episode", "duration", "locked",
         "year", "genre", "rating", "plot_short", "plot_long",
         "content_rating", "netflix_poster", "netflix_detail", "show_art_id",
-        "season_art_id", "show_plot",
+        "season_art_id", "show_plot", "intro_start", "intro_end",
+        "credits_start", "credits_duration",
     )
 
     # The device reads a manifest row into a fixed VIDEO_LIST_MANIFEST_LINE_MAX
@@ -299,11 +473,11 @@ class VideoThumbnailService:
 
     def export_video_list_manifest(self, entries):
         manifest_path = os.path.join(self._video_list_dir, "index.tsv")
-        # v6 appends show_plot. Appending is the only safe way to grow this
+        # v7 appends playback markers. Appending is the only safe way to grow this
         # file: the device parser reads columns positionally and tolerates a
         # longer row, but not a reordered one.
         lines = [
-            "# rockpod videolist v6",
+            "# rockpod videolist v7",
             "\t".join(self._MANIFEST_COLUMNS),
         ]
         def sort_key(item):

@@ -1,0 +1,47 @@
+{
+  "schema": 1,
+  "target": {
+    "product_type": "iPod4,1",
+    "hardware_model": "N81AP",
+    "machine_id": 3564,
+    "soc": "Apple A4",
+    "cpu": "ARM Cortex-A8",
+    "ram_bytes": 268435456
+  },
+  "openiboot": {
+    "repository": "https://github.com/iDroid-Project/openiBoot",
+    "commit": "866562fdb1cfd019bcd77885c80fbf0af65d5c15",
+    "archive_url": "https://github.com/iDroid-Project/openiBoot/archive/866562fdb1cfd019bcd77885c80fbf0af65d5c15.tar.gz",
+    "archive_sha256": "2468624d87a57a8f1fe53b502a5825ffb4a7d15f3b35fea6ee8aaf560cecda0a"
+  },
+  "idroid_kernel": {
+    "repository": "https://github.com/iDroid-Project/iDroid-kernel",
+    "branch": "idroid-3.0.0",
+    "commit": "3f971a676096c37472aec5e139b2720245e509e1",
+    "archive_url": "https://github.com/iDroid-Project/iDroid-kernel/archive/3f971a676096c37472aec5e139b2720245e509e1.tar.gz",
+    "archive_sha256": "008988aa1c8cb0d6ba4c0a103e7577b49eedaa149f14947e6c7c08fec004b3a3",
+    "version": "3.0.8"
+  },
+  "dfu_transport": {
+    "repository": "https://github.com/axi0mX/ipwndfu",
+    "commit": "0e28932ec6a2a570b10fd77e50bda4216418cd98",
+    "archive_url": "https://github.com/axi0mX/ipwndfu/archive/0e28932ec6a2a570b10fd77e50bda4216418cd98.tar.gz",
+    "archive_sha256": "8f5ca9a9213d9549424e8af20fc1c36bb6f1221d45164b284a368a7bddc906a9",
+    "exploit": "SHAtter",
+    "cpid": "8930",
+    "secure_rom": "iBoot-574.4",
+    "load_address": 2214592512,
+    "maximum_image3_bytes": 180224
+  },
+  "android": {
+    "aosp_tag": "android-2.0_r1",
+    "shared_source_lock": "../ipod6g_android/eclair/source-lock.json"
+  },
+  "host_tools": {
+    "scons_version": "4.10.1",
+    "cross_prefix": "arm-elf-eabi-",
+    "pyusb_version": "1.3.1",
+    "pyusb_wheel": "pyusb-1.3.1-py3-none-any.whl",
+    "pyusb_wheel_sha256": "bf9b754557af4717fe80c2b07cc2b923a9151f5c08d17bdb5345dac09d6a0430"
+  }
+}

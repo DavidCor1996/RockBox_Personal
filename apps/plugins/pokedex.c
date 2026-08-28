@@ -13,6 +13,7 @@
 #define PD_DIR          "/.rockbox/pokedex"
 #define PD_TSV_FILE     PD_DIR "/pokedex.v1.tsv"
 #define PD_SPRITE_DIR   PD_DIR "/sprites"
+#define PD_SOUND_FILE   PD_DIR "/sounds/pokedex.uib"
 
 #define PD_LINE_MAX     400
 #define PD_FIELD_COUNT  14
@@ -25,6 +26,7 @@
 #define PD_FLAVOR_MAX   208
 
 #define PD_SPRITE_BYTES (48 * 1024)
+#define PD_SOUND_BYTES  (96 * 1024)
 #define PD_WRAP_MAX_LINES 3
 #define PD_WRAP_LINE_MAX   64
 
@@ -87,6 +89,20 @@ static bool pd_sprite_ok = false;
 static char pd_wrap_lines[PD_WRAP_MAX_LINES][PD_WRAP_LINE_MAX];
 static int pd_wrap_count = 0;
 static int pd_wrapped_for_id = -1;
+
+enum pd_sound
+{
+    PD_SOUND_SCAN = 0,
+    PD_SOUND_NAV,
+    PD_SOUND_COUNT,
+};
+
+/* Bounded user-supplied, authentic sound-effect cache. It never takes the
+ * playback buffer and is only used on Rockbox's BEEP mixer channel. */
+static unsigned char pd_sound_data[PD_SOUND_BYTES] CACHEALIGN_ATTR;
+static uint32_t pd_sound_offset[PD_SOUND_COUNT];
+static uint32_t pd_sound_length[PD_SOUND_COUNT];
+static bool pd_sounds_loaded;
 
 /* ------------------------------------------------------------------ */
 /* TSV loading                                                         */
@@ -244,26 +260,83 @@ static void pd_wrap_flavor(const char *text, int max_width)
 }
 
 /* ------------------------------------------------------------------ */
-/* Sound -- rb->beep_play() is Rockbox's own real square-wave generator */
-/* (apps/beep.c), already used for keyclicks throughout the firmware.   */
-/* It runs on the dedicated PCM_MIXER_CHAN_BEEP channel, never touching */
-/* PCM_MIXER_CHAN_PLAYBACK or the shared audio buffer, so it needs none */
-/* of the precautions in docs/plugin-audio-lifecycle-steering.md. A     */
-/* two-tone "scan" chirp plays on opening a dex entry (echoing the      */
-/* real device's scanning sound without redistributing any audio       */
-/* actually ripped from the show) and a short tick plays on paging.     */
+/* Sound -- only user-licensed, PCM16 stereo effects are supported.   */
+/*                                                                      */
+/* pokedex.uib is loaded once into a fixed 96 KiB cache. It contains    */
+/* user-provided effects only; absent or invalid media means silence,   */
+/* never a synthesized approximation. Playback uses the short-effect   */
+/* BEEP channel and never takes the user's playback buffer.             */
 /* ------------------------------------------------------------------ */
 
-static void pd_beep_scan(void)
+static uint16_t pd_le16(const unsigned char *data)
 {
-    rb->beep_play(1046, 70, 4000);
-    rb->sleep(HZ / 14);
-    rb->beep_play(1568, 90, 4000);
+    return (uint16_t)(data[0] | (data[1] << 8));
 }
 
-static void pd_beep_tick(void)
+static uint32_t pd_le32(const unsigned char *data)
 {
-    rb->beep_play(1568, 25, 3000);
+    return (uint32_t)data[0] | ((uint32_t)data[1] << 8) |
+           ((uint32_t)data[2] << 16) | ((uint32_t)data[3] << 24);
+}
+
+static void pd_load_sounds(void)
+{
+    unsigned int rate = rb->mixer_get_frequency();
+    size_t size;
+    int fd, got, index;
+
+    pd_sounds_loaded = false;
+    if (rate != 44100 && rate != 48000)
+        return;
+    fd = rb->open(PD_SOUND_FILE, O_RDONLY);
+    if (fd < 0)
+        return;
+    got = rb->read(fd, pd_sound_data, sizeof(pd_sound_data));
+    rb->close(fd);
+    if (got <= 0)
+        return;
+    size = (size_t)got;
+    if (size < 12 + PD_SOUND_COUNT * 12 ||
+        rb->memcmp(pd_sound_data, "PDX1", 4) ||
+        pd_le32(pd_sound_data + 4) != rate ||
+        pd_le16(pd_sound_data + 8) != PD_SOUND_COUNT)
+        return;
+    for (index = 0; index < PD_SOUND_COUNT; index++)
+    {
+        size_t entry = 12 + index * 12;
+        pd_sound_offset[index] = pd_le32(pd_sound_data + entry + 4);
+        pd_sound_length[index] = pd_le32(pd_sound_data + entry + 8);
+        if (pd_sound_offset[index] + pd_sound_length[index] > size)
+            return;
+    }
+    rb->mixer_channel_set_amplitude(PCM_MIXER_CHAN_BEEP,
+                                    MIX_AMP_UNITY / 2);
+    pd_sounds_loaded = true;
+}
+
+static void pd_play_sound(enum pd_sound sound)
+{
+    if (!pd_sounds_loaded || sound >= PD_SOUND_COUNT ||
+        !pd_sound_length[sound])
+        return;
+    rb->mixer_channel_stop(PCM_MIXER_CHAN_BEEP);
+    rb->mixer_channel_play_data(PCM_MIXER_CHAN_BEEP, NULL,
+                                pd_sound_data + pd_sound_offset[sound],
+                                pd_sound_length[sound]);
+}
+
+static void pd_sound_shutdown(void)
+{
+    long deadline = *rb->current_tick + HZ / 4;
+
+    if (!pd_sounds_loaded)
+        return;
+    rb->mixer_channel_stop(PCM_MIXER_CHAN_BEEP);
+    rb->mixer_channel_set_buffer_hook(PCM_MIXER_CHAN_BEEP, NULL);
+    while (rb->mixer_channel_status(PCM_MIXER_CHAN_BEEP) != CHANNEL_STOPPED &&
+           TIME_BEFORE(*rb->current_tick, deadline))
+        rb->sleep(1);
+    pd_sounds_loaded = false;
 }
 
 static void pd_prepare_detail(int index)
@@ -393,6 +466,20 @@ static void pd_draw_chrome(const struct pokedex_entry *e)
     pd_fill_dot(LCD_WIDTH - 22, 11, 3);
 }
 
+static void pd_draw_footer(const char *center)
+{
+    int w, h;
+
+    rb->lcd_set_foreground(PD_COLOR_TITLE_TEXT);
+    rb->lcd_putsxy(PD_MARGIN + 4, PD_BOTTOM_Y + 4,
+                   (unsigned char *)"< PREV");
+    rb->font_getstringsize((unsigned char *)center, &w, &h, FONT_UI);
+    rb->lcd_putsxy((LCD_WIDTH - w) / 2, PD_BOTTOM_Y + 4,
+                   (unsigned char *)center);
+    rb->lcd_putsxy(LCD_WIDTH - PD_MARGIN - 40, PD_BOTTOM_Y + 4,
+                   (unsigned char *)"NEXT >");
+}
+
 static void pd_draw_info(const struct pokedex_entry *e)
 {
     char line[64];
@@ -453,9 +540,7 @@ static void pd_draw_info(const struct pokedex_entry *e)
                        (unsigned char *)pd_wrap_lines[i]);
     }
 
-    rb->lcd_set_foreground(PD_COLOR_TITLE_TEXT);
-    rb->lcd_putsxy(PD_MARGIN + 4, PD_BOTTOM_Y + 4,
-                   (unsigned char *)"<PREV MENU:STATS NEXT> LEFT:LIST");
+    pd_draw_footer("MENU: STATS");
 }
 
 static void pd_draw_stat_bar(int y, const char *label, unsigned char value)
@@ -521,9 +606,7 @@ static void pd_draw_stats(const struct pokedex_entry *e)
     pd_draw_stat_bar(PD_CARD_Y + 128, "SPD", e->spd);
     pd_draw_stat_bar(PD_CARD_Y + 150, "SPE", e->spe);
 
-    rb->lcd_set_foreground(PD_COLOR_TITLE_TEXT);
-    rb->lcd_putsxy(PD_MARGIN + 4, PD_BOTTOM_Y + 4,
-                   (unsigned char *)"<PREV MENU:INFO NEXT> LEFT:LIST");
+    pd_draw_footer("MENU: INFO");
 }
 
 static void pd_draw_missing_pack(void)
@@ -542,14 +625,52 @@ static void pd_draw_missing_pack(void)
 /* List screen                                                         */
 /* ------------------------------------------------------------------ */
 
-static const char *pd_list_name_cb(int selected_item, void *data,
-                                    char *buf, size_t buf_len)
+static void pd_draw_list(int selected, int top)
 {
-    struct pokedex_entry *e = &pd_entries[selected_item];
+    const int first_y = PD_CARD_Y + 18;
+    const int row_h = 15;
+    const int rows = 11;
+    int row;
+    char line[48];
 
-    (void)data;
-    rb->snprintf(buf, buf_len, "#%03d %s", e->dex_id, e->name);
-    return buf;
+    rb->lcd_set_foreground(PD_COLOR_FRAME);
+    rb->lcd_fillrect(0, PD_TITLE_Y, LCD_WIDTH, PD_TITLE_H);
+    rb->lcd_fillrect(0, PD_BOTTOM_Y, LCD_WIDTH, PD_BOTTOM_H);
+    pd_draw_centered(6, "POKEDEX  NATIONAL MODE", PD_COLOR_TITLE_TEXT);
+
+    rb->lcd_set_foreground(PD_COLOR_CARD);
+    rb->lcd_fillrect(PD_MARGIN, PD_CARD_Y, LCD_WIDTH - 2 * PD_MARGIN,
+                      PD_CARD_H);
+    rb->lcd_set_foreground(PD_COLOR_BORDER);
+    rb->lcd_drawrect(PD_MARGIN, PD_CARD_Y, LCD_WIDTH - 2 * PD_MARGIN,
+                      PD_CARD_H);
+    rb->lcd_set_foreground(PD_COLOR_INK);
+    rb->snprintf(line, sizeof(line), "NATIONAL DEX     %03d / %03d",
+                 selected + 1, pd_count);
+    rb->lcd_putsxy(PD_MARGIN + 8, PD_CARD_Y + 4, (unsigned char *)line);
+
+    for (row = 0; row < rows && top + row < pd_count; row++)
+    {
+        int index = top + row;
+        int y = first_y + row * row_h;
+
+        rb->snprintf(line, sizeof(line), "No.%03d  %s",
+                     pd_entries[index].dex_id, pd_entries[index].name);
+        rb->lcd_set_foreground(PD_COLOR_INK);
+        rb->lcd_putsxy(PD_MARGIN + 20, y, (unsigned char *)line);
+        if (index == selected)
+        {
+            /* A thin source-like viewfinder outline preserves every glyph;
+             * it is not an opaque selection bar behind the text. */
+            rb->lcd_set_foreground(PD_COLOR_BAR_FILL);
+            rb->lcd_drawrect(PD_MARGIN + 8, y - 1,
+                             LCD_WIDTH - 2 * (PD_MARGIN + 8), row_h - 1);
+            rb->lcd_putsxy(PD_MARGIN + 10, y, (unsigned char *)">");
+        }
+    }
+    rb->lcd_set_foreground(PD_COLOR_TITLE_TEXT);
+    rb->lcd_putsxy(PD_MARGIN + 4, PD_BOTTOM_Y + 4,
+                   (unsigned char *)"SELECT: OPEN   MENU: EXIT");
 }
 
 /* ------------------------------------------------------------------ */
@@ -558,9 +679,9 @@ static const char *pd_list_name_cb(int selected_item, void *data,
 
 enum plugin_status plugin_start(const void *parameter)
 {
-    struct gui_synclist lists;
     enum pd_view view = PD_VIEW_LIST;
     int cur = 0;
+    int top = 0;
     bool quit = false;
 
     (void)parameter;
@@ -591,36 +712,53 @@ enum plugin_status plugin_start(const void *parameter)
         return PLUGIN_OK;
     }
 
-    rb->gui_synclist_init(&lists, pd_list_name_cb, NULL, false, 1, NULL);
-    rb->gui_synclist_set_title(&lists, "Pokedex", Icon_NOICON);
-    rb->gui_synclist_set_nb_items(&lists, pd_count);
-    rb->gui_synclist_select_item(&lists, 0);
+    pd_load_sounds();
 
     while (!quit)
     {
         if (view == PD_VIEW_LIST)
         {
-            int button;
+            int action;
 
-            rb->gui_synclist_draw(&lists);
-            button = rb->get_action(CONTEXT_LIST, TIMEOUT_BLOCK);
-            if (rb->gui_synclist_do_button(&lists, &button))
-                continue;
-
-            switch (button)
+            pd_draw_list(cur, top);
+            rb->lcd_update();
+            action = rb->get_action(CONTEXT_LIST, TIMEOUT_BLOCK);
+            switch (action)
             {
                 case ACTION_STD_OK:
-                    cur = rb->gui_synclist_get_sel_pos(&lists);
                     pd_prepare_detail(cur);
-                    pd_beep_scan();
+                    pd_play_sound(PD_SOUND_SCAN);
                     view = PD_VIEW_INFO;
+                    break;
+                case ACTION_STD_NEXT:
+                case ACTION_STD_NEXTREPEAT:
+                    if (cur < pd_count - 1)
+                    {
+                        cur++;
+                        if (cur >= top + 11)
+                            top = cur - 10;
+                        pd_play_sound(PD_SOUND_NAV);
+                    }
+                    break;
+                case ACTION_STD_PREV:
+                case ACTION_STD_PREVREPEAT:
+                    if (cur > 0)
+                    {
+                        cur--;
+                        if (cur < top)
+                            top = cur;
+                        pd_play_sound(PD_SOUND_NAV);
+                    }
                     break;
                 case ACTION_STD_CANCEL:
                     quit = true;
                     break;
                 default:
-                    if (rb->default_event_handler(button) == SYS_USB_CONNECTED)
+                    if (rb->default_event_handler(action) == SYS_USB_CONNECTED)
+                    {
+                        pd_sound_shutdown();
                         return PLUGIN_USB_CONNECTED;
+                    }
                     break;
             }
         }
@@ -643,7 +781,7 @@ enum plugin_status plugin_start(const void *parameter)
                     {
                         cur++;
                         pd_prepare_detail(cur);
-                        pd_beep_tick();
+                        pd_play_sound(PD_SOUND_NAV);
                     }
                     break;
                 case ACTION_STD_PREV:
@@ -652,24 +790,28 @@ enum plugin_status plugin_start(const void *parameter)
                     {
                         cur--;
                         pd_prepare_detail(cur);
-                        pd_beep_tick();
+                        pd_play_sound(PD_SOUND_NAV);
                     }
                     break;
                 case ACTION_STD_MENU:
                     view = (view == PD_VIEW_INFO) ? PD_VIEW_STATS
                                                    : PD_VIEW_INFO;
-                    pd_beep_tick();
+                    pd_play_sound(PD_SOUND_NAV);
                     break;
                 case ACTION_STD_CANCEL:
                     view = PD_VIEW_LIST;
-                    rb->gui_synclist_select_item(&lists, cur);
+                    top = (cur / 11) * 11;
                     break;
                 default:
                     if (rb->default_event_handler(action) == SYS_USB_CONNECTED)
+                    {
+                        pd_sound_shutdown();
                         return PLUGIN_USB_CONNECTED;
+                    }
                     break;
             }
         }
     }
+    pd_sound_shutdown();
     return PLUGIN_OK;
 }

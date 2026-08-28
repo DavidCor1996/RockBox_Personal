@@ -220,9 +220,26 @@ static int rom_load(void)
     return 0;
 }
 
+static bool read_exact(int fd, void *buffer, size_t size)
+{
+    byte *cursor = buffer;
+
+    while (size > 0)
+    {
+        ssize_t count = read(fd, cursor, size);
+
+        if (count <= 0)
+            return false;
+        cursor += count;
+        size -= count;
+    }
+    return true;
+}
+
 static int sram_load(void)
 {
     int fd;
+    size_t size;
 
     if (!mbc.batt || !*sramfile) return -1;
 
@@ -231,7 +248,13 @@ static int sram_load(void)
 
     fd = open(sramfile, O_RDONLY);
     if (fd<0) return -1;
-    read(fd,ram.sbank, 8192*mbc.ramsize);
+    size = 8192 * mbc.ramsize;
+    if (rb->filesize(fd) != (off_t)size ||
+        !read_exact(fd, ram.sbank, size))
+    {
+        close(fd);
+        return -1;
+    }
     close(fd);
     ram.dirty = 0;
     
@@ -239,24 +262,67 @@ static int sram_load(void)
 }
 
 
-static int sram_save(void)
+static bool write_exact(int fd, const void *buffer, size_t size)
+{
+    const byte *cursor = buffer;
+
+    while (size > 0)
+    {
+        ssize_t count = write(fd, cursor, size);
+
+        if (count <= 0)
+            return false;
+        cursor += count;
+        size -= count;
+    }
+    return true;
+}
+
+static bool replace_file(const char *temporary, const char *destination)
+{
+    if (rb->rename(temporary, destination) < 0)
+    {
+        rb->remove(temporary);
+        return false;
+    }
+    return true;
+}
+
+bool sram_save(void)
 {
     int fd;
     unsigned long save_start;
+    char temporary[sizeof(sramfile) + 5];
+    bool ok;
 
     /* If we crash before we ever loaded sram, DO NOT SAVE! */
-    if (!mbc.batt || !ram.loaded || !mbc.ramsize || !ram.dirty)
-        return -1;
+    if (!mbc.batt || !mbc.ramsize)
+        return true;
+    if (!ram.loaded)
+        return false;
+    if (!ram.dirty)
+        return true;
 
     save_start = *rb->current_tick;
-    fd = open(sramfile, O_WRONLY|O_CREAT|O_TRUNC, 0666);
-    if (fd<0) return -1;
-    write(fd,ram.sbank, 8192*mbc.ramsize);
-    close(fd);
+    if (snprintf(temporary, sizeof(temporary), "%s.tmp", sramfile) >=
+        (int)sizeof(temporary))
+        return false;
+    fd = open(temporary, O_WRONLY|O_CREAT|O_TRUNC, 0666);
+    if (fd < 0)
+        return false;
+    ok = write_exact(fd, ram.sbank, 8192 * mbc.ramsize);
+    if (close(fd) < 0)
+        ok = false;
+    if (!ok)
+    {
+        rb->remove(temporary);
+        return false;
+    }
+    if (!replace_file(temporary, sramfile))
+        return false;
     ram.dirty = 0;
     rockboy_profile_add(ROCKBOY_TIME_SAVE, *rb->current_tick - save_start);
-    
-    return 0;
+    return true;
 }
 
 static void rtc_save(void)
@@ -281,31 +347,50 @@ static void rtc_load(void)
     rtc.dirty = 0;
 }
 
-void sn_save(void)
+bool sn_save(void)
 {
     int fd;
     unsigned long save_start = *rb->current_tick;
-    if ((fd = open(snfile, O_WRONLY | O_CREAT, 0666)) < 0)
-        return;
-    savestate(fd);
-    close(fd);
+    char temporary[sizeof(snfile) + 5];
+    bool ok;
+
+    if (snprintf(temporary, sizeof(temporary), "%s.tmp", snfile) >=
+        (int)sizeof(temporary))
+        return false;
+    if ((fd = open(temporary, O_WRONLY | O_CREAT | O_TRUNC, 0666)) < 0)
+        return false;
+    ok = savestate(fd);
+    if (close(fd) < 0)
+        ok = false;
+    if (!ok)
+    {
+        rb->remove(temporary);
+        return false;
+    }
+    if (!replace_file(temporary, snfile))
+        return false;
     rockboy_profile_add(ROCKBOY_TIME_SAVE, *rb->current_tick - save_start);
+    return true;
 }
 
-void sn_load(void)
+bool sn_load(void)
 {
-    int fd;    
+    int fd;
+    bool ok;
+
     if ((fd = open(snfile, O_RDONLY, 0666)) < 0)
-        return;
-    loadstate(fd);
+        return false;
+    ok = loadstate(fd);
     close(fd);
+    return ok;
 }
 
-void cleanup(void)
+bool cleanup(void)
 {
-    sram_save();
+    bool ok = sram_save();
+
     rtc_save();
-    /* IDEA - if error, write emergency savestate..? */
+    return ok;
 }
 
 void loader_init(const char *s)
@@ -313,16 +398,11 @@ void loader_init(const char *s)
     romfile = s;
     if(rom_load())
         return;
-    
-    snprintf(saveprefix, 499, "%s/%s", savedir, rom.name);
 
-    strcpy(sramfile, saveprefix);
-    strcat(sramfile, ".sav");
-
-    strcpy(rtcfile, saveprefix);
-    strcat(rtcfile, ".rtc");
-    strcpy(snfile, saveprefix);
-    strcat(snfile, ".sn");
+    snprintf(saveprefix, sizeof(saveprefix), "%s/%s", savedir, rom.name);
+    snprintf(sramfile, sizeof(sramfile), "%s.sav", saveprefix);
+    snprintf(rtcfile, sizeof(rtcfile), "%s.rtc", saveprefix);
+    snprintf(snfile, sizeof(snfile), "%s.sn", saveprefix);
     
     sram_load();
     rtc_load();

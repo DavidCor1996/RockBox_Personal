@@ -138,6 +138,37 @@ def test_video_rvp_transcoder_creates_bundle_and_sync_metadata(tmp_dir):
     assert any("s16le" in cmd for cmd in runner.commands if isinstance(cmd, list))
 
 
+def test_video_rvp_uses_probed_duration_when_library_duration_is_missing(
+    tmp_dir,
+):
+    source = os.path.join(tmp_dir, "Episode.mkv")
+    with open(source, "wb") as handle:
+        handle.write(b"source-video")
+
+    runner = _MpegRunner(
+        {
+            "streams": [{"width": 1280, "height": 720}],
+            "format": {"duration": "1409.386"},
+        }
+    )
+    transcoder = VideoRvpTranscoder(
+        os.path.join(tmp_dir, "cache"),
+        ffmpeg_path="/bin/true",
+        command_runner=runner,
+    )
+    row, _info = transcoder.prepare_track_for_sync(
+        {
+            "file_path": source,
+            "title": "Episode",
+            "duration": 0,
+            "media_type": "video",
+        },
+        "mock-ipod",
+    )
+
+    assert row["duration"] == pytest.approx(1409.386)
+
+
 def test_video_rvp_defaults_to_raw_profile():
     transcoder = VideoRvpTranscoder("/tmp/unused-rvp-cache")
 
@@ -267,6 +298,7 @@ def test_compact_profile_rebuilds_compatible_mpeg_for_reliable_seeking(
     assert row["sync_output_ext"] == ".mpg"
     assert row["sync_video_fps"] == 20
     assert row["sync_transcoded"] is True
+    assert row["duration"] == 3600.0
     assert info["reason"] == "seekable_mpeg2_video"
     command = next(
         command for command in runner.commands if "mpeg2video" in command

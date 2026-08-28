@@ -47,6 +47,7 @@ for symbol in ipod6g_videoout_enable_sync ipod6g_videoout_show_background \
               ipod6g_videoout_disable \
               ipod6g_videoout_active \
               ipod6g_videoout_lcd_clock_required \
+              ipod6g_videoout_mirror_yuv420 \
               ipod6g_videoout_mirror_rgb565 lcd_videoout_clock_acquire \
               lcd_videoout_clock_release \
               ipod6g_videoout_set_mode ipod6g_videoout_accessory_state \
@@ -69,6 +70,9 @@ fi
 require_text "${symbols}" '[[:space:]]svid_write_clock$' \
     "bounded local SVID clock writer"
 videoout_source="$(<"${repo_root}/firmware/target/arm/s5l8702/ipod6g/videoout-6g.c")"
+color_gate="$(python3 "${repo_root}/tools/ipod6g_videoout_color_gate.py")"
+require_text "${color_gate}" 'all 65,536 RGB565 values are bit-identical' \
+    "exhaustive qualified-color equivalence"
 require_text "${videoout_source}" \
     'SVID_MXR_SD_SCAN[[:space:]]+\(1u << 1\)' \
     "RetailOS mixer SD-scan bit"
@@ -232,14 +236,29 @@ require_text "${videoout_source}" \
     'uint8_t \*luma0 = luma \+ y \* SVID_PLANAR_Y_WIDTH' \
     "one physical luma row for every Rockbox framebuffer row"
 require_text "${videoout_source}" \
-    'luma0\[x\] = pixel_y' \
+    'luma0\[x\] = pixel00' \
     "native one-to-one luma packing"
 require_text "${videoout_source}" \
-    'cb0\[x / 2\] = \(cb00 \+ cb01 \+ cb10 \+ cb11 \+ 2\) / 4' \
+    'cb0\[x / 2\] = \(\(\(pixel00 >> 8\) & 0xff\)' \
     "2x2 averaged stock 4:2:0 Cb sample"
 require_text "${videoout_source}" \
-    'cr0\[x / 2\] = \(cr00 \+ cr01 \+ cr10 \+ cr11 \+ 2\) / 4' \
+    'cr0\[x / 2\] = \(\(\(pixel00 >> 16\) & 0xff\)' \
     "2x2 averaged stock 4:2:0 Cr sample"
+conversion="$(arm-elf-eabi-objdump -d \
+    --disassemble=svid_rgb565_to_ycbcr "${elf}")"
+if rg -q '__aeabi_idiv' <<<"${conversion}"; then
+    fail "live RGB565-to-YCbCr conversion still performs software division"
+fi
+require_text "${videoout_source}" \
+    'static uint8_t svid_rgb5_to_8\[32\]' \
+    "bounded target-owned exact RGB expansion table"
+require_text "${videoout_source}" \
+    'if \(\(\(x \| y \| width \| height\) & 1\) == 0\)' \
+    "one-pass even 4:2:0 dirty-rectangle conversion"
+commit_planar="$(arm-elf-eabi-objdump -d \
+    --disassemble=svid_commit_planar_rect "${elf}")"
+[ "$(rg -c '<commit_dcache_range>' <<<"${commit_planar}")" -eq 3 ] ||
+    fail "planar dirty update does not batch one cache clean per plane"
 require_text "${videoout_source}" \
     'SVID_VP_MODE_RETAIL_FMT8[[:space:]]+0u' \
     "RetailOS format-8 reset mode"
@@ -250,7 +269,7 @@ if rg -q 'SVID_VP_(TOP_Y|BOTTOM_Y|BOT_Y|TOP_C|BOTTOM_C|BOT_C)_PTR|SVID_VP_MODE_(
    <<<"${videoout_source}"; then
     fail "rejected NV12 field-pointer or interleaved-chroma path remains"
 fi
-if rg -q 'SVID_UI_VERTICAL_RATIO|source_height / 2|destination_height / 2|uint8_t \*luma1' \
+if rg -q 'SVID_UI_VERTICAL_RATIO|source_height / 2|destination_height / 2' \
    <<<"${videoout_source}"; then
     fail "fake half-height, doubled-luma, or fixed vertical-ratio path remains"
 fi
@@ -265,8 +284,34 @@ require_text "${refresh}" '<svid_copy_framebuffer_planar>' \
     "private planar refresh and bounded cache commit"
 
 yuv="$(arm-elf-eabi-objdump -d --disassemble=lcd_blit_yuv "${elf}")"
-require_text "${yuv}" 'ipod6g_videoout_mirror_rgb565' "YUV RGB565 mirror call"
+require_text "${yuv}" 'ipod6g_videoout_mirror_yuv420' \
+    "direct decoded-YUV composite mirror call"
+require_text "${yuv}" 'ipod6g_videoout_mirror_rgb565' \
+    "RGB overlay/non-planar fallback mirror call"
 require_text "${yuv}" 'displaylcd_dma' "YUV display DMA submission"
+if rg -q '__aeabi_idiv' <<<"${yuv}"; then
+    fail "decoded-video presentation still performs software division"
+fi
+direct_yuv="$(arm-elf-eabi-objdump -d \
+    --disassemble=ipod6g_videoout_mirror_yuv420 "${elf}")"
+require_text "${direct_yuv}" '<svid_copy_yuv_plane>' \
+    "direct Y, Cb, and Cr plane copies"
+[ "$(rg -c '<svid_copy_yuv_plane>' <<<"${direct_yuv}")" -eq 3 ] ||
+    fail "direct decoded-YUV mirror does not copy exactly three planes"
+require_text "${direct_yuv}" '<svid_commit_planar_rect>' \
+    "batched direct-YUV cache clean"
+if rg -q 'svid_rgb565_to_ycbcr' <<<"${direct_yuv}"; then
+    fail "direct decoded-YUV mirror still round-trips through RGB565"
+fi
+require_text "${videoout_source}" \
+    'svid_copy_yuv_plane\(luma \+[^;]*source_luma' \
+    "direct luma-plane ordering"
+require_text "${videoout_source}" \
+    'svid_copy_yuv_plane\(cb \+[^;]*source_cb' \
+    "direct Cb-plane ordering"
+require_text "${videoout_source}" \
+    'svid_copy_yuv_plane\(cr \+[^;]*source_cr' \
+    "direct Cr-plane ordering"
 lcd_update="$(arm-elf-eabi-objdump -d --disassemble=lcd_update_rect "${elf}")"
 require_text "${lcd_update}" 'ipod6g_videoout_mirror_rgb565' \
     "ordinary LCD update mirror call"
@@ -290,6 +335,8 @@ require_text "${disable}" '<svid_platform_restore' \
     "saved clock, power-gate, and GPIO restoration"
 require_text "${disable}" '<lcd_videoout_clock_release>' \
     "shared LCD/output-mixer gate release"
+require_text "${disable}" '<svid_set_bus_boost>' \
+    "composite bus-boost release"
 
 lcd_source="${repo_root}/firmware/target/arm/s5l8702/lcd-s5l8702.c"
 require_text "$(<"${lcd_source}")" \
@@ -310,17 +357,35 @@ require_text "${settings_source}" \
 require_text "${settings_source}" \
     'ipod6g_videoout_set_mode\(\(enum ipod6g_videoout_mode\)mode' \
     "validated mode forwarding"
+require_text "${videoout_source}" \
+    'svid_mode != IPOD6G_VIDEOOUT_OFF &&[[:space:]]*\n[[:space:]]*svid_accessory == IPOD6G_VIDEOOUT_ACCESSORY_VIDEO' \
+    "zero-work undocked output policy"
+if rg -q 'accessory_safe' <<<"${videoout_source}"; then
+    fail "Composite On still treats an absent accessory as safe"
+fi
+policy="$(arm-elf-eabi-objdump -d --disassemble=svid_apply_policy "${elf}")"
+require_text "${policy}" 'cmp[[:space:]]+r[0-9]+, #2' \
+    "compiled VIDEO-accessory requirement"
+require_text "${policy}" '<ipod6g_videoout_disable>' \
+    "compiled unplug/Off shutdown path"
 
 quick_settings_source="$(<"${repo_root}/apps/root_menu.c")"
 require_text "${quick_settings_source}" \
-    'Select to turn composite output on or off' \
-    "Quick Settings on/off help"
+    'Select for automatic dock output or off' \
+    "Quick Settings automatic-dock help"
 require_text "${quick_settings_source}" \
-    'IPOD6G_VIDEOOUT_ON \? IPOD6G_VIDEOOUT_OFF' \
-    "Quick Settings on/off toggle"
+    'IPOD6G_VIDEOOUT_OFF \? IPOD6G_VIDEOOUT_AUTO' \
+    "Quick Settings Auto/Off toggle"
 require_text "${quick_settings_source}" \
     'settings_apply_ipod6g_videoout\(value\)' \
     "Quick Settings immediate apply"
+require_text "${quick_settings_source}" \
+    'mode == IPOD6G_VIDEOOUT_AUTO &&[[:space:]]*\n[[:space:]]*ipod6g_videoout_active\(\)' \
+    "Quick Settings effective On state after dock detection"
+settings_list_source="$(<"${repo_root}/apps/settings_list.c")"
+require_text "${settings_list_source}" \
+    'CHOICE_SETTING\(0, composite_video_output,[^;]*IPOD6G_VIDEOOUT_AUTO' \
+    "automatic dock detection default"
 
 debug_source="$(<"${repo_root}/apps/debug_menu.c")"
 if rg -q 'DBG_VIDEOOUT_STAGE_TIMEOUT|stage_deadline|timed_out' \

@@ -1,5 +1,7 @@
 """Sync confirmation dialog — structured iTunes-style summary and progress sheet."""
 
+import os
+
 from PySide6.QtCore import QRectF, Qt, QTimer, Signal
 from PySide6.QtGui import QColor, QFont, QLinearGradient, QPainter, QPen
 from PySide6.QtWidgets import (
@@ -175,6 +177,7 @@ class SyncDialog(QDialog):
         self.setModal(True)
         self._plan = sync_plan
         self._rockbox_sync_result = None
+        self._file_errors = []
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(14, 14, 14, 14)
@@ -396,6 +399,10 @@ class SyncDialog(QDialog):
         self._item_label.setText(description or "")
         self._item_label.setVisible(bool(description))
 
+    def add_file_error(self, path, message):
+        name = os.path.basename(str(path or "")) or str(path or "file")
+        self._file_errors.append(f"{name}: {message}")
+
     def show_results(self, copied, failed, skipped):
         self._title.setText("Sync Complete")
         self._subtitle.setText("Your iPod has been updated")
@@ -423,7 +430,13 @@ class SyncDialog(QDialog):
         if not parts:
             parts.append("Nothing needed to change")
 
-        self._results.setText(", ".join(parts))
+        if self._file_errors:
+            details = "\n".join(self._file_errors[:5])
+            if len(self._file_errors) > 5:
+                details += f"\n…and {len(self._file_errors) - 5} more"
+            parts.append(details)
+
+        self._results.setText("\n".join(parts))
         self._results.setVisible(True)
 
     def show_error(self, message):

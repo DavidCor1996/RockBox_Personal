@@ -156,6 +156,9 @@ class MetadataEditor(QDialog):
         self._show_title_edit = None
         self._season_spin = None
         self._episode_spin = None
+        self._intro_start_spin = None
+        self._intro_end_spin = None
+        self._credits_start_spin = None
         if self._is_video:
             self._video_kind_combo = QComboBox()
             self._video_kind_combo.addItem("", "")
@@ -188,6 +191,33 @@ class MetadataEditor(QDialog):
             self._episode_spin.setValue(int(self._track.get("episode_number") or 0))
             self._episode_spin.setSpecialValueText("")
             layout.addRow("Episode:", self._episode_spin)
+
+            self._intro_start_spin = QSpinBox()
+            self._intro_start_spin.setRange(0, 24 * 60 * 60)
+            self._intro_start_spin.setValue(
+                int(self._track.get("intro_start") or 0)
+            )
+            self._intro_start_spin.setSuffix(" sec")
+            self._intro_start_spin.setSpecialValueText("Auto / Off")
+            layout.addRow("Intro Button At:", self._intro_start_spin)
+
+            self._intro_end_spin = QSpinBox()
+            self._intro_end_spin.setRange(0, 24 * 60 * 60)
+            self._intro_end_spin.setValue(
+                int(self._track.get("intro_end") or 0)
+            )
+            self._intro_end_spin.setSuffix(" sec")
+            self._intro_end_spin.setSpecialValueText("Auto / Off")
+            layout.addRow("Skip Intro To:", self._intro_end_spin)
+
+            self._credits_start_spin = QSpinBox()
+            self._credits_start_spin.setRange(0, 24 * 60 * 60)
+            self._credits_start_spin.setValue(
+                int(self._track.get("credits_start") or 0)
+            )
+            self._credits_start_spin.setSuffix(" sec")
+            self._credits_start_spin.setSpecialValueText("Auto / Off")
+            layout.addRow("Credits Begin At:", self._credits_start_spin)
 
         disc_row = QHBoxLayout()
         self._disc_num_spin = QSpinBox()
@@ -316,6 +346,9 @@ class MetadataEditor(QDialog):
             for field, widget in [
                 ("season_number", self._season_spin),
                 ("episode_number", self._episode_spin),
+                ("intro_start", self._intro_start_spin),
+                ("intro_end", self._intro_end_spin),
+                ("credits_start", self._credits_start_spin),
             ]:
                 new_val = widget.value()
                 old_val = int(self._track.get(field) or 0)

@@ -1,0 +1,15 @@
+# Nintendo-owned data must be generated locally from a user-owned ROM.
+/zelda3.sfc
+/zelda3.smc
+/zelda3_assets.dat
+/cover.bmp
+
+# The extraction tools create these transient resources beside themselves.
+/assets-tools/dungeon/
+/assets-tools/img/
+/assets-tools/overworld/
+/assets-tools/sound/
+/assets-tools/*.yaml
+/assets-tools/*.txt
+/assets-tools/*.png
+/assets-tools/sprites/*.png

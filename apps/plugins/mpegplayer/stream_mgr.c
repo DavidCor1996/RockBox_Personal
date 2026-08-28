@@ -144,6 +144,7 @@ static void stream_mgr_init_state(void)
     stream_mgr.filename = NULL;
     stream_mgr.resume_time = INVALID_TIMESTAMP;
     stream_mgr.seeked = false;
+    stream_mgr.clock_primed = false;
 }
 
 /* Add a stream to the playback pool */
@@ -258,7 +259,8 @@ static void set_stream_clock(uint32_t time)
     pcm_output_set_clock(TS_TO_TICKS(time));
 }
 
-static void stream_start_playback(uint32_t time, bool fill_buffer)
+static void stream_start_playback(uint32_t time, bool fill_buffer,
+                                  bool start_clock)
 {
     if (stream_mgr.seeked)
     {
@@ -285,8 +287,11 @@ static void stream_start_playback(uint32_t time, bool fill_buffer)
      * now - we'll handle this when finished */
     actl_stream_broadcast(STREAM_PLAY, 0);
 
-    /* Actually start the clock */
-    pcm_output_play_pause(true);
+    /* A primed transition deliberately lets both decoders fill while the
+     * outgoing card remains visible. The caller releases this same playback
+     * channel once an incoming frame and initial PCM are ready. */
+    if (start_clock)
+        pcm_output_play_pause(true);
 }
 
 /* Return the play time relative to the specified play time */
@@ -417,7 +422,7 @@ void stream_on_open(const char *filename)
 }
 
 /* Handler STREAM_PLAY */
-static void stream_on_play(void)
+static void stream_on_play(bool prime)
 {
     int status = stream_mgr.status;
 
@@ -429,6 +434,7 @@ static void stream_on_play(void)
 
         /* We just say we're playing now */
         stream_mgr.status = STREAM_PLAYING;
+        stream_mgr.clock_primed = prime;
 
         /* Reply with previous state */
         stream_mgr_reply_msg(status);
@@ -445,7 +451,7 @@ static void stream_on_play(void)
                                  STREAM_STOPPED, NULL);
 
         /* Sync and start - force buffer fill */
-        stream_start_playback(start, true);
+        stream_start_playback(start, true, !prime);
     }
     else
     {
@@ -506,7 +512,7 @@ static void stream_on_resume(void)
         trigger_cpu_boost();
 
         /* Sync and start - no force buffering */
-        stream_start_playback(str_parser.last_seek_time, false);
+        stream_start_playback(str_parser.last_seek_time, false, true);
 
         /* Officially playing */
         stream_mgr.status = STREAM_PLAYING;
@@ -550,6 +556,7 @@ static void stream_on_stop(bool reply)
         cancel_cpu_boost();
 
         stream_mgr.status = STREAM_STOPPED;
+        stream_mgr.clock_primed = false;
     }
 
     stream_mgr_unlock();
@@ -596,7 +603,7 @@ static void stream_on_seek(struct stream_seek_data *skd)
             if (stream_mgr.status == STREAM_PLAYING)
             {
                 /* Sync and restart - no force buffering */
-                stream_start_playback(time, buffer);
+                stream_start_playback(time, buffer, true);
             }
         }
 
@@ -999,7 +1006,7 @@ static void stream_mgr_thread(void)
             break;
 
         case STREAM_PLAY:
-            stream_on_play();
+            stream_on_play(!!ev.data);
             break;
 
         case STREAM_PAUSE:
@@ -1045,6 +1052,34 @@ int stream_play(void)
     if (stream_mgr.thread != 0)
         return stream_mgr_send_msg(STREAM_PLAY, 0);
     return STREAM_ERROR;
+}
+
+int stream_play_primed(void)
+{
+    if (stream_mgr.thread != 0)
+        return stream_mgr_send_msg(STREAM_PLAY, 1);
+    return STREAM_ERROR;
+}
+
+bool stream_primed_audio_ready(void)
+{
+    bool ready;
+
+    stream_mgr_lock();
+    ready = !pcm_output_empty();
+    stream_mgr_unlock();
+    return ready;
+}
+
+void stream_release_prime(void)
+{
+    stream_mgr_lock();
+    if (stream_mgr.status == STREAM_PLAYING && stream_mgr.clock_primed)
+    {
+        pcm_output_play_pause(true);
+        stream_mgr.clock_primed = false;
+    }
+    stream_mgr_unlock();
 }
 
 /* Pauses playback if playing */

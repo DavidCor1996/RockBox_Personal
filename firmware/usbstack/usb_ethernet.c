@@ -33,6 +33,13 @@
 #define CDC_NOTIFY_NETWORK_CONNECTION 0x00
 #define CDC_NOTIFY_SPEED_CHANGE 0x2a
 #define NCM_NTB_MAX_SIZE 16384
+/* Largest transmit block we build, and the size we advertise as
+ * dwNtbInMaxSize.  A host sizes its receive buffer to the advertised value
+ * and only sends SET_NTB_INPUT_SIZE when it wants something smaller, so the
+ * advertised size is the correct default rather than a guess.  A reduction
+ * is obeyed instead of merely acknowledged: a block larger than the host's
+ * receive buffer is dropped whole, which would kill the link. */
+#define NCM_NTB_IN_MAX_SIZE 32768
 #define NCM_NTH16_SIZE 12
 #define NCM_NDP16_SIZE 16
 #define NCM_NTH16_SIGNATURE 0x484d434e
@@ -168,8 +175,9 @@ static volatile bool tx_busy;
 static struct semaphore tx_complete_sem;
 static unsigned char rx_buffer[NCM_NTB_MAX_SIZE]
     USB_DEVBSS_ATTR __attribute__((aligned(32)));
-static unsigned char tx_buffer[NCM_NTB_MAX_SIZE]
+static unsigned char tx_buffer[NCM_NTB_IN_MAX_SIZE]
     USB_DEVBSS_ATTR __attribute__((aligned(32)));
+static uint32_t ntb_in_size = NCM_NTB_IN_MAX_SIZE;
 static unsigned char udp_tx_buffer[14 + 20 + 8 + UDP_PAYLOAD_MAX]
     USB_DEVBSS_ATTR __attribute__((aligned(32)));
 static unsigned char link_notification[16]
@@ -642,6 +650,7 @@ void usb_ethernet_init_connection(void)
 
 void usb_ethernet_disconnect(void)
 {
+    ntb_in_size = NCM_NTB_IN_MAX_SIZE;
     configured = false;
     data_alt = 0;
     tx_busy = false;
@@ -701,12 +710,17 @@ bool usb_ethernet_control_request(struct usb_ctrlrequest *req, void *reqdata,
             if (!reqdata)
                 usb_drv_control_response(USB_CONTROL_RECEIVE, control_buffer,
                                          req->wLength);
-            else if ((req->bRequest == CDC_SET_NTB_INPUT_SIZE &&
-                      get_le32(reqdata) >= NCM_NTH16_SIZE + NCM_NDP16_SIZE &&
-                      get_le32(reqdata) <= NCM_NTB_MAX_SIZE) ||
-                     (req->bRequest == CDC_SET_MAX_DATAGRAM_SIZE &&
-                      get_le16(reqdata) >= 14 &&
-                      get_le16(reqdata) <= USB_ETHERNET_FRAME_MAX))
+            else if (req->bRequest == CDC_SET_NTB_INPUT_SIZE &&
+                     get_le32(reqdata) >= NCM_NTH16_SIZE + NCM_NDP16_SIZE &&
+                     get_le32(reqdata) <= NCM_NTB_IN_MAX_SIZE)
+            {
+                /* Build to what the host sized its receive buffer for. */
+                ntb_in_size = get_le32(reqdata);
+                usb_drv_control_response(USB_CONTROL_ACK, NULL, 0);
+            }
+            else if (req->bRequest == CDC_SET_MAX_DATAGRAM_SIZE &&
+                     get_le16(reqdata) >= 14 &&
+                     get_le16(reqdata) <= USB_ETHERNET_FRAME_MAX)
                 usb_drv_control_response(USB_CONTROL_ACK, NULL, 0);
             else
                 usb_drv_control_response(USB_CONTROL_STALL, NULL, 0);
@@ -722,7 +736,7 @@ bool usb_ethernet_control_request(struct usb_ctrlrequest *req, void *reqdata,
         {
             put_le16(control_buffer, 28);
             put_le16(control_buffer + 2, 1);
-            put_le32(control_buffer + 4, NCM_NTB_MAX_SIZE);
+            put_le32(control_buffer + 4, NCM_NTB_IN_MAX_SIZE);
             put_le16(control_buffer + 8, 4);
             put_le16(control_buffer + 12, 4);
             put_le32(control_buffer + 16, NCM_NTB_MAX_SIZE);
@@ -733,7 +747,7 @@ bool usb_ethernet_control_request(struct usb_ctrlrequest *req, void *reqdata,
         }
         else if (req->bRequest == CDC_GET_NTB_INPUT_SIZE)
         {
-            put_le32(control_buffer, NCM_NTB_MAX_SIZE);
+            put_le32(control_buffer, ntb_in_size);
             response_length = 4;
         }
         else if (req->bRequest == CDC_GET_MAX_DATAGRAM_SIZE)
@@ -783,6 +797,11 @@ int usb_ethernet_send_frame(const void *frame, int length)
 
     if (!usb_ethernet_link_active() || tx_busy || length < 14 ||
         length > USB_ETHERNET_FRAME_MAX)
+        return -1;
+    /* The host drops a block larger than it sized its receive buffer for,
+     * so refuse before touching the transmit buffer. */
+    if ((((NCM_NTH16_SIZE + length + 3) & ~3) + NCM_NDP16_SIZE) >
+        (int)ntb_in_size)
         return -1;
     if (frame == tx_buffer)
         memmove(tx_buffer + NCM_NTH16_SIZE, tx_buffer, length);
@@ -852,6 +871,28 @@ int usb_ethernet_udp_send(uint16_t port, const void *data, int length)
     return result;
 }
 
+/* Datagrams of `length` payload bytes that fit one transmit block at the
+ * currently negotiated size.  Callers size their batch with this so a batch
+ * is never rejected for overflowing the block, which would otherwise stall a
+ * stream for as long as the host kept that size. */
+int usb_ethernet_udp_batch_capacity(int length)
+{
+    int per_datagram;
+    int available;
+    int count;
+
+    if (length < 0 || length > UDP_PAYLOAD_MAX)
+        return 0;
+
+    per_datagram = (14 + 20 + 8 + length + 3) & ~3;
+    available = (int)ntb_in_size - NCM_NTH16_SIZE - 8 -
+                (USB_ETHERNET_UDP_BATCH_MAX + 1) * 4 - 4;
+    count = available / per_datagram;
+    if (count < 1)
+        return 0;
+    return MIN(count, USB_ETHERNET_UDP_BATCH_MAX);
+}
+
 int usb_ethernet_udp_send_batch(
     uint16_t port, const struct usb_ethernet_udp_datagram *datagrams,
     int count)
@@ -888,7 +929,7 @@ int usb_ethernet_udp_send_batch(
             payload_length > UDP_PAYLOAD_MAX)
             goto fail;
         cursor = (cursor + 3) & ~3;
-        if (cursor + frame_length > NCM_NTB_MAX_SIZE)
+        if (cursor + frame_length > (int)ntb_in_size)
             goto fail;
         frame_indexes[i] = cursor;
         frame_lengths[i] = frame_length;
@@ -917,7 +958,7 @@ int usb_ethernet_udp_send_batch(
     ndp_index = (cursor + 3) & ~3;
     ndp_length = 8 + (count + 1) * 4;
     ntb_length = ndp_index + ndp_length;
-    if (ntb_length > NCM_NTB_MAX_SIZE)
+    if (ntb_length > (int)ntb_in_size)
         goto fail;
     memset(tx_buffer + cursor, 0, ntb_length - cursor);
     put_le32(tx_buffer, NCM_NTH16_SIGNATURE);

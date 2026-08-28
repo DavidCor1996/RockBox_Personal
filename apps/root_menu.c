@@ -632,11 +632,16 @@ enum root_menu_video_preview_source {
     IPODJS_PREVIEW_NONE = 0,
     IPODJS_PREVIEW_MUSIC,
     IPODJS_PREVIEW_VIDEOS,
+    IPODJS_PREVIEW_YOUTUBE,
+    IPODJS_PREVIEW_TIKTOK,
     IPODJS_PREVIEW_PHOTOS,
     IPODJS_PREVIEW_GAMES,
     IPODJS_PREVIEW_POKEMINI,
     IPODJS_PREVIEW_MAGAZINES,
     IPODJS_PREVIEW_COMICS,
+    IPODJS_PREVIEW_ONLYFANS,
+    IPODJS_PREVIEW_INSTAGRAM,
+    IPODJS_PREVIEW_REDDIT,
     IPODJS_PREVIEW_AVATAR,
 };
 
@@ -1203,11 +1208,26 @@ static bool videos_unlock_settings_menu(void)
                                          "Settings lock PIN invalid");
 }
 
+static bool videos_unlock_files_browser(void)
+{
+    return videos_unlock_with_shared_pin("Unlock Files",
+                                         "Files lock unavailable",
+                                         "Files lock PIN invalid");
+}
+
 /* "Lock Settings Menu" lives inside the very menu it guards, so a missing or
  * malformed PIN file must not lock the user out of the only place the switch
  * can be turned back off.  The lock only bites once RockPod has written a PIN
  * the unlock screen could actually match. */
 static bool videos_settings_lock_active(void)
+{
+    char expected[16];
+
+    return global_settings.ui_engine_lock_settings &&
+           videos_read_shared_pin(expected, sizeof(expected)) == 0;
+}
+
+static bool videos_files_lock_active(void)
 {
     char expected[16];
 
@@ -1415,7 +1435,7 @@ static struct bitmap *video_load_thumb_bitmap(const char *path,
 
     int rc = read_bmp_file(path, &slot->bm, sizeof(slot->data),
                            FORMAT_NATIVE | FORMAT_DITHER, NULL);
-    if (rc < 0)
+    if (rc <= 0)
     {
         slot->valid = false;
         return NULL;
@@ -2746,7 +2766,10 @@ static void videos_scan_virtual_dir(struct video_browser_state *state)
         /* List episodes inside selected show and season */
         char show_buf[128];
         strmemccpy(show_buf, state->current_path + 15, sizeof(show_buf));
-        char *colon = strchr(show_buf, ':');
+        /* The show title itself may contain colons (for example,
+         * "Avatar: The Last Airbender").  The season is always the final
+         * path component, so split at the last separator. */
+        char *colon = strrchr(show_buf, ':');
         if (colon)
         {
             *colon = '\0';
@@ -3838,13 +3861,12 @@ video_netflix_load_show_plot(const struct video_entry *entry,
         show_name = entry->path + 13;
     else if (!strncmp(entry->path, "virtual:season:", 15))
     {
-        /* virtual:season:<show>:<season>. The season scanner splits on the
-         * first colon too, so a show title containing one is already out of
-         * scope here. */
+        /* virtual:season:<show>:<season>.  Show titles may contain colons,
+         * so the final separator is the season boundary. */
         char *colon;
 
         strmemccpy(show_buf, entry->path + 15, sizeof(show_buf));
-        colon = strchr(show_buf, ':');
+        colon = strrchr(show_buf, ':');
         if (!colon)
             return;
         *colon = '\0';
@@ -5085,6 +5107,106 @@ MENUITEM_FUNCTION(desktop_mode_item, MENU_FUNC_CHECK_RETVAL,
                   "Desktop Mode", launch_desktop_mode,
                   NULL, Icon_Rockbox);
 
+#if defined(IPOD_6G) && (defined(HAVE_ROLO) || defined(SIMULATOR))
+#define ROLOLAUNCHER_FIRMWARE "/rockbox-tvout-test.ipod"
+#define ROLOLAUNCHER_RUNTIME_DIR "/.rbtv"
+
+static int launch_rolo_launcher(void *param)
+{
+    (void)param;
+
+    if (!file_exists(ROLOLAUNCHER_FIRMWARE))
+    {
+        splash(HZ * 2, "TV-out test firmware missing");
+        return GO_TO_ROOT;
+    }
+    if (!dir_exists(ROLOLAUNCHER_RUNTIME_DIR))
+    {
+        splash(HZ * 2, "TV-out test files missing");
+        return GO_TO_ROOT;
+    }
+
+#ifdef HAVE_ROLO
+    (void)rolo_load(ROLOLAUNCHER_FIRMWARE);
+#else
+    splash(HZ * 2, "RoLo requires iPod hardware");
+#endif
+    return GO_TO_ROOT;
+}
+#endif
+
+static int launch_youtube_plugin(void *param)
+{
+    (void)param;
+    return load_plugin_path_screen(PLUGIN_APPS_DIR "/youtube.rock", NULL);
+}
+
+MENUITEM_FUNCTION(youtube_item, MENU_FUNC_CHECK_RETVAL,
+                  "YouTube", launch_youtube_plugin,
+                  NULL, Icon_Plugin);
+
+static int launch_spotify_wrapped_plugin(void *param)
+{
+    (void)param;
+    return load_plugin_path_screen(PLUGIN_APPS_DIR "/spotify_wrapped.rock", NULL);
+}
+
+MENUITEM_FUNCTION(spotify_wrapped_item, MENU_FUNC_CHECK_RETVAL,
+                  "Spotify Wrapped", launch_spotify_wrapped_plugin,
+                  NULL, Icon_Plugin);
+
+static int launch_tiktok_plugin(void *param)
+{
+    (void)param;
+    return load_plugin_path_screen(PLUGIN_APPS_DIR "/ipodtiktok.rock", NULL);
+}
+
+MENUITEM_FUNCTION(tiktok_item, MENU_FUNC_CHECK_RETVAL,
+                  "TikTok", launch_tiktok_plugin,
+                  NULL, Icon_Plugin);
+
+static int launch_onlyfans_plugin(void *param)
+{
+    (void)param;
+    return load_plugin_path_screen(PLUGIN_APPS_DIR "/onlyfans.rock", NULL);
+}
+
+static int onlyfans_item_callback(int action,
+                                  const struct menu_item_ex *this_item,
+                                  struct gui_synclist *this_list)
+{
+    (void)this_item;
+    (void)this_list;
+    if (action == ACTION_REQUEST_MENUITEM &&
+        file_exists(ROCKBOX_DIR "/onlyfans/hidden"))
+        return ACTION_EXIT_MENUITEM;
+    return action;
+}
+
+MENUITEM_FUNCTION(onlyfans_item, MENU_FUNC_CHECK_RETVAL,
+                  "OnlyFans", launch_onlyfans_plugin,
+                  onlyfans_item_callback, Icon_Plugin);
+
+static int launch_instagram_plugin(void *param)
+{
+    (void)param;
+    return load_plugin_path_screen(PLUGIN_APPS_DIR "/instagram.rock", NULL);
+}
+
+MENUITEM_FUNCTION(instagram_item, MENU_FUNC_CHECK_RETVAL,
+                  "Instagram", launch_instagram_plugin,
+                  NULL, Icon_Plugin);
+
+static int launch_reddit_plugin(void *param)
+{
+    (void)param;
+    return load_plugin_path_screen(PLUGIN_APPS_DIR "/reddit.rock", NULL);
+}
+
+MENUITEM_FUNCTION(reddit_item, MENU_FUNC_CHECK_RETVAL,
+                  "Reddit", launch_reddit_plugin,
+                  NULL, Icon_Plugin);
+
 static int launch_offlineweb_plugin(void *param)
 {
     (void)param;
@@ -5398,8 +5520,21 @@ static int launch_pokemini(void *param);
     MENUITEM_FUNCTION(pokedex_item, MENU_FUNC_CHECK_RETVAL,
                   "Pokedex", launch_pokedex_plugin,
                   NULL, Icon_Plugin);
+#ifdef HAVE_IPODJS_UI
+    static int root_menu_video_applications_menu(void);
+    static int launch_ipodjs_applications(void *param)
+    {
+        (void)param;
+        return root_menu_video_applications_menu();
+    }
+    MENUITEM_FUNCTION(ipodjs_applications_item, MENU_FUNC_CHECK_RETVAL,
+                      "Applications", launch_ipodjs_applications,
+                      NULL, Icon_Plugin);
+#endif
+
     MAKE_MENU(applications_menu, "Extras", NULL, Icon_Plugin,
-          &clock_item, &desktop_mode_item,
+          &clock_item, &desktop_mode_item, &youtube_item, &spotify_wrapped_item, &tiktok_item,
+          &onlyfans_item, &instagram_item, &reddit_item,
           &achievements_item, &livetv_item, &sitekick_item, &tamagotchi_item,
           &maps_item, &weather_item, &calm_item,
           &offlineweb_item, &magazines_item, &comics_item, &pocketsky_item,
@@ -5792,10 +5927,17 @@ static struct menu_table menu_table[] = {
 #endif
     { "videos", &videos },
     { "directv", &livetv_item },
+#ifdef HAVE_IPODJS_UI
     { "applications", &applications_menu },
+    { "applications_menu", &ipodjs_applications_item },
+#else
+    { "applications", &applications_menu },
+#endif
     { "internet", &offlineweb_item },
     { "photos", &photos_item },
     { "desktop", &desktop_mode_item },
+    { "youtube", &youtube_item },
+    { "tiktok", &tiktok_item },
     { "games", &gameboy_browser },
     { "podemon_go", &podemon_go_item },
     { "pokemini", &pokemini_item },
@@ -5823,6 +5965,7 @@ static const struct menu_item_ex * const root_menu_ipodjs_default_items[] = {
     &photos_item,
     &offlineweb_item,
     &applications_menu,
+    &ipodjs_applications_item,
     &menu_,
     &wps_item,
 };
@@ -5951,7 +6094,12 @@ void root_menu_set_default(void* setting, void* defaultval)
             if (menu_table[i].item == &podemon_go_item ||
                 menu_table[i].item == &pokemini_item ||
                 menu_table[i].item == &applications_menu ||
-                menu_table[i].item == &desktop_mode_item)
+#ifdef HAVE_IPODJS_UI
+                menu_table[i].item == &ipodjs_applications_item ||
+#endif
+                menu_table[i].item == &desktop_mode_item ||
+                menu_table[i].item == &youtube_item ||
+                menu_table[i].item == &tiktok_item)
                 continue;
 
             root_menu__[count++] = (struct menu_item_ex *)menu_table[i].item;
@@ -6179,6 +6327,10 @@ static const char *root_menu_nano2g_label(const struct menu_item_ex *item)
         return "Apps";
     if (item == &livetv_item)
         return "DIRECTV";
+    if (item == &youtube_item)
+        return "YouTube";
+    if (item == &tiktok_item)
+        return "TikTok";
 
     return "Menu";
 }
@@ -6751,6 +6903,9 @@ static long root_menu_video_hold_storm_until;
 static long root_menu_video_hold_storm_window_start;
 static int root_menu_video_hold_storm_toggles;
 static bool root_menu_video_hold_static_frame_valid;
+static int root_menu_video_lock_font_id = -2;
+
+static void root_menu_video_prepare_lock_font(void);
 
 bool root_menu_ipodjs_native_screen_active(void)
 {
@@ -6882,6 +7037,7 @@ static void root_menu_video_enter_native_screen(void)
         bool direct_handoff = root_menu_video_native_handoff;
 
         ipodjs_ui_prepare_bluetooth_indicator();
+        root_menu_video_prepare_lock_font();
 
         if (root_menu_video_native_handoff)
             root_menu_video_native_handoff = false;
@@ -7050,22 +7206,37 @@ static int root_menu_video_text_y_offset(void)
     return ipodjs_ui_text_y_offset();
 }
 
-static int root_menu_video_lock_font(void)
+static void root_menu_video_prepare_lock_font(void)
 {
-    static int lock_font = -2;
     const char *path = FONT_DIR "/35-Adobe-Helvetica-Bold.fnt";
 
-    if (lock_font < 0 && file_exists(path))
+    if (font_filename_matches_loaded_id(root_menu_video_lock_font_id, path))
+        return;
+
+    /* Music and skin teardown can recycle a custom-font slot.  Never retain
+     * the old numeric id after it stops naming the lock-screen clock font. */
+    root_menu_video_lock_font_id = -2;
+    if (file_exists(path))
     {
         int loaded = font_load(path);
         if (loaded >= 0)
         {
             font_lock(loaded, true);
-            lock_font = loaded;
+            root_menu_video_lock_font_id = loaded;
         }
     }
+}
 
-    return lock_font >= 0 ? lock_font : root_menu_video_font();
+static int root_menu_video_lock_font(void)
+{
+    const char *path = FONT_DIR "/35-Adobe-Helvetica-Bold.fnt";
+
+    /* This check is deliberately I/O-free: draw paths may only consume a
+     * font that the screen-entry service already prepared. */
+    if (font_filename_matches_loaded_id(root_menu_video_lock_font_id, path))
+        return root_menu_video_lock_font_id;
+
+    return root_menu_video_font();
 }
 
 static unsigned root_menu_video_panel(void)
@@ -7116,12 +7287,20 @@ static const char *root_menu_video_label(const struct menu_item_ex *item)
         return "Photos";
     if (item == &applications_menu)
         return "Extras";
+#ifdef HAVE_IPODJS_UI
+    if (item == &ipodjs_applications_item)
+        return "Applications";
+#endif
     if (item == &offlineweb_item)
         return "Internet";
     if (item == &desktop_mode_item)
         return "Desktop Mode";
     if (item == &livetv_item)
         return "DIRECTV";
+    if (item == &youtube_item)
+        return "YouTube";
+    if (item == &tiktok_item)
+        return "TikTok";
     if (item == &podemon_go_item)
         return "Podemon Go";
 #if defined(HAVE_LCD_COLOR) && (LCD_WIDTH >= 220)
@@ -8809,9 +8988,14 @@ struct root_menu_video_preview_slot {
     unsigned gen;
     char path[MAX_PATH];
     struct bitmap bm;
-    unsigned char data[BM_SIZE(IPODJS_PREVIEW_IMAGE_WIDTH,
-                               IPODJS_PREVIEW_IMAGE_HEIGHT,
-                               FORMAT_NATIVE, false)];
+    /* FORMAT_RESIZE needs working space after the destination pixels.  The
+     * synced YouTube thumbnails are intentionally small (96x72), so an
+     * exact-size destination buffer makes resize_on_load() return zero after
+     * clearing it and leaves a valid-looking black frame in the cache. */
+    unsigned char data[BM_SCALED_SIZE(IPODJS_PREVIEW_IMAGE_WIDTH,
+                                      IPODJS_PREVIEW_IMAGE_HEIGHT,
+                                      FORMAT_NATIVE, false) +
+                       IPODJS_PREVIEW_IMAGE_WIDTH * sizeof(uint32_t) * 3];
 };
 
 struct root_menu_video_preview_source_cache {
@@ -8845,6 +9029,8 @@ static int root_menu_video_photo_index_count;
 static bool root_menu_video_photo_index_active;
 static unsigned root_menu_video_photo_index_generation;
 static struct slideshow_order root_menu_video_photo_order;
+static struct slideshow_order root_menu_video_youtube_order;
+static struct slideshow_order root_menu_video_tiktok_order;
 static long root_menu_video_preview_decode_window_tick;
 static int root_menu_video_preview_decode_budget;
 static enum root_menu_video_preview_source
@@ -8875,17 +9061,33 @@ struct root_menu_video_menu_preview_failure {
 static struct root_menu_video_menu_preview_failure
     root_menu_video_menu_preview_failures[8];
 
+#define IPODJS_APPLICATION_ICON_SIZE 46
+#define IPODJS_APPLICATION_ICON_CACHE 21
+
+struct root_menu_video_application_icon_slot {
+    bool valid;
+    bool tried;
+    struct bitmap bm;
+    unsigned char data[
+        BM_SIZE(IPODJS_APPLICATION_ICON_SIZE,
+                IPODJS_APPLICATION_ICON_SIZE,
+                FORMAT_NATIVE, false)] IPODJS_BM_ALIGN;
+};
+
 union root_menu_video_preview_storage {
     struct root_menu_video_preview_slot
         slideshow[IPODJS_PREVIEW_IMAGE_CACHE];
     struct root_menu_video_menu_preview_slot
         menu[IPODJS_MENU_PREVIEW_CACHE];
+    struct root_menu_video_application_icon_slot
+        applications[IPODJS_APPLICATION_ICON_CACHE];
 };
 
 enum root_menu_video_preview_cache_mode {
     IPODJS_PREVIEW_CACHE_NONE = 0,
     IPODJS_PREVIEW_CACHE_SLIDESHOW,
     IPODJS_PREVIEW_CACHE_MENU,
+    IPODJS_PREVIEW_CACHE_APPLICATIONS,
 };
 
 static union root_menu_video_preview_storage root_menu_video_preview_storage;
@@ -8896,6 +9098,8 @@ static enum root_menu_video_preview_cache_mode
     root_menu_video_preview_storage.slideshow
 #define root_menu_video_menu_preview_slots \
     root_menu_video_preview_storage.menu
+#define root_menu_video_application_icon_slots \
+    root_menu_video_preview_storage.applications
 
 static void root_menu_video_preview_use_cache(
     enum root_menu_video_preview_cache_mode mode)
@@ -8915,6 +9119,14 @@ static void root_menu_video_preview_use_cache(
         for (int i = 0; i < IPODJS_MENU_PREVIEW_CACHE; i++)
             root_menu_video_menu_preview_slots[i].valid = false;
         root_menu_video_menu_preview_stamp = 0;
+    }
+    else if (mode == IPODJS_PREVIEW_CACHE_APPLICATIONS)
+    {
+        for (int i = 0; i < IPODJS_APPLICATION_ICON_CACHE; i++)
+        {
+            root_menu_video_application_icon_slots[i].valid = false;
+            root_menu_video_application_icon_slots[i].tried = false;
+        }
     }
 }
 
@@ -9004,6 +9216,16 @@ root_menu_video_preview_source_for_title(const char *title)
         return IPODJS_PREVIEW_GAMES;
     if (!strcmp(title, "Videos") || !strcmp(title, "Netflix"))
         return IPODJS_PREVIEW_VIDEOS;
+    if (!strcmp(title, "YouTube"))
+        return IPODJS_PREVIEW_YOUTUBE;
+    if (!strcmp(title, "TikTok"))
+        return IPODJS_PREVIEW_TIKTOK;
+    if (!strcmp(title, "OnlyFans"))
+        return IPODJS_PREVIEW_ONLYFANS;
+    if (!strcmp(title, "Instagram"))
+        return IPODJS_PREVIEW_INSTAGRAM;
+    if (!strcmp(title, "Reddit"))
+        return IPODJS_PREVIEW_REDDIT;
     if (!strcmp(title, "Photos"))
         return IPODJS_PREVIEW_PHOTOS;
     if (!strcmp(title, "Magazines"))
@@ -9013,7 +9235,8 @@ root_menu_video_preview_source_for_title(const char *title)
     if (!strcmp(title, "Music") || !strcmp(title, "Cover Flow") ||
         !strcmp(title, "Now Playing"))
         return IPODJS_PREVIEW_MUSIC;
-    if (!strcmp(title, "Achievements"))
+    if (!strcmp(title, "Achievements") ||
+        !strcmp(title, "Applications"))
         return IPODJS_PREVIEW_AVATAR;
     if (!strcmp(title, "Extras") &&
         global_settings.ui_engine_extras_pane == UI_ENGINE_EXTRAS_AVATAR)
@@ -9260,7 +9483,7 @@ static bool root_menu_video_menu_preview_service(const char *title)
     slot->bm.data = slot->data;
     rc = read_bmp_file(load_path, &slot->bm, sizeof(slot->data),
                        FORMAT_NATIVE | FORMAT_TRANSPARENT, NULL);
-    if (rc < 0)
+    if (rc <= 0)
     {
         root_menu_video_menu_preview_record_failure(load_path, dark);
         return false;
@@ -9549,6 +9772,143 @@ static void root_menu_video_preview_load_video_paths(void)
     }
 
     closedir(dir);
+}
+
+static void root_menu_video_preview_load_youtube_paths(void)
+{
+    char line[1024];
+    int fd = open(ROCKBOX_DIR "/youtube/library.tsv", O_RDONLY);
+
+    slideshow_order_reset(&root_menu_video_youtube_order);
+    while (fd >= 0 &&
+           root_menu_video_preview_path_count < IPODJS_PREVIEW_MAX_ITEMS &&
+           read_line(fd, line, sizeof(line)) > 0)
+    {
+        char parsed[1024];
+        char *fields[20];
+        const char *thumbnail;
+
+        video_trim_line(line);
+        if (line[0] == '#' || line[0] == '\0' ||
+            !strncmp(line, "id\t", 3))
+            continue;
+
+        strmemccpy(parsed, line, sizeof(parsed));
+        if (video_split_tsv(parsed, fields, ARRAYLEN(fields)))
+            thumbnail = fields[19][0] ? fields[19] : fields[13];
+        else
+        {
+            char *legacy_fields[19];
+
+            strmemccpy(parsed, line, sizeof(parsed));
+            if (!video_split_tsv(parsed, legacy_fields,
+                                 ARRAYLEN(legacy_fields)))
+                continue;
+            thumbnail = legacy_fields[13];
+        }
+        if (thumbnail[0] == '/' && file_exists(thumbnail))
+            root_menu_video_preview_add_path(thumbnail);
+    }
+
+    if (fd >= 0)
+        close(fd);
+}
+
+static void root_menu_video_preview_load_tiktok_paths(void)
+{
+    char line[1024];
+    int fd = open(ROCKBOX_DIR "/tiktok/library.tsv", O_RDONLY);
+
+    slideshow_order_reset(&root_menu_video_tiktok_order);
+    while (fd >= 0 &&
+           root_menu_video_preview_path_count < IPODJS_PREVIEW_MAX_ITEMS &&
+           read_line(fd, line, sizeof(line)) > 0)
+    {
+        char parsed[1024];
+        char *fields[9];
+        const char *thumbnail;
+
+        video_trim_line(line);
+        if (line[0] == '#' || line[0] == '\0' ||
+            !strncmp(line, "id\t", 3))
+            continue;
+
+        strmemccpy(parsed, line, sizeof(parsed));
+        if (video_split_tsv(parsed, fields, ARRAYLEN(fields)))
+            thumbnail = fields[8][0] ? fields[8] : fields[7];
+        else
+        {
+            char *legacy_fields[8];
+
+            strmemccpy(parsed, line, sizeof(parsed));
+            if (!video_split_tsv(parsed, legacy_fields,
+                                 ARRAYLEN(legacy_fields)))
+                continue;
+            thumbnail = legacy_fields[7];
+        }
+        if (thumbnail[0] == '/' && file_exists(thumbnail))
+            root_menu_video_preview_add_path(thumbnail);
+    }
+
+    if (fd >= 0)
+        close(fd);
+}
+
+static void root_menu_video_preview_load_onlyfans_paths(void)
+{
+    char line[MAX_PATH + 16];
+    int fd = open(ROCKBOX_DIR "/onlyfans/previews.tsv", O_RDONLY);
+
+    while (fd >= 0 &&
+           root_menu_video_preview_path_count < IPODJS_PREVIEW_MAX_ITEMS &&
+           read_line(fd, line, sizeof(line)) > 0)
+    {
+        video_trim_line(line);
+        if (!line[0] || line[0] == '#' || !strcmp(line, "path"))
+            continue;
+        if (line[0] == '/' && file_exists(line))
+            root_menu_video_preview_add_path(line);
+    }
+    if (fd >= 0)
+        close(fd);
+}
+
+static void root_menu_video_preview_load_instagram_paths(void)
+{
+    char line[MAX_PATH + 16];
+    int fd = open(ROCKBOX_DIR "/instagram/previews.tsv", O_RDONLY);
+
+    while (fd >= 0 &&
+           root_menu_video_preview_path_count < IPODJS_PREVIEW_MAX_ITEMS &&
+           read_line(fd, line, sizeof(line)) > 0)
+    {
+        video_trim_line(line);
+        if (!line[0] || line[0] == '#' || !strcmp(line, "path"))
+            continue;
+        if (line[0] == '/' && file_exists(line))
+            root_menu_video_preview_add_path(line);
+    }
+    if (fd >= 0)
+        close(fd);
+}
+
+static void root_menu_video_preview_load_reddit_paths(void)
+{
+    char line[MAX_PATH + 16];
+    int fd = open(ROCKBOX_DIR "/reddit/previews.tsv", O_RDONLY);
+
+    while (fd >= 0 &&
+           root_menu_video_preview_path_count < IPODJS_PREVIEW_MAX_ITEMS &&
+           read_line(fd, line, sizeof(line)) > 0)
+    {
+        video_trim_line(line);
+        if (!line[0] || line[0] == '#' || !strcmp(line, "path"))
+            continue;
+        if (line[0] == '/' && file_exists(line))
+            root_menu_video_preview_add_path(line);
+    }
+    if (fd >= 0)
+        close(fd);
 }
 
 static bool root_menu_video_preview_pane_variant(const char *path,
@@ -10419,6 +10779,16 @@ static void root_menu_video_preview_ensure_paths(
 
     if (source == IPODJS_PREVIEW_VIDEOS)
         root_menu_video_preview_load_video_paths();
+    else if (source == IPODJS_PREVIEW_YOUTUBE)
+        root_menu_video_preview_load_youtube_paths();
+    else if (source == IPODJS_PREVIEW_TIKTOK)
+        root_menu_video_preview_load_tiktok_paths();
+    else if (source == IPODJS_PREVIEW_ONLYFANS)
+        root_menu_video_preview_load_onlyfans_paths();
+    else if (source == IPODJS_PREVIEW_INSTAGRAM)
+        root_menu_video_preview_load_instagram_paths();
+    else if (source == IPODJS_PREVIEW_REDDIT)
+        root_menu_video_preview_load_reddit_paths();
     else if (source == IPODJS_PREVIEW_PHOTOS)
         root_menu_video_preview_load_photo_paths();
     else if (source == IPODJS_PREVIEW_GAMES)
@@ -10578,7 +10948,12 @@ static long root_menu_video_source_slideshow_period(
 {
     if (source == IPODJS_PREVIEW_AVATAR)
         return MAX(1, HZ / 6);
-    if (source == IPODJS_PREVIEW_PHOTOS)
+    if (source == IPODJS_PREVIEW_PHOTOS ||
+        source == IPODJS_PREVIEW_YOUTUBE ||
+        source == IPODJS_PREVIEW_TIKTOK ||
+        source == IPODJS_PREVIEW_ONLYFANS ||
+        source == IPODJS_PREVIEW_INSTAGRAM ||
+        source == IPODJS_PREVIEW_REDDIT)
         return HZ * 6;
     return HZ * 3;
 }
@@ -10586,7 +10961,12 @@ static long root_menu_video_source_slideshow_period(
 static long root_menu_video_source_slideshow_pan_duration(
     enum root_menu_video_preview_source source)
 {
-    if (source == IPODJS_PREVIEW_PHOTOS)
+    if (source == IPODJS_PREVIEW_PHOTOS ||
+        source == IPODJS_PREVIEW_YOUTUBE ||
+        source == IPODJS_PREVIEW_TIKTOK ||
+        source == IPODJS_PREVIEW_ONLYFANS ||
+        source == IPODJS_PREVIEW_INSTAGRAM ||
+        source == IPODJS_PREVIEW_REDDIT)
         return HZ * 6;
     return HZ * 2;
 }
@@ -10604,7 +10984,12 @@ static long root_menu_video_source_slideshow_prefetch_phase(
 {
     if (source == IPODJS_PREVIEW_AVATAR)
         return MAX(1, root_menu_video_source_slideshow_period(source) / 2);
-    if (source == IPODJS_PREVIEW_PHOTOS)
+    if (source == IPODJS_PREVIEW_PHOTOS ||
+        source == IPODJS_PREVIEW_YOUTUBE ||
+        source == IPODJS_PREVIEW_TIKTOK ||
+        source == IPODJS_PREVIEW_ONLYFANS ||
+        source == IPODJS_PREVIEW_INSTAGRAM ||
+        source == IPODJS_PREVIEW_REDDIT)
         return root_menu_video_source_slideshow_period(source) / 2;
     return HZ;
 }
@@ -10617,6 +11002,12 @@ static int root_menu_video_source_slideshow_wanted(
 
     if (source == IPODJS_PREVIEW_PHOTOS)
         return slideshow_order_index(&root_menu_video_photo_order, cycle,
+                                     root_menu_video_preview_path_count);
+    if (source == IPODJS_PREVIEW_YOUTUBE)
+        return slideshow_order_index(&root_menu_video_youtube_order, cycle,
+                                     root_menu_video_preview_path_count);
+    if (source == IPODJS_PREVIEW_TIKTOK)
+        return slideshow_order_index(&root_menu_video_tiktok_order, cycle,
                                      root_menu_video_preview_path_count);
 
     return (int)(cycle % root_menu_video_preview_path_count);
@@ -10868,8 +11259,7 @@ static void root_menu_video_draw_preview_for_title(const char *title,
     lcd_set_foreground(IPODJS_PREVIEW_TEXT);
     lcd_set_background(IPODJS_PREVIEW_BOTTOM);
 
-    if (title && (!strcmp(title, "Applications") ||
-                  !strcmp(title, "Weather")))
+    if (title && !strcmp(title, "Weather"))
     {
         root_menu_video_draw_weather_preview(x, y, w, h);
         return;
@@ -10919,6 +11309,11 @@ static void root_menu_video_draw_preview_for_title(const char *title,
                                                 x, y, w, h);
     }
     else if (source == IPODJS_PREVIEW_VIDEOS ||
+             source == IPODJS_PREVIEW_YOUTUBE ||
+             source == IPODJS_PREVIEW_TIKTOK ||
+             source == IPODJS_PREVIEW_ONLYFANS ||
+             source == IPODJS_PREVIEW_INSTAGRAM ||
+             source == IPODJS_PREVIEW_REDDIT ||
              source == IPODJS_PREVIEW_PHOTOS ||
              source == IPODJS_PREVIEW_GAMES ||
              source == IPODJS_PREVIEW_POKEMINI ||
@@ -12378,6 +12773,7 @@ bool root_menu_ipodjs_handle_lockscreen(void)
     if (!root_menu_video_enabled() || !button_hold())
         return false;
 
+    root_menu_video_prepare_lock_font();
     root_menu_video_hold_static_frame_valid = false;
     albumlist_slideshow_set_paused(true);
     button_clear_queue();
@@ -17026,6 +17422,18 @@ static int root_menu_video_extras_menu(void)
                     redraw = true;
                     break;
                 }
+                /* Files is privacy-gated only from Extras.  GO_TO_FILEBROWSER
+                 * is also used by Music and custom Home entries, so guarding
+                 * it in root_menu() would incorrectly put Music behind the
+                 * device PIN. */
+                if (root_menu_video_extras_items[selected].screen ==
+                        GO_TO_FILEBROWSER &&
+                    videos_files_lock_active() &&
+                    !videos_unlock_files_browser())
+                {
+                    redraw = true;
+                    break;
+                }
                 return root_menu_video_finish_native_screen(
                     root_menu_video_extras_items[selected].screen);
             case ACTION_STD_MENU:
@@ -17040,30 +17448,256 @@ static int root_menu_video_extras_menu(void)
 struct root_menu_video_application_item {
     const char *label;
     int (*function)(void *param);
+    const char *icon;
 };
 
 static const struct root_menu_video_application_item
 root_menu_video_application_items[] = {
-    { "Clock", launch_clock_plugin },
-    { "Desktop Mode", launch_desktop_mode },
-    { "Achievements", launch_achievements_plugin },
-    { "DIRECTV", launch_livetv_plugin },
-    { "Sitekick", launch_sitekick_plugin },
-    { "Tamagotchi", launch_tamagotchi_plugin },
-    { "Maps", launch_maps_plugin },
-    { "Weather", launch_weather_plugin },
-    { "Calm", launch_calm_plugin },
-    { "Internet", launch_offlineweb_plugin },
-    { "Pocket Sky", launch_pocketsky_plugin },
+    { "Clock", launch_clock_plugin, "clock.46x46x24.bmp" },
+    { "Desktop Mode", launch_desktop_mode, "desktop-mode.46x46x24.bmp" },
+    { "YouTube", launch_youtube_plugin, "youtube.46x46x24.bmp" },
+    { "Spotify Wrapped", launch_spotify_wrapped_plugin,
+      "spotify-wrapped.46x46x24.bmp" },
+    { "TikTok", launch_tiktok_plugin, "tiktok.46x46x24.bmp" },
+    { "OnlyFans", launch_onlyfans_plugin, "onlyfans.46x46x24.bmp" },
+    { "Instagram", launch_instagram_plugin, "instagram.46x46x24.bmp" },
+    { "Reddit", launch_reddit_plugin, "reddit.46x46x24.bmp" },
+    { "Achievements", launch_achievements_plugin,
+      "achievements.46x46x24.bmp" },
+    { "DIRECTV", launch_livetv_plugin, "directv.46x46x24.bmp" },
+    { "Sitekick", launch_sitekick_plugin, "sitekick.46x46x24.bmp" },
+    { "Tamagotchi", launch_tamagotchi_plugin, "tamagotchi.46x46x24.bmp" },
+    { "Maps", launch_maps_plugin, "maps.46x46x24.bmp" },
+    { "Weather", launch_weather_plugin, "weather.46x46x24.bmp" },
+    { "Calm", launch_calm_plugin, "calm.46x46x24.bmp" },
+    { "Internet", launch_offlineweb_plugin, "internet.46x46x24.bmp" },
+    { "Pocket Sky", launch_pocketsky_plugin, "pocket-sky.46x46x24.bmp" },
 #ifdef HAVE_TAGCACHE
-    { "QR Codes", launch_qrcode_tool },
+    { "QR Codes", launch_qrcode_tool, "qr-codes.46x46x24.bmp" },
 #endif
-    { "Pokedex", launch_pokedex_plugin },
+    { "Pokedex", launch_pokedex_plugin, "pokedex.46x46x24.bmp" },
+    { "Netflix", videos_scrn, "netflix.46x46x24.bmp" },
+#if defined(IPOD_6G) && (defined(HAVE_ROLO) || defined(SIMULATOR))
+    { "RoloLauncher", launch_rolo_launcher, "rolo-launcher.46x46x24.bmp" },
+#endif
 };
+
+static bool root_menu_video_onlyfans_visible;
+
+static void root_menu_video_prepare_application_visibility(void)
+{
+    root_menu_video_onlyfans_visible =
+        !file_exists(ROCKBOX_DIR "/onlyfans/hidden");
+}
+
+static bool root_menu_video_application_item_visible(int index)
+{
+    return strcmp(root_menu_video_application_items[index].label,
+                  "OnlyFans") ||
+           root_menu_video_onlyfans_visible;
+}
+
+static int root_menu_video_application_count(void)
+{
+    int count = 0;
+
+    for (int i = 0; i < (int)ARRAYLEN(root_menu_video_application_items); i++)
+        if (root_menu_video_application_item_visible(i))
+            count++;
+    return count;
+}
+
+static const struct root_menu_video_application_item *
+root_menu_video_application_item_at(int visible_index)
+{
+    for (int i = 0; i < (int)ARRAYLEN(root_menu_video_application_items); i++)
+    {
+        if (!root_menu_video_application_item_visible(i))
+            continue;
+        if (visible_index-- == 0)
+            return &root_menu_video_application_items[i];
+    }
+    return &root_menu_video_application_items[0];
+}
+
+#define IPODJS_APPLICATION_COLUMNS 4
+#define IPODJS_APPLICATION_ROWS 3
+#define IPODJS_APPLICATION_PAGE_ITEMS \
+    (IPODJS_APPLICATION_COLUMNS * IPODJS_APPLICATION_ROWS)
+
+static bool root_menu_video_applications_ios3(void)
+{
+    return global_settings.ui_engine_applications_appearance ==
+           UI_ENGINE_APPLICATIONS_IOS3;
+}
+
+/* Application icons are primary navigation content, not decorative preview
+ * work.  Decode the fixed, packaged 46px assets once when the screen is
+ * entered.  Their storage aliases the existing preview cache union, so this
+ * view adds no BSS and cannot ask playback to shrink its audio buffer. */
+static void root_menu_video_prepare_application_icons(void)
+{
+    char path[MAX_PATH];
+
+    root_menu_video_preview_use_cache(IPODJS_PREVIEW_CACHE_APPLICATIONS);
+    (void)root_menu_video_wps_font(false);
+
+    for (int i = 0;
+         i < MIN((int)ARRAYLEN(root_menu_video_application_items),
+                 IPODJS_APPLICATION_ICON_CACHE); i++)
+    {
+        struct root_menu_video_application_icon_slot *slot =
+            &root_menu_video_application_icon_slots[i];
+        int rc;
+
+        if (slot->tried)
+            continue;
+        slot->tried = true;
+        snprintf(path, sizeof(path), IPODJS_ASSET_DIR "/applications/%s",
+                 root_menu_video_application_items[i].icon);
+        if (!file_exists(path))
+            continue;
+
+        memset(&slot->bm, 0, sizeof(slot->bm));
+        slot->bm.width = IPODJS_APPLICATION_ICON_SIZE;
+        slot->bm.height = IPODJS_APPLICATION_ICON_SIZE;
+        slot->bm.format = FORMAT_NATIVE;
+        slot->bm.data = slot->data;
+        rc = read_bmp_file(path, &slot->bm, sizeof(slot->data),
+                           FORMAT_NATIVE | FORMAT_DITHER |
+                           FORMAT_TRANSPARENT, NULL);
+        slot->valid = rc > 0 &&
+                      slot->bm.width == IPODJS_APPLICATION_ICON_SIZE &&
+                      slot->bm.height == IPODJS_APPLICATION_ICON_SIZE;
+    }
+}
+
+static struct bitmap *root_menu_video_application_icon(
+    const struct root_menu_video_application_item *item)
+{
+    int index;
+
+    if (!item)
+        return NULL;
+    index = (int)(item - root_menu_video_application_items);
+    if (index < 0 || index >= IPODJS_APPLICATION_ICON_CACHE ||
+        !root_menu_video_application_icon_slots[index].valid)
+        return NULL;
+    return &root_menu_video_application_icon_slots[index].bm;
+}
+
+static void root_menu_video_draw_application_focus(int x, int y,
+                                                    int width, int height)
+{
+    const int half = MAX(1, height / 2);
+
+    for (int line = 0; line < height; line++)
+    {
+        int edge = MIN(line, height - line - 1);
+        int inset = edge == 0 ? 5 : edge == 1 ? 3 : edge == 2 ? 2 :
+                    edge == 3 ? 1 : 0;
+        int alpha;
+        unsigned color;
+
+        if (line < half)
+        {
+            alpha = (line * 255) / half;
+            color = root_menu_video_rgb_blend(116, 205, 255,
+                                               38, 146, 226, alpha);
+        }
+        else
+        {
+            alpha = ((line - half) * 255) / MAX(1, height - half);
+            color = root_menu_video_rgb_blend(38, 146, 226,
+                                               16, 83, 170, alpha);
+        }
+        lcd_set_foreground(color);
+        lcd_hline(x + inset, x + width - inset - 1, y + line);
+    }
+
+    lcd_set_foreground(LCD_RGBPACK(205, 235, 255));
+    lcd_hline(x + 6, x + width - 7, y + 1);
+}
+
+static void root_menu_video_draw_applications_ios3(int selected)
+{
+    const int count = root_menu_video_application_count();
+    const int pages = MAX(1, (count + IPODJS_APPLICATION_PAGE_ITEMS - 1) /
+                             IPODJS_APPLICATION_PAGE_ITEMS);
+    const int page = selected / IPODJS_APPLICATION_PAGE_ITEMS;
+    const int first = page * IPODJS_APPLICATION_PAGE_ITEMS;
+    const int icon_y[IPODJS_APPLICATION_ROWS] = { 29, 95, 161 };
+    const unsigned body_top = LCD_RGBPACK(31, 43, 65);
+    const unsigned body_bottom = LCD_RGBPACK(3, 6, 12);
+
+    lcd_set_viewport(NULL);
+    lcd_set_drawmode(DRMODE_SOLID);
+    lcd_set_background(body_bottom);
+    lcd_clear_display();
+    root_menu_video_gradient(0, IPODJS_HEADER_HEIGHT, LCD_WIDTH,
+                             LCD_HEIGHT - IPODJS_HEADER_HEIGHT,
+                             body_top, body_bottom);
+    root_menu_video_draw_status_title("Applications");
+
+    for (int cell = 0; cell < IPODJS_APPLICATION_PAGE_ITEMS; cell++)
+    {
+        int index = first + cell;
+        int row = cell / IPODJS_APPLICATION_COLUMNS;
+        int column = cell % IPODJS_APPLICATION_COLUMNS;
+        int cell_x = column * (LCD_WIDTH / IPODJS_APPLICATION_COLUMNS);
+        int image_x = cell_x +
+            ((LCD_WIDTH / IPODJS_APPLICATION_COLUMNS) -
+             IPODJS_APPLICATION_ICON_SIZE) / 2;
+        int label_y = icon_y[row] + IPODJS_APPLICATION_ICON_SIZE + 2;
+        const struct root_menu_video_application_item *item;
+        struct bitmap *icon;
+
+        if (index >= count)
+            break;
+        item = root_menu_video_application_item_at(index);
+        icon = root_menu_video_application_icon(item);
+
+        if (index == selected)
+            root_menu_video_draw_application_focus(cell_x + 4,
+                icon_y[row] - 3,
+                LCD_WIDTH / IPODJS_APPLICATION_COLUMNS - 8, 64);
+        if (icon)
+            lcd_bmp(icon, image_x, icon_y[row]);
+
+        lcd_setfont(root_menu_video_wps_font(false));
+        lcd_set_foreground(LCD_BLACK);
+        root_menu_video_puts_fit(cell_x + 3, label_y + 1,
+            LCD_WIDTH / IPODJS_APPLICATION_COLUMNS - 6,
+            item->label, true);
+        lcd_set_foreground(LCD_WHITE);
+        root_menu_video_puts_fit(cell_x + 3, label_y,
+            LCD_WIDTH / IPODJS_APPLICATION_COLUMNS - 6,
+            item->label, true);
+    }
+
+    if (pages > 1)
+    {
+        int dots_w = pages * 7 - 3;
+        int dots_x = (LCD_WIDTH - dots_w) / 2;
+
+        for (int i = 0; i < pages; i++)
+        {
+            lcd_set_foreground(i == page ? LCD_WHITE :
+                               LCD_RGBPACK(102, 111, 126));
+            lcd_fillrect(dots_x + i * 7, 230, 4, 4);
+        }
+    }
+
+    ipodjs_video_draw_hold_overlay();
+    if (!ipodjs_ui_transition_present(&screens[SCREEN_MAIN]))
+        lcd_update();
+    ipodjs_trace_screen("Applications", "ios3-grid", selected, first,
+                        count, 0, 0, LCD_WIDTH, LCD_HEIGHT);
+}
 
 static void root_menu_video_draw_applications_menu(int selected)
 {
-    int count = ARRAYLEN(root_menu_video_application_items);
+    int count = root_menu_video_application_count();
     int row_h = root_menu_video_row_height();
     int visible = root_menu_video_visible_rows(row_h);
     int top = selected >= visible ? selected - visible + 1 : 0;
@@ -17101,7 +17735,7 @@ static void root_menu_video_draw_applications_menu(int selected)
         }
         root_menu_video_puts_fit(
             6, item_y + 4, IPODJS_LIST_WIDTH - 24,
-            root_menu_video_application_items[index].label, false);
+            root_menu_video_application_item_at(index)->label, false);
         if (active)
             root_menu_video_draw_arrow(IPODJS_LIST_WIDTH - 13,
                                        item_y + (row_h - 6) / 2);
@@ -17111,7 +17745,7 @@ static void root_menu_video_draw_applications_menu(int selected)
                        LCD_RGBPACK(54, 60, 70) : IPODJS_SPLIT);
     lcd_vline(IPODJS_SPLIT_X, 0, LCD_HEIGHT - 1);
     root_menu_video_draw_preview_for_title(
-        root_menu_video_application_items[selected].label,
+        root_menu_video_application_item_at(selected)->label,
         x, 0, LCD_WIDTH - x, LCD_HEIGHT);
     ipodjs_video_draw_hold_overlay();
     if (!ipodjs_ui_transition_present(&screens[SCREEN_MAIN]))
@@ -17122,14 +17756,14 @@ static void root_menu_video_draw_applications_menu(int selected)
 
 static void root_menu_video_draw_applications_preview_only(int selected)
 {
-    int count = ARRAYLEN(root_menu_video_application_items);
+    int count = root_menu_video_application_count();
     int x = IPODJS_PREVIEW_X;
 
     selected = MAX(0, MIN(selected, count - 1));
     lcd_set_viewport(NULL);
     lcd_set_drawmode(DRMODE_SOLID);
     root_menu_video_draw_preview_for_title(
-        root_menu_video_application_items[selected].label,
+        root_menu_video_application_item_at(selected)->label,
         x, 0, LCD_WIDTH - x, LCD_HEIGHT);
     lcd_update_rect(x, 0, LCD_WIDTH - x, LCD_HEIGHT);
 }
@@ -17145,29 +17779,40 @@ static int root_menu_video_applications_menu(void)
     long next_hold_refresh = 0;
     long preview_io_settle_tick =
         current_tick + IPODJS_ROOT_PREVIEW_SETTLE_DELAY;
+    bool ios3 = root_menu_video_applications_ios3();
 
     root_menu_video_enter_native_screen();
-    root_menu_video_prepare_sitekick_preview();
+    root_menu_video_prepare_application_visibility();
+    if (ios3)
+        root_menu_video_prepare_application_icons();
+    else
+        root_menu_video_prepare_sitekick_preview();
     button_clear_queue();
 
     while (true)
     {
         int action;
-        int count = ARRAYLEN(root_menu_video_application_items);
+        int count = root_menu_video_application_count();
 
         root_menu_video_hold_update(&held, &redraw);
         if (redraw)
         {
-            root_menu_video_draw_applications_menu(selected);
+            if (ios3)
+                root_menu_video_draw_applications_ios3(selected);
+            else
+                root_menu_video_draw_applications_menu(selected);
             redraw = false;
             redraw_rows = false;
         }
         else if (redraw_rows)
         {
-            if (!root_menu_video_draw_native_pane_delta(
+            if (ios3)
+                root_menu_video_draw_applications_ios3(selected);
+            else if (!root_menu_video_draw_native_pane_delta(
                     previous_selected, selected, count,
-                    root_menu_video_application_items[previous_selected].label,
-                    root_menu_video_application_items[selected].label, false))
+                    root_menu_video_application_item_at(
+                        previous_selected)->label,
+                    root_menu_video_application_item_at(selected)->label, false))
                 root_menu_video_draw_applications_menu(selected);
             redraw_rows = false;
         }
@@ -17182,7 +17827,7 @@ static int root_menu_video_applications_menu(void)
             case ACTION_NONE:
             {
                 const char *title =
-                    root_menu_video_application_items[selected].label;
+                    root_menu_video_application_item_at(selected)->label;
                 enum root_menu_video_preview_source source =
                     root_menu_video_preview_source_for_title(title);
                 if (held && TIME_AFTER(current_tick, next_hold_refresh))
@@ -17190,7 +17835,7 @@ static int root_menu_video_applications_menu(void)
                     next_hold_refresh = current_tick + HZ;
                     redraw = true;
                 }
-                else if (!held &&
+                else if (!ios3 && !held &&
                          TIME_AFTER(current_tick, preview_io_settle_tick) &&
                          button_queue_count() == 0 &&
                          ((source > IPODJS_PREVIEW_MUSIC &&
@@ -17200,16 +17845,16 @@ static int root_menu_video_applications_menu(void)
                 {
                     redraw = true;
                 }
-                else if (!held &&
+                else if (!ios3 && !held &&
                          root_menu_video_sitekick_animation_due(
                              title,
                              &next_slideshow))
                     root_menu_video_draw_applications_preview_only(selected);
-                else if (!held &&
+                else if (!ios3 && !held &&
                          root_menu_video_custom_preview_animation_due(
                              title, &next_slideshow))
                     root_menu_video_draw_applications_preview_only(selected);
-                else if (!held &&
+                else if (!ios3 && !held &&
                          root_menu_video_should_animate(source,
                                                        &next_slideshow))
                     redraw = true;
@@ -17221,8 +17866,8 @@ static int root_menu_video_applications_menu(void)
                     break;
                 previous_selected = selected;
                 selected = MAX(0, selected - 1);
-                if (selected != previous_selected &&
-                    !strcmp(root_menu_video_application_items[selected].label,
+                if (!ios3 && selected != previous_selected &&
+                    !strcmp(root_menu_video_application_item_at(selected)->label,
                             "Sitekick"))
                     root_menu_video_prepare_sitekick_preview();
                 if (selected != previous_selected)
@@ -17236,8 +17881,8 @@ static int root_menu_video_applications_menu(void)
                     break;
                 previous_selected = selected;
                 selected = MIN(count - 1, selected + 1);
-                if (selected != previous_selected &&
-                    !strcmp(root_menu_video_application_items[selected].label,
+                if (!ios3 && selected != previous_selected &&
+                    !strcmp(root_menu_video_application_item_at(selected)->label,
                             "Sitekick"))
                     root_menu_video_prepare_sitekick_preview();
                 if (selected != previous_selected)
@@ -17252,10 +17897,14 @@ static int root_menu_video_applications_menu(void)
                     break;
                 ipodjs_ui_transition_begin(1);
                 root_menu_video_finish_native_screen(0);
-                ret = root_menu_video_application_items[selected].function(
-                    NULL);
+                ret = root_menu_video_application_item_at(
+                    selected)->function(NULL);
                 root_menu_video_enter_native_screen();
-                root_menu_video_prepare_sitekick_preview();
+                root_menu_video_prepare_application_visibility();
+                if (ios3)
+                    root_menu_video_prepare_application_icons();
+                else
+                    root_menu_video_prepare_sitekick_preview();
                 if (ret == MENU_ATTACHED_USB || ret == GO_TO_WPS)
                     return root_menu_video_finish_native_screen(ret);
                 ipodjs_ui_transition_begin(-1);
@@ -17589,6 +18238,26 @@ static void ipodjs_steam_load_native_games(void)
 
 static void ipodjs_steam_load_special_games(void)
 {
+    if (file_exists(ROCKBOX_DIR "/zelda3/zelda3_assets.dat"))
+    {
+        (void)ipodjs_steam_add_game(
+            "The Legend of Zelda: A Link to the Past", "Super Nintendo",
+            "Action-adventure", "Nintendo EAD", "Nintendo",
+            "The installed native A Link to the Past source port.",
+            PLUGIN_GAMES_DIR "/zelda3.rock", NULL,
+            ROCKBOX_DIR "/zelda3/cover.bmp", 1991);
+    }
+    if (file_exists(ROCKBOX_DIR "/roms/snes/Secret of Mana (USA).sfc"))
+    {
+        (void)ipodjs_steam_add_game(
+            "Secret of Mana", "Super Nintendo", "Action role-playing",
+            "Square", "Square",
+            "The installed Secret of Mana cartridge image running through "
+            "SNES Lite.",
+            PLUGIN_GAMES_DIR "/snes_lite.rock",
+            ROCKBOX_DIR "/roms/snes/Secret of Mana (USA).sfc",
+            ROCKBOX_DIR "/roms/snes/Secret of Mana (USA).bmp", 1993);
+    }
     (void)ipodjs_steam_add_game(
         "Super Mario 64", "Nintendo 64", "Platformer", "Nintendo EAD",
         "Nintendo", "The installed native Super Mario 64 port.",
@@ -17736,7 +18405,10 @@ static void ipodjs_steam_load_library(void)
     qsort(ipodjs_steam_games, ipodjs_steam_game_count,
           sizeof(ipodjs_steam_games[0]), ipodjs_steam_compare_games);
     ipodjs_steam_build_consoles();
-    ipodjs_steam_console = ipodjs_steam_find_console("Uxn");
+    /* Land on the complete library. A console-specific default made a
+     * correctly installed native game (such as Zelda3 under Super Nintendo)
+     * appear absent until the user opened the console picker. */
+    ipodjs_steam_console = ipodjs_steam_find_console("All Games");
     ipodjs_steam_build_visible_games();
 }
 
@@ -18860,6 +19532,14 @@ static void root_menu_video_qs_value(int item, char *buf, size_t buf_size)
                 break;
             }
 #endif
+            /* Auto remains the persistent user preference, but report the
+             * effective state once a qualified video dock has started SVID. */
+            if (mode == IPOD6G_VIDEOOUT_AUTO &&
+                ipod6g_videoout_active())
+            {
+                strmemccpy(buf, "On", buf_size);
+                break;
+            }
             strmemccpy(buf, states[mode], buf_size);
             break;
         }
@@ -19035,9 +19715,11 @@ static bool root_menu_video_qs_adjust(int item, int delta)
                 break;
 #endif
             (void)delta;
+            /* Auto is the normal enabled state: it starts output only after
+             * a video dock is identified and is dormant while undocked. */
             value = global_settings.composite_video_output ==
-                    IPOD6G_VIDEOOUT_ON ? IPOD6G_VIDEOOUT_OFF :
-                                        IPOD6G_VIDEOOUT_ON;
+                    IPOD6G_VIDEOOUT_OFF ? IPOD6G_VIDEOOUT_AUTO :
+                                         IPOD6G_VIDEOOUT_OFF;
             global_settings.composite_video_output = value;
             settings_apply_ipod6g_videoout(value);
             changed = true;
@@ -19338,7 +20020,7 @@ static void root_menu_video_draw_qs_footer(int selected, bool adjusting)
 #if defined(IPOD_6G) && !defined(SIMULATOR)
     else if (selected == IPODJS_QS_COMPOSITE_OUT)
         root_menu_video_draw_qs_footer_text(
-            "Select to turn composite output on or off");
+            "Select for automatic dock output or off");
 #endif
     else if (selected == IPODJS_QS_CACHE_MEMORY)
         root_menu_video_draw_qs_footer_text(
@@ -20326,6 +21008,29 @@ static int root_menu_video_main_menu_config(void)
     return 0;
 }
 
+static int root_menu_video_onlyfans_visibility(void)
+{
+    int selected = file_exists(ROCKBOX_DIR "/onlyfans/hidden") ? 1 : 0;
+    MENUITEM_STRINGLIST(menu, "OnlyFans", NULL, "Show", "Hide");
+
+    selected = do_menu(&menu, &selected, NULL, false);
+    if (selected == 0)
+        remove(ROCKBOX_DIR "/onlyfans/hidden");
+    else if (selected == 1)
+    {
+        int fd;
+        mkdir(ROCKBOX_DIR "/onlyfans");
+        fd = open(ROCKBOX_DIR "/onlyfans/hidden",
+                  O_WRONLY | O_CREAT | O_TRUNC, 0666);
+        if (fd >= 0)
+        {
+            write(fd, "hidden\n", 7);
+            close(fd);
+        }
+    }
+    return 0;
+}
+
 static const struct root_menu_video_settings_item
 root_menu_video_settings_items[] = {
     { "Main Menu", NULL, root_menu_video_main_menu_config },
@@ -20338,6 +21043,7 @@ root_menu_video_settings_items[] = {
 #endif
     { "System", &system_menu, NULL },
     { "Manage Settings", &manage_settings, NULL },
+    { "OnlyFans Visibility", NULL, root_menu_video_onlyfans_visibility },
     { "All Settings", &main_menu_, NULL },
 };
 

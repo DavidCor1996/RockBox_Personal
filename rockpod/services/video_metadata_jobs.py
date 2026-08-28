@@ -11,6 +11,7 @@ class JobSignals(QObject):
     result = Signal(object)
     error = Signal(str)
     finished = Signal()
+    progress = Signal(int, int, str)
 
 
 class VideoMetadataSearchJob(QRunnable):
@@ -138,6 +139,57 @@ class YoutubeImportMetadataJob(QRunnable):
             )
         except Exception as exc:
             logger.exception("YouTube import metadata lookup failed")
+            self.signals.error.emit(str(exc))
+        finally:
+            self.signals.finished.emit()
+
+
+class VideoMetadataBackfillJob(QRunnable):
+    """Resolve every series in the library and fill its empty metadata.
+
+    One provider lookup per series - not per episode - covers a library of
+    hundreds of files, and the same pass stores the real show and season
+    covers so the desktop rows and the iPod manifest share one source of
+    truth.
+    """
+
+    def __init__(self, rows):
+        super().__init__()
+        self.signals = JobSignals()
+        self._rows = [dict(row) for row in rows or []]
+
+    @Slot()
+    def run(self):
+        try:
+            from services.video_metadata_backfill import (
+                VideoMetadataBackfill,
+                group_show_rows,
+            )
+
+            backfill = VideoMetadataBackfill()
+            groups = group_show_rows(self._rows)
+            updates = []
+            unmatched = []
+            total = len(groups)
+            for index, key in enumerate(sorted(groups), start=1):
+                group = groups[key]
+                self.signals.progress.emit(index, total, group.title)
+                try:
+                    plan = backfill.plan_show(group)
+                except Exception as exc:
+                    logger.warning("Backfill failed for %s: %s", group.title, exc)
+                    unmatched.append(group.title)
+                    continue
+                if not plan:
+                    unmatched.append(group.title)
+                    continue
+                updates.extend(plan["updates"])
+            backfill.save_catalog()
+            self.signals.result.emit(
+                {"updates": updates, "unmatched": unmatched, "series": total}
+            )
+        except Exception as exc:
+            logger.exception("Video metadata backfill failed")
             self.signals.error.emit(str(exc))
         finally:
             self.signals.finished.emit()

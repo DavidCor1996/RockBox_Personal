@@ -4,14 +4,14 @@ Target define: -DIPOD_6G
 Memory: 64
 CPU: arm
 Manufacturer: s5l8702
-Version: a4f21aa73dM-260802
+Version: 0546ff551dM-260828
 Binary: rockboxui
-Binary size: 6693472
+Binary size: 8389624
 Voice format: 400
-Actual size: 6693472
-RAM usage: 76244072
+Actual size: 8389624
+RAM usage: 77942600
 Features: accessory_supply:backlight_brightness:crossfade:headphone_detection:hold_button:hotkey:lcd_bitmap:lcd_non-mono:lcd_color:lcd_sleep:morse_input:pitchscreen:multivolume:quickscreen:recording:recording_linein:recording_mic:rtc:swcodec:tagcache:tc_ramcache:charging:usb_charging_enable:wheel_acceleration:lineout_poweroff:large_plugin_buffer:albumart:disk_storage:scrollwheel:usb_power:himem:hardware_click:play_frequency:clear_settings_on_hold:perceptual_volume:codec_aac_he
-gcc: gcc (GCC) 16.1.1 20260625
-ld: GNU ld (GNU Binutils) 2.46.1
-Host gcc: gcc (GCC) 16.1.1 20260625
+gcc: gcc (GCC) 16.2.1 20260810
+ld: GNU ld (GNU Binutils) 2.47
+Host gcc: gcc (GCC) 16.2.1 20260810
 Host system: Linux

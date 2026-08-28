@@ -1,5 +1,6 @@
 """Tests for video thumbnail caching."""
 
+import json
 import os
 import sys
 import time
@@ -29,6 +30,81 @@ class _FakeFrameRunner:
         target = command[-1]
         Image.new("RGB", (320, 180), color=(120, 140, 180)).save(target, "JPEG")
         return _FakeCommandResult()
+
+
+class _ChapterRunner:
+    def __init__(self, chapters):
+        self.commands = []
+        self._chapters = chapters
+
+    def run(self, command, cwd="", timeout=None, env=None):
+        self.commands.append(list(command))
+        result = _FakeCommandResult()
+        result.stdout = json.dumps({"chapters": self._chapters})
+        return result
+
+
+def test_named_video_chapters_supply_item_specific_skip_markers(tmp_dir):
+    video_path = os.path.join(tmp_dir, "Movie.mkv")
+    with open(video_path, "wb") as handle:
+        handle.write(b"video")
+    runner = _ChapterRunner([
+        {
+            "start_time": "8.2",
+            "end_time": "42.8",
+            "tags": {"title": "Opening Credits"},
+        },
+        {
+            "start_time": "6900.1",
+            "end_time": "7200.0",
+            "tags": {"title": "End Credits"},
+        },
+    ])
+    service = VideoThumbnailService(tmp_dir, command_runner=runner)
+    service._ffprobe = "/usr/bin/ffprobe"
+    track = {
+        "file_path": video_path,
+        "title": "Movie",
+        "video_kind": "movie",
+        "duration": 7200,
+    }
+
+    assert service.video_playback_markers(track) == {
+        "intro_start": 9,
+        "intro_end": 42,
+        "credits_start": 6901,
+        "credits_duration": 0,
+    }
+    # The second lookup is disk-cached and does not run ffprobe again.
+    assert service.video_playback_markers(track)["credits_start"] == 6901
+    assert len(runner.commands) == 1
+
+
+def test_generic_chapter_names_do_not_enable_skip_buttons(tmp_dir):
+    video_path = os.path.join(tmp_dir, "Movie.mkv")
+    with open(video_path, "wb") as handle:
+        handle.write(b"video")
+    runner = _ChapterRunner([
+        {
+            "start_time": "0",
+            "end_time": "600",
+            "tags": {"title": "Chapter 1"},
+        },
+    ])
+    service = VideoThumbnailService(tmp_dir, command_runner=runner)
+    service._ffprobe = "/usr/bin/ffprobe"
+
+    assert service.video_playback_markers({
+        "file_path": video_path,
+        "title": "Movie",
+        "video_kind": "movie",
+        "duration": 600,
+    }) == {
+        "intro_start": 0,
+        "intro_end": 0,
+        "credits_start": 0,
+        "credits_duration": 0,
+    }
 
 
 def test_thumbnail_service_caches_rendered_result(tmp_dir):
@@ -215,7 +291,7 @@ def test_video_list_thumbnail_and_manifest_generated_for_ipod(tmp_dir):
         data = handle.read()
     assert "video_id\tthumb\tpreview\ttitle\tkind\tgroup_key\tdevice_path" in data
     assert f"{video_id}\tthumbs/{device_name}\tpreviews/{preview_name}\tReal Movie\tmovie" in data
-    assert data.startswith("# rockpod videolist v6\n")
+    assert data.startswith("# rockpod videolist v7\n")
     assert "\t1\t2007\tDrama\t4\tA concise synopsis." in data
     # show_art_id, season_art_id and show_plot trail the poster columns.
     assert f"netflix-detail/{detail_name}" in data
@@ -280,8 +356,11 @@ def test_verified_imdb_catalog_drives_show_and_season_art(tmp_dir):
     )
     with open(manifest_path, "r", encoding="utf-8") as handle:
         rows = handle.read().splitlines()
-    assert rows[0] == "# rockpod videolist v6"
-    assert rows[1].endswith("show_art_id\tseason_art_id\tshow_plot")
+    assert rows[0] == "# rockpod videolist v7"
+    assert rows[1].endswith(
+        "show_art_id\tseason_art_id\tshow_plot\tintro_start\tintro_end"
+        "\tcredits_start\tcredits_duration"
+    )
     assert rows[2].split("\t")[20:22] == [show_id, season_id]
 
 

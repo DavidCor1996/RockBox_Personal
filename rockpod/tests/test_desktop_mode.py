@@ -7,6 +7,24 @@ from types import SimpleNamespace
 import services.desktop_mode as desktop
 
 
+def test_desktop_mode_accepts_standard_ipod_dock_remote_buttons():
+    source = (
+        Path(desktop.__file__).resolve().parents[2]
+        / "apps/plugins/desktop_mode.c"
+    ).read_text(encoding="utf-8")
+
+    assert "static long dm_remote_button(long button)" in source
+    assert "case BUTTON_RC_LEFT:" in source
+    assert "case BUTTON_RC_RIGHT:" in source
+    assert "case BUTTON_RC_PLAY:" in source
+    assert "case BUTTON_RC_SELECT:" in source
+    assert "case BUTTON_RC_MENU:" in source
+    assert "case BUTTON_RC_STOP:" in source
+    assert "if (button & BUTTON_RC_UP)" in source
+    assert "if (button & BUTTON_RC_DOWN)" in source
+    assert "button = dm_remote_button(button);" in source
+
+
 def _valid_pack(path):
     return {
         "valid": True,

@@ -28,7 +28,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 try:
-    from PIL import Image, ImageChops, ImageDraw, ImageOps
+    from PIL import Image, ImageDraw, ImageOps
 except ImportError:  # pragma: no cover - dependency is declared in rockpod
     sys.exit("Pillow is required; run with rockpod/.venv/bin/python")
 
@@ -813,46 +813,14 @@ def snap_alpha(img: Image.Image, threshold: int = 4) -> Image.Image:
     return result
 
 
-def cel_shade(img: Image.Image, light: int = 130, shadow: int = 140,
-              shadow_color: tuple[int, int, int] = (12, 6, 18)
-              ) -> Image.Image:
-    """Overlay a soft diagonal light/shadow sheen inside the image's own
-    alpha silhouette.
-
-    Flat single-tone polygon fills read as amateur clip art next to the
-    hand-authored/AI-rendered chips (900-987): those carry real light and
-    shadow. A diagonal highlight (upper-left) fading into a diagonal
-    shadow (lower-right), masked to the shape's own alpha so it never
-    bleeds outside the silhouette, gives any flat-filled shape a sense of
-    volume for near-zero extra drawing work per chip.
-    """
-    img = img.convert("RGBA")
-    w, h = img.size
-    if w == 0 or h == 0:
-        return img
-    alpha = img.getchannel("A")
-    grad = Image.linear_gradient("L").resize((w, h))  # 0 at TL -> 255 at BR
-    inv_grad = grad.point(lambda v: 255 - v)
-    highlight_alpha = ImageChops.multiply(inv_grad, alpha).point(
-        lambda v: v * light // 255)
-    shadow_alpha = ImageChops.multiply(grad, alpha).point(
-        lambda v: v * shadow // 255)
-    shadow_layer = Image.new("RGBA", img.size, (*shadow_color, 255))
-    shadow_layer.putalpha(shadow_alpha)
-    highlight_layer = Image.new("RGBA", img.size, (255, 255, 255, 255))
-    highlight_layer.putalpha(highlight_alpha)
-    out = Image.alpha_composite(img, shadow_layer)
-    out = Image.alpha_composite(out, highlight_layer)
-    return out
-
-
-def finish_chip(img: Image.Image, threshold: int = 4) -> Image.Image:
-    """The standard finish for every RockPod-original (wave 4+) chip:
-    snap_alpha's corner-matte cleanup plus a cel-shading sheen, so flat
-    procedural fills read as dimensional game assets instead of flat clip
-    art. Use in place of a bare snap_alpha() call for any new chip kind.
-    """
-    return cel_shade(snap_alpha(img, threshold))
+# NOTE: waves 4-9 used to run every chip through a `finish_chip()` helper
+# that composited a diagonal white/near-black sheen over the whole shape
+# (`cel_shade`).  It was there to give flat single-tone polygon fills a
+# sense of volume, but on a 96x80 chip it swamped the fill: a blue rune
+# platebody and a red Habs jersey both came out the same muddy purple-grey
+# gradient.  The wave 3-9 art is now drawn by tools/sitekick_chip_art.py
+# with explicit highlight and shade facets, so those kinds call snap_alpha()
+# directly and the sheen helper is gone.
 
 
 def read_bmp32_alpha(path: Path) -> Image.Image:
@@ -1349,7 +1317,7 @@ def build_ipod_exclusive_image(kind: str, out_root: Path) -> Image.Image:
             Image.open(generated / "fairy-companion.png"), (100, 86)
         ))
     if kind == "hasan-cap":
-        return finish_chip(contain_alpha(
+        return snap_alpha(contain_alpha(
             Image.open(generated / "hasan-cap.png"), (84, 58)
         ))
     if kind == "hasan-headset":
@@ -1362,23 +1330,23 @@ def build_ipod_exclusive_image(kind: str, out_root: Path) -> Image.Image:
         left_hand = hands.crop((0, 0, hands.width // 2, hands.height))
         canvas.alpha_composite(headset, (4, 0))
         canvas.alpha_composite(left_hand, (0, 40))
-        return finish_chip(canvas)
+        return snap_alpha(canvas)
     if kind == "hasan-hoodie":
         hoodie = contain_alpha(
             Image.open(generated / "hasan-hoodie.png"), (96, 80)
         )
-        return finish_chip(clear_alpha_ellipse(hoodie, (34, 0, 62, 24)))
+        return snap_alpha(clear_alpha_ellipse(hoodie, (34, 0, 62, 24)))
     if kind == "hasan-news-aura":
-        return finish_chip(contain_alpha(
+        return snap_alpha(contain_alpha(
             Image.open(generated / "hasan-news-aura.png"), (150, 90)
         ))
     if kind == "qtc-ponytail":
         hair = contain_alpha(
             Image.open(generated / "qtc-ponytail.png"), (100, 94)
         )
-        return finish_chip(clear_alpha_ellipse(hair, (29, 31, 71, 95)))
+        return snap_alpha(clear_alpha_ellipse(hair, (29, 31, 71, 95)))
     if kind == "qtc-visor":
-        return finish_chip(contain_alpha(
+        return snap_alpha(contain_alpha(
             Image.open(generated / "qtc-visor.png"), (46, 20)
         ))
     if kind == "qtc-trophy":
@@ -1391,75 +1359,75 @@ def build_ipod_exclusive_image(kind: str, out_root: Path) -> Image.Image:
         left_hand = hands.crop((0, 0, hands.width // 2, hands.height))
         canvas.alpha_composite(trophy, (6, 0))
         canvas.alpha_composite(left_hand, (0, 42))
-        return finish_chip(canvas)
+        return snap_alpha(canvas)
     if kind == "qtc-spotlight-aura":
-        return finish_chip(contain_alpha(
+        return snap_alpha(contain_alpha(
             Image.open(generated / "qtc-spotlight-aura.png"), (140, 110)
         ))
     if kind == "maya-ranger-hat":
-        return finish_chip(contain_alpha(
+        return snap_alpha(contain_alpha(
             Image.open(generated / "maya-ranger-hat.png"), (88, 52)
         ))
     if kind == "maya-falcon-glove":
-        return finish_chip(contain_alpha(
+        return snap_alpha(contain_alpha(
             Image.open(generated / "maya-falcon-glove.png"), (110, 64)
         ))
     if kind == "maya-field-vest":
         vest = contain_alpha(
             Image.open(generated / "maya-field-vest.png"), (96, 80)
         )
-        return finish_chip(clear_alpha_ellipse(vest, (34, 0, 62, 24)))
+        return snap_alpha(clear_alpha_ellipse(vest, (34, 0, 62, 24)))
     if kind == "maya-forest-aura":
-        return finish_chip(contain_alpha(
+        return snap_alpha(contain_alpha(
             Image.open(generated / "maya-forest-aura.png"), (150, 100)
         ))
     if kind == "habs-home-jersey":
         jersey = contain_alpha(
             Image.open(generated / "habs-home-jersey.png"), (96, 80)
         )
-        return finish_chip(clear_alpha_ellipse(jersey, (34, 0, 62, 24)))
+        return snap_alpha(clear_alpha_ellipse(jersey, (34, 0, 62, 24)))
     if kind == "habs-hockey-stick":
-        return finish_chip(contain_alpha(
+        return snap_alpha(contain_alpha(
             Image.open(generated / "habs-hockey-stick.png"), (100, 90)
         ))
     if kind == "habs-winter-toque":
-        return finish_chip(contain_alpha(
+        return snap_alpha(contain_alpha(
             Image.open(generated / "habs-winter-toque.png"), (84, 58)
         ))
     if kind == "habs-rink-aura":
-        return finish_chip(contain_alpha(
+        return snap_alpha(contain_alpha(
             Image.open(generated / "habs-rink-aura.png"), (150, 100)
         ))
     if kind == "spyro-companion":
-        return finish_chip(contain_alpha(
+        return snap_alpha(contain_alpha(
             Image.open(generated / "spyro-companion.png"), (60, 48)
         ))
     if kind == "cat-companion":
-        return finish_chip(contain_alpha(
+        return snap_alpha(contain_alpha(
             Image.open(generated / "cat-companion.png"), (50, 40)
         ))
     if kind == "dog-companion":
-        return finish_chip(contain_alpha(
+        return snap_alpha(contain_alpha(
             Image.open(generated / "dog-companion.png"), (54, 42)
         ))
     if kind == "turtle-companion":
-        return finish_chip(contain_alpha(
+        return snap_alpha(contain_alpha(
             Image.open(generated / "turtle-companion.png"), (52, 34)
         ))
     if kind == "navi-companion":
-        return finish_chip(contain_alpha(
+        return snap_alpha(contain_alpha(
             Image.open(generated / "navi-companion.png"), (40, 40)
         ))
     if kind == "pink-floyd-pig":
-        return finish_chip(contain_alpha(
+        return snap_alpha(contain_alpha(
             Image.open(generated / "pink-floyd-pig.png"), (140, 90)
         ))
     if kind == "pink-floyd-prism":
-        return finish_chip(contain_alpha(
+        return snap_alpha(contain_alpha(
             Image.open(generated / "pink-floyd-prism.png"), (150, 100)
         ))
     if kind == "pink-floyd-hammers":
-        return finish_chip(contain_alpha(
+        return snap_alpha(contain_alpha(
             Image.open(generated / "pink-floyd-hammers.png"), (64, 64)
         ))
     if kind == "portal-gun":
@@ -1471,73 +1439,73 @@ def build_ipod_exclusive_image(kind: str, out_root: Path) -> Image.Image:
         left_hand = hands.crop((0, 0, hands.width // 2, hands.height))
         canvas.alpha_composite(gun, (6, 0))
         canvas.alpha_composite(left_hand, (2, 32))
-        return finish_chip(canvas)
+        return snap_alpha(canvas)
     if kind == "companion-cube":
-        return finish_chip(contain_alpha(
+        return snap_alpha(contain_alpha(
             Image.open(generated / "companion-cube.png"), (56, 56)
         ))
     if kind == "long-fall-boots":
-        return finish_chip(contain_alpha(
+        return snap_alpha(contain_alpha(
             Image.open(generated / "long-fall-boots.png"), (110, 60)
         ))
     if kind == "aperture-turret":
-        return finish_chip(contain_alpha(
+        return snap_alpha(contain_alpha(
             Image.open(generated / "aperture-turret.png"), (54, 54)
         ))
     if kind == "osrs-rune-platebody":
         armor = contain_alpha(
             Image.open(generated / "osrs-rune-platebody.png"), (96, 80)
         )
-        return finish_chip(clear_alpha_ellipse(armor, (34, 0, 62, 24)))
+        return snap_alpha(clear_alpha_ellipse(armor, (34, 0, 62, 24)))
     if kind == "osrs-dragon-platebody":
         armor = contain_alpha(
             Image.open(generated / "osrs-dragon-platebody.png"), (96, 80)
         )
-        return finish_chip(clear_alpha_ellipse(armor, (34, 0, 62, 24)))
+        return snap_alpha(clear_alpha_ellipse(armor, (34, 0, 62, 24)))
     if kind == "osrs-godsword":
-        return finish_chip(contain_alpha(
+        return snap_alpha(contain_alpha(
             Image.open(generated / "osrs-godsword.png"), (100, 90)
         ))
     if kind == "osrs-abyssal-whip":
-        return finish_chip(contain_alpha(
+        return snap_alpha(contain_alpha(
             Image.open(generated / "osrs-abyssal-whip.png"), (60, 80)
         ))
     if kind == "osrs-dragon-claws":
-        return finish_chip(contain_alpha(
+        return snap_alpha(contain_alpha(
             Image.open(generated / "osrs-dragon-claws.png"), (110, 64)
         ))
     if kind == "osrs-party-hat":
-        return finish_chip(contain_alpha(
+        return snap_alpha(contain_alpha(
             Image.open(generated / "osrs-party-hat.png"), (70, 60)
         ))
     if kind == "osrs-santa-hat":
-        return finish_chip(contain_alpha(
+        return snap_alpha(contain_alpha(
             Image.open(generated / "osrs-santa-hat.png"), (76, 66)
         ))
     if kind == "osrs-fire-cape":
         cape = contain_alpha(
             Image.open(generated / "osrs-fire-cape.png"), (96, 80)
         )
-        return finish_chip(clear_alpha_ellipse(cape, (34, 0, 62, 24)))
+        return snap_alpha(clear_alpha_ellipse(cape, (34, 0, 62, 24)))
     if kind == "osrs-max-cape":
         cape = contain_alpha(
             Image.open(generated / "osrs-max-cape.png"), (96, 80)
         )
-        return finish_chip(clear_alpha_ellipse(cape, (34, 0, 62, 24)))
+        return snap_alpha(clear_alpha_ellipse(cape, (34, 0, 62, 24)))
     if kind == "osrs-twisted-bow":
-        return finish_chip(contain_alpha(
+        return snap_alpha(contain_alpha(
             Image.open(generated / "osrs-twisted-bow.png"), (60, 90)
         ))
     if kind == "osrs-dragon-scimitar":
-        return finish_chip(contain_alpha(
+        return snap_alpha(contain_alpha(
             Image.open(generated / "osrs-dragon-scimitar.png"), (90, 80)
         ))
     if kind == "osrs-amulet-of-fury":
-        return finish_chip(contain_alpha(
+        return snap_alpha(contain_alpha(
             Image.open(generated / "osrs-amulet-of-fury.png"), (40, 45)
         ))
     if kind == "osrs-barrows-gloves":
-        return finish_chip(contain_alpha(
+        return snap_alpha(contain_alpha(
             Image.open(generated / "osrs-barrows-gloves.png"), (110, 64)
         ))
     if kind == "polaroid-camera":
@@ -1550,54 +1518,54 @@ def build_ipod_exclusive_image(kind: str, out_root: Path) -> Image.Image:
         left_hand = hands.crop((0, 0, hands.width // 2, hands.height))
         canvas.alpha_composite(camera, (4, 0))
         canvas.alpha_composite(left_hand, (0, 42))
-        return finish_chip(canvas)
+        return snap_alpha(canvas)
     if kind == "photo-strip":
-        return finish_chip(contain_alpha(
+        return snap_alpha(contain_alpha(
             Image.open(generated / "photo-strip.png"), (40, 70)
         ))
     if kind == "retro-filmstrip":
-        return finish_chip(contain_alpha(
+        return snap_alpha(contain_alpha(
             Image.open(generated / "retro-filmstrip.png"), (150, 100)
         ))
     if kind == "ki-ultra-combo":
-        return finish_chip(contain_alpha(
+        return snap_alpha(contain_alpha(
             Image.open(generated / "ki-ultra-combo.png"), (150, 100)
         ))
     if kind == "ki-ninja-visor":
-        return finish_chip(contain_alpha(
+        return snap_alpha(contain_alpha(
             Image.open(generated / "ki-ninja-visor.png"), (46, 20)
         ))
     if kind == "ki-energy-blades":
-        return finish_chip(contain_alpha(
+        return snap_alpha(contain_alpha(
             Image.open(generated / "ki-energy-blades.png"), (110, 70)
         ))
     if kind == "cyberpunk-neon-visor":
-        return finish_chip(contain_alpha(
+        return snap_alpha(contain_alpha(
             Image.open(generated / "cyberpunk-neon-visor.png"), (46, 20)
         ))
     if kind == "cyberpunk-cyberarm":
-        return finish_chip(contain_alpha(
+        return snap_alpha(contain_alpha(
             Image.open(generated / "cyberpunk-cyberarm.png"), (60, 90)
         ))
     if kind == "cyberpunk-mantis-blades":
-        return finish_chip(contain_alpha(
+        return snap_alpha(contain_alpha(
             Image.open(generated / "cyberpunk-mantis-blades.png"), (70, 60)
         ))
     if kind == "cyberpunk-night-city":
-        return finish_chip(contain_alpha(
+        return snap_alpha(contain_alpha(
             Image.open(generated / "cyberpunk-night-city.png"), (150, 100)
         ))
     if kind == "silverhand-jacket":
         jacket = contain_alpha(
             Image.open(generated / "silverhand-jacket.png"), (96, 80)
         )
-        return finish_chip(clear_alpha_ellipse(jacket, (34, 0, 62, 24)))
+        return snap_alpha(clear_alpha_ellipse(jacket, (34, 0, 62, 24)))
     if kind == "chrome-rock-arm":
-        return finish_chip(contain_alpha(
+        return snap_alpha(contain_alpha(
             Image.open(generated / "chrome-rock-arm.png"), (60, 90)
         ))
     if kind == "aviator-shades":
-        return finish_chip(contain_alpha(
+        return snap_alpha(contain_alpha(
             Image.open(generated / "aviator-shades.png"), (46, 20)
         ))
     if kind == "rockerboy-guitar":
@@ -1610,35 +1578,35 @@ def build_ipod_exclusive_image(kind: str, out_root: Path) -> Image.Image:
         left_hand = hands.crop((0, 0, hands.width // 2, hands.height))
         canvas.alpha_composite(guitar, (4, 0))
         canvas.alpha_composite(left_hand, (0, 56))
-        return finish_chip(canvas)
+        return snap_alpha(canvas)
     if kind == "judy-twin-braids":
         hair = contain_alpha(
             Image.open(generated / "judy-twin-braids.png"), (100, 90)
         )
-        return finish_chip(clear_alpha_ellipse(hair, (29, 4, 71, 50)))
+        return snap_alpha(clear_alpha_ellipse(hair, (29, 4, 71, 50)))
     if kind == "welding-goggles":
-        return finish_chip(contain_alpha(
+        return snap_alpha(contain_alpha(
             Image.open(generated / "welding-goggles.png"), (46, 22)
         ))
     if kind == "mechanic-overalls":
         overalls = contain_alpha(
             Image.open(generated / "mechanic-overalls.png"), (96, 80)
         )
-        return finish_chip(clear_alpha_ellipse(overalls, (34, 0, 62, 24)))
+        return snap_alpha(clear_alpha_ellipse(overalls, (34, 0, 62, 24)))
     if kind == "spinal-skull-mask":
-        return finish_chip(contain_alpha(
+        return snap_alpha(contain_alpha(
             Image.open(generated / "spinal-skull-mask.png"), (40, 28)
         ))
     if kind == "pirate-bandana":
-        return finish_chip(contain_alpha(
+        return snap_alpha(contain_alpha(
             Image.open(generated / "pirate-bandana.png"), (84, 58)
         ))
     if kind == "twin-cutlasses":
-        return finish_chip(contain_alpha(
+        return snap_alpha(contain_alpha(
             Image.open(generated / "twin-cutlasses.png"), (110, 70)
         ))
     if kind == "ghost-flame-aura":
-        return finish_chip(contain_alpha(
+        return snap_alpha(contain_alpha(
             Image.open(generated / "ghost-flame-aura.png"), (150, 100)
         ))
     raise ValueError(f"unknown iPod-exclusive composition: {kind}")

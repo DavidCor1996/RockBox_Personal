@@ -10,7 +10,7 @@ from models.track import compute_metadata_hash
 
 logger = logging.getLogger(__name__)
 
-SCHEMA_VERSION = 13
+SCHEMA_VERSION = 24
 
 SCHEMA_SQL = """
 CREATE TABLE IF NOT EXISTS schema_version (
@@ -68,7 +68,10 @@ CREATE TABLE IF NOT EXISTS tracks (
     plot_short TEXT DEFAULT '',
     plot_long TEXT DEFAULT '',
     content_rating TEXT DEFAULT '',
-    show_plot TEXT DEFAULT ''
+    show_plot TEXT DEFAULT '',
+    intro_start INTEGER DEFAULT 0,
+    intro_end INTEGER DEFAULT 0,
+    credits_start INTEGER DEFAULT 0
 );
 
 CREATE TABLE IF NOT EXISTS playlists (
@@ -193,6 +196,124 @@ CREATE TABLE IF NOT EXISTS device_playlist_tracks (
     FOREIGN KEY (local_track_id) REFERENCES tracks(id) ON DELETE SET NULL
 );
 
+CREATE TABLE IF NOT EXISTS youtube_videos (
+    id TEXT PRIMARY KEY,
+    source_path TEXT NOT NULL,
+    title TEXT DEFAULT '',
+    uploader TEXT DEFAULT '',
+    description TEXT DEFAULT '',
+    duration_ms INTEGER DEFAULT 0,
+    upload_date TEXT DEFAULT '',
+    view_count INTEGER DEFAULT 0,
+    rating_average REAL DEFAULT 0.0,
+    rating_count INTEGER DEFAULT 0,
+    category TEXT DEFAULT 'People & Blogs',
+    tags TEXT DEFAULT '',
+    source_url TEXT DEFAULT '',
+    source_type TEXT DEFAULT 'personal',
+    channel_url TEXT DEFAULT '',
+    thumbnail_path TEXT DEFAULT '',
+    show_home INTEGER DEFAULT 0,
+    show_profile INTEGER DEFAULT 1,
+    favorite INTEGER DEFAULT 0,
+    home_section TEXT DEFAULT 'featured',
+    home_order INTEGER DEFAULT 0,
+    my_rating INTEGER DEFAULT 0,
+    source_hash TEXT DEFAULT '',
+    last_synced_source_hash TEXT DEFAULT '',
+    date_added TEXT DEFAULT (datetime('now')),
+    date_modified TEXT DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS youtube_channel_syncs (
+    channel_url TEXT PRIMARY KEY,
+    channel_name TEXT DEFAULT '',
+    keep_count INTEGER NOT NULL DEFAULT 3,
+    date_added TEXT DEFAULT (datetime('now')),
+    date_modified TEXT DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS tiktok_videos (
+    id TEXT PRIMARY KEY,
+    source_path TEXT NOT NULL,
+    title TEXT DEFAULT '',
+    creator TEXT DEFAULT '',
+    description TEXT DEFAULT '',
+    duration_ms INTEGER DEFAULT 0,
+    upload_date TEXT DEFAULT '',
+    like_count INTEGER DEFAULT 0,
+    comment_count INTEGER DEFAULT 0,
+    source_url TEXT DEFAULT '',
+    source_type TEXT DEFAULT 'manual',
+    account_url TEXT DEFAULT '',
+    thumbnail_path TEXT DEFAULT '',
+    source_hash TEXT DEFAULT '',
+    last_synced_source_hash TEXT DEFAULT '',
+    last_synced_thumbnail_hash TEXT DEFAULT '',
+    pin_order INTEGER DEFAULT 0,
+    date_added TEXT DEFAULT (datetime('now')),
+    date_modified TEXT DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS tiktok_account_syncs (
+    account_url TEXT PRIMARY KEY,
+    account_name TEXT DEFAULT '',
+    keep_count INTEGER NOT NULL DEFAULT 10,
+    sync_mode TEXT NOT NULL DEFAULT 'rolling',
+    account_key TEXT DEFAULT '',
+    date_added TEXT DEFAULT (datetime('now')),
+    date_modified TEXT DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS tiktok_profiles (
+    account_url TEXT PRIMARY KEY,
+    username TEXT DEFAULT '',
+    display_name TEXT DEFAULT '',
+    bio TEXT DEFAULT '',
+    avatar_url TEXT DEFAULT '',
+    avatar_path TEXT DEFAULT '',
+    follower_count INTEGER DEFAULT 0,
+    following_count INTEGER DEFAULT 0,
+    likes_count INTEGER DEFAULT 0,
+    video_count INTEGER DEFAULT 0,
+    verified INTEGER DEFAULT 0,
+    date_added TEXT DEFAULT (datetime('now')),
+    date_modified TEXT DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS youtube_profile (
+    id INTEGER PRIMARY KEY CHECK (id = 1),
+    username TEXT DEFAULT 'You',
+    display_name TEXT DEFAULT '',
+    profile_image TEXT DEFAULT '',
+    banner_image TEXT DEFAULT '',
+    banner_alignment TEXT DEFAULT 'center',
+    banner_vertical_alignment TEXT DEFAULT 'center',
+    about_me TEXT DEFAULT '',
+    city TEXT DEFAULT '',
+    country TEXT DEFAULT '',
+    occupation TEXT DEFAULT '',
+    interests TEXT DEFAULT '',
+    movies TEXT DEFAULT '',
+    music TEXT DEFAULT '',
+    books TEXT DEFAULT '',
+    website TEXT DEFAULT '',
+    joined TEXT DEFAULT '',
+    channel_views INTEGER DEFAULT 0,
+    video_views INTEGER DEFAULT 0,
+    subscribers INTEGER DEFAULT 0,
+    friends INTEGER DEFAULT 0,
+    background_color TEXT DEFAULT '#ffffff',
+    module_color TEXT DEFAULT '#e6f1fa',
+    text_color TEXT DEFAULT '#000000',
+    link_color TEXT DEFAULT '#0033cc',
+    show_about INTEGER DEFAULT 1,
+    show_videos INTEGER DEFAULT 1,
+    show_favorites INTEGER DEFAULT 1,
+    show_on_main_menu INTEGER DEFAULT 0,
+    date_modified TEXT DEFAULT (datetime('now'))
+);
+
 CREATE INDEX IF NOT EXISTS idx_tracks_artist ON tracks(artist);
 CREATE INDEX IF NOT EXISTS idx_tracks_album ON tracks(album);
 CREATE INDEX IF NOT EXISTS idx_tracks_album_artist ON tracks(album_artist);
@@ -228,6 +349,8 @@ CREATE INDEX IF NOT EXISTS idx_runtime_stats_rating ON runtime_stats(rating);
 CREATE INDEX IF NOT EXISTS idx_device_playlists_device ON device_playlists(device_id);
 CREATE UNIQUE INDEX IF NOT EXISTS uq_device_playlists_device_source ON device_playlists(device_id, source_path);
 CREATE INDEX IF NOT EXISTS idx_device_playlist_tracks_playlist ON device_playlist_tracks(device_playlist_id, position);
+CREATE INDEX IF NOT EXISTS idx_youtube_videos_home ON youtube_videos(show_home, home_order);
+CREATE INDEX IF NOT EXISTS idx_youtube_videos_profile ON youtube_videos(show_profile, date_added);
 """
 
 
@@ -503,6 +626,177 @@ class Database:
                 if col not in track_cols:
                     conn.execute(f"ALTER TABLE tracks ADD COLUMN {col} {spec}")
 
+        if current_version < 14:
+            track_cols = {
+                row["name"] for row in conn.execute("PRAGMA table_info(tracks)")
+            }
+            additions = {
+                "intro_start": "INTEGER DEFAULT 0",
+                "intro_end": "INTEGER DEFAULT 0",
+                "credits_start": "INTEGER DEFAULT 0",
+            }
+            for col, spec in additions.items():
+                if col not in track_cols:
+                    conn.execute(f"ALTER TABLE tracks ADD COLUMN {col} {spec}")
+
+        if current_version < 15:
+            conn.execute(
+                "CREATE INDEX IF NOT EXISTS idx_youtube_videos_home "
+                "ON youtube_videos(show_home, home_order)"
+            )
+            conn.execute(
+                "CREATE INDEX IF NOT EXISTS idx_youtube_videos_profile "
+                "ON youtube_videos(show_profile, date_added)"
+            )
+            conn.execute(
+                "INSERT OR IGNORE INTO youtube_profile (id) VALUES (1)"
+            )
+
+        if current_version < 16:
+            profile_cols = {
+                row["name"]
+                for row in conn.execute("PRAGMA table_info(youtube_profile)")
+            }
+            additions = {
+                "banner_image": "TEXT DEFAULT ''",
+                "banner_alignment": "TEXT DEFAULT 'center'",
+            }
+            for col, spec in additions.items():
+                if col not in profile_cols:
+                    conn.execute(
+                        f"ALTER TABLE youtube_profile ADD COLUMN {col} {spec}"
+                    )
+
+        if current_version < 17:
+            profile_cols = {
+                row["name"]
+                for row in conn.execute("PRAGMA table_info(youtube_profile)")
+            }
+            if "banner_vertical_alignment" not in profile_cols:
+                conn.execute(
+                    "ALTER TABLE youtube_profile ADD COLUMN "
+                    "banner_vertical_alignment TEXT DEFAULT 'center'"
+                )
+
+        if current_version < 18:
+            video_cols = {
+                row["name"]
+                for row in conn.execute("PRAGMA table_info(youtube_videos)")
+            }
+            if "channel_url" not in video_cols:
+                conn.execute(
+                    "ALTER TABLE youtube_videos ADD COLUMN "
+                    "channel_url TEXT DEFAULT ''"
+                )
+            conn.execute(
+                "CREATE TABLE IF NOT EXISTS youtube_channel_syncs ("
+                "channel_url TEXT PRIMARY KEY, channel_name TEXT DEFAULT '', "
+                "keep_count INTEGER NOT NULL DEFAULT 3, "
+                "date_added TEXT DEFAULT (datetime('now')), "
+                "date_modified TEXT DEFAULT (datetime('now')))"
+            )
+            conn.execute(
+                "CREATE INDEX IF NOT EXISTS idx_youtube_videos_channel "
+                "ON youtube_videos(channel_url, upload_date)"
+            )
+
+        if current_version < 19:
+            conn.executescript(
+                """
+                CREATE TABLE IF NOT EXISTS tiktok_videos (
+                    id TEXT PRIMARY KEY,
+                    source_path TEXT NOT NULL,
+                    title TEXT DEFAULT '', creator TEXT DEFAULT '',
+                    description TEXT DEFAULT '', duration_ms INTEGER DEFAULT 0,
+                    upload_date TEXT DEFAULT '', like_count INTEGER DEFAULT 0,
+                    comment_count INTEGER DEFAULT 0, source_url TEXT DEFAULT '',
+                    source_type TEXT DEFAULT 'manual', account_url TEXT DEFAULT '',
+                    thumbnail_path TEXT DEFAULT '', source_hash TEXT DEFAULT '',
+                    last_synced_source_hash TEXT DEFAULT '',
+                    last_synced_thumbnail_hash TEXT DEFAULT '',
+                    pin_order INTEGER DEFAULT 0,
+                    date_added TEXT DEFAULT (datetime('now')),
+                    date_modified TEXT DEFAULT (datetime('now'))
+                );
+                CREATE TABLE IF NOT EXISTS tiktok_account_syncs (
+                    account_url TEXT PRIMARY KEY,
+                    account_name TEXT DEFAULT '',
+                    keep_count INTEGER NOT NULL DEFAULT 10,
+                    date_added TEXT DEFAULT (datetime('now')),
+                    date_modified TEXT DEFAULT (datetime('now'))
+                );
+                CREATE INDEX IF NOT EXISTS idx_tiktok_videos_source
+                    ON tiktok_videos(source_type, upload_date);
+                CREATE INDEX IF NOT EXISTS idx_tiktok_videos_account
+                    ON tiktok_videos(account_url, upload_date);
+                """
+            )
+
+        if current_version < 20:
+            conn.executescript(
+                """
+                CREATE TABLE IF NOT EXISTS tiktok_profiles (
+                    account_url TEXT PRIMARY KEY,
+                    username TEXT DEFAULT '', display_name TEXT DEFAULT '',
+                    bio TEXT DEFAULT '', avatar_url TEXT DEFAULT '',
+                    avatar_path TEXT DEFAULT '', follower_count INTEGER DEFAULT 0,
+                    following_count INTEGER DEFAULT 0,
+                    likes_count INTEGER DEFAULT 0, video_count INTEGER DEFAULT 0,
+                    date_added TEXT DEFAULT (datetime('now')),
+                    date_modified TEXT DEFAULT (datetime('now'))
+                );
+                """
+            )
+
+        if current_version < 21:
+            account_cols = {
+                row["name"]
+                for row in conn.execute("PRAGMA table_info(tiktok_account_syncs)")
+            }
+            if "sync_mode" not in account_cols:
+                conn.execute(
+                    "ALTER TABLE tiktok_account_syncs ADD COLUMN "
+                    "sync_mode TEXT NOT NULL DEFAULT 'rolling'"
+                )
+            if "account_key" not in account_cols:
+                conn.execute(
+                    "ALTER TABLE tiktok_account_syncs ADD COLUMN "
+                    "account_key TEXT DEFAULT ''"
+                )
+
+        if current_version < 22:
+            video_cols = {
+                row["name"]
+                for row in conn.execute("PRAGMA table_info(tiktok_videos)")
+            }
+            if "last_synced_thumbnail_hash" not in video_cols:
+                conn.execute(
+                    "ALTER TABLE tiktok_videos ADD COLUMN "
+                    "last_synced_thumbnail_hash TEXT DEFAULT ''"
+                )
+
+        if current_version < 23:
+            video_cols = {
+                row["name"]
+                for row in conn.execute("PRAGMA table_info(tiktok_videos)")
+            }
+            if "pin_order" not in video_cols:
+                conn.execute(
+                    "ALTER TABLE tiktok_videos ADD COLUMN "
+                    "pin_order INTEGER DEFAULT 0"
+                )
+
+        if current_version < 24:
+            profile_cols = {
+                row["name"]
+                for row in conn.execute("PRAGMA table_info(tiktok_profiles)")
+            }
+            if "verified" not in profile_cols:
+                conn.execute(
+                    "ALTER TABLE tiktok_profiles ADD COLUMN "
+                    "verified INTEGER DEFAULT 0"
+                )
+
     @classmethod
     def _write_lock_for_path(cls, path):
         abs_path = os.path.abspath(path)
@@ -747,9 +1041,14 @@ class Database:
     def get_track_file_states(self):
         """Return cached filesystem state keyed by file path."""
         sql, params = self._append_media_type_filter(
-            "SELECT file_path, last_modified, file_size, metadata_hash, file_hash, media_type, "
+            "SELECT id, file_path, last_modified, file_size, metadata_hash, file_hash, media_type, "
             "video_kind, title, artist, album, album_artist, year, show_title, "
-            "season_number, episode_number, track_number "
+            "season_number, episode_number, track_number, imdb_id, metadata_locked, "
+            "synced_to_device, device_path, "
+            "EXISTS(SELECT 1 FROM device_tracks dt "
+            "WHERE dt.local_track_id = tracks.id "
+            "AND COALESCE(dt.present_on_device, 1) = 1 "
+            "AND COALESCE(dt.device_path, '') != '') AS has_device_copy "
             "FROM tracks",
             media_type=None,
         )
@@ -838,6 +1137,9 @@ class Database:
             "plot_long",
             "content_rating",
             "show_plot",
+            "intro_start",
+            "intro_end",
+            "credits_start",
         }
         metadata_hash_fields = {
             "title",

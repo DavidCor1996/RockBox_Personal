@@ -62,6 +62,36 @@ class StreamripSearchRequest:
     output_path: str
 
 
+ROCKPOD_OPTIONAL_CONFIG_KEYS = (
+    ("deezer", "lower_quality_if_not_available", True),
+)
+
+STREAMRIP_LYRICS_REDIRECT_BASE = 'base="https://listen.tidal.com/v1"'
+STREAMRIP_LYRICS_DIRECT_BASE = 'base="https://tidal.com/v1"'
+
+
+def patch_streamrip_tidal_lyrics(text):
+    """Send streamrip's Tidal lyrics request straight to the host Tidal uses.
+
+    listen.tidal.com answers that request with a 301 to tidal.com, and aiohttp
+    drops the Authorization header when a redirect crosses hosts, so the lyrics
+    call returns 401 and takes the whole track download with it before any audio
+    is written. Asking for the final host directly removes the redirect, so the
+    token goes exactly where it already went before aiohttp tightened this, and
+    the fix does not depend on any aiohttp version.
+
+    Returns the patched text, or None when the installed copy is already patched.
+    """
+    if STREAMRIP_LYRICS_REDIRECT_BASE in text:
+        return text.replace(STREAMRIP_LYRICS_REDIRECT_BASE, STREAMRIP_LYRICS_DIRECT_BASE)
+    if STREAMRIP_LYRICS_DIRECT_BASE in text:
+        return None
+    raise StreamripImportError(
+        "streamrip's Tidal client no longer contains the lyrics request this patch "
+        "targets. Check whether upstream fixed the redirect before importing."
+    )
+
+
 def _streamrip_template_config_path():
     candidates = [
         Path(sysconfig.get_paths().get("purelib", "")) / "streamrip" / "config.toml",
@@ -386,6 +416,61 @@ def ensure_rockbox_cover_files(audio_files, library_root):
     return sorted(set(updated))
 
 
+def _streamrip_config_schema():
+    """Parse the config template shipped with the installed streamrip."""
+    template = _streamrip_template_config_path()
+    if not template:
+        return None
+    try:
+        with open(template, "r") as handle:
+            return parse(handle.read())
+    except OSError:
+        return None
+
+
+def _align_streamrip_config(data, schema):
+    """Match a saved config to the installed streamrip's schema.
+
+    streamrip refuses a config whose version differs from its own, and it builds
+    every section by keyword argument, so one unexpected key aborts the store.
+    Settings the template gained are copied in with their defaults, RockPod's own
+    optional settings are dropped when the installed version does not know them,
+    and anything else unexpected is reported instead of being rewritten, so a real
+    schema change stays visible. User values, including saved tokens, are kept.
+    """
+    optional = {(section, key) for section, key, _value in ROCKPOD_OPTIONAL_CONFIG_KEYS}
+    mismatched = []
+    for section, defaults in schema.items():
+        if not isinstance(defaults, dict):
+            continue
+        if section not in data:
+            mismatched.append(section)
+            continue
+        for key, value in defaults.items():
+            if key not in data[section]:
+                data[section][key] = value
+
+    for section, values in data.items():
+        if not isinstance(values, dict) or section not in schema:
+            continue
+        for key in list(values):
+            if key in schema[section]:
+                continue
+            if (section, key) in optional:
+                del data[section][key]
+                continue
+            mismatched.append(f"{section}.{key}")
+    if mismatched:
+        raise StreamripImportError(
+            "The streamrip config does not match the installed streamrip. Unexpected "
+            "settings: " + ", ".join(sorted(mismatched))
+        )
+
+    version = schema.get("misc", {}).get("version")
+    if version:
+        data["misc"]["version"] = version
+
+
 def ensure_streamrip_config(config_path, music_dir, quality=4):
     """Create/update a streamrip config tuned for RockPod album imports."""
     config_path = os.path.abspath(os.path.expanduser(str(config_path)))
@@ -409,7 +494,6 @@ def ensure_streamrip_config(config_path, music_dir, quality=4):
     data["qobuz"]["quality"] = quality
     data["tidal"]["quality"] = min(3, quality)
     data["deezer"]["quality"] = min(2, quality)
-    data["deezer"]["lower_quality_if_not_available"] = True
     data["artwork"]["embed"] = True
     data["artwork"]["embed_size"] = "large"
     data["artwork"]["embed_max_width"] = -1
@@ -422,6 +506,13 @@ def ensure_streamrip_config(config_path, music_dir, quality=4):
     data["cli"]["text_output"] = True
     data["cli"]["progress_bars"] = False
     data["misc"]["check_for_updates"] = False
+
+    schema = _streamrip_config_schema()
+    for section, key, value in ROCKPOD_OPTIONAL_CONFIG_KEYS:
+        if schema is None or key in schema.get(section, {}):
+            data[section][key] = value
+    if schema is not None:
+        _align_streamrip_config(data, schema)
 
     atomic_write_text(config_path, dumps(data))
     return config_path

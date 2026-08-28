@@ -62,6 +62,29 @@ _RELEASE_TAIL_RE = re.compile(
     """
 )
 _TRAILING_BRACKETED_ID_RE = re.compile(r"\s*\[[A-Za-z0-9_-]{6,16}\]\s*$")
+_RELEASE_GROUP_NAMES = {
+    "rarbg", "yify", "yts", "yts am", "yts mx", "galaxyrg", "galaxytv", "pophd",
+    "nahom", "ettv", "eztv", "fgt", "cmrg", "evo", "mkvcage", "psa", "qxr",
+    "tgx", "sparks", "amiable", "d3g", "rovers", "killers", "dimension", "lol",
+    "asap", "batv", "w4f", "ntb", "ntg", "flux", "edith", "minx", "kogi",
+    "successfulcrab", "syncopy", "mesub", "afg", "tbs", "deflate", "inflate",
+    "bae", "cakes", "ggwp", "megusta", "elite", "ion10", "shitbox",
+}
+_UNAMBIGUOUS_RELEASE_GROUPS = {
+    "rarbg", "yify", "yts", "galaxyrg", "galaxytv", "pophd", "ettv", "eztv",
+    "mkvcage", "cmrg", "tgx", "qxr", "psa", "d3g", "ion10", "megusta", "ntb",
+    "ntg", "afg", "fgt", "w4f", "batv", "shitbox", "successfulcrab", "ggwp",
+    "mesub",
+}
+_RELEASE_TAG_GROUP_RE = re.compile(
+    r"""(?ix)
+    (?:2160p|1080p|720p|480p|x264|x265|h[ ._-]?264|h[ ._-]?265|hevc|av1|xvid|
+       divx|web[ ._-]?dl|webrip|bluray|brrip|bdrip|dvdrip|hdtv|remux|10bit)
+    [ ._-]+
+    ([A-Za-z0-9]{2,20})
+    (?=$|[ ._\-\[\]()])
+    """
+)
 
 CODEC_MAP = {
     ".mp3": "MP3",
@@ -394,11 +417,18 @@ def _canonicalize_series_name(value):
     lowered = text.casefold()
     if lowered in _GENERIC_SHOW_TITLES:
         return ""
+    if _PRE_SEASON_FOLDER_RE.match(str(value or "").strip()) or _PRE_SEASON_FOLDER_RE.match(text):
+        return ""
     text = _strip_release_tail(text)
     text = re.sub(r"(?i)^\d+\.\s*", "", text).strip(" -_")
     text = _ARCHIVE_SUFFIX_RE.sub("", text).strip(" -_")
     text = re.sub(r"(?i)\barchive\.org/details/\S+\b", "", text).strip(" -_")
     text = re.sub(r"(?i)\bcomplete\b.*$", "", text).strip(" -_")
+    text = re.sub(
+        r"(?i)\bseasons?\s+\d{1,2}\s*(?:-|\u2013|to|thru|through)\s*\d{1,2}\b.*$",
+        "",
+        text,
+    ).strip(" -_")
     text = re.sub(r"(?i)\bseason\s+\d+(?:\s*-\s*\d+)?\b.*$", "", text).strip(" -_")
     text = re.sub(r"(?i)\bs\d{1,2}(?:\s*-\s*s?\d{1,2})?\b.*$", "", text).strip(" -_")
     text = re.sub(r"(?i)\b(?:complete|full)\s+series\b", "", text).strip(" -_")
@@ -435,6 +465,9 @@ def _normalize_video_kind(value):
     return ""
 
 
+_PRE_SEASON_FOLDER_RE = re.compile(r"(?i)^pre[\s._-]*seasons?(?:\s*\d{1,2})?$")
+
+
 def _looks_like_season(name):
     text = str(name or "").strip()
     return bool(
@@ -447,7 +480,33 @@ def _looks_like_season(name):
 
 def _looks_like_specials(name):
     text = str(name or "").strip().casefold()
+    if _PRE_SEASON_FOLDER_RE.match(text):
+        return True
     return text in {"special", "specials", "ova", "ovas", "ona", "onas", "extras", "bonus", "bonus features"}
+
+
+def _looks_like_release_group(value):
+    """True for a leftover scene tag such as ``RARBG`` that is not a title."""
+    text = str(value or "").strip(" -_.[]()")
+    if not text or len(text) > 20:
+        return False
+    return text.casefold() in _RELEASE_GROUP_NAMES
+
+
+def looks_like_release_group(value):
+    """Public wrapper so the scanner can spot stale scene-tag metadata."""
+    return _looks_like_release_group(value)
+
+
+def looks_like_specials_folder(name):
+    """Public wrapper for folders such as ``Specials`` or ``Pre-Season 5``."""
+    return _looks_like_specials(name)
+
+
+def _release_group_from_stem(stem):
+    """Return the group name a scene filename hangs off its last quality tag."""
+    match = _RELEASE_TAG_GROUP_RE.search(str(stem or ""))
+    return match.group(1).casefold() if match else ""
 
 
 def _season_number_from_text(value):
@@ -464,6 +523,40 @@ def _episode_number_from_text(value):
     if match:
         return int(match.group(1))
     return None
+
+
+_YOUTUBE_EPISODE_NOISE = {
+    "full episode", "full episodes", "full ep", "retro rerun", "retro reruns",
+    "hd", "official", "nickelodeon", "nick rewind", "cartoon", "cartoons",
+}
+
+
+def _youtube_full_episode_parts(stem):
+    """Return (show, episode) for ``Episode N | Show | FULL EPISODE`` uploads.
+
+    The pipe of the original video title survives download as ``_``, so the
+    separators are the only reliable structure - splitting on whitespace or a
+    dash would mangle show names that contain either.
+    """
+    match = re.match(
+        r"(?i)^episode\s+(\d{1,3})\s*[_|\-\u2013]\s*(.+)$", str(stem or "").strip()
+    )
+    if not match:
+        return "", None
+    episode = int(match.group(1))
+    segments = [part.strip(" -_") for part in re.split(r"[_|]", match.group(2))]
+    # Without an upload marker such as "FULL EPISODE" this is an ordinary
+    # "Episode 3 - Real Title" name, where the text after the dash is the
+    # episode title and treating it as a show name would be wrong.
+    if not any(part.casefold() in _YOUTUBE_EPISODE_NOISE for part in segments):
+        return "", episode
+    for segment in segments:
+        if not segment or segment.casefold() in _YOUTUBE_EPISODE_NOISE:
+            continue
+        show = _canonicalize_series_name(segment)
+        if show:
+            return show, episode
+    return "", episode
 
 
 def _infer_show_name_from_path(path):
@@ -507,6 +600,24 @@ def _leading_date_year(value):
     return int(match.group(1)) if match else None
 
 
+def _strip_trailing_release_group(value):
+    """Drop a trailing ``[YIFY]``-style uploader tag from a title.
+
+    Only groups that could never end a real title are stripped bare; names
+    such as "Elite" or "Flux" are left alone unless they are bracketed.
+    """
+    text = str(value or "").strip()
+    match = re.search(r"\s*[\[(]([A-Za-z0-9 ._-]{2,20})[\])]\s*$", text)
+    if match and _looks_like_release_group(match.group(1)):
+        return text[:match.start()].strip(" -_")
+    match = re.search(r"(?:^|[\s.\-_])([A-Za-z0-9]{2,20})\s*$", text)
+    if match and match.group(1).casefold() in _UNAMBIGUOUS_RELEASE_GROUPS:
+        stripped = text[:match.start()].strip(" -_.")
+        if stripped:
+            return stripped
+    return text
+
+
 def _clean_video_title(value):
     text = _clean_media_name(value)
     if not text:
@@ -515,6 +626,7 @@ def _clean_video_title(value):
     text = _ARCHIVE_SUFFIX_RE.sub("", text).strip(" -_")
     text = re.sub(r"(?i)\barchive\.org/details/\S+\b", "", text).strip(" -_")
     text = re.sub(r"(?i)\bquicktime\b", "", text).strip(" -_")
+    text = _strip_trailing_release_group(text)
     text, _year = _strip_trailing_year(text)
     text = re.sub(r"[\[(][^)\]]*$", "", text).strip(" -_")
     text = re.sub(r"\s+", " ", text).strip(" -_")
@@ -565,6 +677,8 @@ def _title_needs_cleanup(title):
         return True
     if _TRAILING_BRACKETED_ID_RE.search(text):
         return True
+    if _strip_trailing_release_group(text) != text:
+        return True
     if _looks_like_year_suffixed_text(text):
         return True
     cleaned, extracted_year = _strip_trailing_year(text)
@@ -575,6 +689,7 @@ def _title_needs_cleanup(title):
 
 def _title_parts_from_stem(stem):
     raw_text = _clean_media_name(stem)
+    scene_group = _release_group_from_stem(stem)
     season_episode = re.match(
         r"(?i)^(?:(.+?)(?:\s*-\s*|\s+))?s(\d{1,2})[ ._-]*e(\d{1,3})(?:\s*[- ]\s*|\s+)?(.*)$",
         raw_text,
@@ -585,6 +700,14 @@ def _title_parts_from_stem(stem):
         episode = int(season_episode.group(3))
         raw_suffix = season_episode.group(4).strip()
         title = _clean_video_title(raw_suffix)
+        # A scene release leaves its group name behind once the quality tags
+        # are stripped. "RARBG" is not an episode title, so fall back to the
+        # numbered placeholder instead of shipping the uploader's name.
+        if title and (
+            _looks_like_release_group(title)
+            or (scene_group and title.casefold() == scene_group)
+        ):
+            title = ""
         if not title:
             title = f"Episode {episode}" if raw_suffix else (prefix or _clean_video_title(raw_text))
         return title, season, episode
@@ -642,6 +765,7 @@ def _apply_video_path_fallback(track, filepath):
     stem_title, season_num, inferred_track = _title_parts_from_stem(path.stem)
     stem_show_name = _show_name_from_stem(path.stem)
     competition_show, competition_episode = _competition_show_from_stem(path.stem)
+    youtube_show, youtube_episode = _youtube_full_episode_parts(path.stem)
     parent = _clean_media_name(path.parent.name)
     grandparent = _clean_media_name(path.parent.parent.name if path.parent.parent != path.parent else "")
     great_grandparent = _clean_media_name(
@@ -665,6 +789,12 @@ def _apply_video_path_fallback(track, filepath):
     if path_date_year and (not track.year or abs(int(track.year) - path_date_year) > 1):
         track.year = path_date_year
 
+    # A "Pre-Season 5" folder holds specials, not season 5, so the specials
+    # rule has to win before any "season N" text in the folder name does.
+    if track.season_number is None and (
+        _looks_like_specials(parent) or _looks_like_specials(path.parent.name)
+    ):
+        track.season_number = 0
     if track.season_number is None:
         for candidate in (
             season_num,
@@ -675,8 +805,6 @@ def _apply_video_path_fallback(track, filepath):
             if candidate is not None:
                 track.season_number = candidate
                 break
-    if track.season_number is None and _looks_like_specials(parent):
-        track.season_number = 0
     if track.episode_number is None:
         for candidate in (
             inferred_track,
@@ -701,6 +829,7 @@ def _apply_video_path_fallback(track, filepath):
     show_evidence = bool(
         tagged_show
         or competition_show
+        or youtube_show
         or track.season_number
         or track.episode_number
         or _looks_like_season(parent)
@@ -729,6 +858,8 @@ def _apply_video_path_fallback(track, filepath):
             track.show_title = tagged_show
         elif path_show_name:
             track.show_title = path_show_name
+        elif youtube_show:
+            track.show_title = youtube_show
         elif competition_show:
             track.show_title = competition_show
         elif album_artist and not _looks_like_season(album_artist):
@@ -753,6 +884,11 @@ def _apply_video_path_fallback(track, filepath):
             track.show_title = artist
 
     track.show_title = _canonicalize_series_name(track.show_title) or path_show_name or track.show_title
+    if youtube_show and track.show_title == youtube_show:
+        track.video_kind = "show"
+        if youtube_episode is not None:
+            track.episode_number = youtube_episode
+            track.title = f"Episode {youtube_episode}"
     if competition_show and track.show_title == competition_show:
         track.video_kind = "show"
         if track.season_number is None:
@@ -798,6 +934,16 @@ def _apply_video_path_fallback(track, filepath):
             track.artist = track.show_title
         if not track.album and track.season_number:
             track.album = f"Season {track.season_number}"
+    if track.show_title and track.title:
+        # "Trailer Park Boys - Christmas Special" reads as a duplicate once the
+        # row already carries the show, so drop the repeated series prefix.
+        prefix = re.match(
+            r"(?i)^" + re.escape(track.show_title) + r"\s*[-\u2013:]\s*(.+)$",
+            str(track.title).strip(),
+        )
+        if prefix and prefix.group(1).strip():
+            track.title = prefix.group(1).strip()
+
     if not track.year:
         track.year = _extract_year_from_text(path.stem, parent, grandparent)
     if not track.video_kind:

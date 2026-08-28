@@ -394,6 +394,51 @@ def test_deleted_local_photo_remains_removable_from_device(tmp_dir):
     assert not os.path.exists(os.path.join(device, "Photos", "IMG_0001.jpg"))
 
 
+def test_deleted_local_photo_survives_a_future_photo_sync(tmp_dir):
+    repo_root = os.path.join(tmp_dir, "repo")
+    photos = os.path.join(tmp_dir, "photos")
+    device = os.path.join(tmp_dir, "device")
+    source = os.path.join(photos, "Trip", "Keep.jpg")
+    _make_image(source, size=(640, 480))
+    os.makedirs(device, exist_ok=True)
+
+    _config, store = _make_store(tmp_dir, repo_root)
+    profile = store.current_profile()
+    profile["photos_library_path"] = photos
+    profile["device_mount_path"] = device
+    profile = store.save_profile(profile)
+
+    service = RockboxPhotoService()
+    deploy = RockboxDeployService()
+    deploy_profile = service.deploy_profile(profile, "device")
+    selected = service.list_photos(profile)
+    first = deploy.apply_diff(
+        deploy_profile,
+        deploy.build_diff(
+            deploy_profile,
+            service.build_sync_bundle(profile, selected, "device"),
+        ),
+    )
+    assert first["success"] is True
+    device_photo = os.path.join(device, "Photos", "Trip", "Keep.jpg")
+    assert os.path.isfile(device_photo)
+
+    os.remove(source)
+    device_only = service.list_photos(profile)
+    assert len(device_only) == 1
+    assert device_only[0]["missing_source"] is True
+
+    second_diff = deploy.build_diff(
+        deploy_profile,
+        service.build_sync_bundle(profile, device_only, "device"),
+    )
+    assert second_diff["summary"]["remove"] == 0
+    second = deploy.apply_diff(deploy_profile, second_diff)
+
+    assert second["success"] is True
+    assert os.path.isfile(device_photo)
+
+
 def test_photo_sync_writes_preview_index_and_remove_updates_it(tmp_dir):
     repo_root = os.path.join(tmp_dir, "repo")
     photos = os.path.join(tmp_dir, "photos")

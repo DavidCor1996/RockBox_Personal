@@ -39,6 +39,13 @@ static int ver;
 static int sramblock, iramblock, vramblock;
 static int hramofs, hiofs, palofs, oamofs, wavofs;
 
+#define STATE_BUFFER_SIZE 4096
+
+/* The native iPod main thread has a small stack. Keeping this 4 KiB buffer
+ * on the stack underneath the Rockboy menu used to overflow it and panic
+ * immediately after creating an empty save-state file. */
+static byte state_buffer[STATE_BUFFER_SIZE];
+
 struct svar svars[] =
 {
     I4("GbSs", &ver),
@@ -174,24 +181,69 @@ struct svar svars[] =
 };
 
 
-void loadstate(int fd)
+static bool read_exact(int fd, void *buffer, size_t size)
+{
+    byte *cursor = buffer;
+
+    while (size > 0)
+    {
+        ssize_t count = read(fd, cursor, size);
+
+        if (count <= 0)
+            return false;
+        cursor += count;
+        size -= count;
+    }
+    return true;
+}
+
+static bool write_exact(int fd, const void *buffer, size_t size)
+{
+    const byte *cursor = buffer;
+
+    while (size > 0)
+    {
+        ssize_t count = write(fd, cursor, size);
+
+        if (count <= 0)
+            return false;
+        cursor += count;
+        size -= count;
+    }
+    return true;
+}
+
+static bool seek_read(int fd, off_t offset, void *buffer, size_t size)
+{
+    return lseek(fd, offset, SEEK_SET) == offset &&
+           read_exact(fd, buffer, size);
+}
+
+static bool seek_write(int fd, off_t offset, const void *buffer, size_t size)
+{
+    return lseek(fd, offset, SEEK_SET) == offset &&
+           write_exact(fd, buffer, size);
+}
+
+bool loadstate(int fd)
 {
     int i, j;
-    byte buf[4096];
-    un32 (*header)[2] = (un32 (*)[2])buf;
+    un32 (*header)[2] = (un32 (*)[2])state_buffer;
     un32 d;
     int irl = hw.cgb ? 8 : 2;
     int vrl = hw.cgb ? 4 : 2;
     int srl = mbc.ramsize << 1;
-    size_t base_offset;
+    off_t base_offset;
+    const int header_count = STATE_BUFFER_SIZE / sizeof(*header);
 
     ver = hramofs = hiofs = palofs = oamofs = wavofs = 0;
 
     base_offset = lseek(fd, 0, SEEK_CUR);
+    if (base_offset < 0 ||
+        !read_exact(fd, state_buffer, STATE_BUFFER_SIZE))
+        return false;
 
-    read(fd,buf, 4096);
-
-    for (j = 0; header[j][0]; j++)
+    for (j = 0; j < header_count && header[j][0]; j++)
     {
         for (i = 0; svars[i].ptr; i++)
         {
@@ -213,39 +265,51 @@ void loadstate(int fd)
             break;
         }
     }
+    if (j == header_count || iramblock <= 0 || vramblock <= 0 ||
+        sramblock <= 0 ||
+        (hramofs && (hramofs < 0 ||
+                     hramofs + 127 > STATE_BUFFER_SIZE)) ||
+        (wavofs && (wavofs < 0 ||
+                    wavofs + 16 > STATE_BUFFER_SIZE)) ||
+        (hiofs && (hiofs < 0 ||
+                   hiofs + (int)sizeof(ram.hi) > STATE_BUFFER_SIZE)) ||
+        (palofs && (palofs < 0 ||
+                    palofs + (int)sizeof(lcd.pal) > STATE_BUFFER_SIZE)) ||
+        (oamofs && (oamofs < 0 ||
+                    oamofs + (int)sizeof(lcd.oam.mem) > STATE_BUFFER_SIZE)))
+        return false;
 
     /* obsolete as of version 0x104 */
-    if (hramofs) memcpy(ram.hi+128, buf+hramofs, 127);
-    if (wavofs) memcpy(ram.hi+48, buf+wavofs, 16);
+    if (hramofs) memcpy(ram.hi+128, state_buffer+hramofs, 127);
+    if (wavofs) memcpy(ram.hi+48, state_buffer+wavofs, 16);
 
-    if (hiofs) memcpy(ram.hi, buf+hiofs, sizeof ram.hi);
-    if (palofs) memcpy(lcd.pal, buf+palofs, sizeof lcd.pal);
-    if (oamofs) memcpy(lcd.oam.mem, buf+oamofs, sizeof lcd.oam);
+    if (hiofs) memcpy(ram.hi, state_buffer+hiofs, sizeof ram.hi);
+    if (palofs) memcpy(lcd.pal, state_buffer+palofs, sizeof lcd.pal);
+    if (oamofs) memcpy(lcd.oam.mem, state_buffer+oamofs, sizeof lcd.oam);
 
-    lseek(fd, base_offset + (iramblock << 12), SEEK_SET);
-    read(fd,ram.ibank, 4096*irl);
-
-    lseek(fd, base_offset + (vramblock << 12), SEEK_SET);
-    read(fd,lcd.vbank, 4096*vrl);
-
-    lseek(fd, base_offset + (sramblock << 12), SEEK_SET);
-    read(fd,ram.sbank, 4096*srl);
+    if (!seek_read(fd, base_offset + (iramblock << 12),
+                   ram.ibank, STATE_BUFFER_SIZE * irl) ||
+        !seek_read(fd, base_offset + (vramblock << 12),
+                   lcd.vbank, STATE_BUFFER_SIZE * vrl) ||
+        !seek_read(fd, base_offset + (sramblock << 12),
+                   ram.sbank, STATE_BUFFER_SIZE * srl))
+        return false;
     vram_dirty();
     pal_dirty();
     sound_dirty();
     mem_updatemap();
+    return true;
 }
 
-void savestate(int fd)
+bool savestate(int fd)
 {
     int i;
-    byte buf[4096];
-    un32 (*header)[2] = (un32 (*)[2])buf;
+    un32 (*header)[2] = (un32 (*)[2])state_buffer;
     un32 d = 0;
     int irl = hw.cgb ? 8 : 2;
     int vrl = hw.cgb ? 4 : 2;
     int srl = mbc.ramsize << 1;
-    size_t base_offset;
+    off_t base_offset;
 
     ver = 0x104;
     iramblock = 1;
@@ -254,7 +318,7 @@ void savestate(int fd)
     hiofs = 4096 - 768;
     palofs = 4096 - 512;
     oamofs = 4096 - 256;
-    memset(buf, 0, sizeof buf);
+    memset(state_buffer, 0, sizeof state_buffer);
 
     for (i = 0; svars[i].len > 0; i++)
     {
@@ -275,21 +339,21 @@ void savestate(int fd)
     }
     header[i][0] = header[i][1] = 0;
 
-    memcpy(buf+hiofs, ram.hi, sizeof ram.hi);
-    memcpy(buf+palofs, lcd.pal, sizeof lcd.pal);
-    memcpy(buf+oamofs, lcd.oam.mem, sizeof lcd.oam);
+    memcpy(state_buffer+hiofs, ram.hi, sizeof ram.hi);
+    memcpy(state_buffer+palofs, lcd.pal, sizeof lcd.pal);
+    memcpy(state_buffer+oamofs, lcd.oam.mem, sizeof lcd.oam);
 
     /* calculate base offset for output file */
     /* (we'll seek relative to that from now on) */
     base_offset = lseek(fd, 0, SEEK_CUR);
-    write(fd,buf, 4096);
-
-    lseek(fd, base_offset + (iramblock << 12), SEEK_SET);
-    write(fd,ram.ibank, 4096*irl);
-
-    lseek(fd, base_offset + (vramblock << 12), SEEK_SET);
-    write(fd,lcd.vbank, 4096*vrl);
-
-    lseek(fd, base_offset + (sramblock << 12), SEEK_SET);
-    write(fd,ram.sbank, 4096*srl);
+    if (base_offset < 0 ||
+        !write_exact(fd, state_buffer, STATE_BUFFER_SIZE) ||
+        !seek_write(fd, base_offset + (iramblock << 12),
+                    ram.ibank, STATE_BUFFER_SIZE * irl) ||
+        !seek_write(fd, base_offset + (vramblock << 12),
+                    lcd.vbank, STATE_BUFFER_SIZE * vrl) ||
+        !seek_write(fd, base_offset + (sramblock << 12),
+                    ram.sbank, STATE_BUFFER_SIZE * srl))
+        return false;
+    return true;
 }

@@ -1,7 +1,16 @@
 PySide6>=6.5.0
 mutagen>=1.47.0
 Pillow>=10.0.0
+gallery-dl>=1.31.0
 watchdog>=3.0.0
 pytest>=7.0.0
 pytest-qt>=4.2.0
 numpy>=1.24.0
+# streamrip_import.py imports this at module scope, and ui/main_window.py
+# imports that unconditionally, so the whole app fails to start without it.
+tomlkit>=0.12.0
+
+# The music store (Tidal/Qobuz/Deezer search, album detail, import) also needs
+# streamrip. It is deliberately not listed here: pip would honour its Pillow<11
+# and tomlkit<0.8 pins and downgrade this app's own copies. Install it with
+# scripts/install_streamrip.sh after rebuilding this venv.

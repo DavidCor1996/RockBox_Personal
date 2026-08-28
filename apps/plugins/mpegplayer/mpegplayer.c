@@ -107,6 +107,7 @@
 #include "stream_thread.h"
 #include "stream_mgr.h"
 #include "livetv.h"
+#include "../directv_boot.h"
 
 #define MPEGPLAYER_NETFLIX_PREFIX "netflix:"
 #define MPEGPLAYER_NETFLIX_PREFIX_LEN 8
@@ -114,10 +115,28 @@
 #define MPEGPLAYER_MAPS_PREFIX_LEN (sizeof(MPEGPLAYER_MAPS_PREFIX) - 1)
 #define MPEGPLAYER_NETFLIX_RESTART_PREFIX "netflix-restart:"
 #define MPEGPLAYER_NETFLIX_RESTART_PREFIX_LEN 16
+#define MPEGPLAYER_YOUTUBE_APP_PREFIX "youtube-app:"
+#define MPEGPLAYER_YOUTUBE_APP_PREFIX_LEN 12
+#define MPEGPLAYER_ONLYFANS_APP_PREFIX "onlyfans-app:"
+#define MPEGPLAYER_ONLYFANS_APP_PREFIX_LEN 13
+#define MPEGPLAYER_INSTAGRAM_APP_PREFIX "instagram-app:"
+#define MPEGPLAYER_INSTAGRAM_APP_PREFIX_LEN 14
+#define MPEGPLAYER_INSTAGRAM_FEED_PREFIX "instagram-feed:"
+#define MPEGPLAYER_INSTAGRAM_FEED_PREFIX_LEN 15
+#define MPEGPLAYER_REDDIT_APP_PREFIX "reddit-app:"
+#define MPEGPLAYER_REDDIT_APP_PREFIX_LEN 11
 
 bool mpegplayer_netflix_launch;
 bool mpegplayer_youtube_launch;
 bool mpegplayer_youtube_embedded;
+static bool mpegplayer_youtube_app_launch;
+static bool mpegplayer_onlyfans_app_launch;
+static bool mpegplayer_instagram_app_launch;
+static bool mpegplayer_instagram_feed_launch;
+static bool mpegplayer_instagram_feed_expanded;
+static int mpegplayer_instagram_return_direction;
+static bool mpegplayer_instagram_return_profile;
+static bool mpegplayer_reddit_app_launch;
 bool mpegplayer_livetv_launch;
 bool mpegplayer_livetv_pig;
 bool mpegplayer_livetv_desktop;
@@ -217,8 +236,36 @@ static uint32_t livetv_resume;
 #if defined(HAVE_LCD_COLOR) && (LCD_WIDTH >= 320) && (LCD_HEIGHT >= 240)
 #define YOUTUBE_LOGO_PATH \
     ROCKBOX_DIR "/offlineweb/assets/youtube-logo-2006.bmp"
+#define YOUTUBE_PLAYER_PATH \
+    ROCKBOX_DIR "/ipodjs/youtube/youtube-player-2007.bmp"
+#define YOUTUBE_SEEK_KNOB_PATH \
+    ROCKBOX_DIR "/ipodjs/youtube/youtube-player-seek-knob-2007.bmp"
+#define YOUTUBE_VOLUME_KNOB_PATH \
+    ROCKBOX_DIR "/ipodjs/youtube/youtube-player-volume-knob-2007.bmp"
+#define INSTAGRAM_LIKES_PATH ROCKBOX_DIR "/instagram/likes.tsv"
+#define INSTAGRAM_LIKES_TMP_PATH ROCKBOX_DIR "/instagram/likes.mpeg.tmp"
+#define INSTAGRAM_LIBRARY_PATH ROCKBOX_DIR "/instagram/library.tsv"
 static unsigned char youtube_logo_data[128 * 52 * sizeof(fb_data)];
 static struct bitmap youtube_logo_bmp;
+static unsigned char youtube_player_data[320 * 28 * sizeof(fb_data)];
+static struct bitmap youtube_player_bmp;
+static unsigned char youtube_seek_knob_data[16 * 19 * sizeof(fb_data)];
+static struct bitmap youtube_seek_knob_bmp;
+static unsigned char youtube_volume_knob_data[9 * 18 * sizeof(fb_data)];
+static struct bitmap youtube_volume_knob_bmp;
+static bool youtube_player_valid;
+static bool youtube_seek_knob_valid;
+static bool youtube_volume_knob_valid;
+#include "pluginbitmaps/instagram_video_play.h"
+#include "pluginbitmaps/instagram_heart.h"
+#include "pluginbitmaps/instagram_heart_unliked.h"
+static char instagram_group_id[32];
+static bool instagram_liked;
+/* Feed chrome is intentionally small and fixed.  It is populated once while
+ * opening a clip, then painted by the YUV compositor without filesystem I/O. */
+static char instagram_username[40];
+static char instagram_caption[88];
+static int instagram_likes;
 static char youtube_title[64];
 static char youtube_uploader[40];
 static char youtube_added[24];
@@ -230,6 +277,9 @@ static char youtube_duration[20];
 #include "pluginbitmaps/ipodtiktok_header.h"
 #include "pluginbitmaps/ipodtiktok_scrim.h"
 #include "pluginbitmaps/ipodtiktok_heart.h"
+#include "pluginbitmaps/ipodtiktok_heart_outline.h"
+#include "pluginbitmaps/ipodtiktok_check.h"
+#include "pluginbitmaps/ipodtiktok_verified.h"
 #define IPODTIKTOK_USE_BITMAP_ASSETS 1
 #else
 #define IPODTIKTOK_USE_BITMAP_ASSETS 0
@@ -250,6 +300,35 @@ static void youtube_load_metadata(const char *videofile)
     youtube_added[0] = '\0';
     youtube_views[0] = '\0';
     youtube_duration[0] = '\0';
+    youtube_player_valid = false;
+    youtube_seek_knob_valid = false;
+    youtube_volume_knob_valid = false;
+    if (mpegplayer_youtube_app_launch)
+    {
+        youtube_player_bmp.data = youtube_player_data;
+        youtube_player_valid =
+            rb->read_bmp_file(YOUTUBE_PLAYER_PATH, &youtube_player_bmp,
+                              sizeof(youtube_player_data),
+                              FORMAT_NATIVE, NULL) > 0 &&
+            youtube_player_bmp.width == 320 &&
+            youtube_player_bmp.height == 28;
+        youtube_seek_knob_bmp.data = youtube_seek_knob_data;
+        youtube_seek_knob_valid =
+            rb->read_bmp_file(YOUTUBE_SEEK_KNOB_PATH,
+                              &youtube_seek_knob_bmp,
+                              sizeof(youtube_seek_knob_data),
+                              FORMAT_NATIVE, NULL) > 0 &&
+            youtube_seek_knob_bmp.width == 16 &&
+            youtube_seek_knob_bmp.height == 19;
+        youtube_volume_knob_bmp.data = youtube_volume_knob_data;
+        youtube_volume_knob_valid =
+            rb->read_bmp_file(YOUTUBE_VOLUME_KNOB_PATH,
+                              &youtube_volume_knob_bmp,
+                              sizeof(youtube_volume_knob_data),
+                              FORMAT_NATIVE, NULL) > 0 &&
+            youtube_volume_knob_bmp.width == 9 &&
+            youtube_volume_knob_bmp.height == 18;
+    }
     rb->strlcpy(path, videofile, sizeof(path));
     dot = rb->strrchr(path, '.');
     if (dot == NULL)
@@ -274,6 +353,151 @@ static void youtube_load_metadata(const char *videofile)
                         sizeof(youtube_duration));
     }
     rb->close(fd);
+}
+
+static void instagram_copy_metadata_value(char *target, size_t size,
+                                          const char *value)
+{
+    char *end;
+
+    rb->strlcpy(target, value, size);
+    end = target;
+    while (*end && *end != '\r' && *end != '\n')
+        end++;
+    *end = '\0';
+}
+
+static void instagram_load_metadata(const char *videofile)
+{
+    char path[MAX_PATH];
+    char line[1024];
+    char *dot;
+    int fd;
+
+    instagram_group_id[0] = '\0';
+    instagram_liked = false;
+    instagram_username[0] = '\0';
+    instagram_caption[0] = '\0';
+    instagram_likes = 0;
+    rb->strlcpy(path, videofile, sizeof(path));
+    dot = rb->strrchr(path, '.');
+    if (dot != NULL)
+    {
+        rb->strlcpy(dot, ".igm", sizeof(path) - (dot - path));
+        fd = rb->open(path, O_RDONLY);
+        if (fd >= 0)
+        {
+            while (rb->read_line(fd, line, sizeof(line)) > 0)
+            {
+                if (!rb->strncmp(line, "group_id=", 9))
+                    instagram_copy_metadata_value(
+                        instagram_group_id, sizeof(instagram_group_id),
+                        line + 9);
+            }
+            rb->close(fd);
+        }
+    }
+
+    if (!instagram_group_id[0])
+        goto load_feed_details;
+    fd = rb->open(INSTAGRAM_LIKES_PATH, O_RDONLY);
+    if (fd >= 0)
+    {
+        while (rb->read_line(fd, line, sizeof(line)) > 0)
+        {
+            instagram_copy_metadata_value(path, sizeof(path), line);
+            if (!rb->strcmp(path, instagram_group_id))
+            {
+                instagram_liked = true;
+                break;
+            }
+        }
+        rb->close(fd);
+    }
+
+load_feed_details:
+    /* Older syncs only wrote group_id into .igm.  Resolve the rest from the
+     * canonical device library at launch, never while composing frames. */
+    fd = rb->open(INSTAGRAM_LIBRARY_PATH, O_RDONLY);
+    if (fd < 0)
+        return;
+    rb->read_line(fd, line, sizeof(line)); /* TSV header */
+    while (rb->read_line(fd, line, sizeof(line)) > 0)
+    {
+        char *field[15];
+        int count = 1;
+        int index;
+
+        field[0] = line;
+        for (index = 1; index < (int)ARRAYLEN(field); index++)
+        {
+            char *tab = rb->strchr(field[index - 1], '\t');
+            if (tab == NULL)
+                break;
+            *tab = '\0';
+            field[index] = tab + 1;
+            count++;
+        }
+        if (count < 15 ||
+            (rb->strcmp(field[5], videofile) &&
+             rb->strcmp(field[14], videofile)))
+            continue;
+        instagram_copy_metadata_value(instagram_username,
+                                      sizeof(instagram_username), field[1]);
+        instagram_copy_metadata_value(instagram_caption,
+                                      sizeof(instagram_caption),
+                                      field[4][0] ? field[4] : field[3]);
+        instagram_likes = rb->atoi(field[8]);
+        break;
+    }
+    rb->close(fd);
+}
+
+static bool instagram_toggle_like(void)
+{
+    char line[96];
+    char clean[96];
+    int source;
+    int target;
+    bool found = false;
+
+    if (!instagram_group_id[0])
+        return false;
+    source = rb->open(INSTAGRAM_LIKES_PATH, O_RDONLY);
+    target = rb->open(INSTAGRAM_LIKES_TMP_PATH,
+                      O_WRONLY | O_CREAT | O_TRUNC, 0666);
+    if (target < 0)
+    {
+        if (source >= 0)
+            rb->close(source);
+        return false;
+    }
+    if (source >= 0)
+    {
+        while (rb->read_line(source, line, sizeof(line)) > 0)
+        {
+            instagram_copy_metadata_value(clean, sizeof(clean), line);
+            if (!rb->strcmp(clean, instagram_group_id))
+            {
+                found = true;
+                if (instagram_liked)
+                    continue;
+            }
+            rb->fdprintf(target, "%s\n", clean);
+        }
+        rb->close(source);
+    }
+    if (!instagram_liked && !found)
+        rb->fdprintf(target, "%s\n", instagram_group_id);
+    rb->close(target);
+    rb->remove(INSTAGRAM_LIKES_PATH);
+    if (rb->rename(INSTAGRAM_LIKES_TMP_PATH, INSTAGRAM_LIKES_PATH) < 0)
+    {
+        rb->remove(INSTAGRAM_LIKES_TMP_PATH);
+        return false;
+    }
+    instagram_liked = !instagram_liked;
+    return true;
 }
 
 static void youtube_draw_embedded_chrome(void)
@@ -323,6 +547,8 @@ static void youtube_draw_embedded_chrome(void)
 #else
 #define youtube_load_metadata(videofile)
 #define youtube_draw_embedded_chrome()
+#define instagram_load_metadata(videofile)
+#define instagram_toggle_like() false
 #endif
 
 
@@ -346,6 +572,22 @@ static void youtube_draw_embedded_chrome(void)
 #define MPEG_RW         BUTTON_LEFT
 #define MPEG_FF         BUTTON_RIGHT
 #define MPEG_ZOOM       (BUTTON_SELECT | BUTTON_REL)
+#ifdef BUTTON_RC_PLAY
+/* 30-pin iAP accessories (including legacy video docks) arrive as the
+ * target's BUTTON_RC_* values.  Keep them alongside, rather than replacing,
+ * the clickwheel controls. */
+#define MPEG_RC_MENU    BUTTON_RC_MENU
+#define MPEG_RC_STOP    BUTTON_RC_STOP
+#define MPEG_RC_PAUSE   (BUTTON_RC_PLAY | BUTTON_REL)
+#define MPEG_RC_VOLDOWN BUTTON_RC_VOL_DOWN
+#define MPEG_RC_VOLUP   BUTTON_RC_VOL_UP
+#define MPEG_RC_DOWN    BUTTON_RC_DOWN
+#define MPEG_RC_UP      BUTTON_RC_UP
+#define MPEG_RC_RW      BUTTON_RC_LEFT
+#define MPEG_RC_FF      BUTTON_RC_RIGHT
+#define MPEG_RC_ZOOM    (BUTTON_RC_SELECT | BUTTON_REL)
+#define MPEG_RC_GUIDE   BUTTON_RC_PLAY
+#endif
 
 #elif CONFIG_KEYPAD == IAUDIO_X5M5_PAD
 #define MPEG_MENU       (BUTTON_REC | BUTTON_REL)
@@ -769,6 +1011,7 @@ enum video_action
     VIDEO_STOP = 0,
     VIDEO_PREV,
     VIDEO_NEXT,
+    VIDEO_REPEAT,
     VIDEO_ACTION_MANUAL = 0x8000, /* Flag that says user did it */
 };
 
@@ -847,6 +1090,29 @@ extern const unsigned char mpegplayer_status_icons_16x16x1[];
 #define MPEG_VOLUME_SLIDER_H 5
 #define MPEG_VOLUME_SLIDER_END_W 3
 #define MPEG_NETFLIX_OVERLAY_H 64
+#define MPEG_YOUTUBE_OVERLAY_H 28
+#define MPEG_YOUTUBE_PROGRESS_LEFT 47
+#define MPEG_YOUTUBE_PROGRESS_W 126
+#define MPEG_YOUTUBE_PROGRESS_ERASE_X 35
+#define MPEG_YOUTUBE_PROGRESS_ERASE_Y 4
+#define MPEG_YOUTUBE_PROGRESS_ERASE_W 21
+#define MPEG_YOUTUBE_PROGRESS_ERASE_H 21
+#define MPEG_YOUTUBE_PROGRESS_KNOB_Y 5
+#define MPEG_YOUTUBE_PROGRESS_KNOB_W 16
+#define MPEG_YOUTUBE_PROGRESS_KNOB_H 19
+#define MPEG_YOUTUBE_VOLUME_LEFT 230
+#define MPEG_YOUTUBE_VOLUME_W 38
+#define MPEG_YOUTUBE_VOLUME_ERASE_X 262
+#define MPEG_YOUTUBE_VOLUME_ERASE_W 13
+#define MPEG_YOUTUBE_VOLUME_KNOB_Y 5
+#define MPEG_YOUTUBE_VOLUME_KNOB_W 9
+#define MPEG_YOUTUBE_VOLUME_KNOB_H 18
+#define MPEG_INSTAGRAM_VIDEO_LEFT 4
+#define MPEG_INSTAGRAM_VIDEO_TOP 57
+#define MPEG_INSTAGRAM_VIDEO_W 160
+#define MPEG_INSTAGRAM_VIDEO_H 158
+#define MPEG_INSTAGRAM_PLAY_MARGIN 6
+#define MPEG_NETFLIX_SKIP_H 50
 #else
 #define MPEG_STOCK_CONTROLS 0
 #endif
@@ -886,6 +1152,8 @@ struct osd
     bool use_wps_layout;
     bool stock_layout;
     bool netflix_layout;
+    bool youtube_layout;
+    bool instagram_layout;
 };
 
 struct fps
@@ -906,6 +1174,17 @@ static struct osd osd;
 static struct fps fps NOCACHEBSS_ATTR; /* Accessed on other processor */
 static char mpeg_osd_path[MAX_PATH];
 static uint32_t netflix_overlay_duration;
+enum netflix_skip_kind
+{
+    NETFLIX_SKIP_NONE = 0,
+    NETFLIX_SKIP_INTRO,
+    NETFLIX_SKIP_CREDITS,
+};
+static enum netflix_skip_kind netflix_skip_active;
+static uint32_t netflix_intro_start;
+static uint32_t netflix_intro_end;
+static uint32_t netflix_credits_start;
+static uint32_t netflix_credits_duration;
 /* Set by every user-initiated stop, so the natural fall-through out of the
  * button loop can be recognised as end of stream. */
 static bool mpeg_stop_requested;
@@ -971,19 +1250,77 @@ static long mpeg_volume_card_until;
 #endif
 
 #define IPODTIKTOK_PARAM_PREFIX "-ipodtiktok:"
-#define FEED_MAX_ITEMS          64
-#define FEED_ID_LEN             32
+#define IPODTIKTOK_FEED_PATH    PLUGIN_APPS_DATA_DIR "/.ipodtiktok_feed.tsv"
+#define IPODTIKTOK_PROFILES_PATH ROCKBOX_DIR "/tiktok/profiles.tsv"
+#define IPODTIKTOK_LAUNCH_MARKER \
+    PLUGIN_APPS_DATA_DIR "/.ipodtiktok_launch.pending"
+#define FEED_MAX_ITEMS          2048
+#define FEED_ID_LEN             24
 #define FEED_TITLE_LEN          64
-#define FEED_SKIP_COOLDOWN      (HZ * 2)
-#define FEED_MENU_HOLD_TIME     (HZ * 2)
-#define FEED_LIKE_ANIM_TIME     (HZ * 3 / 4)
+#define FEED_CREATOR_LEN        32
+#define FEED_DESCRIPTION_LEN    96
+#define FEED_PATH_LEN           96
+#define FEED_SKIP_COOLDOWN      MAX(1, HZ / 8)
+#define FEED_SWIPE_WINDOW       (HZ / 4)
+#define FEED_SWIPE_STEPS        2
+#define FEED_SWIPE_ANIM_TIME    MAX(1, HZ / 5)
+#define FEED_MENU_HOLD_TIME     (HZ * 3 / 4)
+#define FEED_LIKE_ANIM_TIME     MAX(1, HZ / 2)
+#define FEED_CONFIRM_TIME       HZ
+#define FEED_VIDEO_LEFT         92
+#define FEED_VIDEO_RIGHT        228
+#define FEED_SIDE_GUTTER        6
+#define FEED_VOLUME_TIME        (HZ * 2)
+#define FEED_PROFILE_NAME_LEN   64
+#define FEED_PROFILE_BIO_LEN    192
+#define FEED_RECENT_MAX         16
+#define FEED_RECENT_CREATORS_MAX 12
+#define FEED_PROFILE_THUMB_SLOTS 3
+#define FEED_PROFILE_THUMB_W    96
+#define FEED_PROFILE_THUMB_H    72
+#define FEED_PROFILE_AVATAR_SIZE 48
+#define FEED_SAVED_PROFILE_MAX  64
 
 struct feed_item
 {
     char id[FEED_ID_LEN];
     char title[FEED_TITLE_LEN];
-    char path[MAX_PATH];
+    char creator[FEED_CREATOR_LEN];
+    char description[FEED_DESCRIPTION_LEN];
+    char thumbnail[FEED_PATH_LEN];
+    char path[FEED_PATH_LEN];
+    int like_count;
+    int comment_count;
+    bool following;
+    bool archived;
     bool liked;
+    bool saved;
+    bool watched;
+    bool not_interested;
+    unsigned char pin_order;
+};
+
+enum feed_section
+{
+    FEED_SECTION_FOR_YOU = 0,
+    FEED_SECTION_FOLLOWING,
+    FEED_SECTION_SAVED,
+    FEED_SECTION_HISTORY,
+    FEED_SECTION_COUNT,
+};
+
+struct feed_profile
+{
+    bool valid;
+    char username[FEED_CREATOR_LEN];
+    char display_name[FEED_PROFILE_NAME_LEN];
+    char bio[FEED_PROFILE_BIO_LEN];
+    char avatar[FEED_PATH_LEN];
+    int followers;
+    int following;
+    int likes;
+    int videos;
+    bool verified;
 };
 
 struct feed_state
@@ -991,16 +1328,97 @@ struct feed_state
     bool active;
     char feed_path[MAX_PATH];
     char likes_path[MAX_PATH];
+    char activity_path[MAX_PATH];
     char state_path[MAX_PATH];
     struct feed_item items[FEED_MAX_ITEMS];
     int count;
     int index;
+    enum feed_section section;
+    bool section_switch_pending;
+    bool select_armed;
+    long select_deadline;
     long skip_cooldown_until;
+    long swipe_deadline;
+    int swipe_direction;
+    int swipe_steps;
+    bool swipe_committed;
+    int swipe_offset;
+    int resistance_offset;
+    int transition_direction;
+    bool transition_enter_pending;
+    bool transition_capture_pending;
     long like_anim_until;
+    long confirm_until;
+    char confirm_text[12];
+    long volume_until;
     bool ui_visible;
+    bool profile_visible;
+    bool profile_saved_only;
+    bool saved_profiles_visible;
+    bool saved_profiles_resume_playback;
+    bool profile_resume_playback;
+    bool profile_selection_pending;
+    bool profile_feed_active;
+    bool action_visible;
+    bool details_visible;
+    bool action_resume_playback;
+    int action_cursor;
+    int profile_cursor;
+    int profile_count;
+    int saved_profile_cursor;
+    int saved_profile_count;
+    int saved_return_index;
+    enum feed_section saved_return_section;
+    struct feed_profile profile;
+    bool likes_dirty;
+    bool activity_dirty;
+    bool state_dirty;
+    uint32_t recommendation_seed;
+    bool state_section_valid;
+    char section_ids[FEED_SECTION_COUNT][FEED_ID_LEN];
+    char recent_ids[FEED_RECENT_MAX][FEED_ID_LEN];
+    int recent_count;
+    char recent_creators[FEED_RECENT_CREATORS_MAX][FEED_CREATOR_LEN];
+    int recent_creator_count;
+    int prepared_from_index;
+    enum feed_section prepared_section;
+    bool prepared_profile_feed;
+    int prepared_next_index;
+    int prepared_prev_index;
+    uint32_t prepared_next_seed;
 };
 
 static struct feed_state feed;
+/* LCD_MODE_YUV is a plugin-session mode, not a per-clip mode. Reapplying it
+ * while the previous card is deliberately being held can expose the target's
+ * cleared YUV scanout as a green frame before the first new blit. */
+static bool feed_yuv_mode_active;
+static struct bitmap feed_profile_thumbs[FEED_PROFILE_THUMB_SLOTS];
+static fb_data feed_profile_thumb_data[FEED_PROFILE_THUMB_SLOTS]
+                                      [FEED_PROFILE_THUMB_W *
+                                       FEED_PROFILE_THUMB_H];
+static bool feed_profile_thumb_valid[FEED_PROFILE_THUMB_SLOTS];
+static int feed_profile_thumb_start = -1;
+/* Built once when a profile opens: 4 KiB replaces repeated O(feed.count)
+ * scans while scrolling large archived accounts. */
+static uint16_t feed_profile_items[FEED_MAX_ITEMS];
+/* Saved owns a compact creator index, not another media or framebuffer
+ * cache. Each entry points at one representative feed item. */
+static uint16_t feed_saved_profile_items[FEED_SAVED_PROFILE_MAX];
+static uint16_t feed_saved_profile_counts[FEED_SAVED_PROFILE_MAX];
+static struct bitmap feed_profile_avatar;
+static fb_data feed_profile_avatar_data[FEED_PROFILE_AVATAR_SIZE *
+                                        FEED_PROFILE_AVATAR_SIZE];
+static bool feed_profile_avatar_valid;
+static bool feed_profile_avatar_pending;
+static bool feed_profile_thumbs_pending;
+static int feed_profile_thumb_load_slot;
+static long feed_profile_asset_due;
+
+static void feed_show_saved_profiles(void);
+static void feed_hide_saved_profiles(bool resume);
+static void feed_saved_profile_move(int delta);
+static void feed_open_saved_profile(void);
 
 static void osd_get_wps_slider_layout(uint32_t duration,
                                       int *time_w, int *bar_x,
@@ -1049,7 +1467,13 @@ static fb_data* get_framebuffer(void)
 static void osd_show(unsigned show);
 static void osd_refresh(int hint);
 static void fps_update_post_frame_callback(void);
+static int osd_stream_status(void);
+static int osd_pause(void);
+static void osd_resume(void);
+static bool feed_item_in_section(int index, enum feed_section section);
+#if !MPEG_STOCK_CONTROLS
 static void feed_post_frame_callback(void);
+#endif
 #ifdef HAVE_LCD_COLOR
 static void livetv_volume_show(void);
 static void livetv_volume_hide(void);
@@ -1063,6 +1487,9 @@ static void feed_reset(void)
 {
     rb->memset(&feed, 0, sizeof(feed));
     feed.ui_visible = true;
+    feed.prepared_from_index = -1;
+    feed.prepared_next_index = -1;
+    feed.prepared_prev_index = -1;
 }
 
 static char *feed_trim(char *text)
@@ -1179,14 +1606,13 @@ static void feed_load_likes(void)
 {
     int fd;
     char line[128];
-    int len;
     int i;
 
     fd = rb->open(feed.likes_path, O_RDONLY);
     if (fd < 0)
         return;
 
-    while ((len = rb->read_line(fd, line, sizeof(line))) > 0)
+    while (rb->read_line(fd, line, sizeof(line)) > 0)
     {
         char *key = feed_trim(line);
 
@@ -1225,10 +1651,100 @@ static void feed_save_likes(void)
     rb->close(fd);
 }
 
+static void feed_load_activity(void)
+{
+    int fd = rb->open(feed.activity_path, O_RDONLY);
+    char line[128];
+
+    if (fd < 0)
+        return;
+    while (rb->read_line(fd, line, sizeof(line)) > 0)
+    {
+        char *key = feed_trim(line);
+        char type;
+        int i;
+
+        if (key[0] == '\0' || key[1] != '\t')
+            continue;
+        type = key[0];
+        key += 2;
+        for (i = 0; i < feed.count; i++)
+        {
+            if (rb->strcmp(feed.items[i].id, key))
+                continue;
+            if (type == 'S')
+                feed.items[i].saved = true;
+            else if (type == 'H')
+                feed.items[i].watched = true;
+            else if (type == 'N')
+                feed.items[i].not_interested = true;
+            break;
+        }
+    }
+    rb->close(fd);
+}
+
+static void feed_save_activity(void)
+{
+    int fd = rb->open(feed.activity_path,
+                      O_WRONLY | O_CREAT | O_TRUNC, 0666);
+    int i;
+
+    if (fd < 0)
+        return;
+    for (i = 0; i < feed.count; i++)
+    {
+        if (feed.items[i].saved)
+            rb->fdprintf(fd, "S\t%s\n", feed.items[i].id);
+        if (feed.items[i].watched)
+            rb->fdprintf(fd, "H\t%s\n", feed.items[i].id);
+        if (feed.items[i].not_interested)
+            rb->fdprintf(fd, "N\t%s\n", feed.items[i].id);
+    }
+    rb->close(fd);
+}
+
+static int feed_find_item_by_id(const char *id)
+{
+    int i;
+
+    if (id == NULL || *id == '\0')
+        return -1;
+    for (i = 0; i < feed.count; i++)
+        if (!rb->strcmp(feed.items[i].id, id))
+            return i;
+    return -1;
+}
+
+static void feed_remember_section(enum feed_section section, int index)
+{
+    if (section >= FEED_SECTION_COUNT ||
+        !feed_item_in_section(index, section))
+        return;
+    rb->strlcpy(feed.section_ids[section], feed.items[index].id,
+                FEED_ID_LEN);
+}
+
+static int feed_restore_section(enum feed_section section)
+{
+    int index;
+    int i;
+
+    if (section >= FEED_SECTION_COUNT)
+        return -1;
+    index = feed_find_item_by_id(feed.section_ids[section]);
+    if (feed_item_in_section(index, section))
+        return index;
+    for (i = 0; i < feed.count; i++)
+        if (feed_item_in_section(i, section))
+            return i;
+    return -1;
+}
+
 static void feed_load_state(void)
 {
     int fd;
-    char line[32];
+    char line[128];
     int len;
     int index;
 
@@ -1237,35 +1753,385 @@ static void feed_load_state(void)
         return;
 
     len = rb->read_line(fd, line, sizeof(line));
-    rb->close(fd);
     if (len <= 0)
+    {
+        rb->close(fd);
         return;
+    }
 
     index = rb->atoi(line);
     if (index >= 0 && index < feed.count)
         feed.index = index;
+
+    len = rb->read_line(fd, line, sizeof(line));
+    if (len > 0)
+        feed.recommendation_seed = (uint32_t)rb->strtoul(line, NULL, 10);
+
+    while (rb->read_line(fd, line, sizeof(line)) > 0)
+    {
+        char *value = feed_trim(line);
+
+        if (!rb->strncmp(value, "S\t", 2))
+        {
+            int section = rb->atoi(value + 2);
+
+            if (section >= 0 && section < FEED_SECTION_COUNT)
+            {
+                feed.section = (enum feed_section)section;
+                feed.state_section_valid = true;
+            }
+        }
+        else if (!rb->strncmp(value, "C\t", 2))
+        {
+            char *id = rb->strchr(value + 2, '\t');
+
+            if (id != NULL)
+            {
+                int section;
+
+                *id++ = '\0';
+                section = rb->atoi(value + 2);
+                if (section >= 0 && section < FEED_SECTION_COUNT)
+                    rb->strlcpy(feed.section_ids[section], feed_trim(id),
+                                FEED_ID_LEN);
+            }
+        }
+        else if (!rb->strncmp(value, "R\t", 2))
+        {
+            if (feed.recent_count < FEED_RECENT_MAX && value[2] != '\0')
+                rb->strlcpy(feed.recent_ids[feed.recent_count++], value + 2,
+                            FEED_ID_LEN);
+        }
+        else if (!rb->strncmp(value, "K\t", 2))
+        {
+            if (feed.recent_creator_count < FEED_RECENT_CREATORS_MAX &&
+                value[2] != '\0')
+                rb->strlcpy(
+                    feed.recent_creators[feed.recent_creator_count++],
+                    value + 2, FEED_CREATOR_LEN);
+        }
+        /* Untagged lines are the original state format. Import them once and
+         * write the tagged format on exit without discarding watch history. */
+        else if (feed.recent_count < FEED_RECENT_MAX && *value != '\0')
+        {
+            rb->strlcpy(feed.recent_ids[feed.recent_count++], value,
+                        FEED_ID_LEN);
+        }
+    }
+
+    rb->close(fd);
 }
 
 static void feed_save_state(void)
 {
     int fd;
+    int i;
+
+    if (!feed.profile_feed_active)
+        feed_remember_section(feed.section, feed.index);
 
     fd = rb->open(feed.state_path, O_WRONLY | O_CREAT | O_TRUNC, 0666);
     if (fd < 0)
         return;
 
-    rb->fdprintf(fd, "%d\n", feed.index);
+    rb->fdprintf(fd, "%d\n%lu\n", feed.index,
+                 (unsigned long)feed.recommendation_seed);
+    rb->fdprintf(fd, "S\t%d\n", (int)feed.section);
+    for (i = 0; i < FEED_SECTION_COUNT; i++)
+        if (feed.section_ids[i][0] != '\0')
+            rb->fdprintf(fd, "C\t%d\t%s\n", i, feed.section_ids[i]);
+    for (i = 0; i < feed.recent_count; i++)
+        rb->fdprintf(fd, "R\t%s\n", feed.recent_ids[i]);
+    for (i = 0; i < feed.recent_creator_count; i++)
+        rb->fdprintf(fd, "K\t%s\n", feed.recent_creators[i]);
     rb->close(fd);
 }
 
-static bool feed_add_item(const char *id, const char *title, const char *path)
+static void feed_flush_pending(void)
+{
+    if (feed.likes_dirty)
+    {
+        feed_save_likes();
+        feed.likes_dirty = false;
+    }
+    if (feed.activity_dirty)
+    {
+        feed_save_activity();
+        feed.activity_dirty = false;
+    }
+    if (feed.state_dirty)
+    {
+        feed_save_state();
+        feed.state_dirty = false;
+    }
+}
+
+static uint32_t feed_hash_id(const char *text)
+{
+    uint32_t hash = 2166136261u;
+
+    while (*text != '\0')
+    {
+        hash ^= (unsigned char)*text++;
+        hash *= 16777619u;
+    }
+    return hash;
+}
+
+static bool feed_was_recent(const char *id)
+{
+    int i;
+
+    for (i = 0; i < feed.recent_count; i++)
+        if (!rb->strcmp(feed.recent_ids[i], id))
+            return true;
+    return false;
+}
+
+static bool feed_creator_was_recent(const char *creator)
+{
+    int i;
+
+    if (creator == NULL || *creator == '\0')
+        return false;
+    for (i = 0; i < feed.recent_creator_count; i++)
+        if (!rb->strcasecmp(feed.recent_creators[i], creator))
+            return true;
+    return false;
+}
+
+static void feed_mark_recent(int index)
+{
+    const char *id;
+    const char *creator;
+    int i;
+
+    if (index < 0 || index >= feed.count)
+        return;
+    id = feed.items[index].id;
+    for (i = 0; i < feed.recent_count; i++)
+    {
+        if (!rb->strcmp(feed.recent_ids[i], id))
+        {
+            for (; i + 1 < feed.recent_count; i++)
+                rb->strlcpy(feed.recent_ids[i], feed.recent_ids[i + 1],
+                            FEED_ID_LEN);
+            feed.recent_count--;
+            break;
+        }
+    }
+    if (feed.recent_count == FEED_RECENT_MAX)
+    {
+        for (i = 0; i + 1 < feed.recent_count; i++)
+            rb->strlcpy(feed.recent_ids[i], feed.recent_ids[i + 1],
+                        FEED_ID_LEN);
+        feed.recent_count--;
+    }
+    rb->strlcpy(feed.recent_ids[feed.recent_count++], id, FEED_ID_LEN);
+
+    creator = feed.items[index].creator;
+    if (*creator == '\0')
+        return;
+    for (i = 0; i < feed.recent_creator_count; i++)
+    {
+        if (!rb->strcasecmp(feed.recent_creators[i], creator))
+        {
+            for (; i + 1 < feed.recent_creator_count; i++)
+                rb->strlcpy(feed.recent_creators[i],
+                            feed.recent_creators[i + 1], FEED_CREATOR_LEN);
+            feed.recent_creator_count--;
+            break;
+        }
+    }
+    if (feed.recent_creator_count == FEED_RECENT_CREATORS_MAX)
+    {
+        for (i = 0; i + 1 < feed.recent_creator_count; i++)
+            rb->strlcpy(feed.recent_creators[i],
+                        feed.recent_creators[i + 1], FEED_CREATOR_LEN);
+        feed.recent_creator_count--;
+    }
+    rb->strlcpy(feed.recent_creators[feed.recent_creator_count++], creator,
+                FEED_CREATOR_LEN);
+}
+
+static int feed_recommend_index_for_seed(uint32_t seed)
+{
+    const char *current_creator = feed.items[feed.index].creator;
+    char liked_creators[FEED_RECENT_MAX][FEED_CREATOR_LEN];
+    unsigned char liked_counts[FEED_RECENT_MAX] = { 0 };
+    int liked_creator_count = 0;
+    uint32_t best_score = 0;
+    int best = -1;
+    int pass;
+    int i;
+
+    /* Build a bounded preference table once. Full-profile archives can hold
+     * thousands of clips, so rescanning the entire feed per candidate stalls
+     * real iPod hardware before the first frame is shown. */
+    for (i = 0; i < feed.count; i++)
+    {
+        int creator_index;
+
+        if (!feed.items[i].liked || feed.items[i].creator[0] == '\0')
+            continue;
+        for (creator_index = 0; creator_index < liked_creator_count;
+             creator_index++)
+            if (!rb->strcasecmp(liked_creators[creator_index],
+                                feed.items[i].creator))
+                break;
+        if (creator_index == liked_creator_count &&
+            liked_creator_count < FEED_RECENT_MAX)
+        {
+            rb->strlcpy(liked_creators[liked_creator_count],
+                        feed.items[i].creator, FEED_CREATOR_LEN);
+            liked_counts[liked_creator_count] = 0;
+            liked_creator_count++;
+        }
+        if (creator_index < liked_creator_count &&
+            liked_counts[creator_index] < 3)
+            liked_counts[creator_index]++;
+    }
+
+    for (pass = 0; pass < 4 && best < 0; pass++)
+    {
+        for (i = 0; i < feed.count; i++)
+        {
+            uint32_t score;
+            int affinity = 0;
+            int creator_index;
+
+            if (i == feed.index || feed.items[i].not_interested)
+                continue;
+            if (pass < 2 && feed_was_recent(feed.items[i].id))
+                continue;
+            if (pass == 0 &&
+                feed_creator_was_recent(feed.items[i].creator))
+                continue;
+            if (pass < 3 && current_creator[0] != '\0' &&
+                !rb->strcasecmp(feed.items[i].creator, current_creator))
+                continue;
+
+            score = (feed_hash_id(feed.items[i].id) ^
+                     seed) & 0x1fffffffu;
+            for (creator_index = 0; creator_index < liked_creator_count;
+                 creator_index++)
+                if (!rb->strcasecmp(liked_creators[creator_index],
+                                    feed.items[i].creator))
+                {
+                    affinity = liked_counts[creator_index];
+                    break;
+                }
+            score += (uint32_t)affinity * 0x04000000u;
+            /* Prefer unseen clips, while still allowing history to resurface
+             * after every unseen candidate has been exhausted. */
+            if (!feed.items[i].watched)
+                score += 0x40000000u;
+            if (best < 0 || score > best_score)
+            {
+                best = i;
+                best_score = score;
+            }
+        }
+    }
+    return best;
+}
+
+static int feed_recommend_next_index(void)
+{
+    feed.recommendation_seed = feed.recommendation_seed * 1664525u +
+                               1013904223u;
+    return feed_recommend_index_for_seed(feed.recommendation_seed);
+}
+
+static int feed_predict_linear_index(int direction)
+{
+    int next = feed.index;
+    int step = direction == VIDEO_PREV ? -1 : 1;
+    int tries;
+
+    if (feed.profile_feed_active && feed.profile_count > 0)
+    {
+        int ordinal;
+
+        for (ordinal = 0; ordinal < feed.profile_count; ordinal++)
+            if (feed_profile_items[ordinal] == feed.index)
+                break;
+        if (ordinal >= feed.profile_count)
+            ordinal = 0;
+        ordinal += step;
+        if (ordinal < 0)
+            return feed.index;
+        else if (ordinal >= feed.profile_count)
+            return feed.index;
+        return feed_profile_items[ordinal];
+    }
+
+    for (tries = 0; tries < feed.count; tries++)
+    {
+        next += step;
+        if (next < 0)
+            return feed.index;
+        else if (next >= feed.count)
+            return feed.index;
+        if (feed_item_in_section(next, feed.section))
+            return next;
+    }
+    return feed.index;
+}
+
+static void feed_prepare_neighbors(void)
+{
+    feed.prepared_from_index = feed.index;
+    feed.prepared_section = feed.section;
+    feed.prepared_profile_feed = feed.profile_feed_active;
+    feed.prepared_prev_index = feed_predict_linear_index(VIDEO_PREV);
+    if (!feed.profile_feed_active &&
+        feed.section == FEED_SECTION_FOR_YOU)
+    {
+        feed.prepared_next_seed = feed.recommendation_seed * 1664525u +
+                                  1013904223u;
+        feed.prepared_next_index =
+            feed_recommend_index_for_seed(feed.prepared_next_seed);
+    }
+    else
+    {
+        feed.prepared_next_seed = feed.recommendation_seed;
+        feed.prepared_next_index = feed_predict_linear_index(VIDEO_NEXT);
+    }
+}
+
+static bool feed_prepared_neighbors_valid(void)
+{
+    return feed.prepared_from_index == feed.index &&
+           feed.prepared_section == feed.section &&
+           feed.prepared_profile_feed == feed.profile_feed_active;
+}
+
+static bool feed_prepared_boundary(int direction)
+{
+    int prepared;
+
+    if (!feed_prepared_neighbors_valid())
+        return false;
+    prepared = direction == VIDEO_PREV ? feed.prepared_prev_index :
+                                         feed.prepared_next_index;
+    return prepared == feed.index;
+}
+
+static bool feed_add_item(const char *id, const char *title, const char *path,
+                          const char *source_type, const char *creator,
+                          const char *description, const char *thumbnail,
+                          const char *like_count, const char *comment_count,
+                          const char *pin_order)
 {
     struct feed_item *item;
 
     if (feed.count >= FEED_MAX_ITEMS)
         return false;
 
-    if (!rb->file_exists(path))
+    /* A valid feed item is always an absolute Rockbox path. This also makes
+     * the parser robust to current and legacy TSV header variants. */
+    if (path == NULL || path[0] != '/')
         return true;
 
     item = &feed.items[feed.count];
@@ -1282,6 +2148,17 @@ static bool feed_add_item(const char *id, const char *title, const char *path)
                                      sizeof(item->title));
 
     rb->strlcpy(item->path, path, sizeof(item->path));
+    rb->strlcpy(item->creator, creator ? creator : "",
+                sizeof(item->creator));
+    rb->strlcpy(item->description, description ? description : "",
+                sizeof(item->description));
+    rb->strlcpy(item->thumbnail, thumbnail ? thumbnail : "",
+                sizeof(item->thumbnail));
+    item->following = source_type && !rb->strcmp(source_type, "following");
+    item->archived = source_type && !rb->strcmp(source_type, "archive");
+    item->like_count = like_count ? rb->atoi(like_count) : 0;
+    item->comment_count = comment_count ? rb->atoi(comment_count) : 0;
+    item->pin_order = pin_order ? MIN(3, MAX(0, rb->atoi(pin_order))) : 0;
     feed.count++;
     return true;
 }
@@ -1289,43 +2166,50 @@ static bool feed_add_item(const char *id, const char *title, const char *path)
 static bool feed_parse_file(const char *path)
 {
     int fd;
-    char line[2 * MAX_PATH];
+    char line[1024];
     int len;
 
     fd = rb->open(path, O_RDONLY);
+    MPLOG("feed open path=%s fd=%d\n", path, fd);
     if (fd < 0)
         return false;
 
     while ((len = rb->read_line(fd, line, sizeof(line))) > 0)
     {
-        char *id;
-        char *title;
-        char *clip_path;
-        char *next;
+        char *fields[10] = { NULL };
+        char *cursor;
+        char *scan;
+        int field_count = 1;
 
-        id = feed_trim(line);
-        if (*id == '\0' || *id == '#')
+        cursor = feed_trim(line);
+        if (*cursor == '\0' || *cursor == '#')
+            continue;
+        fields[0] = cursor;
+        for (scan = cursor; *scan != '\0' &&
+             field_count < (int)ARRAYLEN(fields); scan++)
+        {
+            if (*scan == '\t')
+            {
+                *scan = '\0';
+                fields[field_count++] = scan + 1;
+            }
+        }
+        if (field_count < 3)
             continue;
 
-        if (!rb->strcmp(id, "id\ttitle\tpath"))
+        for (int i = 0; i < field_count; i++)
+            fields[i] = feed_trim(fields[i]);
+        if (!rb->strcmp(fields[0], "id"))
             continue;
 
-        next = rb->strchr(id, '\t');
-        if (next == NULL)
-            continue;
-        *next++ = '\0';
-
-        title = next;
-        next = rb->strchr(title, '\t');
-        if (next == NULL)
-            continue;
-        *next++ = '\0';
-
-        clip_path = feed_trim(next);
-        title = feed_trim(title);
-        id = feed_trim(id);
-
-        if (!feed_add_item(id, title, clip_path))
+        if (!feed_add_item(fields[0], fields[1], fields[2],
+                           field_count > 3 ? fields[3] : "manual",
+                           field_count > 4 ? fields[4] : "",
+                           field_count > 5 ? fields[5] : "",
+                           field_count > 6 ? fields[6] : "",
+                           field_count > 7 ? fields[7] : "0",
+                           field_count > 8 ? fields[8] : "0",
+                           field_count > 9 ? fields[9] : "0"))
             continue;
     }
 
@@ -1341,6 +2225,8 @@ static bool feed_init_from_path(const char *path, char *videofile,
     rb->strlcpy(feed.feed_path, path, sizeof(feed.feed_path));
     feed_make_sibling_path(path, ".ipodtiktok_likes.dat", feed.likes_path,
                            sizeof(feed.likes_path));
+    feed_make_sibling_path(path, ".ipodtiktok_activity.dat",
+                           feed.activity_path, sizeof(feed.activity_path));
     feed_make_sibling_path(path, ".ipodtiktok_state.dat", feed.state_path,
                            sizeof(feed.state_path));
 
@@ -1348,43 +2234,253 @@ static bool feed_init_from_path(const char *path, char *videofile,
         return false;
 
     feed_load_likes();
+    feed_load_activity();
     feed_load_state();
 
     if (feed.index < 0 || feed.index >= feed.count)
         feed.index = 0;
 
+    if (!feed.state_section_valid)
+        feed.section = feed.items[feed.index].following ?
+                       FEED_SECTION_FOLLOWING : FEED_SECTION_FOR_YOU;
+    else
+    {
+        int restored = feed_restore_section(feed.section);
+
+        if (restored >= 0)
+            feed.index = restored;
+    }
+
+    if (feed.recommendation_seed == 0)
+        feed.recommendation_seed = (uint32_t)*rb->current_tick ^
+                                   feed_hash_id(feed.items[feed.index].id);
+    if (feed.section == FEED_SECTION_FOR_YOU && feed.count > 1)
+    {
+        int recommendation = feed_recommend_next_index();
+
+        if (recommendation >= 0)
+            feed.index = recommendation;
+        feed_mark_recent(feed.index);
+    }
+    feed_remember_section(feed.section, feed.index);
+    /* Also migrates the original index-only state format on the next flush. */
+    feed.state_dirty = true;
+
     feed.skip_cooldown_until = 0;
+    feed.swipe_deadline = 0;
+    feed.swipe_direction = 0;
+    feed.swipe_steps = 0;
+    feed.swipe_offset = 0;
+    feed.transition_direction = 0;
+    feed.transition_enter_pending = false;
+    feed.transition_capture_pending = false;
+    feed.section_switch_pending = false;
+    feed.select_armed = false;
     rb->strlcpy(videofile, feed.items[feed.index].path, videofile_size);
     return true;
 }
 
 static bool feed_get_next_file(int direction, char *videofile, size_t bufsize)
 {
-    int next = feed.index + (direction == VIDEO_PREV ? -1 : 1);
+    int next = feed.index;
+    int step = direction == VIDEO_PREV ? -1 : 1;
+    int tries;
 
     if (!feed.active || feed.count <= 0)
         return false;
 
-    if (next < 0)
-        next = feed.count - 1;
-    else if (next >= feed.count)
-        next = 0;
+    /* Leaving a card is enough to place it in History. The bit is persisted
+     * separately from the generated feed, so resyncing never erases it. */
+    if (!feed.items[feed.index].watched)
+    {
+        feed.items[feed.index].watched = true;
+        feed.activity_dirty = true;
+    }
+
+    if (feed.profile_selection_pending)
+    {
+        /* SELECT on a profile row has already chosen the exact item. */
+        feed.profile_selection_pending = false;
+        next = feed.index;
+    }
+    else if (feed.profile_feed_active && feed.profile_count > 0)
+    {
+        /* A video opened from a creator page owns the swipe queue until the
+         * user explicitly changes tabs with Left. Keep the profile's synced
+         * newest-first/pinned ordering instead of falling back into For You. */
+        if (feed_prepared_neighbors_valid())
+            next = direction == VIDEO_PREV ? feed.prepared_prev_index :
+                                             feed.prepared_next_index;
+        else
+            next = feed_predict_linear_index(direction);
+    }
+    else if (feed.section_switch_pending)
+    {
+        feed.section_switch_pending = false;
+        if (feed.section == FEED_SECTION_FOR_YOU)
+        {
+            int recommendation = feed_recommend_next_index();
+
+            if (recommendation >= 0)
+                next = recommendation;
+        }
+    }
+    else if (feed.section == FEED_SECTION_FOR_YOU &&
+             direction != VIDEO_PREV)
+    {
+        int recommendation;
+
+        if (feed_prepared_neighbors_valid() &&
+            feed.prepared_next_index >= 0)
+        {
+            recommendation = feed.prepared_next_index;
+            feed.recommendation_seed = feed.prepared_next_seed;
+        }
+        else
+            recommendation = feed_recommend_next_index();
+
+        if (recommendation >= 0)
+            next = recommendation;
+    }
+    else if (feed_prepared_neighbors_valid())
+    {
+        next = direction == VIDEO_PREV ? feed.prepared_prev_index :
+                                         feed.prepared_next_index;
+    }
+    else
+    {
+        for (tries = 0; tries < feed.count; tries++)
+        {
+            next += step;
+            if (next < 0)
+                next = feed.count - 1;
+            else if (next >= feed.count)
+                next = 0;
+            if (feed_item_in_section(next, feed.section))
+                break;
+        }
+    }
 
     feed.index = next;
-    feed_save_state();
+    feed.prepared_from_index = -1;
+    if (!feed.profile_feed_active &&
+        feed.section == FEED_SECTION_FOR_YOU && direction != VIDEO_PREV)
+        feed_mark_recent(feed.index);
+    if (!feed.profile_feed_active)
+        feed_remember_section(feed.section, feed.index);
+    feed.state_dirty = true;
     rb->strlcpy(videofile, feed.items[feed.index].path, bufsize);
     return true;
 }
 
-static bool feed_skip_allowed(void)
+static bool feed_swipe_allowed(int direction, bool accelerated)
 {
     long tick = *rb->current_tick;
+    int required_steps = accelerated ? 1 : FEED_SWIPE_STEPS;
 
-    if (TIME_BEFORE(tick, feed.skip_cooldown_until))
+    if (feed.swipe_committed ||
+        TIME_BEFORE(tick, feed.skip_cooldown_until))
         return false;
 
+    if (feed.swipe_direction != direction ||
+        !TIME_BEFORE(tick, feed.swipe_deadline))
+    {
+        feed.swipe_direction = direction;
+        feed.swipe_steps = 0;
+    }
+    feed.swipe_deadline = tick + FEED_SWIPE_WINDOW;
+    if (++feed.swipe_steps < required_steps)
+        return false;
+
+    feed.swipe_steps = 0;
+    /* One physical wheel burst commits at most one card. Any queued repeat
+     * tail is discarded by the cooldown after the incoming card settles. */
+    feed.swipe_committed = true;
     feed.skip_cooldown_until = tick + FEED_SKIP_COOLDOWN;
     return true;
+}
+
+static void feed_animate_swipe(void)
+{
+    long start = *rb->current_tick;
+    int last_offset = -1;
+
+    /* video_out combines its fixed outgoing-card cache with the newly
+     * decoded card in the existing YUV compositor. Position is elapsed-time
+     * based so dropped frames shorten the push instead of slowing input.
+     * Smoothstep starts and finishes at rest; the old ease-out curve jumped
+     * immediately and made the click-wheel transition look like a flash. */
+    while (true)
+    {
+        long elapsed = *rb->current_tick - start;
+        int progress = MIN(256, (int)(elapsed * 256 /
+                                      FEED_SWIPE_ANIM_TIME));
+        int eased = progress * progress * (768 - 2 * progress) / 65536;
+        int offset = LCD_HEIGHT * eased / 256;
+
+        feed.swipe_offset = offset & ~1;
+        if (feed.swipe_offset != last_offset)
+        {
+            stream_draw_frame(false);
+            last_offset = feed.swipe_offset;
+        }
+        if (progress >= 256)
+            break;
+        rb->sleep(1);
+    }
+    feed.swipe_offset = LCD_HEIGHT;
+}
+
+static bool feed_release_primed_transition(void)
+{
+    long start = *rb->current_tick;
+    long video_deadline = start + HZ / 2;
+    long audio_grace = start + HZ / 6;
+    bool video_ready = false;
+    bool audio_ready = false;
+
+    /* At offset zero video_out paints only the fixed outgoing cache. These
+     * readiness probes can therefore decode and compose the incoming card
+     * without exposing a blank/green frame or its UI prematurely. Audio uses
+     * the normal playback mixer channel but its PCM clock remains held. */
+    do
+    {
+        video_ready = stream_draw_frame(false) || video_ready;
+        audio_ready = stream_primed_audio_ready();
+        if (video_ready &&
+            (audio_ready || !TIME_BEFORE(*rb->current_tick, audio_grace)))
+            break;
+        rb->sleep(1);
+    }
+    while (TIME_BEFORE(*rb->current_tick, video_deadline));
+
+    stream_release_prime();
+    return video_ready;
+}
+
+static void feed_animate_edge_resistance(int direction)
+{
+    long start = *rb->current_tick;
+    const long duration = MAX(1, HZ / 8);
+
+    while (true)
+    {
+        long elapsed = *rb->current_tick - start;
+        int progress = MIN(256, (int)(elapsed * 256 / duration));
+        int distance = progress > 128 ? progress - 128 : 128 - progress;
+        int triangle = 128 - distance;
+
+        feed.resistance_offset = direction == VIDEO_PREV ?
+                                 -(triangle * 10 / 128) :
+                                  (triangle * 10 / 128);
+        feed.resistance_offset &= ~1;
+        stream_draw_frame(false);
+        if (progress >= 256)
+            break;
+        rb->sleep(1);
+    }
+    feed.resistance_offset = 0;
+    stream_draw_frame(false);
 }
 
 static void feed_like_current(void)
@@ -1395,24 +2491,205 @@ static void feed_like_current(void)
         return;
 
     item = &feed.items[feed.index];
-    if (!item->liked)
+    item->liked = !item->liked;
+    feed.likes_dirty = true;
+    feed.prepared_from_index = -1;
+
+    feed.like_anim_until = item->liked ?
+                           *rb->current_tick + FEED_LIKE_ANIM_TIME : 0;
+    if (osd_stream_status() == STREAM_PAUSED)
+        stream_draw_frame(false);
+    feed_prepare_neighbors();
+}
+
+static bool feed_item_in_section(int index, enum feed_section section)
+{
+    const struct feed_item *item;
+
+    if (index < 0 || index >= feed.count)
+        return false;
+    item = &feed.items[index];
+    switch (section)
     {
-        item->liked = true;
-        feed_save_likes();
+    case FEED_SECTION_FOLLOWING:
+        return item->following;
+    case FEED_SECTION_SAVED:
+        return item->saved;
+    case FEED_SECTION_HISTORY:
+        return item->watched;
+    case FEED_SECTION_FOR_YOU:
+    default:
+        /* TikTok's For You pool can surface followed creators too. Keeping
+         * them out made every newly followed account invisible here. */
+        return !item->not_interested;
+    }
+}
+
+static const char *feed_section_label(enum feed_section section)
+{
+    if (feed.profile_feed_active)
+        return "PROFILE";
+    switch (section)
+    {
+    case FEED_SECTION_FOLLOWING: return "FOLLOWING";
+    case FEED_SECTION_SAVED: return "SAVED";
+    case FEED_SECTION_HISTORY: return "HISTORY";
+    case FEED_SECTION_FOR_YOU:
+    default: return "FOR YOU";
+    }
+}
+
+static bool feed_set_section(enum feed_section section)
+{
+    int i;
+
+    if (!feed.active || feed.section == section)
+        return false;
+    i = feed_restore_section(section);
+    if (i >= 0)
+    {
+        feed.section = section;
+        feed.index = i;
+        feed.section_switch_pending = true;
+        feed.state_dirty = true;
+        return true;
+    }
+    return false;
+}
+
+static int feed_section_count(void)
+{
+    int count = 0;
+    int i;
+
+    if (feed.profile_feed_active)
+        return feed.profile_count;
+
+    for (i = 0; i < feed.count; i++)
+        if (feed_item_in_section(i, feed.section))
+            count++;
+    return count;
+}
+
+static int feed_section_position(void)
+{
+    int position = 0;
+    int i;
+
+    if (feed.profile_feed_active)
+    {
+        for (i = 0; i < feed.profile_count; i++)
+            if (feed_profile_items[i] == feed.index)
+                return i + 1;
+        return 1;
     }
 
-    feed.like_anim_until = *rb->current_tick + FEED_LIKE_ANIM_TIME;
-    fps_update_post_frame_callback();
-    if (feed.ui_visible)
-        osd_refresh(OSD_REFRESH_VOLUME);
+    for (i = 0; i <= feed.index && i < feed.count; i++)
+        if (feed_item_in_section(i, feed.section))
+            position++;
+    return MAX(1, position);
+}
+
+static bool feed_cycle_section(int direction)
+{
+    int section = (int)feed.section;
+    int tries;
+
+    /* Left is the explicit exit from a creator-owned swipe queue. Preserve
+     * the tab's own cursor rather than replacing it with the profile clip. */
+    if (!feed.profile_feed_active)
+        feed_remember_section(feed.section, feed.index);
+    feed.profile_feed_active = false;
+
+    for (tries = 0; tries < FEED_SECTION_COUNT; tries++)
+    {
+        section = (section + direction + FEED_SECTION_COUNT) %
+                  FEED_SECTION_COUNT;
+        if (feed_set_section((enum feed_section)section))
+            return true;
+    }
+    return false;
+}
+
+static void feed_show_actions(void)
+{
+    if (!feed.active || feed.profile_visible || feed.details_visible)
+        return;
+    feed.action_resume_playback = osd_stream_status() == STREAM_PLAYING;
+    if (feed.action_resume_playback)
+        osd_pause();
+    feed.action_visible = true;
+    feed.action_cursor = 0;
+    feed.select_armed = false;
+    stream_draw_frame(false);
+}
+
+static void feed_hide_actions(bool resume)
+{
+    bool should_resume = resume && feed.action_resume_playback;
+
+    feed.action_visible = false;
+    feed.details_visible = false;
+    feed.action_resume_playback = false;
+    if (should_resume && osd_stream_status() == STREAM_PAUSED)
+        osd_resume();
+    stream_draw_frame(false);
+}
+
+static void feed_action_move(int delta)
+{
+    int next = feed.action_cursor + delta;
+
+    if (!feed.action_visible)
+        return;
+    if (next < 0)
+        next = 3;
+    else if (next > 3)
+        next = 0;
+    feed.action_cursor = next;
+    stream_draw_frame(false);
 }
 
 static void feed_format_label(char *buf, size_t buf_size,
                               const char *src, int max_width)
 {
+    char source[FEED_PROFILE_BIO_LEN];
+    size_t in = 0;
+    size_t out = 0;
+    bool pending_space = false;
     int width;
 
-    rb->strlcpy(buf, src, buf_size);
+    /* The YUV fixed-font renderer is byte based. Strip unsupported UTF-8
+     * sequences instead of painting every byte as a garbage glyph. This is
+     * deliberately in-place safe because profile usernames use one buffer. */
+    rb->strlcpy(source, src ? src : "", sizeof(source));
+    while (source[in] != '\0' && out + 1 < buf_size)
+    {
+        unsigned char ch = (unsigned char)source[in++];
+
+        if (ch >= 0x80)
+        {
+            while (((unsigned char)source[in] & 0xc0) == 0x80)
+                in++;
+            pending_space = out > 0;
+            continue;
+        }
+        if (ch <= 0x20 || ch == 0x7f)
+        {
+            pending_space = out > 0;
+            continue;
+        }
+        if (pending_space && out + 1 < buf_size)
+            buf[out++] = ' ';
+        pending_space = false;
+        buf[out++] = (char)ch;
+    }
+    while (out > 0 && buf[out - 1] == ' ')
+        out--;
+    buf[out] = '\0';
+
+    if (buf[0] == '\0')
+        rb->strlcpy(buf, "TikTok", buf_size);
     mylcd_getstringsize(buf, &width, NULL);
     if (width <= max_width)
         return;
@@ -1431,6 +2708,406 @@ static void feed_format_label(char *buf, size_t buf_size,
         if (width <= max_width || text_len <= 4)
             return;
     }
+}
+
+static bool feed_profile_creator_matches(int index)
+{
+    const char *creator;
+
+    if (index < 0 || index >= feed.count)
+        return false;
+    creator = feed.items[index].creator;
+    if (*creator == '@')
+        creator++;
+    return !rb->strcasecmp(creator, feed.profile.username);
+}
+
+static int feed_profile_item_index(int ordinal)
+{
+    if (ordinal < 0 || ordinal >= feed.profile_count)
+        return -1;
+    return feed_profile_items[ordinal];
+}
+
+static int feed_profile_thumbnail_start(void)
+{
+    int start = feed.profile_cursor > 0 ? feed.profile_cursor - 1 : 0;
+
+    if (feed.profile_count > FEED_PROFILE_THUMB_SLOTS &&
+        start > feed.profile_count - FEED_PROFILE_THUMB_SLOTS)
+        start = feed.profile_count - FEED_PROFILE_THUMB_SLOTS;
+    return start;
+}
+
+/* Prepare cache ownership during the input event, but never touch storage.
+ * Adjacent moves retain two decoded cards and invalidate only the incoming
+ * edge. One idle service call below loads at most one missing thumbnail. */
+static void feed_profile_prepare_thumbnails(void)
+{
+    int start = feed_profile_thumbnail_start();
+    int slot;
+
+    if (start == feed_profile_thumb_start)
+        return;
+    if (start == feed_profile_thumb_start + 1)
+    {
+        for (slot = 0; slot < FEED_PROFILE_THUMB_SLOTS - 1; slot++)
+        {
+            rb->memcpy(feed_profile_thumb_data[slot],
+                       feed_profile_thumb_data[slot + 1],
+                       sizeof(feed_profile_thumb_data[slot]));
+            feed_profile_thumb_valid[slot] =
+                feed_profile_thumb_valid[slot + 1];
+        }
+        feed_profile_thumb_valid[FEED_PROFILE_THUMB_SLOTS - 1] = false;
+    }
+    else if (start + 1 == feed_profile_thumb_start)
+    {
+        for (slot = FEED_PROFILE_THUMB_SLOTS - 1; slot > 0; slot--)
+        {
+            rb->memcpy(feed_profile_thumb_data[slot],
+                       feed_profile_thumb_data[slot - 1],
+                       sizeof(feed_profile_thumb_data[slot]));
+            feed_profile_thumb_valid[slot] =
+                feed_profile_thumb_valid[slot - 1];
+        }
+        feed_profile_thumb_valid[0] = false;
+    }
+    else
+    {
+        for (slot = 0; slot < FEED_PROFILE_THUMB_SLOTS; slot++)
+            feed_profile_thumb_valid[slot] = false;
+    }
+
+    feed_profile_thumb_start = start;
+    feed_profile_thumb_load_slot = 0;
+    feed_profile_thumbs_pending = true;
+    feed_profile_asset_due = *rb->current_tick + MAX(1, HZ / 20);
+}
+
+static bool feed_profile_service_assets(void)
+{
+    int slot;
+
+    if (!feed.profile_visible || rb->button_queue_count() != 0 ||
+        TIME_BEFORE(*rb->current_tick, feed_profile_asset_due))
+        return false;
+
+    if (feed_profile_avatar_pending)
+    {
+        feed_profile_avatar_pending = false;
+        if (feed.profile.avatar[0] == '/')
+            feed_profile_avatar_valid =
+                rb->read_bmp_file(feed.profile.avatar, &feed_profile_avatar,
+                                  sizeof(feed_profile_avatar_data),
+                                  FORMAT_NATIVE, NULL) > 0 &&
+                feed_profile_avatar.width == FEED_PROFILE_AVATAR_SIZE &&
+                feed_profile_avatar.height == FEED_PROFILE_AVATAR_SIZE;
+        feed_profile_asset_due = *rb->current_tick + 1;
+        return true;
+    }
+
+    if (!feed_profile_thumbs_pending)
+        return false;
+    for (slot = feed_profile_thumb_load_slot;
+         slot < FEED_PROFILE_THUMB_SLOTS; slot++)
+    {
+        int index;
+        struct bitmap *bitmap = &feed_profile_thumbs[slot];
+
+        feed_profile_thumb_load_slot = slot + 1;
+        if (feed_profile_thumb_valid[slot])
+            continue;
+        index = feed_profile_item_index(feed_profile_thumb_start + slot);
+        if (index < 0 || feed.items[index].thumbnail[0] != '/')
+            continue;
+        rb->memset(bitmap, 0, sizeof(*bitmap));
+        bitmap->data = (unsigned char *)feed_profile_thumb_data[slot];
+        feed_profile_thumb_valid[slot] =
+            rb->read_bmp_file(feed.items[index].thumbnail, bitmap,
+            sizeof(feed_profile_thumb_data[slot]),
+            FORMAT_NATIVE, NULL) > 0 &&
+            bitmap->width == FEED_PROFILE_THUMB_W &&
+            bitmap->height == FEED_PROFILE_THUMB_H;
+        feed_profile_asset_due = *rb->current_tick + 1;
+        return true;
+    }
+    feed_profile_thumbs_pending = false;
+    return false;
+}
+
+static void feed_profile_move(int delta)
+{
+    int next;
+
+    if (!feed.profile_visible || feed.profile_count <= 0)
+        return;
+    next = feed.profile_cursor + delta;
+    if (next < 0)
+        next = 0;
+    else if (next >= feed.profile_count)
+        next = feed.profile_count - 1;
+    if (next != feed.profile_cursor)
+    {
+        feed.profile_cursor = next;
+        feed_profile_prepare_thumbnails();
+        stream_draw_frame(false);
+    }
+}
+
+static void feed_format_count(char *buf, size_t buf_size, int value)
+{
+    unsigned int count = value > 0 ? (unsigned int)value : 0;
+
+    if (count >= 1000000)
+    {
+        unsigned int decimal = (count % 1000000) / 100000;
+        if (decimal != 0 && count < 10000000)
+            rb->snprintf(buf, buf_size, "%u.%uM", count / 1000000, decimal);
+        else
+            rb->snprintf(buf, buf_size, "%uM", count / 1000000);
+    }
+    else if (count >= 1000)
+    {
+        unsigned int decimal = (count % 1000) / 100;
+        if (decimal != 0 && count < 100000)
+            rb->snprintf(buf, buf_size, "%u.%uK", count / 1000, decimal);
+        else
+            rb->snprintf(buf, buf_size, "%uK", count / 1000);
+    }
+    else
+        rb->snprintf(buf, buf_size, "%u", count);
+}
+
+static void feed_show_current_profile(bool saved_only)
+{
+    const char *creator;
+    int fd;
+    char line[1024];
+
+    if (!feed.active || feed.index < 0 || feed.index >= feed.count)
+        return;
+
+    feed.profile_saved_only = saved_only;
+
+    rb->memset(&feed.profile, 0, sizeof(feed.profile));
+    creator = feed.items[feed.index].creator;
+    if (*creator == '@')
+        creator++;
+    rb->strlcpy(feed.profile.username, creator,
+                sizeof(feed.profile.username));
+    rb->strlcpy(feed.profile.display_name,
+                feed.items[feed.index].creator[0] ?
+                feed.items[feed.index].creator : feed.items[feed.index].title,
+                sizeof(feed.profile.display_name));
+
+    fd = rb->open(IPODTIKTOK_PROFILES_PATH, O_RDONLY);
+    if (fd >= 0)
+    {
+        while (rb->read_line(fd, line, sizeof(line)) > 0)
+        {
+            char *fields[12] = { NULL };
+            char *scan;
+            int field_count = 1;
+            int i;
+
+            fields[0] = feed_trim(line);
+            for (scan = fields[0]; *scan != '\0' &&
+                 field_count < (int)ARRAYLEN(fields); scan++)
+            {
+                if (*scan == '\t')
+                {
+                    *scan = '\0';
+                    fields[field_count++] = scan + 1;
+                }
+            }
+            for (i = 0; i < field_count; i++)
+                fields[i] = feed_trim(fields[i]);
+
+            if (field_count < 9 || !rb->strcmp(fields[1], "username") ||
+                rb->strcasecmp(fields[1], creator))
+                continue;
+
+            feed.profile.valid = true;
+            rb->strlcpy(feed.profile.username, fields[1],
+                        sizeof(feed.profile.username));
+            rb->strlcpy(feed.profile.display_name, fields[2],
+                        sizeof(feed.profile.display_name));
+            rb->strlcpy(feed.profile.bio, fields[3],
+                        sizeof(feed.profile.bio));
+            rb->strlcpy(feed.profile.avatar, fields[4],
+                        sizeof(feed.profile.avatar));
+            feed.profile.followers = rb->atoi(fields[5]);
+            feed.profile.following = rb->atoi(fields[6]);
+            feed.profile.likes = rb->atoi(fields[7]);
+            feed.profile.videos = rb->atoi(fields[8]);
+            feed.profile.verified = field_count > 10 && rb->atoi(fields[10]);
+            break;
+        }
+        rb->close(fd);
+    }
+
+    feed_profile_avatar_valid = false;
+    rb->memset(&feed_profile_avatar, 0, sizeof(feed_profile_avatar));
+    feed_profile_avatar.data = (unsigned char *)feed_profile_avatar_data;
+    feed_profile_avatar_pending = feed.profile.avatar[0] == '/';
+
+    feed.profile_count = 0;
+    feed.profile_cursor = 0;
+    feed_profile_thumb_start = -1;
+    feed_profile_thumbs_pending = false;
+    for (int i = 0; i < FEED_PROFILE_THUMB_SLOTS; i++)
+        feed_profile_thumb_valid[i] = false;
+    for (int i = 0; i < feed.count; i++)
+    {
+        if (!feed_profile_creator_matches(i))
+            continue;
+        if (feed.profile_saved_only && !feed.items[i].saved)
+            continue;
+        if (i == feed.index)
+            feed.profile_cursor = feed.profile_count;
+        feed_profile_items[feed.profile_count] = (uint16_t)i;
+        feed.profile_count++;
+    }
+    feed_profile_prepare_thumbnails();
+
+    feed.profile_resume_playback =
+        osd_stream_status() == STREAM_PLAYING;
+    if (feed.profile_resume_playback)
+        osd_pause();
+    feed.profile_visible = true;
+    feed.select_armed = false;
+    stream_draw_frame(false);
+}
+
+static void feed_hide_profile(void)
+{
+    bool resume = feed.profile_resume_playback;
+
+    feed.profile_visible = false;
+    feed_profile_avatar_pending = false;
+    feed_profile_thumbs_pending = false;
+    feed.profile_resume_playback = false;
+    if (feed.profile_saved_only)
+    {
+        feed.profile_saved_only = false;
+        feed.saved_profiles_visible = true;
+        stream_draw_frame(false);
+        return;
+    }
+    if (resume && osd_stream_status() == STREAM_PAUSED)
+        osd_resume();
+    stream_draw_frame(false);
+}
+
+static void feed_build_saved_profiles(void)
+{
+    int i;
+
+    feed.saved_profile_count = 0;
+    feed.saved_profile_cursor = 0;
+    for (i = 0; i < feed.count; i++)
+    {
+        int profile;
+        const char *creator;
+
+        if (!feed.items[i].saved)
+            continue;
+        creator = feed.items[i].creator;
+        for (profile = 0; profile < feed.saved_profile_count; profile++)
+        {
+            const char *known =
+                feed.items[feed_saved_profile_items[profile]].creator;
+            if (!rb->strcasecmp(creator, known))
+                break;
+        }
+        if (profile < feed.saved_profile_count)
+        {
+            feed_saved_profile_counts[profile]++;
+            continue;
+        }
+        if (feed.saved_profile_count >= FEED_SAVED_PROFILE_MAX)
+            continue;
+        feed_saved_profile_items[feed.saved_profile_count] = (uint16_t)i;
+        feed_saved_profile_counts[feed.saved_profile_count] = 1;
+        feed.saved_profile_count++;
+    }
+}
+
+static void feed_show_saved_profiles(void)
+{
+    feed_build_saved_profiles();
+    feed.saved_profiles_resume_playback =
+        osd_stream_status() == STREAM_PLAYING;
+    if (feed.saved_profiles_resume_playback)
+        osd_pause();
+    feed.saved_profiles_visible = true;
+    feed.select_armed = false;
+    stream_draw_frame(false);
+}
+
+static void feed_hide_saved_profiles(bool resume)
+{
+    bool should_resume = resume && feed.saved_profiles_resume_playback;
+
+    feed.saved_profiles_visible = false;
+    feed.saved_profiles_resume_playback = false;
+    feed.section = feed.saved_return_section;
+    feed.index = feed.saved_return_index;
+    if (should_resume && osd_stream_status() == STREAM_PAUSED)
+        osd_resume();
+    stream_draw_frame(false);
+}
+
+static bool feed_leave_saved_profiles_for_section(int direction)
+{
+    bool should_resume = feed.saved_profiles_resume_playback;
+
+    feed.saved_profiles_visible = false;
+    feed.saved_profiles_resume_playback = false;
+    feed.select_armed = false;
+    /* The Saved picker is an overlay for the Saved tab. Left must continue
+     * through the tab strip instead of restoring History and trapping the
+     * user in a History <-> Saved loop. Menu remains the ordinary Back path
+     * and still restores saved_return_section above. */
+    if (feed_cycle_section(direction))
+        return true;
+
+    feed.section = feed.saved_return_section;
+    feed.index = feed.saved_return_index;
+    if (should_resume && osd_stream_status() == STREAM_PAUSED)
+        osd_resume();
+    stream_draw_frame(false);
+    return false;
+}
+
+static void feed_saved_profile_move(int delta)
+{
+    int next;
+
+    if (!feed.saved_profiles_visible || feed.saved_profile_count <= 0)
+        return;
+    next = feed.saved_profile_cursor + delta;
+    next = MAX(0, MIN(feed.saved_profile_count - 1, next));
+    if (next != feed.saved_profile_cursor)
+    {
+        feed.saved_profile_cursor = next;
+        stream_draw_frame(false);
+    }
+}
+
+static void feed_open_saved_profile(void)
+{
+    int target;
+
+    if (!feed.saved_profiles_visible || feed.saved_profile_count <= 0)
+        return;
+    target = feed_saved_profile_items[feed.saved_profile_cursor];
+    if (target < 0 || target >= feed.count)
+        return;
+    feed.index = target;
+    feed.saved_profiles_visible = false;
+    feed_show_current_profile(true);
 }
 
 #ifdef LCD_LANDSCAPE
@@ -1933,33 +3610,157 @@ static void fps_post_frame_callback(void)
     vo_unlock();
 }
 
-static void feed_post_frame_callback(void)
+#if !MPEG_STOCK_CONTROLS
+static void feed_draw_side_ui(void)
 {
-    int heart_x;
-    int heart_y;
+    const struct feed_item *item;
+    char text[FEED_DESCRIPTION_LEN];
+    char time_text[20];
+    int width;
+    int progress;
+    uint32_t duration;
+    uint32_t time;
+    int heart_x = FEED_VIDEO_RIGHT +
+                  (SCREEN_WIDTH - FEED_VIDEO_RIGHT - FEED_HEART_SIZE) / 2;
+    int heart_y = 70;
+    bool show_volume;
 
-    if (!feed.active || !TIME_BEFORE(*rb->current_tick, feed.like_anim_until))
+    if (!feed.active || feed.index < 0 || feed.index >= feed.count)
         return;
 
-    heart_x = (SCREEN_WIDTH - FEED_HEART_SIZE) / 2;
-    heart_y = (SCREEN_HEIGHT - FEED_HEART_SIZE) / 2;
+    item = &feed.items[feed.index];
+    duration = stream_get_duration();
+    time = osd.curr_time;
+    if (duration == INVALID_TIMESTAMP || duration == 0)
+        duration = 1;
+    if (time > duration)
+        time = duration;
+    progress = (int)muldiv_uint32(FEED_VIDEO_LEFT - 2 * FEED_SIDE_GUTTER,
+                                  time, duration);
+    show_volume = TIME_BEFORE(*rb->current_tick, feed.volume_until);
+
+    mylcd_set_drawmode(DRMODE_SOLID);
+    mylcd_set_background(LCD_BLACK);
+    mylcd_set_foreground(LCD_BLACK);
+    draw_fillrect(0, 0, FEED_VIDEO_LEFT, SCREEN_HEIGHT);
+    draw_fillrect(FEED_VIDEO_RIGHT, 0,
+                  SCREEN_WIDTH - FEED_VIDEO_RIGHT, SCREEN_HEIGHT);
+
+    mylcd_set_foreground(LCD_RGBPACK(0x62, 0x62, 0x66));
+    draw_vline(FEED_VIDEO_LEFT - 1, 0, SCREEN_HEIGHT - 1);
+    draw_vline(FEED_VIDEO_RIGHT, 0, SCREEN_HEIGHT - 1);
+
+#if IPODTIKTOK_USE_BITMAP_ASSETS
+    rb->lcd_bitmap_part(ipodtiktok_header, 0, 0,
+                        BMPWIDTH_ipodtiktok_header,
+                        4, 4, FEED_VIDEO_LEFT - 8,
+                        MIN(BMPHEIGHT_ipodtiktok_header, 36));
+#else
+    mylcd_set_foreground(LCD_WHITE);
+    draw_putsxy_oriented(8, 10, "TikTok");
+#endif
+
+    mylcd_set_foreground(feed.section == FEED_SECTION_FOR_YOU ?
+                         LCD_WHITE : LCD_RGBPACK(0x99, 0x99, 0x9d));
+    draw_putsxy_oriented(FEED_SIDE_GUTTER, 48, "For You");
+    mylcd_set_foreground(feed.section == FEED_SECTION_FOLLOWING ?
+                         LCD_WHITE : LCD_RGBPACK(0x99, 0x99, 0x9d));
+    draw_putsxy_oriented(FEED_SIDE_GUTTER, 62, "Following");
+    mylcd_set_foreground(LCD_RGBPACK(0x2f, 0x8f, 0xe5));
+    draw_fillrect(FEED_SIDE_GUTTER,
+                  feed.section == FEED_SECTION_FOR_YOU ? 58 : 72,
+                  44, 2);
+
+    mylcd_set_foreground(LCD_WHITE);
+    feed_format_label(text, sizeof(text),
+                      item->creator[0] ? item->creator : item->title,
+                      FEED_VIDEO_LEFT - 2 * FEED_SIDE_GUTTER);
+    draw_putsxy_oriented(FEED_SIDE_GUTTER, 91, text);
+    mylcd_set_foreground(LCD_RGBPACK(0xc8, 0xc8, 0xcc));
+    feed_format_label(text, sizeof(text),
+                      item->description[0] ? item->description : item->title,
+                      FEED_VIDEO_LEFT - 2 * FEED_SIDE_GUTTER);
+    draw_putsxy_oriented(FEED_SIDE_GUTTER, 108, text);
+
+    if (show_volume)
+    {
+        int min_volume = rb->sound_min(SOUND_VOLUME);
+        int max_volume = rb->sound_max(SOUND_VOLUME);
+        int volume = rb->global_status->volume;
+        int volume_width = 0;
+
+        if (max_volume > min_volume)
+            volume_width = (volume - min_volume) *
+                           (FEED_VIDEO_LEFT - 2 * FEED_SIDE_GUTTER) /
+                           (max_volume - min_volume);
+        mylcd_set_foreground(LCD_WHITE);
+        draw_putsxy_oriented(FEED_SIDE_GUTTER, 190, "Volume");
+        mylcd_set_foreground(LCD_RGBPACK(0x55, 0x55, 0x59));
+        draw_fillrect(FEED_SIDE_GUTTER, 208,
+                      FEED_VIDEO_LEFT - 2 * FEED_SIDE_GUTTER, 5);
+        mylcd_set_foreground(LCD_RGBPACK(0x2f, 0x8f, 0xe5));
+        draw_fillrect(FEED_SIDE_GUTTER, 208, volume_width, 5);
+    }
+    else
+    {
+        rb->snprintf(time_text, sizeof(time_text), "%lu:%02lu",
+                     (unsigned long)(time / TS_SECOND / 60),
+                     (unsigned long)(time / TS_SECOND % 60));
+        mylcd_set_foreground(LCD_WHITE);
+        draw_putsxy_oriented(FEED_SIDE_GUTTER, 190, time_text);
+        mylcd_set_foreground(LCD_RGBPACK(0x55, 0x55, 0x59));
+        draw_fillrect(FEED_SIDE_GUTTER, 208,
+                      FEED_VIDEO_LEFT - 2 * FEED_SIDE_GUTTER, 5);
+        mylcd_set_foreground(LCD_RGBPACK(0x2f, 0x8f, 0xe5));
+        draw_fillrect(FEED_SIDE_GUTTER, 208, progress, 5);
+    }
+
+#if IPODTIKTOK_USE_BITMAP_ASSETS
+    if (item->liked || TIME_BEFORE(*rb->current_tick, feed.like_anim_until))
+        rb->lcd_bitmap_transparent(ipodtiktok_heart, heart_x, heart_y,
+                                   BMPWIDTH_ipodtiktok_heart,
+                                   BMPHEIGHT_ipodtiktok_heart);
+    else
+        rb->lcd_bitmap_transparent(ipodtiktok_heart_outline, heart_x, heart_y,
+                                   BMPWIDTH_ipodtiktok_heart_outline,
+                                   BMPHEIGHT_ipodtiktok_heart_outline);
+#endif
+    rb->snprintf(text, sizeof(text), "%d",
+                 item->like_count + (item->liked ? 1 : 0));
+    mylcd_getstringsize(text, &width, NULL);
+    mylcd_set_foreground(LCD_WHITE);
+    draw_putsxy_oriented(heart_x + (FEED_HEART_SIZE - width) / 2,
+                         heart_y + FEED_HEART_SIZE + 3, text);
+    mylcd_set_foreground(LCD_RGBPACK(0xc8, 0xc8, 0xcc));
+    draw_putsxy_oriented(FEED_VIDEO_RIGHT + 10, 130, "Comments");
+    rb->snprintf(text, sizeof(text), "%d", item->comment_count);
+    mylcd_getstringsize(text, &width, NULL);
+    draw_putsxy_oriented(FEED_VIDEO_RIGHT +
+                         (SCREEN_WIDTH - FEED_VIDEO_RIGHT - width) / 2,
+                         146, text);
+    rb->snprintf(text, sizeof(text), "%d of %d",
+                 feed_section_position(), feed_section_count());
+    mylcd_getstringsize(text, &width, NULL);
+    mylcd_set_foreground(LCD_WHITE);
+    draw_putsxy_oriented(FEED_VIDEO_RIGHT +
+                         (SCREEN_WIDTH - FEED_VIDEO_RIGHT - width) / 2,
+                         214, text);
+
+    draw_update_rect(0, 0, FEED_VIDEO_LEFT, SCREEN_HEIGHT);
+    draw_update_rect(FEED_VIDEO_RIGHT, 0,
+                     SCREEN_WIDTH - FEED_VIDEO_RIGHT, SCREEN_HEIGHT);
+}
+
+static void feed_post_frame_callback(void)
+{
+    if (!feed.active)
+        return;
 
     vo_lock();
-#if IPODTIKTOK_USE_BITMAP_ASSETS
-    rb->lcd_bitmap(ipodtiktok_heart, heart_x, heart_y,
-                   BMPWIDTH_ipodtiktok_heart,
-                   BMPHEIGHT_ipodtiktok_heart);
-#else
-    {
-        unsigned oldfg = mylcd_get_foreground();
-        mylcd_set_foreground(LCD_RGBPACK(0xff, 0x4d, 0x6d));
-        draw_fillrect(heart_x, heart_y, FEED_HEART_SIZE, FEED_HEART_SIZE);
-        mylcd_set_foreground(oldfg);
-    }
-#endif
-    draw_update_rect(heart_x, heart_y, FEED_HEART_SIZE, FEED_HEART_SIZE);
+    feed_draw_side_ui();
     vo_unlock();
 }
+#endif
 
 /* Set up to have the callback only update the intersection of the video
  * rectangle and the FPS text rectangle - if they don't intersect, then
@@ -1974,7 +3775,8 @@ static void fps_update_post_frame_callback(void)
          * single post-frame callback and paint over subsequent frames. */
     }
     else if (feed.active) {
-        cb = feed_post_frame_callback;
+        /* TikTok owns the YUV compositor. A second RGB post-frame redraw
+         * races the video blit and makes the two side panels flash. */
     }
 #if MPEG_STOCK_CONTROLS
     else if (mpeg_volume_card_visible()) {
@@ -2587,7 +4389,10 @@ static void osd_text_init(void)
 
     osd.use_wps_layout = false;
     osd.netflix_layout = mpegplayer_netflix_launch && !feed.active;
-    osd.stock_layout = !osd.netflix_layout && !feed.active &&
+    osd.youtube_layout = mpegplayer_youtube_app_launch && !feed.active;
+    osd.instagram_layout = mpegplayer_instagram_app_launch && !feed.active;
+    osd.stock_layout = !osd.netflix_layout && !osd.youtube_layout &&
+                       !osd.instagram_layout && !feed.active &&
                        mpeg_stock_assets_loaded();
     osd.x = 0;
     osd.width = SCREEN_WIDTH;
@@ -2598,10 +4403,20 @@ static void osd_text_init(void)
     vo_rect_clear(&osd.vol_rect);
 
 #if MPEG_STOCK_CONTROLS
-    if (osd.netflix_layout)
+    if (osd.instagram_layout)
+    {
+        osd.use_wps_layout = true;
+        osd.height = SCREEN_HEIGHT;
+        osd.y = 0;
+        draw_setfont(FONT_SYSFIXED);
+        return;
+    }
+
+    if (osd.netflix_layout || osd.youtube_layout)
     {
         netflix_overlay_duration = stream_get_duration();
-        osd.height = MPEG_NETFLIX_OVERLAY_H;
+        osd.height = osd.youtube_layout ? MPEG_YOUTUBE_OVERLAY_H :
+                     MPEG_NETFLIX_OVERLAY_H;
         osd.y = SCREEN_HEIGHT - osd.height;
         draw_setfont(FONT_SYSFIXED);
         return;
@@ -2757,7 +4572,8 @@ static void osd_text_init(void)
 static void osd_init(void)
 {
     osd.flags = 0;
-    osd.show_for = feed.active ? HZ * 60 * 60 : HZ * 4;
+    osd.show_for = feed.active ? HZ * 60 * 60 :
+                   (mpegplayer_instagram_app_launch ? HZ * 2 : HZ * 4);
     osd.print_delay = 75*HZ/100;
     osd.resume_delay = HZ/2;
 #ifdef HAVE_LCD_COLOR
@@ -2776,6 +4592,8 @@ static void osd_init(void)
     osd.use_wps_layout = false;
     osd.stock_layout = false;
     osd.netflix_layout = false;
+    osd.youtube_layout = false;
+    osd.instagram_layout = false;
     
     /* The iPone slider layout makes the OSD update rectangle full-screen.
      * That is unsafe over YUV video: pause/seek/volume redraws can black out
@@ -2822,6 +4640,13 @@ static void osd_refresh_background(void)
 {
     char buf[32];
     struct hms hms;
+
+    if (osd.instagram_layout)
+    {
+        vo_rect_set_ext(&osd.update_rect, 0, 0,
+                        SCREEN_WIDTH, SCREEN_HEIGHT);
+        return;
+    }
 
     if (feed.active)
     {
@@ -2908,6 +4733,9 @@ static void osd_refresh_background(void)
     uint32_t duration = stream_get_duration();
     uint32_t time = osd.curr_time;
 
+    if (osd.instagram_layout)
+        return;
+
     if (duration == INVALID_TIMESTAMP || duration == 0)
         duration = 1;
 
@@ -2952,7 +4780,8 @@ static void osd_refresh_background(void)
 
         if (feed.index >= 0 && feed.index < feed.count)
         {
-            rb->snprintf(buf, sizeof(buf), "%d/%d", feed.index + 1, feed.count);
+            rb->snprintf(buf, sizeof(buf), "%d/%d",
+                         feed_section_position(), feed_section_count());
             mylcd_getstringsize(buf, &counter_w, NULL);
             mylcd_set_foreground(LCD_RGBPACK(0xff, 0xff, 0xff));
             draw_putsxy_oriented(osd.dur_rect.r - counter_w, osd.dur_rect.t, buf);
@@ -2962,6 +4791,23 @@ static void osd_refresh_background(void)
                               osd.time_rect.r - osd.time_rect.l);
             mylcd_set_foreground(LCD_RGBPACK(0xff, 0xff, 0xff));
             draw_putsxy_oriented(osd.time_rect.l, osd.time_rect.t, title_buf);
+            if (feed.items[feed.index].creator[0])
+            {
+                feed_format_label(title_buf, sizeof(title_buf),
+                                  feed.items[feed.index].creator,
+                                  osd.time_rect.r - osd.time_rect.l);
+                draw_putsxy_oriented(osd.time_rect.l,
+                                     osd.time_rect.t - 18, title_buf);
+            }
+            if (feed.items[feed.index].description[0])
+            {
+                feed_format_label(title_buf, sizeof(title_buf),
+                                  feed.items[feed.index].description,
+                                  osd.time_rect.r - osd.time_rect.l);
+                mylcd_set_foreground(LCD_RGBPACK(0xd8, 0xd8, 0xdc));
+                draw_putsxy_oriented(osd.time_rect.l,
+                                     osd.time_rect.t + 18, title_buf);
+            }
         }
 
         mylcd_set_foreground(LCD_RGBPACK(0x34, 0x34, 0x3d));
@@ -3056,6 +4902,9 @@ static void osd_refresh_volume(void)
     char buf[32];
     int width;
 
+    if (osd.instagram_layout)
+        return;
+
     if (feed.active)
     {
         int heart_x = osd.vol_rect.l;
@@ -3071,17 +4920,24 @@ static void osd_refresh_volume(void)
                             FEED_HEART_SIZE,
                             MIN(FEED_HEART_SIZE + osd.time_rect.b + 4,
                                 SCREEN_HEIGHT - MAX(heart_y, SCREEN_HEIGHT - BMPHEIGHT_ipodtiktok_scrim)));
-        rb->lcd_bitmap(ipodtiktok_heart, heart_x, heart_y,
-                       BMPWIDTH_ipodtiktok_heart,
-                       BMPHEIGHT_ipodtiktok_heart);
+        if (feed.index >= 0 && feed.index < feed.count &&
+            feed.items[feed.index].liked)
+            rb->lcd_bitmap(ipodtiktok_heart, heart_x, heart_y,
+                           BMPWIDTH_ipodtiktok_heart,
+                           BMPHEIGHT_ipodtiktok_heart);
+        else
+            rb->lcd_bitmap(ipodtiktok_heart_outline, heart_x, heart_y,
+                           BMPWIDTH_ipodtiktok_heart_outline,
+                           BMPHEIGHT_ipodtiktok_heart_outline);
 #else
         draw_clear_area_rect(&osd.vol_rect);
 #endif
 
-        if (feed.index >= 0 && feed.index < feed.count &&
-            feed.items[feed.index].liked)
+        if (feed.index >= 0 && feed.index < feed.count)
         {
-            rb->strlcpy(buf, "LIKED", sizeof(buf));
+            rb->snprintf(buf, sizeof(buf), "%d",
+                         feed.items[feed.index].like_count +
+                         (feed.items[feed.index].liked ? 1 : 0));
             mylcd_getstringsize(buf, &width, NULL);
             mylcd_set_foreground(LCD_RGBPACK(0xff, 0xff, 0xff));
             draw_putsxy_oriented(heart_x + (FEED_HEART_SIZE - width) / 2,
@@ -3114,6 +4970,9 @@ static void osd_refresh_status(void)
 {
     int icon_size = osd.stat_rect.r - osd.stat_rect.l;
 
+    if (osd.instagram_layout)
+        return;
+
     if (feed.active)
     {
         const char *left = "Following";
@@ -3142,13 +5001,23 @@ static void osd_refresh_status(void)
         sep_x = for_you_x - 12;
         following_x = sep_x - sep_w - 12 - left_w;
 
-        mylcd_set_foreground(LCD_RGBPACK(0xb0, 0xb5, 0xc0));
+        mylcd_set_foreground(feed.section == FEED_SECTION_FOLLOWING ?
+                             LCD_RGBPACK(0xff, 0xff, 0xff) :
+                             LCD_RGBPACK(0xb0, 0xb5, 0xc0));
         draw_putsxy_oriented(following_x, baseline_y, left);
+        mylcd_set_foreground(LCD_RGBPACK(0xb0, 0xb5, 0xc0));
         draw_putsxy_oriented(sep_x, baseline_y, "|");
-        mylcd_set_foreground(LCD_RGBPACK(0xff, 0xff, 0xff));
+        mylcd_set_foreground(feed.section == FEED_SECTION_FOR_YOU ?
+                             LCD_RGBPACK(0xff, 0xff, 0xff) :
+                             LCD_RGBPACK(0xb0, 0xb5, 0xc0));
         draw_putsxy_oriented(for_you_x, baseline_y, right);
         mylcd_set_foreground(LCD_RGBPACK(0xff, 0x4d, 0x6d));
-        draw_fillrect(for_you_x + right_w / 2 - 18, baseline_y + osd.time_rect.b + 1, 36, 2);
+        if (feed.section == FEED_SECTION_FOLLOWING)
+            draw_fillrect(following_x + left_w / 2 - 18,
+                          baseline_y + osd.time_rect.b + 1, 36, 2);
+        else
+            draw_fillrect(for_you_x + right_w / 2 - 18,
+                          baseline_y + osd.time_rect.b + 1, 36, 2);
 
         vo_rect_union(&osd.update_rect, &osd.update_rect, &osd.stat_rect);
         return;
@@ -3327,7 +5196,6 @@ static void osd_refresh(int hint)
         if (!(osd.flags & OSD_SHOW))
             return;
 
-        /* Hide if the visibility duration was reached */
         if (TIME_AFTER(tick, osd.hide_tick)) {
             osd_show(OSD_HIDE);
             return;
@@ -3376,8 +5244,31 @@ static void osd_refresh(int hint)
 
     vo_rect_clear(&osd.update_rect);
 
+    if (feed.active)
+    {
+        draw_setfont(FONT_SYSFIXED);
+        mylcd_set_foreground(oldfg);
+        mylcd_set_background(oldbg);
+        /* Recompose the current picture and both gutters atomically in YUV.
+         * Never paint TikTok's UI through the framebuffer callback. */
+        stream_draw_frame(false);
+        return;
+    }
+
+    if (osd.instagram_layout)
+    {
+        draw_setfont(FONT_SYSFIXED);
+        mylcd_set_foreground(oldfg);
+        mylcd_set_background(oldbg);
+        /* The player chrome, live progress, and like state are composited
+         * into the decoded frame. Never expose the RGB framebuffer beneath
+         * it or let a generic full-screen refresh cover the video. */
+        stream_draw_frame(false);
+        return;
+    }
+
 #if MPEG_STOCK_CONTROLS
-    if (osd.netflix_layout)
+    if (osd.netflix_layout || osd.youtube_layout)
     {
         draw_setfont(FONT_SYSFIXED);
         mylcd_set_foreground(oldfg);
@@ -3463,6 +5354,17 @@ static void osd_show(unsigned show)
         return;
     }
 
+    /* Inline Instagram owns a permanent feed surface, not a timed playback
+     * OSD. Ignore the generic two-second hide until Select explicitly marks
+     * the stream expanded; that transition then follows the normal hide path
+     * below and reveals full-screen video. */
+    if (!(show & OSD_SHOW) && mpegplayer_instagram_feed_launch &&
+        !mpegplayer_instagram_feed_expanded && !mpeg_stop_requested)
+    {
+        osd.flags |= OSD_SHOW;
+        return;
+    }
+
     if (((show ^ osd.flags) & OSD_SHOW) == 0)
     {
         if (show & OSD_SHOW) {
@@ -3480,11 +5382,21 @@ static void osd_show(unsigned show)
         }
 
         if (feed.active) {
-            struct vo_rect rc = { 0, FEED_HEADER_HEIGHT,
-                                  SCREEN_WIDTH,
-                                  SCREEN_HEIGHT - FEED_SCRIM_HEIGHT };
+            /* The fixed portrait picture leaves black control gutters. */
+            stream_vo_set_clip(NULL);
+        } else if (mpegplayer_instagram_feed_launch &&
+                   !mpegplayer_instagram_feed_expanded) {
+            /* The feed preview is a clipped square, not a reduced
+             * full-screen player. The YUV overlay owns the surrounding
+             * Instagram chrome; Select restores the ordinary full screen. */
+            struct vo_rect rc = {
+                MPEG_INSTAGRAM_VIDEO_LEFT, MPEG_INSTAGRAM_VIDEO_TOP,
+                MPEG_INSTAGRAM_VIDEO_LEFT + MPEG_INSTAGRAM_VIDEO_W,
+                MPEG_INSTAGRAM_VIDEO_TOP + MPEG_INSTAGRAM_VIDEO_H
+            };
             stream_vo_set_clip(&rc);
-        } else if (osd.netflix_layout || osd.use_wps_layout) {
+        } else if (osd.netflix_layout || osd.youtube_layout ||
+                   osd.use_wps_layout) {
             /* YUV-composited and WPS overlays leave video full-screen. */
             stream_vo_set_clip(NULL);
         } else {
@@ -3499,14 +5411,15 @@ static void osd_show(unsigned show)
         /* Uncover clipped video area and redraw it */
         osd.flags &= ~OSD_SHOW;
 
-        if (!osd.netflix_layout && !osd.use_wps_layout) {
+        if (!osd.netflix_layout && !osd.youtube_layout &&
+            !osd.use_wps_layout) {
             /* Only draw clear background in non-WPS mode */
             draw_clear_area(0, 0, osd.width, osd.height);
         }
 
         if (!(show & OSD_NODRAW)) {
             stream_vo_set_clip(NULL);
-            if (!osd.netflix_layout)
+            if (!osd.netflix_layout && !osd.youtube_layout)
             {
                 vo_lock();
                 draw_update_rect(0, 0, osd.width, osd.height);
@@ -3700,6 +5613,13 @@ static void osd_set_volume(int delta)
     if (mpegplayer_maps_dashcam_launch)
         return;
 
+    if (feed.active)
+    {
+        feed.volume_until = *rb->current_tick + FEED_VOLUME_TIME;
+        osd_refresh(OSD_REFRESH_VOLUME);
+        return;
+    }
+
 #ifdef HAVE_LCD_COLOR
     if (mpegplayer_livetv_launch || mpegplayer_netflix_launch)
     {
@@ -3712,6 +5632,13 @@ static void osd_set_volume(int delta)
 #endif
 
 #if MPEG_STOCK_CONTROLS
+    if (osd.youtube_layout && !feed.active)
+    {
+        osd_show(OSD_SHOW);
+        osd_refresh(OSD_REFRESH_VOLUME | OSD_REFRESH_TIME);
+        return;
+    }
+
     /*
      * The stock card presents itself. Routing it through osd_refresh() would
      * promote a volume-only refresh to OSD_REFRESH_ALL whenever the OSD is
@@ -3747,7 +5674,8 @@ static int osd_play(uint32_t time)
         osd_backlight_brightness_video_mode(true);
         stream_show_vo(true);
 
-        retval = stream_play();
+        retval = feed.active && feed.transition_enter_pending ?
+                 stream_play_primed() : stream_play();
 
         if (retval >= STREAM_OK)
             osd_set_status(OSD_STATUS_PLAYING | OSD_NODRAW);
@@ -4200,8 +6128,145 @@ static void mpeg_yuv_overlay_title(char *title, size_t size, int max_width)
     }
 }
 
+#if MPEG_STOCK_CONTROLS
+static void mpeg_yuv_youtube_sprite(uint8_t * const *planes,
+                                    int width, int height,
+                                    const struct bitmap *sprite,
+                                    int dst_x, int dst_y)
+{
+    int row;
+    int col;
+
+    for (row = 0; row < sprite->height; row++)
+        for (col = 0; col < sprite->width; col++)
+        {
+            fb_data pixel =
+                ((const fb_data *)sprite->data)[row * sprite->width + col];
+            int red = FB_UNPACK_RED(pixel);
+            int green = FB_UNPACK_GREEN(pixel);
+            int blue = FB_UNPACK_BLUE(pixel);
+
+            if (red > 248 && green < 8 && blue > 248)
+                continue;
+
+            mpeg_yuv_pixel(planes, width, height,
+                           dst_x + col, dst_y + row,
+                           red, green, blue);
+        }
+}
+
+static void mpeg_yuv_youtube_asset_column(uint8_t * const *planes,
+                                          int width, int height,
+                                          int src_x, int dst_x, int dst_y,
+                                          int draw_width,
+                                          int draw_height)
+{
+    int row;
+    int col;
+
+    for (row = 0; row < draw_height; row++)
+    {
+        fb_data pixel =
+            ((const fb_data *)youtube_player_bmp.data)
+            [(dst_y + row) * youtube_player_bmp.width + src_x];
+
+        for (col = 0; col < draw_width; col++)
+            mpeg_yuv_pixel(planes, width, height,
+                           dst_x + col, dst_y + row,
+                           FB_UNPACK_RED(pixel),
+                           FB_UNPACK_GREEN(pixel),
+                           FB_UNPACK_BLUE(pixel));
+    }
+}
+
+static void mpeg_yuv_feed_bitmap(uint8_t * const *planes,
+                                 int width, int height,
+                                 const fb_data *pixels,
+                                 int bitmap_width, int bitmap_height,
+                                 int src_x, int src_y,
+                                 int dst_x, int dst_y,
+                                 int draw_width, int draw_height,
+                                 bool black_is_transparent)
+{
+    int row;
+    int col;
+
+    for (row = 0; row < draw_height; row++)
+        for (col = 0; col < draw_width; col++)
+        {
+            fb_data pixel;
+            int red;
+            int green;
+            int blue;
+
+            if (src_x + col >= bitmap_width ||
+                src_y + row >= bitmap_height)
+                continue;
+            pixel = pixels[(src_y + row) * bitmap_width + src_x + col];
+            red = FB_UNPACK_RED(pixel);
+            green = FB_UNPACK_GREEN(pixel);
+            blue = FB_UNPACK_BLUE(pixel);
+            if (black_is_transparent &&
+                ((red < 4 && green < 4 && blue < 4) ||
+                 (red > 248 && green < 8 && blue > 248)))
+                continue;
+            mpeg_yuv_pixel(planes, width, height,
+                           dst_x + col, dst_y + row, red, green, blue);
+        }
+}
+
+static void mpeg_yuv_feed_bitmap_scaled_alpha(
+    uint8_t * const *planes, int width, int height,
+    const fb_data *pixels, int bitmap_width, int bitmap_height,
+    int dst_x, int dst_y, int draw_width, int draw_height, int alpha)
+{
+    int row;
+    int col;
+
+    if (draw_width <= 0 || draw_height <= 0 || alpha <= 0)
+        return;
+    alpha = MIN(256, alpha);
+    for (row = 0; row < draw_height; row++)
+        for (col = 0; col < draw_width; col++)
+        {
+            int x = dst_x + col;
+            int y = dst_y + row;
+            int src_x = col * bitmap_width / draw_width;
+            int src_y = row * bitmap_height / draw_height;
+            fb_data pixel = pixels[src_y * bitmap_width + src_x];
+            int red = FB_UNPACK_RED(pixel);
+            int green = FB_UNPACK_GREEN(pixel);
+            int blue = FB_UNPACK_BLUE(pixel);
+            unsigned char py;
+            unsigned char pu;
+            unsigned char pv;
+            int index;
+
+            if (x < 0 || x >= width || y < 0 || y >= height ||
+                (red < 4 && green < 4 && blue < 4))
+                continue;
+            mpeg_yuv_color(red, green, blue, &py, &pu, &pv);
+            index = y * width + x;
+            planes[0][index] =
+                (planes[0][index] * (256 - alpha) + py * alpha) >> 8;
+            if ((x & 1) == 0 && (y & 1) == 0)
+            {
+                index = (y / 2) * (width / 2) + x / 2;
+                planes[1][index] =
+                    (planes[1][index] * (256 - alpha) + pu * alpha) >> 8;
+                planes[2][index] =
+                    (planes[2][index] * (256 - alpha) + pv * alpha) >> 8;
+            }
+        }
+}
+#endif
+
 int mpegplayer_yuv_overlay_height(void)
 {
+    if (feed.active)
+        return LCD_HEIGHT;
+    if (osd.instagram_layout && (osd.flags & OSD_SHOW))
+        return LCD_HEIGHT;
     if ((mpegplayer_livetv_launch || mpegplayer_netflix_launch) &&
         !mpegplayer_livetv_desktop && livetv_volume_until != 0)
         return LIVETV_VOLUME_H;
@@ -4209,8 +6274,13 @@ int mpegplayer_yuv_overlay_height(void)
         mpegplayer_livetv_weather_commercial)
         return LIVETV_WEATHER_COMMERCIAL_OVERLAY_H;
 #if MPEG_STOCK_CONTROLS
+    if (osd.youtube_layout && (osd.flags & OSD_SHOW))
+        return MPEG_YOUTUBE_OVERLAY_H;
     if (osd.netflix_layout && (osd.flags & OSD_SHOW))
         return MPEG_NETFLIX_OVERLAY_H;
+    if (mpegplayer_netflix_launch &&
+        netflix_skip_active != NETFLIX_SKIP_NONE)
+        return MPEG_NETFLIX_SKIP_H;
 #endif
     return 0;
 }
@@ -4224,9 +6294,673 @@ int mpegplayer_yuv_overlay_y(void)
     return LCD_HEIGHT - mpegplayer_yuv_overlay_height();
 }
 
+int mpegplayer_yuv_overlay_offset(void)
+{
+    if (feed.active && !feed.profile_visible)
+        return feed.swipe_offset;
+    return 0;
+}
+
+int mpegplayer_yuv_overlay_resistance_offset(void)
+{
+    return feed.active ? feed.resistance_offset : 0;
+}
+
+int mpegplayer_yuv_overlay_transition_direction(void)
+{
+    return feed.transition_direction == VIDEO_PREV ? -1 : 1;
+}
+
+bool mpegplayer_yuv_overlay_transition_active(void)
+{
+    return feed.active && feed.transition_enter_pending;
+}
+
+bool mpegplayer_yuv_overlay_capture_pending(void)
+{
+    return feed.active && feed.transition_capture_pending;
+}
+
+bool mpegplayer_instagram_inline_rect(struct vo_rect *rect)
+{
+    if (!mpegplayer_instagram_feed_launch ||
+        mpegplayer_instagram_feed_expanded || rect == NULL)
+        return false;
+    vo_rect_set_ext(rect, MPEG_INSTAGRAM_VIDEO_LEFT,
+                    MPEG_INSTAGRAM_VIDEO_TOP,
+                    MPEG_INSTAGRAM_VIDEO_W, MPEG_INSTAGRAM_VIDEO_H);
+    return true;
+}
+
 void mpegplayer_yuv_overlay_draw(uint8_t * const *planes,
                                  int width, int height)
 {
+    if (osd.instagram_layout)
+    {
+        char likes[24];
+        int video_left = mpegplayer_instagram_feed_launch ?
+                         MPEG_INSTAGRAM_VIDEO_LEFT : 0;
+        int video_top = mpegplayer_instagram_feed_launch ?
+                        MPEG_INSTAGRAM_VIDEO_TOP : 0;
+        int video_width = mpegplayer_instagram_feed_launch ?
+                          MPEG_INSTAGRAM_VIDEO_W : width;
+
+        if (mpegplayer_instagram_feed_launch &&
+            !mpegplayer_instagram_feed_expanded)
+        {
+            /* This is the same fixed 2010 feed card used by instagram.rock,
+             * baked into each decoded frame like the Live TV receiver UI.
+             * All values were read before playback started; this path is
+             * strictly bounded YUV composition, with no framebuffer use,
+             * disk access, or allocation. */
+            /* Do not repaint the decoded card. The compositor runs after
+             * the decoder, so the surrounding feed background is split into
+             * four bands instead of clearing the full frame. */
+            mpeg_yuv_rect(planes, width, height, 0, 0, width,
+                          MPEG_INSTAGRAM_VIDEO_TOP, 247, 245, 239);
+            mpeg_yuv_rect(planes, width, height, 0,
+                          MPEG_INSTAGRAM_VIDEO_TOP + MPEG_INSTAGRAM_VIDEO_H,
+                          width, 222 - (MPEG_INSTAGRAM_VIDEO_TOP +
+                          MPEG_INSTAGRAM_VIDEO_H), 247, 245, 239);
+            mpeg_yuv_rect(planes, width, height, 0,
+                          MPEG_INSTAGRAM_VIDEO_TOP,
+                          MPEG_INSTAGRAM_VIDEO_LEFT,
+                          MPEG_INSTAGRAM_VIDEO_H, 247, 245, 239);
+            mpeg_yuv_rect(planes, width, height,
+                          MPEG_INSTAGRAM_VIDEO_LEFT + MPEG_INSTAGRAM_VIDEO_W,
+                          MPEG_INSTAGRAM_VIDEO_TOP,
+                          width - (MPEG_INSTAGRAM_VIDEO_LEFT +
+                          MPEG_INSTAGRAM_VIDEO_W),
+                          MPEG_INSTAGRAM_VIDEO_H, 247, 245, 239);
+            mpeg_yuv_rect(planes, width, height, 0, 0, width, 28,
+                          43, 79, 107);                /* IG_NAVY */
+            mpeg_yuv_rect(planes, width, height, 0, 28, width, 28,
+                          241, 250, 254);              /* IG_SELECTED */
+            mpeg_yuv_rect(planes, width, height, 3, 56,
+                          MPEG_INSTAGRAM_VIDEO_W + 2, 1,
+                          213, 217, 220);               /* IG_BORDER */
+            mpeg_yuv_rect(planes, width, height, 3, 56, 1,
+                          MPEG_INSTAGRAM_VIDEO_H + 2,
+                          213, 217, 220);
+            mpeg_yuv_rect(planes, width, height,
+                          MPEG_INSTAGRAM_VIDEO_LEFT + MPEG_INSTAGRAM_VIDEO_W,
+                          56, 1, MPEG_INSTAGRAM_VIDEO_H + 2,
+                          213, 217, 220);
+            mpeg_yuv_rect(planes, width, height, 3,
+                          MPEG_INSTAGRAM_VIDEO_TOP + MPEG_INSTAGRAM_VIDEO_H,
+                          MPEG_INSTAGRAM_VIDEO_W + 2, 1,
+                          213, 217, 220);
+            mpeg_yuv_rect(planes, width, height, 0, 222, width, 18,
+                          43, 79, 107);
+            mpeg_yuv_text(planes, width, height, 33, 7, "Instagram",
+                          255, 255, 255);
+            mpeg_yuv_text(planes, width, height, 267, 34, "HOME",
+                          118, 118, 118);
+            mpeg_yuv_rect(planes, width, height, 4, 32, 18, 18,
+                          231, 238, 243);
+            mpeg_yuv_text(planes, width, height, 7, 37, "@",
+                          63, 114, 150);
+            mpeg_yuv_text(planes, width, height, 28, 35,
+                          instagram_username[0] ? instagram_username :
+                          "Instagram", 63, 114, 150);
+            mpeg_yuv_feed_bitmap(planes, width, height,
+                                 instagram_liked ? instagram_heart :
+                                 instagram_heart_unliked,
+                                 instagram_liked ? BMPWIDTH_instagram_heart :
+                                 BMPWIDTH_instagram_heart_unliked,
+                                 instagram_liked ? BMPHEIGHT_instagram_heart :
+                                 BMPHEIGHT_instagram_heart_unliked,
+                                 0, 0, 174, 60, 32, 32, true);
+            rb->snprintf(likes, sizeof(likes), "%d likes",
+                         instagram_likes + (instagram_liked ? 1 : 0));
+            mpeg_yuv_text(planes, width, height, 210, 68, likes,
+                          63, 114, 150);
+            mpeg_yuv_text(planes, width, height, 172, 96, "VIDEO POST",
+                          118, 118, 118);
+            mpeg_yuv_text(planes, width, height, 172, 122,
+                          instagram_username[0] ? instagram_username :
+                          "Instagram", 63, 114, 150);
+            mpeg_yuv_text(planes, width, height, 172, 142,
+                          instagram_caption[0] ? instagram_caption :
+                          "Video", 0, 0, 0);
+            mpeg_yuv_text(planes, width, height, 172, 202,
+                          "Select full screen", 118, 118, 118);
+            mpeg_yuv_text(planes, width, height, 8, 226,
+                          "Home       Favorites       Profile",
+                          255, 255, 255);
+        }
+        /* Authentic play artwork is retained as the compact feed-video cue. */
+        mpeg_yuv_feed_bitmap_scaled_alpha(
+            planes, width, height,
+            instagram_video_play,
+            BMPWIDTH_instagram_video_play,
+            BMPHEIGHT_instagram_video_play,
+            video_left + video_width -
+                BMPWIDTH_instagram_video_play - MPEG_INSTAGRAM_PLAY_MARGIN,
+            video_top + MPEG_INSTAGRAM_PLAY_MARGIN,
+            BMPWIDTH_instagram_video_play,
+            BMPHEIGHT_instagram_video_play, 224);
+        return;
+    }
+
+    if (feed.active && feed.index >= 0 && feed.index < feed.count)
+    {
+        const struct feed_item *item = &feed.items[feed.index];
+        char text[FEED_DESCRIPTION_LEN];
+        uint32_t duration = stream_get_duration();
+        uint32_t time = osd.curr_time;
+        int heart_x = FEED_VIDEO_RIGHT +
+                      (width - FEED_VIDEO_RIGHT - FEED_HEART_SIZE) / 2;
+        int heart_y = 56;
+        int track_x = FEED_SIDE_GUTTER + 4;
+        int track_w = FEED_VIDEO_LEFT - 2 * FEED_SIDE_GUTTER - 8;
+        int text_width;
+        int progress;
+
+        if (feed.details_visible)
+        {
+            const char *caption = item->description[0] ?
+                                  item->description : item->title;
+            int offset = 0;
+            int line;
+
+            mpeg_yuv_rect(planes, width, height, 0, 0, width, height,
+                          8, 8, 10);
+#if IPODTIKTOK_USE_BITMAP_ASSETS
+            mpeg_yuv_feed_bitmap(planes, width, height,
+                                 ipodtiktok_header,
+                                 BMPWIDTH_ipodtiktok_header,
+                                 BMPHEIGHT_ipodtiktok_header,
+                                 8, 11, 12, 10, 76, 18, false);
+#endif
+            mpeg_yuv_text(planes, width, height, 246, 12, "DETAILS",
+                          145, 145, 152);
+            mpeg_yuv_rect(planes, width, height, 8, 40, width - 16, 1,
+                          48, 48, 52);
+            feed_format_label(text, sizeof(text), item->creator, width - 24);
+            mpeg_yuv_text(planes, width, height, 12, 54, text,
+                          37, 244, 238);
+            feed_format_label(text, sizeof(text), item->title, width - 24);
+            mpeg_yuv_text(planes, width, height, 12, 76, text,
+                          255, 255, 255);
+            for (line = 0; line < 5 && caption[offset] != '\0'; line++)
+            {
+                int take = MIN(48, (int)rb->strlen(caption + offset));
+                int end = take;
+
+                if (caption[offset + take] != '\0')
+                    while (end > 24 && caption[offset + end] != ' ')
+                        end--;
+                if (end <= 24)
+                    end = take;
+                rb->strlcpy(text, caption + offset,
+                            MIN((size_t)end + 1, sizeof(text)));
+                feed_format_label(text, sizeof(text), text, width - 24);
+                mpeg_yuv_text(planes, width, height, 12, 104 + line * 18,
+                              text, 205, 205, 210);
+                offset += end;
+                while (caption[offset] == ' ')
+                    offset++;
+            }
+            mpeg_yuv_rect(planes, width, height, 8, 208, width - 16, 1,
+                          48, 48, 52);
+            mpeg_yuv_text(planes, width, height, 12, 218,
+                          "MENU  Back", 145, 145, 152);
+            return;
+        }
+
+        if (feed.saved_profiles_visible)
+        {
+            int top = feed.saved_profile_cursor > 3 ?
+                      feed.saved_profile_cursor - 3 : 0;
+            int row;
+
+            mpeg_yuv_rect(planes, width, height, 0, 0, width, height,
+                          8, 8, 10);
+#if IPODTIKTOK_USE_BITMAP_ASSETS
+            mpeg_yuv_feed_bitmap(planes, width, height,
+                                 ipodtiktok_header,
+                                 BMPWIDTH_ipodtiktok_header,
+                                 BMPHEIGHT_ipodtiktok_header,
+                                 8, 11, 12, 10, 76, 18, false);
+#else
+            mpeg_yuv_text(planes, width, height, 8, 10, "TikTok",
+                          255, 255, 255);
+#endif
+            mpeg_yuv_text(planes, width, height, 262, 12, "SAVED",
+                          37, 244, 238);
+            mpeg_yuv_rect(planes, width, height, 8, 40, width - 16, 1,
+                          48, 48, 52);
+            mpeg_yuv_text(planes, width, height, 12, 49,
+                          "Saved profiles", 255, 255, 255);
+            mpeg_yuv_text(planes, width, height, 213, 49,
+                          "SELECT TO OPEN", 145, 145, 152);
+
+            for (row = 0; row < 4 && top + row < feed.saved_profile_count;
+                 row++)
+            {
+                int ordinal = top + row;
+                int item_index = feed_saved_profile_items[ordinal];
+                int y = 71 + row * 38;
+                bool selected = ordinal == feed.saved_profile_cursor;
+                const char *creator = feed.items[item_index].creator;
+
+                if (selected)
+                    mpeg_yuv_rect(planes, width, height, 8, y - 4,
+                                  width - 16, 34, 21, 70, 70);
+                mpeg_yuv_rect(planes, width, height, 13, y, 24, 24,
+                              selected ? 37 : 45,
+                              selected ? 244 : 45,
+                              selected ? 238 : 49);
+                mpeg_yuv_text(planes, width, height, 20, y + 7, "@",
+                              255, 255, 255);
+                feed_format_label(text, sizeof(text), creator, 184);
+                mpeg_yuv_text(planes, width, height, 48, y + 2, text,
+                              255, 255, 255);
+                rb->snprintf(text, sizeof(text), "%u saved",
+                             (unsigned)feed_saved_profile_counts[ordinal]);
+                mpeg_yuv_text(planes, width, height, 48, y + 17, text,
+                              145, 145, 152);
+                mpeg_yuv_text(planes, width, height, 294, y + 7, ">",
+                              37, 244, 238);
+            }
+            if (feed.saved_profile_count == 0)
+                mpeg_yuv_text(planes, width, height, 73, 118,
+                              "No saved videos yet", 185, 185, 190);
+            mpeg_yuv_rect(planes, width, height, 8, 218,
+                          width - 16, 1, 48, 48, 52);
+            mpeg_yuv_text(planes, width, height, 12, 224,
+                          "Wheel  Browse    Select  Videos    Menu  Back",
+                          145, 145, 152);
+            return;
+        }
+
+        if (feed.profile_visible)
+        {
+            int start;
+            int shown = 0;
+
+            mpeg_yuv_rect(planes, width, height, 0, 0, width, height,
+                          8, 8, 10);
+#if IPODTIKTOK_USE_BITMAP_ASSETS
+            mpeg_yuv_feed_bitmap(planes, width, height,
+                                 ipodtiktok_header,
+                                 BMPWIDTH_ipodtiktok_header,
+                                 BMPHEIGHT_ipodtiktok_header,
+                                 8, 11, 12, 10, 76, 18, false);
+#else
+            mpeg_yuv_text(planes, width, height, 8, 10, "TikTok",
+                          255, 255, 255);
+#endif
+            mpeg_yuv_text(planes, width, height, 246, 12, "PROFILE",
+                          145, 145, 152);
+            mpeg_yuv_rect(planes, width, height, 8, 40, width - 16, 1,
+                          48, 48, 52);
+
+            if (feed_profile_avatar_valid)
+            {
+                mpeg_yuv_rect(planes, width, height, 258, 47, 54, 54,
+                              37, 244, 238);
+                mpeg_yuv_feed_bitmap(
+                    planes, width, height,
+                    (const fb_data *)feed_profile_avatar.data,
+                    feed_profile_avatar.width, feed_profile_avatar.height,
+                    0, 0, 261, 50, FEED_PROFILE_AVATAR_SIZE,
+                    FEED_PROFILE_AVATAR_SIZE, false);
+            }
+
+            feed_format_label(text, sizeof(text),
+                              feed.profile.display_name, 198);
+            mpeg_yuv_text(planes, width, height, 12, 52, text,
+                          255, 255, 255);
+            if (feed.profile.verified)
+            {
+                int name_width = mpeg_yuv_text_width(text);
+                mpeg_yuv_feed_bitmap(
+                    planes, width, height, ipodtiktok_verified,
+                    BMPWIDTH_ipodtiktok_verified,
+                    BMPHEIGHT_ipodtiktok_verified,
+                    0, 0, MIN(238, 16 + name_width), 51,
+                    BMPWIDTH_ipodtiktok_verified,
+                    BMPHEIGHT_ipodtiktok_verified, true);
+            }
+            rb->snprintf(text, sizeof(text), "@%s", feed.profile.username);
+            feed_format_label(text, sizeof(text), text, 198);
+            mpeg_yuv_text(planes, width, height, 12, 68, text,
+                          37, 244, 238);
+
+            feed_format_count(text, sizeof(text), feed.profile.followers);
+            mpeg_yuv_text(planes, width, height, 12, 92, text,
+                          255, 255, 255);
+            mpeg_yuv_text(planes, width, height, 12, 106, "Followers",
+                          145, 145, 152);
+            feed_format_count(text, sizeof(text), feed.profile.following);
+            mpeg_yuv_text(planes, width, height, 92, 92, text,
+                          255, 255, 255);
+            mpeg_yuv_text(planes, width, height, 92, 106, "Following",
+                          145, 145, 152);
+            feed_format_count(text, sizeof(text), feed.profile.likes);
+            mpeg_yuv_text(planes, width, height, 180, 92, text,
+                          255, 255, 255);
+            mpeg_yuv_text(planes, width, height, 180, 106, "Likes",
+                          145, 145, 152);
+            feed_format_count(text, sizeof(text), feed.profile.videos);
+            mpeg_yuv_text(planes, width, height, 250, 92, text,
+                          255, 255, 255);
+            mpeg_yuv_text(planes, width, height, 250, 106, "Videos",
+                          145, 145, 152);
+
+            feed_format_label(text, sizeof(text),
+                              feed.profile.bio[0] ? feed.profile.bio :
+                              item->description, width - 24);
+            mpeg_yuv_text(planes, width, height, 12, 128, text,
+                          205, 205, 210);
+            mpeg_yuv_rect(planes, width, height, 8, 148, width - 16, 1,
+                          48, 48, 52);
+            mpeg_yuv_text(planes, width, height, 12, 153,
+                          feed.profile_saved_only ? "SAVED" : "VIDEOS",
+                          145, 145, 152);
+
+            start = feed.profile_cursor > 0 ? feed.profile_cursor - 1 : 0;
+            if (feed.profile_count > 3 && start > feed.profile_count - 3)
+                start = feed.profile_count - 3;
+            while (shown < 3 && start + shown < feed.profile_count)
+            {
+                int ordinal = start + shown;
+                int item_index = feed_profile_item_index(ordinal);
+                bool selected = ordinal == feed.profile_cursor;
+
+                if (item_index < 0)
+                    break;
+                mpeg_yuv_rect(planes, width, height,
+                              7 + shown * 104, 167, 98, 66,
+                              selected ? 37 : 45,
+                              selected ? 244 : 45,
+                              selected ? 238 : 49);
+                if (feed_profile_thumb_valid[shown])
+                    mpeg_yuv_feed_bitmap(
+                        planes, width, height,
+                        (const fb_data *)feed_profile_thumbs[shown].data,
+                        feed_profile_thumbs[shown].width,
+                        feed_profile_thumbs[shown].height,
+                        0, 4, 8 + shown * 104, 168, 96, 64, false);
+                else
+                {
+                    mpeg_yuv_rect(planes, width, height,
+                                  8 + shown * 104, 168, 96, 64,
+                                  22, 22, 25);
+                    feed_format_label(text, sizeof(text),
+                                      feed.items[item_index].title, 84);
+                        mpeg_yuv_text(planes, width, height,
+                                  14 + shown * 104, 192, text,
+                                  185, 185, 190);
+                }
+                if (feed.items[item_index].pin_order > 0)
+                {
+                    mpeg_yuv_rect(planes, width, height,
+                                  12 + shown * 104, 172, 42, 12,
+                                  254, 44, 85);
+                    mpeg_yuv_text(planes, width, height,
+                                  15 + shown * 104, 174, "PINNED",
+                                  255, 255, 255);
+                }
+                shown++;
+            }
+            if (shown == 0)
+                mpeg_yuv_text(planes, width, height, 20, 177,
+                              "Current video", 185, 185, 190);
+            return;
+        }
+
+        if (duration == INVALID_TIMESTAMP || duration == 0)
+            duration = 1;
+        if (time > duration)
+            time = duration;
+        progress = (int)muldiv_uint32(track_w, time, duration);
+
+        mpeg_yuv_rect(planes, width, height, 0, 0,
+                      FEED_VIDEO_LEFT, height, 8, 8, 10);
+        mpeg_yuv_rect(planes, width, height, FEED_VIDEO_RIGHT, 0,
+                      width - FEED_VIDEO_RIGHT, height, 8, 8, 10);
+        mpeg_yuv_rect(planes, width, height, FEED_VIDEO_LEFT - 1, 0,
+                      1, height, 38, 38, 42);
+        mpeg_yuv_rect(planes, width, height, FEED_VIDEO_RIGHT, 0,
+                      1, height, 38, 38, 42);
+
+#if IPODTIKTOK_USE_BITMAP_ASSETS
+        mpeg_yuv_feed_bitmap(planes, width, height,
+                             ipodtiktok_header,
+                             BMPWIDTH_ipodtiktok_header,
+                             BMPHEIGHT_ipodtiktok_header,
+                             8, 11, 8, 10, 76, 18, false);
+#else
+        mpeg_yuv_text(planes, width, height, 8, 10, "TikTok",
+                      255, 255, 255);
+#endif
+        mpeg_yuv_rect(planes, width, height, FEED_SIDE_GUTTER, 42,
+                      FEED_VIDEO_LEFT - 2 * FEED_SIDE_GUTTER, 1,
+                      48, 48, 52);
+        mpeg_yuv_text(planes, width, height, FEED_SIDE_GUTTER, 48,
+                      "For You",
+                      feed.section == FEED_SECTION_FOR_YOU ? 255 : 153,
+                      feed.section == FEED_SECTION_FOR_YOU ? 255 : 153,
+                      feed.section == FEED_SECTION_FOR_YOU ? 255 : 157);
+        mpeg_yuv_text(planes, width, height, FEED_SIDE_GUTTER, 62,
+                      "Following",
+                      feed.section == FEED_SECTION_FOLLOWING ? 255 : 153,
+                      feed.section == FEED_SECTION_FOLLOWING ? 255 : 153,
+                      feed.section == FEED_SECTION_FOLLOWING ? 255 : 157);
+        mpeg_yuv_text(planes, width, height, FEED_SIDE_GUTTER, 76,
+                      "Saved",
+                      feed.section == FEED_SECTION_SAVED ? 255 : 153,
+                      feed.section == FEED_SECTION_SAVED ? 255 : 153,
+                      feed.section == FEED_SECTION_SAVED ? 255 : 157);
+        mpeg_yuv_text(planes, width, height, FEED_SIDE_GUTTER, 90,
+                      "History",
+                      feed.section == FEED_SECTION_HISTORY ? 255 : 153,
+                      feed.section == FEED_SECTION_HISTORY ? 255 : 153,
+                      feed.section == FEED_SECTION_HISTORY ? 255 : 157);
+        mpeg_yuv_rect(planes, width, height, FEED_SIDE_GUTTER + 1,
+                      59 + (int)feed.section * 14,
+                      43, 1, 254, 44, 85);
+        mpeg_yuv_rect(planes, width, height, FEED_SIDE_GUTTER,
+                      58 + (int)feed.section * 14,
+                      43, 1, 37, 244, 238);
+
+        mpeg_yuv_text(planes, width, height, FEED_SIDE_GUTTER, 111,
+                      "Now Playing", 125, 125, 132);
+        feed_format_label(text, sizeof(text),
+                          item->creator[0] ? item->creator : item->title,
+                          FEED_VIDEO_LEFT - 2 * FEED_SIDE_GUTTER);
+        mpeg_yuv_text(planes, width, height, FEED_SIDE_GUTTER, 125,
+                      text, 255, 255, 255);
+        feed_format_label(text, sizeof(text),
+                          item->description[0] ?
+                          item->description : item->title,
+                          FEED_VIDEO_LEFT - 2 * FEED_SIDE_GUTTER);
+        mpeg_yuv_text(planes, width, height, FEED_SIDE_GUTTER, 142,
+                      text, 190, 190, 196);
+
+        if (TIME_BEFORE(*rb->current_tick, feed.volume_until))
+        {
+            int min_volume = rb->sound_min(SOUND_VOLUME);
+            int max_volume = rb->sound_max(SOUND_VOLUME);
+            int volume_width = 0;
+            int knob_x;
+
+            if (rb->global_settings->volume_limit >= min_volume &&
+                rb->global_settings->volume_limit < max_volume)
+                max_volume = rb->global_settings->volume_limit;
+
+            if (max_volume > min_volume)
+                volume_width = (rb->global_status->volume - min_volume) *
+                    track_w /
+                    (max_volume - min_volume);
+            volume_width = MIN(track_w, MAX(0, volume_width));
+            knob_x = track_x + MIN(track_w - 5,
+                                   MAX(0, volume_width - 2));
+            rb->snprintf(text, sizeof(text), "Volume %d%%",
+                         max_volume > min_volume ?
+                         (rb->global_status->volume - min_volume) * 100 /
+                         (max_volume - min_volume) : 0);
+            mpeg_yuv_text(planes, width, height, FEED_SIDE_GUTTER, 188,
+                          text, 255, 255, 255);
+            mpeg_yuv_rect(planes, width, height, track_x, 208,
+                          track_w, 3, 63, 63, 68);
+            mpeg_yuv_rect(planes, width, height, track_x, 208,
+                          volume_width, 3, 238, 238, 242);
+            mpeg_yuv_rect(planes, width, height,
+                          knob_x, 207,
+                          5, 5, 37, 244, 238);
+        }
+        else
+        {
+            rb->snprintf(text, sizeof(text), "%lu:%02lu / %lu:%02lu",
+                         (unsigned long)(time / TS_SECOND / 60),
+                         (unsigned long)(time / TS_SECOND % 60),
+                         (unsigned long)(duration / TS_SECOND / 60),
+                         (unsigned long)(duration / TS_SECOND % 60));
+            mpeg_yuv_text(planes, width, height, FEED_SIDE_GUTTER, 188,
+                          text, 255, 255, 255);
+            mpeg_yuv_rect(planes, width, height, track_x, 208,
+                          track_w, 3, 63, 63, 68);
+            mpeg_yuv_rect(planes, width, height, track_x, 208,
+                          progress, 3, 238, 238, 242);
+            mpeg_yuv_rect(planes, width, height,
+                          track_x + MIN(track_w - 5,
+                                        MAX(0, progress - 2)), 207,
+                          5, 5, 254, 44, 85);
+        }
+
+        rb->strlcpy(text,
+                    osd_stream_status() == STREAM_PAUSED ? "PAUSED" : "PLAYING",
+                    sizeof(text));
+        text_width = mpeg_yuv_text_width(text);
+        mpeg_yuv_text(planes, width, height,
+                      FEED_VIDEO_RIGHT +
+                      (width - FEED_VIDEO_RIGHT - text_width) / 2,
+                      16, text, 145, 145, 152);
+        mpeg_yuv_rect(planes, width, height, FEED_VIDEO_RIGHT + 8, 41,
+                      width - FEED_VIDEO_RIGHT - 16, 1, 48, 48, 52);
+
+#if IPODTIKTOK_USE_BITMAP_ASSETS
+        mpeg_yuv_feed_bitmap(
+            planes, width, height,
+            item->liked ? ipodtiktok_heart : ipodtiktok_heart_outline,
+            FEED_HEART_SIZE, FEED_HEART_SIZE,
+            0, 0, heart_x, heart_y,
+            FEED_HEART_SIZE, FEED_HEART_SIZE, true);
+        if (item->liked &&
+            TIME_BEFORE(*rb->current_tick, feed.like_anim_until))
+        {
+            long remaining = feed.like_anim_until - *rb->current_tick;
+            long elapsed = FEED_LIKE_ANIM_TIME - remaining;
+            int peak = MAX(1, FEED_LIKE_ANIM_TIME / 3);
+            int size;
+            int alpha = (int)(remaining * 256 / FEED_LIKE_ANIM_TIME);
+
+            if (elapsed < peak)
+                size = 20 + (int)(elapsed * 22 / peak);
+            else
+                size = 42 - (int)((elapsed - peak) * 10 /
+                                  MAX(1, FEED_LIKE_ANIM_TIME - peak));
+            mpeg_yuv_feed_bitmap_scaled_alpha(
+                planes, width, height, ipodtiktok_heart,
+                FEED_HEART_SIZE, FEED_HEART_SIZE,
+                heart_x + (FEED_HEART_SIZE - size) / 2,
+                heart_y + (FEED_HEART_SIZE - size) / 2,
+                size, size, alpha);
+        }
+#endif
+        feed_format_count(text, sizeof(text),
+                          item->like_count + (item->liked ? 1 : 0));
+        text_width = mpeg_yuv_text_width(text);
+        mpeg_yuv_text(planes, width, height,
+                      heart_x + (FEED_HEART_SIZE - text_width) / 2,
+                      heart_y + FEED_HEART_SIZE + 3,
+                      text, 255, 255, 255);
+        text_width = mpeg_yuv_text_width("Likes");
+        mpeg_yuv_text(planes, width, height,
+                      FEED_VIDEO_RIGHT +
+                      (width - FEED_VIDEO_RIGHT - text_width) / 2,
+                      104, "Likes", 145, 145, 152);
+        mpeg_yuv_rect(planes, width, height, FEED_VIDEO_RIGHT + 8, 122,
+                      width - FEED_VIDEO_RIGHT - 16, 1, 48, 48, 52);
+        text_width = mpeg_yuv_text_width("Comments");
+        mpeg_yuv_text(planes, width, height,
+                      FEED_VIDEO_RIGHT +
+                      (width - FEED_VIDEO_RIGHT - text_width) / 2,
+                      132, "Comments", 190, 190, 196);
+        feed_format_count(text, sizeof(text), item->comment_count);
+        text_width = mpeg_yuv_text_width(text);
+        mpeg_yuv_text(planes, width, height,
+                      FEED_VIDEO_RIGHT +
+                      (width - FEED_VIDEO_RIGHT - text_width) / 2,
+                      148, text, 255, 255, 255);
+        mpeg_yuv_rect(planes, width, height, FEED_VIDEO_RIGHT + 8, 176,
+                      width - FEED_VIDEO_RIGHT - 16, 1, 48, 48, 52);
+        rb->snprintf(text, sizeof(text), "%d / %d",
+                     feed_section_position(), feed_section_count());
+        text_width = mpeg_yuv_text_width(text);
+        mpeg_yuv_text(planes, width, height,
+                      FEED_VIDEO_RIGHT +
+                      (width - FEED_VIDEO_RIGHT - text_width) / 2,
+                      205, text, 255, 255, 255);
+        rb->strlcpy(text, feed_section_label(feed.section), sizeof(text));
+        text_width = mpeg_yuv_text_width(text);
+        mpeg_yuv_text(planes, width, height,
+                      FEED_VIDEO_RIGHT +
+                      (width - FEED_VIDEO_RIGHT - text_width) / 2,
+                      220, text, 37, 244, 238);
+
+        if (TIME_BEFORE(*rb->current_tick, feed.confirm_until))
+        {
+            mpeg_yuv_rect(planes, width, height, 6, 160, 80, 24,
+                          15, 45, 46);
+#if IPODTIKTOK_USE_BITMAP_ASSETS
+            mpeg_yuv_feed_bitmap(
+                planes, width, height, ipodtiktok_check,
+                BMPWIDTH_ipodtiktok_check, BMPHEIGHT_ipodtiktok_check,
+                0, 0, 7, 160, 24, 24, true);
+#endif
+            mpeg_yuv_text(planes, width, height, 34, 168,
+                          feed.confirm_text, 255, 255, 255);
+        }
+
+        if (feed.action_visible)
+        {
+            static const char * const actions[4] = {
+                "Save", "Not interested", "Profile", "Details"
+            };
+            int i;
+
+            mpeg_yuv_rect(planes, width, height, 0, 38,
+                          FEED_VIDEO_LEFT, 136, 8, 8, 10);
+            mpeg_yuv_rect(planes, width, height, FEED_VIDEO_RIGHT, 38,
+                          width - FEED_VIDEO_RIGHT, 136, 8, 8, 10);
+            for (i = 0; i < 4; i++)
+            {
+                int x = i < 2 ? FEED_SIDE_GUTTER : FEED_VIDEO_RIGHT + 7;
+                int y = 51 + (i & 1) * 48;
+                const char *label = actions[i];
+
+                if (i == 0 && item->saved)
+                    label = "Unsave";
+                if (i == feed.action_cursor)
+                    mpeg_yuv_rect(planes, width, height, x - 2, y - 5,
+                                  i < 2 ? FEED_VIDEO_LEFT - 8 :
+                                  width - FEED_VIDEO_RIGHT - 10,
+                                  30, 37, 94, 92);
+                feed_format_label(text, sizeof(text), label,
+                                  i < 2 ? FEED_VIDEO_LEFT - 12 :
+                                  width - FEED_VIDEO_RIGHT - 14);
+                mpeg_yuv_text(planes, width, height, x, y, text,
+                              255, 255, 255);
+            }
+        }
+        return;
+    }
+
     if ((mpegplayer_livetv_launch || mpegplayer_netflix_launch) &&
         livetv_volume_until != 0)
     {
@@ -4322,6 +7056,137 @@ void mpegplayer_yuv_overlay_draw(uint8_t * const *planes,
     }
 
 #if MPEG_STOCK_CONTROLS
+    if (osd.youtube_layout && (osd.flags & OSD_SHOW))
+    {
+        char current[24];
+        uint32_t current_time = osd.curr_time;
+        uint32_t total_time = netflix_overlay_duration;
+        int min_volume = rb->sound_min(SOUND_VOLUME);
+        int max_volume = rb->sound_max(SOUND_VOLUME);
+        int volume = rb->global_status != NULL ?
+                     rb->global_status->volume : min_volume;
+        int progress_x;
+        int volume_percent;
+        int volume_x;
+        int time_width;
+        int row;
+        int col;
+
+        if (!youtube_player_valid)
+            return;
+
+        /* This is the archived 2006-2008 embedded-player strip itself,
+         * proportionally rasterized to the iPod width. It is not a drawn
+         * approximation; each source pixel is composited over decoded YUV. */
+        for (row = 0; row < youtube_player_bmp.height; row++)
+            for (col = 0; col < youtube_player_bmp.width; col++)
+            {
+                fb_data pixel =
+                    ((const fb_data *)youtube_player_bmp.data)
+                    [row * youtube_player_bmp.width + col];
+
+                mpeg_yuv_pixel(planes, width, height, col, row,
+                               FB_UNPACK_RED(pixel),
+                               FB_UNPACK_GREEN(pixel),
+                               FB_UNPACK_BLUE(pixel));
+            }
+
+        if (total_time == INVALID_TIMESTAMP || total_time == 0)
+            total_time = 1;
+        if (current_time > total_time)
+            current_time = total_time;
+
+        /* Move the real raster playhead from the archived strip to the live
+         * decoder timestamp. The sampled source column restores the matching
+         * chrome gradient beneath its old position. */
+        mpeg_yuv_youtube_asset_column(
+            planes, width, height, 56,
+            MPEG_YOUTUBE_PROGRESS_ERASE_X,
+            MPEG_YOUTUBE_PROGRESS_ERASE_Y,
+            MPEG_YOUTUBE_PROGRESS_ERASE_W,
+            MPEG_YOUTUBE_PROGRESS_ERASE_H);
+        progress_x = MPEG_YOUTUBE_PROGRESS_LEFT -
+                     MPEG_YOUTUBE_PROGRESS_KNOB_W / 2 +
+                     (int)(((uint64_t)current_time *
+                            MPEG_YOUTUBE_PROGRESS_W) / total_time);
+        if (youtube_seek_knob_valid)
+            mpeg_yuv_youtube_sprite(
+                planes, width, height, &youtube_seek_knob_bmp,
+                progress_x, MPEG_YOUTUBE_PROGRESS_KNOB_Y);
+
+        /* Restore the timer's captured vertical gradient from an untouched
+         * source column, then replace only its digits. */
+        mpeg_stock_format_time(current_time, current, sizeof(current));
+        time_width = mpeg_yuv_text_width(current);
+        mpeg_yuv_youtube_asset_column(
+            planes, width, height, 215, 184, 7, 32, 15);
+        mpeg_yuv_text(planes, width, height,
+                      184 + (32 - time_width) / 2, 10, current,
+                      255, 255, 255);
+
+        if (rb->global_settings != NULL &&
+            rb->global_settings->volume_limit >= min_volume &&
+            rb->global_settings->volume_limit < max_volume)
+            max_volume = rb->global_settings->volume_limit;
+        if (volume <= min_volume)
+            volume_percent = 0;
+        else if (volume >= max_volume)
+            volume_percent = 100;
+        else
+            volume_percent = ((volume - min_volume) * 100) /
+                             (max_volume - min_volume);
+
+        /* Reposition the captured volume knob to the live Rockbox volume. */
+        mpeg_yuv_youtube_asset_column(
+            planes, width, height, 258,
+            MPEG_YOUTUBE_VOLUME_ERASE_X,
+            MPEG_YOUTUBE_VOLUME_KNOB_Y,
+            MPEG_YOUTUBE_VOLUME_ERASE_W,
+            MPEG_YOUTUBE_VOLUME_KNOB_H);
+        volume_x = MPEG_YOUTUBE_VOLUME_LEFT -
+                   MPEG_YOUTUBE_VOLUME_KNOB_W / 2 +
+                   volume_percent * MPEG_YOUTUBE_VOLUME_W / 100;
+        if (youtube_volume_knob_valid)
+            mpeg_yuv_youtube_sprite(
+                planes, width, height, &youtube_volume_knob_bmp,
+                volume_x, MPEG_YOUTUBE_VOLUME_KNOB_Y);
+        return;
+    }
+
+    if (mpegplayer_netflix_launch &&
+        netflix_skip_active != NETFLIX_SKIP_NONE &&
+        !(osd.flags & OSD_SHOW))
+    {
+        const char *label = netflix_skip_active == NETFLIX_SKIP_INTRO ?
+                            "SKIP INTRO" : "SKIP CREDITS";
+        int text_w = mpeg_yuv_text_width(label);
+        int button_w = text_w + 24;
+        int button_h = 28;
+        int button_x = width - button_w - 10;
+        int button_y = (height - button_h) / 2;
+
+        /* Netflix's on-video action is a dark translucent-looking rectangle
+         * with a fine white border and compact white type. The YUV compositor
+         * owns only this bottom band, so the decoded picture remains visible
+         * everywhere outside the button. */
+        mpeg_yuv_rect(planes, width, height, button_x, button_y,
+                      button_w, button_h, 20, 20, 20);
+        mpeg_yuv_rect(planes, width, height, button_x, button_y,
+                      button_w, 2, 255, 255, 255);
+        mpeg_yuv_rect(planes, width, height, button_x,
+                      button_y + button_h - 2, button_w, 2,
+                      255, 255, 255);
+        mpeg_yuv_rect(planes, width, height, button_x, button_y,
+                      2, button_h, 255, 255, 255);
+        mpeg_yuv_rect(planes, width, height,
+                      button_x + button_w - 2, button_y,
+                      2, button_h, 255, 255, 255);
+        mpeg_yuv_text(planes, width, height,
+                      button_x + (button_w - text_w) / 2,
+                      button_y + 9, label, 255, 255, 255);
+        return;
+    }
+
     if (osd.netflix_layout && (osd.flags & OSD_SHOW))
     {
         char current[24];
@@ -4649,6 +7514,94 @@ static int livetv_change_channel(int delta)
  * docs/plugin-audio-lifecycle-steering.md is unaffected. */
 #define MPEG_NETFLIX_WATCHED_FILE ROCKBOX_DIR "/videolist/netflix-watched.tsv"
 #define MPEG_NETFLIX_WATCHED_MAX 512
+#define MPEG_NETFLIX_INDEX ROCKBOX_DIR "/videolist/index.tsv"
+#define MPEG_NETFLIX_MARKER_FIELDS 27
+
+static bool mpeg_netflix_split_marker_row(char *line,
+                                          char *fields[MPEG_NETFLIX_MARKER_FIELDS])
+{
+    int i;
+
+    for (i = 0; i < MPEG_NETFLIX_MARKER_FIELDS; i++)
+    {
+        char *tab;
+
+        fields[i] = line;
+        tab = rb->strchr(line, '\t');
+        if (tab == NULL)
+            return i == MPEG_NETFLIX_MARKER_FIELDS - 1;
+        *tab = '\0';
+        line = tab + 1;
+    }
+    return true;
+}
+
+static void mpeg_netflix_load_markers(const char *path)
+{
+    char line[1024];
+    const char *device_path = path != NULL && path[0] == '/' ? path + 1 : path;
+    int fd;
+
+    netflix_skip_active = NETFLIX_SKIP_NONE;
+    netflix_intro_start = 0;
+    netflix_intro_end = 0;
+    netflix_credits_start = 0;
+    netflix_credits_duration = 0;
+    if (!mpegplayer_netflix_launch || device_path == NULL)
+        return;
+
+    fd = rb->open(MPEG_NETFLIX_INDEX, O_RDONLY);
+    if (fd < 0)
+        return;
+    while (rb->read_line(fd, line, sizeof(line)) > 0)
+    {
+        char *fields[MPEG_NETFLIX_MARKER_FIELDS];
+
+        if (line[0] == '#' || !mpeg_netflix_split_marker_row(line, fields) ||
+            rb->strcmp(fields[6], device_path))
+            continue;
+        netflix_intro_start = (uint32_t)rb->atoi(fields[23]) * TS_SECOND;
+        netflix_intro_end = (uint32_t)rb->atoi(fields[24]) * TS_SECOND;
+        netflix_credits_start = (uint32_t)rb->atoi(fields[25]) * TS_SECOND;
+        netflix_credits_duration =
+            (uint32_t)rb->atoi(fields[26]) * TS_SECOND;
+        if (netflix_intro_end <= netflix_intro_start)
+        {
+            netflix_intro_start = 0;
+            netflix_intro_end = 0;
+        }
+        break;
+    }
+    rb->close(fd);
+}
+
+static void mpeg_netflix_update_skip(void)
+{
+    enum netflix_skip_kind active = NETFLIX_SKIP_NONE;
+    uint32_t time;
+    uint32_t credits_start = netflix_credits_start;
+
+    if (!mpegplayer_netflix_launch || osd_stream_status() == STREAM_STOPPED)
+    {
+        netflix_skip_active = NETFLIX_SKIP_NONE;
+        return;
+    }
+
+    time = stream_get_time();
+    if (credits_start == 0 && netflix_credits_duration > 0)
+    {
+        uint32_t duration = stream_get_duration();
+        if (duration != INVALID_TIMESTAMP &&
+            duration > netflix_credits_duration)
+            credits_start = duration - netflix_credits_duration;
+    }
+    if (netflix_intro_end > netflix_intro_start &&
+        time >= netflix_intro_start && time < netflix_intro_end)
+        active = NETFLIX_SKIP_INTRO;
+    else if (credits_start > 0 && time >= credits_start)
+        active = NETFLIX_SKIP_CREDITS;
+    netflix_skip_active = active;
+}
 
 static bool mpeg_netflix_already_watched(const char *path)
 {
@@ -4698,14 +7651,21 @@ static void mpeg_netflix_mark_watched(void)
 
 static int button_loop(void)
 {
-    int next_action = (feed.active || mpegplayer_livetv_launch) ? VIDEO_NEXT :
-                      ((settings.play_mode == 0) ? VIDEO_STOP : VIDEO_NEXT);
+    /* TikTok is repeat-one by design: reaching EOS keeps the same card on
+     * screen. Only a completed, accepted wheel gesture sets NEXT or PREV. */
+    int next_action = (feed.active || mpegplayer_instagram_feed_launch) ?
+                      VIDEO_REPEAT :
+                      (mpegplayer_livetv_launch ? VIDEO_NEXT :
+                      ((settings.play_mode == 0) ? VIDEO_STOP : VIDEO_NEXT));
     bool feed_menu_pending = false;
     bool feed_menu_long_done = false;
     long feed_menu_deadline = 0;
     long youtube_zoom_ready = mpegplayer_youtube_launch ?
                               *rb->current_tick + HZ / 2 : 0;
     long livetv_desktop_tick = 0;
+
+    if (feed.active)
+        feed.swipe_committed = false;
 
     rb->lcd_setfont(FONT_SYSFIXED);
 #ifdef HAVE_LCD_COLOR
@@ -4718,7 +7678,10 @@ static int button_loop(void)
          * channels. Reassert the desktop before painting the new window. */
         livetv_desktop_restore_underlay();
     }
-    else
+    /* Keep TikTok's last fully composed frame on-screen while the next clip
+     * opens. Clearing the RGB framebuffer here appears as a green flash on
+     * the physical iPod between wheel-scroll selections. */
+    else if (!feed.active)
     {
         rb->lcd_clear_display();
         rb->lcd_update();
@@ -4731,7 +7694,12 @@ static int button_loop(void)
     }
 
 #if defined(HAVE_LCD_MODES) && (HAVE_LCD_MODES & LCD_MODE_YUV)
-    rb->lcd_set_mode(LCD_MODE_YUV);
+    if (!feed.active || !feed_yuv_mode_active)
+    {
+        rb->lcd_set_mode(LCD_MODE_YUV);
+        if (feed.active)
+            feed_yuv_mode_active = true;
+    }
 #endif
 
     osd_init();
@@ -4755,6 +7723,12 @@ static int button_loop(void)
 
     /* Start playback at the specified starting time */
     if (osd_play(settings.resume_time) < STREAM_OK) {
+        if (feed.active)
+        {
+            feed.swipe_offset = 0;
+            feed.transition_enter_pending = false;
+            feed.transition_capture_pending = false;
+        }
         rb->splash(HZ*2, "Playback failed");
         return VIDEO_STOP;
     }
@@ -4783,6 +7757,24 @@ static int button_loop(void)
 
     if (feed.active && feed.ui_visible)
         osd_show(OSD_SHOW);
+    if (mpegplayer_instagram_app_launch)
+        osd_show(OSD_SHOW);
+
+    if (feed.active && feed.transition_enter_pending)
+    {
+        if (feed_release_primed_transition())
+            feed_animate_swipe();
+        feed.transition_enter_pending = false;
+        feed.swipe_offset = 0;
+        /* Ignore the tail of the same physical wheel gesture after the new
+         * card settles; a fresh gesture remains responsive shortly after. */
+        feed.skip_cooldown_until = *rb->current_tick + FEED_SKIP_COOLDOWN;
+    }
+
+    /* Candidate scoring and profile/section lookup happen once while the
+     * current card is playing, never in the accepted wheel gesture path. */
+    if (feed.active)
+        feed_prepare_neighbors();
 
 #ifdef HAVE_LCD_COLOR
     if (mpegplayer_livetv_launch)
@@ -4823,6 +7815,7 @@ static int button_loop(void)
     mpeg_stop_requested = false;
 
     /* Gently poll the video player for EOS and handle UI */
+feed_repeat_playback:
     while (stream_status() != STREAM_STOPPED)
     {
         int button = mpeg_button_get(OSD_MIN_UPDATE_INTERVAL/2);
@@ -4851,6 +7844,16 @@ static int button_loop(void)
         {
         case BUTTON_NONE:
         {
+            if (feed.active && feed.select_armed &&
+                !TIME_BEFORE(*rb->current_tick, feed.select_deadline))
+            {
+                feed.select_armed = false;
+                if (osd_stream_status() == STREAM_PLAYING)
+                    osd_pause();
+                else if (osd_stream_status() == STREAM_PAUSED)
+                    osd_resume();
+                stream_draw_frame(false);
+            }
 #if MPEG_STOCK_CONTROLS
             if (mpeg_volume_card_visible() &&
                 !TIME_BEFORE(*rb->current_tick, mpeg_volume_card_until))
@@ -4879,13 +7882,15 @@ static int button_loop(void)
                 continue;
             }
 #endif
+            mpeg_netflix_update_skip();
             if (feed.active && feed_menu_pending && !feed_menu_long_done &&
                 !TIME_BEFORE(*rb->current_tick, feed_menu_deadline))
             {
                 feed_menu_long_done = true;
-                feed.ui_visible = !feed.ui_visible;
-                osd_show(feed.ui_visible ? OSD_SHOW : OSD_HIDE);
+                feed_show_actions();
             }
+            if (feed.active && feed_profile_service_assets())
+                stream_draw_frame(false);
             osd_refresh(OSD_REFRESH_DEFAULT);
             continue;
             } /* BUTTON_NONE: */
@@ -4899,6 +7904,31 @@ static int button_loop(void)
             } /* LCD_ENABLE_EVENT_1: */
 #endif
 
+#ifdef MPEG_RC_GUIDE
+        case MPEG_RC_GUIDE:
+        {
+#ifdef HAVE_LCD_COLOR
+            if (mpegplayer_livetv_launch)
+            {
+                int action = livetv_guide_session();
+
+                if (action >= 0)
+                {
+                    next_action = action;
+                    osd_stop();
+                }
+                else if (livetv_banner_pending)
+                {
+                    livetv_banner_pending = false;
+                    livetv_overlay_show(false);
+                }
+            }
+#endif
+            /* Ordinary video still handles Play on its release below. */
+            break;
+        }
+#endif
+
         case MPEG_VOLUP:
         case MPEG_VOLUP|BUTTON_REPEAT:
 #ifdef MPEG_VOLUP2
@@ -4909,11 +7939,51 @@ static int button_loop(void)
         case MPEG_RC_VOLUP:
         case MPEG_RC_VOLUP|BUTTON_REPEAT:
 #endif
+#ifdef MPEG_RC_UP
+        case MPEG_RC_UP:
+        case MPEG_RC_UP|BUTTON_REPEAT:
+#endif
         {
+            if (mpegplayer_instagram_feed_launch &&
+                !mpegplayer_instagram_feed_expanded)
+            {
+                mpegplayer_instagram_return_direction = 1;
+                next_action = VIDEO_STOP;
+                osd_stop();
+                break;
+            }
             if (feed.active)
             {
-                if (feed_skip_allowed())
+                if (feed.action_visible)
                 {
+                    feed_action_move(+1);
+                    break;
+                }
+                if (feed.details_visible)
+                    break;
+                if (feed.saved_profiles_visible)
+                {
+                    feed_saved_profile_move(+1);
+                    break;
+                }
+                if (feed.profile_visible)
+                {
+                    feed_profile_move(+1);
+                    break;
+                }
+                if (feed_swipe_allowed(
+                        VIDEO_NEXT, (button & BUTTON_REPEAT) != 0))
+                {
+                    if (feed_prepared_boundary(VIDEO_NEXT))
+                    {
+                        feed_animate_edge_resistance(VIDEO_NEXT);
+                        break;
+                    }
+                    feed.transition_direction = VIDEO_NEXT;
+                    feed.transition_enter_pending = true;
+                    feed.transition_capture_pending = true;
+                    stream_draw_frame(false);
+                    feed.transition_capture_pending = false;
                     osd_stop();
                     next_action = VIDEO_NEXT | VIDEO_ACTION_MANUAL;
                 }
@@ -4934,11 +8004,51 @@ static int button_loop(void)
         case MPEG_RC_VOLDOWN:
         case MPEG_RC_VOLDOWN|BUTTON_REPEAT:
 #endif
+#ifdef MPEG_RC_DOWN
+        case MPEG_RC_DOWN:
+        case MPEG_RC_DOWN|BUTTON_REPEAT:
+#endif
         {
+            if (mpegplayer_instagram_feed_launch &&
+                !mpegplayer_instagram_feed_expanded)
+            {
+                mpegplayer_instagram_return_direction = -1;
+                next_action = VIDEO_STOP;
+                osd_stop();
+                break;
+            }
             if (feed.active)
             {
-                if (feed_skip_allowed())
+                if (feed.action_visible)
                 {
+                    feed_action_move(-1);
+                    break;
+                }
+                if (feed.details_visible)
+                    break;
+                if (feed.saved_profiles_visible)
+                {
+                    feed_saved_profile_move(-1);
+                    break;
+                }
+                if (feed.profile_visible)
+                {
+                    feed_profile_move(-1);
+                    break;
+                }
+                if (feed_swipe_allowed(
+                        VIDEO_PREV, (button & BUTTON_REPEAT) != 0))
+                {
+                    if (feed_prepared_boundary(VIDEO_PREV))
+                    {
+                        feed_animate_edge_resistance(VIDEO_PREV);
+                        break;
+                    }
+                    feed.transition_direction = VIDEO_PREV;
+                    feed.transition_enter_pending = true;
+                    feed.transition_capture_pending = true;
+                    stream_draw_frame(false);
+                    feed.transition_capture_pending = false;
                     osd_stop();
                     next_action = VIDEO_PREV | VIDEO_ACTION_MANUAL;
                 }
@@ -4965,7 +8075,11 @@ static int button_loop(void)
                  * playing in the corner, as on a DIRECTV receiver. */
                 int action;
 
-                if (button != MPEG_MENU)
+                if (button != MPEG_MENU
+#ifdef MPEG_RC_MENU
+                    && button != MPEG_RC_MENU
+#endif
+                   )
                     break;
 
                 action = livetv_guide_session();
@@ -4986,6 +8100,27 @@ static int button_loop(void)
             {
                 if (button == MPEG_MENU)
                 {
+                    if (feed.action_visible || feed.details_visible)
+                    {
+                        feed_hide_actions(true);
+                        feed_menu_pending = true;
+                        feed_menu_long_done = true;
+                        break;
+                    }
+                    if (feed.saved_profiles_visible)
+                    {
+                        feed_hide_saved_profiles(true);
+                        feed_menu_pending = true;
+                        feed_menu_long_done = true;
+                        break;
+                    }
+                    if (feed.profile_visible)
+                    {
+                        feed_hide_profile();
+                        feed_menu_pending = true;
+                        feed_menu_long_done = true;
+                        break;
+                    }
                     feed_menu_pending = true;
                     feed_menu_long_done = false;
                     feed_menu_deadline = *rb->current_tick + FEED_MENU_HOLD_TIME;
@@ -5000,12 +8135,14 @@ static int button_loop(void)
                         feed_menu_deadline = *rb->current_tick + FEED_MENU_HOLD_TIME;
                     }
 
-                    if (!feed_menu_long_done &&
-                        !TIME_BEFORE(*rb->current_tick, feed_menu_deadline))
+                    /* BUTTON_REPEAT is itself the platform's certified hold
+                     * threshold. Open immediately on the first repeat so a
+                     * sparse clickwheel repeat stream cannot fall through as
+                     * a short Menu press when released. */
+                    if (!feed_menu_long_done)
                     {
                         feed_menu_long_done = true;
-                        feed.ui_visible = !feed.ui_visible;
-                        osd_show(feed.ui_visible ? OSD_SHOW : OSD_HIDE);
+                        feed_show_actions();
                     }
                 }
                 else if (button == (MPEG_MENU | BUTTON_REL))
@@ -5020,6 +8157,20 @@ static int button_loop(void)
                     feed_menu_long_done = false;
                 }
 #endif
+                break;
+            }
+
+            if (mpegplayer_instagram_app_launch)
+            {
+                next_action = VIDEO_STOP;
+                osd_stop();
+                break;
+            }
+
+            if (mpegplayer_youtube_app_launch)
+            {
+                next_action = VIDEO_STOP;
+                osd_stop();
                 break;
             }
 
@@ -5123,8 +8274,10 @@ static int button_loop(void)
                     stream_draw_frame(false);
                     break;
                 }
-                /* Live television does not pause. PLAY brings up the
-                 * one line mini guide, as the BLUE key does. */
+                /* Live television does not pause. Physical PLAY brings up
+                 * the one-line mini guide, as the BLUE key does. A dock
+                 * remote's Play press enters the full guide above because
+                 * Philips may expose only Play and Previous/Next. */
                 if (livetv_overlay_until != 0)
                     livetv_overlay_hide();
                 else
@@ -5133,6 +8286,11 @@ static int button_loop(void)
             }
 #endif
             int status = osd_stream_status();
+
+            if (feed.active && (feed.action_visible || feed.details_visible ||
+                                feed.profile_visible ||
+                                feed.saved_profiles_visible))
+                break;
 
             if (status == STREAM_PLAYING) {
                 /* Playing => Paused */
@@ -5148,6 +8306,9 @@ static int button_loop(void)
 
 #ifdef MPEG_ZOOM
         case MPEG_ZOOM:
+#ifdef MPEG_RC_ZOOM
+        case MPEG_RC_ZOOM:
+#endif
         {
 #ifdef HAVE_LCD_COLOR
             if (mpegplayer_livetv_launch)
@@ -5166,6 +8327,41 @@ static int button_loop(void)
                 break;
             }
 #endif
+            if (mpegplayer_instagram_feed_launch &&
+                !mpegplayer_instagram_feed_expanded)
+            {
+                mpegplayer_instagram_feed_expanded = true;
+                osd.instagram_layout = false;
+                osd_show(OSD_HIDE | OSD_NODRAW);
+                stream_vo_set_clip(NULL);
+                settings.display_mode = MPEG_VIDEO_DISPLAY_FIT;
+                stream_vo_set_display_mode(settings.display_mode);
+                stream_draw_frame(false);
+                break;
+            }
+            if (mpegplayer_instagram_app_launch)
+            {
+                if (instagram_toggle_like())
+                    stream_draw_frame(false);
+                break;
+            }
+            if (mpegplayer_netflix_launch &&
+                netflix_skip_active != NETFLIX_SKIP_NONE)
+            {
+                if (netflix_skip_active == NETFLIX_SKIP_INTRO)
+                {
+                    netflix_skip_active = NETFLIX_SKIP_NONE;
+                    osd_seek_time(netflix_intro_end);
+                }
+                else
+                {
+                    netflix_skip_active = NETFLIX_SKIP_NONE;
+                    mpeg_netflix_mark_watched();
+                    next_action = VIDEO_STOP;
+                    osd_stop();
+                }
+                break;
+            }
             if (mpegplayer_youtube_launch && mpegplayer_youtube_embedded)
             {
                 if (TIME_BEFORE(*rb->current_tick, youtube_zoom_ready))
@@ -5188,7 +8384,109 @@ static int button_loop(void)
             }
             if (feed.active)
             {
-                feed_like_current();
+                if (feed.saved_profiles_visible)
+                {
+                    feed_open_saved_profile();
+                    break;
+                }
+                if (feed.details_visible)
+                {
+                    feed_hide_actions(true);
+                    break;
+                }
+                if (feed.action_visible)
+                {
+                    struct feed_item *item = &feed.items[feed.index];
+
+                    switch (feed.action_cursor)
+                    {
+                    case 0:
+                        item->saved = !item->saved;
+                        feed.activity_dirty = true;
+                        rb->strlcpy(feed.confirm_text,
+                                    item->saved ? "SAVED" : "REMOVED",
+                                    sizeof(feed.confirm_text));
+                        feed.confirm_until =
+                            *rb->current_tick + FEED_CONFIRM_TIME;
+                        feed_hide_actions(true);
+                        break;
+                    case 1:
+                        item->not_interested = true;
+                        feed.activity_dirty = true;
+                        feed_hide_actions(false);
+                        feed.transition_direction = VIDEO_NEXT;
+                        feed.transition_enter_pending = true;
+                        feed.transition_capture_pending = true;
+                        stream_draw_frame(false);
+                        feed.transition_capture_pending = false;
+                        osd_stop();
+                        next_action = VIDEO_NEXT | VIDEO_ACTION_MANUAL;
+                        break;
+                    case 2:
+                        feed_hide_actions(true);
+                        feed_show_current_profile(false);
+                        break;
+                    case 3:
+                        feed.action_visible = false;
+                        feed.details_visible = true;
+                        stream_draw_frame(false);
+                        break;
+                    }
+                    break;
+                }
+                if (feed.profile_visible)
+                {
+                    int target = feed_profile_item_index(feed.profile_cursor);
+
+                    if (target >= 0)
+                    {
+                        bool changed = target != feed.index;
+
+                        feed.index = target;
+                        feed.section = feed.items[target].following ?
+                            FEED_SECTION_FOLLOWING : FEED_SECTION_FOR_YOU;
+                        feed.profile_feed_active = true;
+                        feed.profile_visible = false;
+                        feed.select_armed = false;
+                        feed.state_dirty = true;
+                        if (changed)
+                        {
+                            feed.profile_selection_pending = true;
+                            feed.profile_resume_playback = false;
+                            osd_stop();
+                            next_action = VIDEO_NEXT | VIDEO_ACTION_MANUAL;
+                        }
+                        else
+                        {
+                            /* The representative saved clip is already the
+                             * paused playback item. Re-entering the Saved
+                             * picker here made its first video impossible to
+                             * open; close both overlays and resume it. */
+                            feed.profile_visible = false;
+                            feed.profile_saved_only = false;
+                            feed.saved_profiles_visible = false;
+                            feed.profile_resume_playback = false;
+                            feed.saved_profiles_resume_playback = false;
+                            if (osd_stream_status() == STREAM_PAUSED)
+                                osd_resume();
+                            stream_draw_frame(false);
+                        }
+                    }
+                    else
+                        feed_hide_profile();
+                    break;
+                }
+                if (feed.select_armed &&
+                    TIME_BEFORE(*rb->current_tick, feed.select_deadline))
+                {
+                    feed.select_armed = false;
+                    feed_like_current();
+                }
+                else
+                {
+                    feed.select_armed = true;
+                    feed.select_deadline = *rb->current_tick + HZ / 3;
+                }
                 break;
             }
 
@@ -5227,6 +8525,40 @@ static int button_loop(void)
                 break;
             }
 #endif
+
+            if (feed.active)
+            {
+                enum feed_section old_section = feed.section;
+                int old_index = feed.index;
+
+                if (feed.saved_profiles_visible)
+                {
+                    if (feed_leave_saved_profiles_for_section(-1))
+                    {
+                        osd_stop();
+                        next_action = VIDEO_PREV | VIDEO_ACTION_MANUAL;
+                    }
+                    break;
+                }
+                if (feed.profile_visible || feed.action_visible ||
+                    feed.details_visible)
+                    break;
+                if (feed_cycle_section(-1))
+                {
+                    if (feed.section == FEED_SECTION_SAVED)
+                    {
+                        feed.saved_return_section = old_section;
+                        feed.saved_return_index = old_index;
+                        feed_show_saved_profiles();
+                    }
+                    else
+                    {
+                        osd_stop();
+                        next_action = VIDEO_PREV | VIDEO_ACTION_MANUAL;
+                    }
+                }
+                break;
+            }
 
             /* If button has been released: skip to next/previous file */
             button = mpeg_button_get(OSD_MIN_UPDATE_INTERVAL);
@@ -5283,6 +8615,27 @@ static int button_loop(void)
             }
 #endif
 
+            if (mpegplayer_instagram_feed_launch)
+            {
+                mpegplayer_instagram_return_profile = true;
+                next_action = VIDEO_STOP;
+                osd_stop();
+                break;
+            }
+
+            if (feed.active)
+            {
+                if (feed.saved_profiles_visible)
+                {
+                    feed_open_saved_profile();
+                    break;
+                }
+                if (!feed.profile_visible && !feed.action_visible &&
+                    !feed.details_visible)
+                    feed_show_current_profile(false);
+                break;
+            }
+
             if (settings.play_mode != 0)
                 button = mpeg_button_get(OSD_MIN_UPDATE_INTERVAL);
 
@@ -5322,6 +8675,19 @@ static int button_loop(void)
         rb->yield();
     } /* end while */
 
+    /* Repeat the current TikTok parser in place. Closing and reopening the
+     * stream hides the video output between clips; on iPod hardware that
+     * exposes the YUV key colour as a green flash. The stopped stream already
+     * reset resume_time to zero, so stream_play() performs a clean rewind
+     * while the last decoded frame remains visible. */
+    if ((feed.active || mpegplayer_instagram_feed_launch) &&
+        next_action == VIDEO_REPEAT &&
+        !mpeg_stop_requested && stream_play() != STREAM_ERROR &&
+        stream_status() != STREAM_STOPPED)
+    {
+        goto feed_repeat_playback;
+    }
+
     /* Reaching here without a requested stop means the stream ended on its
      * own. Every in-loop user stop goes through osd_stop() first. */
     if (!mpeg_stop_requested)
@@ -5346,8 +8712,14 @@ enum plugin_status plugin_start(const void* parameter)
     int status = PLUGIN_OK; /* assume success */
     bool quit = false;
     bool netflix_restart;
+    bool ipodtiktok_launch = rb->file_exists(IPODTIKTOK_LAUNCH_MARKER);
+
+    if (ipodtiktok_launch)
+        rb->remove(IPODTIKTOK_LAUNCH_MARKER);
 
     MPLOG("plugin_start enter\n");
+    MPLOG("plugin_start parameter=%s\n",
+          parameter ? (const char *)parameter : "(null)");
 
     if (parameter == NULL) {
         /* No file = GTFO */
@@ -5359,12 +8731,17 @@ enum plugin_status plugin_start(const void* parameter)
     mpegplayer_livetv_desktop =
         !rb->strncmp((const char *)parameter, LIVETV_DM_PARAM_PREFIX,
                      LIVETV_DM_PARAM_PREFIX_LEN);
+    mpegplayer_instagram_feed_launch =
+        !rb->strncmp((const char *)parameter,
+                     MPEGPLAYER_INSTAGRAM_FEED_PREFIX,
+                     MPEGPLAYER_INSTAGRAM_FEED_PREFIX_LEN);
 #if defined(HAVE_LCD_COLOR) && (LCD_WIDTH >= 320) && (LCD_HEIGHT >= 240)
     livetv_desktop_underlay_valid = false;
 #endif
     if (mpegplayer_livetv_desktop)
         livetv_desktop_capture_underlay();
     feed_reset();
+    feed_yuv_mode_active = false;
 
 #ifdef HAVE_LCD_COLOR
     rb->lcd_set_backdrop(NULL);
@@ -5372,7 +8749,10 @@ enum plugin_status plugin_start(const void* parameter)
     rb->lcd_set_background(LCD_BLACK);
 #endif
 
-    if (!mpegplayer_livetv_desktop)
+    /* Instagram already painted an authentic launch/home frame. Keep that
+     * frame over parser startup and buffering until the first inline YUV
+     * frame is ready, just as the Direct TV desktop preserves its underlay. */
+    if (!mpegplayer_livetv_desktop && !mpegplayer_instagram_feed_launch)
     {
         rb->lcd_clear_display();
         rb->lcd_update();
@@ -5386,22 +8766,76 @@ enum plugin_status plugin_start(const void* parameter)
         !rb->strncmp((const char *)parameter,
                      MPEGPLAYER_NETFLIX_PREFIX,
                      MPEGPLAYER_NETFLIX_PREFIX_LEN);
-    mpegplayer_youtube_launch =
+    mpegplayer_youtube_app_launch =
+        !rb->strncmp((const char *)parameter,
+                     MPEGPLAYER_YOUTUBE_APP_PREFIX,
+                     MPEGPLAYER_YOUTUBE_APP_PREFIX_LEN);
+    mpegplayer_onlyfans_app_launch =
+        !rb->strncmp((const char *)parameter,
+                     MPEGPLAYER_ONLYFANS_APP_PREFIX,
+                     MPEGPLAYER_ONLYFANS_APP_PREFIX_LEN);
+    mpegplayer_instagram_app_launch = mpegplayer_instagram_feed_launch ||
+        !rb->strncmp((const char *)parameter,
+                     MPEGPLAYER_INSTAGRAM_APP_PREFIX,
+                     MPEGPLAYER_INSTAGRAM_APP_PREFIX_LEN);
+    mpegplayer_instagram_return_direction = 0;
+    mpegplayer_instagram_return_profile = false;
+    mpegplayer_instagram_feed_expanded = false;
+    mpegplayer_reddit_app_launch =
+        !rb->strncmp((const char *)parameter,
+                     MPEGPLAYER_REDDIT_APP_PREFIX,
+                     MPEGPLAYER_REDDIT_APP_PREFIX_LEN);
+    mpegplayer_youtube_launch = mpegplayer_youtube_app_launch ||
         !rb->strncmp((const char *)parameter, "youtube:", 8);
-    mpegplayer_youtube_embedded = mpegplayer_youtube_launch;
+    /* Offline Web retains its embedded watch-page presentation. The
+     * standalone app has already shown a video detail page, so Watch Video
+     * opens the full-screen player and its YouTube-specific OSD directly. */
+    mpegplayer_youtube_embedded = mpegplayer_youtube_launch &&
+                                  !mpegplayer_youtube_app_launch;
     mpegplayer_maps_dashcam_launch =
         !rb->strncmp((const char *)parameter, MPEGPLAYER_MAPS_PREFIX,
                      MPEGPLAYER_MAPS_PREFIX_LEN);
 
-    if (mpegplayer_maps_dashcam_launch)
+    if (ipodtiktok_launch)
+    {
+        if (!feed_init_from_path(IPODTIKTOK_FEED_PATH, videofile,
+                                 sizeof(videofile)))
+        {
+            rb->splash(HZ * 2, "TikTok feed missing");
+            return PLUGIN_ERROR;
+        }
+    }
+    else if (mpegplayer_maps_dashcam_launch)
     {
         rb->strlcpy(videofile,
                     (const char *)parameter + MPEGPLAYER_MAPS_PREFIX_LEN,
                     sizeof(videofile));
     }
+    else if (mpegplayer_onlyfans_app_launch)
+    {
+        rb->strlcpy(videofile, (const char *)parameter +
+                    MPEGPLAYER_ONLYFANS_APP_PREFIX_LEN, sizeof(videofile));
+    }
+    else if (mpegplayer_instagram_feed_launch)
+    {
+        rb->strlcpy(videofile, (const char *)parameter +
+                    MPEGPLAYER_INSTAGRAM_FEED_PREFIX_LEN, sizeof(videofile));
+    }
+    else if (mpegplayer_instagram_app_launch)
+    {
+        rb->strlcpy(videofile, (const char *)parameter +
+                    MPEGPLAYER_INSTAGRAM_APP_PREFIX_LEN, sizeof(videofile));
+    }
+    else if (mpegplayer_reddit_app_launch)
+    {
+        rb->strlcpy(videofile, (const char *)parameter +
+                    MPEGPLAYER_REDDIT_APP_PREFIX_LEN, sizeof(videofile));
+    }
     else if (mpegplayer_youtube_launch)
     {
-        rb->strlcpy(videofile, (const char *)parameter + 8,
+        rb->strlcpy(videofile, (const char *)parameter +
+                    (mpegplayer_youtube_app_launch ?
+                     MPEGPLAYER_YOUTUBE_APP_PREFIX_LEN : 8),
                     sizeof(videofile));
         youtube_load_metadata(videofile);
     }
@@ -5427,6 +8861,22 @@ enum plugin_status plugin_start(const void* parameter)
         const char *root = (const char *)parameter +
             (mpegplayer_livetv_desktop ? LIVETV_DM_PARAM_PREFIX_LEN :
                                          LIVETV_PARAM_PREFIX_LEN);
+
+        if (!mpegplayer_livetv_desktop)
+        {
+            /* Ahead of livetv_load(), because parsing a full week of guide
+             * lines is the longest black screen of the launch, not the
+             * shortest. The ident leaves its last frame up, so the parse,
+             * the tune and the first channel's buffering all happen under
+             * the boot screen. The scratch memory is the same block
+             * stream_init() asks for later - plugin_get_audio_buffer()
+             * hands back the one allocation both times - and this sits
+             * outside the play loop, so a channel change never replays it. */
+            size_t boot_size = 0;
+            void *boot_mem = rb->plugin_get_audio_buffer(&boot_size);
+
+            directv_boot_run(boot_mem, boot_size);
+        }
 
         if (!livetv_load(root))
         {
@@ -5466,6 +8916,9 @@ enum plugin_status plugin_start(const void* parameter)
         rb->strlcpy(videofile, (const char*) parameter, sizeof(videofile));
     }
 
+    if (mpegplayer_instagram_app_launch)
+        instagram_load_metadata(videofile);
+
     MPLOG("target file=%s\n", videofile);
 
     MPLOG("stream_init begin\n");
@@ -5486,6 +8939,7 @@ enum plugin_status plugin_start(const void* parameter)
         {
             init_settings(videofile);
             rb->strlcpy(mpeg_osd_path, videofile, sizeof(mpeg_osd_path));
+            mpeg_netflix_load_markers(videofile);
 
 #ifdef HAVE_LCD_COLOR
             if (mpegplayer_livetv_launch)
@@ -5514,14 +8968,21 @@ enum plugin_status plugin_start(const void* parameter)
                 settings.resume_options = MPEG_RESUME_RESTART;
                 settings.resume_time = 0;
                 stream_vo_set_display_mode(settings.display_mode);
-                feed_save_state();
+                feed.state_dirty = true;
             }
-            else if (mpegplayer_youtube_launch)
+            else if (mpegplayer_instagram_feed_launch)
             {
                 settings.display_mode = MPEG_VIDEO_DISPLAY_FIT;
                 settings.play_mode = 0;
                 settings.resume_options = MPEG_RESUME_RESTART;
                 settings.resume_time = 0;
+                stream_vo_set_display_mode(settings.display_mode);
+            }
+            else if (mpegplayer_youtube_launch)
+            {
+                settings.display_mode = MPEG_VIDEO_DISPLAY_FIT;
+                settings.play_mode = 0;
+                settings.resume_options = MPEG_RESUME_ALWAYS;
                 stream_vo_set_display_mode(settings.display_mode);
             }
             else if (mpegplayer_maps_dashcam_launch)
@@ -5553,11 +9014,18 @@ enum plugin_status plugin_start(const void* parameter)
                  * all - let a later bad file get its own full retry. */
                 livetv_open_failures = 0;
 #endif
-                if (feed.active || mpegplayer_youtube_launch ||
+                if (feed.active || mpegplayer_instagram_feed_launch ||
                     mpegplayer_livetv_launch ||
                     mpegplayer_maps_dashcam_launch)
                 {
                     result = MPEG_START_RESTART;
+                }
+                else if (mpegplayer_youtube_launch)
+                {
+                    /* Continue immediately from the saved per-file position.
+                     * mpeg_start_menu() remains UI-free in RESUME_ALWAYS mode
+                     * and applies the stock early/95%-complete thresholds. */
+                    result = mpeg_start_menu(stream_get_duration());
                 }
                 else
                 {
@@ -5581,7 +9049,13 @@ enum plugin_status plugin_start(const void* parameter)
                 stream_close();
                 MPLOG("stream_close done\n");
 
-                if (!mpegplayer_livetv_desktop)
+                /* The standalone Instagram feed reopens its app to resolve
+                 * the adjacent mixed-media post. Preserve the final decoded
+                 * frame until that app atomically draws the ready post;
+                 * clearing here exposed a black/white intermediate frame on
+                 * iPod LCD hardware. */
+                if (!mpegplayer_livetv_desktop && !feed.active &&
+                    !mpegplayer_instagram_feed_launch)
                 {
                     rb->lcd_clear_display();
                     rb->lcd_update();
@@ -5594,6 +9068,12 @@ enum plugin_status plugin_start(const void* parameter)
                  * considered a plugin error */
                 long tick;
                 const char *errstring;
+
+                /* Repeat-one must not turn one damaged sync into an
+                 * unbreakable reopen loop. Search forward for a playable
+                 * card just as the ordinary playlist path does. */
+                if (feed.active && next_action == VIDEO_REPEAT)
+                    next_action = VIDEO_NEXT;
 
                 DEBUGF("Could not open %s\n", videofile);
                 MPLOG("stream_open failed result=%d\n", result);
@@ -5684,6 +9164,11 @@ enum plugin_status plugin_start(const void* parameter)
             /* return value of button_loop says, what's next */
             switch (next_action)
             {
+            case VIDEO_REPEAT:
+                /* Keep videofile unchanged. The outer loop reopens it from
+                 * zero; feed selection and recommendation state do not move. */
+                break;
+
             case VIDEO_NEXT:
             {
 #ifdef HAVE_LCD_COLOR
@@ -5737,8 +9222,12 @@ enum plugin_status plugin_start(const void* parameter)
         } /* while */
     }
 
+    if (feed.active)
+        feed_flush_pending();
+
 #if defined(HAVE_LCD_MODES) && (HAVE_LCD_MODES & LCD_MODE_YUV)
     rb->lcd_set_mode(LCD_MODE_RGB565);
+    feed_yuv_mode_active = false;
 #endif
 
     stream_exit();
@@ -5748,6 +9237,57 @@ enum plugin_status plugin_start(const void* parameter)
      * that were captured in other button loops */
     mpeg_sysevent_handle();
     MPLOG("plugin_start return=%d\n", status);
+
+    if (mpegplayer_youtube_app_launch && status != PLUGIN_USB_CONNECTED)
+    {
+        static char return_parameter[MAX_PATH + 8];
+
+        rb->snprintf(return_parameter, sizeof(return_parameter), "return:%s",
+                     videofile);
+        return rb->plugin_open(PLUGIN_APPS_DIR "/youtube.rock",
+                               return_parameter);
+    }
+
+    if (mpegplayer_onlyfans_app_launch && status != PLUGIN_USB_CONNECTED)
+    {
+        static char return_parameter[MAX_PATH + 8];
+
+        rb->snprintf(return_parameter, sizeof(return_parameter), "return:%s",
+                     videofile);
+        return rb->plugin_open(PLUGIN_APPS_DIR "/onlyfans.rock",
+                               return_parameter);
+    }
+
+    if (mpegplayer_instagram_app_launch && status != PLUGIN_USB_CONNECTED)
+    {
+        static char return_parameter[MAX_PATH + 24];
+        const char *prefix = "return:";
+
+        if (mpegplayer_instagram_feed_launch &&
+            !mpegplayer_instagram_return_profile)
+        {
+            if (mpegplayer_instagram_return_direction > 0)
+                prefix = "return-home-next:";
+            else if (mpegplayer_instagram_return_direction < 0)
+                prefix = "return-home-prev:";
+            else
+                prefix = "return-home:";
+        }
+        rb->snprintf(return_parameter, sizeof(return_parameter), "%s%s",
+                     prefix, videofile);
+        return rb->plugin_open(PLUGIN_APPS_DIR "/instagram.rock",
+                               return_parameter);
+    }
+
+    if (mpegplayer_reddit_app_launch && status != PLUGIN_USB_CONNECTED)
+    {
+        static char return_parameter[MAX_PATH + 8];
+
+        rb->snprintf(return_parameter, sizeof(return_parameter), "return:%s",
+                     videofile);
+        return rb->plugin_open(PLUGIN_APPS_DIR "/reddit.rock",
+                               return_parameter);
+    }
 
     return status;
 }

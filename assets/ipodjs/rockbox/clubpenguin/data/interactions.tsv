@@ -1,25 +1,131 @@
 # room	id	x	y	radius	action	target	label	to_x	to_y
 mine	cart_surfer	246	127	28	minigame	cart_surfer	Play Cart Surfer	0	0
+night_club	sound_studio	30	165	22	minigame	sound_studio	Use the Afterlife DJ Booth	0	0
 town	to_dock	8	170	24	room	dock	Go to the Dock	272	170
-town	to_snow_forts	295	170	24	room	snow_forts	Go to the Snow Forts	45	170
-dock	to_ski_village	72	120	25	room	ski_village	Go to Ski Village	275	170
-dock	to_town	272	120	25	room	town	Go to Town	45	170
+town	to_snow_forts	295	170	24	room	snow_forts	Go to the Clock District	45	170
+dock	to_ski_village	8	130	18	room	ski_village	Go to Ski Village	275	170
+dock	to_town	312	130	18	room	town	Go to Town	45	170
+dock	to_lighthouse	165	72	18	room	lighthouse	Enter the Laguna Bend Cottage	160	170
+dock	judy	210	142	22	message	judy	Judy: The lake is quiet tonight. Want to go diving?	0	0
 ski_village	to_beach	25	155	25	room	beach	Go to the Beach	255	165
 ski_village	to_dock	295	155	25	room	dock	Go to the Dock	85	155
-beach	to_ski_village	258	120	26	room	ski_village	Go to Ski Village	45	160
-snow_forts	to_town	52	125	25	room	town	Go to Town	275	170
-snow_forts	to_plaza	266	125	25	room	plaza	Go to the Plaza	45	170
-plaza	to_snow_forts	20	165	25	room	snow_forts	Go to the Snow Forts	275	165
-plaza	to_forest	300	165	25	room	forest	Go to the Forest	55	150
-forest	to_plaza	35	120	26	room	plaza	Go to the Plaza	275	165
-forest	to_cove	285	115	26	room	cove	Go to the Cove	55	135
-cove	to_forest	35	120	26	room	forest	Go to the Forest	265	135
-town	to_gift_shop	255	130	28	room	gift_shop	Enter the Gift Shop	225	125
+beach	to_ski_village	294	130	18	room	ski_village	Go to Ski Village	45	160
+snow_forts	to_town	30	126	22	room	town	Go to Town	275	170
+snow_forts	to_plaza	290	126	22	room	plaza	Go to the Plaza	45	170
+snow_forts	to_velvet_ice	92	100	18	room	velvet_ice	Enter Velvet Ice (18+ Cabaret)	160	170
+snow_forts	to_chrome_clinic	228	100	18	room	chrome_clinic	Enter Chrome Clinic	160	170
+plaza	to_snow_forts	8	128	18	room	snow_forts	Go to the Clock District	275	165
+plaza	to_forest	312	128	18	room	forest	Go to Memorial Park	55	150
+forest	to_plaza	35	120	26	room	plaza	Take the Corpo Plaza path	275	165
+forest	to_cove	285	115	26	room	cove	Take the eastern park path	55	135
+cove	to_forest	35	120	26	room	forest	Go to Memorial Park	265	135
+town	to_gift_shop	247	104	12	room	gift_shop	Enter the Night City Gift Shop	225	125
 gift_shop	to_town	230	105	28	room	town	Return to Town	255	155
 gift_shop	penguin_style	285	170	30	shop	penguin_style	Browse Penguin Style	0	0
-town	to_coffee_shop	45	130	28	room	coffee_shop	Enter the Coffee Shop	150	125
-coffee_shop	to_town	150	90	30	room	town	Return to Town	45	155
-plaza	to_pet_shop	45	135	28	room	pet_shop	Enter the Pet Shop	155	125
+town	to_coffee_shop	88	104	12	room	coffee_shop	Enter the Night City Coffee Shop	150	125
+coffee_shop	to_town	153	73	18	room	town	Return to Night City	88	155
+plaza	to_pet_shop	98	91	16	room	pet_shop	Enter the Pet Shop	155	125
 pet_shop	to_plaza	155	90	30	room	plaza	Return to the Plaza	45	155
-plaza	to_pizza_parlor	275	135	28	room	pizza_parlor	Enter the Pizza Parlor	160	125
-pizza_parlor	to_plaza	160	90	30	room	plaza	Return to the Plaza	275	155
+plaza	to_pizza_parlor	242	90	16	room	pizza_parlor	Enter Buck-A-Slice	160	125
+pizza_parlor	to_plaza	160	71	18	room	plaza	Return to Night City Plaza	275	155
+town	to_night_club	160	93	12	room	night_club	Enter Afterlife	160	170
+night_club	to_town	160	84	12	room	town	Exit Afterlife to Night City	160	150
+night_club	to_lounge	286	108	12	room	lounge	Go up to the Afterlife Lounge	160	170
+lounge	to_night_club	160	64	12	room	night_club	Return to Afterlife	270	150
+coffee_shop	to_book_room	285	105	16	room	book_room	Go upstairs to the Book Room	160	170
+book_room	to_coffee_shop	160	92	30	room	coffee_shop	Return to the Coffee Shop	270	150
+plaza	to_stage	160	90	16	room	stage	Enter the Oliver Tree Arena	160	180
+stage	to_plaza	24	99	18	room	plaza	Return to Night City Plaza	160	160
+plaza	to_emma_sewer	116	150	12	room	emma_sewer	Climb down to Sewer Sessions	160	180
+emma_sewer	to_plaza	24	99	18	room	plaza	Return to Night City Plaza	160	170
+ski_village	to_ski_lodge	88	125	30	room	ski_lodge	Enter the Ski Lodge	160	170
+ski_lodge	to_ski_village	160	92	30	room	ski_village	Return to Ski Village	88	160
+ski_lodge	to_lodge_attic	280	112	30	room	lodge_attic	Go upstairs to the Lodge Attic	160	170
+lodge_attic	to_ski_lodge	160	92	30	room	ski_lodge	Return to the Ski Lodge	270	150
+ski_village	to_sport_shop	225	125	30	room	sport_shop	Enter the Sport Shop	160	170
+sport_shop	to_ski_village	160	92	30	room	ski_village	Return to Ski Village	225	160
+sport_shop	snow_and_sports	292	190	24	shop	sport_shop	Browse Snow and Sports	0	0
+ski_village	to_ski_hill	158	100	28	room	ski_hill	Climb to Ski Hill	160	170
+ski_hill	to_ski_village	160	92	30	room	ski_village	Return to Ski Village	158	150
+beach	to_lighthouse	176	73	18	room	lighthouse	Enter the Laguna Bend Cottage	160	170
+lighthouse	to_dock	160	74	18	room	dock	Return to Laguna Bend Dock	165	135
+lighthouse	to_beacon	286	103	18	room	beacon	Climb to the Cottage Rooftop	160	170
+beacon	to_lighthouse	166	125	18	room	lighthouse	Climb down to the Cottage	270	150
+beacon	to_lighthouse_door	174	76	16	room	lighthouse	Enter the Cottage	270	150
+snow_forts	to_stadium	160	103	18	room	stadium	Enter the Montreal Arena	160	170
+stadium	to_snow_forts	160	92	30	room	snow_forts	Return to the Clock District	160	155
+velvet_ice	to_snow_forts	160	82	18	room	snow_forts	Return to the Clock District	92	145
+velvet_ice	sound_studio	244	122	20	minigame	sound_studio	Use the Velvet Ice stage mixer	0	0
+chrome_clinic	to_snow_forts	160	82	18	room	snow_forts	Return to the Clock District	228	145
+chrome_clinic	puffle_care	265	135	24	puffle	care	Use Chrome Clinic Puffle Care	0	0
+mine	to_cave_mine	160	112	32	room	cave_mine	Enter the Cave Mine	160	170
+cave_mine	to_mine	35	150	30	room	mine	Return to the Mine	160	160
+cave_mine	to_underground_pool	285	150	30	room	underground_pool	Enter the Underground Pool	160	170
+underground_pool	to_cave_mine	285	150	30	room	cave_mine	Return to the Cave Mine	275	150
+underground_pool	to_boiler_room	35	150	30	room	boiler_room	Enter the Boiler Room	160	170
+boiler_room	to_underground_pool	160	92	30	room	underground_pool	Return to the Underground Pool	45	150
+dojo	to_dojo_courtyard	160	82	18	room	dojo_courtyard	Exit to Arasaka Corporate Plaza	160	170
+dojo_courtyard	to_dojo	160	100	18	room	dojo	Enter Arasaka Headquarters	160	170
+mine_shack	to_mine	232	108	28	room	mine	Enter the Mine	80	160
+mine	to_mine_shack	54	116	25	room	mine_shack	Return to the Mine Shack	235	165
+mine_shack	to_recycling_plant	116	108	28	room	recycling_plant	Enter the Recycling Plant	160	165
+recycling_plant	to_mine_shack	285	145	28	room	mine_shack	Return to the Mine Shack	115	165
+forest	to_hidden_lake	224	104	24	room	hidden_lake	Enter the NCART underpass	45	160
+hidden_lake	to_forest	91	40	28	room	forest	Return to Memorial Park	245	150
+hidden_lake	to_cave_mine	19	99	28	room	cave_mine	Enter the Cave Mine	95	155
+hidden_lake	to_underwater	295	139	28	room	underwater	Unlock the Moss-Key Door	114	109
+cave_mine	to_hidden_lake	95	125	26	room	hidden_lake	Enter the Hidden Lake	275	155
+dojo_courtyard	to_ninja_hideout	270	145	28	room	ninja_hideout	Take the restricted mountain passage	160	175
+ninja_hideout	to_dojo_courtyard	160	185	28	room	dojo_courtyard	Return to Arasaka Corporate Plaza	265	165
+ninja_hideout	to_fire_dojo	55	105	28	room	fire_dojo	Enter the Fire Dojo	160	170
+fire_dojo	to_ninja_hideout	160	95	30	room	ninja_hideout	Return to the Ninja Hideout	55	160
+ninja_hideout	to_water_dojo	160	105	28	room	water_dojo	Enter the Water Dojo	160	170
+water_dojo	to_ninja_hideout	160	185	30	room	ninja_hideout	Return to the Ninja Hideout	160	160
+ninja_hideout	to_snow_dojo	265	105	28	room	snow_dojo	Enter the Snow Dojo	160	170
+ninja_hideout	martial_artworks	303	181	20	shop	ninja_catalog	Open Martial Artworks	0	0
+snow_dojo	to_ninja_hideout	290	180	28	room	ninja_hideout	Return to the Ninja Hideout	265	160
+ski_village	to_epf_lobby	270	125	28	room	epf_lobby	Enter the Everyday Phoning Facility	160	170
+epf_lobby	to_ski_village	35	150	28	room	ski_village	Return to Ski Village	270	160
+epf_lobby	to_epf_command	160	110	30	room	epf_command	Enter the EPF Command Room	160	170
+epf_command	to_epf_lobby	160	190	28	room	epf_lobby	Return to the Everyday Phoning Facility	160	160
+epf_command	to_epf_vr	285	120	28	room	epf_vr	Enter the VR Room	160	170
+epf_vr	to_epf_command	285	120	28	room	epf_command	Return to the EPF Command Room	275	160
+beach	to_migrator	25	125	18	room	migrator	Board the Migrator	45	165
+migrator	to_beach	25	165	28	room	beach	Return to the Beach	45	155
+migrator	to_ship_hold	290	125	28	room	ship_hold	Enter the Ship Hold	275	165
+migrator	to_shipnest	161	55	32	room	shipnest	Climb to the Crow's Nest	166	124
+shipnest	to_migrator	216	162	30	room	migrator	Climb down to the Migrator Deck	175	114
+ship_hold	to_migrator	285	165	28	room	migrator	Return to the Migrator Deck	275	155
+ship_hold	to_captain_quarters	273	91	26	room	captain_quarters	Enter the Captain's Quarters	275	160
+captain_quarters	to_ship_hold	288	145	28	room	ship_hold	Return to the Ship Hold	265	150
+underwater	to_hidden_lake	31	100	30	room	hidden_lake	Return to the Hidden Lake	232	147
+underwater	moss_key	187	170	22	message	item_7016	Moss Key (item 7016) is active for this offline profile	0	0
+forest	to_puffle_wild	112	104	24	room	puffle_wild	Enter the park conservatory	55	165
+puffle_wild	to_forest	55	165	28	room	forest	Return to Memorial Park	160	155
+puffle_wild	to_cloud_forest	285	145	28	room	cloud_forest	Follow the rainbow to Cloud Forest	160	170
+cloud_forest	to_puffle_wild	160	175	30	room	puffle_wild	Return to Puffle Wild	275	155
+puffle_hotel_lobby	to_plaza	35	160	28	room	plaza	Return to the Plaza	100	160
+puffle_hotel_lobby	to_puffle_hotel_spa	285	125	28	room	puffle_hotel_spa	Go to the Puffle Hotel Spa	55	165
+puffle_hotel_spa	to_puffle_hotel_lobby	35	150	28	room	puffle_hotel_lobby	Return to the Puffle Hotel Lobby	275	160
+puffle_hotel_spa	to_puffle_hotel_roof	285	125	28	room	puffle_hotel_roof	Go to the Puffle Hotel Roof	55	165
+puffle_hotel_roof	to_puffle_hotel_spa	35	145	28	room	puffle_hotel_spa	Return to the Puffle Hotel Spa	275	160
+mall	to_plaza	160	185	30	room	plaza	Return to the Plaza	173	160
+mall	costume_trunk	278	174	24	shop	costume_trunk	Open the Costume Trunk	0	0
+mine_shack	to_school	280	145	24	room	school	Enter the School	160	170
+school	to_mine_shack	160	185	30	room	mine_shack	Return to the Mine Shack	275	165
+pet_shop	to_park	280	105	24	room	park	Enter Puffle Park	55	165
+park	to_pet_shop	35	165	28	room	pet_shop	Return to the Pet Shop	275	155
+mine_shack	to_skatepark	35	150	26	room	skatepark	Enter the Skatepark	55	165
+skatepark	to_mine_shack	35	165	28	room	mine_shack	Return to the Mine Shack	45	165
+puffle_hotel_roof	rainbow_puffle_quest	160	105	30	puffle	rainbow	Complete the Rainbow Puffle Quest	0	0
+cave_mine	gold_puffle_quest	220	105	28	puffle	gold	Complete the Gold Puffle Quest	0	0
+pet_shop	adopt_puffle	60	50	28	puffle	adopt	Adopt or choose a Puffle	0	0
+pet_shop	pet_furniture	298	178	20	shop	pet_furniture	Open Pet Furniture	0	0
+player_home	puffle_care	85	155	30	puffle	care	Care for your Puffle	0	0
+player_home	edit_igloo	255	155	30	igloo	edit	Edit your Igloo	0	0
+player_home	upgrade_igloo	280	105	22	igloo	upgrade	Open Igloo Upgrades	0	0
+player_home	wardrobe	160	155	30	shop	wardrobe	Customize your Penguin	0	0
+player_home	to_backyard	112	120	34	room	backyard	Go to your Backyard	74	160
+backyard	to_player_home	61	172	26	room	player_home	Return to your Igloo	55	165
+backyard	to_player_home_icon	302	177	18	room	player_home	Return to your Igloo	55	165
+backyard	backyard_info	302	202	16	message	info	Your puffles can play safely in your backyard.	0	0

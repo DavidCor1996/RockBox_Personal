@@ -16,7 +16,7 @@ static const struct ol_icade_pair ol_icade_map[] = {
     {'u', 'f', OL_KEY_C},
     {'j', 'n', OL_KEY_X},
     {'i', 'm', OL_KEY_Y},
-    {'k', 'p', OL_KEY_SELECT},
+    {'k', 'p', OL_KEY_START},
     {'o', 'g', OL_KEY_Z},
     {'l', 'v', OL_KEY_SELECT}
 };
@@ -93,4 +93,43 @@ void ol_palette_rgba(uint16_t color, uint8_t rgba[4])
     rgba[1] = (uint8_t)(((color >> 5) & 31) * 255 / 31);
     rgba[2] = (uint8_t)(((color >> 10) & 31) * 255 / 31);
     rgba[3] = 255;
+}
+
+static uint16_t ol_read_u16(const uint8_t *data)
+{
+    return (uint16_t)(data[0] | ((uint16_t)data[1] << 8));
+}
+
+static uint32_t ol_read_u32(const uint8_t *data)
+{
+    return (uint32_t)data[0] | ((uint32_t)data[1] << 8) |
+           ((uint32_t)data[2] << 16) | ((uint32_t)data[3] << 24);
+}
+
+int ol_validate_pkd_header(const uint8_t *header, size_t header_size,
+                           size_t file_size)
+{
+    uint16_t counts[14];
+    unsigned int i;
+
+    if (!header || header_size < 172 || file_size < 172 ||
+        file_size > 8u * 1024u * 1024u)
+        return 0;
+
+    for (i = 0; i < 14; ++i)
+        counts[i] = ol_read_u16(header + 4 + i * 2);
+    if (!counts[0] || !counts[1] || counts[1] > 139 ||
+        counts[8] > 1536 || counts[9] > 180 || counts[10] > 256 ||
+        counts[11] > 16)
+        return 0;
+
+    for (i = 0; i < 35; ++i)
+    {
+        if (ol_read_u32(header + 32 + i * 4) >= file_size)
+            return 0;
+    }
+    if ((size_t)counts[1] * 56u >
+        file_size - ol_read_u32(header + 32 + 3 * 4))
+        return 0;
+    return 1;
 }

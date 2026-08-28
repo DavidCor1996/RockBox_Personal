@@ -22,7 +22,7 @@ static_assert((unsigned)OL_KEY_UP == (unsigned)IK_UP &&
               "iOS input key values must match the fixed engine");
 
 #define OL_LEVEL_CAPACITY (8u * 1024u * 1024u)
-#define OL_AUDIO_BLOCKS 8
+#define OL_AUDIO_BLOCKS 16
 
 extern int8 soundBuffer[];
 extern uint16 fb[];
@@ -48,18 +48,19 @@ static int olAudioQueued;
 static BOOL olAudioRunning;
 static volatile unsigned long olAudioUnderruns;
 
+static void olAudioSubmit(void);
+static void olAudioRefill(void);
+
 static NSString *olPath(NSString *name) {
     return [olDataRoot stringByAppendingPathComponent:name];
 }
 
-static NSData *olReadAsset(NSString *name, NSString *extension) {
+static NSString *olAssetPath(NSString *name, NSString *extension) {
     NSString *filename = [name stringByAppendingPathExtension:extension];
-    NSData *data = [NSData dataWithContentsOfFile:olPath(filename)];
-    if (!data) {
-        data = [NSData dataWithContentsOfFile:
-                olPath([@"levels" stringByAppendingPathComponent:filename])];
-    }
-    return data;
+    NSString *direct = olPath(filename);
+    if ([[NSFileManager defaultManager] fileExistsAtPath:direct]) return direct;
+    NSString *levels = olPath([@"levels" stringByAppendingPathComponent:filename]);
+    return [[NSFileManager defaultManager] fileExistsAtPath:levels] ? levels : nil;
 }
 
 int32 osGetSystemTimeMS() {
@@ -136,31 +137,26 @@ const void *osLoadLevel(LevelID level) {
     }
     NSString *name = [NSString stringWithUTF8String:
                       (const char *)gLevelInfo[level].data];
-    NSData *data = olReadAsset(name, @"PKD");
-    NSUInteger size = [data length];
-    if (size < 172 || size > OL_LEVEL_CAPACITY) {
+    NSString *path = olAssetPath(name, @"PKD");
+    if (!path) {
         olLevelLoadFailed = YES;
         return NULL;
     }
-    [data getBytes:olLevelBuffer length:size];
-    const uint16 *counts = (const uint16 *)(olLevelBuffer + 4);
-    if (!counts[0] || !counts[1] || counts[1] > MAX_ROOMS ||
-        counts[8] > MAX_TEXTURES || counts[9] > MAX_SPRITES ||
-        counts[10] > MAX_ITEMS || counts[11] > MAX_CAMERAS) {
+
+    FILE *stream = fopen([path fileSystemRepresentation], "rb");
+    uint8 header[172];
+    long fileSize = -1;
+    if (!stream || fseek(stream, 0, SEEK_END) != 0 ||
+        (fileSize = ftell(stream)) < 0 || fseek(stream, 0, SEEK_SET) != 0 ||
+        fread(header, 1, sizeof(header), stream) != sizeof(header) ||
+        !ol_validate_pkd_header(header, sizeof(header), (size_t)fileSize) ||
+        fseek(stream, 0, SEEK_SET) != 0 ||
+        fread(olLevelBuffer, 1, (size_t)fileSize, stream) != (size_t)fileSize) {
+        if (stream) fclose(stream);
         olLevelLoadFailed = YES;
         return NULL;
     }
-    const uint32 *offsets = (const uint32 *)(olLevelBuffer + 32);
-    for (int i = 0; i < 35; ++i) {
-        if (offsets[i] >= size) {
-            olLevelLoadFailed = YES;
-            return NULL;
-        }
-    }
-    if (counts[1] * 56u > size - offsets[3]) {
-        olLevelLoadFailed = YES;
-        return NULL;
-    }
+    fclose(stream);
     gLevelID = level;
     return olLevelBuffer;
 }
@@ -220,6 +216,7 @@ static BOOL olAudioStart(void) {
         buffer->mAudioDataByteSize = SND_SAMPLES * 4;
         AudioQueueEnqueueBuffer(olAudioQueue, buffer, 0, NULL);
     }
+    olAudioRefill();
     if (AudioQueueStart(olAudioQueue, NULL) != noErr) {
         olAudioRunning = NO;
         AudioQueueDispose(olAudioQueue, true);
@@ -243,6 +240,16 @@ static void olAudioSubmit(void) {
         olAudioQueued++;
     }
     pthread_mutex_unlock(&olAudioLock);
+}
+
+static void olAudioRefill(void) {
+    for (;;) {
+        pthread_mutex_lock(&olAudioLock);
+        BOOL hasRoom = olAudioQueued < OL_AUDIO_BLOCKS - 1;
+        pthread_mutex_unlock(&olAudioLock);
+        if (!hasRoom) break;
+        olAudioSubmit();
+    }
 }
 
 static void olAudioStop(void) {
@@ -325,6 +332,7 @@ static void olAudioStop(void) {
 @property(nonatomic) uint32 hardwareKeys;
 @property(nonatomic, strong) NSMutableSet *activeTouches;
 @property(nonatomic, strong) UIView *quietKeyboard;
+- (void)resetInput;
 @end
 
 @implementation OLInputView
@@ -388,6 +396,14 @@ static void olAudioStop(void) {
 }
 - (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event {
     [self touchesEnded:touches withEvent:event];
+}
+
+- (void)resetInput {
+    [self.activeTouches removeAllObjects];
+    self.touchKeys = 0;
+    self.hardwareKeys = 0;
+    [self.delegate inputView:self changedKeys:0];
+    [self setNeedsDisplay];
 }
 
 - (void)drawCircle:(CGContextRef)context center:(CGPoint)center
@@ -563,7 +579,7 @@ static void olAudioStop(void) {
     if ([olTracksData length] >= 14 * sizeof(int32) * 2) {
         const int32 *info = (const int32 *)[olTracksData bytes];
         BOOL valid = YES;
-        const int needed[] = {4, 5, 13};
+        const int needed[] = {3, 4, 5, 13};
         for (unsigned i = 0; i < sizeof(needed) / sizeof(needed[0]); ++i) {
             int offset = info[needed[i] * 2];
             int size = info[needed[i] * 2 + 1];
@@ -575,17 +591,24 @@ static void olAudioStop(void) {
         if (valid) TRACKS_AD4 = [olTracksData bytes];
     }
     olTitleData = [NSData dataWithContentsOfFile:olPath(@"TITLE.SCR")];
+    TITLE_SCR = NULL;
     if ([olTitleData length] == FRAME_WIDTH * FRAME_HEIGHT) {
         TITLE_SCR = [olTitleData bytes];
-    } else if ([olTitleData length] == 240 * 160) {
+    } else {
         if (!olScaledTitle) olScaledTitle = (uint8 *)malloc(FRAME_WIDTH * FRAME_HEIGHT);
-        const uint8 *source = (const uint8 *)[olTitleData bytes];
-        for (int y = 0; y < FRAME_HEIGHT; ++y)
-            for (int x = 0; x < FRAME_WIDTH; ++x)
-                olScaledTitle[y * FRAME_WIDTH + x] =
-                    source[(y * 160 / FRAME_HEIGHT) * 240 +
-                           x * 240 / FRAME_WIDTH];
-        TITLE_SCR = olScaledTitle;
+        if (olScaledTitle) {
+            if ([olTitleData length] == 240 * 160) {
+                const uint8 *source = (const uint8 *)[olTitleData bytes];
+                for (int y = 0; y < FRAME_HEIGHT; ++y)
+                    for (int x = 0; x < FRAME_WIDTH; ++x)
+                        olScaledTitle[y * FRAME_WIDTH + x] =
+                            source[(y * 160 / FRAME_HEIGHT) * 240 +
+                                   x * 240 / FRAME_WIDTH];
+            } else {
+                memset(olScaledTitle, 0, FRAME_WIDTH * FRAME_HEIGHT);
+            }
+            TITLE_SCR = olScaledTitle;
+        }
     }
 }
 
@@ -664,6 +687,9 @@ static void olAudioStop(void) {
 
 - (void)pauseGame {
     self.appActive = NO;
+    [self.inputView resetInput];
+    self.icadeActive = NO;
+    self.controllerLabel.text = @"TOUCH · iCADE READY";
     [self writeDiagnostics:@"background"];
     self.pausedAt = CACurrentMediaTime();
     self.displayLink.paused = YES;
@@ -690,7 +716,7 @@ static void olAudioStop(void) {
     NSTimeInterval tickStarted = CACurrentMediaTime();
     keys = self.inputKeys;
     gameUpdate(1);
-    olAudioSubmit();
+    olAudioRefill();
     gameRender();
 
     const uint8 *source = (const uint8 *)fb;

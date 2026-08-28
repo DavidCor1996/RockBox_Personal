@@ -73,7 +73,18 @@ if [[ -f "$build/rockbox.zip" ]]; then
         -d "$staging"
     rsync -a "$staging/.rockbox/rocks/" "$ipod/.rockbox/rocks/"
     rsync -a "$staging/.rockbox/codecs/" "$ipod/.rockbox/codecs/"
-    echo "Synced rocks/ and codecs/ from rockbox.zip"
+    # The ipodjs asset tree as a whole is far larger than a player carries,
+    # so it is not synced wholesale.  The Live TV boot ident is the one part
+    # the firmware needs to have: without it Live TV falls back to the black
+    # screen it used to show, with nothing on screen to say why.
+    unzip -q -o "$build/rockbox.zip" '.rockbox/ipodjs/livetv/boot/*' \
+        -d "$staging" 2>/dev/null || true
+    if [[ -d "$staging/.rockbox/ipodjs/livetv/boot" ]]; then
+        mkdir -p "$ipod/.rockbox/ipodjs/livetv/boot"
+        rsync -a "$staging/.rockbox/ipodjs/livetv/boot/" \
+            "$ipod/.rockbox/ipodjs/livetv/boot/"
+    fi
+    echo "Synced rocks/, codecs/ and the Live TV boot ident from rockbox.zip"
 else
     echo "warning: $build/rockbox.zip not found; run 'make zip' to ship" >&2
     echo "         plugins, decoder overlays and codecs too." >&2
@@ -88,6 +99,14 @@ for path in "$ipod/rockbox.ipod" "$ipod/.rockbox/rockbox.ipod"; do
         firmware_ok=0
     fi
 done
+boot_pack="${staging:-}/.rockbox/ipodjs/livetv/boot/boot-320x240.nfr"
+if [[ -n "${staging:-}" && -f "$boot_pack" ]]; then
+    if ! cmp -s "$boot_pack" \
+                "$ipod/.rockbox/ipodjs/livetv/boot/boot-320x240.nfr"; then
+        echo "MISMATCH: ipodjs/livetv/boot/boot-320x240.nfr" >&2
+        firmware_ok=0
+    fi
+fi
 if [[ -f "$build/apps/plugins/imageviewer/jpeg/jpeg.ovl" ]]; then
     if ! cmp -s "$build/apps/plugins/imageviewer/jpeg/jpeg.ovl" \
                 "$ipod/.rockbox/rocks/viewers/jpeg.ovl"; then

@@ -485,7 +485,9 @@ def _firefox_cache_payload(data, content_type):
 
 
 def _firefox_cache_image_records(profile_path, cache_entries_root=None,
-                                 page_url="", snapshot=None):
+                                 page_url="", snapshot=None,
+                                 modified_since=0,
+                                 max_records=MAX_FIREFOX_CACHE_IMAGES):
     entries_root = (
         Path(cache_entries_root)
         if cache_entries_root
@@ -517,9 +519,11 @@ def _firefox_cache_image_records(profile_path, cache_entries_root=None,
     seen_urls = set()
     seen_hashes = set()
     for entry in entries:
-        if len(records) >= MAX_FIREFOX_CACHE_IMAGES:
+        if len(records) >= max_records:
             break
         try:
+            if modified_since and entry.stat().st_mtime < modified_since:
+                break
             with open(entry, "rb") as handle:
                 head = handle.read(32)
                 ext, content_type = _image_type_from_magic(head)
@@ -535,16 +539,26 @@ def _firefox_cache_image_records(profile_path, cache_entries_root=None,
 
         origin = _extract_firefox_request_origin(data)
         origin_host = urlsplit(origin).netloc.lower()
-        origin_matches_page = bool(page_host and origin_host and _host_related(origin_host, page_host))
-        if page_host and origin_host and not _host_related(origin_host, page_host):
-            continue
-        if page_host and not origin_host and page_origin.encode("utf-8") not in data:
-            continue
-
-        url = _extract_firefox_cache_url(
+        cached_url = _extract_firefox_cache_url(
             data,
             page_host,
             resource_hosts,
+            allow_any_host=False,
+        )
+        cached_host = urlsplit(cached_url).netloc.lower()
+        origin_matches_page = bool(page_host and origin_host and _host_related(origin_host, page_host))
+        if page_host and origin_host and not _host_related(origin_host, page_host):
+            continue
+        if (
+            page_host
+            and not origin_host
+            and page_origin.encode("utf-8") not in data
+            and cached_host not in FIREFOX_CACHE_IMAGE_HOSTS
+        ):
+            continue
+
+        url = cached_url or _extract_firefox_cache_url(
+            data, page_host, resource_hosts,
             allow_any_host=origin_matches_page,
         )
         if not url:
