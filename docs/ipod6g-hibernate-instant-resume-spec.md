@@ -3,10 +3,9 @@
 ## Status
 
 This is a research and implementation specification, not a claim that full
-resume is already safe. The hardware path is plausible and unusually well
-supported by the existing bootloader, but retained-RAM resume must remain an
-explicit experimental feature until the retention and fault-injection gates in
-this document pass on real hardware.
+resume is already safe. The first retained-RAM hardware gate now passes on a
+real iPod Classic, but controlled code resume, repeated retention, driver
+resume, and fault-injection gates remain experimental and incomplete.
 
 The target is the existing `IPOD_6G` Rockbox target. Rockbox uses that target
 for both the 6th- and 7th-generation Classic hardware.
@@ -46,12 +45,33 @@ The Stage 1 implementation is now present in the personal tree:
   `IPOD6G_HIBERNATE_STAGE1=0`.
 
 The normal and Stage 1 application builds and the normal and Stage 1 bootloader
-builds all pass. Real-hardware retention has not yet been claimed: the next
-gate is one deliberately armed hardware cycle using a matching experimental
-bootloader and application. Stage 1 validates retained SDRAM and then performs
-a normal Rockbox load; it does **not** jump back into the old kernel or UI.
-Production settings, a kernel resume jump, and automatic hibernation remain
-out of scope until the retention test passes repeatedly.
+builds all pass. The first deliberately armed real-hardware Stage 1 cycle also
+passes. Stage 1 validates retained SDRAM and then performs a normal Rockbox
+load; it does **not** jump back into the old kernel or UI. Production settings,
+a kernel resume jump, and automatic hibernation remain out of scope until the
+later gates pass.
+
+### First real-hardware retention result — 2026-08-28
+
+The first controlled cycle passed on the personal iPod Classic using the
+matching experimental dual-boot bootloader and the isolated Rolo application:
+
+- the normal personal RockPod firmware booted successfully after the
+  bootloader update;
+- before arming, the application reported `State: ready`, `Seq:0`,
+  `attempts:0`, `Phase:0`, and `failure:0`;
+- the one-shot action entered retained standby and woke into the normal
+  Rockbox cold-load path as designed for Stage 1;
+- returning through Rolo reported `State: PASSED` and `failure:0`;
+- `PASSED` is only committed after one validation attempt reaches
+  `IPOD6G_HIBERNATE_PHASE_DATA_VERIFIED` (`Phase:6`), which means both the
+  48 KiB IRAM-shadow CRC and deterministic 12 KiB SDRAM-probe CRC matched.
+
+This result proves the bounded PMU/I2C entry path, Rockbox ownership token,
+MIU self-refresh transition, early bootloader claim, retained-memory
+validation, and safe normal-load fallback for one cycle. It does not yet prove
+controlled execution from retained SDRAM, transparent kernel/UI resume,
+peripheral restoration, long-duration retention, or repeat reliability.
 
 ## Desired User Experience
 
