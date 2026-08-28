@@ -3,9 +3,10 @@
 ## Status
 
 This is a research and implementation specification, not a claim that full
-resume is already safe. The first retained-RAM hardware gate now passes on a
-real iPod Classic, but controlled code resume, repeated retention, driver
-resume, and fault-injection gates remain experimental and incomplete.
+resume is already safe. The retained-RAM and controlled retained-payload gates
+now pass on a real iPod Classic, but repeated retention, full CPU-context
+resume, driver resume, and fault-injection gates remain experimental and
+incomplete.
 
 The target is the existing `IPOD_6G` Rockbox target. Rockbox uses that target
 for both the 6th- and 7th-generation Classic hardware.
@@ -55,9 +56,9 @@ The compile-time-gated Stage 2 implementation is now present and passes its
 local build and linked-image audit. It advances the resume path by executing
 one 256-byte retained application payload on a dedicated 2 KiB retained DRAM
 stack, verifying its return cookie and observed stack pointer, and then using
-the same normal Rockbox cold-load fallback as Stage 1. It has not yet passed a
-real-hardware cycle, so it is not an instant UI resume and is not enabled in a
-normal build.
+the same normal Rockbox cold-load fallback as Stage 1. Its first real-hardware
+cycle passes all Stage 2 checks. It is still not an instant UI resume and is
+not enabled in a normal build.
 
 ### First real-hardware retention result — 2026-08-28
 
@@ -77,9 +78,34 @@ matching experimental dual-boot bootloader and the isolated Rolo application:
 
 This result proves the bounded PMU/I2C entry path, Rockbox ownership token,
 MIU self-refresh transition, early bootloader claim, retained-memory
-validation, and safe normal-load fallback for one cycle. It does not yet prove
-controlled execution from retained SDRAM, transparent kernel/UI resume,
-peripheral restoration, long-duration retention, or repeat reliability.
+validation, and safe normal-load fallback for one cycle. That Stage 1 result
+does not prove controlled execution from retained SDRAM by itself; the
+separate Stage 2 gate below now proves that handoff. It does not prove
+transparent kernel/UI resume, peripheral restoration, long-duration
+retention, or repeat reliability.
+
+### First real-hardware controlled-payload result — 2026-08-28
+
+The first Stage 2 cycle passed on the same personal iPod Classic using the
+matching ABI-2 dual-boot bootloader and isolated Rolo application:
+
+- preflight reported ready with `mode:0`, `attempts:0`, `Phase:0`, and
+  `failure:0`;
+- the iPod entered retained standby, woke, executed the retained payload, and
+  then cold-loaded the normal personal RockPod firmware;
+- returning through Rolo reported `State:PASSED`, `mode:2`, `attempts:1`,
+  `Phase:8`, and `failure:0`;
+- expected cookie, observed cookie, and return value all reported `48365032`;
+- the observed SP was inside the required retained-stack interval
+  `0x0bfec800` through `0x0bfecfff`.
+
+This proves one complete boot-ROM/bootloader-to-retained-application-code
+handoff, including payload bounds and CRC validation, the IRAM1 assembly
+wrapper, the dedicated DRAM stack, payload execution and return, post-return
+stack/cookie checks, PMU ownership clearing, and safe normal-load fallback. It
+does not yet prove restoration of a suspended Rockbox CPU/kernel context,
+scheduler continuation, peripheral restoration, repeat reliability, or the
+production instant-resume latency target.
 
 ## Desired User Experience
 
@@ -600,7 +626,7 @@ After one armed wake and a return to the Rolo debug action, success must show:
 - observed SP in `0x0bfec800` through `0x0bfecfff`.
 
 Any other value is a failed Stage 2 gate and must be documented before another
-attempt.
+attempt. The first real-hardware cycle produced every value above and passed.
 
 ### Stage 3: Kernel resume with hardware stopped
 
@@ -711,15 +737,17 @@ Likely implementation points:
 
 ## Recommendation
 
-Proceed, but begin with Stage 1 rather than implementing UI or transparent
-audio resume.
+Proceed to Stage 3, while retaining Stages 1 and 2 as regression and
+fault-injection gates. Do not jump directly to transparent audio or arbitrary
+plugin resume.
 
 The decompile and current Rockbox code answer the major feasibility question:
 the device was designed to retain SDRAM, the bootloader already recognizes that
 state, the PMU provides a retained ownership channel, and Rockbox already knows
 how to leave MIU self-refresh. The exact entry sequence is now identified and
-implemented. The immediate unknown is whether it retains SDRAM repeatably on
-real 6G/7G hardware. After Stage 1 passes, the remaining engineering work is
-the bootloader-to-retained-code trampoline and the complete list of peripherals
-that need hardware-only resume hooks. Both are intentionally gated by the
-staged probes above.
+implemented. One retained-RAM cycle and one controlled retained-payload cycle
+pass on real hardware. The next engineering work is the full CPU-context
+trampoline, followed by the minimal clocks/IRQ/input/LCD/storage resume
+coordinator required to continue the suspended kernel. Repeat, duration,
+wake-source, and injected-failure testing remain mandatory before this can
+become a normal user setting.
