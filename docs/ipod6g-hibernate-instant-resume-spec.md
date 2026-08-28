@@ -6,11 +6,15 @@ This is a research and implementation specification, not a claim that full
 resume is already safe. The retained-RAM and controlled retained-payload gates
 now pass on a real iPod Classic. The first controlled CPU-context round-trip
 attempt entered retained standby but did not visibly complete after either a
-button or cable wake attempt; a forced reset returned to normal Rockbox. That
-attempt did not retain enough evidence to distinguish a missed PMU wake from a
-hang during the context handoff. Stage 3A-R2 addresses those diagnostic gaps
-but has not yet run on hardware. Repeated retention, full kernel continuation,
-driver resume, and fault-injection gates remain experimental and incomplete.
+button or cable wake attempt; a forced reset returned to normal Rockbox. The
+ABI-4 R2 attempt proved the corrected isolated runtime and matching bootloader
+handshake, but its post-reboot screen had already returned to a fresh `ready`
+record. The exact remaining overwrite was unconditional cold-boot capability
+publication after the PMU token was absent. ABI-5 Stage 3A-R3 preserves valid
+terminal and interrupted records across unlimited boots until the application
+explicitly prepares another attempt. Repeated retention, full kernel
+continuation, driver resume, and fault-injection gates remain experimental and
+incomplete.
 
 The target is the existing `IPOD_6G` Rockbox target. Rockbox uses that target
 for both the 6th- and 7th-generation Classic hardware.
@@ -71,10 +75,13 @@ IRAM, and performs a bounded context/stack round trip through an IRAM1
 bootloader frame. Normal, Stage 2, and Stage 3 app/bootloader builds pass, the
 linked retained code contains no unapproved external direct branch, and the
 Stage 3 dependency guard rejects an incomplete configuration. Its first
-hardware attempt did not visibly return. The ABI-4 Stage 3A-R2 revision adds
-an isolated runtime directory, explicit build identity, broader test-only PMU
-wake enables, raw handoff breadcrumbs, and preservation of interrupted-resume
-evidence across the next forced reset.
+hardware attempt did not visibly return. ABI-4 Stage 3A-R2 added an isolated
+runtime directory, explicit build identity, broader test-only PMU wake enables,
+and raw handoff breadcrumbs. Its first hardware run exposed a second evidence
+loss path: ordinary capability publication replaced the attempt with `ready`
+once no PMU token remained. ABI-5 Stage 3A-R3 keeps valid `CAPABLE`, `PASSED`,
+and `FAILED` records and converts every valid nonterminal record to a durable
+failure instead of replacing it.
 
 ### First real-hardware retention result — 2026-08-28
 
@@ -157,6 +164,34 @@ return-stub entry, and return to the bootloader caller. If a handoff hangs, a
 subsequent forced reset converts the stale `RESUMING` token into a CRC-protected
 failure record while preserving that breadcrumb. This makes the next attempt
 diagnostic rather than another blind repetition.
+
+### Stage 3A-R2 evidence-persistence result — 2026-08-28
+
+The R2 isolation gate behaved correctly: before the ABI-4 bootloader was
+installed, Rolo displayed `Runtime: /.rbtv` and refused to arm with
+`Matching ABI-4 bootloader required`. The verified dual-boot installer was then
+sent in Apple DFU state 2, and the iPod re-enumerated normally. With the
+matching pair installed, the debug action became ready and one attempt was
+armed.
+
+After the subsequent reboot and manual Rolo launch, every diagnostic field had
+returned to the original `ready` capability state. This is not a Stage 3 pass
+or a meaningful handoff result. Static review identified the deterministic
+cause: `ipod6g_hibernate_stage1_publish_capability()` cleared the entire valid
+SDRAM record whenever a later boot no longer had a Rockbox-owned PMU token.
+That included terminal results and intermediate records that could otherwise
+identify the failed boundary.
+
+Stage 3A-R3 increments all Stage 3 protocol versions to ABI 5. On cold boot it:
+
+- leaves a valid `CAPABLE`, `PASSED`, or `FAILED` record unchanged;
+- converts any other valid record into a durable failure, preserving the
+  context metadata and raw breadcrumb; and
+- publishes a new `CAPABLE` record only when no compatible valid record exists.
+
+Preparing the next attempt remains the explicit acknowledgement that clears
+the previous result. Thus viewing, Rolo-loading, or cold-booting cannot erase
+the evidence before it is recorded.
 
 ## Desired User Experience
 
@@ -701,7 +736,7 @@ The application side:
 
 The matching bootloader executes entirely from IRAM1. After MIU recovery it:
 
-1. claims the one-shot PMU token and validates record/resume ABI version 4;
+1. claims the one-shot PMU token and validates record/resume ABI version 5;
 2. compares a CRC of its Rockbox build version with the application build,
    validates the retained payload CRC, and requires the rebuilt translation
    table and saved CP15 state to match exactly;
@@ -716,7 +751,7 @@ The matching bootloader executes entirely from IRAM1. After MIU recovery it:
 
 The context continuation does not enable interrupts, call kernel code, touch
 devices, or return to the suspended UI. A hang leaves the PMU token in the
-`RESUMING` state. Stage 3A-R2 preserves the last raw boundary breadcrumb when
+`RESUMING` state. Stage 3A-R3 preserves the last raw boundary breadcrumb when
 the next hard reset takes the fail-closed cold-boot recovery path. Stage 3A
 therefore tests the dangerous mode/stack/code transition without pretending
 that full kernel resume is already safe.
@@ -879,11 +914,11 @@ Likely implementation points:
 
 ## Recommendation
 
-Run the isolated ABI-4 Stage 3A-R2 hardware gate next, while retaining Stages 1
+Run the isolated ABI-5 Stage 3A-R3 hardware gate next, while retaining Stages 1
 and 2 as regression and fault-injection gates. First prove that Rolo displays
-`Runtime: /.rbtv` and refuses to arm against an older bootloader. Then install
-only the matching dual-boot test bootloader and collect the preserved trail and
-wake status from exactly one attempt. If it passes, proceed to the minimal
+`Runtime: /.rbtv` and refuses to arm against the ABI-4 bootloader. Then install
+only the matching dual-boot test bootloader and collect the now-durable trail
+and wake status from exactly one attempt. If it passes, proceed to the minimal
 Stage 3B clocks/IRQ/input/LCD/storage resume coordinator. Do not jump directly
 to transparent audio or arbitrary plugin resume.
 
@@ -894,9 +929,10 @@ how to leave MIU self-refresh. The exact entry sequence is now identified and
 implemented. One retained-RAM cycle and one controlled retained-payload cycle
 pass on real hardware. The first controlled CPU-context attempt entered
 standby but did not visibly complete and lacked sufficient post-reset
-diagnostics. The corrected Stage 3A-R2 trampoline passes local build and
-disassembly gates and is waiting for one isolated ABI-4 hardware cycle. After
-that, the next engineering work is the minimal clocks/IRQ/input/LCD/storage
-resume coordinator required to continue the suspended kernel. Repeat,
-duration, wake-source, and injected-failure testing remain mandatory before
-this can become a normal user setting.
+diagnostics. R2 then exposed unconditional result replacement by the next
+capability publication. Stage 3A-R3 makes those results durable and is waiting
+for one isolated ABI-5 hardware cycle. After that, the next engineering work
+is the minimal clocks/IRQ/input/LCD/storage resume coordinator required to
+continue the suspended kernel. Repeat, duration, wake-source, and
+injected-failure testing remain mandatory before this can become a normal user
+setting.

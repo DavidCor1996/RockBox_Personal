@@ -1176,7 +1176,8 @@ static void record_failure(enum ipod6g_hibernate_failure failure)
 #if IPOD6G_HIBERNATE_STAGE3
     if (record_layout_valid(record) &&
         record->mode == IPOD6G_HIBERNATE_MODE_CONTROLLED_CONTEXT &&
-        (record->reserved[0] == IPOD6G_HIBERNATE_DIAG_BOOT_ENTER ||
+        (ipod6g_hibernate_record_valid(record) ||
+         record->reserved[0] == IPOD6G_HIBERNATE_DIAG_BOOT_ENTER ||
          record->reserved[0] == IPOD6G_HIBERNATE_DIAG_APP_ENTER ||
          record->reserved[0] == IPOD6G_HIBERNATE_DIAG_APP_RETURN ||
          record->reserved[0] == IPOD6G_HIBERNATE_DIAG_RETURN_STUB ||
@@ -1529,6 +1530,25 @@ void ipod6g_hibernate_stage1_publish_capability(void)
     volatile struct ipod6g_hibernate_record *record =
             (volatile struct ipod6g_hibernate_record *)
             IPOD6G_HIBERNATE_CONTROL_ADDR;
+
+    if (ipod6g_hibernate_record_valid(record))
+    {
+        /*
+         * A terminal record is also the matching bootloader capability
+         * handshake. Keep it until the application explicitly prepares the
+         * next attempt, even across an arbitrary number of cold boots.
+         */
+        if (record->state == IPOD6G_HIBERNATE_RECORD_CAPABLE ||
+            record->state == IPOD6G_HIBERNATE_RECORD_PASSED ||
+            record->state == IPOD6G_HIBERNATE_RECORD_FAILED)
+        {
+            return;
+        }
+
+        /* Never replace evidence of an incomplete valid attempt with ready. */
+        record_failure(IPOD6G_HIBERNATE_FAILURE_RECORD);
+        return;
+    }
 
     record_clear();
     record_init(record, IPOD6G_HIBERNATE_RECORD_CAPABLE);

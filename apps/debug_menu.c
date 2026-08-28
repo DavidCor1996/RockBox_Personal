@@ -3086,7 +3086,7 @@ static bool dbg_hibernate_stage3(void)
     lcd_set_foreground(LCD_RGBPACK(255, 255, 255));
     lcd_clear_display();
     lcd_puts(0, 0, "*** HIBERNATE TEST CORE ***");
-    lcd_puts(0, 1, "Stage 3A-R2 / ABI 4 / /.rbtv");
+    lcd_puts(0, 1, "Stage 3A-R3 / ABI 5 / /.rbtv");
     lcd_putsf(0, 2, "State:%s mode:%lu",
               status.valid ? dbg_hibernate_state_name(status.state) :
                              "invalid record",
@@ -3114,7 +3114,7 @@ static bool dbg_hibernate_stage3(void)
               dbg_hibernate_breadcrumb_name(status.diagnostic_breadcrumb),
               (unsigned long)status.diagnostic_breadcrumb);
     lcd_puts(0, 11, ready ? "SELECT: ARM + POWER OFF" :
-                            "Matching ABI-4 bootloader required");
+                            "Matching ABI-5 bootloader required");
     lcd_puts(0, 12, "MENU: exit without testing");
     lcd_update();
 
