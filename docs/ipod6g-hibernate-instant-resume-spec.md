@@ -4,9 +4,10 @@
 
 This is a research and implementation specification, not a claim that full
 resume is already safe. The retained-RAM and controlled retained-payload gates
-now pass on a real iPod Classic, but repeated retention, full CPU-context
-resume, driver resume, and fault-injection gates remain experimental and
-incomplete.
+now pass on a real iPod Classic. The controlled CPU-context round-trip gate is
+implemented and passes local linked-image checks but has not yet run on
+hardware. Repeated retention, full kernel continuation, driver resume, and
+fault-injection gates remain experimental and incomplete.
 
 The target is the existing `IPOD_6G` Rockbox target. Rockbox uses that target
 for both the 6th- and 7th-generation Classic hardware.
@@ -59,6 +60,15 @@ stack, verifying its return cookie and observed stack pointer, and then using
 the same normal Rockbox cold-load fallback as Stage 1. Its first real-hardware
 cycle passes all Stage 2 checks. It is still not an instant UI resume and is
 not enabled in a normal build.
+
+The compile-time-gated Stage 3A implementation is also present. It saves the
+Rockbox system-mode context, re-snapshots IRAM after capture, verifies an exact
+translation-table CRC and app/bootloader build-version fingerprint, restores
+IRAM, and performs a bounded context/stack round trip through an IRAM1
+bootloader frame. Normal, Stage 2, and Stage 3 app/bootloader builds pass, the
+linked retained code contains no unapproved external direct branch, and the
+Stage 3 dependency guard rejects an incomplete configuration. Stage 3A still
+requires its first real-hardware cycle.
 
 ### First real-hardware retention result — 2026-08-28
 
@@ -628,7 +638,77 @@ After one armed wake and a return to the Rolo debug action, success must show:
 Any other value is a failed Stage 2 gate and must be documented before another
 attempt. The first real-hardware cycle produced every value above and passed.
 
-### Stage 3: Kernel resume with hardware stopped
+### Stage 3A: Controlled CPU-context round trip
+
+Stage 3A is implemented as a hidden, compile-time-gated hardware test. It is
+deliberately not a user-visible instant-resume feature yet. Its purpose is to
+prove that the bootloader can restore Rockbox's IRAM and system stack, enter a
+CRC-covered continuation with the saved CPU context, and return safely to the
+bootloader before any scheduler or driver is restarted.
+
+The application side:
+
+1. uses the ordinary Rockbox shutdown coordinator so playback is stopped,
+   filesystems are flushed, storage is put to sleep, and the display is shut
+   down before target `power_off()` runs;
+2. disables IRQ and FIQ and saves r4-r11, the system SP and LR, a controlled
+   continuation PC, CPSR, CP15 control, translation-table base, and domain
+   access control;
+3. takes a final 48 KiB IRAM0 snapshot after context capture and commits its
+   CRC; and
+4. enters the already-qualified retained-SDRAM standby sequence.
+
+The matching bootloader executes entirely from IRAM1. After MIU recovery it:
+
+1. claims the one-shot PMU token and validates record/resume ABI version 3;
+2. compares a CRC of its Rockbox build version with the application build,
+   validates the retained payload CRC, and requires the rebuilt translation
+   table and saved CP15 state to match exactly;
+3. restores all 48 KiB of IRAM0 and verifies the restored image CRC;
+4. saves an aligned bootloader frame in IRAM1, changes to the saved Rockbox
+   system mode and stack, restores r4-r11/LR, and branches only to the
+   validated continuation inside the retained payload section;
+5. records the observed cookie and stack pointer, then returns through the
+   supplied and range-checked IRAM1 stub; and
+6. commits PASS or FAIL, clears PMU ownership, and cold-loads the normal
+   Rockbox image.
+
+The context continuation does not enable interrupts, call kernel code, touch
+devices, or return to the suspended UI. A hang leaves the PMU token in the
+`RESUMING` state, so the next hard reset takes the existing fail-closed cold
+boot recovery path. Stage 3A therefore tests the dangerous mode/stack/code
+transition without pretending that full kernel resume is already safe.
+
+Stage 3A must be enabled in both images with:
+
+```text
+-DIPOD6G_HIBERNATE_STAGE1=1
+-DIPOD6G_HIBERNATE_STAGE2=1
+-DIPOD6G_HIBERNATE_STAGE3=1
+```
+
+It is tested only with an isolated Rolo application and its matching
+dual-boot bootloader. It must never be packaged with `mks5lboot --single`.
+The normal personal Rockbox image remains the disk boot target after the
+round trip.
+
+After one armed wake, Rolo the matching Stage 3A application again and open
+`Debug > Test retained context`. Success must show:
+
+- `State:PASSED`, `mode:3`, `attempts:1`, `phase:12`, and `failure:0`;
+- saved PC inside the displayed retained payload range and saved SP inside
+  the 8 KiB Rockbox system-stack range;
+- CPSR low byte `df` (system mode with IRQ and FIQ disabled);
+- identical, nonzero saved and observed TTB CRC values;
+- expected cookie, observed cookie, and return value all `48365033`; and
+- observed resumed SP inside the same system-stack range.
+
+Any mismatch is a failed Stage 3A gate. Record the complete diagnostic screen
+before another attempt. Passing Stage 3A authorizes work on the hardware
+resume coordinator; it does not by itself authorize exposing hibernate as a
+normal setting.
+
+### Stage 3B: Kernel resume with hardware stopped
 
 - add the setjmp-like CPU context trampoline;
 - enter hibernate from a dedicated system coordinator;
@@ -737,17 +817,19 @@ Likely implementation points:
 
 ## Recommendation
 
-Proceed to Stage 3, while retaining Stages 1 and 2 as regression and
-fault-injection gates. Do not jump directly to transparent audio or arbitrary
-plugin resume.
+Run the isolated Stage 3A hardware gate next, while retaining Stages 1 and 2
+as regression and fault-injection gates. If it passes, proceed to the minimal
+Stage 3B clocks/IRQ/input/LCD/storage resume coordinator. Do not jump directly
+to transparent audio or arbitrary plugin resume.
 
 The decompile and current Rockbox code answer the major feasibility question:
 the device was designed to retain SDRAM, the bootloader already recognizes that
 state, the PMU provides a retained ownership channel, and Rockbox already knows
 how to leave MIU self-refresh. The exact entry sequence is now identified and
 implemented. One retained-RAM cycle and one controlled retained-payload cycle
-pass on real hardware. The next engineering work is the full CPU-context
-trampoline, followed by the minimal clocks/IRQ/input/LCD/storage resume
-coordinator required to continue the suspended kernel. Repeat, duration,
-wake-source, and injected-failure testing remain mandatory before this can
-become a normal user setting.
+pass on real hardware. The controlled CPU-context trampoline now passes local
+build and disassembly gates and is waiting for its first isolated hardware
+cycle. After that, the next engineering work is the minimal
+clocks/IRQ/input/LCD/storage resume coordinator required to continue the
+suspended kernel. Repeat, duration, wake-source, and injected-failure testing
+remain mandatory before this can become a normal user setting.

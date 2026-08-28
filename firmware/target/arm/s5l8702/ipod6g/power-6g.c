@@ -69,6 +69,10 @@ void power_off(void)
         }
         else if (ipod6g_hibernate_stage1_arm())
         {
+#if IPOD6G_HIBERNATE_STAGE3
+            if (mode == IPOD6G_HIBERNATE_MODE_CONTROLLED_CONTEXT)
+                ipod6g_hibernate_stage3_enter();
+#endif
             ipod6g_hibernate_stage1_enter();
         }
     }
