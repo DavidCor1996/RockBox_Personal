@@ -30,6 +30,7 @@
 #include "timeout.h"
 #ifndef BOOTLOADER
 #include "videoout-6g.h"
+#include "hibernate-6g.h"
 #endif
 
 static int idepowered;
@@ -50,6 +51,28 @@ void power_off(void)
     /* USB inserted or EXTON1 */
     pmu_set_wake_condition(
             PCF5063X_OOCWAKE_EXTON2 | PCF5063X_OOCWAKE_EXTON1);
+
+#if !defined(BOOTLOADER) && IPOD6G_HIBERNATE_STAGE1
+    uint32_t sequence;
+    if (ipod6g_hibernate_stage1_consume_request(&sequence))
+    {
+        if (!ipod6g_hibernate_stage1_prepare(sequence))
+        {
+            ipod6g_hibernate_stage1_fail(
+                    IPOD6G_HIBERNATE_FAILURE_RECORD);
+        }
+        else if (!ipod6g_hibernate_stage1_i2c_preflight())
+        {
+            ipod6g_hibernate_stage1_fail(
+                    IPOD6G_HIBERNATE_FAILURE_I2C_PREFLIGHT);
+        }
+        else if (ipod6g_hibernate_stage1_arm())
+        {
+            ipod6g_hibernate_stage1_enter();
+        }
+    }
+#endif
+
     pmu_enter_standby();
 
     while(1);

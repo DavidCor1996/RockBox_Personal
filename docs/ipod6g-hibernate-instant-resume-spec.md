@@ -13,7 +13,7 @@ for both the 6th- and 7th-generation Classic hardware.
 
 ### Implementation status
 
-The first non-destructive implementation slice is now present:
+The Stage 1 implementation is now present in the personal tree:
 
 - the application and bootloader linker scripts protect the fixed 64 KiB
   range `0x0bfec000` through `0x0bffbfff`;
@@ -23,19 +23,35 @@ The first non-destructive implementation slice is now present:
   retention pattern;
 - the bootloader has an early Rockbox ownership decision and Stage 1
   validation/fallback path;
-- the application-side Stage 1 preparation and arming functions are separate,
-  so a caller cannot publish ownership merely by preparing a pattern;
+- the application-side Stage 1 request, preparation, I2C preflight, and arming
+  operations are separate, so no ordinary power-off can accidentally publish
+  ownership;
 - an enabled bootloader publishes a CRC-protected capability record on cold
   Rockbox boots, and the application refuses to prepare or arm without that
   matching resume ABI handshake;
+- the hidden `Test retained standby` debug action is only compiled when Stage
+  1 is enabled. It creates a 30-second, one-shot request and then uses the
+  normal `sys_poweroff()` pipeline so audio, storage, LCD, and other hardware
+  are shut down before the target-specific handoff;
+- before arming, the application verifies the final polling I2C implementation
+  by writing the current `OOCWAKE` value unchanged and reading it back through
+  the normal PMU driver;
+- the final routine disables IRQ/FIQ and both caches, enters the exact
+  RetailOS MIU mode, and performs the GPIO3 and `OOCSHDWN = 2` writes using
+  bounded polling code in IRAM;
+- the linked experimental image has been audited, not merely the C source:
+  the entry routine and every post-self-refresh call target are in IRAM, and
+  the active main stack is in IRAM;
 - the bootloader gate is compile-time disabled by default through
   `IPOD6G_HIBERNATE_STAGE1=0`.
 
-No sleep command, user-visible setting, kernel resume jump, or hardware deploy
-is part of this slice. Enabling the gate only teaches the bootloader how to
-handle a deliberately armed Rockbox probe; it does not make Rockbox enter
-retained standby. The next implementation boundary is the IRAM-only MIU/PMU
-entry stub after the exact MIU self-refresh entry command is confirmed.
+The normal and Stage 1 application builds and the normal and Stage 1 bootloader
+builds all pass. Real-hardware retention has not yet been claimed: the next
+gate is one deliberately armed hardware cycle using a matching experimental
+bootloader and application. Stage 1 validates retained SDRAM and then performs
+a normal Rockbox load; it does **not** jump back into the old kernel or UI.
+Production settings, a kernel resume jump, and automatic hibernation remain
+out of scope until the retention test passes repeatedly.
 
 ## Desired User Experience
 
@@ -72,21 +88,28 @@ write.
 
 ## What RetailOS Actually Does
 
-The analyzed image is the decrypted iPod Classic 2.0.4 OSOS body, loaded at
-virtual address `0x08000800`.
+The analyzed image is the decrypted iPod Classic 2.0.4 OSOS image. Addresses
+below are expressed as offsets in the decrypted ARM payload, after its 0x800
+byte IMG1 header. This avoids mixing IMG1 file offsets with the address at
+which the NOR loader places the payload. Earlier research notes did mix those
+two coordinate systems and consequently labeled the same instructions 0x800
+bytes too high; the instruction bytes and register deductions were unaffected.
 
 ### Confirmed locations
 
-| Body offset | Virtual address | Finding | Confidence |
-| --- | --- | --- | --- |
-| `0x15175c` | `0x08151f5c` | `CanHibernate` machine-capability key | High |
-| `0x265760` | `0x08265f60` | Deep-sleep statistics text | High |
-| `0x2667e0` | `0x08266fe0` | `Enter Deep Sleep` usage-event label | High |
-| `0x2667f4` | `0x08266ff4` | `Exit Deep Sleep` usage-event label | High |
-| `0x2ad1ac` | `0x082ad9ac` | `PCFPowerMgr` class/component name | High |
-| `0x000364` | `0x08000b64` | Low-level PCF state writer | High |
-| `0x00244c` | `0x08002c4c` | MIU/SDRAM initialization routine | High |
-| `0x2bca38` | `0x082bd238` | MIU mode-field helper | High |
+| Payload offset | Finding | Confidence |
+| --- | --- | --- |
+| `0x15175c` | `CanHibernate` machine-capability key | High |
+| `0x265760` | Deep-sleep statistics text | High |
+| `0x2667e0` | `Enter Deep Sleep` usage-event label | High |
+| `0x2667f4` | `Exit Deep Sleep` usage-event label | High |
+| `0x2ad1ac` | `PCFPowerMgr` class/component name | High |
+| `0x000364` | Low-level PCF state writer | High |
+| `0x00053c` | Dedicated retained-standby shutdown stub | High |
+| `0x00244c` | MIU/SDRAM mode routine | High |
+| `0x00318c` | Disable I-cache while leaving the MMU enabled | High |
+| `0x0031a4` | Disable D-cache while leaving the MMU enabled | High |
+| `0x2bca38` | Separate MIU low-three-bit helper | High |
 
 The strings prove that the feature and its policy exist, but the `Enter Deep
 Sleep` and `Exit Deep Sleep` strings are event-log labels, not the sleep
@@ -111,20 +134,25 @@ Register `0x0c` is `OOCSHDWN`; bit 0 requests transition to Standby. Register
 that RetailOS drives GPIO3 low when SDRAM contains a hibernated image.
 
 The meaning of PCF50635-specific `OOCSHDWN` bit 1 is not documented by the
-public PCF50633 manual and must not be guessed. Rockbox only needs the proven
-Standby request (`0x0c = 1`) for the first retention probe.
+public PCF50633 manual. It is nevertheless no longer an inferred value: the
+dedicated RetailOS retained-standby stub explicitly selects writer mode 1,
+which writes `OOCSHDWN = 2`. Ordinary shutdown selects writer mode 0 and writes
+`OOCSHDWN = 1`. The Stage 1 retention test must therefore use the observed
+Apple value 2; using Rockbox's ordinary value 1 would test a different PMU
+state.
 
 ### MIU routines
 
-The stock routine at `0x08002c4c` programs the same S5L8702 MIU constants used
-by Rockbox, including:
+The stock routine at payload offset `0x244c` programs the same S5L8702 MIU
+constants used by Rockbox, including:
 
 - controller base `0x38100000`
 - `MIUSDPARA = 0x1fb621`
 - mode registers `0x33` and `0x8040`
 - the same bank/timing values now present in `miu_preinit()`
 
-The helper at `0x082bd238` changes the low three bits of `MIUCON`:
+The separate helper at payload offset `0x2bca38` changes the low three bits of
+`MIUCON`:
 
 | Helper input | Resulting low bits |
 | --- | --- |
@@ -133,11 +161,26 @@ The helper at `0x082bd238` changes the low three bits of `MIUCON`:
 | 3 | 3 |
 | 4 | 1 |
 
-Rockbox uses `MIUCON = 0x11` while leaving self-refresh and then restores the
-normal controller configuration whose low bits are 5. This strongly suggests
-that the stock helper contains the missing self-refresh transition states, but
-the exact entry command still needs a hardware retention probe. The first probe
-must test the candidate transition rather than treating this inference as fact.
+That helper is not called by the dedicated deep-sleep stub. The actual retained
+standby path calls mode 1 of the routine at payload offset `0x244c`. Its complete
+mode-1 action is:
+
+```
+MIUCON = (MIUCON & ~0x0f000000) | 0x0a100000;
+MIU_REG(0x14) = 1;
+```
+
+RetailOS then waits 10 ms, drives PCF GPIO3 low, waits approximately 100 ms,
+and writes `OOCSHDWN = 2`. Immediately before the MIU transition it disables
+D-cache and I-cache, but leaves the MMU enabled. Rockbox's wake side already
+uses `MIUCON = 0x11` before restoring the normal controller configuration.
+
+Two calls in the stock stub pass through a component/service veneer table and
+cannot be assigned semantics from the static image alone. They make no directly
+visible MIU or PMU register writes. Stage 1 therefore reproduces only the
+directly observed and independently checkable hardware sequence, keeps the
+entry stub in IRAM, and treats retained-data validation after wake as the gate
+for any later full-resume work.
 
 ### The important split: OSOS enters, ONB restores
 
@@ -329,21 +372,26 @@ After MIU enters self-refresh, executing code or reading a stack in SDRAM is no
 longer safe. The final entry routine and everything it calls must execute from
 IRAM and use an IRAM stack.
 
-Required final sequence:
+Implemented Stage 1 final sequence:
 
-1. prepare and checksum the SDRAM control record,
-2. copy the used 48 KiB IRAM window to the SDRAM shadow,
-3. clean the complete data cache and drain the write buffer,
-4. write the PMU ownership token,
-5. disable IRQ and FIQ,
-6. stop DMA and mask external interrupts,
-7. drive PMU GPIO3 low,
-8. issue the candidate MIU self-refresh transition from IRAM,
-9. issue `OOCSHDWN.GOSTDBY` through an IRAM-safe polling I2C primitive,
-10. loop in IRAM if the PMU does not remove power.
+1. use the normal shutdown coordinator to quiesce playback, storage, display,
+   video output, and other active hardware;
+2. prepare and checksum the SDRAM record, copy the used 48 KiB IRAM window,
+   and fill/checksum the deterministic 12 KiB probe region;
+3. preflight the IRAM polling I2C primitive while SDRAM is still available;
+4. publish the PMU ownership token and commit the complete data cache;
+5. disable IRQ and FIQ, clean/discard both caches, and leave the MMU enabled;
+6. from IRAM, program RetailOS MIU mode 1 and drain the write buffer;
+7. wait 10 ms, drive PMU GPIO3 low, and wait approximately 100 ms;
+8. write the RetailOS retained-standby value `OOCSHDWN = 2` through the
+   IRAM-safe polling I2C primitive;
+9. loop in IRAM if the PMU does not remove power.
 
-The generic PMU driver and normal I2C stack cannot be assumed safe after step
-8 because their code, data, locks, or stack may live in SDRAM.
+The generic PMU driver and normal I2C stack are not used after step 5 because
+their code, data, locks, or stack may live in SDRAM. If publishing GPIO3 fails,
+Stage 1 requests ordinary standby rather than claiming an unmarked retained
+image. Every polling wait is bounded, so a wedged I2C controller cannot trap
+the code before the final fallback request.
 
 ### 5. Resume through a controlled trampoline
 
@@ -445,6 +493,37 @@ It must not attempt to resume the Rockbox kernel yet.
 
 Test patterns must catch row, column, stuck-bit, and walking-bit failures. Run
 at least 100 cycles, including overnight retention.
+
+The first hardware gate uses the implemented deterministic 12 KiB probe plus
+the independent 48 KiB IRAM-shadow CRC. After one clean PASS establishes that
+the PMU/MIU transition works, expand the probe patterns before the 100-cycle
+and overnight qualification runs.
+
+### Stage 1 build and hardware gate
+
+Stage 1 must be enabled in **both** images with
+`-DIPOD6G_HIBERNATE_STAGE1=1`. A Rolo-loaded application alone cannot test it:
+the matching bootloader must make the ownership decision from IRAM before a
+disk image is loaded.
+
+Before the first test, retain a known-good bootloader/NOR backup, verify that
+DFU recovery is available, and use a charged battery. Installing the matching
+experimental bootloader is the only NOR-changing step and must be separately
+approved; the debug action itself never writes NOR.
+
+After the matching images are installed:
+
+1. cold-boot Rockbox and open `System > Debug > Test retained standby`;
+2. confirm the screen says `State: ready`; otherwise do not arm it;
+3. press Select once. Rockbox runs its normal shutdown, enters retained
+   standby, and powers off;
+4. wake with Menu or by inserting a supported cable;
+5. let Rockbox load normally, then return directly to the same debug screen;
+6. a successful cycle reads `State: PASSED`, `Phase:6`, and `failure:0`.
+
+Capture the state, phase, and failure numbers before another cold boot, because
+a later ordinary boot republishes the capability record. A failure or forced
+reset must be reported before repeating the test.
 
 ### Stage 2: Controlled payload resume
 
@@ -574,7 +653,9 @@ audio resume.
 The decompile and current Rockbox code answer the major feasibility question:
 the device was designed to retain SDRAM, the bootloader already recognizes that
 state, the PMU provides a retained ownership channel, and Rockbox already knows
-how to leave MIU self-refresh. The largest remaining unknown is the exact,
-repeatable MIU entry transition and the complete list of peripherals that need
-hardware-only resume hooks. Both can be answered safely by the staged probes
-above.
+how to leave MIU self-refresh. The exact entry sequence is now identified and
+implemented. The immediate unknown is whether it retains SDRAM repeatably on
+real 6G/7G hardware. After Stage 1 passes, the remaining engineering work is
+the bootloader-to-retained-code trampoline and the complete list of peripherals
+that need hardware-only resume hooks. Both are intentionally gated by the
+staged probes above.

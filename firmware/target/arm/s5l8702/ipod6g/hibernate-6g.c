@@ -22,6 +22,9 @@
 #include <stddef.h>
 #include <stdint.h>
 #include "system.h"
+#ifndef BOOTLOADER
+#include "kernel.h"
+#endif
 #include "s5l87xx.h"
 #include "pmu-target.h"
 #include "hibernate-6g.h"
@@ -300,7 +303,79 @@ static void record_commit_crc(
 
 #ifndef BOOTLOADER
 
+bool ipod6g_hibernate_stage1_get_status(
+        struct ipod6g_hibernate_status *status)
+{
+    const volatile struct ipod6g_hibernate_record *record =
+            (const volatile struct ipod6g_hibernate_record *)
+            IPOD6G_HIBERNATE_CONTROL_ADDR;
+
+    status->valid = false;
+    status->state = IPOD6G_HIBERNATE_RECORD_EMPTY;
+    status->sequence = 0;
+    status->attempt_count = 0;
+    status->last_phase = IPOD6G_HIBERNATE_PHASE_NONE;
+    status->failure = IPOD6G_HIBERNATE_FAILURE_NONE;
+
+    if (!ipod6g_hibernate_record_valid(record))
+        return false;
+
+    status->valid = true;
+    status->state = record->state;
+    status->sequence = record->sequence;
+    status->attempt_count = record->attempt_count;
+    status->last_phase = record->last_phase;
+    status->failure = record->failure;
+    return true;
+}
+
 #if IPOD6G_HIBERNATE_STAGE1
+#define IPOD6G_HIBERNATE_REQUEST_LIFETIME (30 * HZ)
+#define IPOD6G_HIBERNATE_I2C_TIMEOUT_US    20000u
+
+static volatile bool stage1_requested;
+static uint32_t stage1_request_sequence;
+static long stage1_request_deadline;
+
+static bool stage1_record_proves_bootloader(
+        const volatile struct ipod6g_hibernate_record *record)
+{
+    if (!ipod6g_hibernate_record_valid(record))
+        return false;
+
+    return record->state == IPOD6G_HIBERNATE_RECORD_CAPABLE ||
+           record->state == IPOD6G_HIBERNATE_RECORD_PASSED ||
+           record->state == IPOD6G_HIBERNATE_RECORD_FAILED;
+}
+
+bool ipod6g_hibernate_stage1_request(uint32_t sequence)
+{
+    const volatile struct ipod6g_hibernate_record *record =
+            (const volatile struct ipod6g_hibernate_record *)
+            IPOD6G_HIBERNATE_CONTROL_ADDR;
+
+    if (!stage1_record_proves_bootloader(record))
+        return false;
+
+    stage1_request_sequence = sequence;
+    stage1_request_deadline = current_tick +
+            IPOD6G_HIBERNATE_REQUEST_LIFETIME;
+    stage1_requested = true;
+    return true;
+}
+
+bool ipod6g_hibernate_stage1_consume_request(uint32_t *sequence)
+{
+    bool requested = stage1_requested;
+
+    stage1_requested = false;
+    if (!requested || !TIME_BEFORE(current_tick, stage1_request_deadline))
+        return false;
+
+    *sequence = stage1_request_sequence;
+    return true;
+}
+
 static uint32_t probe_pattern(uint32_t index, uint32_t seed)
 {
     uint32_t value = seed + index * 0x9e3779b9u;
@@ -325,12 +400,9 @@ bool ipod6g_hibernate_stage1_prepare(uint32_t sequence)
     volatile uint32_t *probe = (volatile uint32_t *)
             IPOD6G_HIBERNATE_PROBE_ADDR;
 
-    /* Refuse to arm unless this bootloader advertised the same resume ABI. */
-    if (!ipod6g_hibernate_record_valid(record) ||
-        record->state != IPOD6G_HIBERNATE_RECORD_CAPABLE)
-    {
+    /* A retained result also proves that this bootloader speaks our ABI. */
+    if (!stage1_record_proves_bootloader(record))
         return false;
-    }
 
     if (ipod6g_hibernate_token_clear() != 0)
         return false;
@@ -357,6 +429,160 @@ bool ipod6g_hibernate_stage1_prepare(uint32_t sequence)
     commit_dcache();
 
     return ipod6g_hibernate_record_valid(record);
+}
+
+static bool hibernate_i2c_wait_ready(void) ICODE_ATTR;
+static bool hibernate_i2c_wait_ready(void)
+{
+    uint32_t start = USEC_TIMER;
+
+    while (IICUNK10(0))
+    {
+        if ((uint32_t)(USEC_TIMER - start) >=
+            IPOD6G_HIBERNATE_I2C_TIMEOUT_US)
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+static bool hibernate_i2c_wait_io(void) ICODE_ATTR;
+static bool hibernate_i2c_wait_io(void)
+{
+    uint32_t start = USEC_TIMER;
+
+    while ((IICSTAT(0) & (1u << 5)) != 0 &&
+           (IICSTA2(0) & ((1u << 8) | (1u << 13))) == 0)
+    {
+        if (!hibernate_i2c_wait_ready() ||
+            (uint32_t)(USEC_TIMER - start) >=
+                    IPOD6G_HIBERNATE_I2C_TIMEOUT_US)
+        {
+            return false;
+        }
+    }
+
+    IICSTA2(0) |= (1u << 8) | (1u << 13);
+    return true;
+}
+
+static void hibernate_i2c_clock(bool enable) ICODE_ATTR;
+static void hibernate_i2c_clock(bool enable)
+{
+    const uint32_t bit = 1u << (CLOCKGATE_I2C0 & 0x1f);
+
+    if (enable)
+        PWRCON_APB &= ~bit;
+    else
+        PWRCON_APB |= bit;
+}
+
+static void hibernate_delay_us(uint32_t usecs) ICODE_ATTR;
+static void hibernate_delay_us(uint32_t usecs)
+{
+    uint32_t start = USEC_TIMER;
+
+    while ((uint32_t)(USEC_TIMER - start) < usecs);
+}
+
+static bool hibernate_i2c_stop(void) ICODE_ATTR;
+static bool hibernate_i2c_stop(void)
+{
+    if (!hibernate_i2c_wait_ready())
+        return false;
+
+    IICSTAT(0) &= ~(1u << 5);
+    if (!hibernate_i2c_wait_ready())
+        return false;
+
+    IICCON(0) = 0x10;
+    return hibernate_i2c_wait_io();
+}
+
+/*
+ * Minimal polled write used after caches are disabled.  It deliberately
+ * mirrors i2c-s5l8702.c but has no mutex, scheduler, DRAM, or clock-helper
+ * dependency.  The caller owns the I2C0 clock gate and interrupt exclusion.
+ */
+static bool hibernate_i2c_write_reg(uint8_t reg, uint8_t value) ICODE_ATTR;
+static bool hibernate_i2c_write_reg(uint8_t reg, uint8_t value)
+{
+    const uint8_t bytes[2] = { reg, value };
+    bool ok = true;
+
+    if (!hibernate_i2c_wait_ready())
+        return false;
+
+    IICCON(0) = 1u << 7; /* polled, ACK generation, source clock / 32 */
+    if (!hibernate_i2c_wait_ready())
+        return false;
+
+    IICSTAT(0) = 0xc0; /* master transmit mode */
+    if (!hibernate_i2c_wait_ready())
+        return false;
+
+    IICDS(0) = 0xe6; /* PCF50635 8-bit write address */
+    if (!hibernate_i2c_wait_ready())
+        return false;
+
+    IICSTAT(0) = 0xf0; /* START + serial output */
+    if (!hibernate_i2c_wait_io() || (IICSTAT(0) & 1u) != 0)
+        ok = false;
+
+    for (unsigned i = 0; ok && i < 2; i++)
+    {
+        if (!hibernate_i2c_wait_ready())
+        {
+            ok = false;
+            break;
+        }
+
+        IICDS(0) = bytes[i];
+        hibernate_delay_us(5);
+        if (!hibernate_i2c_wait_ready())
+        {
+            ok = false;
+            break;
+        }
+
+        IICCON(0) = IICCON(0);
+        if (!hibernate_i2c_wait_io() || (IICSTAT(0) & 1u) != 0)
+            ok = false;
+    }
+
+    if (!hibernate_i2c_stop())
+        ok = false;
+
+    return ok;
+}
+
+bool ipod6g_hibernate_stage1_i2c_preflight(void)
+{
+    uint8_t expected;
+    uint8_t observed;
+    int oldlevel;
+    bool ok;
+
+    if (pmu_read_multiple(PCF5063X_REG_OOCWAKE, 1, &expected) != 0)
+        return false;
+
+    oldlevel = disable_interrupt_save(IRQ_FIQ_STATUS);
+    hibernate_i2c_clock(true);
+    ok = hibernate_i2c_write_reg(PCF5063X_REG_OOCWAKE, expected);
+    if (hibernate_i2c_wait_ready())
+        IICSTAT(0) = 0;
+    hibernate_i2c_clock(false);
+    restore_interrupt(oldlevel);
+
+    if (!ok ||
+        pmu_read_multiple(PCF5063X_REG_OOCWAKE, 1, &observed) != 0)
+    {
+        return false;
+    }
+
+    return observed == expected;
 }
 
 bool ipod6g_hibernate_stage1_arm(void)
@@ -386,10 +612,81 @@ bool ipod6g_hibernate_stage1_arm(void)
         return false;
     }
 
+    record->last_phase = IPOD6G_HIBERNATE_PHASE_ENTRY_READY;
+    record_commit_crc(record);
+    commit_dcache();
+
     return true;
 }
 
+void ipod6g_hibernate_stage1_fail(
+        enum ipod6g_hibernate_failure failure)
+{
+    volatile struct ipod6g_hibernate_record *record =
+            (volatile struct ipod6g_hibernate_record *)
+            IPOD6G_HIBERNATE_CONTROL_ADDR;
+
+    if (ipod6g_hibernate_record_valid(record))
+    {
+        record->state = IPOD6G_HIBERNATE_RECORD_FAILED;
+        record->failure = failure;
+        record_commit_crc(record);
+        commit_dcache();
+    }
+
+    ipod6g_hibernate_token_clear();
+}
+
+void ipod6g_hibernate_stage1_enter(void) ICODE_ATTR;
+void ipod6g_hibernate_stage1_enter(void)
+{
+    bool marker_written;
+    uint32_t control;
+
+    disable_interrupt(IRQ_FIQ_STATUS);
+    commit_discard_idcache();
+
+    /* RetailOS payload offsets 0x31a4 and 0x318c: D/I cache off, MMU on. */
+    asm volatile(
+        "mrc p15, 0, %0, c1, c0, 0\n"
+        "bic %0, %0, #4\n"
+        "bic %0, %0, #0x1000\n"
+        "mcr p15, 0, %0, c1, c0, 0\n"
+        : "=&r"(control)
+        :
+        : "memory");
+
+    /* RetailOS payload offset 0x25ac, mode 1. */
+    MIUCON = (MIUCON & ~0x0f000000u) | 0x0a100000u;
+    MIU_REG(0x14) = 1;
+    asm volatile("mcr p15, 0, %0, c7, c10, 4" : : "r"(0) : "memory");
+
+    hibernate_delay_us(10000);
+    hibernate_i2c_clock(true);
+    marker_written = hibernate_i2c_write_reg(
+            PCF5063X_REG_GPIO3CFG, 0);
+    hibernate_delay_us(100000);
+
+    /* PCF50635 value 2 is the exact RetailOS retained-standby request. */
+    hibernate_i2c_write_reg(PCF5063X_REG_OOCSHDWN,
+                            marker_written ? 2 : 1);
+
+    while (1);
+}
+
 #else /* !IPOD6G_HIBERNATE_STAGE1 */
+
+bool ipod6g_hibernate_stage1_request(uint32_t sequence)
+{
+    (void)sequence;
+    return false;
+}
+
+bool ipod6g_hibernate_stage1_consume_request(uint32_t *sequence)
+{
+    (void)sequence;
+    return false;
+}
 
 bool ipod6g_hibernate_stage1_prepare(uint32_t sequence)
 {
@@ -400,6 +697,22 @@ bool ipod6g_hibernate_stage1_prepare(uint32_t sequence)
 bool ipod6g_hibernate_stage1_arm(void)
 {
     return false;
+}
+
+bool ipod6g_hibernate_stage1_i2c_preflight(void)
+{
+    return false;
+}
+
+void ipod6g_hibernate_stage1_fail(
+        enum ipod6g_hibernate_failure failure)
+{
+    (void)failure;
+}
+
+void ipod6g_hibernate_stage1_enter(void)
+{
+    while (1);
 }
 
 #endif /* IPOD6G_HIBERNATE_STAGE1 */

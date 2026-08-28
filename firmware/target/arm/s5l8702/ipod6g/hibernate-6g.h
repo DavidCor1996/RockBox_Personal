@@ -79,9 +79,10 @@ enum ipod6g_hibernate_phase
     IPOD6G_HIBERNATE_PHASE_NONE          = 0,
     IPOD6G_HIBERNATE_PHASE_RECORD_READY  = 1,
     IPOD6G_HIBERNATE_PHASE_TOKEN_ARMED   = 2,
-    IPOD6G_HIBERNATE_PHASE_BOOT_CLAIMED  = 3,
-    IPOD6G_HIBERNATE_PHASE_MIU_RESTORED  = 4,
-    IPOD6G_HIBERNATE_PHASE_DATA_VERIFIED = 5,
+    IPOD6G_HIBERNATE_PHASE_ENTRY_READY   = 3,
+    IPOD6G_HIBERNATE_PHASE_BOOT_CLAIMED  = 4,
+    IPOD6G_HIBERNATE_PHASE_MIU_RESTORED  = 5,
+    IPOD6G_HIBERNATE_PHASE_DATA_VERIFIED = 6,
 };
 
 enum ipod6g_hibernate_failure
@@ -92,6 +93,17 @@ enum ipod6g_hibernate_failure
     IPOD6G_HIBERNATE_FAILURE_RECORD        = 3,
     IPOD6G_HIBERNATE_FAILURE_IRAM_CRC      = 4,
     IPOD6G_HIBERNATE_FAILURE_PROBE_CRC     = 5,
+    IPOD6G_HIBERNATE_FAILURE_I2C_PREFLIGHT = 6,
+};
+
+struct ipod6g_hibernate_status
+{
+    bool valid;
+    uint32_t state;
+    uint32_t sequence;
+    uint32_t attempt_count;
+    uint32_t last_phase;
+    uint32_t failure;
 };
 
 struct ipod6g_hibernate_token
@@ -158,9 +170,18 @@ bool ipod6g_hibernate_record_valid(
         const volatile struct ipod6g_hibernate_record *record);
 
 #ifndef BOOTLOADER
-/* These prepare and arm a probe record only.  They do not enter standby. */
+/* Stage 1 remains an explicit, one-shot retention test, not UI resume. */
+bool ipod6g_hibernate_stage1_get_status(
+        struct ipod6g_hibernate_status *status);
+bool ipod6g_hibernate_stage1_request(uint32_t sequence);
+bool ipod6g_hibernate_stage1_consume_request(uint32_t *sequence);
 bool ipod6g_hibernate_stage1_prepare(uint32_t sequence);
+bool ipod6g_hibernate_stage1_i2c_preflight(void);
 bool ipod6g_hibernate_stage1_arm(void);
+void ipod6g_hibernate_stage1_fail(
+        enum ipod6g_hibernate_failure failure);
+void ipod6g_hibernate_stage1_enter(void)
+        __attribute__((noreturn));
 #else
 enum ipod6g_hibernate_boot_action
 {

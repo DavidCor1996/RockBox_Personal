@@ -144,6 +144,7 @@
 #include "norboot-target.h"
 #include "pmu-target.h"
 #include "videoout-6g.h"
+#include "hibernate-6g.h"
 #endif
 
 #ifdef SIMULATOR
@@ -2913,6 +2914,76 @@ static bool dbg_device_data(void)
 
 
 #if defined(IPOD_6G) && !defined(SIMULATOR)
+#if IPOD6G_HIBERNATE_STAGE1
+static const char *dbg_hibernate_state_name(uint32_t state)
+{
+    switch (state)
+    {
+        case IPOD6G_HIBERNATE_RECORD_CAPABLE: return "ready";
+        case IPOD6G_HIBERNATE_RECORD_PREPARED: return "prepared";
+        case IPOD6G_HIBERNATE_RECORD_ARMED: return "armed";
+        case IPOD6G_HIBERNATE_RECORD_VALIDATING: return "validating";
+        case IPOD6G_HIBERNATE_RECORD_PASSED: return "PASSED";
+        case IPOD6G_HIBERNATE_RECORD_FAILED: return "FAILED";
+        default: return "unavailable";
+    }
+}
+
+static bool dbg_hibernate_stage1(void)
+{
+    struct ipod6g_hibernate_status status;
+    bool ready = ipod6g_hibernate_stage1_get_status(&status) &&
+            (status.state == IPOD6G_HIBERNATE_RECORD_CAPABLE ||
+             status.state == IPOD6G_HIBERNATE_RECORD_PASSED ||
+             status.state == IPOD6G_HIBERNATE_RECORD_FAILED);
+
+    lcd_set_background(LCD_RGBPACK(0, 0, 0));
+    lcd_set_foreground(LCD_RGBPACK(255, 255, 255));
+    lcd_clear_display();
+    lcd_puts(0, 0, "iPod6G retention test");
+    lcd_putsf(0, 2, "State: %s",
+              status.valid ? dbg_hibernate_state_name(status.state) :
+                             "invalid record");
+    lcd_putsf(0, 3, "Seq:%lu attempts:%lu",
+              (unsigned long)status.sequence,
+              (unsigned long)status.attempt_count);
+    lcd_putsf(0, 4, "Phase:%lu failure:%lu",
+              (unsigned long)status.last_phase,
+              (unsigned long)status.failure);
+    lcd_puts(0, 7, ready ? "SELECT: arm + power off" :
+                           "Matching test bootloader required");
+    lcd_puts(0, 8, "MENU: cancel");
+    lcd_update();
+
+    while (1)
+    {
+        int action = get_action(CONTEXT_STD, HZ / 4);
+        if (action == ACTION_STD_CANCEL)
+            break;
+
+        if (action == ACTION_STD_OK && ready)
+        {
+            if (!ipod6g_hibernate_stage1_request((uint32_t)current_tick))
+            {
+                splash(HZ * 2, "Retention test refused");
+                break;
+            }
+
+            lcd_clear_display();
+            lcd_puts(0, 0, "Retention test armed");
+            lcd_puts(0, 2, "Flushing and powering off...");
+            lcd_update();
+            sys_poweroff();
+            break;
+        }
+    }
+
+    lcd_set_background(LCD_DEFAULT_BG);
+    lcd_set_foreground(LCD_DEFAULT_FG);
+    return false;
+}
+#endif /* IPOD6G_HIBERNATE_STAGE1 */
+
 static void dbg_videoout_text(const char *title, const char *detail)
 {
 #ifdef IPOD_ACCESSORY_PROTOCOL
@@ -3422,6 +3493,9 @@ static const struct {
 #endif
 
 #if defined(IPOD_6G) && !defined(SIMULATOR)
+#if IPOD6G_HIBERNATE_STAGE1
+        {"Test retained standby", dbg_hibernate_stage1 },
+#endif
         {"Test composite video", dbg_videoout },
         {"View SysCfg", dbg_syscfg },
         {"Dump bootflash to file", dbg_bootflash_dump },
