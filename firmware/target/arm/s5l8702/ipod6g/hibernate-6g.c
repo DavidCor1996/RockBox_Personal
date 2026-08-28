@@ -389,6 +389,7 @@ bool ipod6g_hibernate_stage1_get_status(
     status->context_cpsr = 0;
     status->context_ttb_crc32 = 0;
     status->context_observed_ttb_crc32 = 0;
+    status->diagnostic_breadcrumb = IPOD6G_HIBERNATE_DIAG_NONE;
 
     if (!ipod6g_hibernate_record_valid(record))
         return false;
@@ -412,6 +413,7 @@ bool ipod6g_hibernate_stage1_get_status(
 #if IPOD6G_HIBERNATE_STAGE3
     status->context_ttb_crc32 = record->ttb_crc32;
     status->context_observed_ttb_crc32 = record->observed_ttb_crc32;
+    status->diagnostic_breadcrumb = record->reserved[0];
 #endif
     return true;
 }
@@ -583,8 +585,7 @@ bool ipod6g_hibernate_prepare(uint32_t sequence, uint32_t mode)
     record_init(record, IPOD6G_HIBERNATE_RECORD_PREPARED);
     record->sequence = sequence;
     record->mode = mode;
-    record->requested_wake_mask =
-            PCF5063X_OOCWAKE_EXTON2 | PCF5063X_OOCWAKE_EXTON1;
+    record->requested_wake_mask = IPOD6G_HIBERNATE_WAKE_MASK;
     record->iram_shadow_crc32 = crc32_region(
             IPOD6G_HIBERNATE_IRAM_SHADOW_ADDR,
             IPOD6G_HIBERNATE_IRAM_SHADOW_SIZE);
@@ -738,6 +739,7 @@ static void ipod6g_hibernate_stage3_resume_payload(
     uintptr_t observed_sp;
     uint32_t result = cookie;
 
+    record->reserved[0] = IPOD6G_HIBERNATE_DIAG_APP_ENTER;
     asm volatile("mov %0, sp" : "=r"(observed_sp));
 
     if (record != (volatile struct ipod6g_hibernate_record *)
@@ -770,6 +772,7 @@ static void ipod6g_hibernate_stage3_resume_payload(
         bootloader_sp >= IRAM1_ORIG &&
         bootloader_sp < IRAM1_ORIG + IRAM1_SIZE)
     {
+        record->reserved[0] = IPOD6G_HIBERNATE_DIAG_APP_RETURN;
         ((ipod6g_hibernate_stage3_return_fn)return_entry)(
                 record, result, bootloader_sp);
     }
@@ -963,7 +966,8 @@ bool ipod6g_hibernate_stage1_i2c_preflight(void)
     int oldlevel;
     bool ok;
 
-    if (pmu_read_multiple(PCF5063X_REG_OOCWAKE, 1, &expected) != 0)
+    if (pmu_read_multiple(PCF5063X_REG_OOCWAKE, 1, &expected) != 0 ||
+        expected != IPOD6G_HIBERNATE_WAKE_MASK)
         return false;
 
     oldlevel = disable_interrupt_save(IRQ_FIQ_STATUS);
@@ -1161,6 +1165,30 @@ static void record_failure(enum ipod6g_hibernate_failure failure)
     volatile struct ipod6g_hibernate_record *record =
             (volatile struct ipod6g_hibernate_record *)
             IPOD6G_HIBERNATE_CONTROL_ADDR;
+
+    /*
+     * A reset during the Stage 3 round trip leaves the PMU token in RESUMING.
+     * Preserve the last raw breadcrumb even if the continuation changed
+     * CRC-covered result fields before the reset.  No retained address is
+     * executed here; the fixed record layout is validated first and the
+     * bootloader immediately converts it into a fresh FAILED record CRC.
+     */
+#if IPOD6G_HIBERNATE_STAGE3
+    if (record_layout_valid(record) &&
+        record->mode == IPOD6G_HIBERNATE_MODE_CONTROLLED_CONTEXT &&
+        (record->reserved[0] == IPOD6G_HIBERNATE_DIAG_BOOT_ENTER ||
+         record->reserved[0] == IPOD6G_HIBERNATE_DIAG_APP_ENTER ||
+         record->reserved[0] == IPOD6G_HIBERNATE_DIAG_APP_RETURN ||
+         record->reserved[0] == IPOD6G_HIBERNATE_DIAG_RETURN_STUB ||
+         record->reserved[0] == IPOD6G_HIBERNATE_DIAG_BOOT_RETURN))
+    {
+        record->state = IPOD6G_HIBERNATE_RECORD_FAILED;
+        record->failure = IPOD6G_HIBERNATE_FAILURE_CONTEXT_INTERRUPTED;
+        record_commit_crc(record);
+        commit_dcache();
+        return;
+    }
+#endif
 
     record_clear();
     record_init(record, IPOD6G_HIBERNATE_RECORD_FAILED);
@@ -1419,6 +1447,7 @@ bool ipod6g_hibernate_validate_after_wake(uint32_t wake_reason)
 
             record->state = IPOD6G_HIBERNATE_RECORD_CONTEXT_ENTERING;
             record->last_phase = IPOD6G_HIBERNATE_PHASE_CONTEXT_ENTERED;
+            record->reserved[0] = IPOD6G_HIBERNATE_DIAG_BOOT_ENTER;
             record_commit_crc(record);
             commit_discard_idcache();
 
@@ -1427,6 +1456,7 @@ bool ipod6g_hibernate_validate_after_wake(uint32_t wake_reason)
                     record, IPOD6G_HIBERNATE_CONTEXT_COOKIE,
                     (uintptr_t)ipod6g_hibernate_stage3_return);
 
+            record->reserved[0] = IPOD6G_HIBERNATE_DIAG_BOOT_RETURN;
             record->payload_return_value = context_return;
             if (!record_layout_valid(record) ||
                 !stage3_context_metadata_valid(record) ||

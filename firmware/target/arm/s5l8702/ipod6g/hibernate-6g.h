@@ -68,6 +68,30 @@
 #define IPOD6G_HIBERNATE_STACK_GUARD         0x5354414b /* "STAK" */
 #define IPOD6G_HIBERNATE_APP_IRAM_TOP        0x0000c000
 
+/*
+ * Keep the ordinary power-off wake mask unchanged.  An explicitly armed
+ * retained-context test additionally enables the PMU's dedicated USB and
+ * adapter insertion inputs.  The PCF50633 manual identifies these five bits
+ * as independent Standby wake enables; EXTON2 is also the iPod's observed
+ * USB-VBUS input.
+ */
+#define IPOD6G_HIBERNATE_WAKE_MASK           0x000000c7
+
+/*
+ * Stage 3 breadcrumbs deliberately occupy the existing reserved record tail.
+ * The app continuation cannot safely call the CRC implementation, so the
+ * bootloader treats these as raw post-reset evidence only after validating
+ * the fixed record layout.  Values identify the last boundary crossed when a
+ * controlled context call is interrupted by a hard reset.
+ */
+#define IPOD6G_HIBERNATE_DIAGNOSTIC_OFFSET   232
+#define IPOD6G_HIBERNATE_DIAG_NONE           0x00000000
+#define IPOD6G_HIBERNATE_DIAG_BOOT_ENTER     0x48334231 /* "H3B1" */
+#define IPOD6G_HIBERNATE_DIAG_APP_ENTER      0x48334132 /* "H3A2" */
+#define IPOD6G_HIBERNATE_DIAG_APP_RETURN     0x48334133 /* "H3A3" */
+#define IPOD6G_HIBERNATE_DIAG_RETURN_STUB    0x48334234 /* "H3B4" */
+#define IPOD6G_HIBERNATE_DIAG_BOOT_RETURN    0x48334235 /* "H3B5" */
+
 #if IPOD6G_HIBERNATE_PAYLOAD_STACK_TOP - \
         IPOD6G_HIBERNATE_PAYLOAD_STACK_BOTTOM != \
         IPOD6G_HIBERNATE_PAYLOAD_STACK_SIZE
@@ -75,9 +99,9 @@
 #endif
 
 #if IPOD6G_HIBERNATE_STAGE3
-#define IPOD6G_HIBERNATE_TOKEN_VERSION      3
-#define IPOD6G_HIBERNATE_RESUME_ABI         3
-#define IPOD6G_HIBERNATE_RECORD_VERSION     3
+#define IPOD6G_HIBERNATE_TOKEN_VERSION      4
+#define IPOD6G_HIBERNATE_RESUME_ABI         4
+#define IPOD6G_HIBERNATE_RECORD_VERSION     4
 #else
 #define IPOD6G_HIBERNATE_TOKEN_VERSION      2
 #define IPOD6G_HIBERNATE_RESUME_ABI         2
@@ -179,6 +203,7 @@ enum ipod6g_hibernate_failure
     IPOD6G_HIBERNATE_FAILURE_CONTEXT_METADATA = 12,
     IPOD6G_HIBERNATE_FAILURE_IRAM_RESTORE     = 13,
     IPOD6G_HIBERNATE_FAILURE_CONTEXT_RETURN   = 14,
+    IPOD6G_HIBERNATE_FAILURE_CONTEXT_INTERRUPTED = 15,
 };
 
 struct ipod6g_hibernate_status
@@ -201,6 +226,7 @@ struct ipod6g_hibernate_status
     uint32_t context_cpsr;
     uint32_t context_ttb_crc32;
     uint32_t context_observed_ttb_crc32;
+    uint32_t diagnostic_breadcrumb;
 };
 
 struct ipod6g_hibernate_token
@@ -349,6 +375,11 @@ typedef char ipod6g_hibernate_cpu_pc_offset_must_match
 typedef char ipod6g_hibernate_cpu_domain_offset_must_match
         [(offsetof(struct ipod6g_hibernate_cpu_context, cp15_domain) ==
           IPOD6G_HIBERNATE_CPU_DOMAIN_OFFSET) ? 1 : -1];
+#if IPOD6G_HIBERNATE_STAGE3
+typedef char ipod6g_hibernate_diagnostic_offset_must_match
+        [(offsetof(struct ipod6g_hibernate_record, reserved[0]) ==
+          IPOD6G_HIBERNATE_DIAGNOSTIC_OFFSET) ? 1 : -1];
+#endif
 
 #endif /* !ASM */
 #endif /* __HIBERNATE_6G_H__ */

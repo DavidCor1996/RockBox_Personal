@@ -3059,6 +3059,19 @@ static bool dbg_hibernate_stage2(void)
 #endif /* IPOD6G_HIBERNATE_STAGE2 */
 
 #if IPOD6G_HIBERNATE_STAGE3
+static const char *dbg_hibernate_breadcrumb_name(uint32_t breadcrumb)
+{
+    switch (breadcrumb)
+    {
+        case IPOD6G_HIBERNATE_DIAG_BOOT_ENTER: return "boot call";
+        case IPOD6G_HIBERNATE_DIAG_APP_ENTER: return "app entered";
+        case IPOD6G_HIBERNATE_DIAG_APP_RETURN: return "app returning";
+        case IPOD6G_HIBERNATE_DIAG_RETURN_STUB: return "return stub";
+        case IPOD6G_HIBERNATE_DIAG_BOOT_RETURN: return "boot returned";
+        default: return "none";
+    }
+}
+
 static bool dbg_hibernate_stage3(void)
 {
     struct ipod6g_hibernate_status status;
@@ -3072,33 +3085,37 @@ static bool dbg_hibernate_stage3(void)
     lcd_set_background(LCD_RGBPACK(0, 0, 0));
     lcd_set_foreground(LCD_RGBPACK(255, 255, 255));
     lcd_clear_display();
-    lcd_puts(0, 0, "iPod6G context-resume test");
-    lcd_putsf(0, 1, "State:%s mode:%lu",
+    lcd_puts(0, 0, "*** HIBERNATE TEST CORE ***");
+    lcd_puts(0, 1, "Stage 3A-R2 / ABI 4 / /.rbtv");
+    lcd_putsf(0, 2, "State:%s mode:%lu",
               status.valid ? dbg_hibernate_state_name(status.state) :
                              "invalid record",
               (unsigned long)status.mode);
-    lcd_putsf(0, 2, "Attempts:%lu phase:%lu fail:%lu",
+    lcd_putsf(0, 3, "Attempts:%lu phase:%lu fail:%lu",
               (unsigned long)status.attempt_count,
               (unsigned long)status.last_phase,
               (unsigned long)status.failure);
-    lcd_putsf(0, 3, "PC:%08lx SP:%08lx",
+    lcd_putsf(0, 4, "PC:%08lx SP:%08lx",
               (unsigned long)status.context_pc,
               (unsigned long)status.context_sp);
-    lcd_putsf(0, 4, "CPSR:%08lx wake:%02lx",
+    lcd_putsf(0, 5, "CPSR:%08lx wake:%06lx",
               (unsigned long)status.context_cpsr,
               (unsigned long)status.observed_wake_reason);
-    lcd_putsf(0, 5, "TTB:%08lx/%08lx",
+    lcd_putsf(0, 6, "TTB:%08lx/%08lx",
               (unsigned long)status.context_ttb_crc32,
               (unsigned long)status.context_observed_ttb_crc32);
-    lcd_putsf(0, 6, "Cookie:%08lx/%08lx",
+    lcd_putsf(0, 7, "Cookie:%08lx/%08lx",
               (unsigned long)status.payload_expected_cookie,
               (unsigned long)status.payload_observed_cookie);
-    lcd_putsf(0, 7, "SP2:%08lx ret:%08lx",
+    lcd_putsf(0, 8, "SP2:%08lx ret:%08lx",
               (unsigned long)status.payload_observed_sp,
               (unsigned long)status.payload_return_value);
-    lcd_puts(0, 9, ready ? "SELECT: arm context + power off" :
-                           "Matching Stage 3 bootloader required");
-    lcd_puts(0, 10, "MENU: cancel");
+    lcd_putsf(0, 9, "Trail:%s %08lx",
+              dbg_hibernate_breadcrumb_name(status.diagnostic_breadcrumb),
+              (unsigned long)status.diagnostic_breadcrumb);
+    lcd_puts(0, 11, ready ? "SELECT: ARM + POWER OFF" :
+                            "Matching ABI-4 bootloader required");
+    lcd_puts(0, 12, "MENU: exit without testing");
     lcd_update();
 
     while (1)

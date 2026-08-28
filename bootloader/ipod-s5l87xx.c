@@ -1863,6 +1863,7 @@ void main(void)
 #if defined(IPOD_6G) && IPOD6G_HIBERNATE_STAGE1
     bool hibernate_preinitialized = false;
     bool hibernate_publish_capability = true;
+    bool hibernate_recover_stale = false;
     uint32_t hibernate_wake_reason = 0;
 #endif
 #ifdef IPOD_6G
@@ -1913,7 +1914,17 @@ void main(void)
 
             if (action == IPOD6G_HIBERNATE_BOOT_ROCKBOX)
             {
+                unsigned char wake_interrupts[2] = { 0, 0 };
+
                 hibernate_wake_reason = pmu_rd(PCF5063X_REG_OOCSTAT);
+                if (pmu_rd_multiple(PCF5063X_REG_INT1, 2,
+                                    wake_interrupts) == 0)
+                {
+                    hibernate_wake_reason |=
+                            (uint32_t)wake_interrupts[0] << 8;
+                    hibernate_wake_reason |=
+                            (uint32_t)wake_interrupts[1] << 16;
+                }
                 /* Full magic remains present if this update is interrupted. */
                 ipod6g_hibernate_token_set_state(
                         IPOD6G_HIBERNATE_TOKEN_RESUMING);
@@ -1940,8 +1951,20 @@ void main(void)
     }
     else
     {
-        /* Clearing retained ownership is only safe outside hibernation. */
-        ipod6g_hibernate_clear_stale_token();
+        struct ipod6g_hibernate_token token;
+
+        /*
+         * A hard reset after the PMU has already returned to Active clears
+         * the hibernated indication, but the RESUMING token still proves an
+         * interrupted Rockbox attempt.  Defer touching its SDRAM record until
+         * memory initialization has made that access safe.
+         */
+        if (ipod6g_hibernate_token_read(&token) &&
+            ipod6g_hibernate_token_owned(&token))
+        {
+            hibernate_recover_stale = true;
+            hibernate_publish_capability = false;
+        }
     }
 #endif /* !N25_ANDROID_FORCE_VOLATILE_TEST */
 #else /* normal boot path, intentionally unchanged */
@@ -1964,7 +1987,12 @@ void main(void)
         memory_init();
     }
 
-    if (hibernate_publish_capability)
+    if (hibernate_recover_stale)
+    {
+        ipod6g_hibernate_stage1_mark_recovery(
+                IPOD6G_HIBERNATE_FAILURE_TOKEN_INVALID);
+    }
+    else if (hibernate_publish_capability)
         ipod6g_hibernate_stage1_publish_capability();
 #else
     system_preinit();

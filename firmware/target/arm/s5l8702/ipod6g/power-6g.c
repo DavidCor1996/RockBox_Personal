@@ -57,6 +57,13 @@ void power_off(void)
     uint32_t mode;
     if (ipod6g_hibernate_consume_request(&sequence, &mode))
     {
+        /*
+         * This is an explicitly armed test, so also enable the PMU's
+         * dedicated USB and adapter insertion wake inputs.  The ordinary
+         * power-off mask above remains unchanged for every other shutdown.
+         */
+        pmu_set_wake_condition(IPOD6G_HIBERNATE_WAKE_MASK);
+
         if (!ipod6g_hibernate_prepare(sequence, mode))
         {
             ipod6g_hibernate_stage1_fail(

@@ -126,6 +126,8 @@ ipod6g_hibernate_stage3_resume_call:
 
 /* Called exactly once by the retained app continuation. */
 ipod6g_hibernate_stage3_return:
+    ldr     r12, =IPOD6G_HIBERNATE_DIAG_RETURN_STUB
+    str     r12, [r0, #IPOD6G_HIBERNATE_DIAGNOSTIC_OFFSET]
     msr     cpsr_c, #0xd3
     mov     sp, r2
     mov     r0, r1

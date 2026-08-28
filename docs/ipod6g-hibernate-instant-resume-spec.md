@@ -4,10 +4,13 @@
 
 This is a research and implementation specification, not a claim that full
 resume is already safe. The retained-RAM and controlled retained-payload gates
-now pass on a real iPod Classic. The controlled CPU-context round-trip gate is
-implemented and passes local linked-image checks but has not yet run on
-hardware. Repeated retention, full kernel continuation, driver resume, and
-fault-injection gates remain experimental and incomplete.
+now pass on a real iPod Classic. The first controlled CPU-context round-trip
+attempt entered retained standby but did not visibly complete after either a
+button or cable wake attempt; a forced reset returned to normal Rockbox. That
+attempt did not retain enough evidence to distinguish a missed PMU wake from a
+hang during the context handoff. Stage 3A-R2 addresses those diagnostic gaps
+but has not yet run on hardware. Repeated retention, full kernel continuation,
+driver resume, and fault-injection gates remain experimental and incomplete.
 
 The target is the existing `IPOD_6G` Rockbox target. Rockbox uses that target
 for both the 6th- and 7th-generation Classic hardware.
@@ -67,8 +70,11 @@ translation-table CRC and app/bootloader build-version fingerprint, restores
 IRAM, and performs a bounded context/stack round trip through an IRAM1
 bootloader frame. Normal, Stage 2, and Stage 3 app/bootloader builds pass, the
 linked retained code contains no unapproved external direct branch, and the
-Stage 3 dependency guard rejects an incomplete configuration. Stage 3A still
-requires its first real-hardware cycle.
+Stage 3 dependency guard rejects an incomplete configuration. Its first
+hardware attempt did not visibly return. The ABI-4 Stage 3A-R2 revision adds
+an isolated runtime directory, explicit build identity, broader test-only PMU
+wake enables, raw handoff breadcrumbs, and preservation of interrupted-resume
+evidence across the next forced reset.
 
 ### First real-hardware retention result — 2026-08-28
 
@@ -116,6 +122,41 @@ stack/cookie checks, PMU ownership clearing, and safe normal-load fallback. It
 does not yet prove restoration of a suspended Rockbox CPU/kernel context,
 scheduler continuation, peripheral restoration, repeat reliability, or the
 production instant-resume latency target.
+
+### First real-hardware controlled-context attempt — 2026-08-28
+
+The first Stage 3A attempt was inconclusive and is recorded as a failure, not
+as evidence that the context path works:
+
+- the isolated application armed the test and the iPod entered retained
+  standby;
+- neither pressing Menu nor inserting a cable produced a visible Rockbox
+  screen, and a forced reset eventually returned to the normal personal
+  firmware;
+- the archived application had accidentally been configured with
+  `ROCKBOX_DIR="/.rockbox"` even though its manifest claimed `/.rbtv`, so Rolo
+  reused the normal theme and settings and was visually indistinguishable from
+  the personal firmware; and
+- after a forced reset, the ABI-3 bootloader cleared the stale ownership token
+  and published a fresh capability record. That destroyed the last context
+  phase and made it impossible to tell whether the PMU had failed to wake or
+  the bootloader had woken and then hung during the handoff.
+
+Stage 3A-R2 uses ABI 4 so it cannot arm against the earlier bootloader. Its
+application is compiled against `/.rbtv`, displays an unavoidable three-second
+`HIBERNATE TEST BUILD / Stage 3A-R2 / ABI 4 / Runtime: /.rbtv` splash, and
+labels its debug screen the same way. The explicitly armed test uses PMU wake
+mask `0xc7` (ONKEY, EXTON1, EXTON2, dedicated USB insert, and adapter insert),
+requires exact readback before arming, and records OOC status plus PMU INT1 and
+INT2 status on wake. Ordinary Rockbox power-off keeps its established wake mask
+unchanged.
+
+Five raw breadcrumbs identify the last boundary crossed: bootloader context
+call, application continuation entry, application return dispatch, IRAM1
+return-stub entry, and return to the bootloader caller. If a handoff hangs, a
+subsequent forced reset converts the stale `RESUMING` token into a CRC-protected
+failure record while preserving that breadcrumb. This makes the next attempt
+diagnostic rather than another blind repetition.
 
 ## Desired User Experience
 
@@ -660,7 +701,7 @@ The application side:
 
 The matching bootloader executes entirely from IRAM1. After MIU recovery it:
 
-1. claims the one-shot PMU token and validates record/resume ABI version 3;
+1. claims the one-shot PMU token and validates record/resume ABI version 4;
 2. compares a CRC of its Rockbox build version with the application build,
    validates the retained payload CRC, and requires the rebuilt translation
    table and saved CP15 state to match exactly;
@@ -675,9 +716,10 @@ The matching bootloader executes entirely from IRAM1. After MIU recovery it:
 
 The context continuation does not enable interrupts, call kernel code, touch
 devices, or return to the suspended UI. A hang leaves the PMU token in the
-`RESUMING` state, so the next hard reset takes the existing fail-closed cold
-boot recovery path. Stage 3A therefore tests the dangerous mode/stack/code
-transition without pretending that full kernel resume is already safe.
+`RESUMING` state. Stage 3A-R2 preserves the last raw boundary breadcrumb when
+the next hard reset takes the fail-closed cold-boot recovery path. Stage 3A
+therefore tests the dangerous mode/stack/code transition without pretending
+that full kernel resume is already safe.
 
 Stage 3A must be enabled in both images with:
 
@@ -687,10 +729,12 @@ Stage 3A must be enabled in both images with:
 -DIPOD6G_HIBERNATE_STAGE3=1
 ```
 
-It is tested only with an isolated Rolo application and its matching
-dual-boot bootloader. It must never be packaged with `mks5lboot --single`.
-The normal personal Rockbox image remains the disk boot target after the
-round trip.
+It is tested only with an isolated `ROCKBOX_DIR="/.rbtv"` Rolo application and
+its matching dual-boot bootloader. It must never be packaged with
+`mks5lboot --single`. The normal personal Rockbox image remains the disk boot
+target after the round trip. A successful wake therefore cold-loads the normal
+personal firmware; it does not automatically reload the Rolo test image. Rolo
+is launched manually afterward only to inspect the retained result.
 
 After one armed wake, Rolo the matching Stage 3A application again and open
 `Debug > Test retained context`. Success must show:
@@ -707,6 +751,24 @@ Any mismatch is a failed Stage 3A gate. Record the complete diagnostic screen
 before another attempt. Passing Stage 3A authorizes work on the hardware
 resume coordinator; it does not by itself authorize exposing hibernate as a
 normal setting.
+
+If no visible boot follows a wake attempt, perform one forced reset and launch
+the same Rolo image once. Interpret the `Trail` field as follows:
+
+| Trail text | Raw value | Last proven boundary |
+| --- | --- | --- |
+| `none` | `00000000` | No Stage 3 context-call boundary was preserved. |
+| `boot call` | `48334231` | Bootloader validated the image and was about to enter the application continuation. |
+| `app entered` | `48334132` | Retained application continuation began on the restored Rockbox stack. |
+| `app returning` | `48334133` | Continuation validated its inputs and dispatched to the IRAM1 return stub. |
+| `return stub` | `48334234` | IRAM1 return stub was reached before restoring the bootloader frame. |
+| `boot returned` | `48334235` | Control returned to the bootloader C caller. |
+
+The displayed 24-bit `wake` value packs PMU `OOCSTAT` in bits 0-7, `INT1` in
+bits 8-15, and `INT2` in bits 16-23. Menu is a click-wheel event and is not yet
+proven to map directly to the PMU ONKEY input; cable, adapter, and EXTON wake
+sources must therefore be tested independently instead of assuming one button
+result describes all wake inputs.
 
 ### Stage 3B: Kernel resume with hardware stopped
 
@@ -817,8 +879,11 @@ Likely implementation points:
 
 ## Recommendation
 
-Run the isolated Stage 3A hardware gate next, while retaining Stages 1 and 2
-as regression and fault-injection gates. If it passes, proceed to the minimal
+Run the isolated ABI-4 Stage 3A-R2 hardware gate next, while retaining Stages 1
+and 2 as regression and fault-injection gates. First prove that Rolo displays
+`Runtime: /.rbtv` and refuses to arm against an older bootloader. Then install
+only the matching dual-boot test bootloader and collect the preserved trail and
+wake status from exactly one attempt. If it passes, proceed to the minimal
 Stage 3B clocks/IRQ/input/LCD/storage resume coordinator. Do not jump directly
 to transparent audio or arbitrary plugin resume.
 
@@ -827,9 +892,11 @@ the device was designed to retain SDRAM, the bootloader already recognizes that
 state, the PMU provides a retained ownership channel, and Rockbox already knows
 how to leave MIU self-refresh. The exact entry sequence is now identified and
 implemented. One retained-RAM cycle and one controlled retained-payload cycle
-pass on real hardware. The controlled CPU-context trampoline now passes local
-build and disassembly gates and is waiting for its first isolated hardware
-cycle. After that, the next engineering work is the minimal
-clocks/IRQ/input/LCD/storage resume coordinator required to continue the
-suspended kernel. Repeat, duration, wake-source, and injected-failure testing
-remain mandatory before this can become a normal user setting.
+pass on real hardware. The first controlled CPU-context attempt entered
+standby but did not visibly complete and lacked sufficient post-reset
+diagnostics. The corrected Stage 3A-R2 trampoline passes local build and
+disassembly gates and is waiting for one isolated ABI-4 hardware cycle. After
+that, the next engineering work is the minimal clocks/IRQ/input/LCD/storage
+resume coordinator required to continue the suspended kernel. Repeat,
+duration, wake-source, and injected-failure testing remain mandatory before
+this can become a normal user setting.
