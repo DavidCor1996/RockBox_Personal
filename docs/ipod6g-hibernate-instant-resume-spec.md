@@ -9,11 +9,14 @@ its bounded round trip after a forced reset, but the ABI-5 R3 hardware attempt
 remained black and did not respond to Menu or USB before that reset. R3 then
 misclassified the forced reset as a wake because `pmu_is_hibernated()` proves
 only that GPIO3 is low and the PMU does not report a cold boot. It does not
-prove that the PMU ever entered Standby. ABI-6 Stage 3A-R4 therefore adds a
-PMU-retained `ENTRY_STALLED` result and captures the complete early PMU status
-needed to separate a real wake from a forced reset. Repeated retention, full
-kernel continuation, driver resume, and fault-injection gates remain
-experimental and incomplete.
+prove that the PMU ever entered Standby. ABI-6 Stage 3A-R4 added a PMU-retained
+`ENTRY_STALLED` result and captured complete early PMU status. Its first
+hardware result proves that the CPU stopped, SDRAM and the controlled context
+survived, and USB insertion reached the PMU as an EXTON2 rising edge, but the
+PMU did not automatically wake the SoC. ABI-7 Stage 3A-R5 corrects only the
+EXTON2 wake-edge mode and records exact pre-entry before/after readback.
+Repeated retention, full kernel continuation, driver resume, and
+fault-injection gates remain experimental and incomplete.
 
 The target is the existing `IPOD_6G` Rockbox target. Rockbox uses that target
 for both the 6th- and 7th-generation Classic hardware.
@@ -83,7 +86,9 @@ and `FAILED` records and converts every valid nonterminal record to a durable
 failure instead of replacing it. One R3 hardware run proved that persistence
 and the controlled context handoff after a forced reset, but it did not enter
 or wake from PMU Standby. ABI-6 R4 adds a fail-closed Standby-entry proof before
-any further context test.
+any further context test. Its hardware run proved Standby entry and isolated
+the remaining USB failure to EXTON2's wake-edge mode. ABI-7 R5 applies that
+single-bitfield correction with pre-entry readback evidence.
 
 ### First real-hardware retention result — 2026-08-28
 
@@ -227,6 +232,60 @@ executing retained context. R4 also captures these pre-`pmu_preinit` groups:
 Only an automatic return caused by a real wake source, with an ABI-6 `ARMED`
 token that was never converted to `ENTRY_STALLED`, may enter the context
 validation path. Do not arm ABI 5 again.
+
+### Stage 3A-R4 Standby-entry and USB-wake result - 2026-08-29
+
+One matching ABI-6 R4 controlled-context attempt was armed. USB was inserted
+only after the display had gone black. The iPod did not wake automatically;
+Menu+Select was required to force-reset it. Rolo then reported a complete
+`PASSED`, mode 3, attempt 1, phase 12, failure 0 context result with matching
+TTB CRCs, the expected `48365033` context cookie, and the `boot returned`
+breadcrumb.
+
+This is not an automatic-wake pass. It does prove real Standby entry: R4's
+IRAM tail did not survive long enough to publish `ENTRY_STALLED`, so the PMU
+stopped the CPU before the 250 ms deadline. It also reconfirms SDRAM retention,
+IRAM restoration, controlled context entry, and the bounded return path after
+the forced reset.
+
+The early snapshot was:
+
+```text
+wake:001c80ed
+PMU:ed58c700 IRQ:00401c80
+PWR:27606100
+```
+
+Decoded before `pmu_preinit()` could clear the latches, `INT2=1c` includes
+`EXTON2R=10`, while `OOCSTAT=ed` has EXTON2 high. The dedicated `USBINS` bit in
+INT1 was not set. On this iPod, the inserted cable therefore reached the PMU
+through EXTON2. `OOCWAKE=c7` had EXTON2 enabled, but the captured
+`OOCMODE=58` selected EXTON2 mode `10`.
+
+The NXP PCF50633 manual defines EXTON mode `10` as wake on falling edge while
+a rising edge only starts the eight-second timer. Mode `01` is immediate wake
+on a rising edge. The manual also states that OOCMODE resets only in NoPower,
+not on entry to Standby. This exactly explains an EXTON2 rising interrupt with
+no automatic wake. Source: [NXP PCF50633 User Manual, Tables 9 and 12 and
+section 8.1.6.5](https://www.freecalypso.org/pub/GSM/GTA02/PCF50633UM_6.pdf).
+
+Stage 3A-R5 increments the token, record, and resume ABI to 7. Immediately
+before arming, it:
+
+- reads the contiguous `OOCWAKE` through `OOCSTAT` register block;
+- retains `WAKE | MODE<<8 | OOCCTL<<16 | OOCSTAT<<24` as `ENT` before data;
+- changes only OOCMODE bits 3:2 from their current value to `01`, preserving
+  all EXTON1, EXTON3, and ONKEY mode bits;
+- writes the unchanged `OOCWAKE` and corrected `OOCMODE` through the audited
+  polling I2C path; and
+- reads the register block again, retains the after value, and refuses to arm
+  unless both the wake mask and corrected mode match exactly.
+
+The debug screen displays `ENT:<before>/<after>`. A successful R5 preflight
+derived from the R4 snapshot would change only the mode byte, for example
+`ed2758c7` to `ed2754c7`. The post-reset `PMU` field remains useful, but `ENT`
+is the authoritative proof of what was configured immediately before Standby
+in case the boot ROM changes PMU state during a forced reset.
 
 ## Desired User Experience
 
@@ -955,15 +1014,15 @@ Likely implementation points:
 
 ## Recommendation
 
-Run the isolated ABI-6 Stage 3A-R4 Standby-entry proof next, while retaining
-Stages 1 and 2 as regression and fault-injection gates. First prove that Rolo
-displays `Runtime: /.rbtv` and refuses to arm against the ABI-5 bootloader.
-Then install only the matching dual-boot test bootloader and collect the
-durable result and PMU snapshots from exactly one attempt. A `failure:16`
-result means the missing RetailOS prerequisite must be identified before any
-more wake testing. Only a real automatic wake may authorize the minimal Stage
-3B clocks/IRQ/input/LCD/storage resume coordinator. Do not jump directly to
-transparent audio or arbitrary plugin resume.
+Run one isolated ABI-7 Stage 3A-R5 USB-wake attempt while retaining Stages 1
+and 2 as regression and fault-injection gates. First prove that Rolo displays
+`Runtime: /.rbtv` and refuses to arm against the ABI-6 bootloader. Then install
+only the matching dual-boot test bootloader. Arm on battery, wait for Standby,
+and insert USB exactly once. Record `ENT`, PMU, IRQ, PWR, and every context
+field whether the return is automatic or requires one force reset. Only a real
+automatic wake may authorize the minimal Stage 3B clocks/IRQ/input/LCD/storage
+resume coordinator. Do not jump directly to transparent audio or arbitrary
+plugin resume.
 
 The decompile and current Rockbox code answer the major feasibility question:
 the device was designed to retain SDRAM, the bootloader already recognizes that
@@ -973,8 +1032,9 @@ implemented. One retained-RAM cycle and one controlled retained-payload cycle
 pass on real hardware. R2 exposed unconditional result replacement by the next
 capability publication. R3 made the result durable and proved the bounded CPU
 context round trip after a forced reset, but the device remained black and did
-not wake from Menu or USB. R4 now distinguishes “PMU entered Standby” from
-“CPU kept spinning with GPIO3 low.” The missing Standby prerequisite, if R4
-reports `failure:16`, must be resolved before kernel continuation work begins.
+not wake from Menu or USB. R4 distinguished “PMU entered Standby” from
+“CPU kept spinning with GPIO3 low,” proved the former, and captured an EXTON2
+rising event under the wrong edge mode. R5 applies and verifies the resulting
+single-field PMU correction before shutdown.
 Repeat, duration, wake-source, and injected-failure testing remain mandatory
 before this can become a normal user setting.

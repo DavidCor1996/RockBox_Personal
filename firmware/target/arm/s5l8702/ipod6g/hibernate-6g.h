@@ -78,6 +78,15 @@
 #define IPOD6G_HIBERNATE_WAKE_MASK           0x000000c7
 
 /*
+ * OOCMODE bits 3:2 select EXTON2 behavior.  The PCF50633 manual defines
+ * 01 as immediate wake on a rising edge; the R4 hardware capture instead
+ * observed mode 10, where a rising edge merely starts an eight-second
+ * shutdown timer.  Preserve every unrelated mode bit when correcting it.
+ */
+#define IPOD6G_HIBERNATE_EXTON2_MODE_MASK     0x0c
+#define IPOD6G_HIBERNATE_EXTON2_MODE_RISING   0x04
+
+/*
  * Stage 3 breadcrumbs deliberately occupy the existing reserved record tail.
  * The app continuation cannot safely call the CRC implementation, so the
  * bootloader treats these as raw post-reset evidence only after validating
@@ -99,9 +108,9 @@
 #endif
 
 #if IPOD6G_HIBERNATE_STAGE3
-#define IPOD6G_HIBERNATE_TOKEN_VERSION      6
-#define IPOD6G_HIBERNATE_RESUME_ABI         6
-#define IPOD6G_HIBERNATE_RECORD_VERSION     6
+#define IPOD6G_HIBERNATE_TOKEN_VERSION      7
+#define IPOD6G_HIBERNATE_RESUME_ABI         7
+#define IPOD6G_HIBERNATE_RECORD_VERSION     7
 #else
 #define IPOD6G_HIBERNATE_TOKEN_VERSION      2
 #define IPOD6G_HIBERNATE_RESUME_ABI         2
@@ -230,6 +239,8 @@ struct ipod6g_hibernate_status
     uint32_t pmu_control;
     uint32_t pmu_interrupts;
     uint32_t pmu_power;
+    uint32_t pmu_entry_before;
+    uint32_t pmu_entry_after;
     uint32_t payload_expected_cookie;
     uint32_t payload_observed_cookie;
     uint32_t payload_observed_sp;
@@ -309,6 +320,8 @@ struct ipod6g_hibernate_record
     uint32_t record_crc32;
 #if IPOD6G_HIBERNATE_STAGE3
     uint32_t reserved[4];
+    uint32_t pmu_entry_before;
+    uint32_t pmu_entry_after;
 #else
     uint32_t reserved[8];
 #endif

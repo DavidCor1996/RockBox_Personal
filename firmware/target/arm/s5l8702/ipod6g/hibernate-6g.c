@@ -391,6 +391,8 @@ bool ipod6g_hibernate_stage1_get_status(
     status->pmu_control = 0;
     status->pmu_interrupts = 0;
     status->pmu_power = 0;
+    status->pmu_entry_before = 0;
+    status->pmu_entry_after = 0;
     status->payload_expected_cookie = 0;
     status->payload_observed_cookie = 0;
     status->payload_observed_sp = 0;
@@ -428,6 +430,8 @@ bool ipod6g_hibernate_stage1_get_status(
     status->pmu_control = record->reserved[1];
     status->pmu_interrupts = record->reserved[2];
     status->pmu_power = record->reserved[3];
+    status->pmu_entry_before = record->pmu_entry_before;
+    status->pmu_entry_after = record->pmu_entry_after;
 #endif
     return true;
 }
@@ -1005,6 +1009,68 @@ static bool hibernate_token_mark_entry_stalled(void)
 
 bool ipod6g_hibernate_stage1_i2c_preflight(void)
 {
+#if IPOD6G_HIBERNATE_STAGE3
+    volatile struct ipod6g_hibernate_record *record =
+            (volatile struct ipod6g_hibernate_record *)
+            IPOD6G_HIBERNATE_CONTROL_ADDR;
+    uint8_t before[6];
+    uint8_t after[6];
+    uint8_t desired_mode;
+    int oldlevel;
+    bool ok;
+
+    if (!ipod6g_hibernate_record_valid(record) ||
+        record->state != IPOD6G_HIBERNATE_RECORD_PREPARED ||
+        pmu_read_multiple(PCF5063X_REG_OOCWAKE,
+                          sizeof(before), before) != 0)
+    {
+        return false;
+    }
+
+    /*
+     * OOCWAKE..OOCSTAT are contiguous.  Preserve exactly what hardware
+     * reported before the write so a later forced reset cannot obscure the
+     * entry configuration.  Packing is WAKE | MODE<<8 | CTL<<16 | STAT<<24.
+     */
+    record->pmu_entry_before = before[0] |
+            ((uint32_t)before[3] << 8) |
+            ((uint32_t)before[4] << 16) |
+            ((uint32_t)before[5] << 24);
+    record->pmu_entry_after = 0xffffffffu;
+    record_commit_crc(record);
+    commit_dcache();
+
+    if (before[0] != IPOD6G_HIBERNATE_WAKE_MASK)
+        return false;
+
+    desired_mode = (before[3] & ~IPOD6G_HIBERNATE_EXTON2_MODE_MASK) |
+            IPOD6G_HIBERNATE_EXTON2_MODE_RISING;
+
+    oldlevel = disable_interrupt_save(IRQ_FIQ_STATUS);
+    hibernate_i2c_clock(true);
+    ok = hibernate_i2c_write_reg(PCF5063X_REG_OOCWAKE, before[0]);
+    if (ok)
+        ok = hibernate_i2c_write_reg(PCF5063X_REG_OOCMODE, desired_mode);
+    if (hibernate_i2c_wait_ready())
+        IICSTAT(0) = 0;
+    hibernate_i2c_clock(false);
+    restore_interrupt(oldlevel);
+
+    if (pmu_read_multiple(PCF5063X_REG_OOCWAKE,
+                          sizeof(after), after) != 0)
+    {
+        return false;
+    }
+
+    record->pmu_entry_after = after[0] |
+            ((uint32_t)after[3] << 8) |
+            ((uint32_t)after[4] << 16) |
+            ((uint32_t)after[5] << 24);
+    record_commit_crc(record);
+    commit_dcache();
+
+    return ok && after[0] == before[0] && after[3] == desired_mode;
+#else
     uint8_t expected;
     uint8_t observed;
     int oldlevel;
@@ -1029,6 +1095,7 @@ bool ipod6g_hibernate_stage1_i2c_preflight(void)
     }
 
     return observed == expected;
+#endif
 }
 
 bool ipod6g_hibernate_stage1_arm(void)
