@@ -1350,6 +1350,37 @@ void lcd_hibernate_resume(void)
     dmac_ch_init(&lcd_dma_ch, &lcd_dma_ch_cfg);
     lcd_ispowered = false;
 }
+
+void lcd_hibernate_finish_resume(lcd_hibernate_checkpoint_fn checkpoint,
+                                 void *context)
+{
+    /* Keep the ordinary lcd_awake() sequence byte-for-byte equivalent while
+     * exposing durable boundaries for the one-shot retained-context test. */
+    mutex_lock(&lcd_mutex);
+    checkpoint(LCD_HIBERNATE_RESUME_MUTEX, context);
+
+    lcd_target_enable_clocks(true);
+    checkpoint(LCD_HIBERNATE_RESUME_CLOCKS, context);
+
+    s5l_lcd_set_command_mode();
+    checkpoint(LCD_HIBERNATE_RESUME_COMMAND, context);
+
+    lcd_run_seq(lcd_info->seq_awake);
+    checkpoint(LCD_HIBERNATE_RESUME_SEQUENCE, context);
+
+    /* lcd_update() intentionally observes the panel as powered and queues
+     * the same full-frame DMA transaction used by the normal wake path. */
+    lcd_ispowered = true;
+    lcd_update();
+    checkpoint(LCD_HIBERNATE_RESUME_FRAME, context);
+
+    displaylcd_wait_dma();
+    checkpoint(LCD_HIBERNATE_RESUME_DMA_DONE, context);
+
+    mutex_unlock(&lcd_mutex);
+    send_event(LCD_EVENT_ACTIVATION, NULL);
+    checkpoint(LCD_HIBERNATE_RESUME_EVENT_DONE, context);
+}
 #endif
 
 #ifdef S5L_LCD_WITH_READID

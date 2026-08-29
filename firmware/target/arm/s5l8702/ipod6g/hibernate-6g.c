@@ -422,6 +422,11 @@ bool ipod6g_hibernate_stage1_get_status(
     status->vic1_raw_before_core = 0;
     status->vic0_raw_before_full = 0;
     status->vic1_raw_before_full = 0;
+    status->vic0_raw_after_tick_rearm = 0;
+    status->timer_b_control_before_rearm = 0;
+    status->timer_b_count_before_rearm = 0;
+    status->timer_b_control_after_rearm = 0;
+    status->timer_b_count_after_rearm = 0;
 
     if (!ipod6g_hibernate_record_valid(record))
         return false;
@@ -457,6 +462,16 @@ bool ipod6g_hibernate_stage1_get_status(
     status->vic1_raw_before_core = record->vic1_raw_before_core;
     status->vic0_raw_before_full = record->vic0_raw_before_full;
     status->vic1_raw_before_full = record->vic1_raw_before_full;
+    status->vic0_raw_after_tick_rearm =
+            record->vic0_raw_after_tick_rearm;
+    status->timer_b_control_before_rearm =
+            record->timer_b_control_before_rearm;
+    status->timer_b_count_before_rearm =
+            record->timer_b_count_before_rearm;
+    status->timer_b_control_after_rearm =
+            record->timer_b_control_after_rearm;
+    status->timer_b_count_after_rearm =
+            record->timer_b_count_after_rearm;
 #endif
     return true;
 }
@@ -764,8 +779,8 @@ static uint32_t ipod6g_hibernate_stage2_payload(
 #endif /* IPOD6G_HIBERNATE_STAGE2 */
 
 #if IPOD6G_HIBERNATE_STAGE3
-#define STAGE3_CORE_VIC0_MASK \
-        ((1u << IRQ_TIMER) | (1u << IRQ_DMAC0))
+#define STAGE3_TICK_VIC0_MASK (1u << IRQ_TIMER)
+#define STAGE3_DMA_VIC0_MASK  (1u << IRQ_DMAC0)
 
 static void __attribute__((noinline, noclone)) stage3_mask_vic(
         const volatile struct ipod6g_hibernate_record *record)
@@ -776,9 +791,31 @@ static void __attribute__((noinline, noclone)) stage3_mask_vic(
     VIC1INTSELECT = record->irq.vic1_select;
 }
 
-static void __attribute__((noinline, noclone)) stage3_enable_core_vic(void)
+static void __attribute__((noinline, noclone)) stage3_rearm_tick(
+        volatile struct ipod6g_hibernate_record *record)
 {
-    VIC0INTENABLE = STAGE3_CORE_VIC0_MASK;
+    record->timer_b_control_before_rearm = TBCON;
+    record->timer_b_count_before_rearm = TBCNT;
+
+    /* R8 measured IRQ_TIMER pending before the minimal VIC mask was opened.
+     * Re-run the normal target timer setup while CPU IRQ/FIQ are still
+     * masked.  TB_CLR acknowledges the old interval and TB_EN guarantees a
+     * complete fresh tick period before scheduler code can execute. */
+    tick_start(1000 / HZ);
+
+    record->timer_b_control_after_rearm = TBCON;
+    record->timer_b_count_after_rearm = TBCNT;
+    record->vic0_raw_after_tick_rearm = VIC0RAWINTR;
+}
+
+static void __attribute__((noinline, noclone)) stage3_enable_tick_vic(void)
+{
+    VIC0INTENABLE = STAGE3_TICK_VIC0_MASK;
+}
+
+static void __attribute__((noinline, noclone)) stage3_enable_dma_vic(void)
+{
+    VIC0INTENABLE = STAGE3_DMA_VIC0_MASK;
 }
 
 static void __attribute__((noinline, noclone)) stage3_restore_all_vic(
@@ -808,9 +845,53 @@ static void stage3_commit_boundary(
     commit_dcache();
 }
 
-static void __attribute__((noinline, noclone)) stage3_finish_display(void)
+static void stage3_lcd_checkpoint(unsigned int checkpoint, void *context)
 {
-    lcd_awake();
+    volatile struct ipod6g_hibernate_record *record = context;
+    uint32_t breadcrumb;
+    uint32_t phase;
+
+    switch (checkpoint)
+    {
+        case LCD_HIBERNATE_RESUME_MUTEX:
+            breadcrumb = IPOD6G_HIBERNATE_DIAG_LCD_MUTEX;
+            phase = IPOD6G_HIBERNATE_PHASE_LCD_MUTEX;
+            break;
+        case LCD_HIBERNATE_RESUME_CLOCKS:
+            breadcrumb = IPOD6G_HIBERNATE_DIAG_LCD_CLOCKS;
+            phase = IPOD6G_HIBERNATE_PHASE_LCD_CLOCKS;
+            break;
+        case LCD_HIBERNATE_RESUME_COMMAND:
+            breadcrumb = IPOD6G_HIBERNATE_DIAG_LCD_COMMAND;
+            phase = IPOD6G_HIBERNATE_PHASE_LCD_COMMAND;
+            break;
+        case LCD_HIBERNATE_RESUME_SEQUENCE:
+            breadcrumb = IPOD6G_HIBERNATE_DIAG_LCD_SEQUENCE;
+            phase = IPOD6G_HIBERNATE_PHASE_LCD_SEQUENCE;
+            break;
+        case LCD_HIBERNATE_RESUME_FRAME:
+            breadcrumb = IPOD6G_HIBERNATE_DIAG_LCD_FRAME;
+            phase = IPOD6G_HIBERNATE_PHASE_LCD_FRAME;
+            break;
+        case LCD_HIBERNATE_RESUME_DMA_DONE:
+            breadcrumb = IPOD6G_HIBERNATE_DIAG_LCD_DMA_DONE;
+            phase = IPOD6G_HIBERNATE_PHASE_LCD_DMA_DONE;
+            break;
+        case LCD_HIBERNATE_RESUME_EVENT_DONE:
+            breadcrumb = IPOD6G_HIBERNATE_DIAG_LCD_EVENT_DONE;
+            phase = IPOD6G_HIBERNATE_PHASE_LCD_EVENT_DONE;
+            break;
+        default:
+            return;
+    }
+
+    stage3_commit_boundary(record, breadcrumb, phase);
+}
+
+static void __attribute__((noinline, noclone)) stage3_finish_display(
+        volatile struct ipod6g_hibernate_record *record)
+{
+    lcd_hibernate_finish_resume(stage3_lcd_checkpoint, (void *)record);
     backlight_hibernate_resume();
 }
 
@@ -957,19 +1038,49 @@ bool ipod6g_hibernate_stage3_suspend(uint32_t sequence)
                 IPOD6G_HIBERNATE_DIAG_I2C_RELEASED,
                 IPOD6G_HIBERNATE_PHASE_I2C_RELEASED);
 
-        /* lcd_awake() sleeps for panel timing and waits for LCD DMA.  Start
-         * only those two interrupt providers first; all other retained VIC
-         * sources stay masked until the panel is demonstrably responsive. */
-        stage3_enable_core_vic();
+        /* R8 stopped after CPU IRQ release with Timer B already pending.
+         * Reset that measured edge, then prove the retained scheduler can
+         * block and wake this exact thread before the LCD path is allowed to
+         * depend on sleep() or yield(). */
+        stage3_rearm_tick(record);
         stage3_commit_boundary(record,
-                IPOD6G_HIBERNATE_DIAG_CORE_IRQ_ARMED,
-                IPOD6G_HIBERNATE_PHASE_CORE_IRQ_ARMED);
+                IPOD6G_HIBERNATE_DIAG_TICK_REARMED,
+                IPOD6G_HIBERNATE_PHASE_TICK_REARMED);
+
+        stage3_enable_tick_vic();
+        stage3_commit_boundary(record,
+                IPOD6G_HIBERNATE_DIAG_TICK_IRQ_ARMED,
+                IPOD6G_HIBERNATE_PHASE_TICK_IRQ_ARMED);
+
+        /* The diagnostic commits above may consume an interval.  Reset once
+         * more without touching the durable record, then open CPU IRQ/FIQ
+         * immediately so the first edge is a complete fresh tick. */
+        tick_start(1000 / HZ);
         restore_interrupt(oldlevel);
         stage3_commit_boundary(record,
-                IPOD6G_HIBERNATE_DIAG_CORE_IRQ_LIVE,
-                IPOD6G_HIBERNATE_PHASE_CORE_IRQ_LIVE);
+                IPOD6G_HIBERNATE_DIAG_TICK_IRQ_LIVE,
+                IPOD6G_HIBERNATE_PHASE_TICK_IRQ_LIVE);
 
-        stage3_finish_display();
+        stage3_commit_boundary(record,
+                IPOD6G_HIBERNATE_DIAG_TICK_WAITING,
+                IPOD6G_HIBERNATE_PHASE_TICK_WAITING);
+        sleep(1);
+        stage3_commit_boundary(record,
+                IPOD6G_HIBERNATE_DIAG_TICK_PROVED,
+                IPOD6G_HIBERNATE_PHASE_TICK_PROVED);
+
+        /* Only after a real scheduler block/wake do we expose the DMA source
+         * needed by the normal panel repaint.  Every LCD sub-operation then
+         * records its own durable boundary. */
+        stage3_enable_dma_vic();
+        stage3_commit_boundary(record,
+                IPOD6G_HIBERNATE_DIAG_DMA_IRQ_ARMED,
+                IPOD6G_HIBERNATE_PHASE_DMA_IRQ_ARMED);
+        stage3_commit_boundary(record,
+                IPOD6G_HIBERNATE_DIAG_LCD_ENTER,
+                IPOD6G_HIBERNATE_PHASE_LCD_ENTER);
+
+        stage3_finish_display(record);
         record->vic0_raw_before_full = VIC0RAWINTR;
         record->vic1_raw_before_full = VIC1RAWINTR;
         stage3_commit_boundary(record,

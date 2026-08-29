@@ -118,10 +118,13 @@ def main() -> int:
     require_symbol(app_symbols, "i2c_bus_lock", minimum_size=0x10)
     require_symbol(app_symbols, "i2c_bus_unlock", minimum_size=0x10)
     for helper in (
-        "stage3_mask_vic", "stage3_enable_core_vic",
-        "stage3_finish_display", "stage3_restore_all_vic",
+        "stage3_mask_vic", "stage3_rearm_tick",
+        "stage3_enable_tick_vic", "stage3_enable_dma_vic",
+        "stage3_finish_display", "stage3_lcd_checkpoint",
+        "stage3_restore_all_vic",
     ):
         require_symbol(app_symbols, helper, minimum_size=0x0c)
+    require_symbol(app_symbols, "lcd_hibernate_finish_resume", minimum_size=0x40)
     resume = require_symbol(
         boot_symbols, "ipod6g_hibernate_stage3_resume", minimum_size=0x40
     )
@@ -138,6 +141,9 @@ def main() -> int:
     boot_dis = command(OBJDUMP, "-d", str(args.boot_elf))
     suspend = function(app_dis, "ipod6g_hibernate_stage3_suspend")
     enter = function(app_dis, "ipod6g_hibernate_stage3_enter")
+    rearm_tick = function(app_dis, "stage3_rearm_tick")
+    finish_display = function(app_dis, "stage3_finish_display")
+    finish_lcd = function(app_dis, "lcd_hibernate_finish_resume")
     restore_all_vic = function(app_dis, "stage3_restore_all_vic")
     validator = function(boot_dis, "ipod6g_hibernate_validate_after_wake")
     trampoline = function(boot_dis, "ipod6g_hibernate_stage3_resume")
@@ -146,7 +152,8 @@ def main() -> int:
         suspend,
         [
             "i2c_bus_lock", "ipod6g_hibernate_stage3_enter",
-            "i2c_bus_unlock", "stage3_enable_core_vic",
+            "i2c_bus_unlock", "stage3_rearm_tick",
+            "stage3_enable_tick_vic", "sleep", "stage3_enable_dma_vic",
             "stage3_finish_display", "stage3_restore_all_vic",
             "pmu_hibernate_resume_complete",
         ],
@@ -158,11 +165,40 @@ def main() -> int:
     if "mrs" not in serialized_boundary or "msr" not in serialized_boundary:
         raise GateError("IRQ/FIQ are not masked after I2C ownership and before checkpoint")
 
-    core_start = suspend.find("<stage3_enable_core_vic>")
+    tick_start = suspend.find("<stage3_enable_tick_vic>")
+    tick_wait = suspend.find("<sleep>")
+    tick_live_boundary = suspend[tick_start:tick_wait]
+    if "<tick_start>" not in tick_live_boundary:
+        raise GateError("Timer B is not reset immediately before CPU IRQ release")
+    if "msr" not in tick_live_boundary:
+        raise GateError("CPU IRQ/FIQ are not released after tick VIC bootstrap")
+
+    dma_start = suspend.find("<stage3_enable_dma_vic>")
     display_start = suspend.find("<stage3_finish_display>")
-    core_live_boundary = suspend[core_start:display_start]
-    if "msr" not in core_live_boundary:
-        raise GateError("CPU IRQ/FIQ are not released after core VIC bootstrap")
+    if not tick_wait < dma_start < display_start:
+        raise GateError("LCD DMA is exposed before the scheduler sleep proof")
+
+    if "<tick_start>" not in rearm_tick:
+        raise GateError("timer evidence helper does not run the target tick setup")
+
+    require_order(
+        finish_display,
+        ["lcd_hibernate_finish_resume", "backlight_hibernate_resume"],
+        "stage3_finish_display",
+    )
+    require_order(
+        finish_lcd,
+        [
+            "mutex_lock", "lcd_target_enable_clocks",
+            "__s5l_lcd_write_config_veneer", "__lcd_update_veneer",
+            "__displaylcd_wait_dma_veneer", "mutex_unlock", "send_event",
+        ],
+        "lcd_hibernate_finish_resume",
+    )
+    callback_calls = len(re.findall(r"\bblx\s+r4\b", finish_lcd))
+    callback_tail = bool(re.search(r"\bbx\s+r3\b", finish_lcd))
+    if callback_calls != 6 or not callback_tail:
+        raise GateError("LCD resume does not commit all seven sub-operation checkpoints")
 
     if "<stage3_mask_vic>" not in enter:
         raise GateError("application continuation does not close VIC before return")
@@ -190,8 +226,8 @@ def main() -> int:
         raise GateError("bootloader resume trampoline contains a return path")
 
     app_strings = command("strings", str(args.app_elf))
-    if "Stage 3B-R8 / ABI 9" not in app_strings:
-        raise GateError("application does not identify Stage 3B-R8 / ABI 9")
+    if "Stage 3B-R9 / ABI 10" not in app_strings:
+        raise GateError("application does not identify Stage 3B-R9 / ABI 10")
     if "/.rbtv" not in app_strings:
         raise GateError("application is not isolated to /.rbtv")
 
@@ -202,7 +238,7 @@ def main() -> int:
             f"build fingerprints differ: app={app_version}, boot={boot_version}"
         )
 
-    print("PASS: iPod 6G Stage 3B-R8 linked-image gate")
+    print("PASS: iPod 6G Stage 3B-R9 linked-image gate")
     print(f"  version: {app_version}")
     print(f"  app checkpoint: 0x{checkpoint:08x}")
     print(f"  boot direct resume: 0x{resume:08x}")

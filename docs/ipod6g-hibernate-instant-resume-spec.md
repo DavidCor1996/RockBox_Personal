@@ -22,15 +22,22 @@ direct handoff, saved stack, MMU/TTB, context cookie, and every hardware hook,
 then froze at phase 13 when the complete saved VIC mask and CPU IRQ/FIQ state
 were restored while the suspending thread still owned the retained I2C mutex.
 
-Stage 3B-R8 uses resume ABI 9 and fixes that measured boundary. It returns from
-the hardware hooks with all VIC sources masked, releases I2C, starts only the
-scheduler tick and LCD DMA, wakes and repaints the panel, clears stale 32-bit
-timer status, and only then restores the complete saved VIC mask. USB insertion
-publication is deferred until I2C is unlocked and the normal interrupt topology
-is live. Raw VIC pending masks are retained before both interrupt stages so any
-remaining failure identifies a source instead of producing an unexplained
-black screen. Repetition, long-duration, storage-resume, and injected-failure
-qualification remain incomplete.
+Stage 3B-R8 / resume ABI 9 fixed the I2C/VIC ordering but its hardware run still
+remained black. The matching recovery image preserved phase 16 (`core IRQ
+live`) and raw VIC0 `00000120` before the minimal mask. Bit 8 is `IRQ_TIMER`, so
+Timer B had elapsed while CPU IRQ/FIQ were masked; LCD DMA bit 16 was not
+pending. Because the phase-16 CRC was committed after CPU IRQ release, the
+release returned to the retained thread. The next uninstrumented operation was
+the complete `lcd_awake()` path, so R8 did not distinguish its mutex, panel
+delays, frame DMA, and activation event.
+
+Stage 3B-R9 / resume ABI 10 is the current isolated test. It resets Timer B
+with the normal `tick_start()` sequence while CPU IRQ/FIQ remain masked,
+restarts it immediately before interrupt release, and requires a real
+`sleep(1)` block/wake before enabling LCD DMA. It then checkpoints every
+original LCD wake operation separately. This is still experimental: only a
+visible, responsive phase-31 result can authorize repetition, long-duration,
+storage-resume, or injected-failure qualification.
 
 The target is the existing `IPOD_6G` Rockbox target. Rockbox uses that target
 for both the 6th- and 7th-generation Classic hardware.
@@ -111,6 +118,9 @@ with matching PC, SP, CPSR, TTB, and context cookie, then stopped at its first
 full interrupt release. R8 preserves the handoff but replaces that final
 single step with an ordered unlock/core-IRQ/display/full-IRQ sequence and
 records both saved VIC enables and raw pending sources around the transition.
+Its phase-16 result localizes the remaining stop to the scheduler/display
+boundary. R9 resets the measured Timer B edge, proves one scheduler sleep/wake,
+then checkpoints the unchanged display path operation by operation.
 
 ### First real-hardware retention result — 2026-08-28
 
@@ -929,11 +939,23 @@ boot. Otherwise interpret the `Trail` field as follows:
 | `app continue` | `48334132` | The retained Rockbox setjmp continuation is executing. |
 | `hardware restored` | `48334133` | Reset hardware and interrupt infrastructure were rebuilt. |
 | `I2C released` | `48334134` | The retained I2C mutex was released while CPU IRQ/FIQ remained masked. |
-| `core IRQ armed` | `48334135` | Only scheduler tick and LCD DMA VIC sources are enabled. |
-| `core IRQ live` | `48334136` | CPU IRQ/FIQ release returned to the resumed thread. |
-| `display ready` | `48334137` | Panel repaint and backlight restoration returned. |
-| `all IRQ armed` | `48334138` | Stale timer status was cleared and the full saved VIC mask was written. |
-| `resume complete` | `48334139` | Full IRQ release and deferred USB publication returned. |
+| `tick rearmed` | `48334135` | Timer B was reset with the normal target configuration under CPU IRQ/FIQ mask. |
+| `tick IRQ armed` | `48334136` | Only the Timer B VIC source is enabled. |
+| `tick IRQ live` | `48334137` | CPU IRQ/FIQ release returned to the retained thread. |
+| `tick waiting` | `48334138` | The retained thread is about to execute a real one-tick sleep. |
+| `tick proved` | `48334139` | The scheduler blocked and woke the retained thread. |
+| `DMA IRQ armed` | `4833413a` | LCD DMA is enabled only after the scheduler proof. |
+| `LCD enter` | `4833413b` | The original panel-wake sequence is about to run. |
+| `LCD mutex` | `4833413c` | The retained LCD mutex was acquired. |
+| `LCD clocks` | `4833413d` | LCD clocks were enabled. |
+| `LCD command` | `4833413e` | Command mode was entered. |
+| `LCD sequence` | `4833413f` | The panel wake command/delay sequence returned. |
+| `LCD frame` | `48334140` | The full framebuffer update was queued. |
+| `LCD DMA done` | `48334141` | The full-frame DMA wait returned. |
+| `LCD event done` | `48334142` | LCD mutex release and activation event both returned. |
+| `display ready` | `48334143` | Backlight restoration returned. |
+| `all IRQ armed` | `48334144` | The complete saved VIC mask was written. |
+| `resume complete` | `48334145` | Full IRQ release and deferred USB publication returned. |
 
 The displayed 24-bit `wake` value packs PMU `OOCSTAT` in bits 0-7, `INT1` in
 bits 8-15, and `INT2` in bits 16-23. Menu is a click-wheel event and is not yet
@@ -959,9 +981,31 @@ showed the next operation was full saved-VIC restoration followed by CPU
 IRQ/FIQ release, with `i2c_bus_unlock(0)` still later in the instruction stream.
 That is the measured R8 fix boundary.
 
+### Stage 3B-R8 hardware result — 2026-08-29
+
+R8 woke automatically by USB but again remained black. One forced reset and
+the exact matching ABI-9 Rolo image preserved:
+
+- `State:FAILED`, mode 3, attempt 1, phase 16, failure 15;
+- saved PC `080001c8`, SP `0000ab98`, and CPSR `600000df`;
+- matching TTB CRC `88ea9591/88ea9591`;
+- matching context cookie and return `48365033/48365033`;
+- `Trail:core IRQ live` (`48334136`);
+- saved VIC enable masks `27616100/00001000`;
+- raw masks before the core mask `00000120/00000000`; and
+- no `RAW1` capture, proving display wake never returned.
+
+VIC0 bit 8 is `IRQ_TIMER`; bit 16, `IRQ_DMAC0`, was clear. The unrelated raw
+bit 5 was not enabled by R8's minimal mask. Phase 16 was CRC-committed after
+`restore_interrupt(oldlevel)` returned, so this result does not prove an IRQ
+handler itself froze. Linked control flow shows the next call was
+`stage3_finish_display()` and therefore `lcd_awake()`. R9 separates the timer
+and every LCD sub-operation instead of changing another unmeasured display
+parameter.
+
 ### Stage 3B: Kernel resume with hardware stopped
 
-Stage 3B-R8 / resume ABI 9 is the current true instant-resume implementation:
+Stage 3B-R9 / resume ABI 10 is the current true instant-resume implementation:
 
 1. Veto active audio, USB, and composite output.
 2. Flush and sleep storage; quiesce UART, LCD DMA, panel, and backlight.
@@ -978,31 +1022,36 @@ Stage 3B-R8 / resume ABI 9 is the current true instant-resume implementation:
    software objects.
 8. Return with all VIC sources masked, release retained I2C ownership, and
    commit phase 14 while CPU IRQ/FIQ remain masked.
-9. Enable only the scheduler tick and LCD DMA, release CPU IRQ/FIQ, wake and
-   repaint the panel, and restore the backlight through phase 17.
-10. Capture raw pending sources, clear stale 32-bit timer status, restore the
+9. Reset Timer B, enable only its VIC source, reset it once more immediately
+   before releasing CPU IRQ/FIQ, and require a real `sleep(1)` block/wake
+   through phase 19.
+10. Enable LCD DMA and run the unchanged panel wake sequence with durable
+    boundaries for mutex, clocks, command mode, panel delays, frame queue,
+    DMA completion, activation event, and backlight through phase 29.
+11. Capture raw pending sources, clear stale 32-bit timer status, restore the
     complete saved VIC mask, publish the deferred USB edge, then commit phase
-    19 PASS.
+    31 PASS.
 
 The linked-binary gate must prove both images were built with all three Stage
 defines. Incremental objects compiled without those defines are invalid even
 if a stale assembly object still contains the trampoline.
 
-For the first hardware attempt, launch the matching R8 image with Rolo, verify
-`Stage 3B-R8 / ABI 9 / /.rbtv`, open `Debug > Test retained context`, and press
+For the first hardware attempt, launch the matching R9 image with Rolo, verify
+`Stage 3B-R9 / ABI 10 / /.rbtv`, open `Debug > Test retained context`, and press
 Select once while undocked and on battery. After the screen goes black, insert
 USB once. Success means the same Rolo screen becomes visible without any boot
 logo or disk image load and reports:
 
-- `State:PASSED`, `mode:3`, `attempts:1`, `phase:19`, `failure:0`;
-- `Trail:resume complete` (`48334139`);
+- `State:PASSED`, `mode:3`, `attempts:1`, `phase:31`, `failure:0`;
+- `Trail:resume complete` (`48334145`);
 - matching nonzero TTB/IRAM/probe evidence; and
 - a responsive click wheel and display.
 
 If it remains black, wait ten seconds, force-reset once, Rolo the exact same
-R8 image, and record the full diagnostic screen without rearming. The final
-breadcrumb and `RAW0`/`RAW1` VIC masks identify whether progress stopped at
-I2C release, core IRQ release, display wake, or full-mask release. `app
+R9 image, and record the full diagnostic screen without rearming. The final
+breadcrumb, Timer B before/after values, and raw masks identify whether
+progress stopped at scheduler wake, a specific display operation, or full-mask
+release. `app
 continue` still isolates a hardware-only resume hook and `boot direct` isolates
 the non-returning handoff itself.
 
@@ -1104,7 +1153,7 @@ Likely implementation points:
 
 ## Recommendation
 
-Run exactly one isolated Stage 3B-R8 / ABI-9 USB-wake attempt with a clean,
+Run exactly one isolated Stage 3B-R9 / ABI-10 USB-wake attempt with a clean,
 exact-version Rolo application and matching experimental dual-boot bootloader.
 The binary gate must verify that neither image contains disabled Stage-3 stubs,
 that the bootloader direct branch occurs before `bss_init()`, and that the
@@ -1129,9 +1178,12 @@ that preflight, woke automatically, and passed the complete bounded context
 round trip; its black screen was caused by the now-removed return to overlapping
 bootloader BSS/cold startup. R7 then proved that direct continuation and every
 hardware hook worked, but its single-step interrupt release occurred while I2C
-was still owned and stopped at phase 13. R8 is the evidence-driven staged
-interrupt continuation: unlock, minimal scheduler/LCD IRQs, visible panel,
-pending-source sanitation, then full VIC and USB publication. Only a visible,
-responsive phase-19 R8 result authorizes repetition testing. Repeat, duration,
-wake-source, storage, and injected-failure testing remain mandatory before
-this can become a normal user setting.
+was still owned and stopped at phase 13. R8 released that mutex and proved CPU
+IRQ release returned, then stopped at phase 16 before the monolithic LCD wake;
+its raw mask measured Timer B already pending and LCD DMA clear. R9 resets the
+measured timer state, proves a real scheduler block/wake, and records each
+unchanged LCD operation independently before restoring the full VIC mask and
+publishing USB. Only a visible, responsive phase-31 R9 result authorizes
+repetition testing. Repeat, duration, wake-source, storage, and
+injected-failure testing remain mandatory before this can become a normal user
+setting.
