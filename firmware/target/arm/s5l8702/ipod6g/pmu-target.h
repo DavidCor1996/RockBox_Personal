@@ -91,6 +91,7 @@ void pmu_init(void);
 #if defined(IPOD6G_HIBERNATE_STAGE3) && IPOD6G_HIBERNATE_STAGE3 && \
         !defined(BOOTLOADER)
 void pmu_hibernate_resume(void);
+void pmu_hibernate_resume_complete(void);
 #endif
 unsigned char pmu_read(int address);
 int pmu_write(int address, unsigned char val);

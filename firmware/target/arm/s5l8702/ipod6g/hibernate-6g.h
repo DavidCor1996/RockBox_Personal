@@ -98,7 +98,12 @@
 #define IPOD6G_HIBERNATE_DIAG_BOOT_DIRECT    0x48334231 /* "H3B1" */
 #define IPOD6G_HIBERNATE_DIAG_APP_CONTINUE   0x48334132 /* "H3A2" */
 #define IPOD6G_HIBERNATE_DIAG_HW_RESTORED    0x48334133 /* "H3A3" */
-#define IPOD6G_HIBERNATE_DIAG_APP_COMPLETE   0x48334134 /* "H3A4" */
+#define IPOD6G_HIBERNATE_DIAG_I2C_RELEASED   0x48334134 /* "H3A4" */
+#define IPOD6G_HIBERNATE_DIAG_CORE_IRQ_ARMED 0x48334135 /* "H3A5" */
+#define IPOD6G_HIBERNATE_DIAG_CORE_IRQ_LIVE  0x48334136 /* "H3A6" */
+#define IPOD6G_HIBERNATE_DIAG_DISPLAY_READY  0x48334137 /* "H3A7" */
+#define IPOD6G_HIBERNATE_DIAG_ALL_IRQ_ARMED  0x48334138 /* "H3A8" */
+#define IPOD6G_HIBERNATE_DIAG_APP_COMPLETE   0x48334139 /* "H3A9" */
 
 #if IPOD6G_HIBERNATE_PAYLOAD_STACK_TOP - \
         IPOD6G_HIBERNATE_PAYLOAD_STACK_BOTTOM != \
@@ -107,9 +112,9 @@
 #endif
 
 #if IPOD6G_HIBERNATE_STAGE3
-#define IPOD6G_HIBERNATE_TOKEN_VERSION      8
-#define IPOD6G_HIBERNATE_RESUME_ABI         8
-#define IPOD6G_HIBERNATE_RECORD_VERSION     8
+#define IPOD6G_HIBERNATE_TOKEN_VERSION      9
+#define IPOD6G_HIBERNATE_RESUME_ABI         9
+#define IPOD6G_HIBERNATE_RECORD_VERSION     9
 #else
 #define IPOD6G_HIBERNATE_TOKEN_VERSION      2
 #define IPOD6G_HIBERNATE_RESUME_ABI         2
@@ -199,7 +204,12 @@ enum ipod6g_hibernate_phase
     IPOD6G_HIBERNATE_PHASE_CONTEXT_ENTERED  = 11,
     IPOD6G_HIBERNATE_PHASE_CONTEXT_RETURNED = 12,
     IPOD6G_HIBERNATE_PHASE_HARDWARE_RESTORED = 13,
-    IPOD6G_HIBERNATE_PHASE_RESUME_COMPLETE   = 14,
+    IPOD6G_HIBERNATE_PHASE_I2C_RELEASED       = 14,
+    IPOD6G_HIBERNATE_PHASE_CORE_IRQ_ARMED     = 15,
+    IPOD6G_HIBERNATE_PHASE_CORE_IRQ_LIVE      = 16,
+    IPOD6G_HIBERNATE_PHASE_DISPLAY_RESTORED   = 17,
+    IPOD6G_HIBERNATE_PHASE_ALL_IRQ_ARMED      = 18,
+    IPOD6G_HIBERNATE_PHASE_RESUME_COMPLETE    = 19,
 };
 
 enum ipod6g_hibernate_failure
@@ -258,6 +268,12 @@ struct ipod6g_hibernate_status
     uint32_t context_ttb_crc32;
     uint32_t context_observed_ttb_crc32;
     uint32_t diagnostic_breadcrumb;
+    uint32_t vic0_enable;
+    uint32_t vic1_enable;
+    uint32_t vic0_raw_before_core;
+    uint32_t vic1_raw_before_core;
+    uint32_t vic0_raw_before_full;
+    uint32_t vic1_raw_before_full;
 };
 
 struct ipod6g_hibernate_token
@@ -343,6 +359,10 @@ struct ipod6g_hibernate_record
     uint32_t reserved[4];
     uint32_t pmu_entry_before;
     uint32_t pmu_entry_after;
+    uint32_t vic0_raw_before_core;
+    uint32_t vic1_raw_before_core;
+    uint32_t vic0_raw_before_full;
+    uint32_t vic1_raw_before_full;
 #else
     uint32_t reserved[8];
 #endif

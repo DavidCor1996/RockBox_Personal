@@ -246,16 +246,24 @@ static void pmu_read_inputs_gpio(void)
                                 & PCF50635_GPIOSTAT_GPIO2);
 }
 
-static void pmu_read_inputs_ooc(void)
+static void pmu_read_inputs_ooc_internal(bool notify_usb)
 {
     unsigned char oocstat = pmu_read(PCF5063X_REG_OOCSTAT);
-    if (oocstat & PCF5063X_OOCSTAT_EXTON2)
-        usb_insert_int();
-    else
-        usb_remove_int();
+    if (notify_usb)
+    {
+        if (oocstat & PCF5063X_OOCSTAT_EXTON2)
+            usb_insert_int();
+        else
+            usb_remove_int();
+    }
 #ifdef IPOD_ACCESSORY_PROTOCOL
     pmu_input_accessory = !(oocstat & PCF5063X_OOCSTAT_EXTON3);
 #endif
+}
+
+static void pmu_read_inputs_ooc(void)
+{
+    pmu_read_inputs_ooc_internal(true);
 }
 
 static void pmu_eint_isr(struct eic_handler *h)
@@ -347,7 +355,9 @@ void pmu_hibernate_resume(void)
 
     /* pmu_preinit() in the resume bootloader masked every source.  Restore
      * the retained driver's mask and refresh inputs without recreating its
-     * mutex, queue, thread, or EINT registration. */
+     * mutex, queue, thread, or EINT registration.  Do not publish the USB
+     * edge yet: this function runs while the retained I2C mutex is owned and
+     * CPU interrupts are masked. */
     pmu_write_multiple(PCF5063X_REG_INT1M, 5, ints_msk);
     pmu_write(PCF50635_REG_INT6M, ints_msk[5]);
     pmu_read_multiple(PCF5063X_REG_INT1, 5, ints);
@@ -356,8 +366,15 @@ void pmu_hibernate_resume(void)
 #if CONFIG_CHARGING
     pmu_read_inputs_mbcs();
 #endif
-    pmu_read_inputs_ooc();
+    pmu_read_inputs_ooc_internal(false);
     pmu_read_inputs_gpio();
+}
+
+void pmu_hibernate_resume_complete(void)
+{
+    /* USB notification may wake or switch threads, so it belongs after the
+     * display is awake, I2C is unlocked, and the saved VIC mask is live. */
+    pmu_read_inputs_ooc();
 }
 #endif
 

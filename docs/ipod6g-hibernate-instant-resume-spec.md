@@ -13,15 +13,24 @@ cold-start path. The bootloader BSS range overlaps the retained Rockbox
 application BSS, so cold startup destroyed the kernel state that had just been
 validated.
 
-Stage 3B-R7 uses resume ABI 8 and follows the recovered RetailOS model instead:
+Stage 3B-R7 used resume ABI 8 and followed the recovered RetailOS model instead:
 the bootloader restores IRAM, MMU context, banked stacks, and the saved system
 frame, then branches directly to the suspended application continuation. It
 does not return to bootloader startup. The application rebuilds only reset
-hardware around retained kernel objects, restores interrupt state, releases a
-retained I2C ownership barrier, wakes the panel, and records PASS only after
-the display path returns. R7 builds and passes linked-binary static audit but
-has not yet completed its first hardware run. Repetition, long-duration,
-storage-resume, and injected-failure qualification remain incomplete.
+hardware around retained kernel objects. Its first hardware run proved the
+direct handoff, saved stack, MMU/TTB, context cookie, and every hardware hook,
+then froze at phase 13 when the complete saved VIC mask and CPU IRQ/FIQ state
+were restored while the suspending thread still owned the retained I2C mutex.
+
+Stage 3B-R8 uses resume ABI 9 and fixes that measured boundary. It returns from
+the hardware hooks with all VIC sources masked, releases I2C, starts only the
+scheduler tick and LCD DMA, wakes and repaints the panel, clears stale 32-bit
+timer status, and only then restores the complete saved VIC mask. USB insertion
+publication is deferred until I2C is unlocked and the normal interrupt topology
+is live. Raw VIC pending masks are retained before both interrupt stages so any
+remaining failure identifies a source instead of producing an unexplained
+black screen. Repetition, long-duration, storage-resume, and injected-failure
+qualification remain incomplete.
 
 The target is the existing `IPOD_6G` Rockbox target. Rockbox uses that target
 for both the 6th- and 7th-generation Classic hardware.
@@ -96,6 +105,12 @@ owns I2C bus 0 across the context boundary and masks IRQ/FIQ after acquiring it,
 closing the last PMU transaction and scheduler race. The old asynchronous
 Stage-3 `sys_poweroff()` request path is fail-closed; only the coordinated
 in-thread path can arm controlled-context resume.
+
+R7 hardware evidence showed that this direct path reached `hardware restored`
+with matching PC, SP, CPSR, TTB, and context cookie, then stopped at its first
+full interrupt release. R8 preserves the handoff but replaces that final
+single step with an ordered unlock/core-IRQ/display/full-IRQ sequence and
+records both saved VIC enables and raw pending sources around the transition.
 
 ### First real-hardware retention result — 2026-08-28
 
@@ -913,7 +928,12 @@ boot. Otherwise interpret the `Trail` field as follows:
 | `boot direct` | `48334231` | Bootloader validated the image and is about to branch directly to Rockbox. |
 | `app continue` | `48334132` | The retained Rockbox setjmp continuation is executing. |
 | `hardware restored` | `48334133` | Reset hardware and interrupt infrastructure were rebuilt. |
-| `resume complete` | `48334134` | Scheduling, I2C ownership, panel, and backlight all returned. |
+| `I2C released` | `48334134` | The retained I2C mutex was released while CPU IRQ/FIQ remained masked. |
+| `core IRQ armed` | `48334135` | Only scheduler tick and LCD DMA VIC sources are enabled. |
+| `core IRQ live` | `48334136` | CPU IRQ/FIQ release returned to the resumed thread. |
+| `display ready` | `48334137` | Panel repaint and backlight restoration returned. |
+| `all IRQ armed` | `48334138` | Stale timer status was cleared and the full saved VIC mask was written. |
+| `resume complete` | `48334139` | Full IRQ release and deferred USB publication returned. |
 
 The displayed 24-bit `wake` value packs PMU `OOCSTAT` in bits 0-7, `INT1` in
 bits 8-15, and `INT2` in bits 16-23. Menu is a click-wheel event and is not yet
@@ -921,9 +941,27 @@ proven to map directly to the PMU ONKEY input; cable, adapter, and EXTON wake
 sources must therefore be tested independently instead of assuming one button
 result describes all wake inputs.
 
+### Stage 3B-R7 hardware result — 2026-08-29
+
+The first ABI-8 direct-resume cycle woke by USB but remained black. After one
+forced reset, the exact matching Rolo build preserved:
+
+- `State:FAILED`, mode 3, attempt 1, phase 13, failure 15;
+- saved PC `080001c8`, SP `0000abb8`, and CPSR `600000df`;
+- matching TTB CRC `83e99591/83e99591`;
+- matching context cookie and return `48365033/48365033`;
+- `Trail:hardware restored` (`48334133`); and
+- matching direct-entry guard `e927c5c7/e927c5c7`.
+
+Failure 15 was assigned by the recovery boot; it does not mean a hardware hook
+failed. Phase 13 and `H3A3` prove every hook returned. Linked control flow then
+showed the next operation was full saved-VIC restoration followed by CPU
+IRQ/FIQ release, with `i2c_bus_unlock(0)` still later in the instruction stream.
+That is the measured R8 fix boundary.
+
 ### Stage 3B: Kernel resume with hardware stopped
 
-Stage 3B-R7 / resume ABI 8 is the first true instant-resume implementation:
+Stage 3B-R8 / resume ABI 9 is the current true instant-resume implementation:
 
 1. Veto active audio, USB, and composite output.
 2. Flush and sleep storage; quiesce UART, LCD DMA, panel, and backlight.
@@ -938,29 +976,35 @@ Stage 3B-R7 / resume ABI 8 is the first true instant-resume implementation:
 7. Rebuild clocks, GPIO, VIC/EIC, DMA, timer, click wheel, UART, PMU, power,
    stopped PCM, and LCD-controller registers without recreating retained
    software objects.
-8. Restore interrupt state, release retained I2C ownership, wake and repaint
-   the panel, restore the backlight, then commit phase 14 PASS.
+8. Return with all VIC sources masked, release retained I2C ownership, and
+   commit phase 14 while CPU IRQ/FIQ remain masked.
+9. Enable only the scheduler tick and LCD DMA, release CPU IRQ/FIQ, wake and
+   repaint the panel, and restore the backlight through phase 17.
+10. Capture raw pending sources, clear stale 32-bit timer status, restore the
+    complete saved VIC mask, publish the deferred USB edge, then commit phase
+    19 PASS.
 
 The linked-binary gate must prove both images were built with all three Stage
 defines. Incremental objects compiled without those defines are invalid even
 if a stale assembly object still contains the trampoline.
 
-For the first hardware attempt, launch the matching R7 image with Rolo, verify
-`Stage 3B-R7 / ABI 8 / /.rbtv`, open `Debug > Test retained context`, and press
+For the first hardware attempt, launch the matching R8 image with Rolo, verify
+`Stage 3B-R8 / ABI 9 / /.rbtv`, open `Debug > Test retained context`, and press
 Select once while undocked and on battery. After the screen goes black, insert
 USB once. Success means the same Rolo screen becomes visible without any boot
 logo or disk image load and reports:
 
-- `State:PASSED`, `mode:3`, `attempts:1`, `phase:14`, `failure:0`;
-- `Trail:resume complete` (`48334134`);
+- `State:PASSED`, `mode:3`, `attempts:1`, `phase:19`, `failure:0`;
+- `Trail:resume complete` (`48334139`);
 - matching nonzero TTB/IRAM/probe evidence; and
 - a responsive click wheel and display.
 
 If it remains black, wait ten seconds, force-reset once, Rolo the exact same
-R7 image, and record the full diagnostic screen without rearming. A breadcrumb
-of `hardware restored` isolates the failure to scheduler/I2C/panel completion;
-`app continue` isolates it to a specific hardware-only resume hook; `boot
-direct` isolates it to the non-returning handoff itself.
+R8 image, and record the full diagnostic screen without rearming. The final
+breadcrumb and `RAW0`/`RAW1` VIC masks identify whether progress stopped at
+I2C release, core IRQ release, display wake, or full-mask release. `app
+continue` still isolates a hardware-only resume hook and `boot direct` isolates
+the non-returning handoff itself.
 
 ### Stage 4: User-session resume
 
@@ -1060,7 +1104,7 @@ Likely implementation points:
 
 ## Recommendation
 
-Run exactly one isolated Stage 3B-R7 / ABI-8 USB-wake attempt with a clean,
+Run exactly one isolated Stage 3B-R8 / ABI-9 USB-wake attempt with a clean,
 exact-version Rolo application and matching experimental dual-boot bootloader.
 The binary gate must verify that neither image contains disabled Stage-3 stubs,
 that the bootloader direct branch occurs before `bss_init()`, and that the
@@ -1083,8 +1127,11 @@ rising event under the wrong edge mode. R5 failed closed before arming and
 proved that its raw-polled live-context write did not alter OOCMODE. R6 fixed
 that preflight, woke automatically, and passed the complete bounded context
 round trip; its black screen was caused by the now-removed return to overlapping
-bootloader BSS/cold startup. R7 is based on the exact ONB/OSOS direct-
-continuation design, not another display guess. Only a visible, responsive
-phase-14 R7 result authorizes repetition testing. Repeat, duration, wake-source,
-storage, and injected-failure testing remain mandatory before this can become
-a normal user setting.
+bootloader BSS/cold startup. R7 then proved that direct continuation and every
+hardware hook worked, but its single-step interrupt release occurred while I2C
+was still owned and stopped at phase 13. R8 is the evidence-driven staged
+interrupt continuation: unlock, minimal scheduler/LCD IRQs, visible panel,
+pending-source sanitation, then full VIC and USB publication. Only a visible,
+responsive phase-19 R8 result authorizes repetition testing. Repeat, duration,
+wake-source, storage, and injected-failure testing remain mandatory before
+this can become a normal user setting.

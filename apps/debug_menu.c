@@ -3066,6 +3066,11 @@ static const char *dbg_hibernate_breadcrumb_name(uint32_t breadcrumb)
         case IPOD6G_HIBERNATE_DIAG_BOOT_DIRECT: return "boot direct";
         case IPOD6G_HIBERNATE_DIAG_APP_CONTINUE: return "app continue";
         case IPOD6G_HIBERNATE_DIAG_HW_RESTORED: return "hardware restored";
+        case IPOD6G_HIBERNATE_DIAG_I2C_RELEASED: return "I2C released";
+        case IPOD6G_HIBERNATE_DIAG_CORE_IRQ_ARMED: return "core IRQ armed";
+        case IPOD6G_HIBERNATE_DIAG_CORE_IRQ_LIVE: return "core IRQ live";
+        case IPOD6G_HIBERNATE_DIAG_DISPLAY_READY: return "display ready";
+        case IPOD6G_HIBERNATE_DIAG_ALL_IRQ_ARMED: return "all IRQ armed";
         case IPOD6G_HIBERNATE_DIAG_APP_COMPLETE: return "resume complete";
         default: return "none";
     }
@@ -3085,7 +3090,7 @@ static bool dbg_hibernate_stage3(void)
     lcd_set_foreground(LCD_RGBPACK(255, 255, 255));
     lcd_clear_display();
     lcd_puts(0, 0, "*** HIBERNATE TEST CORE ***");
-    lcd_puts(0, 1, "Stage 3B-R7 / ABI 8 / /.rbtv");
+    lcd_puts(0, 1, "Stage 3B-R8 / ABI 9 / /.rbtv");
     lcd_putsf(0, 2, "State:%s mode:%lu",
               status.valid ? dbg_hibernate_state_name(status.state) :
                              "invalid record",
@@ -3112,21 +3117,25 @@ static bool dbg_hibernate_stage3(void)
     lcd_putsf(0, 9, "Trail:%s %08lx",
               dbg_hibernate_breadcrumb_name(status.diagnostic_breadcrumb),
               (unsigned long)status.diagnostic_breadcrumb);
-    lcd_putsf(0, 10, "PMU:%08lx IRQ:%08lx",
+    lcd_putsf(0, 10, "VEN:%08lx/%08lx",
+              (unsigned long)status.vic0_enable,
+              (unsigned long)status.vic1_enable);
+    lcd_putsf(0, 11, "RAW0:%08lx/%08lx",
+              (unsigned long)status.vic0_raw_before_core,
+              (unsigned long)status.vic1_raw_before_core);
+    lcd_putsf(0, 12, "RAW1:%08lx/%08lx",
+              (unsigned long)status.vic0_raw_before_full,
+              (unsigned long)status.vic1_raw_before_full);
+    lcd_putsf(0, 13, "PMU:%08lx IRQ:%08lx",
               (unsigned long)status.pmu_control,
               (unsigned long)status.pmu_interrupts);
-    lcd_putsf(0, 11, "PWR:%08lx",
-              (unsigned long)status.pmu_power);
-    lcd_putsf(0, 12, "ENT:%08lx/%08lx",
-              (unsigned long)status.pmu_entry_before,
-              (unsigned long)status.pmu_entry_after);
     if (status.failure ==
         IPOD6G_HIBERNATE_FAILURE_STANDBY_NOT_ENTERED)
     {
         lcd_puts(0, 13, "RESULT: STANDBY NOT ENTERED");
     }
     lcd_puts(0, 14, ready ? "SELECT: SUSPEND; WAKE BY USB" :
-                            "Matching ABI-8 bootloader required");
+                            "Matching ABI-9 bootloader required");
     lcd_puts(0, 15, "MENU: exit without testing");
     lcd_update();
 

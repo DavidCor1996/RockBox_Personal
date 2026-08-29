@@ -117,6 +117,11 @@ def main() -> int:
     )
     require_symbol(app_symbols, "i2c_bus_lock", minimum_size=0x10)
     require_symbol(app_symbols, "i2c_bus_unlock", minimum_size=0x10)
+    for helper in (
+        "stage3_mask_vic", "stage3_enable_core_vic",
+        "stage3_finish_display", "stage3_restore_all_vic",
+    ):
+        require_symbol(app_symbols, helper, minimum_size=0x0c)
     resume = require_symbol(
         boot_symbols, "ipod6g_hibernate_stage3_resume", minimum_size=0x40
     )
@@ -133,12 +138,18 @@ def main() -> int:
     boot_dis = command(OBJDUMP, "-d", str(args.boot_elf))
     suspend = function(app_dis, "ipod6g_hibernate_stage3_suspend")
     enter = function(app_dis, "ipod6g_hibernate_stage3_enter")
+    restore_all_vic = function(app_dis, "stage3_restore_all_vic")
     validator = function(boot_dis, "ipod6g_hibernate_validate_after_wake")
     trampoline = function(boot_dis, "ipod6g_hibernate_stage3_resume")
 
     require_order(
         suspend,
-        ["i2c_bus_lock", "ipod6g_hibernate_stage3_enter", "i2c_bus_unlock"],
+        [
+            "i2c_bus_lock", "ipod6g_hibernate_stage3_enter",
+            "i2c_bus_unlock", "stage3_enable_core_vic",
+            "stage3_finish_display", "stage3_restore_all_vic",
+            "pmu_hibernate_resume_complete",
+        ],
         "ipod6g_hibernate_stage3_suspend",
     )
     lock_end = suspend.find("<i2c_bus_lock>")
@@ -146,6 +157,19 @@ def main() -> int:
     serialized_boundary = suspend[lock_end:enter_start]
     if "mrs" not in serialized_boundary or "msr" not in serialized_boundary:
         raise GateError("IRQ/FIQ are not masked after I2C ownership and before checkpoint")
+
+    core_start = suspend.find("<stage3_enable_core_vic>")
+    display_start = suspend.find("<stage3_finish_display>")
+    core_live_boundary = suspend[core_start:display_start]
+    if "msr" not in core_live_boundary:
+        raise GateError("CPU IRQ/FIQ are not released after core VIC bootstrap")
+
+    if "<stage3_mask_vic>" not in enter:
+        raise GateError("application continuation does not close VIC before return")
+    if "<stage3_restore_all_vic>" in enter:
+        raise GateError("application continuation restores full VIC before I2C unlock")
+    if len(re.findall(r"\bstr\b", restore_all_vic)) < 7:
+        raise GateError("full VIC restore is missing pending-timer or mask writes")
 
     for hook in (
         "system_hibernate_resume", "eint_hibernate_resume",
@@ -166,8 +190,8 @@ def main() -> int:
         raise GateError("bootloader resume trampoline contains a return path")
 
     app_strings = command("strings", str(args.app_elf))
-    if "Stage 3B-R7 / ABI 8" not in app_strings:
-        raise GateError("application does not identify Stage 3B-R7 / ABI 8")
+    if "Stage 3B-R8 / ABI 9" not in app_strings:
+        raise GateError("application does not identify Stage 3B-R8 / ABI 9")
     if "/.rbtv" not in app_strings:
         raise GateError("application is not isolated to /.rbtv")
 
@@ -178,7 +202,7 @@ def main() -> int:
             f"build fingerprints differ: app={app_version}, boot={boot_version}"
         )
 
-    print("PASS: iPod 6G Stage 3B-R7 linked-image gate")
+    print("PASS: iPod 6G Stage 3B-R8 linked-image gate")
     print(f"  version: {app_version}")
     print(f"  app checkpoint: 0x{checkpoint:08x}")
     print(f"  boot direct resume: 0x{resume:08x}")

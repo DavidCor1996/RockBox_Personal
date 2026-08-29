@@ -416,6 +416,12 @@ bool ipod6g_hibernate_stage1_get_status(
     status->context_ttb_crc32 = 0;
     status->context_observed_ttb_crc32 = 0;
     status->diagnostic_breadcrumb = IPOD6G_HIBERNATE_DIAG_NONE;
+    status->vic0_enable = 0;
+    status->vic1_enable = 0;
+    status->vic0_raw_before_core = 0;
+    status->vic1_raw_before_core = 0;
+    status->vic0_raw_before_full = 0;
+    status->vic1_raw_before_full = 0;
 
     if (!ipod6g_hibernate_record_valid(record))
         return false;
@@ -445,6 +451,12 @@ bool ipod6g_hibernate_stage1_get_status(
     status->pmu_power = record->reserved[3];
     status->pmu_entry_before = record->pmu_entry_before;
     status->pmu_entry_after = record->pmu_entry_after;
+    status->vic0_enable = record->irq.vic0_enable;
+    status->vic1_enable = record->irq.vic1_enable;
+    status->vic0_raw_before_core = record->vic0_raw_before_core;
+    status->vic1_raw_before_core = record->vic1_raw_before_core;
+    status->vic0_raw_before_full = record->vic0_raw_before_full;
+    status->vic1_raw_before_full = record->vic1_raw_before_full;
 #endif
     return true;
 }
@@ -752,9 +764,32 @@ static uint32_t ipod6g_hibernate_stage2_payload(
 #endif /* IPOD6G_HIBERNATE_STAGE2 */
 
 #if IPOD6G_HIBERNATE_STAGE3
-static void stage3_restore_vic(
+#define STAGE3_CORE_VIC0_MASK \
+        ((1u << IRQ_TIMER) | (1u << IRQ_DMAC0))
+
+static void __attribute__((noinline, noclone)) stage3_mask_vic(
         const volatile struct ipod6g_hibernate_record *record)
 {
+    VIC0INTENCLEAR = 0xffffffffu;
+    VIC1INTENCLEAR = 0xffffffffu;
+    VIC0INTSELECT = record->irq.vic0_select;
+    VIC1INTSELECT = record->irq.vic1_select;
+}
+
+static void __attribute__((noinline, noclone)) stage3_enable_core_vic(void)
+{
+    VIC0INTENABLE = STAGE3_CORE_VIC0_MASK;
+}
+
+static void __attribute__((noinline, noclone)) stage3_restore_all_vic(
+        const volatile struct ipod6g_hibernate_record *record)
+{
+    /* The bootloader may leave a 32-bit timer event latched.  IRQ_TIMER32 is
+     * enabled during normal Rockbox operation even when no plugin timer owns
+     * Timer F; an uncleared status bit would therefore re-enter the IRQ
+     * handler forever as soon as the saved mask becomes live. */
+    TSTAT = 0x07070707u;
+
     VIC0INTENCLEAR = 0xffffffffu;
     VIC1INTENCLEAR = 0xffffffffu;
     VIC0INTSELECT = record->irq.vic0_select;
@@ -763,7 +798,17 @@ static void stage3_restore_vic(
     VIC1INTENABLE = record->irq.vic1_enable;
 }
 
-static void stage3_finish_display(void)
+static void stage3_commit_boundary(
+        volatile struct ipod6g_hibernate_record *record,
+        uint32_t breadcrumb, uint32_t phase)
+{
+    record->reserved[0] = breadcrumb;
+    record->last_phase = phase;
+    record_commit_crc(record);
+    commit_dcache();
+}
+
+static void __attribute__((noinline, noclone)) stage3_finish_display(void)
 {
     lcd_awake();
     backlight_hibernate_resume();
@@ -808,15 +853,20 @@ bool ipod6g_hibernate_stage3_enter(void)
         pcm_hibernate_resume();
         lcd_hibernate_resume();
 
-        record->reserved[0] = IPOD6G_HIBERNATE_DIAG_HW_RESTORED;
         record->payload_observed_cookie = IPOD6G_HIBERNATE_CONTEXT_COOKIE;
         record->payload_observed_sp = observed_sp;
         record->payload_return_value = IPOD6G_HIBERNATE_CONTEXT_COOKIE;
-        record->last_phase = IPOD6G_HIBERNATE_PHASE_HARDWARE_RESTORED;
+        record->vic0_raw_before_core = VIC0RAWINTR;
+        record->vic1_raw_before_core = VIC1RAWINTR;
 
-        stage3_restore_vic(record);
-        record_commit_crc(record);
-        commit_dcache();
+        /* Hardware hooks may enable individual sources while the CPU remains
+         * masked.  Return to the suspending thread with every VIC source
+         * closed; it will release the retained I2C mutex before opening a
+         * minimal scheduler/LCD interrupt set. */
+        stage3_mask_vic(record);
+        stage3_commit_boundary(record,
+                IPOD6G_HIBERNATE_DIAG_HW_RESTORED,
+                IPOD6G_HIBERNATE_PHASE_HARDWARE_RESTORED);
         return true;
     }
 
@@ -889,36 +939,70 @@ bool ipod6g_hibernate_stage3_suspend(uint32_t sequence)
         return false;
     }
 
-    /*
-     * Match RetailOS's coordinated power transition: no other retained
-     * thread may own or start a PMU transaction after the context boundary.
-     * The same thread continues after the direct bootloader handoff, so the
-     * retained recursive mutex remains valid while resume-time PMU accesses
-     * repair hardware. Mask scheduling immediately after taking ownership;
-     * release it only after stage3_enter() has restored clocks, interrupt
-     * controllers, scheduler tick, PMU, power, DMA, and the LCD controller.
-     */
+    /* Match RetailOS's coordinated power transition: no other retained
+     * thread may start a PMU transaction after the context boundary. */
     i2c_bus_lock(0);
     oldlevel = disable_interrupt_save(IRQ_FIQ_STATUS);
     resumed = ipod6g_hibernate_stage3_enter();
-    restore_interrupt(oldlevel);
+
+    /* R7 proved that restoring every saved VIC source and unmasking the CPU
+     * while this retained mutex was still owned deadlocks at the first IRQ.
+     * The resumed thread must become an ordinary lock-free scheduler client
+     * before any interrupt can switch away from it. */
     i2c_bus_unlock(0);
 
     if (resumed)
     {
+        stage3_commit_boundary(record,
+                IPOD6G_HIBERNATE_DIAG_I2C_RELEASED,
+                IPOD6G_HIBERNATE_PHASE_I2C_RELEASED);
+
+        /* lcd_awake() sleeps for panel timing and waits for LCD DMA.  Start
+         * only those two interrupt providers first; all other retained VIC
+         * sources stay masked until the panel is demonstrably responsive. */
+        stage3_enable_core_vic();
+        stage3_commit_boundary(record,
+                IPOD6G_HIBERNATE_DIAG_CORE_IRQ_ARMED,
+                IPOD6G_HIBERNATE_PHASE_CORE_IRQ_ARMED);
+        restore_interrupt(oldlevel);
+        stage3_commit_boundary(record,
+                IPOD6G_HIBERNATE_DIAG_CORE_IRQ_LIVE,
+                IPOD6G_HIBERNATE_PHASE_CORE_IRQ_LIVE);
+
         stage3_finish_display();
+        record->vic0_raw_before_full = VIC0RAWINTR;
+        record->vic1_raw_before_full = VIC1RAWINTR;
+        stage3_commit_boundary(record,
+                IPOD6G_HIBERNATE_DIAG_DISPLAY_READY,
+                IPOD6G_HIBERNATE_PHASE_DISPLAY_RESTORED);
+
+        /* Close the CPU around the final VIC write.  The raw snapshots make
+         * any source that still prevents forward progress visible after a
+         * forced reset instead of collapsing back into a generic black
+         * screen. */
+        int full_level = disable_interrupt_save(IRQ_FIQ_STATUS);
+        stage3_restore_all_vic(record);
+        stage3_commit_boundary(record,
+                IPOD6G_HIBERNATE_DIAG_ALL_IRQ_ARMED,
+                IPOD6G_HIBERNATE_PHASE_ALL_IRQ_ARMED);
+        restore_interrupt(full_level);
+
+        /* USB insertion is intentionally published only after the normal
+         * interrupt topology is live; the USB event may wake another thread
+         * immediately. */
+        pmu_hibernate_resume_complete();
 
         /* A visible, responsive panel is part of the Stage 3 pass gate. */
-        record->reserved[0] = IPOD6G_HIBERNATE_DIAG_APP_COMPLETE;
         record->state = IPOD6G_HIBERNATE_RECORD_PASSED;
-        record->last_phase = IPOD6G_HIBERNATE_PHASE_RESUME_COMPLETE;
         record->failure = IPOD6G_HIBERNATE_FAILURE_NONE;
-        record_commit_crc(record);
-        commit_dcache();
+        stage3_commit_boundary(record,
+                IPOD6G_HIBERNATE_DIAG_APP_COMPLETE,
+                IPOD6G_HIBERNATE_PHASE_RESUME_COMPLETE);
         ipod6g_hibernate_token_clear();
     }
     else
     {
+        restore_interrupt(oldlevel);
         if (display_slept)
             lcd_awake();
         backlight_hw_on();
@@ -1471,9 +1555,8 @@ static void record_failure(
         record->mode == IPOD6G_HIBERNATE_MODE_CONTROLLED_CONTEXT &&
         (ipod6g_hibernate_record_valid(record) ||
          record->reserved[0] == IPOD6G_HIBERNATE_DIAG_BOOT_DIRECT ||
-         record->reserved[0] == IPOD6G_HIBERNATE_DIAG_APP_CONTINUE ||
-         record->reserved[0] == IPOD6G_HIBERNATE_DIAG_HW_RESTORED ||
-         record->reserved[0] == IPOD6G_HIBERNATE_DIAG_APP_COMPLETE))
+         (record->reserved[0] >= IPOD6G_HIBERNATE_DIAG_APP_CONTINUE &&
+          record->reserved[0] <= IPOD6G_HIBERNATE_DIAG_APP_COMPLETE)))
     {
         if (failure == IPOD6G_HIBERNATE_FAILURE_STANDBY_NOT_ENTERED &&
             record->state == IPOD6G_HIBERNATE_RECORD_ARMED)
