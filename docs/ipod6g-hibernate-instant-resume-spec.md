@@ -17,7 +17,10 @@ PMU did not automatically wake the SoC. ABI-7 Stage 3A-R5 attempted to correct
 only the EXTON2 wake-edge mode and added exact pre-entry readback. It failed
 closed before arming because its raw-polled live-context write did not change
 OOCMODE. Stage 3A-R6 retains ABI 7 and performs that live preflight write
-through Rockbox's normal serialized PMU driver instead. Repeated retention,
+through Rockbox's normal serialized PMU driver instead. Its hardware run armed,
+entered Standby, woke automatically from USB, and reached the bootloader's MIU
+restoration phase. The installed R5 bootloader then correctly rejected the R6
+application's different exact build-version fingerprint. Repeated retention,
 full kernel continuation, driver resume, and fault-injection gates remain
 experimental and incomplete.
 
@@ -94,7 +97,11 @@ the remaining USB failure to EXTON2's wake-edge mode. ABI-7 R5 captured the
 live preflight configuration but failed closed when its raw-polled write left
 OOCMODE unchanged. R6 keeps ABI 7 and changes only that app-side write
 transport to the normal PMU driver already proven by the immediately preceding
-OOCWAKE write.
+OOCWAKE write. The first R6 hardware run also proves that correction: it armed
+one attempt, entered Standby, woke automatically on USB, and reached phase 5
+with matching TTB CRCs. It stopped with `failure:12` because Stage 3 compares
+the CRC of the complete build version and the installed R5 bootloader did not
+match the R6 application.
 
 ### First real-hardware retention result — 2026-08-28
 
@@ -326,9 +333,29 @@ only the app-side OOCMODE write to `pmu_write()`. It still records before and
 after evidence and refuses to arm unless OOCWAKE remains unchanged and
 OOCMODE reads back with EXTON2 mode `01`. The raw IRAM writer used after
 caches and interrupts are disabled is unchanged; R4 already proved that path
-can write GPIO3CFG and OOCSHDWN and enter Standby. Because the ABI and
-bootloader path are unchanged, R6 requires only a replacement isolated Rolo
-core, not another NOR/DFU installation.
+can write GPIO3CFG and OOCSHDWN and enter Standby.
+
+The first R6 run reported:
+
+```text
+State:FAILED mode:3
+Attempts:1 phase:5 fail:12
+TTB:599fd0c7/599fd0c7
+Cookie:48865033/00000000
+Trail:none 00000000
+PMU:ed58c700 IRQ:00401c80
+PWR:27606100
+ENT:e927c5c7/e927c5c7
+```
+
+This is not a PMU-preflight failure. `Attempts:1`, the wake snapshot, and the
+automatic USB boot prove the complete Standby/wake path through MIU restoration.
+`fail:12` is the fail-closed context-metadata gate. In addition to ABI 7, that
+gate requires `record->build_fingerprint[0] == build_version_crc32()`. The R6
+application embedded `46e15bc9e9-260829`; the installed R5 bootloader embedded
+`f4303c93fc-260829`. The matching R6 dual-boot bootloader is therefore required
+even though the record layout and ABI did not change. It must use the exact
+same explicit version string and must never be packaged as single boot.
 
 ## Desired User Experience
 
@@ -904,7 +931,7 @@ Stage 3A must be enabled in both images with:
 ```
 
 It is tested only with an isolated `ROCKBOX_DIR="/.rbtv"` Rolo application and
-its matching ABI-6 dual-boot bootloader. It must never be packaged with
+its matching experimental dual-boot bootloader. It must never be packaged with
 `mks5lboot --single`. The normal personal Rockbox image remains the disk boot
 target after the round trip. A successful wake therefore cold-loads the normal
 personal firmware; it does not automatically reload the Rolo test image. Rolo
@@ -1057,15 +1084,16 @@ Likely implementation points:
 
 ## Recommendation
 
-Run one isolated Stage 3A-R6 USB-wake attempt against the already-installed
-ABI-7 dual-boot bootloader while retaining Stages 1 and 2 as regression and
-fault-injection gates. R6 changes only the app-side preflight transport; do not
-install another bootloader. Arm on battery, wait for Standby, and insert USB
-exactly once. Record `ENT`, PMU, IRQ, PWR, and every context field whether the
-return is automatic or requires one force reset. Only a real automatic wake
-may authorize the minimal Stage 3B clocks/IRQ/input/LCD/storage resume
-coordinator. Do not jump directly to transparent audio or arbitrary plugin
-resume.
+Install the exact-version R6 experimental dual-boot bootloader, then run one
+isolated Stage 3A-R6 USB-wake attempt while retaining Stages 1 and 2 as
+regression and fault-injection gates. R6 changes only the app-side preflight
+transport, but the exact build-fingerprint gate intentionally requires the
+bootloader and Rolo application to embed the same version string. Arm on
+battery, wait for Standby, and insert USB exactly once. Record `ENT`, PMU, IRQ,
+PWR, and every context field whether the return is automatic or requires one
+force reset. Only a real automatic wake with the matching pair may authorize
+the minimal Stage 3B clocks/IRQ/input/LCD/storage resume coordinator. Do not
+jump directly to transparent audio or arbitrary plugin resume.
 
 The decompile and current Rockbox code answer the major feasibility question:
 the device was designed to retain SDRAM, the bootloader already recognizes that
