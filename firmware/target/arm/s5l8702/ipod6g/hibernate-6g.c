@@ -1016,8 +1016,7 @@ bool ipod6g_hibernate_stage1_i2c_preflight(void)
     uint8_t before[6];
     uint8_t after[6];
     uint8_t desired_mode;
-    int oldlevel;
-    bool ok;
+    int write_result;
 
     if (!ipod6g_hibernate_record_valid(record) ||
         record->state != IPOD6G_HIBERNATE_RECORD_PREPARED ||
@@ -1046,15 +1045,14 @@ bool ipod6g_hibernate_stage1_i2c_preflight(void)
     desired_mode = (before[3] & ~IPOD6G_HIBERNATE_EXTON2_MODE_MASK) |
             IPOD6G_HIBERNATE_EXTON2_MODE_RISING;
 
-    oldlevel = disable_interrupt_save(IRQ_FIQ_STATUS);
-    hibernate_i2c_clock(true);
-    ok = hibernate_i2c_write_reg(PCF5063X_REG_OOCWAKE, before[0]);
-    if (ok)
-        ok = hibernate_i2c_write_reg(PCF5063X_REG_OOCMODE, desired_mode);
-    if (hibernate_i2c_wait_ready())
-        IICSTAT(0) = 0;
-    hibernate_i2c_clock(false);
-    restore_interrupt(oldlevel);
+    /*
+     * This preflight runs in the normal power-off thread before caches or
+     * interrupts are disabled.  Use the serialized PMU driver here: the R5
+     * hardware result proved that the raw final-entry writer could report a
+     * completed transaction without changing OOCMODE in this live context.
+     * The raw IRAM writer remains required later, after self-refresh entry.
+     */
+    write_result = pmu_write(PCF5063X_REG_OOCMODE, desired_mode);
 
     if (pmu_read_multiple(PCF5063X_REG_OOCWAKE,
                           sizeof(after), after) != 0)
@@ -1069,7 +1067,8 @@ bool ipod6g_hibernate_stage1_i2c_preflight(void)
     record_commit_crc(record);
     commit_dcache();
 
-    return ok && after[0] == before[0] && after[3] == desired_mode;
+    return write_result == 0 &&
+            after[0] == before[0] && after[3] == desired_mode;
 #else
     uint8_t expected;
     uint8_t observed;

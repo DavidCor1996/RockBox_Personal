@@ -13,10 +13,13 @@ prove that the PMU ever entered Standby. ABI-6 Stage 3A-R4 added a PMU-retained
 `ENTRY_STALLED` result and captured complete early PMU status. Its first
 hardware result proves that the CPU stopped, SDRAM and the controlled context
 survived, and USB insertion reached the PMU as an EXTON2 rising edge, but the
-PMU did not automatically wake the SoC. ABI-7 Stage 3A-R5 corrects only the
-EXTON2 wake-edge mode and records exact pre-entry before/after readback.
-Repeated retention, full kernel continuation, driver resume, and
-fault-injection gates remain experimental and incomplete.
+PMU did not automatically wake the SoC. ABI-7 Stage 3A-R5 attempted to correct
+only the EXTON2 wake-edge mode and added exact pre-entry readback. It failed
+closed before arming because its raw-polled live-context write did not change
+OOCMODE. Stage 3A-R6 retains ABI 7 and performs that live preflight write
+through Rockbox's normal serialized PMU driver instead. Repeated retention,
+full kernel continuation, driver resume, and fault-injection gates remain
+experimental and incomplete.
 
 The target is the existing `IPOD_6G` Rockbox target. Rockbox uses that target
 for both the 6th- and 7th-generation Classic hardware.
@@ -87,8 +90,11 @@ failure instead of replacing it. One R3 hardware run proved that persistence
 and the controlled context handoff after a forced reset, but it did not enter
 or wake from PMU Standby. ABI-6 R4 adds a fail-closed Standby-entry proof before
 any further context test. Its hardware run proved Standby entry and isolated
-the remaining USB failure to EXTON2's wake-edge mode. ABI-7 R5 applies that
-single-bitfield correction with pre-entry readback evidence.
+the remaining USB failure to EXTON2's wake-edge mode. ABI-7 R5 captured the
+live preflight configuration but failed closed when its raw-polled write left
+OOCMODE unchanged. R6 keeps ABI 7 and changes only that app-side write
+transport to the normal PMU driver already proven by the immediately preceding
+OOCWAKE write.
 
 ### First real-hardware retention result — 2026-08-28
 
@@ -286,6 +292,43 @@ derived from the R4 snapshot would change only the mode byte, for example
 `ed2758c7` to `ed2754c7`. The post-reset `PMU` field remains useful, but `ENT`
 is the authoritative proof of what was configured immediately before Standby
 in case the boot ROM changes PMU state during a forced reset.
+
+### Stage 3A-R5 fail-closed preflight result - 2026-08-29
+
+The ABI-7 mismatch gate passed, the matching dual-boot bootloader was
+installed, and exactly one R5 attempt was requested. The screen powered down,
+but inserting USB performed an ordinary cold boot. The durable record then
+reported:
+
+```text
+State:FAILED mode:3
+Attempts:0 phase:1 fail:6
+TTB:599fd0c7/00000000
+Cookie:48865033/00000000
+ENT:e927e3c7/e927e3c7
+```
+
+`phase:1`, `fail:6`, and `attempts:0` prove that preparation completed but the
+I2C preflight failed before the ownership token was armed. No retained context
+was entered, so the subsequent USB boot is not a hibernate wake result.
+
+The `ENT` values are authoritative: OOCWAKE was `c7`, OOCMODE was `e3`,
+OOCCTL was `27`, and OOCSTAT was `e9`; the after-read was identical. The
+preceding call to `pmu_set_wake_condition()` had successfully changed and read
+back OOCWAKE through Rockbox's normal mutex-protected I2C/PMU driver. The R5
+raw-polled preflight then reported no effective OOCMODE change. This isolates
+the failure to use of the final-entry raw writer while the normal kernel and
+I2C driver were still active, not to PMU register permissions or the desired
+EXTON2 value.
+
+Stage 3A-R6 therefore keeps the record, token, and resume ABI at 7 and changes
+only the app-side OOCMODE write to `pmu_write()`. It still records before and
+after evidence and refuses to arm unless OOCWAKE remains unchanged and
+OOCMODE reads back with EXTON2 mode `01`. The raw IRAM writer used after
+caches and interrupts are disabled is unchanged; R4 already proved that path
+can write GPIO3CFG and OOCSHDWN and enter Standby. Because the ABI and
+bootloader path are unchanged, R6 requires only a replacement isolated Rolo
+core, not another NOR/DFU installation.
 
 ## Desired User Experience
 
@@ -1014,15 +1057,15 @@ Likely implementation points:
 
 ## Recommendation
 
-Run one isolated ABI-7 Stage 3A-R5 USB-wake attempt while retaining Stages 1
-and 2 as regression and fault-injection gates. First prove that Rolo displays
-`Runtime: /.rbtv` and refuses to arm against the ABI-6 bootloader. Then install
-only the matching dual-boot test bootloader. Arm on battery, wait for Standby,
-and insert USB exactly once. Record `ENT`, PMU, IRQ, PWR, and every context
-field whether the return is automatic or requires one force reset. Only a real
-automatic wake may authorize the minimal Stage 3B clocks/IRQ/input/LCD/storage
-resume coordinator. Do not jump directly to transparent audio or arbitrary
-plugin resume.
+Run one isolated Stage 3A-R6 USB-wake attempt against the already-installed
+ABI-7 dual-boot bootloader while retaining Stages 1 and 2 as regression and
+fault-injection gates. R6 changes only the app-side preflight transport; do not
+install another bootloader. Arm on battery, wait for Standby, and insert USB
+exactly once. Record `ENT`, PMU, IRQ, PWR, and every context field whether the
+return is automatic or requires one force reset. Only a real automatic wake
+may authorize the minimal Stage 3B clocks/IRQ/input/LCD/storage resume
+coordinator. Do not jump directly to transparent audio or arbitrary plugin
+resume.
 
 The decompile and current Rockbox code answer the major feasibility question:
 the device was designed to retain SDRAM, the bootloader already recognizes that
@@ -1034,7 +1077,9 @@ capability publication. R3 made the result durable and proved the bounded CPU
 context round trip after a forced reset, but the device remained black and did
 not wake from Menu or USB. R4 distinguished “PMU entered Standby” from
 “CPU kept spinning with GPIO3 low,” proved the former, and captured an EXTON2
-rising event under the wrong edge mode. R5 applies and verifies the resulting
-single-field PMU correction before shutdown.
+rising event under the wrong edge mode. R5 failed closed before arming and
+proved that its raw-polled live-context write did not alter OOCMODE. R6 uses
+the normal serialized PMU transport for that single preflight write while
+leaving the proven cache-off entry path unchanged.
 Repeat, duration, wake-source, and injected-failure testing remain mandatory
 before this can become a normal user setting.
