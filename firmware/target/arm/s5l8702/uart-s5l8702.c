@@ -42,6 +42,21 @@ const struct uartc s5l8702_uartc =
     .port_l   = uartc_port_l,
 };
 
+#if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
+        IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+static struct
+{
+    bool active;
+    uint32_t ulcon;
+    uint32_t ucon;
+    uint32_t ufcon;
+    uint32_t umcon;
+    uint32_t ubrdiv;
+    uint32_t ubrcontx;
+    uint32_t ubrconrx;
+} uart_hibernate_state[UARTC_N_PORTS];
+#endif
+
 /*
  * Device level functions specific to S5L8702
  */
@@ -148,3 +163,50 @@ void uart_init(void)
 {
     uartc_open(&s5l8702_uartc);
 }
+
+#if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
+        IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+void uart_hibernate_suspend(void)
+{
+    for (int id = 0; id < UARTC_N_PORTS; id++)
+    {
+        uint32_t baddr = s5l8702_uartc.baddr +
+                         s5l8702_uartc.port_off * id;
+        uart_hibernate_state[id].active = uartc_port_l[id] != NULL;
+        if (!uart_hibernate_state[id].active)
+            continue;
+
+        uart_hibernate_state[id].ulcon = ULCON(baddr);
+        uart_hibernate_state[id].ucon = UCON(baddr);
+        uart_hibernate_state[id].ufcon = UFCON(baddr);
+        uart_hibernate_state[id].umcon = UMCON(baddr);
+        uart_hibernate_state[id].ubrdiv = UBRDIV(baddr);
+        uart_hibernate_state[id].ubrcontx = UBRCONTX(baddr);
+        uart_hibernate_state[id].ubrconrx = UBRCONRX(baddr);
+    }
+}
+
+void uart_hibernate_resume(void)
+{
+    uart_target_enable_clocks(s5l8702_uartc.id);
+
+    for (int id = 0; id < UARTC_N_PORTS; id++)
+    {
+        if (!uart_hibernate_state[id].active || !uartc_port_l[id])
+            continue;
+
+        uint32_t baddr = s5l8702_uartc.baddr +
+                         s5l8702_uartc.port_off * id;
+        uart_target_enable_gpio(s5l8702_uartc.id, id);
+        UCON(baddr) = 0;
+        ULCON(baddr) = uart_hibernate_state[id].ulcon;
+        UBRDIV(baddr) = uart_hibernate_state[id].ubrdiv;
+        UBRCONTX(baddr) = uart_hibernate_state[id].ubrcontx;
+        UBRCONRX(baddr) = uart_hibernate_state[id].ubrconrx;
+        UFCON(baddr) = uart_hibernate_state[id].ufcon;
+        UMCON(baddr) = uart_hibernate_state[id].umcon;
+        UTRSTAT(baddr) = ~0u;
+        UCON(baddr) = uart_hibernate_state[id].ucon;
+    }
+}
+#endif

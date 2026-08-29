@@ -76,10 +76,9 @@ void power_off(void)
         }
         else if (ipod6g_hibernate_stage1_arm())
         {
-#if IPOD6G_HIBERNATE_STAGE3
-            if (mode == IPOD6G_HIBERNATE_MODE_CONTROLLED_CONTEXT)
-                ipod6g_hibernate_stage3_enter();
-#endif
+            /* Controlled-context resume is intentionally unavailable here.
+             * It requires ipod6g_hibernate_stage3_suspend(), which quiesces
+             * storage/display and owns the retained I2C mutex in-thread. */
             ipod6g_hibernate_stage1_enter();
         }
     }
@@ -158,6 +157,37 @@ void power_init(void)
     GPIOCMD = 0xb060e | 0;  /* B6 HPWR: 100 mA limit  */
     GPIOCMD = 0xc010e | (pmu_firewire_present() ? 0 : 1);
 }
+
+#if defined(IPOD6G_HIBERNATE_STAGE3) && IPOD6G_HIBERNATE_STAGE3 && \
+        !defined(BOOTLOADER)
+void power_hibernate_resume(void)
+{
+#if CONFIG_CHARGING
+    bool adapter_present = pmu_firewire_present();
+    bool fast_charging = usb_high_current_committed;
+#else
+    bool adapter_present = false;
+    bool fast_charging = false;
+#endif
+
+    /* Restore the runtime power GPIO policy that gpio_preinit() replaced. */
+    PCON11 = (PCON11 & 0x000000ff)
+          | (0xe << 8) | (0xe << 12)
+          | (0x0 << 16) | (0x0 << 20)
+          | (0xe << 24) | (0xe << 28);
+    PCON12 = (PCON12 & 0xffff0000)
+          | (0xe << 0) | (0xe << 4) | (0xe << 8) | (0x0 << 12);
+
+    GPIOCMD = 0xb070e | 0; /* LTC4066 SUSP off */
+    GPIOCMD = 0xb060e | (fast_charging ? 1 : 0);
+    GPIOCMD = 0xc010e | ((fast_charging || adapter_present) ? 0 : 1);
+
+    pmu_write(PCF5063X_REG_DOWN1CTL, 2);
+    pmu_hdd_power(idepowered);
+    pmu_set_wake_condition(
+            PCF5063X_OOCWAKE_EXTON2 | PCF5063X_OOCWAKE_EXTON1);
+}
+#endif
 
 void ide_power_enable(bool on)
 {

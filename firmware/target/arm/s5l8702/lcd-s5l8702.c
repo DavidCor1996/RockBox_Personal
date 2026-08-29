@@ -1337,6 +1337,21 @@ void lcd_awake(void)
 }
 #endif
 
+#if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
+        IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+void lcd_hibernate_resume(void)
+{
+    /* Restore the reset controller and DMA ownership while IRQs are still
+     * masked.  The retained lcd_mutex and event listeners stay untouched;
+     * lcd_awake() runs the panel delays after the scheduler tick is live. */
+    lcd_target_enable_clocks(true);
+    LCD_PHTIME = 0x33;
+    s5l_lcd_set_command_mode();
+    dmac_ch_init(&lcd_dma_ch, &lcd_dma_ch_cfg);
+    lcd_ispowered = false;
+}
+#endif
+
 #ifdef S5L_LCD_WITH_READID
 // TODO: protect it with mutex and while(dma) if you want to call it from other places (e.g. DEBUG)
 void lcd_read_display_id(int mpuiface, uint8_t *lcd_id)

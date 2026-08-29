@@ -239,6 +239,7 @@ void pcm_play_dma_stop(void)
 
 /* MCLK = 12MHz (MCLKDIV2=1), [CS42L55 DS, s4.8] */
 #define MCLK_FREQ     12000000
+static uint16_t last_clkcon3l;
 
 /* set the configured PCM frequency */
 void pcm_dma_apply_settings(void)
@@ -248,7 +249,6 @@ void pcm_dma_apply_settings(void)
         return;
 #endif
 
-    static uint16_t last_clkcon3l = 0;
     uint16_t clkcon3l;
     int fsel;
 
@@ -542,3 +542,36 @@ const void * pcm_rec_dma_get_peak_buffer(void)
     return CACHEALIGN_DOWN(dstaddr);
 }
 #endif /* HAVE_RECORDING */
+
+#if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
+        IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+void pcm_hibernate_resume(void)
+{
+    /* dma_init() rebuilt the controller and discarded channel ownership.
+     * Reattach the retained channels, but keep playback/recording stopped as
+     * required by the Stage 3 gate. */
+    PWRCON(1) &= ~(1 << 7);
+    dmac_ch_init(&dma_play_ch, &dma_play_ch_cfg);
+    if (locked)
+        dmac_ch_lock_int(&dma_play_ch);
+
+    I2STXCON = 0xb100019;
+    I2STXCOM = 0xa;
+    I2SCLKCON = 1;
+
+    /* system_preinit() replaced CLKCON3; defeat the retained write cache. */
+    last_clkcon3l = 0xffff;
+    pcm_dma_apply_settings();
+
+#ifdef HAVE_RECORDING
+    if (pcm_rec_initialized)
+    {
+        dmac_ch_init(&dma_rec_ch, &dma_rec_ch_cfg);
+        if (rec_locked)
+            dmac_ch_lock_int(&dma_rec_ch);
+        I2SRXCON = 0x1000;
+        I2SRXCOM = 0x2;
+    }
+#endif
+}
+#endif

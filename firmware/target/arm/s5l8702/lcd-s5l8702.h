@@ -83,6 +83,12 @@ struct lcd_info_rec {
 
 void lcd_awake(void);
 
+#if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
+        IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+void lcd_wait_for_dma(void);
+void lcd_hibernate_resume(void);
+#endif
+
 #if defined(IPOD_6G) && !defined(BOOTLOADER)
 void lcd_external_capture_set(bool enabled, bool external_only);
 bool lcd_external_capture_video_active(void);

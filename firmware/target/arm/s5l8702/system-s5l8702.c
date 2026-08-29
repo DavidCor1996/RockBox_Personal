@@ -362,6 +362,37 @@ void set_cpu_frequency(long frequency)
 }
 #endif
 
+#if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
+        IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+/*
+ * Rebuild only hardware state destroyed by the reset/bootloader path.  All
+ * kernel objects, queues, threads and driver software state remain live in
+ * retained DRAM and must not be initialized a second time.
+ */
+void system_hibernate_resume(void)
+{
+    int level = CLK_UNBOOST;
+
+#ifdef HAVE_ADJUSTABLE_CPU_FREQ
+    if (cpu_frequency == CPUFREQ_MAX)
+        level = CLK_BOOST;
+    else if (ahb_boost_flag)
+        level = CLK_USB;
+#endif
+
+    /* system_preinit() left the hardware at the bootloader clock level. */
+    clocking_init(clk_modes, level);
+
+    /* The direct handoff is executing from application DRAM now. */
+    clockgate_enable(CLOCKGATE_SM1, false);
+
+    gpio_hibernate_resume();
+    vic_init();
+    dma_init();
+    tick_start(1000 / HZ);
+}
+#endif
+
 static void set_page_tables(void)
 {
     /* map RAM to itself and enable caching for it */

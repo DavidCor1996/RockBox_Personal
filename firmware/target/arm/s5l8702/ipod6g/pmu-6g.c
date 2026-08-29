@@ -339,6 +339,28 @@ void pmu_init(void)
     eint_register(&pmu_eint);
 }
 
+#if defined(IPOD6G_HIBERNATE_STAGE3) && IPOD6G_HIBERNATE_STAGE3 && \
+        !defined(BOOTLOADER)
+void pmu_hibernate_resume(void)
+{
+    unsigned char ints[5];
+
+    /* pmu_preinit() in the resume bootloader masked every source.  Restore
+     * the retained driver's mask and refresh inputs without recreating its
+     * mutex, queue, thread, or EINT registration. */
+    pmu_write_multiple(PCF5063X_REG_INT1M, 5, ints_msk);
+    pmu_write(PCF50635_REG_INT6M, ints_msk[5]);
+    pmu_read_multiple(PCF5063X_REG_INT1, 5, ints);
+    pmu_read(PCF50635_REG_INT6);
+
+#if CONFIG_CHARGING
+    pmu_read_inputs_mbcs();
+#endif
+    pmu_read_inputs_ooc();
+    pmu_read_inputs_gpio();
+}
+#endif
+
 /*
  * preinit
  */

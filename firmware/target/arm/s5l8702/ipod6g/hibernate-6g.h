@@ -88,18 +88,17 @@
 
 /*
  * Stage 3 breadcrumbs deliberately occupy the existing reserved record tail.
- * The app continuation cannot safely call the CRC implementation, so the
- * bootloader treats these as raw post-reset evidence only after validating
- * the fixed record layout.  Values identify the last boundary crossed when a
- * controlled context call is interrupted by a hard reset.
+ * Before the direct handoff they are raw post-reset evidence.  Once the live
+ * application has restored its hardware, it commits the final breadcrumb and
+ * record CRC itself.  Values identify the last boundary crossed if resume is
+ * interrupted by a hard reset.
  */
-#define IPOD6G_HIBERNATE_DIAGNOSTIC_OFFSET   232
+#define IPOD6G_HIBERNATE_DIAGNOSTIC_OFFSET   268
 #define IPOD6G_HIBERNATE_DIAG_NONE           0x00000000
-#define IPOD6G_HIBERNATE_DIAG_BOOT_ENTER     0x48334231 /* "H3B1" */
-#define IPOD6G_HIBERNATE_DIAG_APP_ENTER      0x48334132 /* "H3A2" */
-#define IPOD6G_HIBERNATE_DIAG_APP_RETURN     0x48334133 /* "H3A3" */
-#define IPOD6G_HIBERNATE_DIAG_RETURN_STUB    0x48334234 /* "H3B4" */
-#define IPOD6G_HIBERNATE_DIAG_BOOT_RETURN    0x48334235 /* "H3B5" */
+#define IPOD6G_HIBERNATE_DIAG_BOOT_DIRECT    0x48334231 /* "H3B1" */
+#define IPOD6G_HIBERNATE_DIAG_APP_CONTINUE   0x48334132 /* "H3A2" */
+#define IPOD6G_HIBERNATE_DIAG_HW_RESTORED    0x48334133 /* "H3A3" */
+#define IPOD6G_HIBERNATE_DIAG_APP_COMPLETE   0x48334134 /* "H3A4" */
 
 #if IPOD6G_HIBERNATE_PAYLOAD_STACK_TOP - \
         IPOD6G_HIBERNATE_PAYLOAD_STACK_BOTTOM != \
@@ -108,9 +107,9 @@
 #endif
 
 #if IPOD6G_HIBERNATE_STAGE3
-#define IPOD6G_HIBERNATE_TOKEN_VERSION      7
-#define IPOD6G_HIBERNATE_RESUME_ABI         7
-#define IPOD6G_HIBERNATE_RECORD_VERSION     7
+#define IPOD6G_HIBERNATE_TOKEN_VERSION      8
+#define IPOD6G_HIBERNATE_RESUME_ABI         8
+#define IPOD6G_HIBERNATE_RECORD_VERSION     8
 #else
 #define IPOD6G_HIBERNATE_TOKEN_VERSION      2
 #define IPOD6G_HIBERNATE_RESUME_ABI         2
@@ -126,6 +125,11 @@
 #define IPOD6G_HIBERNATE_CPU_CONTROL_OFFSET  48
 #define IPOD6G_HIBERNATE_CPU_TTB_OFFSET      52
 #define IPOD6G_HIBERNATE_CPU_DOMAIN_OFFSET   56
+#define IPOD6G_HIBERNATE_CPU_IRQ_SP_OFFSET   60
+#define IPOD6G_HIBERNATE_CPU_FIQ_SP_OFFSET   64
+#define IPOD6G_HIBERNATE_CPU_SVC_SP_OFFSET   68
+#define IPOD6G_HIBERNATE_CPU_ABT_SP_OFFSET   72
+#define IPOD6G_HIBERNATE_CPU_UND_SP_OFFSET   76
 
 #if IPOD6G_HIBERNATE_CONTROL_SIZE + \
         IPOD6G_HIBERNATE_IRAM_SHADOW_SIZE + \
@@ -194,6 +198,8 @@ enum ipod6g_hibernate_phase
     IPOD6G_HIBERNATE_PHASE_IRAM_RESTORED    = 10,
     IPOD6G_HIBERNATE_PHASE_CONTEXT_ENTERED  = 11,
     IPOD6G_HIBERNATE_PHASE_CONTEXT_RETURNED = 12,
+    IPOD6G_HIBERNATE_PHASE_HARDWARE_RESTORED = 13,
+    IPOD6G_HIBERNATE_PHASE_RESUME_COMPLETE   = 14,
 };
 
 enum ipod6g_hibernate_failure
@@ -215,6 +221,7 @@ enum ipod6g_hibernate_failure
     IPOD6G_HIBERNATE_FAILURE_CONTEXT_RETURN   = 14,
     IPOD6G_HIBERNATE_FAILURE_CONTEXT_INTERRUPTED = 15,
     IPOD6G_HIBERNATE_FAILURE_STANDBY_NOT_ENTERED = 16,
+    IPOD6G_HIBERNATE_FAILURE_HARDWARE_RESUME = 17,
 };
 
 struct ipod6g_hibernate_pmu_snapshot
@@ -272,6 +279,19 @@ struct ipod6g_hibernate_cpu_context
     uint32_t cp15_control;
     uint32_t cp15_ttb;
     uint32_t cp15_domain;
+    uint32_t irq_sp;
+    uint32_t fiq_sp;
+    uint32_t svc_sp;
+    uint32_t abt_sp;
+    uint32_t und_sp;
+};
+
+struct ipod6g_hibernate_irq_context
+{
+    uint32_t vic0_select;
+    uint32_t vic1_select;
+    uint32_t vic0_enable;
+    uint32_t vic1_enable;
 };
 
 struct ipod6g_hibernate_record
@@ -288,6 +308,7 @@ struct ipod6g_hibernate_record
     uint32_t mode;
     uint32_t build_fingerprint[4];
     struct ipod6g_hibernate_cpu_context cpu;
+    struct ipod6g_hibernate_irq_context irq;
     uint32_t area_addr;
     uint32_t area_size;
     uint32_t iram_shadow_addr;
@@ -355,8 +376,8 @@ void ipod6g_hibernate_stage1_fail(
         enum ipod6g_hibernate_failure failure);
 void ipod6g_hibernate_stage1_enter(void)
         __attribute__((noreturn));
-void ipod6g_hibernate_stage3_enter(void)
-        __attribute__((noreturn));
+bool ipod6g_hibernate_stage3_enter(void);
+bool ipod6g_hibernate_stage3_suspend(uint32_t sequence);
 #else
 enum ipod6g_hibernate_boot_action
 {
@@ -378,11 +399,9 @@ uint32_t ipod6g_hibernate_stage2_call(
         volatile struct ipod6g_hibernate_record *record);
 #endif
 #if IPOD6G_HIBERNATE_STAGE3
-uint32_t ipod6g_hibernate_stage3_resume_call(
-        const struct ipod6g_hibernate_cpu_context *context,
-        volatile struct ipod6g_hibernate_record *record,
-        uint32_t cookie, uintptr_t return_entry);
-void ipod6g_hibernate_stage3_return(void);
+void ipod6g_hibernate_stage3_resume(
+        const struct ipod6g_hibernate_cpu_context *context)
+        __attribute__((noreturn));
 #endif
 void ipod6g_hibernate_stage1_mark_recovery(
         enum ipod6g_hibernate_failure failure,
@@ -406,6 +425,12 @@ typedef char ipod6g_hibernate_cpu_pc_offset_must_match
 typedef char ipod6g_hibernate_cpu_domain_offset_must_match
         [(offsetof(struct ipod6g_hibernate_cpu_context, cp15_domain) ==
           IPOD6G_HIBERNATE_CPU_DOMAIN_OFFSET) ? 1 : -1];
+typedef char ipod6g_hibernate_cpu_irq_sp_offset_must_match
+        [(offsetof(struct ipod6g_hibernate_cpu_context, irq_sp) ==
+          IPOD6G_HIBERNATE_CPU_IRQ_SP_OFFSET) ? 1 : -1];
+typedef char ipod6g_hibernate_cpu_und_sp_offset_must_match
+        [(offsetof(struct ipod6g_hibernate_cpu_context, und_sp) ==
+          IPOD6G_HIBERNATE_CPU_UND_SP_OFFSET) ? 1 : -1];
 #if IPOD6G_HIBERNATE_STAGE3
 typedef char ipod6g_hibernate_diagnostic_offset_must_match
         [(offsetof(struct ipod6g_hibernate_record, reserved[0]) ==

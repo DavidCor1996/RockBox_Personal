@@ -30,6 +30,19 @@
 #include "hibernate-6g.h"
 #if IPOD6G_HIBERNATE_STAGE3
 #include "version.h"
+#ifndef BOOTLOADER
+#include "audio.h"
+#include "backlight-target.h"
+#include "lcd.h"
+#include "lcd-s5l8702.h"
+#include "power.h"
+#include "storage.h"
+#include "usb.h"
+#include "videoout-6g.h"
+#include "gpio-s5l8702.h"
+#include "i2c-s5l8702.h"
+#include "uart-target.h"
+#endif
 #endif
 
 #define IPOD6G_HIBERNATE_PROBE_SEED 0x68364731u /* "h6G1" */
@@ -497,9 +510,9 @@ bool ipod6g_hibernate_stage2_request(uint32_t sequence)
 bool ipod6g_hibernate_stage3_request(uint32_t sequence)
 {
 #if IPOD6G_HIBERNATE_STAGE3
-    return hibernate_request(sequence,
-            IPOD6G_HIBERNATE_MODE_CONTROLLED_CONTEXT,
-            IPOD6G_HIBERNATE_CAP_CONTROLLED_CONTEXT);
+    /* Stage 3 must use the coordinated in-thread suspend path below. */
+    (void)sequence;
+    return false;
 #else
     (void)sequence;
     return false;
@@ -533,14 +546,13 @@ static uint32_t ipod6g_hibernate_stage2_payload(
 extern unsigned char _stackbegin[];
 extern unsigned char _stackend[];
 
-static void ipod6g_hibernate_stage3_resume_payload(
-        volatile struct ipod6g_hibernate_record *record,
-        uint32_t cookie, uintptr_t bootloader_sp, uintptr_t return_entry)
-        __attribute__((section(".hibernate_payload"), noinline, used,
-                       noreturn));
 extern uint32_t ipod6g_hibernate_stage3_checkpoint(
-        struct ipod6g_hibernate_cpu_context *context,
-        uintptr_t resume_pc);
+        struct ipod6g_hibernate_cpu_context *context);
+#ifndef BOOTLOADER
+void button_hibernate_resume(void);
+void pcm_hibernate_resume(void);
+void power_hibernate_resume(void);
+#endif
 #endif
 
 static uint32_t probe_pattern(uint32_t index, uint32_t seed)
@@ -625,7 +637,7 @@ bool ipod6g_hibernate_prepare(uint32_t sequence, uint32_t mode)
         if (mode == IPOD6G_HIBERNATE_MODE_CONTROLLED_CONTEXT)
         {
             payload_entry =
-                    (uintptr_t)ipod6g_hibernate_stage3_resume_payload;
+                    (uintptr_t)ipod6g_hibernate_stage3_checkpoint;
             stack_bottom = (uintptr_t)_stackbegin;
             stack_top = (uintptr_t)_stackend;
             expected_cookie = IPOD6G_HIBERNATE_CONTEXT_COOKIE;
@@ -740,65 +752,24 @@ static uint32_t ipod6g_hibernate_stage2_payload(
 #endif /* IPOD6G_HIBERNATE_STAGE2 */
 
 #if IPOD6G_HIBERNATE_STAGE3
-typedef void (*ipod6g_hibernate_stage3_return_fn)(
-        volatile struct ipod6g_hibernate_record *record,
-        uint32_t cookie, uintptr_t bootloader_sp);
-
-/*
- * This is the first retained application continuation to run on the restored
- * Rockbox system stack. It intentionally touches only its arguments and the
- * fixed retained record, then makes one checked indirect call back into the
- * bootloader's IRAM1 return stub. Interrupts remain disabled throughout.
- */
-static void ipod6g_hibernate_stage3_resume_payload(
-        volatile struct ipod6g_hibernate_record *record,
-        uint32_t cookie, uintptr_t bootloader_sp, uintptr_t return_entry)
+static void stage3_restore_vic(
+        const volatile struct ipod6g_hibernate_record *record)
 {
-    uintptr_t observed_sp;
-    uint32_t result = cookie;
-
-    record->reserved[0] = IPOD6G_HIBERNATE_DIAG_APP_ENTER;
-    asm volatile("mov %0, sp" : "=r"(observed_sp));
-
-    if (record != (volatile struct ipod6g_hibernate_record *)
-                    IPOD6G_HIBERNATE_CONTROL_ADDR ||
-        cookie != IPOD6G_HIBERNATE_CONTEXT_COOKIE ||
-        record->state != IPOD6G_HIBERNATE_RECORD_CONTEXT_ENTERING ||
-        record->mode != IPOD6G_HIBERNATE_MODE_CONTROLLED_CONTEXT ||
-        record->payload_expected_cookie !=
-                    IPOD6G_HIBERNATE_CONTEXT_COOKIE ||
-        record->payload_entry !=
-                    (uintptr_t)ipod6g_hibernate_stage3_resume_payload ||
-        observed_sp < record->payload_stack_bottom ||
-        observed_sp >= record->payload_stack_top ||
-        bootloader_sp < IRAM1_ORIG ||
-        bootloader_sp >= IRAM1_ORIG + IRAM1_SIZE ||
-        return_entry < IRAM1_ORIG ||
-        return_entry >= IRAM1_ORIG + IRAM1_SIZE)
-    {
-        result = ~IPOD6G_HIBERNATE_CONTEXT_COOKIE;
-    }
-
-    record->payload_observed_cookie = result;
-    record->payload_observed_sp = observed_sp;
-    record->payload_return_value = result;
-    record->last_phase = IPOD6G_HIBERNATE_PHASE_CONTEXT_RETURNED;
-    record->state = IPOD6G_HIBERNATE_RECORD_CONTEXT_RETURNED;
-
-    if (return_entry >= IRAM1_ORIG &&
-        return_entry < IRAM1_ORIG + IRAM1_SIZE &&
-        bootloader_sp >= IRAM1_ORIG &&
-        bootloader_sp < IRAM1_ORIG + IRAM1_SIZE)
-    {
-        record->reserved[0] = IPOD6G_HIBERNATE_DIAG_APP_RETURN;
-        ((ipod6g_hibernate_stage3_return_fn)return_entry)(
-                record, result, bootloader_sp);
-    }
-
-    while (1);
+    VIC0INTENCLEAR = 0xffffffffu;
+    VIC1INTENCLEAR = 0xffffffffu;
+    VIC0INTSELECT = record->irq.vic0_select;
+    VIC1INTSELECT = record->irq.vic1_select;
+    VIC0INTENABLE = record->irq.vic0_enable;
+    VIC1INTENABLE = record->irq.vic1_enable;
 }
 
-void ipod6g_hibernate_stage3_enter(void)
+static void stage3_finish_display(void)
+{
+    lcd_awake();
+    backlight_hibernate_resume();
+}
+
+bool ipod6g_hibernate_stage3_enter(void)
 {
     volatile struct ipod6g_hibernate_record *record =
             (volatile struct ipod6g_hibernate_record *)
@@ -812,22 +783,47 @@ void ipod6g_hibernate_stage3_enter(void)
         record->state != IPOD6G_HIBERNATE_RECORD_ARMED ||
         record->mode != IPOD6G_HIBERNATE_MODE_CONTROLLED_CONTEXT ||
         record->payload_entry !=
-                (uintptr_t)ipod6g_hibernate_stage3_resume_payload)
+                (uintptr_t)ipod6g_hibernate_stage3_checkpoint)
     {
         ipod6g_hibernate_stage1_fail(
                 IPOD6G_HIBERNATE_FAILURE_CONTEXT_METADATA);
-        pmu_enter_standby();
-        while (1);
+        return false;
     }
-
-    disable_interrupt(IRQ_FIQ_STATUS);
 
     if (ipod6g_hibernate_stage3_checkpoint(
-                (struct ipod6g_hibernate_cpu_context *)&record->cpu,
-                record->payload_entry) != 0)
+                (struct ipod6g_hibernate_cpu_context *)&record->cpu) != 0)
     {
-        while (1);
+        uintptr_t observed_sp;
+
+        record->reserved[0] = IPOD6G_HIBERNATE_DIAG_APP_CONTINUE;
+        asm volatile("mov %0, sp" : "=r"(observed_sp));
+
+        /* The bootloader CRT replaced these blocks; rebuild hardware only. */
+        system_hibernate_resume();
+        eint_hibernate_resume();
+        button_hibernate_resume();
+        uart_hibernate_resume();
+        pmu_hibernate_resume();
+        power_hibernate_resume();
+        pcm_hibernate_resume();
+        lcd_hibernate_resume();
+
+        record->reserved[0] = IPOD6G_HIBERNATE_DIAG_HW_RESTORED;
+        record->payload_observed_cookie = IPOD6G_HIBERNATE_CONTEXT_COOKIE;
+        record->payload_observed_sp = observed_sp;
+        record->payload_return_value = IPOD6G_HIBERNATE_CONTEXT_COOKIE;
+        record->last_phase = IPOD6G_HIBERNATE_PHASE_HARDWARE_RESTORED;
+
+        stage3_restore_vic(record);
+        record_commit_crc(record);
+        commit_dcache();
+        return true;
     }
+
+    record->irq.vic0_select = VIC0INTSELECT;
+    record->irq.vic1_select = VIC1INTSELECT;
+    record->irq.vic0_enable = VIC0INTENABLE;
+    record->irq.vic1_enable = VIC1INTENABLE;
 
     /* Freeze the complete application IRAM image after context capture. */
     commit_dcache();
@@ -843,10 +839,103 @@ void ipod6g_hibernate_stage3_enter(void)
 
     ipod6g_hibernate_stage1_enter();
 }
-#else
-void ipod6g_hibernate_stage3_enter(void)
+
+bool ipod6g_hibernate_stage3_suspend(uint32_t sequence)
 {
-    while (1);
+    volatile struct ipod6g_hibernate_record *record =
+            (volatile struct ipod6g_hibernate_record *)
+            IPOD6G_HIBERNATE_CONTROL_ADDR;
+    bool display_slept = false;
+    bool resumed;
+    int oldlevel;
+
+    if (audio_status() != 0 || usb_detect() != USB_EXTRACTED ||
+        ipod6g_videoout_active())
+    {
+        return false;
+    }
+
+    pmu_set_wake_condition(IPOD6G_HIBERNATE_WAKE_MASK);
+    if (!ipod6g_hibernate_prepare(sequence,
+                    IPOD6G_HIBERNATE_MODE_CONTROLLED_CONTEXT))
+    {
+        return false;
+    }
+
+    if (!ipod6g_hibernate_stage1_i2c_preflight())
+    {
+        ipod6g_hibernate_stage1_fail(
+                IPOD6G_HIBERNATE_FAILURE_I2C_PREFLIGHT);
+        return false;
+    }
+
+    if (storage_flush() != 0)
+        return false;
+
+    storage_sleepnow();
+    uart_hibernate_suspend();
+    lcd_wait_for_dma();
+    backlight_hw_kill();
+#ifdef HAVE_LCD_SLEEP
+    lcd_sleep();
+    display_slept = true;
+#endif
+
+    if (!ipod6g_hibernate_stage1_arm())
+    {
+        if (display_slept)
+            lcd_awake();
+        backlight_hw_on();
+        return false;
+    }
+
+    /*
+     * Match RetailOS's coordinated power transition: no other retained
+     * thread may own or start a PMU transaction after the context boundary.
+     * The same thread continues after the direct bootloader handoff, so the
+     * retained recursive mutex remains valid while resume-time PMU accesses
+     * repair hardware. Mask scheduling immediately after taking ownership;
+     * release it only after stage3_enter() has restored clocks, interrupt
+     * controllers, scheduler tick, PMU, power, DMA, and the LCD controller.
+     */
+    i2c_bus_lock(0);
+    oldlevel = disable_interrupt_save(IRQ_FIQ_STATUS);
+    resumed = ipod6g_hibernate_stage3_enter();
+    restore_interrupt(oldlevel);
+    i2c_bus_unlock(0);
+
+    if (resumed)
+    {
+        stage3_finish_display();
+
+        /* A visible, responsive panel is part of the Stage 3 pass gate. */
+        record->reserved[0] = IPOD6G_HIBERNATE_DIAG_APP_COMPLETE;
+        record->state = IPOD6G_HIBERNATE_RECORD_PASSED;
+        record->last_phase = IPOD6G_HIBERNATE_PHASE_RESUME_COMPLETE;
+        record->failure = IPOD6G_HIBERNATE_FAILURE_NONE;
+        record_commit_crc(record);
+        commit_dcache();
+        ipod6g_hibernate_token_clear();
+    }
+    else
+    {
+        if (display_slept)
+            lcd_awake();
+        backlight_hw_on();
+    }
+
+    return resumed;
+}
+#else
+bool ipod6g_hibernate_stage3_enter(void)
+{
+    return false;
+}
+
+bool ipod6g_hibernate_stage3_suspend(uint32_t sequence)
+{
+    (void)sequence;
+    return false;
 }
 #endif /* IPOD6G_HIBERNATE_STAGE3 */
 
@@ -1254,9 +1343,15 @@ void ipod6g_hibernate_stage1_enter(void)
     while (1);
 }
 
-void ipod6g_hibernate_stage3_enter(void)
+bool ipod6g_hibernate_stage3_enter(void)
 {
-    while (1);
+    return false;
+}
+
+bool ipod6g_hibernate_stage3_suspend(uint32_t sequence)
+{
+    (void)sequence;
+    return false;
 }
 
 #endif /* IPOD6G_HIBERNATE_STAGE1 */
@@ -1375,11 +1470,10 @@ static void record_failure(
     if (record_layout_valid(record) &&
         record->mode == IPOD6G_HIBERNATE_MODE_CONTROLLED_CONTEXT &&
         (ipod6g_hibernate_record_valid(record) ||
-         record->reserved[0] == IPOD6G_HIBERNATE_DIAG_BOOT_ENTER ||
-         record->reserved[0] == IPOD6G_HIBERNATE_DIAG_APP_ENTER ||
-         record->reserved[0] == IPOD6G_HIBERNATE_DIAG_APP_RETURN ||
-         record->reserved[0] == IPOD6G_HIBERNATE_DIAG_RETURN_STUB ||
-         record->reserved[0] == IPOD6G_HIBERNATE_DIAG_BOOT_RETURN))
+         record->reserved[0] == IPOD6G_HIBERNATE_DIAG_BOOT_DIRECT ||
+         record->reserved[0] == IPOD6G_HIBERNATE_DIAG_APP_CONTINUE ||
+         record->reserved[0] == IPOD6G_HIBERNATE_DIAG_HW_RESTORED ||
+         record->reserved[0] == IPOD6G_HIBERNATE_DIAG_APP_COMPLETE))
     {
         if (failure == IPOD6G_HIBERNATE_FAILURE_STANDBY_NOT_ENTERED &&
             record->state == IPOD6G_HIBERNATE_RECORD_ARMED)
@@ -1472,12 +1566,11 @@ static bool stage3_context_metadata_valid(
                     IPOD6G_HIBERNATE_MODE_CONTROLLED_CONTEXT,
                     IPOD6G_HIBERNATE_CAP_CONTROLLED_CONTEXT,
                     IPOD6G_HIBERNATE_CONTEXT_COOKIE) &&
-           record->cpu.pc == record->payload_entry &&
            record->cpu.pc >= record->payload_start &&
            record->cpu.pc < record->payload_start + record->payload_size &&
            record->cpu.lr >= DRAM_ORIG &&
            record->cpu.lr < IPOD6G_HIBERNATE_AREA_ADDR &&
-           (record->cpu.cpsr & 0xffu) == 0xdfu &&
+           (record->cpu.cpsr & 0x1fu) == 0x1fu &&
            (record->cpu.cp15_control & ((1u << 12) | (1u << 2) | 1u)) ==
                     ((1u << 12) | (1u << 2) | 1u) &&
            record->cpu.cp15_ttb == TTB_BASE_ADDR &&
@@ -1491,7 +1584,22 @@ static bool stage3_context_metadata_valid(
            record->payload_stack_top > record->payload_stack_bottom &&
            record->cpu.sp >= record->payload_stack_bottom &&
            record->cpu.sp < record->payload_stack_top &&
-           (record->cpu.sp & 7u) == 0;
+           (record->cpu.sp & 7u) == 0 &&
+           record->cpu.irq_sp >= record->payload_stack_bottom &&
+           record->cpu.irq_sp < IPOD6G_HIBERNATE_APP_IRAM_TOP &&
+           record->cpu.fiq_sp >= record->payload_stack_bottom &&
+           record->cpu.fiq_sp < IPOD6G_HIBERNATE_APP_IRAM_TOP &&
+           record->cpu.svc_sp >= record->payload_stack_bottom &&
+           record->cpu.svc_sp < IPOD6G_HIBERNATE_APP_IRAM_TOP &&
+           record->cpu.abt_sp >= record->payload_stack_bottom &&
+           record->cpu.abt_sp < IPOD6G_HIBERNATE_APP_IRAM_TOP &&
+           record->cpu.und_sp >= record->payload_stack_bottom &&
+           record->cpu.und_sp < IPOD6G_HIBERNATE_APP_IRAM_TOP &&
+           (record->cpu.irq_sp & 7u) == 0 &&
+           (record->cpu.fiq_sp & 7u) == 0 &&
+           (record->cpu.svc_sp & 7u) == 0 &&
+           (record->cpu.abt_sp & 7u) == 0 &&
+           (record->cpu.und_sp & 7u) == 0;
 }
 
 static bool stage3_current_mmu_matches(
@@ -1621,8 +1729,6 @@ bool ipod6g_hibernate_validate_after_wake(
              record->mode == IPOD6G_HIBERNATE_MODE_CONTROLLED_CONTEXT)
     {
 #if IPOD6G_HIBERNATE_STAGE3
-        uint32_t context_return = 0;
-
         record->observed_ttb_crc32 = crc32_region(record->ttb_addr,
                                                    record->ttb_size);
 
@@ -1656,31 +1762,12 @@ bool ipod6g_hibernate_validate_after_wake(
 
             record->state = IPOD6G_HIBERNATE_RECORD_CONTEXT_ENTERING;
             record->last_phase = IPOD6G_HIBERNATE_PHASE_CONTEXT_ENTERED;
-            record->reserved[0] = IPOD6G_HIBERNATE_DIAG_BOOT_ENTER;
+            record->reserved[0] = IPOD6G_HIBERNATE_DIAG_BOOT_DIRECT;
             record_commit_crc(record);
             commit_discard_idcache();
 
-            context_return = ipod6g_hibernate_stage3_resume_call(
-                    (const struct ipod6g_hibernate_cpu_context *)&record->cpu,
-                    record, IPOD6G_HIBERNATE_CONTEXT_COOKIE,
-                    (uintptr_t)ipod6g_hibernate_stage3_return);
-
-            record->reserved[0] = IPOD6G_HIBERNATE_DIAG_BOOT_RETURN;
-            record->payload_return_value = context_return;
-            if (!record_layout_valid(record) ||
-                !stage3_context_metadata_valid(record) ||
-                record->state != IPOD6G_HIBERNATE_RECORD_CONTEXT_RETURNED ||
-                record->last_phase !=
-                    IPOD6G_HIBERNATE_PHASE_CONTEXT_RETURNED ||
-                record->payload_observed_cookie !=
-                    record->payload_expected_cookie ||
-                context_return != record->payload_expected_cookie ||
-                record->payload_observed_sp <
-                    record->payload_stack_bottom ||
-                record->payload_observed_sp >= record->payload_stack_top)
-            {
-                failure = IPOD6G_HIBERNATE_FAILURE_CONTEXT_RETURN;
-            }
+            ipod6g_hibernate_stage3_resume(
+                    (const struct ipod6g_hibernate_cpu_context *)&record->cpu);
         }
 #else
         failure = IPOD6G_HIBERNATE_FAILURE_CONTEXT_METADATA;

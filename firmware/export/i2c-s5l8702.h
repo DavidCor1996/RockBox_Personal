@@ -28,6 +28,10 @@ void i2c_init(void) INIT_ATTR;
 int i2c_write(int bus, unsigned char slave, int address, int len, const unsigned char *data);
 int i2c_read(int bus, unsigned char slave, int address, int len, unsigned char *data);
 
+/* Serialize a sequence of transfers without reinitializing driver state. */
+void i2c_bus_lock(int bus);
+void i2c_bus_unlock(int bus);
+
 void i2c_preinit(int bus);
 int i2c_wr(int bus, unsigned char slave, int address, int len, const unsigned char *data);
 int i2c_rd(int bus, unsigned char slave, int address, int len, unsigned char *data);

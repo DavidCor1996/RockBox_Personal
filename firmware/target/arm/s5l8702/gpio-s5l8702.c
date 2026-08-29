@@ -98,6 +98,24 @@ void INIT_ATTR gpio_init(void)
 #endif
 }
 
+#if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
+        IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+void gpio_hibernate_resume(void)
+{
+    /* gpio_preinit() already restored the static table in the bootloader.
+     * Reapply only the runtime capture-hardware choice retained in DRAM. */
+    if (rec_hw_ver == 0)
+    {
+        GPIOCMD = 0xe060e;
+    }
+    else
+    {
+        GPIOCMD = 0xe0600;
+        PUNB(14) |= 1 << 6;
+    }
+}
+#endif
+
 #if 0
 uint32_t gpio_group_get(int group)
 {
@@ -142,6 +160,38 @@ void INIT_ATTR eint_init(void)
         EIC_INTSTAT(i) = ~0;
     }        
 }
+
+#if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
+        IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+void eint_hibernate_resume(void)
+{
+    /* The handler list is retained; rebuild the reset EIC registers around
+     * it without recreating registrations or touching any event queues. */
+    for (int group = 0; group < EIC_N_GROUPS; group++)
+    {
+        EIC_INTEN(group) = 0;
+        EIC_INTLEVEL(group) = 0;
+        EIC_INTTYPE(group) = 0;
+        EIC_INTSTAT(group) = ~0u;
+    }
+
+    for (int i = 0; i < EINT_MAX_HANDLERS; i++)
+    {
+        struct eic_handler *h = l_handlers[i];
+        if (!h)
+            continue;
+
+        int group = EIC_GROUP(h->gpio_n);
+        int index = EIC_INDEX(h->gpio_n);
+        uint32_t bit = 1u << index;
+
+        EIC_INTTYPE(group) |= h->type << index;
+        EIC_INTLEVEL(group) |= h->level << index;
+        EIC_INTSTAT(group) = bit;
+        EIC_INTEN(group) |= bit;
+    }
+}
+#endif
 
 void eint_register(struct eic_handler *h)
 {

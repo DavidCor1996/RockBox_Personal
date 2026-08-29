@@ -398,6 +398,26 @@ static void s5l_clickwheel_init(void)
 #endif
 }
 
+#if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
+        IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+void button_hibernate_resume(void)
+{
+    /* Preserve the retained hold-switch state.  Re-enabling the controller
+     * while hold is locked would leave it active indefinitely because the
+     * software edge detector also retained its locked state. */
+    if (pmu_holdswitch_locked())
+    {
+        WHEEL00 = 0;
+        PCON14 = (PCON14 & ~0x00ffff00) | 0x000e0e00;
+        clockgate_enable(CLOCKGATE_CWHEEL, false);
+    }
+    else
+    {
+        s5l_clickwheel_init();
+    }
+}
+#endif
+
 void button_init_device(void)
 {
     semaphore_init(&button_init_wakeup, 1, 0);

@@ -29,6 +29,11 @@ void ipod_mini_button_int(void);
 void ipod_3g_button_int(void);
 void ipod_4g_button_int(void);
 
+#if defined(IPOD6G_HIBERNATE_STAGE3) && IPOD6G_HIBERNATE_STAGE3 && \
+        !defined(BOOTLOADER)
+void button_hibernate_resume(void);
+#endif
+
 /* iPod specific button codes */
 
 #define BUTTON_SELECT       0x00000001

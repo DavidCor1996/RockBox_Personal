@@ -3063,11 +3063,10 @@ static const char *dbg_hibernate_breadcrumb_name(uint32_t breadcrumb)
 {
     switch (breadcrumb)
     {
-        case IPOD6G_HIBERNATE_DIAG_BOOT_ENTER: return "boot call";
-        case IPOD6G_HIBERNATE_DIAG_APP_ENTER: return "app entered";
-        case IPOD6G_HIBERNATE_DIAG_APP_RETURN: return "app returning";
-        case IPOD6G_HIBERNATE_DIAG_RETURN_STUB: return "return stub";
-        case IPOD6G_HIBERNATE_DIAG_BOOT_RETURN: return "boot returned";
+        case IPOD6G_HIBERNATE_DIAG_BOOT_DIRECT: return "boot direct";
+        case IPOD6G_HIBERNATE_DIAG_APP_CONTINUE: return "app continue";
+        case IPOD6G_HIBERNATE_DIAG_HW_RESTORED: return "hardware restored";
+        case IPOD6G_HIBERNATE_DIAG_APP_COMPLETE: return "resume complete";
         default: return "none";
     }
 }
@@ -3086,7 +3085,7 @@ static bool dbg_hibernate_stage3(void)
     lcd_set_foreground(LCD_RGBPACK(255, 255, 255));
     lcd_clear_display();
     lcd_puts(0, 0, "*** HIBERNATE TEST CORE ***");
-    lcd_puts(0, 1, "Stage 3A-R6 / ABI 7 / /.rbtv");
+    lcd_puts(0, 1, "Stage 3B-R7 / ABI 8 / /.rbtv");
     lcd_putsf(0, 2, "State:%s mode:%lu",
               status.valid ? dbg_hibernate_state_name(status.state) :
                              "invalid record",
@@ -3126,8 +3125,8 @@ static bool dbg_hibernate_stage3(void)
     {
         lcd_puts(0, 13, "RESULT: STANDBY NOT ENTERED");
     }
-    lcd_puts(0, 14, ready ? "SELECT: ARM + POWER OFF" :
-                            "Matching ABI-7 bootloader required");
+    lcd_puts(0, 14, ready ? "SELECT: SUSPEND; WAKE BY USB" :
+                            "Matching ABI-8 bootloader required");
     lcd_puts(0, 15, "MENU: exit without testing");
     lcd_update();
 
@@ -3139,17 +3138,15 @@ static bool dbg_hibernate_stage3(void)
 
         if (action == ACTION_STD_OK && ready)
         {
-            if (!ipod6g_hibernate_stage3_request((uint32_t)current_tick))
-            {
-                splash(HZ * 2, "Context test refused");
-                break;
-            }
-
             lcd_clear_display();
-            lcd_puts(0, 0, "Context test armed");
-            lcd_puts(0, 2, "Flushing and powering off...");
+            lcd_puts(0, 0, "Live context suspend armed");
+            lcd_puts(0, 2, "Wait for black, then plug USB");
             lcd_update();
-            sys_poweroff();
+
+            if (ipod6g_hibernate_stage3_suspend((uint32_t)current_tick))
+                splash(HZ * 2, "LIVE RESUME PASSED");
+            else
+                splash(HZ * 2, "Live context test refused");
             break;
         }
     }

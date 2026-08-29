@@ -313,7 +313,7 @@ int main(void)
     global_status.last_volume_change = 0;
 #if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3)
     /* Make an experimental Rolo core impossible to confuse with RockPod. */
-    splashf(HZ * 3, "HIBERNATE TEST BUILD\nStage 3A-R6 / ABI 7\nRuntime: %s",
+    splashf(HZ * 3, "HIBERNATE TEST BUILD\nStage 3B-R7 / ABI 8\nRuntime: %s",
             ROCKBOX_DIR);
 #endif
     /* no calls INIT_ATTR functions after this point anymore!

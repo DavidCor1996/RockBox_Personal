@@ -27,5 +27,9 @@ void backlight_hw_off(void);
 void backlight_hw_brightness(int brightness);
 
 void backlight_hw_kill(void);
+#if defined(IPOD6G_HIBERNATE_STAGE3) && IPOD6G_HIBERNATE_STAGE3 && \
+        !defined(BOOTLOADER)
+void backlight_hibernate_resume(void);
+#endif
 
 #endif

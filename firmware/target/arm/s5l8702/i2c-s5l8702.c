@@ -212,19 +212,29 @@ int i2c_rd(int bus, unsigned char slave, int address, int len, unsigned char *da
 int i2c_write(int bus, unsigned char slave, int address, int len, const unsigned char *data)
 {
     int ret;
-    mutex_lock(&i2c_mtx[bus]);
+    i2c_bus_lock(bus);
     ret = i2c_wr(bus, slave, address, len, data);
-    mutex_unlock(&i2c_mtx[bus]);
+    i2c_bus_unlock(bus);
     return ret;
 }
 
 int i2c_read(int bus, unsigned char slave, int address, int len, unsigned char *data)
 {
     int ret;
-    mutex_lock(&i2c_mtx[bus]);
+    i2c_bus_lock(bus);
     ret = i2c_rd(bus, slave, address, len, data);
-    mutex_unlock(&i2c_mtx[bus]);
+    i2c_bus_unlock(bus);
     return ret;
+}
+
+void i2c_bus_lock(int bus)
+{
+    mutex_lock(&i2c_mtx[bus]);
+}
+
+void i2c_bus_unlock(int bus)
+{
+    mutex_unlock(&i2c_mtx[bus]);
 }
 
 void i2c_preinit(int bus)

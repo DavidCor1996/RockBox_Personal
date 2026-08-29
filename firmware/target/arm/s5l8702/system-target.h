@@ -65,4 +65,9 @@ void usb_remove_int(void);
 void system_preinit(void);
 #endif
 
+#if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
+        IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+void system_hibernate_resume(void);
+#endif
+
 #endif /* SYSTEM_TARGET_H */

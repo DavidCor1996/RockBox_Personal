@@ -37,6 +37,11 @@ void eint_unregister(struct eic_handler *h);
 
 void gpio_preinit(void);
 void gpio_init(void);
+#if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
+        IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+void gpio_hibernate_resume(void);
+void eint_hibernate_resume(void);
+#endif
 /* get/set configuration for GPIO groups (0..15) */
 uint32_t gpio_group_get(int group);
 void gpio_group_set(int group, uint32_t mask, uint32_t cfg);

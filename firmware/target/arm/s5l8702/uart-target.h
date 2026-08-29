@@ -25,6 +25,11 @@
 /* #define UC87XX_DEBUG */
 
 void uart_init(void);
+#if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
+        IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+void uart_hibernate_suspend(void);
+void uart_hibernate_resume(void);
+#endif
 
 /* s5l870x low level routines */
 void uart_target_enable_clocks(int uart_id);

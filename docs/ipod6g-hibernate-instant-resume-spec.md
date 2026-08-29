@@ -3,26 +3,25 @@
 ## Status
 
 This is a research and implementation specification, not a claim that full
-resume is already safe. The retained-RAM and controlled retained-payload gates
-now pass on a real iPod Classic. The controlled CPU-context code also completes
-its bounded round trip after a forced reset, but the ABI-5 R3 hardware attempt
-remained black and did not respond to Menu or USB before that reset. R3 then
-misclassified the forced reset as a wake because `pmu_is_hibernated()` proves
-only that GPIO3 is low and the PMU does not report a cold boot. It does not
-prove that the PMU ever entered Standby. ABI-6 Stage 3A-R4 added a PMU-retained
-`ENTRY_STALLED` result and captured complete early PMU status. Its first
-hardware result proves that the CPU stopped, SDRAM and the controlled context
-survived, and USB insertion reached the PMU as an EXTON2 rising edge, but the
-PMU did not automatically wake the SoC. ABI-7 Stage 3A-R5 attempted to correct
-only the EXTON2 wake-edge mode and added exact pre-entry readback. It failed
-closed before arming because its raw-polled live-context write did not change
-OOCMODE. Stage 3A-R6 retains ABI 7 and performs that live preflight write
-through Rockbox's normal serialized PMU driver instead. Its hardware run armed,
-entered Standby, woke automatically from USB, and reached the bootloader's MIU
-restoration phase. The installed R5 bootloader then correctly rejected the R6
-application's different exact build-version fingerprint. Repeated retention,
-full kernel continuation, driver resume, and fault-injection gates remain
-experimental and incomplete.
+resume is already production-safe. Retained RAM, a controlled retained
+payload, automatic USB wake, IRAM restoration, and a controlled CPU-context
+round trip all pass on the real personal iPod Classic. A matching Stage 3A-R6
+application and bootloader reached `PASSED`, mode 3, phase 12 with zero
+failures, but the panel stayed black. That result is now explained exactly:
+R6 returned to the bootloader, which then ran `bss_init()` and the ordinary
+cold-start path. The bootloader BSS range overlaps the retained Rockbox
+application BSS, so cold startup destroyed the kernel state that had just been
+validated.
+
+Stage 3B-R7 uses resume ABI 8 and follows the recovered RetailOS model instead:
+the bootloader restores IRAM, MMU context, banked stacks, and the saved system
+frame, then branches directly to the suspended application continuation. It
+does not return to bootloader startup. The application rebuilds only reset
+hardware around retained kernel objects, restores interrupt state, releases a
+retained I2C ownership barrier, wakes the panel, and records PASS only after
+the display path returns. R7 builds and passes linked-binary static audit but
+has not yet completed its first hardware run. Repetition, long-duration,
+storage-resume, and injected-failure qualification remain incomplete.
 
 The target is the existing `IPOD_6G` Rockbox target. Rockbox uses that target
 for both the 6th- and 7th-generation Classic hardware.
@@ -76,32 +75,27 @@ the same normal Rockbox cold-load fallback as Stage 1. Its first real-hardware
 cycle passes all Stage 2 checks. It is still not an instant UI resume and is
 not enabled in a normal build.
 
-The compile-time-gated Stage 3A implementation is also present. It saves the
-Rockbox system-mode context, re-snapshots IRAM after capture, verifies an exact
-translation-table CRC and app/bootloader build-version fingerprint, restores
-IRAM, and performs a bounded context/stack round trip through an IRAM1
-bootloader frame. Normal, Stage 2, and Stage 3 app/bootloader builds pass, the
-linked retained code contains no unapproved external direct branch, and the
-Stage 3 dependency guard rejects an incomplete configuration. Its first
-hardware attempt did not visibly return. ABI-4 Stage 3A-R2 added an isolated
-runtime directory, explicit build identity, broader test-only PMU wake enables,
-and raw handoff breadcrumbs. Its first hardware run exposed a second evidence
-loss path: ordinary capability publication replaced the attempt with `ready`
-once no PMU token remained. ABI-5 Stage 3A-R3 keeps valid `CAPABLE`, `PASSED`,
-and `FAILED` records and converts every valid nonterminal record to a durable
-failure instead of replacing it. One R3 hardware run proved that persistence
-and the controlled context handoff after a forced reset, but it did not enter
-or wake from PMU Standby. ABI-6 R4 adds a fail-closed Standby-entry proof before
-any further context test. Its hardware run proved Standby entry and isolated
-the remaining USB failure to EXTON2's wake-edge mode. ABI-7 R5 captured the
-live preflight configuration but failed closed when its raw-polled write left
-OOCMODE unchanged. R6 keeps ABI 7 and changes only that app-side write
-transport to the normal PMU driver already proven by the immediately preceding
-OOCWAKE write. The first R6 hardware run also proves that correction: it armed
-one attempt, entered Standby, woke automatically on USB, and reached phase 5
-with matching TTB CRCs. It stopped with `failure:12` because Stage 3 compares
-the CRC of the complete build version and the installed R5 bootloader did not
-match the R6 application.
+The compile-time-gated controlled-context implementation is also present.
+R2-R6 established durable diagnostics, genuine Standby entry, the EXTON2
+rising-edge wake mode, serialized live-context PMU preflight, automatic USB
+wake, exact app/bootloader fingerprinting, IRAM restoration, and a valid
+system-stack/context round trip. The matching R6 pair completed that bounded
+round trip, but its intentional return-to-bootloader design could never resume
+the kernel because subsequent cold initialization cleared overlapping retained
+application BSS.
+
+R7 replaces that obsolete return ABI with a non-returning stock-style handoff.
+Its setjmp boundary saves r4-r11, system SP/LR, a local continuation PC, CPSR,
+CP15 control/TTB/domain, and the IRQ/FIQ/SVC/ABT/UND stack pointers. The
+bootloader validates the complete retained image, restores IRAM and MMU state,
+then branches directly to the continuation before bootloader `bss_init()`.
+The resumed thread rebuilds clocks, GPIO, VIC/EIC, DMA, timer, click wheel,
+UART, PMU masks/inputs, power GPIOs, stopped PCM, and the LCD controller without
+recreating threads, queues, semaphores, or mutexes. The suspend coordinator
+owns I2C bus 0 across the context boundary and masks IRQ/FIQ after acquiring it,
+closing the last PMU transaction and scheduler race. The old asynchronous
+Stage-3 `sys_poweroff()` request path is fail-closed; only the coordinated
+in-thread path can arm controlled-context resume.
 
 ### First real-hardware retention result — 2026-08-28
 
@@ -357,6 +351,30 @@ application embedded `46e15bc9e9-260829`; the installed R5 bootloader embedded
 even though the record layout and ABI did not change. It must use the exact
 same explicit version string and must never be packaged as single boot.
 
+### Matching Stage 3A-R6 context result and black-screen diagnosis - 2026-08-29
+
+After installing the matching R6 dual-boot bootloader, the same isolated Rolo
+application completed the bounded context test and retained a `PASSED`, mode 3,
+attempt 1, phase 12, failure 0 result. USB caused a real automatic wake and all
+context, stack, TTB, IRAM, cookie, and return checks passed. The screen still
+remained black after the wake.
+
+This is a successful Stage 3A gate but not a kernel-resume pass. Linked-map and
+control-flow audit identified the deterministic cause:
+
+- the R6 application continuation returned through an IRAM1 stub to
+  `ipod6g_hibernate_validate_after_wake()`;
+- the bootloader then continued ordinary startup and reached `bss_init()`;
+- bootloader BSS occupied `0x08800000..0x088a9440`;
+- the retained Rolo application's BSS extended through `0x088b86d8`; and
+- zeroing the overlapping bootloader range destroyed retained kernel, driver,
+  queue, mutex, and UI state before a normal disk load replaced the image.
+
+The fix is architectural, not another panel timing change. A successful resume
+must never return through bootloader startup. R7 branches directly from the
+early validator to the retained application continuation before `bss_init()`
+and performs hardware-only restoration inside the still-live Rockbox kernel.
+
 ## Desired User Experience
 
 When the user chooses Hibernate:
@@ -392,120 +410,103 @@ write.
 
 ## What RetailOS Actually Does
 
-The analyzed image is the decrypted iPod Classic 2.0.4 OSOS image. Addresses
-below are expressed as offsets in the decrypted ARM payload, after its 0x800
-byte IMG1 header. This avoids mixing IMG1 file offsets with the address at
-which the NOR loader places the payload. Earlier research notes did mix those
-two coordinate systems and consequently labeled the same instructions 0x800
-bytes too high; the instruction bytes and register deductions were unaffected.
+The analyzed firmware is iPod Classic 2.0.4. Both the decrypted OSOS image and
+the actual ONB image were extracted and disassembled. OSOS is not a flat blob:
 
-### Confirmed locations
-
-| Payload offset | Finding | Confidence |
+| OSOS body range | Runtime address | Size |
 | --- | --- | --- |
-| `0x15175c` | `CanHibernate` machine-capability key | High |
-| `0x265760` | Deep-sleep statistics text | High |
-| `0x2667e0` | `Enter Deep Sleep` usage-event label | High |
-| `0x2667f4` | `Exit Deep Sleep` usage-event label | High |
-| `0x2ad1ac` | `PCFPowerMgr` class/component name | High |
-| `0x000364` | Low-level PCF state writer | High |
-| `0x00053c` | Dedicated retained-standby shutdown stub | High |
-| `0x00244c` | MIU/SDRAM mode routine | High |
-| `0x00318c` | Disable I-cache while leaving the MMU enabled | High |
-| `0x0031a4` | Disable D-cache while leaving the MMU enabled | High |
-| `0x2bca38` | Separate MIU low-three-bit helper | High |
+| `+0x000000` | `0x22000000` | `0x00aed8` |
+| `+0x00aed8` | `0x08000000` | `0xa0fc88` |
+| `+0xa1ab60` | `0x08a0fc88` | `0x000a84` |
 
-The strings prove that the feature and its policy exist, but the `Enter Deep
-Sleep` and `Exit Deep Sleep` strings are event-log labels, not the sleep
-implementation.
+Using this segmented mapping resolves the earlier 0x800/header and flat-base
+ambiguities. The addresses below are runtime addresses verified against the
+actual instruction stream.
 
-The stripped high-level policy call chain has not yet been given reliable
-semantic names. It reaches hardware through indirect C++/component calls around
-`PCFPowerMgr`, so naming a particular high-level function “hibernate” from raw
-direct branches would be guesswork. The low-level PMU and MIU mechanisms below
-are directly identified; the wake half is independently identified as ONB.
+### RetailOS suspend coordinator
 
-### Low-level PMU writer at `0x08000b64`
+The high-level call at `0x0807b270` performs a real two-sided transition:
 
-The routine prepares a two-byte PCF I2C transaction to device address `0x73`:
+1. `0x0835eb94(2)` tells the power/device manager to enter its pre-sleep state.
+2. `0x080d84e4` saves both VICs, all vector-slot state, and the EIC state around
+   `0x39a00000`, then masks interrupt sources.
+3. The wrapper at `0x220005a0` saves the caller frame and interrupt state.
+4. Veneers at `0x22003478..0x22003498` shadow active IRAM, save r0-r12, retain
+   SP at `0x08a0fc80`, retain continuation `0x220005e0` at `0x08a0fc84`, and
+   enter retained Standby.
+5. On continuation, `0x220034a0` restores r0-r12; the wrapper restores its
+   controller words and caller frame.
+6. `0x080d8e94` restores the retained VIC/EIC state.
+7. `0x0835eb94(5)` performs the post-wake device-manager transition.
 
-- input mode 0 writes register `0x0c = 1`
-- input mode 1 writes register `0x0c = 2`
-- input mode 2 writes register `0x16 = 0`
+This proves that stock does not create a second OS. It resumes the suspended
+instruction inside the retained OS, then restores interrupt and peripheral
+managers around that continuation.
 
-Register `0x0c` is `OOCSHDWN`; bit 0 requests transition to Standby. Register
-`0x16` is `GPIO3CFG`. Rockbox's existing bootloader independently documents
-that RetailOS drives GPIO3 low when SDRAM contains a hibernated image.
+### Retained descriptor and ONB dispatch
 
-The meaning of PCF50635-specific `OOCSHDWN` bit 1 is not documented by the
-public PCF50633 manual. It is nevertheless no longer an inferred value: the
-dedicated RetailOS retained-standby stub explicitly selects writer mode 1,
-which writes `OOCSHDWN = 2`. Ordinary shutdown selects writer mode 0 and writes
-`OOCSHDWN = 1`. The Stage 1 retention test must therefore use the observed
-Apple value 2; using Rockbox's ordinary value 1 would test a different PMU
-state.
+Before poweroff, OSOS copies 96 KiB from `0x22000000` to `0x08a25940` and
+publishes this descriptor at retained address `0x08000000`:
 
-### MIU routines
-
-The stock routine at payload offset `0x244c` programs the same S5L8702 MIU
-constants used by Rockbox, including:
-
-- controller base `0x38100000`
-- `MIUSDPARA = 0x1fb621`
-- mode registers `0x33` and `0x8040`
-- the same bank/timing values now present in `miu_preinit()`
-
-The separate helper at payload offset `0x2bca38` changes the low three bits of
-`MIUCON`:
-
-| Helper input | Resulting low bits |
+| Offset | Value |
 | --- | --- |
-| 0 or 1 | 0 |
-| 2 | 5 |
-| 3 | 3 |
-| 4 | 1 |
+| `+0x00` | `0x68696265` (`hibe`) |
+| `+0x04` | `1` |
+| `+0x08` | `1` |
+| `+0x0c` | dynamic retained value |
+| `+0x10` | resume entry `0x080d24d0` |
 
-That helper is not called by the dedicated deep-sleep stub. The actual retained
-standby path calls mode 1 of the routine at payload offset `0x244c`. Its complete
-mode-1 action is:
+The extracted ONB dispatcher at runtime `0x220105cc` checks `hibe` and version
+1, switches to the retained firmware's expected SVC mode through
+`0x220106dc`, loads descriptor field `+0x10`, and calls it directly with
+`blx`. A successful resume does not return to ONB cold-start logic.
+
+### OSOS resume entry
+
+The saved entry `0x080d24d0` reconstructs exactly the execution substrate that
+was lost while keeping all retained OS objects intact:
+
+1. set SP from `0x08a0fc80`;
+2. initialize timer E through `0x083600b8`;
+3. select MIU resume mode through `0x082b1b60(2)`;
+4. restore IRAM and consume the descriptor through `0x080aa328`;
+5. restore UND/ABT/IRQ/FIQ stacks through `0x0802d0e8 -> 0x22004620`;
+6. rebuild cache/MMU state through `0x0802d0f0 -> 0x22004534`;
+7. repair a retained memory/object region through
+   `0x0807db74 -> 0x0808f8c0`; and
+8. load saved SP and continuation, then tail-call `0x0802ddb0`, whose complete
+   handoff is `mov sp, r0; bx r1`.
+
+The continuation is therefore a direct longjmp-style transfer. There is no
+bootloader return frame, no BSS clearing, and no second kernel initialization.
+
+### PMU and MIU entry details
+
+The low-level PCF writer uses device address `0x73`. Its retained-standby mode
+drives `GPIO3CFG = 0`, enters MIU self-refresh, waits, and writes
+`OOCSHDWN = 2`; ordinary shutdown writes `OOCSHDWN = 1`. The public PCF50633
+manual does not document the PCF50635-specific meaning of bit 1, but the Apple
+instruction stream and successful Rockbox retention tests independently prove
+the distinction.
+
+Immediately before Standby, stock disables I-cache and D-cache while leaving
+the MMU enabled, then performs:
 
 ```
 MIUCON = (MIUCON & ~0x0f000000) | 0x0a100000;
 MIU_REG(0x14) = 1;
 ```
 
-RetailOS then waits 10 ms, drives PCF GPIO3 low, waits approximately 100 ms,
-and writes `OOCSHDWN = 2`. Immediately before the MIU transition it disables
-D-cache and I-cache, but leaves the MMU enabled. Rockbox's wake side already
-uses `MIUCON = 0x11` before restoring the normal controller configuration.
+Rockbox's final IRAM entry reproduces those directly observed operations.
 
-Two calls in the stock stub pass through a component/service veneer table and
-cannot be assigned semantics from the static image alone. They make no directly
-visible MIU or PMU register writes. Stage 1 therefore reproduces only the
-directly observed and independently checkable hardware sequence, keeps the
-entry stub in IRAM, and treats retained-data validation after wake as the gate
-for any later full-resume work.
+### Consequence for Rockbox
 
-### The important split: OSOS enters, ONB restores
-
-The complete wake implementation is not in OSOS.
-
-`bootloader/ipod-s5l87xx.c` documents and implements the actual boot flow:
-
-1. The S5L8702 boot ROM loads the Rockbox bootloader from NOR into IRAM.
-2. The bootloader checks `pmu_is_hibernated()` while SDRAM is still in
-   self-refresh.
-3. For a RetailOS snapshot, it loads the approximately 128 KiB Original NOR
-   Boot image (ONB) into IRAM0.
-4. ONB exits retention and restores the pre-hibernation RetailOS state.
-
-The current Rockbox bootloader deliberately calls `launch_onb(1)` whenever the
-PMU reports a hibernated system. A Rockbox resume implementation must branch
-before that call and only when a Rockbox-owned token is valid.
-
-Obtaining a read-only dump of the device's ONB remains valuable for comparing
-clock, cache, and peripheral restore order. It is not required before the
-retention-only probe because Rockbox already contains a self-refresh exit path.
+The Rockbox resume gate must run before `launch_onb(1)` and only for a valid
+Rockbox ownership token. After restoring retained memory, it must branch
+directly to the saved Rockbox continuation before bootloader `bss_init()` or
+any ordinary application load. Every hardware resume hook must repair reset
+registers around retained software state; it must not call normal one-time
+initializers that recreate mutexes, queues, threads, or driver ownership.
 
 ## Existing Rockbox Support
 
@@ -880,47 +881,14 @@ attempt. The first real-hardware cycle produced every value above and passed.
 
 ### Stage 3A: Controlled CPU-context round trip
 
-Stage 3A is implemented as a hidden, compile-time-gated hardware test. It is
-deliberately not a user-visible instant-resume feature yet. Its purpose is to
-prove that the bootloader can restore Rockbox's IRAM and system stack, enter a
-CRC-covered continuation with the saved CPU context, and return safely to the
-bootloader before any scheduler or driver is restarted.
+R2 through R6 were deliberately bounded return-to-bootloader tests. Together
+they prove the context, stack, MMU, retained-memory, and automatic-wake gates.
+The matching R6 pair passed phase 12, but its return to ordinary bootloader
+startup also proved why that design cannot resume a kernel: bootloader BSS
+initialization overlaps and clears retained application BSS.
 
-The application side:
-
-1. uses the ordinary Rockbox shutdown coordinator so playback is stopped,
-   filesystems are flushed, storage is put to sleep, and the display is shut
-   down before target `power_off()` runs;
-2. disables IRQ and FIQ and saves r4-r11, the system SP and LR, a controlled
-   continuation PC, CPSR, CP15 control, translation-table base, and domain
-   access control;
-3. takes a final 48 KiB IRAM0 snapshot after context capture and commits its
-   CRC; and
-4. enters the already-qualified retained-SDRAM standby sequence.
-
-The matching bootloader executes entirely from IRAM1. After MIU recovery it:
-
-1. claims the one-shot PMU token and validates record/resume ABI version 5;
-2. compares a CRC of its Rockbox build version with the application build,
-   validates the retained payload CRC, and requires the rebuilt translation
-   table and saved CP15 state to match exactly;
-3. restores all 48 KiB of IRAM0 and verifies the restored image CRC;
-4. saves an aligned bootloader frame in IRAM1, changes to the saved Rockbox
-   system mode and stack, restores r4-r11/LR, and branches only to the
-   validated continuation inside the retained payload section;
-5. records the observed cookie and stack pointer, then returns through the
-   supplied and range-checked IRAM1 stub; and
-6. commits PASS or FAIL, clears PMU ownership, and cold-loads the normal
-   Rockbox image.
-
-The context continuation does not enable interrupts, call kernel code, touch
-devices, or return to the suspended UI. A hang leaves the PMU token in the
-`RESUMING` state. Stage 3A-R4 preserves the last raw boundary breadcrumb when
-the next hard reset takes the fail-closed cold-boot recovery path. It also
-refuses to interpret a forced reset as a wake after the final-entry code proves
-that Standby was not entered. Stage 3A therefore tests the dangerous
-mode/stack/code transition without pretending that full kernel resume is
-already safe.
+Those revisions remain useful historical fault-isolation gates; they are not
+the implementation model for further work.
 
 Stage 3A must be enabled in both images with:
 
@@ -931,29 +899,8 @@ Stage 3A must be enabled in both images with:
 ```
 
 It is tested only with an isolated `ROCKBOX_DIR="/.rbtv"` Rolo application and
-its matching experimental dual-boot bootloader. It must never be packaged with
-`mks5lboot --single`. The normal personal Rockbox image remains the disk boot
-target after the round trip. A successful wake therefore cold-loads the normal
-personal firmware; it does not automatically reload the Rolo test image. Rolo
-is launched manually afterward only to inspect the retained result.
-
-After one armed wake, Rolo the matching Stage 3A application again and open
-`Debug > Test retained context`. Success requires that the iPod returned on
-its own after the selected wake source; a result obtained only after a forced
-reset is not a Standby/wake pass. A valid automatic result must show:
-
-- `State:PASSED`, `mode:3`, `attempts:1`, `phase:12`, and `failure:0`;
-- saved PC inside the displayed retained payload range and saved SP inside
-  the 8 KiB Rockbox system-stack range;
-- CPSR low byte `df` (system mode with IRQ and FIQ disabled);
-- identical, nonzero saved and observed TTB CRC values;
-- expected cookie, observed cookie, and return value all `48365033`; and
-- observed resumed SP inside the same system-stack range.
-
-Any mismatch is a failed Stage 3A gate. Record the complete diagnostic screen
-before another attempt. Passing Stage 3A authorizes work on the hardware
-resume coordinator; it does not by itself authorize exposing hibernate as a
-normal setting.
+its exact-version experimental dual-boot bootloader. It must never be packaged
+with `mks5lboot --single` or copied over the normal personal Rockbox image.
 
 If no visible boot follows a wake attempt, perform one forced reset and launch
 the same Rolo image once. `failure:16` proves that the CPU was still executing
@@ -963,11 +910,10 @@ boot. Otherwise interpret the `Trail` field as follows:
 | Trail text | Raw value | Last proven boundary |
 | --- | --- | --- |
 | `none` | `00000000` | No Stage 3 context-call boundary was preserved. |
-| `boot call` | `48334231` | Bootloader validated the image and was about to enter the application continuation. |
-| `app entered` | `48334132` | Retained application continuation began on the restored Rockbox stack. |
-| `app returning` | `48334133` | Continuation validated its inputs and dispatched to the IRAM1 return stub. |
-| `return stub` | `48334234` | IRAM1 return stub was reached before restoring the bootloader frame. |
-| `boot returned` | `48334235` | Control returned to the bootloader C caller. |
+| `boot direct` | `48334231` | Bootloader validated the image and is about to branch directly to Rockbox. |
+| `app continue` | `48334132` | The retained Rockbox setjmp continuation is executing. |
+| `hardware restored` | `48334133` | Reset hardware and interrupt infrastructure were rebuilt. |
+| `resume complete` | `48334134` | Scheduling, I2C ownership, panel, and backlight all returned. |
 
 The displayed 24-bit `wake` value packs PMU `OOCSTAT` in bits 0-7, `INT1` in
 bits 8-15, and `INT2` in bits 16-23. Menu is a click-wheel event and is not yet
@@ -977,14 +923,44 @@ result describes all wake inputs.
 
 ### Stage 3B: Kernel resume with hardware stopped
 
-- add the setjmp-like CPU context trampoline;
-- enter hibernate from a dedicated system coordinator;
-- restore only clocks, IRQ infrastructure, input, LCD, and storage;
-- require no active plugin, playback, recording, USB session, or composite
-  output;
-- return to the previous Rockbox screen.
+Stage 3B-R7 / resume ABI 8 is the first true instant-resume implementation:
 
-This is the first true instant-resume milestone.
+1. Veto active audio, USB, and composite output.
+2. Flush and sleep storage; quiesce UART, LCD DMA, panel, and backlight.
+3. Arm the exact PMU wake configuration.
+4. Acquire I2C bus 0 in the suspending thread, then mask IRQ/FIQ so no new
+   background transaction can cross the context boundary.
+5. Save r4-r11, system SP/LR, continuation PC, CPSR, CP15 state, and every
+   banked exception stack; re-shadow all used IRAM0 and enter Standby.
+6. In the early bootloader validator, verify token, fingerprint, record, TTB,
+   payload, probe, and IRAM CRCs; restore IRAM and branch directly to the saved
+   continuation before `bss_init()`.
+7. Rebuild clocks, GPIO, VIC/EIC, DMA, timer, click wheel, UART, PMU, power,
+   stopped PCM, and LCD-controller registers without recreating retained
+   software objects.
+8. Restore interrupt state, release retained I2C ownership, wake and repaint
+   the panel, restore the backlight, then commit phase 14 PASS.
+
+The linked-binary gate must prove both images were built with all three Stage
+defines. Incremental objects compiled without those defines are invalid even
+if a stale assembly object still contains the trampoline.
+
+For the first hardware attempt, launch the matching R7 image with Rolo, verify
+`Stage 3B-R7 / ABI 8 / /.rbtv`, open `Debug > Test retained context`, and press
+Select once while undocked and on battery. After the screen goes black, insert
+USB once. Success means the same Rolo screen becomes visible without any boot
+logo or disk image load and reports:
+
+- `State:PASSED`, `mode:3`, `attempts:1`, `phase:14`, `failure:0`;
+- `Trail:resume complete` (`48334134`);
+- matching nonzero TTB/IRAM/probe evidence; and
+- a responsive click wheel and display.
+
+If it remains black, wait ten seconds, force-reset once, Rolo the exact same
+R7 image, and record the full diagnostic screen without rearming. A breadcrumb
+of `hardware restored` isolates the failure to scheduler/I2C/panel completion;
+`app continue` isolates it to a specific hardware-only resume hook; `boot
+direct` isolates it to the non-returning handoff itself.
 
 ### Stage 4: User-session resume
 
@@ -1084,16 +1060,14 @@ Likely implementation points:
 
 ## Recommendation
 
-Install the exact-version R6 experimental dual-boot bootloader, then run one
-isolated Stage 3A-R6 USB-wake attempt while retaining Stages 1 and 2 as
-regression and fault-injection gates. R6 changes only the app-side preflight
-transport, but the exact build-fingerprint gate intentionally requires the
-bootloader and Rolo application to embed the same version string. Arm on
-battery, wait for Standby, and insert USB exactly once. Record `ENT`, PMU, IRQ,
-PWR, and every context field whether the return is automatic or requires one
-force reset. Only a real automatic wake with the matching pair may authorize
-the minimal Stage 3B clocks/IRQ/input/LCD/storage resume coordinator. Do not
-jump directly to transparent audio or arbitrary plugin resume.
+Run exactly one isolated Stage 3B-R7 / ABI-8 USB-wake attempt with a clean,
+exact-version Rolo application and matching experimental dual-boot bootloader.
+The binary gate must verify that neither image contains disabled Stage-3 stubs,
+that the bootloader direct branch occurs before `bss_init()`, and that the
+application owns I2C and masks IRQ/FIQ before its setjmp boundary. Arm on
+battery, insert USB once after Standby, and record `ENT`, PMU, IRQ, PWR, every
+context field, and the final breadcrumb. Do not run a second armed attempt
+before preserving any failure evidence.
 
 The decompile and current Rockbox code answer the major feasibility question:
 the device was designed to retain SDRAM, the bootloader already recognizes that
@@ -1106,8 +1080,11 @@ context round trip after a forced reset, but the device remained black and did
 not wake from Menu or USB. R4 distinguished “PMU entered Standby” from
 “CPU kept spinning with GPIO3 low,” proved the former, and captured an EXTON2
 rising event under the wrong edge mode. R5 failed closed before arming and
-proved that its raw-polled live-context write did not alter OOCMODE. R6 uses
-the normal serialized PMU transport for that single preflight write while
-leaving the proven cache-off entry path unchanged.
-Repeat, duration, wake-source, and injected-failure testing remain mandatory
-before this can become a normal user setting.
+proved that its raw-polled live-context write did not alter OOCMODE. R6 fixed
+that preflight, woke automatically, and passed the complete bounded context
+round trip; its black screen was caused by the now-removed return to overlapping
+bootloader BSS/cold startup. R7 is based on the exact ONB/OSOS direct-
+continuation design, not another display guess. Only a visible, responsive
+phase-14 R7 result authorizes repetition testing. Repeat, duration, wake-source,
+storage, and injected-failure testing remain mandatory before this can become
+a normal user setting.

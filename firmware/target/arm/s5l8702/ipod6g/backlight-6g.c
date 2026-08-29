@@ -72,3 +72,15 @@ void backlight_hw_kill(void)
     pmu_write(0x2b, 0);  /* T_dimstep = 0 */
     backlight_hw_off();
 }
+
+#if defined(IPOD6G_HIBERNATE_STAGE3) && IPOD6G_HIBERNATE_STAGE3 && \
+        !defined(BOOTLOADER)
+void backlight_hibernate_resume(void)
+{
+    /* pmu_preinit() installed bootloader defaults and disabled LEDENA. */
+    pmu_write(0x2a, 0x05);
+    pmu_write(0x2b, 0x14);
+    pmu_write(0x28, backlight_brightness);
+    pmu_write(0x29, 1);
+}
+#endif
