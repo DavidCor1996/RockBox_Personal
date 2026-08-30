@@ -49,6 +49,12 @@ bool remote_button_hold(void);
 void button_init (void) INIT_ATTR;
 void button_close(void);
 
+#if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
+        IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+/* Reset retained debounce/repeat state before the first post-hibernate tick. */
+void button_hibernate_resume_state(void);
+#endif
+
 int button_status(void);
 #ifdef HAVE_BUTTON_DATA
 int button_status_wdata(int *pdata);

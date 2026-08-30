@@ -27,6 +27,12 @@
 #include "adc-target.h"
 #include "i2c-s5l8702.h"
 #include "gpio-s5l8702.h"
+#if defined(IPOD6G_HIBERNATE_STAGE3) && IPOD6G_HIBERNATE_STAGE3 && \
+        !defined(BOOTLOADER)
+#include "hibernate-6g.h"
+#endif
+
+#define PMU_ADC_HIBERNATE_TIMEOUT_US 250000u
 
 
 int pmu_read_multiple(int address, int count, unsigned char* buffer)
@@ -130,6 +136,10 @@ void pmu_write_rtc(unsigned char* buffer)
 #define ADC_SUBTR_OFFSET        2250
 
 static struct mutex pmu_adc_mutex;
+#if defined(IPOD6G_HIBERNATE_STAGE3) && IPOD6G_HIBERNATE_STAGE3 && \
+        !defined(BOOTLOADER)
+static volatile bool pmu_hibernate_adc_monitor_pending;
+#endif
 
 /* converts raw 8/10-bit value to millivolts */
 unsigned short pmu_adc_raw2mv(
@@ -167,7 +177,35 @@ unsigned short pmu_adc_raw2mv(
 /* returns raw value, 8 or 10-bit resolution */
 unsigned short pmu_read_adc(const struct pmu_adc_channel *ch)
 {
+    static unsigned short last_raw[8];
+    static unsigned char last_raw_valid;
+    unsigned int mux =
+            (ch->adcc1 & PCF5063X_ADCC1_ADCMUX_MASK) >> 4;
+    bool monitor = false;
+#if defined(IPOD6G_HIBERNATE_STAGE3) && IPOD6G_HIBERNATE_STAGE3 && \
+        !defined(BOOTLOADER)
+    int oldlevel = disable_irq_save();
+
+    if (pmu_hibernate_adc_monitor_pending)
+    {
+        pmu_hibernate_adc_monitor_pending = false;
+        monitor = true;
+    }
+    restore_irq(oldlevel);
+
+    if (monitor)
+        ipod6g_hibernate_runtime_checkpoint(
+                IPOD6G_HIBERNATE_DIAG_PMU_ADC_ENTER);
+#endif
+
     mutex_lock(&pmu_adc_mutex);
+
+#if defined(IPOD6G_HIBERNATE_STAGE3) && IPOD6G_HIBERNATE_STAGE3 && \
+        !defined(BOOTLOADER)
+    if (monitor)
+        ipod6g_hibernate_runtime_checkpoint(
+                IPOD6G_HIBERNATE_DIAG_PMU_ADC_LOCKED);
+#endif
 
     pmu_write(PCF5063X_REG_ADCC3, ch->adcc3);
     if (ch->bias_dly)
@@ -176,17 +214,73 @@ unsigned short pmu_read_adc(const struct pmu_adc_channel *ch)
     pmu_write_multiple(PCF5063X_REG_ADCC2, 2, buf);
 
     int adcs3 = 0;
+    uint32_t start = USEC_TIMER;
+    bool timed_out = false;
+
+#if defined(IPOD6G_HIBERNATE_STAGE3) && IPOD6G_HIBERNATE_STAGE3 && \
+        !defined(BOOTLOADER)
+    if (monitor)
+        ipod6g_hibernate_runtime_checkpoint(
+                IPOD6G_HIBERNATE_DIAG_PMU_ADC_STARTED);
+#endif
+
     while (!(adcs3 & PCF5063X_ADCS3_ADCRDY))
     {
         yield();
         adcs3 = pmu_read(PCF5063X_REG_ADCS3);
+        if (monitor && (uint32_t)(USEC_TIMER - start) >=
+                PMU_ADC_HIBERNATE_TIMEOUT_US)
+        {
+            timed_out = true;
+            break;
+        }
     }
 
-    int raw = pmu_read(PCF5063X_REG_ADCS1);
-    if ((ch->adcc1 & PCF5063X_ADCC1_RES_MASK) == PCF5063X_ADCC1_RES_10BIT)
-        raw = (raw << 2) | (adcs3 & PCF5063X_ADCS3_ADCDAT1L_MASK);
+    int raw;
+    if (timed_out && (last_raw_valid & (1u << mux)))
+    {
+        raw = last_raw[mux];
+    }
+    else
+    {
+        raw = pmu_read(PCF5063X_REG_ADCS1);
+        if ((ch->adcc1 & PCF5063X_ADCC1_RES_MASK) ==
+                PCF5063X_ADCC1_RES_10BIT)
+        {
+            raw = (raw << 2) |
+                    (adcs3 & PCF5063X_ADCS3_ADCDAT1L_MASK);
+        }
+
+        if (!timed_out)
+        {
+            last_raw[mux] = raw;
+            last_raw_valid |= 1u << mux;
+        }
+    }
+
+    if (timed_out)
+    {
+#if defined(IPOD6G_HIBERNATE_STAGE3) && IPOD6G_HIBERNATE_STAGE3 && \
+        !defined(BOOTLOADER)
+        if (monitor)
+            ipod6g_hibernate_runtime_checkpoint(
+                    IPOD6G_HIBERNATE_DIAG_PMU_ADC_TIMEOUT);
+#endif
+        /* Cancel a conversion that did not complete.  Returning the retained
+         * last-good sample keeps the high-priority power thread from starving
+         * the UI forever while preserving conservative battery behavior. */
+        pmu_write(PCF5063X_REG_ADCC1,
+                  ch->adcc1 & ~PCF5063X_ADCC1_ADCSTART);
+    }
 
     mutex_unlock(&pmu_adc_mutex);
+
+#if defined(IPOD6G_HIBERNATE_STAGE3) && IPOD6G_HIBERNATE_STAGE3 && \
+        !defined(BOOTLOADER)
+    if (monitor && !timed_out)
+        ipod6g_hibernate_runtime_checkpoint(
+                IPOD6G_HIBERNATE_DIAG_PMU_ADC_READY);
+#endif
     return raw;
 }
 
@@ -375,6 +469,13 @@ void pmu_hibernate_resume_complete(void)
     /* USB notification may wake or switch threads, so it belongs after the
      * display is awake, I2C is unlocked, and the saved VIC mask is live. */
     pmu_read_inputs_ooc();
+}
+
+void pmu_hibernate_runtime_monitor_enable(void)
+{
+    /* Armed only after the resume record has reached PASS, so the first
+     * ordinary power-thread ADC transaction can leave a durable boundary. */
+    pmu_hibernate_adc_monitor_pending = true;
 }
 #endif
 

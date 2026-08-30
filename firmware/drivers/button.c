@@ -89,6 +89,26 @@ static bool enable_sw_poweroff = true;
 static int lastdata = 0;
 static int button_read(int *data);
 
+#if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
+        IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+static volatile bool hibernate_button_reset_pending;
+
+void button_hibernate_resume_state(void)
+{
+    int oldlevel = disable_irq_save();
+
+    /* The suspend request is generated while Play is held.  These values are
+     * retained in DRAM, so queue filtering alone cannot prevent button_tick()
+     * from continuing the old press/repeat sequence after wake. */
+    lastbtn = BUTTON_NONE;
+    last_read = BUTTON_NONE;
+    lastdata = 0;
+    hibernate_button_reset_pending = true;
+
+    restore_irq(oldlevel);
+}
+#endif
+
 #ifdef HAVE_TOUCHSCREEN
 static long last_touchscreen_touch;
 #endif
@@ -213,6 +233,31 @@ static void button_tick(void)
     int diff;
     int btn;
     int data = 0;
+
+#if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
+        IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+    if (hibernate_button_reset_pending)
+    {
+        /* Start a fresh debounce/repeat epoch after the target controller has
+         * been rebuilt.  In particular, never inherit POWEROFF_COUNT from the
+         * Play hold that initiated hibernation. */
+        count = 0;
+        repeat_speed = REPEAT_INTERVAL_START;
+        repeat_count = 0;
+        repeat = false;
+        post = false;
+#ifdef HAVE_BACKLIGHT
+        skip_release = false;
+#ifdef HAVE_REMOTE_LCD
+        skip_remote_release = false;
+#endif
+#endif
+        lastbtn = BUTTON_NONE;
+        last_read = BUTTON_NONE;
+        lastdata = 0;
+        hibernate_button_reset_pending = false;
+    }
+#endif
 
     button_remote_post();
 

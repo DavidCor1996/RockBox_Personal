@@ -400,8 +400,39 @@ static void s5l_clickwheel_init(void)
 
 #if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
         IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+static void button_hibernate_reset_wheel_state(void)
+{
+    int_btn = BUTTON_NONE;
+    old_wheel_value = -1;
+    new_wheel_value = 0;
+    repeat = 0;
+    wheel_delta = 0;
+    wheel_is_touched = false;
+    accumulated_wheel_delta = 0;
+    wheel_repeat = BUTTON_NONE;
+    wheel_velocity = 0;
+    last_wheel_usec = USEC_TIMER;
+#ifdef HAVE_WHEEL_POSITION
+    wheel_position = -1;
+#endif
+}
+
+void button_hibernate_suspend(void)
+{
+    /* RetailOS device-manager mode 2 stops the click-wheel before entering
+     * retained standby.  Do the same so the Play edge that requested suspend
+     * cannot survive as a level IRQ in the restored VIC. */
+    WHEEL00 = 0;
+    WHEELINT = 7;
+    PCON14 = (PCON14 & ~0x00ffff00) | 0x000e0e00;
+    clockgate_enable(CLOCKGATE_CWHEEL, false);
+    button_hibernate_reset_wheel_state();
+}
+
 void button_hibernate_resume(void)
 {
+    button_hibernate_reset_wheel_state();
+
     /* Preserve the retained hold-switch state.  Re-enabling the controller
      * while hold is locked would leave it active indefinitely because the
      * software edge detector also retained its locked state. */
@@ -413,8 +444,31 @@ void button_hibernate_resume(void)
     }
     else
     {
+        uint32_t start;
+
+        /* RetailOS device-manager mode 3 waits 25 ms before rebuilding the
+         * controller.  Its command path then drains the first response before
+         * returning to normal input. */
+        udelay(25000);
         s5l_clickwheel_init();
+
+        start = USEC_TIMER;
+        while ((WHEELINT & 7) == 0 &&
+               (uint32_t)(USEC_TIMER - start) < 10000u)
+        {
+            /* Hardware polling only: IRQ/FIQ are still masked here. */
+        }
+
+        if (WHEELINT & 7)
+            INT_WHEEL();
+
+        /* The initialization response is not a user press.  Leave no raw
+         * controller edge for the full saved VIC mask to inherit. */
+        WHEELINT = 7;
+        int_btn = BUTTON_NONE;
     }
+
+    button_hibernate_resume_state();
 }
 #endif
 

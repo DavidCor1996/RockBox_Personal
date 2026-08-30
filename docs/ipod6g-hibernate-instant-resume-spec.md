@@ -68,18 +68,33 @@ successful wake clears stale button presses and returns without broadcasting
 shutdown; a refused attempt follows the original legacy shutdown unchanged.
 Explicit Stage 1/2 diagnostic requests bypass this runtime interception.
 
-The first deferred runtime attempt then restored a responsive UI after a
-button wake and froze only when the user began scrolling. The retained
-continuation, display, timer, and click-wheel path therefore passed. The first
-scroll can demand artwork or menu data and exposed a concrete storage-state
-mismatch: this tree's iFlash/SSD sleep path leaves adapter power on and marks
-the disk logically inactive, while its ordinary fast wake only ungates the ATA
-clock because it assumes controller registers survived. Standby resets that
-controller. The hibernate resume hook now marks this as a full-controller wake
-so the first access uses the existing proven PATA initialization instead of
-the runtime clock-gate fast path. Media wake remains lazy. Persistent
-`ATA init enter/ready` and `ATA I/O enter/ready` breadcrumbs identify the exact
-boundary if the adapter still fails.
+The first deferred runtime attempt restored a visible UI after a button wake
+and then froze on or before the first scroll. The first scroll can demand
+artwork or menu data, and the installed iFlash/SSD path did contain a concrete
+storage-state mismatch: ordinary fast wake assumed that controller registers
+survived, while retained Standby resets them. The hibernate hook now marks the
+disk for a full lazy PATA-controller initialization. Persistent `ATA init
+enter/ready` and `ATA I/O enter/ready` breadcrumbs identify that boundary.
+
+The next hardware result is more specific and supersedes storage as the cause
+of this freeze. It reached `PASSED`, phase 28, and `resume complete`, then froze
+before either an ATA or USB runtime checkpoint ran. Both raw captures were
+`0x00800020`; enabled bit 23 is `IRQ_WHEEL`. Rockbox had entered suspend while
+Play was repeating, but `button_clear_pressed()` filtered only queued events:
+the target `int_btn`/wheel accumulators and generic `button_tick()` debounce,
+repeat count, and POWEROFF count all remained in retained DRAM.
+
+The stock 2.0.4 comparison provides the required sequence rather than a timing
+guess. Device manager `0x0835eb94` calls click-wheel manager `0x08362c58` with
+mode 2 before sleep and mode 3 after wake. Mode 3 waits 25 ms, runs complete
+controller initializer `0x0806dba0`, drains the first command response, and
+only then returns to normal input. R10B now stops and clears Rockbox's wheel
+before context capture, applies that measured delay and response-drain on
+resume, and starts a fresh target and generic button epoch before reopening the
+saved VIC mask. It also bounds the first post-wake PMU ADC conversion and
+leaves one-shot request/ADC breadcrumbs, because the high-priority power thread
+would otherwise starve the UI forever if a retained conversion never becomes
+ready.
 
 RetailOS also performs an explicit USB transition: recovered code stops the
 OTG PHY clock through `PCGCCTL`, changes PHY power/reset state, and its

@@ -3092,6 +3092,13 @@ static const char *dbg_hibernate_breadcrumb_name(uint32_t breadcrumb)
         case IPOD6G_HIBERNATE_DIAG_STORAGE_REINIT_READY: return "ATA init ready";
         case IPOD6G_HIBERNATE_DIAG_STORAGE_IO_ENTER: return "ATA I/O enter";
         case IPOD6G_HIBERNATE_DIAG_STORAGE_IO_READY: return "ATA I/O ready";
+        case IPOD6G_HIBERNATE_DIAG_REQUEST_RETURNED: return "request returned";
+        case IPOD6G_HIBERNATE_DIAG_REQUEST_FINISHED: return "request finished";
+        case IPOD6G_HIBERNATE_DIAG_PMU_ADC_ENTER: return "PMU ADC enter";
+        case IPOD6G_HIBERNATE_DIAG_PMU_ADC_LOCKED: return "PMU ADC locked";
+        case IPOD6G_HIBERNATE_DIAG_PMU_ADC_STARTED: return "PMU ADC started";
+        case IPOD6G_HIBERNATE_DIAG_PMU_ADC_READY: return "PMU ADC ready";
+        case IPOD6G_HIBERNATE_DIAG_PMU_ADC_TIMEOUT: return "PMU ADC timeout";
         default: return "none";
     }
 }
@@ -3110,7 +3117,7 @@ static bool dbg_hibernate_stage3(void)
     lcd_set_foreground(LCD_RGBPACK(255, 255, 255));
     lcd_clear_display();
     lcd_puts(0, 0, "*** HIBERNATE TEST CORE ***");
-    lcd_puts(0, 1, "Stage 3B-R10 / ABI 11 / /.rbtv");
+    lcd_puts(0, 1, "Stage 3B-R10B / ABI 11 / B+A");
     lcd_putsf(0, 2, "State:%s mode:%lu",
               status.valid ? dbg_hibernate_state_name(status.state) :
                              "invalid record",

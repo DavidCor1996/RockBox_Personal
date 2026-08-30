@@ -1170,11 +1170,16 @@ void sys_poweroff_handle_request(uint32_t sequence)
 
     if (ipod6g_hibernate_poweroff_try(sequence))
     {
+        ipod6g_hibernate_runtime_checkpoint(
+                IPOD6G_HIBERNATE_DIAG_REQUEST_RETURNED);
+
         /* Discard stale press/repeat events while preserving USB/charger
          * system events published by the resume path. */
         button_clear_pressed();
         retained_poweroff_request_pending = false;
         reset_poweroff_timer();
+        ipod6g_hibernate_runtime_checkpoint(
+                IPOD6G_HIBERNATE_DIAG_REQUEST_FINISHED);
         return;
     }
 

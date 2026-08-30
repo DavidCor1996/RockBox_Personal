@@ -579,6 +579,7 @@ extern unsigned char _stackend[];
 extern uint32_t ipod6g_hibernate_stage3_checkpoint(
         struct ipod6g_hibernate_cpu_context *context);
 #ifndef BOOTLOADER
+void button_hibernate_suspend(void);
 void button_hibernate_resume(void);
 void pcm_hibernate_resume(void);
 void power_hibernate_resume(void);
@@ -932,10 +933,10 @@ bool ipod6g_hibernate_stage3_enter(void)
         system_hibernate_resume();
         ata_hibernate_resume();
         eint_hibernate_resume();
-        button_hibernate_resume();
         uart_hibernate_resume();
         pmu_hibernate_resume();
         power_hibernate_resume();
+        button_hibernate_resume();
         stage3_commit_boundary(record,
                 IPOD6G_HIBERNATE_DIAG_USB_RESET_ENTER,
                 IPOD6G_HIBERNATE_PHASE_HARDWARE_RESTORED);
@@ -1043,6 +1044,11 @@ bool ipod6g_hibernate_stage3_suspend(uint32_t sequence)
         return false;
     }
 
+    /* RetailOS runs the click-wheel device manager's suspend mode before it
+     * masks the retained interrupt topology.  Stop the controller and discard
+     * the Play edge that generated this request before saving context. */
+    button_hibernate_suspend();
+
     /* Match RetailOS's coordinated power transition: no other retained
      * thread may start a PMU transaction after the context boundary. */
     i2c_bus_lock(0);
@@ -1138,11 +1144,15 @@ bool ipod6g_hibernate_stage3_suspend(uint32_t sequence)
                     IPOD6G_HIBERNATE_DIAG_APP_COMPLETE,
                     IPOD6G_HIBERNATE_PHASE_RESUME_COMPLETE);
             hibernate_runtime_checkpoints_enabled = true;
+            pmu_hibernate_runtime_monitor_enable();
         }
         ipod6g_hibernate_token_clear();
     }
     else
     {
+        /* A refused/failed entry continues in the live application and must
+         * undo the pre-sleep click-wheel transition before IRQs reopen. */
+        button_hibernate_resume();
         restore_interrupt(oldlevel);
         if (display_slept)
             lcd_awake();
