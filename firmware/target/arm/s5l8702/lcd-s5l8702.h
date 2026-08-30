@@ -87,13 +87,20 @@ void lcd_awake(void);
         IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
 enum lcd_hibernate_resume_checkpoint
 {
-    LCD_HIBERNATE_RESUME_MUTEX = 1,
-    LCD_HIBERNATE_RESUME_CLOCKS,
+    LCD_HIBERNATE_RESUME_CLOCKS = 1,
     LCD_HIBERNATE_RESUME_COMMAND,
     LCD_HIBERNATE_RESUME_SEQUENCE,
     LCD_HIBERNATE_RESUME_FRAME,
     LCD_HIBERNATE_RESUME_DMA_DONE,
-    LCD_HIBERNATE_RESUME_EVENT_DONE,
+};
+
+struct lcd_hibernate_resume_status
+{
+    uint32_t timer_e_count_before;
+    uint32_t timer_e_count_after;
+    uint32_t dma_raw_tc;
+    uint32_t dma_raw_error;
+    uint32_t dma_enabled_channels;
 };
 
 typedef void (*lcd_hibernate_checkpoint_fn)(unsigned int checkpoint,
@@ -101,8 +108,10 @@ typedef void (*lcd_hibernate_checkpoint_fn)(unsigned int checkpoint,
 
 void lcd_wait_for_dma(void);
 void lcd_hibernate_resume(void);
-void lcd_hibernate_finish_resume(lcd_hibernate_checkpoint_fn checkpoint,
-                                 void *context);
+bool lcd_hibernate_finish_resume(lcd_hibernate_checkpoint_fn checkpoint,
+                                 void *context,
+                                 struct lcd_hibernate_resume_status *status);
+void lcd_hibernate_resume_complete(void);
 #endif
 
 #if defined(IPOD_6G) && !defined(BOOTLOADER)

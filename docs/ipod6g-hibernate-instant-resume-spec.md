@@ -31,12 +31,22 @@ release returned to the retained thread. The next uninstrumented operation was
 the complete `lcd_awake()` path, so R8 did not distinguish its mutex, panel
 delays, frame DMA, and activation event.
 
-Stage 3B-R9 / resume ABI 10 is the current isolated test. It resets Timer B
-with the normal `tick_start()` sequence while CPU IRQ/FIQ remain masked,
-restarts it immediately before interrupt release, and requires a real
-`sleep(1)` block/wake before enabling LCD DMA. It then checkpoints every
-original LCD wake operation separately. This is still experimental: only a
-visible, responsive phase-31 result can authorize repetition, long-duration,
+Stage 3B-R9 / resume ABI 10 tested that scheduler-first theory and disproved
+it. The real iPod reached phase 18 (`tick waiting`) with the retained PC, SP,
+TTB, and cookie intact, Timer B reset, and its pending edge cleared, then never
+returned from the first `sleep(1)`. No LCD operation had begun. This is a
+measured scheduler-transition boundary, not a panel-format or DMA failure.
+
+Stage 3B-R10 / resume ABI 11 now follows the recovered RetailOS ordering. The
+stock resume entry initializes Timer E with the exact register sequence
+`TECON=0x440`, `TEPRE=11`, `TEDATA0=0xffffffff`, `TECMD=3`, restores retained
+execution, and uses polling controller paths rather than a scheduler delay for
+the low-level display work. R10 keeps CPU IRQ/FIQ and both VICs closed while it
+runs the panel wake delays from Timer E, repaints one complete frame with a
+polled PL080 transfer, restores the backlight, rearms Timer B, and only then
+restores the complete saved VIC and CPU state. PMU and LCD events remain
+deferred until after that boundary. This is still experimental: only a
+visible, responsive phase-28 result can authorize repetition, long-duration,
 storage-resume, or injected-failure qualification.
 
 The target is the existing `IPOD_6G` Rockbox target. Rockbox uses that target
@@ -118,9 +128,11 @@ with matching PC, SP, CPSR, TTB, and context cookie, then stopped at its first
 full interrupt release. R8 preserves the handoff but replaces that final
 single step with an ordered unlock/core-IRQ/display/full-IRQ sequence and
 records both saved VIC enables and raw pending sources around the transition.
-Its phase-16 result localizes the remaining stop to the scheduler/display
-boundary. R9 resets the measured Timer B edge, proves one scheduler sleep/wake,
-then checkpoints the unchanged display path operation by operation.
+Its phase-16 result localized the remaining stop to the scheduler/display
+boundary. R9 reset the measured Timer B edge and then stopped at the first
+explicit scheduler block. R10 removes every sleep, yield, mutex, and event
+from the interrupt-masked display repair and admits the scheduler only after
+the panel and interrupt substrate are complete.
 
 ### First real-hardware retention result — 2026-08-28
 
@@ -1003,9 +1015,45 @@ handler itself froze. Linked control flow shows the next call was
 and every LCD sub-operation instead of changing another unmeasured display
 parameter.
 
+### Stage 3B-R9 hardware result — 2026-08-29
+
+R9 woke automatically by USB and remained black. The matching ABI-10 recovery
+image preserved:
+
+- `State:FAILED`, mode 3, attempt 1, phase 18, failure 15;
+- saved PC `080001c8`, SP `0000ab80`, and CPSR `600000df`;
+- matching TTB CRC `9df7e812/9df7e812`;
+- matching context cookie and return `48365033/48365033`;
+- `Trail:tick waiting` (`48334138`);
+- saved VIC enable masks `27610100/00001000`;
+- raw VIC0 `00000120` before repair and `00000018` after Timer B reset;
+- Timer B control/count `00111240/00000002` before reset and
+  `00011240/00000000` after reset.
+
+Phase 18 is committed immediately before `sleep(1)`, and phase 19 is committed
+only after it returns. Therefore the first scheduler block/context switch did
+not return to the retained suspending thread. The panel wake sequence, frame
+copy, and LCD DMA were never entered. R10 does not tune another timer or panel
+parameter around this failure. It removes the disproven scheduler dependency
+from the low-level repair boundary.
+
+The stock comparison is concrete. RetailOS coordinator `0x0807b270` runs its
+pre-sleep manager, saves/masks interrupt state, enters the IRAM hibernate
+wrapper, restores full interrupt state, and invokes its post-wake manager. Its
+retained resume entry at `0x080d24d0` calls `0x083600b8` before restoring MIU,
+IRAM, MMU, and the saved continuation. That timer routine consists of exactly
+four Timer E writes: `0x440`, `11`, `0xffffffff`, and `3`. Its low-level LCD
+wait at `0x080c31f0` polls controller status bit `0x10`; it does not require a
+kernel sleep to make the controller usable. The post-wake manager also reaches
+`0x083602dc`, which calls LCD controller initializer `0x080c9c00`; that routine
+writes `LCD_CON=0x80000000`, then `0x80100db1`, offset `0x88=0x01000000`,
+`LCD_PHTIME=0x33`, and offset `0x7c=0x804`. R10 reproduces those measured
+controller writes and polling properties without claiming that Rockbox and
+RetailOS share higher-level scheduler or driver objects.
+
 ### Stage 3B: Kernel resume with hardware stopped
 
-Stage 3B-R9 / resume ABI 10 is the current true instant-resume implementation:
+Stage 3B-R10 / resume ABI 11 is the current true instant-resume implementation:
 
 1. Veto active audio, USB, and composite output.
 2. Flush and sleep storage; quiesce UART, LCD DMA, panel, and backlight.
@@ -1022,36 +1070,37 @@ Stage 3B-R9 / resume ABI 10 is the current true instant-resume implementation:
    software objects.
 8. Return with all VIC sources masked, release retained I2C ownership, and
    commit phase 14 while CPU IRQ/FIQ remain masked.
-9. Reset Timer B, enable only its VIC source, reset it once more immediately
-   before releasing CPU IRQ/FIQ, and require a real `sleep(1)` block/wake
-   through phase 19.
-10. Enable LCD DMA and run the unchanged panel wake sequence with durable
-    boundaries for mutex, clocks, command mode, panel delays, frame queue,
-    DMA completion, activation event, and backlight through phase 29.
-11. Capture raw pending sources, clear stale 32-bit timer status, restore the
-    complete saved VIC mask, publish the deferred USB edge, then commit phase
-    31 PASS.
+9. Verify the stock-style Timer E substrate and run the panel wake sequence
+   with polling delays while IRQ/FIQ and both VICs remain closed.
+10. Copy the complete retained framebuffer, queue one normal PL080 frame, poll
+    its raw terminal/error state, service the completed DMA task synchronously,
+    and restore the backlight without entering the scheduler.
+11. Reset Timer B, capture raw pending sources, clear stale 32-bit timer
+    status, and restore the complete saved VIC mask before releasing CPU
+    IRQ/FIQ.
+12. Publish the deferred USB edge and LCD activation event only after that
+    release, then commit phase 28 PASS.
 
 The linked-binary gate must prove both images were built with all three Stage
 defines. Incremental objects compiled without those defines are invalid even
 if a stale assembly object still contains the trampoline.
 
-For the first hardware attempt, launch the matching R9 image with Rolo, verify
-`Stage 3B-R9 / ABI 10 / /.rbtv`, open `Debug > Test retained context`, and press
+For the first hardware attempt, launch the matching R10 image with Rolo, verify
+`Stage 3B-R10 / ABI 11 / /.rbtv`, open `Debug > Test retained context`, and press
 Select once while undocked and on battery. After the screen goes black, insert
 USB once. Success means the same Rolo screen becomes visible without any boot
 logo or disk image load and reports:
 
-- `State:PASSED`, `mode:3`, `attempts:1`, `phase:31`, `failure:0`;
-- `Trail:resume complete` (`48334145`);
+- `State:PASSED`, `mode:3`, `attempts:1`, `phase:28`, `failure:0`;
+- `Trail:resume complete` (`48334143`);
 - matching nonzero TTB/IRAM/probe evidence; and
 - a responsive click wheel and display.
 
 If it remains black, wait ten seconds, force-reset once, Rolo the exact same
-R9 image, and record the full diagnostic screen without rearming. The final
-breadcrumb, Timer B before/after values, and raw masks identify whether
-progress stopped at scheduler wake, a specific display operation, or full-mask
-release. `app
+R10 image, and record the full diagnostic screen without rearming. The final
+breadcrumb, Timer E interval, DMA raw status, and VIC masks identify whether
+progress stopped in the panel sequence, frame DMA, full-mask release, or a
+deferred event. `app
 continue` still isolates a hardware-only resume hook and `boot direct` isolates
 the non-returning handoff itself.
 
@@ -1153,7 +1202,7 @@ Likely implementation points:
 
 ## Recommendation
 
-Run exactly one isolated Stage 3B-R9 / ABI-10 USB-wake attempt with a clean,
+Run exactly one isolated Stage 3B-R10 / ABI-11 USB-wake attempt with a clean,
 exact-version Rolo application and matching experimental dual-boot bootloader.
 The binary gate must verify that neither image contains disabled Stage-3 stubs,
 that the bootloader direct branch occurs before `bss_init()`, and that the
@@ -1180,10 +1229,12 @@ bootloader BSS/cold startup. R7 then proved that direct continuation and every
 hardware hook worked, but its single-step interrupt release occurred while I2C
 was still owned and stopped at phase 13. R8 released that mutex and proved CPU
 IRQ release returned, then stopped at phase 16 before the monolithic LCD wake;
-its raw mask measured Timer B already pending and LCD DMA clear. R9 resets the
-measured timer state, proves a real scheduler block/wake, and records each
-unchanged LCD operation independently before restoring the full VIC mask and
-publishing USB. Only a visible, responsive phase-31 R9 result authorizes
+its raw mask measured Timer B already pending and LCD DMA clear. R9 reset that
+timer state and proved the first explicit scheduler block never returns. R10
+therefore reproduces the stock Timer E and polling-controller properties,
+repairs the panel and one full frame with IRQ/FIQ masked, and exposes the
+scheduler only after the full saved VIC is restored. Only a visible,
+responsive phase-28 R10 result authorizes
 repetition testing. Repeat, duration, wake-source, storage, and
 injected-failure testing remain mandatory before this can become a normal user
 setting.

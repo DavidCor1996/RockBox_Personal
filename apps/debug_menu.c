@@ -3067,22 +3067,20 @@ static const char *dbg_hibernate_breadcrumb_name(uint32_t breadcrumb)
         case IPOD6G_HIBERNATE_DIAG_APP_CONTINUE: return "app continue";
         case IPOD6G_HIBERNATE_DIAG_HW_RESTORED: return "hardware restored";
         case IPOD6G_HIBERNATE_DIAG_I2C_RELEASED: return "I2C released";
-        case IPOD6G_HIBERNATE_DIAG_TICK_REARMED: return "tick rearmed";
-        case IPOD6G_HIBERNATE_DIAG_TICK_IRQ_ARMED: return "tick IRQ armed";
-        case IPOD6G_HIBERNATE_DIAG_TICK_IRQ_LIVE: return "tick IRQ live";
-        case IPOD6G_HIBERNATE_DIAG_TICK_WAITING: return "tick waiting";
-        case IPOD6G_HIBERNATE_DIAG_TICK_PROVED: return "tick proved";
-        case IPOD6G_HIBERNATE_DIAG_DMA_IRQ_ARMED: return "DMA IRQ armed";
+        case IPOD6G_HIBERNATE_DIAG_USEC_TIMER_READY: return "usec timer ready";
         case IPOD6G_HIBERNATE_DIAG_LCD_ENTER: return "LCD enter";
-        case IPOD6G_HIBERNATE_DIAG_LCD_MUTEX: return "LCD mutex";
         case IPOD6G_HIBERNATE_DIAG_LCD_CLOCKS: return "LCD clocks";
         case IPOD6G_HIBERNATE_DIAG_LCD_COMMAND: return "LCD command";
         case IPOD6G_HIBERNATE_DIAG_LCD_SEQUENCE: return "LCD sequence";
         case IPOD6G_HIBERNATE_DIAG_LCD_FRAME: return "LCD frame";
         case IPOD6G_HIBERNATE_DIAG_LCD_DMA_DONE: return "LCD DMA done";
-        case IPOD6G_HIBERNATE_DIAG_LCD_EVENT_DONE: return "LCD event done";
         case IPOD6G_HIBERNATE_DIAG_DISPLAY_READY: return "display ready";
+        case IPOD6G_HIBERNATE_DIAG_TICK_REARMED: return "tick rearmed";
         case IPOD6G_HIBERNATE_DIAG_ALL_IRQ_ARMED: return "all IRQ armed";
+        case IPOD6G_HIBERNATE_DIAG_CPU_IRQ_LIVE: return "CPU IRQ live";
+        case IPOD6G_HIBERNATE_DIAG_PMU_EVENT_DONE: return "PMU event done";
+        case IPOD6G_HIBERNATE_DIAG_LCD_EVENT_DONE: return "LCD event done";
+        case IPOD6G_HIBERNATE_DIAG_LCD_FAILED: return "LCD poll failed";
         case IPOD6G_HIBERNATE_DIAG_APP_COMPLETE: return "resume complete";
         default: return "none";
     }
@@ -3102,7 +3100,7 @@ static bool dbg_hibernate_stage3(void)
     lcd_set_foreground(LCD_RGBPACK(255, 255, 255));
     lcd_clear_display();
     lcd_puts(0, 0, "*** HIBERNATE TEST CORE ***");
-    lcd_puts(0, 1, "Stage 3B-R9 / ABI 10 / /.rbtv");
+    lcd_puts(0, 1, "Stage 3B-R10 / ABI 11 / /.rbtv");
     lcd_putsf(0, 2, "State:%s mode:%lu",
               status.valid ? dbg_hibernate_state_name(status.state) :
                              "invalid record",
@@ -3134,20 +3132,21 @@ static bool dbg_hibernate_stage3(void)
               (unsigned long)status.vic1_enable);
     lcd_putsf(0, 11, "RAW:%08lx/%08lx",
               (unsigned long)status.vic0_raw_before_core,
-              (unsigned long)status.vic0_raw_after_tick_rearm);
-    lcd_putsf(0, 12, "TB0:%08lx/%08lx",
-              (unsigned long)status.timer_b_control_before_rearm,
-              (unsigned long)status.timer_b_count_before_rearm);
-    lcd_putsf(0, 13, "TB1:%08lx/%08lx",
-              (unsigned long)status.timer_b_control_after_rearm,
-              (unsigned long)status.timer_b_count_after_rearm);
+              (unsigned long)status.vic0_raw_before_full);
+    lcd_putsf(0, 12, "TE:%08lx>%08lx",
+              (unsigned long)status.timer_e_count_before,
+              (unsigned long)status.timer_e_count_after);
+    lcd_putsf(0, 13, "DMA:%02lx/%02lx EN:%02lx",
+              (unsigned long)status.lcd_dma_raw_tc,
+              (unsigned long)status.lcd_dma_raw_error,
+              (unsigned long)status.lcd_dma_enabled_channels);
     if (status.failure ==
         IPOD6G_HIBERNATE_FAILURE_STANDBY_NOT_ENTERED)
     {
         lcd_puts(0, 13, "RESULT: STANDBY NOT ENTERED");
     }
     lcd_puts(0, 14, ready ? "SELECT: SUSPEND; WAKE BY USB" :
-                            "Matching ABI-10 bootloader required");
+                            "Matching ABI-11 bootloader required");
     lcd_puts(0, 15, "MENU: exit without testing");
     lcd_update();
 

@@ -99,23 +99,21 @@
 #define IPOD6G_HIBERNATE_DIAG_APP_CONTINUE   0x48334132 /* "H3A2" */
 #define IPOD6G_HIBERNATE_DIAG_HW_RESTORED    0x48334133 /* "H3A3" */
 #define IPOD6G_HIBERNATE_DIAG_I2C_RELEASED   0x48334134 /* "H3A4" */
-#define IPOD6G_HIBERNATE_DIAG_TICK_REARMED   0x48334135 /* resume step 5 */
-#define IPOD6G_HIBERNATE_DIAG_TICK_IRQ_ARMED 0x48334136 /* resume step 6 */
-#define IPOD6G_HIBERNATE_DIAG_TICK_IRQ_LIVE  0x48334137 /* resume step 7 */
-#define IPOD6G_HIBERNATE_DIAG_TICK_WAITING   0x48334138 /* resume step 8 */
-#define IPOD6G_HIBERNATE_DIAG_TICK_PROVED    0x48334139 /* resume step 9 */
-#define IPOD6G_HIBERNATE_DIAG_DMA_IRQ_ARMED  0x4833413a /* resume step 10 */
-#define IPOD6G_HIBERNATE_DIAG_LCD_ENTER      0x4833413b /* resume step 11 */
-#define IPOD6G_HIBERNATE_DIAG_LCD_MUTEX      0x4833413c /* resume step 12 */
-#define IPOD6G_HIBERNATE_DIAG_LCD_CLOCKS     0x4833413d /* resume step 13 */
-#define IPOD6G_HIBERNATE_DIAG_LCD_COMMAND    0x4833413e /* resume step 14 */
-#define IPOD6G_HIBERNATE_DIAG_LCD_SEQUENCE   0x4833413f /* resume step 15 */
-#define IPOD6G_HIBERNATE_DIAG_LCD_FRAME      0x48334140 /* resume step 16 */
-#define IPOD6G_HIBERNATE_DIAG_LCD_DMA_DONE   0x48334141 /* resume step 17 */
-#define IPOD6G_HIBERNATE_DIAG_LCD_EVENT_DONE 0x48334142 /* resume step 18 */
-#define IPOD6G_HIBERNATE_DIAG_DISPLAY_READY  0x48334143 /* resume step 19 */
-#define IPOD6G_HIBERNATE_DIAG_ALL_IRQ_ARMED  0x48334144 /* resume step 20 */
-#define IPOD6G_HIBERNATE_DIAG_APP_COMPLETE   0x48334145 /* resume step 21 */
+#define IPOD6G_HIBERNATE_DIAG_USEC_TIMER_READY 0x48334135 /* resume step 5 */
+#define IPOD6G_HIBERNATE_DIAG_LCD_ENTER        0x48334136 /* resume step 6 */
+#define IPOD6G_HIBERNATE_DIAG_LCD_CLOCKS       0x48334137 /* resume step 7 */
+#define IPOD6G_HIBERNATE_DIAG_LCD_COMMAND      0x48334138 /* resume step 8 */
+#define IPOD6G_HIBERNATE_DIAG_LCD_SEQUENCE     0x48334139 /* resume step 9 */
+#define IPOD6G_HIBERNATE_DIAG_LCD_FRAME        0x4833413a /* resume step 10 */
+#define IPOD6G_HIBERNATE_DIAG_LCD_DMA_DONE     0x4833413b /* resume step 11 */
+#define IPOD6G_HIBERNATE_DIAG_DISPLAY_READY    0x4833413c /* resume step 12 */
+#define IPOD6G_HIBERNATE_DIAG_TICK_REARMED     0x4833413d /* resume step 13 */
+#define IPOD6G_HIBERNATE_DIAG_ALL_IRQ_ARMED    0x4833413e /* resume step 14 */
+#define IPOD6G_HIBERNATE_DIAG_CPU_IRQ_LIVE     0x4833413f /* resume step 15 */
+#define IPOD6G_HIBERNATE_DIAG_PMU_EVENT_DONE   0x48334140 /* resume step 16 */
+#define IPOD6G_HIBERNATE_DIAG_LCD_EVENT_DONE   0x48334141 /* resume step 17 */
+#define IPOD6G_HIBERNATE_DIAG_LCD_FAILED       0x48334142 /* resume failure */
+#define IPOD6G_HIBERNATE_DIAG_APP_COMPLETE     0x48334143 /* resume step 18 */
 
 #if IPOD6G_HIBERNATE_PAYLOAD_STACK_TOP - \
         IPOD6G_HIBERNATE_PAYLOAD_STACK_BOTTOM != \
@@ -124,9 +122,9 @@
 #endif
 
 #if IPOD6G_HIBERNATE_STAGE3
-#define IPOD6G_HIBERNATE_TOKEN_VERSION      10
-#define IPOD6G_HIBERNATE_RESUME_ABI         10
-#define IPOD6G_HIBERNATE_RECORD_VERSION     10
+#define IPOD6G_HIBERNATE_TOKEN_VERSION      11
+#define IPOD6G_HIBERNATE_RESUME_ABI         11
+#define IPOD6G_HIBERNATE_RECORD_VERSION     11
 #else
 #define IPOD6G_HIBERNATE_TOKEN_VERSION      2
 #define IPOD6G_HIBERNATE_RESUME_ABI         2
@@ -217,23 +215,21 @@ enum ipod6g_hibernate_phase
     IPOD6G_HIBERNATE_PHASE_CONTEXT_RETURNED = 12,
     IPOD6G_HIBERNATE_PHASE_HARDWARE_RESTORED = 13,
     IPOD6G_HIBERNATE_PHASE_I2C_RELEASED       = 14,
-    IPOD6G_HIBERNATE_PHASE_TICK_REARMED        = 15,
-    IPOD6G_HIBERNATE_PHASE_TICK_IRQ_ARMED      = 16,
-    IPOD6G_HIBERNATE_PHASE_TICK_IRQ_LIVE       = 17,
-    IPOD6G_HIBERNATE_PHASE_TICK_WAITING        = 18,
-    IPOD6G_HIBERNATE_PHASE_TICK_PROVED         = 19,
-    IPOD6G_HIBERNATE_PHASE_DMA_IRQ_ARMED       = 20,
-    IPOD6G_HIBERNATE_PHASE_LCD_ENTER           = 21,
-    IPOD6G_HIBERNATE_PHASE_LCD_MUTEX           = 22,
-    IPOD6G_HIBERNATE_PHASE_LCD_CLOCKS          = 23,
-    IPOD6G_HIBERNATE_PHASE_LCD_COMMAND         = 24,
-    IPOD6G_HIBERNATE_PHASE_LCD_SEQUENCE        = 25,
-    IPOD6G_HIBERNATE_PHASE_LCD_FRAME           = 26,
-    IPOD6G_HIBERNATE_PHASE_LCD_DMA_DONE        = 27,
-    IPOD6G_HIBERNATE_PHASE_LCD_EVENT_DONE      = 28,
-    IPOD6G_HIBERNATE_PHASE_DISPLAY_RESTORED    = 29,
-    IPOD6G_HIBERNATE_PHASE_ALL_IRQ_ARMED       = 30,
-    IPOD6G_HIBERNATE_PHASE_RESUME_COMPLETE     = 31,
+    IPOD6G_HIBERNATE_PHASE_USEC_TIMER_READY    = 15,
+    IPOD6G_HIBERNATE_PHASE_LCD_ENTER           = 16,
+    IPOD6G_HIBERNATE_PHASE_LCD_CLOCKS          = 17,
+    IPOD6G_HIBERNATE_PHASE_LCD_COMMAND         = 18,
+    IPOD6G_HIBERNATE_PHASE_LCD_SEQUENCE        = 19,
+    IPOD6G_HIBERNATE_PHASE_LCD_FRAME           = 20,
+    IPOD6G_HIBERNATE_PHASE_LCD_DMA_DONE        = 21,
+    IPOD6G_HIBERNATE_PHASE_DISPLAY_RESTORED    = 22,
+    IPOD6G_HIBERNATE_PHASE_TICK_REARMED        = 23,
+    IPOD6G_HIBERNATE_PHASE_ALL_IRQ_ARMED       = 24,
+    IPOD6G_HIBERNATE_PHASE_CPU_IRQ_LIVE        = 25,
+    IPOD6G_HIBERNATE_PHASE_PMU_EVENT_DONE      = 26,
+    IPOD6G_HIBERNATE_PHASE_LCD_EVENT_DONE      = 27,
+    IPOD6G_HIBERNATE_PHASE_RESUME_COMPLETE     = 28,
+    IPOD6G_HIBERNATE_PHASE_LCD_FAILED          = 29,
 };
 
 enum ipod6g_hibernate_failure
@@ -256,6 +252,7 @@ enum ipod6g_hibernate_failure
     IPOD6G_HIBERNATE_FAILURE_CONTEXT_INTERRUPTED = 15,
     IPOD6G_HIBERNATE_FAILURE_STANDBY_NOT_ENTERED = 16,
     IPOD6G_HIBERNATE_FAILURE_HARDWARE_RESUME = 17,
+    IPOD6G_HIBERNATE_FAILURE_LCD_POLL = 18,
 };
 
 struct ipod6g_hibernate_pmu_snapshot
@@ -298,11 +295,11 @@ struct ipod6g_hibernate_status
     uint32_t vic1_raw_before_core;
     uint32_t vic0_raw_before_full;
     uint32_t vic1_raw_before_full;
-    uint32_t vic0_raw_after_tick_rearm;
-    uint32_t timer_b_control_before_rearm;
-    uint32_t timer_b_count_before_rearm;
-    uint32_t timer_b_control_after_rearm;
-    uint32_t timer_b_count_after_rearm;
+    uint32_t lcd_dma_raw_tc;
+    uint32_t lcd_dma_raw_error;
+    uint32_t lcd_dma_enabled_channels;
+    uint32_t timer_e_count_before;
+    uint32_t timer_e_count_after;
 };
 
 struct ipod6g_hibernate_token
@@ -392,11 +389,11 @@ struct ipod6g_hibernate_record
     uint32_t vic1_raw_before_core;
     uint32_t vic0_raw_before_full;
     uint32_t vic1_raw_before_full;
-    uint32_t vic0_raw_after_tick_rearm;
-    uint32_t timer_b_control_before_rearm;
-    uint32_t timer_b_count_before_rearm;
-    uint32_t timer_b_control_after_rearm;
-    uint32_t timer_b_count_after_rearm;
+    uint32_t lcd_dma_raw_tc;
+    uint32_t lcd_dma_raw_error;
+    uint32_t lcd_dma_enabled_channels;
+    uint32_t timer_e_count_before;
+    uint32_t timer_e_count_after;
 #else
     uint32_t reserved[8];
 #endif

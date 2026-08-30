@@ -364,6 +364,18 @@ void set_cpu_frequency(long frequency)
 
 #if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
         IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+static void __attribute__((noinline, noclone))
+system_hibernate_resume_usec_timer(void)
+{
+    /* RetailOS resume routine 0x083600b8 performs these exact four writes
+     * before restoring the retained continuation. Timer E is therefore the
+     * only delay source used by the interrupt-masked Rockbox repair path. */
+    TECON = 0x440;
+    TEPRE = 11;
+    TEDATA0 = 0xffffffffu;
+    TECMD = 3;
+}
+
 /*
  * Rebuild only hardware state destroyed by the reset/bootloader path.  All
  * kernel objects, queues, threads and driver software state remain live in
@@ -372,6 +384,8 @@ void set_cpu_frequency(long frequency)
 void system_hibernate_resume(void)
 {
     int level = CLK_UNBOOST;
+
+    system_hibernate_resume_usec_timer();
 
 #ifdef HAVE_ADJUSTABLE_CPU_FREQ
     if (cpu_frequency == CPUFREQ_MAX)
@@ -389,7 +403,6 @@ void system_hibernate_resume(void)
     gpio_hibernate_resume();
     vic_init();
     dma_init();
-    tick_start(1000 / HZ);
 }
 #endif
 

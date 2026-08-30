@@ -1339,25 +1339,141 @@ void lcd_awake(void)
 
 #if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
         IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+#define LCD_HIBERNATE_DMA_TIMEOUT_US 500000u
+#define LCD_HIBERNATE_STOCK_7C \
+        (*(volatile uint32_t *)(LCD_BASE + 0x7c))
+#define LCD_HIBERNATE_STOCK_88 \
+        (*(volatile uint32_t *)(LCD_BASE + 0x88))
+
+static void __attribute__((noinline, noclone))
+lcd_hibernate_run_seq8(void *seq8)
+{
+    uint8_t *seq = seq8;
+
+    while (1) switch (*seq++)
+    {
+        case CMD:
+        {
+            uint8_t cmd = *seq++;
+            int len = *seq++;
+            s5l_lcd_send_cmd8(cmd, len, seq);
+            seq += len;
+            break;
+        }
+        case SLEEP:
+            udelay(*seq++ * (1000000u / HZ));
+            break;
+        case END:
+        default:
+            return;
+    }
+}
+
+#ifdef S5L_LCD_WITH_CMDSET16
+static void __attribute__((noinline, noclone))
+lcd_hibernate_run_seq16(void *seq16)
+{
+    uint16_t *seq = seq16;
+    int action, param;
+    uint16_t reg;
+
+    while (1)
+    {
+        action = *seq & 0xff;
+        param = *seq++ >> 8;
+
+        switch (action)
+        {
+            case CMD:
+                s5l_lcd_write_cmd(*seq++);
+                break;
+            case MREG:
+                reg = *seq++;
+                while (param--)
+                    s5l_lcd_write_reg(reg++, *seq++);
+                break;
+            case SLEEP:
+                udelay(param * (1000000u / HZ));
+                break;
+            case DELAY:
+                udelay(param << 6);
+                break;
+            case END:
+            default:
+                return;
+        }
+    }
+}
+#endif
+
+static void __attribute__((noinline, noclone))
+lcd_hibernate_run_awake_sequence(void)
+{
+#ifdef S5L_LCD_WITH_CMDSET16
+    if (lcd_info->cmdset == LCD_CMDSET_16BIT)
+        lcd_hibernate_run_seq16(lcd_info->seq_awake);
+    else
+#endif
+        lcd_hibernate_run_seq8(lcd_info->seq_awake);
+}
+
+static bool __attribute__((noinline, noclone)) lcd_hibernate_wait_dma(
+        struct lcd_hibernate_resume_status *status)
+{
+    const uint32_t mask = 1u << lcd_dma_ch.prio;
+    const uint32_t base = lcd_dma_ch.dmac->baddr;
+    uint32_t start = USEC_TIMER;
+
+    while (1)
+    {
+        status->dma_raw_tc = DMACRAWINTTCSTS(base);
+        status->dma_raw_error = DMACRAWINTERRSTS(base);
+        status->dma_enabled_channels = DMACENABLEDCHANS(base);
+
+        if (status->dma_raw_error & mask)
+            return false;
+
+        if (status->dma_raw_tc & mask)
+        {
+            /* The VIC is deliberately closed. Service the completed PL080
+             * task synchronously so retained queue accounting agrees with
+             * the hardware before interrupts are restored. */
+            dmac_callback(lcd_dma_ch.dmac);
+            return !dmac_ch_running(&lcd_dma_ch);
+        }
+
+        if ((uint32_t)(USEC_TIMER - start) >=
+                LCD_HIBERNATE_DMA_TIMEOUT_US)
+            return false;
+    }
+}
+
 void lcd_hibernate_resume(void)
 {
     /* Restore the reset controller and DMA ownership while IRQs are still
-     * masked.  The retained lcd_mutex and event listeners stay untouched;
-     * lcd_awake() runs the panel delays after the scheduler tick is live. */
+     * masked. RetailOS routine 0x080c9c00 performs these exact controller
+     * writes on its post-wake path; 0x7c and 0x88 are not named in the
+     * public S5L8702 register map. The retained mutex and event listeners
+     * stay untouched. */
     lcd_target_enable_clocks(true);
+    LCD_CON = 0x80000000u;
+    LCD_CON = 0x80100db1u;
+    LCD_HIBERNATE_STOCK_88 = 0x01000000u;
     LCD_PHTIME = 0x33;
+    LCD_HIBERNATE_STOCK_7C = 0x00000804u;
     s5l_lcd_set_command_mode();
     dmac_ch_init(&lcd_dma_ch, &lcd_dma_ch_cfg);
     lcd_ispowered = false;
 }
 
-void lcd_hibernate_finish_resume(lcd_hibernate_checkpoint_fn checkpoint,
-                                 void *context)
+bool lcd_hibernate_finish_resume(lcd_hibernate_checkpoint_fn checkpoint,
+                                 void *context,
+                                 struct lcd_hibernate_resume_status *status)
 {
-    /* Keep the ordinary lcd_awake() sequence byte-for-byte equivalent while
-     * exposing durable boundaries for the one-shot retained-context test. */
-    mutex_lock(&lcd_mutex);
-    checkpoint(LCD_HIBERNATE_RESUME_MUTEX, context);
+    fb_data *src = FBADDR(0, 0);
+    int row;
+
+    memset(status, 0, sizeof(*status));
 
     lcd_target_enable_clocks(true);
     checkpoint(LCD_HIBERNATE_RESUME_CLOCKS, context);
@@ -1365,21 +1481,39 @@ void lcd_hibernate_finish_resume(lcd_hibernate_checkpoint_fn checkpoint,
     s5l_lcd_set_command_mode();
     checkpoint(LCD_HIBERNATE_RESUME_COMMAND, context);
 
-    lcd_run_seq(lcd_info->seq_awake);
+    /* RetailOS reinitializes Timer E immediately on its retained resume and
+     * its panel path polls hardware. Do the same here: no sleep(), yield(),
+     * mutex, event, or scheduler transition is allowed before the complete
+     * display and interrupt substrate is valid again. */
+    status->timer_e_count_before = USEC_TIMER;
+    lcd_hibernate_run_awake_sequence();
+    status->timer_e_count_after = USEC_TIMER;
     checkpoint(LCD_HIBERNATE_RESUME_SEQUENCE, context);
 
-    /* lcd_update() intentionally observes the panel as powered and queues
-     * the same full-frame DMA transaction used by the normal wake path. */
+    displaylcd_setup(0, 0, LCD_WIDTH, LCD_HEIGHT);
+    memcpy(lcd_dblbuf, src, sizeof(lcd_dblbuf));
+
+#ifdef HAVE_IPODJS_UI
+    for (row = 0; row < LCD_HEIGHT; ++row)
+        lcd_compose_overlay_row(row, 0, LCD_WIDTH, lcd_dblbuf[row]);
+#else
+    (void)row;
+#endif
+
     lcd_ispowered = true;
-    lcd_update();
+    displaylcd_dma(LCD_WIDTH * LCD_HEIGHT);
     checkpoint(LCD_HIBERNATE_RESUME_FRAME, context);
 
-    displaylcd_wait_dma();
-    checkpoint(LCD_HIBERNATE_RESUME_DMA_DONE, context);
+    if (!lcd_hibernate_wait_dma(status))
+        return false;
 
-    mutex_unlock(&lcd_mutex);
+    checkpoint(LCD_HIBERNATE_RESUME_DMA_DONE, context);
+    return true;
+}
+
+void lcd_hibernate_resume_complete(void)
+{
     send_event(LCD_EVENT_ACTIVATION, NULL);
-    checkpoint(LCD_HIBERNATE_RESUME_EVENT_DONE, context);
 }
 #endif
 
