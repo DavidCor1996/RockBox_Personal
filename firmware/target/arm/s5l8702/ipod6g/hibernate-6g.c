@@ -35,6 +35,7 @@
 #include "backlight-target.h"
 #include "lcd.h"
 #include "lcd-s5l8702.h"
+#include "pcm.h"
 #include "power.h"
 #include "powermgmt.h"
 #include "storage.h"
@@ -385,6 +386,8 @@ static void record_commit_crc(
 #endif
 
 #ifndef BOOTLOADER
+
+static volatile bool hibernate_poweroff_enabled;
 
 bool ipod6g_hibernate_stage1_get_status(
         struct ipod6g_hibernate_status *status)
@@ -960,7 +963,11 @@ bool ipod6g_hibernate_stage3_suspend(uint32_t sequence)
 #if CONFIG_CHARGING
         || power_input_present()
 #endif
-        || audio_status() != 0 || usb_detect() != USB_EXTRACTED ||
+        || audio_status() != 0 || pcm_is_playing()
+#ifdef HAVE_RECORDING
+        || pcm_is_recording()
+#endif
+        || usb_detect() != USB_EXTRACTED ||
         ipod6g_videoout_active())
     {
         return false;
@@ -1536,6 +1543,28 @@ bool ipod6g_hibernate_stage3_suspend(uint32_t sequence)
 }
 
 #endif /* IPOD6G_HIBERNATE_STAGE1 */
+
+void ipod6g_hibernate_set_poweroff_mode(
+        enum ipod6g_poweroff_mode mode)
+{
+    hibernate_poweroff_enabled = mode == IPOD6G_POWEROFF_RETAINED;
+}
+
+bool ipod6g_hibernate_poweroff_try(uint32_t sequence)
+{
+#if IPOD6G_HIBERNATE_STAGE3
+#if IPOD6G_HIBERNATE_STAGE1
+    /* Explicit Stage 1/2 diagnostics own the following legacy shutdown. */
+    if (hibernate_requested)
+        return false;
+#endif
+    if (hibernate_poweroff_enabled)
+        return ipod6g_hibernate_stage3_suspend(sequence);
+#else
+    (void)sequence;
+#endif
+    return false;
+}
 
 #else /* BOOTLOADER */
 

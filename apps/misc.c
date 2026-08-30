@@ -67,10 +67,6 @@
 #include "fixedpoint.h"
 #include "open_plugin.h"
 
-#if defined(IPOD_6G) && !defined(SIMULATOR)
-#include "hibernate-6g.h"
-#endif
-
 #include "debug.h"
 
 #if CONFIG_TUNER
@@ -514,20 +510,8 @@ static bool clean_shutdown(enum shutdown_type sd_type,
 #endif
     {
         bool batt_safe = battery_level_safe();
-        bool ipod6g_retained_poweroff = false;
 #if defined(HAVE_RECORDING)
         int audio_stat = audio_status();
-#endif
-
-#if defined(IPOD_6G) && !defined(SIMULATOR) && IPOD6G_HIBERNATE_STAGE3
-        ipod6g_retained_poweroff =
-                sd_type == SHUTDOWN_POWER_OFF && batt_safe &&
-                global_settings.ipod6g_poweroff_mode ==
-                IPOD6G_POWEROFF_RETAINED;
-#if CONFIG_CHARGING
-        ipod6g_retained_poweroff = ipod6g_retained_poweroff &&
-                !power_input_present();
-#endif
 #endif
 
 #ifdef HAVE_IPODJS_UI
@@ -546,22 +530,19 @@ static bool clean_shutdown(enum shutdown_type sd_type,
             tagcache_prepared = true;
         }
 #endif
-        if (ipodjs_poweroff && !ipod6g_retained_poweroff)
+        if (ipodjs_poweroff)
             ipodjs_ui_shutdown_animation();
 #endif
 
-        if (!ipod6g_retained_poweroff)
+        FOR_NB_SCREENS(i)
         {
-            FOR_NB_SCREENS(i)
-            {
-                if (ipodjs_poweroff && i == SCREEN_MAIN)
-                    continue;
-                screens[i].clear_display();
-                screens[i].update();
-            }
+            if (ipodjs_poweroff && i == SCREEN_MAIN)
+                continue;
+            screens[i].clear_display();
+            screens[i].update();
         }
 
-        if (batt_safe && !ipod6g_retained_poweroff)
+        if (batt_safe)
         {
             int level;
 #ifdef HAVE_TAGCACHE
@@ -646,12 +627,6 @@ static bool clean_shutdown(enum shutdown_type sd_type,
             talk_id(LANG_SHUTTINGDOWN, enqueue);
             voice_wait();
         }
-
-#if defined(IPOD_6G) && !defined(SIMULATOR) && IPOD6G_HIBERNATE_STAGE3
-        if (ipod6g_retained_poweroff &&
-            ipod6g_hibernate_stage3_suspend((uint32_t)current_tick))
-            return true;
-#endif
 
         shutdown_hw(sd_type);
     }

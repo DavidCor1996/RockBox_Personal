@@ -72,6 +72,20 @@ def function(disassembly: str, name: str) -> str:
     return match.group(1)
 
 
+def callers(disassembly: str, name: str) -> set[str]:
+    pattern = re.compile(
+        r"^[0-9a-fA-F]+ <([^>]+)>:\n(.*?)"
+        r"(?=^[0-9a-fA-F]+ <|\Z)",
+        re.MULTILINE | re.DOTALL,
+    )
+    marker = f"<{name}>"
+    return {
+        match.group(1)
+        for match in pattern.finditer(disassembly)
+        if marker in match.group(2)
+    }
+
+
 def require_order(body: str, names: list[str], owner: str) -> None:
     positions: list[int] = []
     for name in names:
@@ -115,6 +129,10 @@ def main() -> int:
     require_symbol(
         app_symbols, "ipod6g_hibernate_stage3_suspend", minimum_size=0x100
     )
+    require_symbol(
+        app_symbols, "ipod6g_hibernate_poweroff_try", minimum_size=0x20
+    )
+    require_symbol(app_symbols, "sys_poweroff", minimum_size=0x20)
     require_symbol(app_symbols, "i2c_bus_lock", minimum_size=0x10)
     require_symbol(app_symbols, "i2c_bus_unlock", minimum_size=0x10)
     for helper in (
@@ -144,6 +162,8 @@ def main() -> int:
     app_dis = command(OBJDUMP, "-d", str(args.app_elf))
     boot_dis = command(OBJDUMP, "-d", str(args.boot_elf))
     suspend = function(app_dis, "ipod6g_hibernate_stage3_suspend")
+    runtime_poweroff = function(app_dis, "ipod6g_hibernate_poweroff_try")
+    system_poweroff = function(app_dis, "sys_poweroff")
     enter = function(app_dis, "ipod6g_hibernate_stage3_enter")
     rearm_tick = function(app_dis, "stage3_rearm_tick")
     finish_display = function(app_dis, "stage3_finish_display")
@@ -171,6 +191,21 @@ def main() -> int:
         ],
         "ipod6g_hibernate_stage3_suspend",
     )
+    if "<ipod6g_hibernate_stage3_suspend>" not in runtime_poweroff:
+        raise GateError("runtime power-off hook omits retained suspend")
+    runtime_start = system_poweroff.find("<ipod6g_hibernate_poweroff_try>")
+    broadcast_start = system_poweroff.find("<queue_broadcast>")
+    if runtime_start < 0 or broadcast_start < 0:
+        raise GateError("sys_poweroff omits runtime suspend or legacy broadcast")
+    if runtime_start >= broadcast_start:
+        raise GateError("sys_poweroff broadcasts shutdown before retained suspend")
+    suspend_callers = callers(app_dis, "ipod6g_hibernate_stage3_suspend")
+    expected_callers = {
+        "dbg_hibernate_stage3", "ipod6g_hibernate_poweroff_try",
+    }
+    if suspend_callers != expected_callers:
+        rendered = ", ".join(sorted(suspend_callers)) or "none"
+        raise GateError(f"unexpected retained-suspend callers: {rendered}")
     lock_end = suspend.find("<i2c_bus_lock>")
     enter_start = suspend.find("<ipod6g_hibernate_stage3_enter>")
     serialized_boundary = suspend[lock_end:enter_start]

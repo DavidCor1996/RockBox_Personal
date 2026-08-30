@@ -433,6 +433,9 @@ void ipod6g_hibernate_stage1_enter(void)
         __attribute__((noreturn));
 bool ipod6g_hibernate_stage3_enter(void);
 bool ipod6g_hibernate_stage3_suspend(uint32_t sequence);
+void ipod6g_hibernate_set_poweroff_mode(
+        enum ipod6g_poweroff_mode mode);
+bool ipod6g_hibernate_poweroff_try(uint32_t sequence);
 #else
 enum ipod6g_hibernate_boot_action
 {

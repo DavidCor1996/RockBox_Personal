@@ -36,6 +36,10 @@
 #include "backlight.h"
 #include "lcd.h"
 #include "rtc.h"
+#if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
+        IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+#include "hibernate-6g.h"
+#endif
 #if CONFIG_TUNER
 #include "fmradio.h"
 #endif
@@ -1123,6 +1127,17 @@ void sys_poweroff(void)
 {
 #ifndef BOOTLOADER
     logf("sys_poweroff()");
+#if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
+        IPOD6G_HIBERNATE_STAGE3
+    /* SYS_POWEROFF is terminal to plugins and several worker queues.  A
+     * retained context must therefore suspend before that broadcast; waking
+     * a context after the broadcast leaves Rockbox deliberately torn down. */
+    if (ipod6g_hibernate_poweroff_try((uint32_t)current_tick))
+    {
+        reset_poweroff_timer();
+        return;
+    }
+#endif
     requested_reboot_type = SHUTDOWN_POWER_OFF;
     sys_shutdown_common();
     queue_broadcast(SYS_POWEROFF, 0);

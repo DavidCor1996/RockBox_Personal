@@ -36,6 +36,7 @@
 #include "sound.h"
 #include "settings.h"
 #if defined(IPOD_6G) && !defined(SIMULATOR)
+#include "hibernate-6g.h"
 #include "videoout-6g.h"
 #endif
 #include "debug.h"
@@ -880,6 +881,19 @@ void settings_apply_ipod6g_videoout(int mode)
     ipod6g_videoout_set_mode((enum ipod6g_videoout_mode)mode, FBADDR(0, 0),
                              LCD_WIDTH, LCD_HEIGHT);
 }
+
+void settings_apply_ipod6g_poweroff_mode(int mode)
+{
+    if (mode < IPOD6G_POWEROFF_LEGACY ||
+        mode > IPOD6G_POWEROFF_RETAINED)
+    {
+        mode = IPOD6G_POWEROFF_LEGACY;
+    }
+
+    global_settings.ipod6g_poweroff_mode = mode;
+    ipod6g_hibernate_set_poweroff_mode(
+            (enum ipod6g_poweroff_mode)mode);
+}
 #endif
 
 void settings_apply(bool read_disk)
@@ -1113,6 +1127,8 @@ void settings_apply(bool read_disk)
 
 #if defined(IPOD_6G) && !defined(SIMULATOR)
     settings_apply_ipod6g_videoout(global_settings.composite_video_output);
+    settings_apply_ipod6g_poweroff_mode(
+            global_settings.ipod6g_poweroff_mode);
 #endif
 
 #ifndef HAS_BUTTON_HOLD

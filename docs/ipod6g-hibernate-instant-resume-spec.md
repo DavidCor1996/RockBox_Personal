@@ -49,6 +49,18 @@ deferred until after that boundary. This is still experimental: only a
 visible, responsive phase-28 result can authorize repetition, long-duration,
 storage-resume, or injected-failure qualification.
 
+The first normal-power-off integration test on 2026-08-29 restored the exact
+pre-sleep framebuffer but left the UI frozen. This was not a failed retained
+context or display repair: the runtime path called `sys_poweroff()`, which
+broadcast `SYS_POWEROFF` before `clean_shutdown()` reached the Stage 3 suspend.
+Plugins and several worker queues correctly treat that event as terminal, so
+the retained image contained a deliberately half-shut-down Rockbox. The
+runtime path now attempts the opt-in retained suspend inside `sys_poweroff()`
+before `sys_shutdown_common()` and `queue_broadcast()`. A successful wake
+returns without broadcasting shutdown; a refused attempt follows the original
+legacy shutdown unchanged. Explicit Stage 1/2 diagnostic requests bypass this
+runtime interception.
+
 The target is the existing `IPOD_6G` Rockbox target. Rockbox uses that target
 for both the 6th- and 7th-generation Classic hardware.
 
@@ -1055,30 +1067,33 @@ RetailOS share higher-level scheduler or driver objects.
 
 Stage 3B-R10 / resume ABI 11 is the current true instant-resume implementation:
 
-1. Veto active audio, USB, and composite output.
-2. Flush and sleep storage; quiesce UART, LCD DMA, panel, and backlight.
-3. Arm the exact PMU wake configuration.
-4. Acquire I2C bus 0 in the suspending thread, then mask IRQ/FIQ so no new
+1. Veto active core or direct PCM audio, USB, and composite output.
+2. For normal power-off, attempt retained suspend before broadcasting the
+   terminal `SYS_POWEROFF` event. A veto or preparation failure falls through
+   to the unchanged legacy shutdown path.
+3. Flush and sleep storage; quiesce UART, LCD DMA, panel, and backlight.
+4. Arm the exact PMU wake configuration.
+5. Acquire I2C bus 0 in the suspending thread, then mask IRQ/FIQ so no new
    background transaction can cross the context boundary.
-5. Save r4-r11, system SP/LR, continuation PC, CPSR, CP15 state, and every
+6. Save r4-r11, system SP/LR, continuation PC, CPSR, CP15 state, and every
    banked exception stack; re-shadow all used IRAM0 and enter Standby.
-6. In the early bootloader validator, verify token, fingerprint, record, TTB,
+7. In the early bootloader validator, verify token, fingerprint, record, TTB,
    payload, probe, and IRAM CRCs; restore IRAM and branch directly to the saved
    continuation before `bss_init()`.
-7. Rebuild clocks, GPIO, VIC/EIC, DMA, timer, click wheel, UART, PMU, power,
+8. Rebuild clocks, GPIO, VIC/EIC, DMA, timer, click wheel, UART, PMU, power,
    stopped PCM, and LCD-controller registers without recreating retained
    software objects.
-8. Return with all VIC sources masked, release retained I2C ownership, and
+9. Return with all VIC sources masked, release retained I2C ownership, and
    commit phase 14 while CPU IRQ/FIQ remain masked.
-9. Verify the stock-style Timer E substrate and run the panel wake sequence
+10. Verify the stock-style Timer E substrate and run the panel wake sequence
    with polling delays while IRQ/FIQ and both VICs remain closed.
-10. Copy the complete retained framebuffer, queue one normal PL080 frame, poll
+11. Copy the complete retained framebuffer, queue one normal PL080 frame, poll
     its raw terminal/error state, service the completed DMA task synchronously,
     and restore the backlight without entering the scheduler.
-11. Reset Timer B, capture raw pending sources, clear stale 32-bit timer
+12. Reset Timer B, capture raw pending sources, clear stale 32-bit timer
     status, and restore the complete saved VIC mask before releasing CPU
     IRQ/FIQ.
-12. Publish the deferred USB edge and LCD activation event only after that
+13. Publish the deferred USB edge and LCD activation event only after that
     release, then commit phase 28 PASS.
 
 The linked-binary gate must prove both images were built with all three Stage
