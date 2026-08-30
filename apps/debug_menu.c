@@ -3117,7 +3117,7 @@ static bool dbg_hibernate_stage3(void)
     lcd_set_foreground(LCD_RGBPACK(255, 255, 255));
     lcd_clear_display();
     lcd_puts(0, 0, "*** HIBERNATE TEST CORE ***");
-    lcd_puts(0, 1, "Stage 3B-R10C / ABI 11 / TB");
+    lcd_puts(0, 1, "Stage 3B-R10D / ABI 11 / PROBE");
     lcd_putsf(0, 2, "State:%s mode:%lu",
               status.valid ? dbg_hibernate_state_name(status.state) :
                              "invalid record",
@@ -3144,19 +3144,22 @@ static bool dbg_hibernate_stage3(void)
     lcd_putsf(0, 9, "Trail:%s %08lx",
               dbg_hibernate_breadcrumb_name(status.diagnostic_breadcrumb),
               (unsigned long)status.diagnostic_breadcrumb);
-    lcd_putsf(0, 10, "VEN:%08lx/%08lx",
-              (unsigned long)status.vic0_enable,
-              (unsigned long)status.vic1_enable);
-    lcd_putsf(0, 11, "RAW:%08lx/%08lx",
-              (unsigned long)status.vic0_raw_before_core,
-              (unsigned long)status.vic0_raw_before_full);
-    lcd_putsf(0, 12, "TB C:%08lx N:%08lx",
-              (unsigned long)status.pmu_entry_before,
-              (unsigned long)status.pmu_entry_after);
-    lcd_putsf(0, 13, "D:%03lx P:%02lx ticks:%lu",
-              (unsigned long)status.vic1_raw_before_core,
-              (unsigned long)status.vic1_raw_before_full,
-              (unsigned long)status.lcd_dma_enabled_channels);
+    lcd_putsf(0, 10, "TK:%lu/%lu S:%lu I:%lu",
+              (unsigned long)status.runtime_tick_started,
+              (unsigned long)status.runtime_tick_completed,
+              (unsigned long)status.runtime_tick_stage,
+              (unsigned long)status.runtime_tick_index);
+    lcd_putsf(0, 11, "TF:%08lx T:%08lx",
+              (unsigned long)status.runtime_tick_function,
+              (unsigned long)status.runtime_tick_current);
+    lcd_putsf(0, 12, "SW:%lu S:%lu %lx>%lx",
+              (unsigned long)status.runtime_switch_count,
+              (unsigned long)status.runtime_switch_stage,
+              (unsigned long)(status.runtime_switch_current_id & 0xff),
+              (unsigned long)(status.runtime_switch_next_id & 0xff));
+    lcd_putsf(0, 13, "ST:%08lx U:%08lx",
+              (unsigned long)status.runtime_switch_tick,
+              (unsigned long)status.runtime_switch_usec);
     if (status.failure ==
         IPOD6G_HIBERNATE_FAILURE_STANDBY_NOT_ENTERED)
     {

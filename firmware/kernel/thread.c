@@ -37,6 +37,18 @@
 #endif
 #include "core_alloc.h"
 
+#if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
+        IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+#include "hibernate-6g.h"
+#define HIBERNATE_SWITCH_PROBE(stage, current, next) \
+    ipod6g_hibernate_switch_probe((stage), \
+            (current) ? ((struct thread_entry *)(current))->id : 0, \
+            (next) ? ((struct thread_entry *)(next))->id : 0)
+#else
+#define HIBERNATE_SWITCH_PROBE(stage, current, next) \
+    do { (void)(current); (void)(next); } while (0)
+#endif
+
 #if (CONFIG_PLATFORM & PLATFORM_HOSTED)
 #include <errno.h>
 #endif
@@ -1013,6 +1025,10 @@ void switch_thread(void)
     const unsigned int core = CURRENT_CORE;
     struct core_entry *corep = __core_id_entry(core);
     struct thread_entry *thread = corep->running;
+    struct thread_entry *previous = thread;
+
+    HIBERNATE_SWITCH_PROBE(IPOD6G_HIBERNATE_SWITCH_PROBE_ENTERED,
+                           thread, NULL);
 
     if (thread)
     {
@@ -1024,6 +1040,9 @@ void switch_thread(void)
         core_check_valid();
 #endif
         thread_store_context(thread);
+        HIBERNATE_SWITCH_PROBE(
+                IPOD6G_HIBERNATE_SWITCH_PROBE_CONTEXT_SAVED,
+                thread, NULL);
 
         /* Check if the current thread stack is overflown */
         if (UNLIKELY(thread->stack[0] != DEADBEEF) && thread->stack_size > 0)
@@ -1036,7 +1055,13 @@ void switch_thread(void)
         disable_irq();
 
         /* Check for expired timeouts */
+        HIBERNATE_SWITCH_PROBE(
+                IPOD6G_HIBERNATE_SWITCH_PROBE_TIMEOUT_ENTER,
+                thread, NULL);
         check_tmo_expired(corep);
+        HIBERNATE_SWITCH_PROBE(
+                IPOD6G_HIBERNATE_SWITCH_PROBE_TIMEOUT_RETURN,
+                thread, NULL);
 
         RTR_LOCK(corep);
 
@@ -1096,6 +1121,10 @@ void switch_thread(void)
     rtr_queue_make_first(&corep->rtr, thread);
     corep->running = thread;
 
+    HIBERNATE_SWITCH_PROBE(
+            IPOD6G_HIBERNATE_SWITCH_PROBE_THREAD_CHOSEN,
+            previous, thread);
+
     RTR_UNLOCK(corep);
     enable_irq();
 
@@ -1104,6 +1133,9 @@ void switch_thread(void)
 #endif
 
     /* And finally, give control to the next thread. */
+    HIBERNATE_SWITCH_PROBE(
+            IPOD6G_HIBERNATE_SWITCH_PROBE_CONTEXT_LOAD,
+            previous, thread);
     thread_load_context(thread);
 }
 

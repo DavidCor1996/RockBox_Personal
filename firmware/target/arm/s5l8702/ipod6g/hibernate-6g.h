@@ -53,6 +53,15 @@
 #define IPOD6G_HIBERNATE_PROBE_ADDR         0x0bff9000
 #define IPOD6G_HIBERNATE_PROBE_SIZE         0x00003000
 
+/* This diagnostic block is deliberately outside the CRC-protected record
+ * and below the Stage-2 stack.  The application writes it through the
+ * uncached SDRAM alias, so the last interrupt/scheduler boundary survives a
+ * forced reset even when execution stops before a normal record commit. */
+#define IPOD6G_HIBERNATE_RUNTIME_PROBE_ADDR \
+        (IPOD6G_HIBERNATE_CONTROL_ADDR + 0x00000400)
+#define IPOD6G_HIBERNATE_RUNTIME_PROBE_MAGIC 0x48365052 /* "H6PR" */
+#define IPOD6G_HIBERNATE_RUNTIME_PROBE_VERSION 1
+
 /* Stage 2 uses the upper half of the control page as a dedicated stack. */
 #define IPOD6G_HIBERNATE_PAYLOAD_STACK_BOTTOM \
         (IPOD6G_HIBERNATE_CONTROL_ADDR + 0x00000800)
@@ -324,6 +333,58 @@ struct ipod6g_hibernate_status
     uint32_t lcd_dma_enabled_channels;
     uint32_t timer_e_count_before;
     uint32_t timer_e_count_after;
+    uint32_t runtime_probe_sequence;
+    uint32_t runtime_tick_started;
+    uint32_t runtime_tick_completed;
+    uint32_t runtime_tick_stage;
+    uint32_t runtime_tick_index;
+    uint32_t runtime_tick_function;
+    uint32_t runtime_tick_current;
+    uint32_t runtime_switch_count;
+    uint32_t runtime_switch_stage;
+    uint32_t runtime_switch_current_id;
+    uint32_t runtime_switch_next_id;
+    uint32_t runtime_switch_tick;
+    uint32_t runtime_switch_usec;
+};
+
+enum ipod6g_hibernate_tick_probe_stage
+{
+    IPOD6G_HIBERNATE_TICK_PROBE_NONE     = 0,
+    IPOD6G_HIBERNATE_TICK_PROBE_STARTED  = 1,
+    IPOD6G_HIBERNATE_TICK_PROBE_ENTERED  = 2,
+    IPOD6G_HIBERNATE_TICK_PROBE_RETURNED = 3,
+    IPOD6G_HIBERNATE_TICK_PROBE_COMPLETE = 4,
+};
+
+enum ipod6g_hibernate_switch_probe_stage
+{
+    IPOD6G_HIBERNATE_SWITCH_PROBE_NONE           = 0,
+    IPOD6G_HIBERNATE_SWITCH_PROBE_ENTERED        = 1,
+    IPOD6G_HIBERNATE_SWITCH_PROBE_CONTEXT_SAVED  = 2,
+    IPOD6G_HIBERNATE_SWITCH_PROBE_TIMEOUT_ENTER  = 3,
+    IPOD6G_HIBERNATE_SWITCH_PROBE_TIMEOUT_RETURN = 4,
+    IPOD6G_HIBERNATE_SWITCH_PROBE_THREAD_CHOSEN  = 5,
+    IPOD6G_HIBERNATE_SWITCH_PROBE_CONTEXT_LOAD   = 6,
+};
+
+struct ipod6g_hibernate_runtime_probe
+{
+    uint32_t magic;
+    uint32_t version;
+    uint32_t sequence;
+    uint32_t tick_started;
+    uint32_t tick_completed;
+    uint32_t tick_stage;
+    uint32_t tick_index;
+    uint32_t tick_function;
+    uint32_t tick_current;
+    uint32_t switch_count;
+    uint32_t switch_stage;
+    uint32_t switch_current_id;
+    uint32_t switch_next_id;
+    uint32_t switch_tick;
+    uint32_t switch_usec;
 };
 
 struct ipod6g_hibernate_token
@@ -459,6 +520,12 @@ bool ipod6g_hibernate_poweroff_should_defer(void);
 bool ipod6g_hibernate_poweroff_try(uint32_t sequence);
 #if IPOD6G_HIBERNATE_STAGE3
 void ipod6g_hibernate_runtime_checkpoint(uint32_t breadcrumb);
+void ipod6g_hibernate_tick_probe_start(uint32_t tick);
+void ipod6g_hibernate_tick_probe_task(uint32_t tick, uint32_t index,
+        const void *function, bool entering);
+void ipod6g_hibernate_tick_probe_complete(uint32_t tick, uint32_t count);
+void ipod6g_hibernate_switch_probe(uint32_t stage, uint32_t current_id,
+        uint32_t next_id);
 #endif
 #else
 enum ipod6g_hibernate_boot_action
@@ -498,6 +565,10 @@ typedef char ipod6g_hibernate_record_must_fit_control_page
         [(sizeof(struct ipod6g_hibernate_record) <=
           IPOD6G_HIBERNATE_PAYLOAD_STACK_BOTTOM -
           IPOD6G_HIBERNATE_CONTROL_ADDR) ? 1 : -1];
+typedef char ipod6g_hibernate_runtime_probe_must_fit_control_page
+        [(IPOD6G_HIBERNATE_RUNTIME_PROBE_ADDR +
+          sizeof(struct ipod6g_hibernate_runtime_probe) <=
+          IPOD6G_HIBERNATE_PAYLOAD_STACK_BOTTOM) ? 1 : -1];
 typedef char ipod6g_hibernate_cpu_sp_offset_must_match
         [(offsetof(struct ipod6g_hibernate_cpu_context, sp) ==
           IPOD6G_HIBERNATE_CPU_SP_OFFSET) ? 1 : -1];

@@ -390,6 +390,7 @@ static void record_commit_crc(
 static volatile bool hibernate_poweroff_enabled;
 #if IPOD6G_HIBERNATE_STAGE3
 static volatile bool hibernate_runtime_checkpoints_enabled;
+static volatile bool hibernate_runtime_probe_enabled;
 #endif
 
 bool ipod6g_hibernate_stage1_get_status(
@@ -434,6 +435,19 @@ bool ipod6g_hibernate_stage1_get_status(
     status->lcd_dma_enabled_channels = 0;
     status->timer_e_count_before = 0;
     status->timer_e_count_after = 0;
+    status->runtime_probe_sequence = 0;
+    status->runtime_tick_started = 0;
+    status->runtime_tick_completed = 0;
+    status->runtime_tick_stage = IPOD6G_HIBERNATE_TICK_PROBE_NONE;
+    status->runtime_tick_index = 0;
+    status->runtime_tick_function = 0;
+    status->runtime_tick_current = 0;
+    status->runtime_switch_count = 0;
+    status->runtime_switch_stage = IPOD6G_HIBERNATE_SWITCH_PROBE_NONE;
+    status->runtime_switch_current_id = 0;
+    status->runtime_switch_next_id = 0;
+    status->runtime_switch_tick = 0;
+    status->runtime_switch_usec = 0;
 
     if (!ipod6g_hibernate_record_valid(record))
         return false;
@@ -475,6 +489,31 @@ bool ipod6g_hibernate_stage1_get_status(
             record->lcd_dma_enabled_channels;
     status->timer_e_count_before = record->timer_e_count_before;
     status->timer_e_count_after = record->timer_e_count_after;
+    {
+        const volatile struct ipod6g_hibernate_runtime_probe *probe =
+                S5L8702_UNCACHED_ADDR(
+                (const volatile struct ipod6g_hibernate_runtime_probe *)
+                IPOD6G_HIBERNATE_RUNTIME_PROBE_ADDR);
+
+        if (probe->magic == IPOD6G_HIBERNATE_RUNTIME_PROBE_MAGIC &&
+            probe->version == IPOD6G_HIBERNATE_RUNTIME_PROBE_VERSION &&
+            probe->sequence == record->sequence)
+        {
+            status->runtime_probe_sequence = probe->sequence;
+            status->runtime_tick_started = probe->tick_started;
+            status->runtime_tick_completed = probe->tick_completed;
+            status->runtime_tick_stage = probe->tick_stage;
+            status->runtime_tick_index = probe->tick_index;
+            status->runtime_tick_function = probe->tick_function;
+            status->runtime_tick_current = probe->tick_current;
+            status->runtime_switch_count = probe->switch_count;
+            status->runtime_switch_stage = probe->switch_stage;
+            status->runtime_switch_current_id = probe->switch_current_id;
+            status->runtime_switch_next_id = probe->switch_next_id;
+            status->runtime_switch_tick = probe->switch_tick;
+            status->runtime_switch_usec = probe->switch_usec;
+        }
+    }
 #endif
     return true;
 }
@@ -898,6 +937,93 @@ void ipod6g_hibernate_runtime_checkpoint(uint32_t breadcrumb)
     restore_interrupt(oldlevel);
 }
 
+static volatile struct ipod6g_hibernate_runtime_probe *
+        stage3_runtime_probe(void)
+{
+    return S5L8702_UNCACHED_ADDR(
+            (volatile struct ipod6g_hibernate_runtime_probe *)
+            IPOD6G_HIBERNATE_RUNTIME_PROBE_ADDR);
+}
+
+static void stage3_runtime_probe_init(uint32_t sequence)
+{
+    volatile struct ipod6g_hibernate_runtime_probe *probe =
+            stage3_runtime_probe();
+    volatile uint32_t *word = (volatile uint32_t *)probe;
+
+    for (size_t i = 0; i < sizeof(*probe) / sizeof(*word); i++)
+        word[i] = 0;
+
+    probe->version = IPOD6G_HIBERNATE_RUNTIME_PROBE_VERSION;
+    probe->sequence = sequence;
+    probe->magic = IPOD6G_HIBERNATE_RUNTIME_PROBE_MAGIC;
+}
+
+void ipod6g_hibernate_tick_probe_start(uint32_t tick)
+{
+    volatile struct ipod6g_hibernate_runtime_probe *probe;
+
+    if (!hibernate_runtime_probe_enabled)
+        return;
+
+    probe = stage3_runtime_probe();
+    probe->tick_started++;
+    probe->tick_current = tick;
+    probe->tick_index = 0;
+    probe->tick_function = 0;
+    probe->tick_stage = IPOD6G_HIBERNATE_TICK_PROBE_STARTED;
+}
+
+void ipod6g_hibernate_tick_probe_task(uint32_t tick, uint32_t index,
+        const void *function, bool entering)
+{
+    volatile struct ipod6g_hibernate_runtime_probe *probe;
+
+    if (!hibernate_runtime_probe_enabled)
+        return;
+
+    probe = stage3_runtime_probe();
+    probe->tick_current = tick;
+    probe->tick_index = index;
+    probe->tick_function = (uintptr_t)function;
+    probe->tick_stage = entering ?
+            IPOD6G_HIBERNATE_TICK_PROBE_ENTERED :
+            IPOD6G_HIBERNATE_TICK_PROBE_RETURNED;
+}
+
+void ipod6g_hibernate_tick_probe_complete(uint32_t tick, uint32_t count)
+{
+    volatile struct ipod6g_hibernate_runtime_probe *probe;
+
+    if (!hibernate_runtime_probe_enabled)
+        return;
+
+    probe = stage3_runtime_probe();
+    probe->tick_completed++;
+    probe->tick_current = tick;
+    probe->tick_index = count;
+    probe->tick_function = 0;
+    probe->tick_stage = IPOD6G_HIBERNATE_TICK_PROBE_COMPLETE;
+}
+
+void ipod6g_hibernate_switch_probe(uint32_t stage, uint32_t current_id,
+        uint32_t next_id)
+{
+    volatile struct ipod6g_hibernate_runtime_probe *probe;
+
+    if (!hibernate_runtime_probe_enabled)
+        return;
+
+    probe = stage3_runtime_probe();
+    if (stage == IPOD6G_HIBERNATE_SWITCH_PROBE_ENTERED)
+        probe->switch_count++;
+    probe->switch_stage = stage;
+    probe->switch_current_id = current_id;
+    probe->switch_next_id = next_id;
+    probe->switch_tick = (uint32_t)current_tick;
+    probe->switch_usec = USEC_TIMER;
+}
+
 static void stage3_lcd_checkpoint(unsigned int checkpoint, void *context)
 {
     volatile struct ipod6g_hibernate_record *record = context;
@@ -1045,6 +1171,7 @@ bool ipod6g_hibernate_stage3_suspend(uint32_t sequence)
     int oldlevel;
 
     hibernate_runtime_checkpoints_enabled = false;
+    hibernate_runtime_probe_enabled = false;
 
     if (!battery_level_safe()
 #if CONFIG_CHARGING
@@ -1066,6 +1193,8 @@ bool ipod6g_hibernate_stage3_suspend(uint32_t sequence)
     {
         return false;
     }
+
+    stage3_runtime_probe_init(sequence);
 
     if (!ipod6g_hibernate_stage1_i2c_preflight())
     {
@@ -1162,6 +1291,7 @@ bool ipod6g_hibernate_stage3_suspend(uint32_t sequence)
                     IPOD6G_HIBERNATE_DIAG_ALL_IRQ_ARMED,
                     IPOD6G_HIBERNATE_PHASE_ALL_IRQ_ARMED);
         }
+        hibernate_runtime_probe_enabled = true;
         restore_interrupt(oldlevel);
 
         if (display_ok)

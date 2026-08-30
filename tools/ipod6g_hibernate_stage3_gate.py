@@ -146,6 +146,12 @@ def main() -> int:
     require_symbol(
         app_symbols, "sys_poweroff_handle_request", minimum_size=0x20
     )
+    require_symbol(
+        app_symbols, "ipod6g_hibernate_tick_probe_task", minimum_size=0x20
+    )
+    require_symbol(
+        app_symbols, "ipod6g_hibernate_switch_probe", minimum_size=0x20
+    )
     require_symbol(app_symbols, "sys_poweroff", minimum_size=0x20)
     require_symbol(app_symbols, "button_get_w_tmo", minimum_size=0x20)
     require_symbol(app_symbols, "i2c_bus_lock", minimum_size=0x10)
@@ -364,8 +370,8 @@ def main() -> int:
         raise GateError("bootloader resume trampoline contains a return path")
 
     app_strings = command("strings", str(args.app_elf))
-    if "Stage 3B-R10C / ABI 11" not in app_strings:
-        raise GateError("application does not identify Stage 3B-R10C / ABI 11")
+    if "Stage 3B-R10D / ABI 11" not in app_strings:
+        raise GateError("application does not identify Stage 3B-R10D / ABI 11")
     if "/.rbtv" not in app_strings:
         raise GateError("application is not isolated to /.rbtv")
 
@@ -379,7 +385,7 @@ def main() -> int:
             f"app={app_contract}, boot={boot_contract}"
         )
 
-    print("PASS: iPod 6G Stage 3B-R10C linked-image gate")
+    print("PASS: iPod 6G Stage 3B-R10D linked-image gate")
     print(f"  app version: {app_version}")
     print(f"  boot version: {boot_version}")
     print(f"  resume contract: {app_contract}")

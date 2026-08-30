@@ -119,7 +119,26 @@ also resumed correctly after holding Play. These two passes prove both the
 direct Stage 3 diagnostic coordinator and the deferred normal power-off request
 path, including recurring Timer B ticks after wake. R10C is the first revision
 to complete retained suspend, wake, display restoration, timed scheduler
-progress, click-wheel input, and return to ordinary UI use without a freeze.
+progress, click-wheel input, and return to ordinary UI use without a freeze in
+an individual cycle. They do not establish repeat stability.
+
+A later R10C normal-path run reproduced the post-resume freeze before the hold
+switch was used. Its retained record still reported `PASSED`, phase 28,
+`request finished`, exact Timer B configuration `0x1240/100/74`, and three
+completed ticks. This rules out lost retained CPU context, the display repair,
+the deferred request handler, and a one-shot tick as the immediate failure, but
+the CRC-protected record cannot identify activity after phase 28.
+
+R10D therefore adds a diagnostic-only runtime probe outside the protected
+record and writes it through the uncached SDRAM alias. It records every tick's
+entry, current callback, callback return, and completion plus each scheduler
+switch boundary, current/next thread IDs, tick, and microsecond timer. The
+probe keeps resume ABI 11 and does not require a bootloader update. After a
+freeze and forced reset, the Stage 3 screen exposes `TK`, `TF`, `SW`, and `ST`:
+an entered callback without a matching return identifies the exact tick task;
+equal tick entry/completion counts with a stalled switch stage instead
+identifies the scheduler boundary. R10D is instrumentation, not a claimed
+freeze fix.
 
 RetailOS also performs an explicit USB transition: recovered code stops the
 OTG PHY clock through `PCGCCTL`, changes PHY power/reset state, and its
