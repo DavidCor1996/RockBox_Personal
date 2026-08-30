@@ -22,6 +22,7 @@
 #define _POWERMGMT_H_
 
 #include <stdbool.h>
+#include <stdint.h>
 #include "config.h"
 
 #define POWER_HISTORY_LEN 2*60   /* 2 hours of samples, one per minute */
@@ -173,6 +174,10 @@ void reset_poweroff_timer(void);
 void cancel_shutdown(void);
 void shutdown_hw(enum shutdown_type sd_type);
 void sys_poweroff(void);
+#if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
+        IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+void sys_poweroff_handle_request(uint32_t sequence);
+#endif
 void sys_reboot(void);
 void sys_disk_mode(void);
 enum shutdown_type sys_get_reboot_type(void);

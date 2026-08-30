@@ -29,7 +29,6 @@
 #include "pmu-target.h"
 #include "hibernate-6g.h"
 #if IPOD6G_HIBERNATE_STAGE3
-#include "version.h"
 #ifndef BOOTLOADER
 #include "audio.h"
 #include "backlight-target.h"
@@ -250,9 +249,10 @@ static uint32_t crc32_region(uintptr_t address, uint32_t size)
 #endif
 
 #if IPOD6G_HIBERNATE_STAGE3
-static uint32_t build_version_crc32(void)
+static uint32_t resume_contract_crc32(void)
 {
-    const uint8_t *data = (const uint8_t *)rbversion;
+    static const uint8_t contract_id[] = IPOD6G_HIBERNATE_CONTRACT_ID;
+    const uint8_t *data = contract_id;
     uint32_t crc = 0xffffffffu;
 
     while (*data != '\0')
@@ -707,10 +707,10 @@ bool ipod6g_hibernate_prepare(uint32_t sequence, uint32_t mode)
 #if IPOD6G_HIBERNATE_STAGE3
         if (mode == IPOD6G_HIBERNATE_MODE_CONTROLLED_CONTEXT)
         {
-            record->build_fingerprint[0] = build_version_crc32();
-            record->build_fingerprint[1] = sizeof(*record);
-            record->build_fingerprint[2] = record->payload_crc32;
-            record->build_fingerprint[3] =
+            record->resume_contract[0] = resume_contract_crc32();
+            record->resume_contract[1] = sizeof(*record);
+            record->resume_contract[2] = record->payload_crc32;
+            record->resume_contract[3] =
                     IPOD6G_HIBERNATE_CONTEXT_COOKIE;
             record->ttb_crc32 = crc32_region(TTB_BASE_ADDR, TTB_SIZE);
         }
@@ -1550,7 +1550,7 @@ void ipod6g_hibernate_set_poweroff_mode(
     hibernate_poweroff_enabled = mode == IPOD6G_POWEROFF_RETAINED;
 }
 
-bool ipod6g_hibernate_poweroff_try(uint32_t sequence)
+bool ipod6g_hibernate_poweroff_should_defer(void)
 {
 #if IPOD6G_HIBERNATE_STAGE3
 #if IPOD6G_HIBERNATE_STAGE1
@@ -1558,7 +1558,16 @@ bool ipod6g_hibernate_poweroff_try(uint32_t sequence)
     if (hibernate_requested)
         return false;
 #endif
-    if (hibernate_poweroff_enabled)
+    return hibernate_poweroff_enabled;
+#else
+    return false;
+#endif
+}
+
+bool ipod6g_hibernate_poweroff_try(uint32_t sequence)
+{
+#if IPOD6G_HIBERNATE_STAGE3
+    if (ipod6g_hibernate_poweroff_should_defer())
         return ipod6g_hibernate_stage3_suspend(sequence);
 #else
     (void)sequence;
@@ -1784,10 +1793,10 @@ static bool stage3_context_metadata_valid(
                     ((1u << 12) | (1u << 2) | 1u) &&
            record->cpu.cp15_ttb == TTB_BASE_ADDR &&
            record->cpu.cp15_domain == 0xffffffffu &&
-           record->build_fingerprint[0] == build_version_crc32() &&
-           record->build_fingerprint[1] == sizeof(*record) &&
-           record->build_fingerprint[2] == record->payload_crc32 &&
-           record->build_fingerprint[3] ==
+           record->resume_contract[0] == resume_contract_crc32() &&
+           record->resume_contract[1] == sizeof(*record) &&
+           record->resume_contract[2] == record->payload_crc32 &&
+           record->resume_contract[3] ==
                     IPOD6G_HIBERNATE_CONTEXT_COOKIE &&
            record->payload_stack_top <= IPOD6G_HIBERNATE_APP_IRAM_TOP &&
            record->payload_stack_top > record->payload_stack_bottom &&

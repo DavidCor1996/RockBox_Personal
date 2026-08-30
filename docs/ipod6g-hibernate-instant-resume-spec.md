@@ -54,12 +54,26 @@ pre-sleep framebuffer but left the UI frozen. This was not a failed retained
 context or display repair: the runtime path called `sys_poweroff()`, which
 broadcast `SYS_POWEROFF` before `clean_shutdown()` reached the Stage 3 suspend.
 Plugins and several worker queues correctly treat that event as terminal, so
-the retained image contained a deliberately half-shut-down Rockbox. The
-runtime path now attempts the opt-in retained suspend inside `sys_poweroff()`
-before `sys_shutdown_common()` and `queue_broadcast()`. A successful wake
-returns without broadcasting shutdown; a refused attempt follows the original
-legacy shutdown unchanged. Explicit Stage 1/2 diagnostic requests bypass this
-runtime interception.
+the retained image contained a deliberately half-shut-down Rockbox. The first
+correction moved the opt-in suspend directly into `sys_poweroff()` before
+`sys_shutdown_common()` and `queue_broadcast()`. Hardware then exposed a second
+deterministic problem: holding Play invokes `sys_poweroff()` from
+`button_tick()`, a tick/interrupt callback. Entering storage, LCD, and I2C
+quiesce from that context froze before power-off.
+
+The runtime path now posts one private `SYS_POWEROFF_REQUEST` to the button
+queue. `button_get_w_tmo()` consumes it in the normal UI/plugin thread and
+calls the retained coordinator there, before any terminal broadcast. A
+successful wake clears stale button presses and returns without broadcasting
+shutdown; a refused attempt follows the original legacy shutdown unchanged.
+Explicit Stage 1/2 diagnostic requests bypass this runtime interception.
+
+Application and bootloader compatibility is no longer tied to the Git-derived
+`rbversion`. Both sides validate the explicit stable contract
+`ipod6g-hibernate-abi11-record11`. Ordinary application/UI commits can therefore
+use the installed compatible bootloader. Changing the retained record layout,
+token protocol, direct-resume semantics, fixed memory layout, or bootloader
+resume behavior requires a contract/ABI bump and one matching bootloader DFU.
 
 The target is the existing `IPOD_6G` Rockbox target. Rockbox uses that target
 for both the 6th- and 7th-generation Classic hardware.
@@ -116,7 +130,7 @@ not enabled in a normal build.
 The compile-time-gated controlled-context implementation is also present.
 R2-R6 established durable diagnostics, genuine Standby entry, the EXTON2
 rising-edge wake mode, serialized live-context PMU preflight, automatic USB
-wake, exact app/bootloader fingerprinting, IRAM restoration, and a valid
+wake, strict app/bootloader compatibility validation, IRAM restoration, and a valid
 system-stack/context round trip. The matching R6 pair completed that bounded
 round trip, but its intentional return-to-bootloader design could never resume
 the kernel because subsequent cold initialization cleared overlapping retained
@@ -394,11 +408,15 @@ ENT:e927c5c7/e927c5c7
 This is not a PMU-preflight failure. `Attempts:1`, the wake snapshot, and the
 automatic USB boot prove the complete Standby/wake path through MIU restoration.
 `fail:12` is the fail-closed context-metadata gate. In addition to ABI 7, that
-gate requires `record->build_fingerprint[0] == build_version_crc32()`. The R6
+historical gate required
+`record->build_fingerprint[0] == build_version_crc32()`. The R6
 application embedded `46e15bc9e9-260829`; the installed R5 bootloader embedded
 `f4303c93fc-260829`. The matching R6 dual-boot bootloader is therefore required
 even though the record layout and ABI did not change. It must use the exact
-same explicit version string and must never be packaged as single boot.
+same explicit version string and must never be packaged as single boot. The
+current ABI-11 implementation supersedes that per-commit check with the stable
+resume-contract fingerprint described above; all other record, payload, and
+CRC gates remain mandatory.
 
 ### Matching Stage 3A-R6 context result and black-screen diagnosis - 2026-08-29
 
@@ -676,7 +694,7 @@ The reserved control page should contain:
 - record length and state
 - matching PMU protocol/build ABI
 - monotonic attempt sequence
-- Rockbox build fingerprint
+- explicit resume-contract fingerprint
 - saved resume PC, SP, LR, CPSR, and `r4-r11`
 - required CP15/MMU state
 - IRAM shadow address, size, and CRC32
@@ -1068,18 +1086,19 @@ RetailOS share higher-level scheduler or driver objects.
 Stage 3B-R10 / resume ABI 11 is the current true instant-resume implementation:
 
 1. Veto active core or direct PCM audio, USB, and composite output.
-2. For normal power-off, attempt retained suspend before broadcasting the
-   terminal `SYS_POWEROFF` event. A veto or preparation failure falls through
-   to the unchanged legacy shutdown path.
+2. For normal power-off, queue one private request from `sys_poweroff()` and
+   consume it from the normal button/UI thread. Attempt retained suspend there
+   before broadcasting the terminal `SYS_POWEROFF` event. A veto or preparation
+   failure falls through to the unchanged legacy shutdown path.
 3. Flush and sleep storage; quiesce UART, LCD DMA, panel, and backlight.
 4. Arm the exact PMU wake configuration.
 5. Acquire I2C bus 0 in the suspending thread, then mask IRQ/FIQ so no new
    background transaction can cross the context boundary.
 6. Save r4-r11, system SP/LR, continuation PC, CPSR, CP15 state, and every
    banked exception stack; re-shadow all used IRAM0 and enter Standby.
-7. In the early bootloader validator, verify token, fingerprint, record, TTB,
-   payload, probe, and IRAM CRCs; restore IRAM and branch directly to the saved
-   continuation before `bss_init()`.
+7. In the early bootloader validator, verify token, resume contract, record,
+   TTB, payload, probe, and IRAM CRCs; restore IRAM and branch directly to the
+   saved continuation before `bss_init()`.
 8. Rebuild clocks, GPIO, VIC/EIC, DMA, timer, click wheel, UART, PMU, power,
    stopped PCM, and LCD-controller registers without recreating retained
    software objects.
@@ -1142,7 +1161,7 @@ These rules are non-negotiable:
 1. RetailOS hibernation without a valid Rockbox token always follows today's
    ONB path.
 2. A Rockbox-owned snapshot is never passed to ONB.
-3. A build fingerprint or resume ABI mismatch causes a cold Rockbox boot.
+3. A resume-contract or resume-ABI mismatch causes a cold Rockbox boot.
 4. A failed attempt cannot retry forever. The PMU token records the resuming
    state and the bootloader falls back on the next attempt.
 5. No NOR writes are part of normal hibernate or resume.
@@ -1179,13 +1198,13 @@ These rules are non-negotiable:
 - playing audio once Stage 4 exists
 - DCP750 docked with composite disabled and enabled
 - stale PMU token on an ordinary cold boot
-- incompatible Rockbox build after hibernating
+- incompatible resume-contract build after hibernating
 
 ### Injected failures
 
 - corrupt PMU CRC
 - corrupt SDRAM record CRC
-- corrupt build fingerprint
+- corrupt resume-contract fingerprint
 - corrupt IRAM shadow checksum
 - reset while token state is `resuming`
 - force a storage-flush failure
@@ -1217,8 +1236,9 @@ Likely implementation points:
 
 ## Recommendation
 
-Run exactly one isolated Stage 3B-R10 / ABI-11 USB-wake attempt with a clean,
-exact-version Rolo application and matching experimental dual-boot bootloader.
+Run exactly one isolated Stage 3B-R10 / ABI-11 USB-wake attempt with a clean
+Rolo application and an experimental dual-boot bootloader carrying the same
+explicit resume contract.
 The binary gate must verify that neither image contains disabled Stage-3 stubs,
 that the bootloader direct branch occurs before `bss_init()`, and that the
 application owns I2C and masks IRQ/FIQ before its setjmp boundary. Arm on

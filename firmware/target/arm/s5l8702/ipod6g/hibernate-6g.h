@@ -123,6 +123,8 @@
 #define IPOD6G_HIBERNATE_TOKEN_VERSION      11
 #define IPOD6G_HIBERNATE_RESUME_ABI         11
 #define IPOD6G_HIBERNATE_RECORD_VERSION     11
+#define IPOD6G_HIBERNATE_CONTRACT_ID \
+        "ipod6g-hibernate-abi11-record11"
 #else
 #define IPOD6G_HIBERNATE_TOKEN_VERSION      2
 #define IPOD6G_HIBERNATE_RESUME_ABI         2
@@ -352,7 +354,7 @@ struct ipod6g_hibernate_record
     uint32_t attempt_count;
     uint32_t capabilities;
     uint32_t mode;
-    uint32_t build_fingerprint[4];
+    uint32_t resume_contract[4];
     struct ipod6g_hibernate_cpu_context cpu;
     struct ipod6g_hibernate_irq_context irq;
     uint32_t area_addr;
@@ -435,6 +437,7 @@ bool ipod6g_hibernate_stage3_enter(void);
 bool ipod6g_hibernate_stage3_suspend(uint32_t sequence);
 void ipod6g_hibernate_set_poweroff_mode(
         enum ipod6g_poweroff_mode mode);
+bool ipod6g_hibernate_poweroff_should_defer(void);
 bool ipod6g_hibernate_poweroff_try(uint32_t sequence);
 #else
 enum ipod6g_hibernate_boot_action

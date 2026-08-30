@@ -22,6 +22,10 @@
 #include "system.h"
 #include "kernel.h"
 #include "button.h"
+#if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
+        IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+#include "powermgmt.h"
+#endif
 #ifdef HAVE_SDL
 #include "SDL.h"
 #if SDL_MAJOR_VERSION > 1
@@ -214,6 +218,19 @@ long button_get_w_tmo(int ticks)
     struct queue_event ev;
     button_queue_wait(&ev, ticks);
 
+#if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
+        IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+    /* sys_poweroff() can be called by button_tick(), which is interrupt
+     * context and must never perform the retained suspend itself.  Consume
+     * its private request in the normal button-queue consumer instead. */
+    if (ev.id == SYS_POWEROFF_REQUEST)
+    {
+        button_data = ev.data;
+        sys_poweroff_handle_request((uint32_t)ev.data);
+        ev.id = BUTTON_NONE;
+    }
+    else
+#endif
     if (ev.id == SYS_TIMEOUT)
         ev.id = BUTTON_NONE;
     else

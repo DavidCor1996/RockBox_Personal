@@ -38,6 +38,7 @@
 #include "rtc.h"
 #if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
         IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+#include "button.h"
 #include "hibernate-6g.h"
 #endif
 #if CONFIG_TUNER
@@ -112,6 +113,10 @@ enum charge_state_type charge_state = DISCHARGING;
 #endif /* CONFIG_CHARGING */
 
 static int shutdown_timeout = 0;
+#if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
+        IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+static volatile bool retained_poweroff_request_pending;
+#endif
 
 void handle_auto_poweroff(void);
 static int poweroff_timeout = 0;
@@ -1123,26 +1128,62 @@ static void sys_shutdown_common(void)
 }
 #endif /* BOOTLOADER */
 
+#ifndef BOOTLOADER
+static void sys_poweroff_broadcast(void)
+{
+    requested_reboot_type = SHUTDOWN_POWER_OFF;
+    sys_shutdown_common();
+    queue_broadcast(SYS_POWEROFF, 0);
+}
+#endif
+
 void sys_poweroff(void)
 {
 #ifndef BOOTLOADER
     logf("sys_poweroff()");
 #if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
         IPOD6G_HIBERNATE_STAGE3
-    /* SYS_POWEROFF is terminal to plugins and several worker queues.  A
-     * retained context must therefore suspend before that broadcast; waking
-     * a context after the broadcast leaves Rockbox deliberately torn down. */
-    if (ipod6g_hibernate_poweroff_try((uint32_t)current_tick))
+    /* button_tick() calls this from interrupt context.  Defer retained
+     * suspend to the thread consuming the button queue; storage, display and
+     * I2C quiesce all require normal scheduler context. */
+    if (ipod6g_hibernate_poweroff_should_defer())
     {
-        reset_poweroff_timer();
+        if (!retained_poweroff_request_pending)
+        {
+            retained_poweroff_request_pending = true;
+            button_queue_post(SYS_POWEROFF_REQUEST,
+                              (intptr_t)(uint32_t)current_tick);
+        }
         return;
     }
 #endif
-    requested_reboot_type = SHUTDOWN_POWER_OFF;
-    sys_shutdown_common();
-    queue_broadcast(SYS_POWEROFF, 0);
+    sys_poweroff_broadcast();
 #endif
 }
+
+#if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
+        IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+void sys_poweroff_handle_request(uint32_t sequence)
+{
+    if (!retained_poweroff_request_pending)
+        return;
+
+    if (ipod6g_hibernate_poweroff_try(sequence))
+    {
+        /* Discard stale press/repeat events while preserving USB/charger
+         * system events published by the resume path. */
+        button_clear_pressed();
+        retained_poweroff_request_pending = false;
+        reset_poweroff_timer();
+        return;
+    }
+
+    /* Refusal is fail-safe: perform the unchanged terminal shutdown.  Keep
+     * the request latched so a still-held Play button cannot queue another
+     * retained attempt while shutdown is in progress. */
+    sys_poweroff_broadcast();
+}
+#endif
 
 /* not to be confused with system_reboot... :( */
 void sys_reboot(void)
@@ -1185,6 +1226,10 @@ void cancel_shutdown(void)
 #endif
 
     shutdown_timeout = 0;
+#if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
+        IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+    retained_poweroff_request_pending = false;
+#endif
 }
 
 void set_sleeptimer_duration(int minutes)

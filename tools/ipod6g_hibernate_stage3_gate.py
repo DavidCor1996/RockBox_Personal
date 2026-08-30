@@ -105,6 +105,17 @@ def version(info: Path) -> str:
     return match.group(1)
 
 
+def resume_contract(elf: Path) -> str:
+    matches = set(re.findall(
+        r"ipod6g-hibernate-abi[0-9]+-record[0-9]+",
+        command("strings", str(elf)),
+    ))
+    if len(matches) != 1:
+        rendered = ", ".join(sorted(matches)) or "none"
+        raise GateError(f"{elf} has ambiguous resume contract IDs: {rendered}")
+    return matches.pop()
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("app_elf", type=Path)
@@ -132,7 +143,11 @@ def main() -> int:
     require_symbol(
         app_symbols, "ipod6g_hibernate_poweroff_try", minimum_size=0x20
     )
+    require_symbol(
+        app_symbols, "sys_poweroff_handle_request", minimum_size=0x20
+    )
     require_symbol(app_symbols, "sys_poweroff", minimum_size=0x20)
+    require_symbol(app_symbols, "button_get_w_tmo", minimum_size=0x20)
     require_symbol(app_symbols, "i2c_bus_lock", minimum_size=0x10)
     require_symbol(app_symbols, "i2c_bus_unlock", minimum_size=0x10)
     for helper in (
@@ -164,6 +179,8 @@ def main() -> int:
     suspend = function(app_dis, "ipod6g_hibernate_stage3_suspend")
     runtime_poweroff = function(app_dis, "ipod6g_hibernate_poweroff_try")
     system_poweroff = function(app_dis, "sys_poweroff")
+    request_handler = function(app_dis, "sys_poweroff_handle_request")
+    button_get = function(app_dis, "button_get_w_tmo")
     enter = function(app_dis, "ipod6g_hibernate_stage3_enter")
     rearm_tick = function(app_dis, "stage3_rearm_tick")
     finish_display = function(app_dis, "stage3_finish_display")
@@ -193,12 +210,36 @@ def main() -> int:
     )
     if "<ipod6g_hibernate_stage3_suspend>" not in runtime_poweroff:
         raise GateError("runtime power-off hook omits retained suspend")
-    runtime_start = system_poweroff.find("<ipod6g_hibernate_poweroff_try>")
-    broadcast_start = system_poweroff.find("<queue_broadcast>")
-    if runtime_start < 0 or broadcast_start < 0:
-        raise GateError("sys_poweroff omits runtime suspend or legacy broadcast")
-    if runtime_start >= broadcast_start:
-        raise GateError("sys_poweroff broadcasts shutdown before retained suspend")
+    if "<ipod6g_hibernate_poweroff_should_defer>" not in system_poweroff:
+        raise GateError("sys_poweroff does not test the retained mode")
+    if "<button_queue_post>" not in system_poweroff:
+        raise GateError("sys_poweroff does not defer through the button queue")
+    if "<ipod6g_hibernate_poweroff_try>" in system_poweroff:
+        raise GateError("sys_poweroff still suspends from its caller context")
+    if "<queue_broadcast>" not in system_poweroff:
+        raise GateError("sys_poweroff lost its unchanged legacy fallback")
+    if "<sys_poweroff_handle_request>" not in button_get:
+        raise GateError("button consumer does not handle retained power-off request")
+    handler_start = request_handler.find("<ipod6g_hibernate_poweroff_try>")
+    fallback_markers = (
+        request_handler.find("<sys_poweroff_broadcast>"),
+        request_handler.find("<queue_broadcast>"),
+    )
+    fallback_start = min(
+        (position for position in fallback_markers if position >= 0),
+        default=-1,
+    )
+    if handler_start < 0 or fallback_start < 0:
+        raise GateError("retained request handler omits suspend or legacy fallback")
+    if handler_start >= fallback_start:
+        raise GateError("retained request handler broadcasts before suspend attempt")
+    for required in ("<button_clear_pressed>", "<reset_poweroff_timer>"):
+        if required not in request_handler:
+            raise GateError(f"successful retained wake omits {required[1:-1]}")
+    handler_callers = callers(app_dis, "sys_poweroff_handle_request")
+    if handler_callers != {"button_get_w_tmo"}:
+        rendered = ", ".join(sorted(handler_callers)) or "none"
+        raise GateError(f"retained request runs outside button consumer: {rendered}")
     suspend_callers = callers(app_dis, "ipod6g_hibernate_stage3_suspend")
     expected_callers = {
         "dbg_hibernate_stage3", "ipod6g_hibernate_poweroff_try",
@@ -317,13 +358,18 @@ def main() -> int:
 
     app_version = version(args.app_info)
     boot_version = version(args.boot_info)
-    if app_version != boot_version:
+    app_contract = resume_contract(args.app_elf)
+    boot_contract = resume_contract(args.boot_elf)
+    if app_contract != boot_contract:
         raise GateError(
-            f"build fingerprints differ: app={app_version}, boot={boot_version}"
+            "resume contracts differ: "
+            f"app={app_contract}, boot={boot_contract}"
         )
 
     print("PASS: iPod 6G Stage 3B-R10 linked-image gate")
-    print(f"  version: {app_version}")
+    print(f"  app version: {app_version}")
+    print(f"  boot version: {boot_version}")
+    print(f"  resume contract: {app_contract}")
     print(f"  app checkpoint: 0x{checkpoint:08x}")
     print(f"  boot direct resume: 0x{resume:08x}")
     return 0
