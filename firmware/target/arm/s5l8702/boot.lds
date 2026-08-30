@@ -31,13 +31,23 @@ MEMORY
     MOVE_AREA : ORIGIN = IRAM1_ORIG + IM3HDR_SZ,
                 LENGTH = IRAM1_SIZE - IM3HDR_SZ
 
-    /* DRAM region for BSS.  Keep the retained snapshot area untouched. */
+    /*
+     * A retained iPod 6G application still owns ordinary DRAM.  Keep the
+     * resume bootloader's zero-filled state in its explicitly reserved
+     * workspace instead of clearing the application's queues, stacks and
+     * timeout state at DRAM + 8 MiB.
+     */
+#if defined(IPOD_6G) && IPOD6G_HIBERNATE_STAGE3
+    BSS_AREA  : ORIGIN = IPOD6G_HIBERNATE_BOOT_BSS_ADDR,
+                LENGTH = IPOD6G_HIBERNATE_BOOT_BSS_SIZE
+#else
     BSS_AREA  : ORIGIN = DRAM_ORIG + MAX_LOADSIZE,
 #ifdef IPOD_6G
                 LENGTH = DRAM_SIZE - MAX_LOADSIZE - TTB_SIZE
                          - IPOD6G_HIBERNATE_AREA_SIZE
 #else
                 LENGTH = DRAM_SIZE - MAX_LOADSIZE - TTB_SIZE
+#endif
 #endif
 }
 #define LOAD_AREA   MOVE_AREA
@@ -112,9 +122,16 @@ SECTIONS
   } > BSS_AREA
 
 #ifdef IPOD_6G
+#if IPOD6G_HIBERNATE_STAGE3
+  ASSERT(ORIGIN(BSS_AREA) == IPOD6G_HIBERNATE_BOOT_BSS_ADDR,
+         "Stage 3 bootloader BSS is outside its private workspace")
+  ASSERT(_end <= IPOD6G_HIBERNATE_CONTROL_ADDR,
+         "Stage 3 bootloader BSS overlaps the retained control record")
+#else
   ASSERT(ORIGIN(BSS_AREA) + LENGTH(BSS_AREA) ==
          IPOD6G_HIBERNATE_AREA_ADDR,
          "bootloader BSS overlaps iPod 6G hibernate reserve")
+#endif
   ASSERT(IPOD6G_HIBERNATE_AREA_ADDR + IPOD6G_HIBERNATE_AREA_SIZE ==
          TTB_BASE_ADDR,
          "iPod 6G hibernate reserve must end at the TTB")

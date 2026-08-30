@@ -140,6 +140,26 @@ equal tick entry/completion counts with a stalled switch stage instead
 identifies the scheduler boundary. R10D is instrumentation, not a claimed
 freeze fix.
 
+The R10D probe made that boundary deterministic: ticks entered and completed,
+then the first scheduler handoff stopped at `SW:1 S:6 0>7`. Resolving slot 7
+from the linked initialization order identified the storage thread, but its
+ordinary powered-off timeout path performs no ATA access. The linked-memory
+comparison exposed the earlier corruption instead. The resume bootloader's C
+startup cleared BSS from `0x08800000` through `0x088a9440`, while the retained
+application still owned live globals in that range, including `current_tick`.
+Directly branching around the later cold-start path did not prevent this CRT
+clear, which occurs before the validator. RetailOS never runs a generic C CRT
+over its retained runtime image.
+
+Stage 3B-R11 / resume ABI 12 fixes that ownership error at link time. The
+application reserves `0x0bf3c000` through `0x0bffbfff`; the lower 704 KiB is a
+private resume-bootloader BSS workspace and the established control, IRAM
+shadow, and probe addresses remain in the upper 64 KiB. The bootloader linker
+refuses any BSS ending above the fixed control record, and the linked-image
+gate independently verifies both boundaries. This costs 704 KiB of plugin or
+audio-buffer capacity, but bootloader startup can no longer overwrite any
+retained Rockbox queue, timeout, driver state, or thread-owned memory.
+
 RetailOS also performs an explicit USB transition: recovered code stops the
 OTG PHY clock through `PCGCCTL`, changes PHY power/reset state, and its
 resume-side device manager restarts the clock and performs complete PHY and
@@ -151,7 +171,7 @@ freeze.
 
 Application and bootloader compatibility is no longer tied to the Git-derived
 `rbversion`. Both sides validate the explicit stable contract
-`ipod6g-hibernate-abi11-record11`. Ordinary application/UI commits can therefore
+`ipod6g-hibernate-abi12-record12`. Ordinary application/UI commits can therefore
 use the installed compatible bootloader. Changing the retained record layout,
 token protocol, direct-resume semantics, fixed memory layout, or bootloader
 resume behavior requires a contract/ABI bump and one matching bootloader DFU.
@@ -163,8 +183,10 @@ for both the 6th- and 7th-generation Classic hardware.
 
 The Stage 1 implementation is now present in the personal tree:
 
-- the application and bootloader linker scripts protect the fixed 64 KiB
-  range `0x0bfec000` through `0x0bffbfff`;
+- the application linker protects the fixed 768 KiB range `0x0bf3c000`
+  through `0x0bffbfff`; the resume bootloader owns only its lower 704 KiB BSS
+  workspace, while the established 64 KiB record/shadow/probe tail remains at
+  `0x0bfec000` through `0x0bffbfff`;
 - `hibernate-6g.c` implements the retained PCF `MEMBYTE0..7` ownership token,
   ordered publication, CRC-8 validation, the fixed SDRAM control record,
   CRC-32 validation, the 48 KiB IRAM shadow, and a 12 KiB deterministic
@@ -1164,7 +1186,7 @@ RetailOS share higher-level scheduler or driver objects.
 
 ### Stage 3B: Kernel resume with hardware stopped
 
-Stage 3B-R10C / resume ABI 11 is the current true instant-resume implementation:
+Stage 3B-R11 / resume ABI 12 is the current true instant-resume implementation:
 
 1. Veto active core or direct PCM audio, USB, and composite output.
 2. For normal power-off, queue one private request from `sys_poweroff()` and
@@ -1203,8 +1225,8 @@ The linked-binary gate must prove both images were built with all three Stage
 defines. Incremental objects compiled without those defines are invalid even
 if a stale assembly object still contains the trampoline.
 
-For the first hardware attempt, launch the matching R10C image with Rolo, verify
-`Stage 3B-R10C / ABI 11 / /.rbtv`, open `Debug > Test retained context`, and press
+For the first hardware attempt, launch the matching R11 image with Rolo, verify
+`Stage 3B-R11 / ABI 12 / /.rbtv`, open `Debug > Test retained context`, and press
 Select once while undocked and on battery. After the screen goes black, insert
 USB once. Success means the same Rolo screen becomes visible without any boot
 logo or disk image load and reports:
@@ -1320,7 +1342,7 @@ Likely implementation points:
 
 ## Recommendation
 
-Run exactly one isolated Stage 3B-R10 / ABI-11 USB-wake attempt with a clean
+Run exactly one isolated Stage 3B-R11 / ABI-12 USB-wake attempt with a clean
 Rolo application and an experimental dual-boot bootloader carrying the same
 explicit resume contract.
 The binary gate must verify that neither image contains disabled Stage-3 stubs,
@@ -1355,7 +1377,10 @@ repairs the panel and one full frame with IRQ/FIQ masked, and exposes the
 scheduler only after the full saved VIC is restored. R10B then proved input
 repair and request completion while isolating the dead recurring tick. R10C
 loads Timer B in RetailOS order and requires three recurring interrupts before
-phase 28. Only a visible, responsive phase-28 R10C result authorizes
-repetition testing. Repeat, duration, wake-source, storage, and
+phase 28. R10D then located the recurring freeze at the first scheduler
+handoff, and linked-image analysis proved the resume bootloader CRT was
+clearing retained application RAM before validation. R11 gives the bootloader
+a separately reserved BSS workspace. Only a visible, responsive phase-28 R11
+result authorizes repetition testing. Repeat, duration, wake-source, storage, and
 injected-failure testing remain mandatory before this can become a normal user
 setting.

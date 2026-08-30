@@ -44,6 +44,15 @@ def symbol_table(elf: Path) -> dict[str, tuple[int, int | None]]:
     return symbols
 
 
+def address_table(elf: Path) -> dict[str, int]:
+    symbols: dict[str, int] = {}
+    for line in command(NM, "-n", str(elf)).splitlines():
+        match = re.match(r"^([0-9a-fA-F]+)\s+[A-Za-z?]\s+(\S+)$", line)
+        if match:
+            symbols[match.group(2)] = int(match.group(1), 16)
+    return symbols
+
+
 def require_symbol(
     symbols: dict[str, tuple[int, int | None]], name: str,
     *, minimum_size: int = 0,
@@ -58,6 +67,12 @@ def require_symbol(
             f"need at least 0x{minimum_size:x}"
         )
     return address
+
+
+def require_address(symbols: dict[str, int], name: str) -> int:
+    if name not in symbols:
+        raise GateError(f"missing linked address symbol: {name}")
+    return symbols[name]
 
 
 def function(disassembly: str, name: str) -> str:
@@ -130,6 +145,8 @@ def main() -> int:
 
     app_symbols = symbol_table(args.app_elf)
     boot_symbols = symbol_table(args.boot_elf)
+    app_addresses = address_table(args.app_elf)
+    boot_addresses = address_table(args.boot_elf)
 
     checkpoint = require_symbol(
         app_symbols, "ipod6g_hibernate_stage3_checkpoint", minimum_size=0x60
@@ -179,6 +196,28 @@ def main() -> int:
         raise GateError(f"checkpoint is outside retained payload: 0x{checkpoint:08x}")
     if not 0x22020000 <= resume < 0x22040000:
         raise GateError(f"resume trampoline is outside IRAM1: 0x{resume:08x}")
+
+    boot_bss_start = require_address(boot_addresses, "_edata")
+    boot_bss_end = require_address(boot_addresses, "_end")
+    app_hibernate_start = require_address(app_addresses, "hibernatebuffer")
+    app_hibernate_end = require_address(app_addresses, "hibernatebufferend")
+    if boot_bss_start != 0x0BF3C000:
+        raise GateError(
+            "resume bootloader BSS is not in its private workspace: "
+            f"0x{boot_bss_start:08x}"
+        )
+    if not boot_bss_start < boot_bss_end <= 0x0BFEC000:
+        raise GateError(
+            "resume bootloader BSS escapes its private workspace: "
+            f"0x{boot_bss_start:08x}-0x{boot_bss_end:08x}"
+        )
+    if (app_hibernate_start, app_hibernate_end) != (
+        0x0BF3C000, 0x0BFFC000,
+    ):
+        raise GateError(
+            "application does not reserve the ABI-12 hibernate workspace: "
+            f"0x{app_hibernate_start:08x}-0x{app_hibernate_end:08x}"
+        )
 
     app_dis = command(OBJDUMP, "-d", str(args.app_elf))
     boot_dis = command(OBJDUMP, "-d", str(args.boot_elf))
@@ -370,8 +409,8 @@ def main() -> int:
         raise GateError("bootloader resume trampoline contains a return path")
 
     app_strings = command("strings", str(args.app_elf))
-    if "Stage 3B-R10D / ABI 11" not in app_strings:
-        raise GateError("application does not identify Stage 3B-R10D / ABI 11")
+    if "Stage 3B-R11 / ABI 12 / BSS FIX" not in app_strings:
+        raise GateError("application does not identify Stage 3B-R11 / ABI 12")
     if "/.rbtv" not in app_strings:
         raise GateError("application is not isolated to /.rbtv")
 
@@ -384,13 +423,23 @@ def main() -> int:
             "resume contracts differ: "
             f"app={app_contract}, boot={boot_contract}"
         )
+    if app_contract != "ipod6g-hibernate-abi12-record12":
+        raise GateError(f"unexpected Stage 3B-R11 contract: {app_contract}")
 
-    print("PASS: iPod 6G Stage 3B-R10D linked-image gate")
+    print("PASS: iPod 6G Stage 3B-R11 linked-image gate")
     print(f"  app version: {app_version}")
     print(f"  boot version: {boot_version}")
     print(f"  resume contract: {app_contract}")
     print(f"  app checkpoint: 0x{checkpoint:08x}")
     print(f"  boot direct resume: 0x{resume:08x}")
+    print(
+        "  boot private BSS: "
+        f"0x{boot_bss_start:08x}-0x{boot_bss_end:08x}"
+    )
+    print(
+        "  app hibernate reserve: "
+        f"0x{app_hibernate_start:08x}-0x{app_hibernate_end:08x}"
+    )
     return 0
 
 

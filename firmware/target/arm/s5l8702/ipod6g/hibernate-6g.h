@@ -44,13 +44,31 @@
 #error iPod 6G hibernate Stage 3 requires Stages 1 and 2
 #endif
 
-#define IPOD6G_HIBERNATE_AREA_ADDR          0x0bfec000
+/*
+ * A normal S5L8702 bootloader links its BSS at DRAM + 8 MiB.  That is safe
+ * for a cold boot, but a retained resume must not let the bootloader CRT
+ * clear live application state there.  Stage 3 therefore reserves a private
+ * 704 KiB bootloader workspace immediately below the original 64 KiB
+ * hibernate record area.  The record itself deliberately stays at its
+ * established address so recovery diagnostics remain at a fixed location.
+ */
+#define IPOD6G_HIBERNATE_CONTROL_ADDR       0x0bfec000
+#if IPOD6G_HIBERNATE_STAGE3
+#define IPOD6G_HIBERNATE_BOOT_BSS_ADDR      0x0bf3c000
+#define IPOD6G_HIBERNATE_BOOT_BSS_SIZE      0x000b0000
+#define IPOD6G_HIBERNATE_AREA_ADDR          IPOD6G_HIBERNATE_BOOT_BSS_ADDR
+#define IPOD6G_HIBERNATE_AREA_SIZE          0x000c0000
+#else
+#define IPOD6G_HIBERNATE_AREA_ADDR          IPOD6G_HIBERNATE_CONTROL_ADDR
 #define IPOD6G_HIBERNATE_AREA_SIZE          0x00010000
-#define IPOD6G_HIBERNATE_CONTROL_ADDR       IPOD6G_HIBERNATE_AREA_ADDR
+#endif
 #define IPOD6G_HIBERNATE_CONTROL_SIZE       0x00001000
-#define IPOD6G_HIBERNATE_IRAM_SHADOW_ADDR   0x0bfed000
+#define IPOD6G_HIBERNATE_IRAM_SHADOW_ADDR   \
+        (IPOD6G_HIBERNATE_CONTROL_ADDR + IPOD6G_HIBERNATE_CONTROL_SIZE)
 #define IPOD6G_HIBERNATE_IRAM_SHADOW_SIZE   0x0000c000
-#define IPOD6G_HIBERNATE_PROBE_ADDR         0x0bff9000
+#define IPOD6G_HIBERNATE_PROBE_ADDR         \
+        (IPOD6G_HIBERNATE_IRAM_SHADOW_ADDR + \
+         IPOD6G_HIBERNATE_IRAM_SHADOW_SIZE)
 #define IPOD6G_HIBERNATE_PROBE_SIZE         0x00003000
 
 /* This diagnostic block is deliberately outside the CRC-protected record
@@ -146,11 +164,11 @@
 #endif
 
 #if IPOD6G_HIBERNATE_STAGE3
-#define IPOD6G_HIBERNATE_TOKEN_VERSION      11
-#define IPOD6G_HIBERNATE_RESUME_ABI         11
-#define IPOD6G_HIBERNATE_RECORD_VERSION     11
+#define IPOD6G_HIBERNATE_TOKEN_VERSION      12
+#define IPOD6G_HIBERNATE_RESUME_ABI         12
+#define IPOD6G_HIBERNATE_RECORD_VERSION     12
 #define IPOD6G_HIBERNATE_CONTRACT_ID \
-        "ipod6g-hibernate-abi11-record11"
+        "ipod6g-hibernate-abi12-record12"
 #else
 #define IPOD6G_HIBERNATE_TOKEN_VERSION      2
 #define IPOD6G_HIBERNATE_RESUME_ABI         2
@@ -172,9 +190,18 @@
 #define IPOD6G_HIBERNATE_CPU_ABT_SP_OFFSET   72
 #define IPOD6G_HIBERNATE_CPU_UND_SP_OFFSET   76
 
-#if IPOD6G_HIBERNATE_CONTROL_SIZE + \
+#if IPOD6G_HIBERNATE_STAGE3 && \
+        IPOD6G_HIBERNATE_BOOT_BSS_ADDR + \
+        IPOD6G_HIBERNATE_BOOT_BSS_SIZE != \
+        IPOD6G_HIBERNATE_CONTROL_ADDR
+#error The iPod 6G resume bootloader workspace is not contiguous
+#endif
+
+#if IPOD6G_HIBERNATE_CONTROL_ADDR + \
+        IPOD6G_HIBERNATE_CONTROL_SIZE + \
         IPOD6G_HIBERNATE_IRAM_SHADOW_SIZE + \
-        IPOD6G_HIBERNATE_PROBE_SIZE != IPOD6G_HIBERNATE_AREA_SIZE
+        IPOD6G_HIBERNATE_PROBE_SIZE != \
+        IPOD6G_HIBERNATE_AREA_ADDR + IPOD6G_HIBERNATE_AREA_SIZE
 #error The iPod 6G hibernate subregions do not fill the reserved area
 #endif
 
