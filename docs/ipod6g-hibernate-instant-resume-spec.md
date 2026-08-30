@@ -112,6 +112,15 @@ measured order only in the retained-wake path. After CPU IRQ restoration it
 polls the stock-restored 1 MHz Timer E and requires three distinct Rockbox
 ticks in 100 ms. A stale edge or one-shot timer can no longer produce PASS.
 
+R10C passed on real iPod Classic hardware on 2026-08-30. The explicit
+`Debug > Test retained context` cycle resumed with a responsive UI, and the
+normal user path selected through `Power-off Resume Mode > Retained resume`
+also resumed correctly after holding Play. These two passes prove both the
+direct Stage 3 diagnostic coordinator and the deferred normal power-off request
+path, including recurring Timer B ticks after wake. R10C is the first revision
+to complete retained suspend, wake, display restoration, timed scheduler
+progress, click-wheel input, and return to ordinary UI use without a freeze.
+
 RetailOS also performs an explicit USB transition: recovered code stops the
 OTG PHY clock through `PCGCCTL`, changes PHY power/reset state, and its
 resume-side device manager restarts the clock and performs complete PHY and
