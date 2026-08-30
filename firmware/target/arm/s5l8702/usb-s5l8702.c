@@ -31,6 +31,10 @@
 #include "clocking-s5l8702.h"
 #include "usb-designware.h"
 #include "ipodnano3g/bringup-nano3g.h"
+#if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
+        IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+#include "ipod6g/hibernate-6g.h"
+#endif
 
 
 const struct usb_dw_config usb_dw_config =
@@ -130,8 +134,34 @@ void usb_enable(bool on)
         return;
 #endif
 
-    if (on) usb_core_init();
-    else usb_core_exit();
+    if (on)
+    {
+#if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
+        IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+        ipod6g_hibernate_runtime_checkpoint(
+                IPOD6G_HIBERNATE_DIAG_USB_CORE_ENTER);
+#endif
+        usb_core_init();
+#if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
+        IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+        ipod6g_hibernate_runtime_checkpoint(
+                IPOD6G_HIBERNATE_DIAG_USB_CORE_READY);
+#endif
+    }
+    else
+    {
+#if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
+        IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+        ipod6g_hibernate_runtime_checkpoint(
+                IPOD6G_HIBERNATE_DIAG_USB_CORE_EXIT);
+#endif
+        usb_core_exit();
+#if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
+        IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+        ipod6g_hibernate_runtime_checkpoint(
+                IPOD6G_HIBERNATE_DIAG_USB_CORE_OFF);
+#endif
+    }
 #else
     (void)on;
 #endif
@@ -175,3 +205,15 @@ void usb_init_device(void)
 
     usb_drv_exit();
 }
+
+#if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
+        IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+void usb_hibernate_resume(void)
+{
+    /* Standby loses the PHY/controller state while the retained USB thread,
+     * queue and endpoint objects remain valid. Put hardware alone into the
+     * same known-off state used at cold boot; the deferred insertion event
+     * will start it through the normal retained USB thread. */
+    usb_init_device();
+}
+#endif

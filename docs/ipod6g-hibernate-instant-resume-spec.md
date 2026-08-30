@@ -68,6 +68,28 @@ successful wake clears stale button presses and returns without broadcasting
 shutdown; a refused attempt follows the original legacy shutdown unchanged.
 Explicit Stage 1/2 diagnostic requests bypass this runtime interception.
 
+The first deferred runtime attempt then restored a responsive UI after a
+button wake and froze only when the user began scrolling. The retained
+continuation, display, timer, and click-wheel path therefore passed. The first
+scroll can demand artwork or menu data and exposed a concrete storage-state
+mismatch: this tree's iFlash/SSD sleep path leaves adapter power on and marks
+the disk logically inactive, while its ordinary fast wake only ungates the ATA
+clock because it assumes controller registers survived. Standby resets that
+controller. The hibernate resume hook now marks this as a full-controller wake
+so the first access uses the existing proven PATA initialization instead of
+the runtime clock-gate fast path. Media wake remains lazy. Persistent
+`ATA init enter/ready` and `ATA I/O enter/ready` breadcrumbs identify the exact
+boundary if the adapter still fails.
+
+RetailOS also performs an explicit USB transition: recovered code stops the
+OTG PHY clock through `PCGCCTL`, changes PHY power/reset state, and its
+resume-side device manager restarts the clock and performs complete PHY and
+controller setup before normal device work continues. Rockbox now resets only
+the USB hardware to its proven cold-boot off state before publishing a cable
+edge. It does not recreate retained USB software objects. This hook is still
+required for cable wake, but it was not the cause of the measured button-wake
+freeze.
+
 Application and bootloader compatibility is no longer tied to the Git-derived
 `rbversion`. Both sides validate the explicit stable contract
 `ipod6g-hibernate-abi11-record11`. Ordinary application/UI commits can therefore
@@ -1100,8 +1122,8 @@ Stage 3B-R10 / resume ABI 11 is the current true instant-resume implementation:
    TTB, payload, probe, and IRAM CRCs; restore IRAM and branch directly to the
    saved continuation before `bss_init()`.
 8. Rebuild clocks, GPIO, VIC/EIC, DMA, timer, click wheel, UART, PMU, power,
-   stopped PCM, and LCD-controller registers without recreating retained
-   software objects.
+   stopped PCM, LCD-controller registers, and the USB PHY/controller's
+   hardware-only cold-off state without recreating retained software objects.
 9. Return with all VIC sources masked, release retained I2C ownership, and
    commit phase 14 while CPU IRQ/FIQ remain masked.
 10. Verify the stock-style Timer E substrate and run the panel wake sequence

@@ -112,6 +112,16 @@
 #define IPOD6G_HIBERNATE_DIAG_LCD_EVENT_DONE   0x48334141 /* resume step 17 */
 #define IPOD6G_HIBERNATE_DIAG_LCD_FAILED       0x48334142 /* resume failure */
 #define IPOD6G_HIBERNATE_DIAG_APP_COMPLETE     0x48334143 /* resume step 18 */
+#define IPOD6G_HIBERNATE_DIAG_USB_RESET_ENTER  0x48335531 /* "H3U1" */
+#define IPOD6G_HIBERNATE_DIAG_USB_RESET_DONE   0x48335532 /* "H3U2" */
+#define IPOD6G_HIBERNATE_DIAG_USB_CORE_ENTER   0x48335533 /* "H3U3" */
+#define IPOD6G_HIBERNATE_DIAG_USB_CORE_READY   0x48335534 /* "H3U4" */
+#define IPOD6G_HIBERNATE_DIAG_USB_CORE_EXIT    0x48335535 /* "H3U5" */
+#define IPOD6G_HIBERNATE_DIAG_USB_CORE_OFF     0x48335536 /* "H3U6" */
+#define IPOD6G_HIBERNATE_DIAG_STORAGE_REINIT_ENTER 0x48335331 /* "H3S1" */
+#define IPOD6G_HIBERNATE_DIAG_STORAGE_REINIT_READY 0x48335332 /* "H3S2" */
+#define IPOD6G_HIBERNATE_DIAG_STORAGE_IO_ENTER     0x48335333 /* "H3S3" */
+#define IPOD6G_HIBERNATE_DIAG_STORAGE_IO_READY     0x48335334 /* "H3S4" */
 
 #if IPOD6G_HIBERNATE_PAYLOAD_STACK_TOP - \
         IPOD6G_HIBERNATE_PAYLOAD_STACK_BOTTOM != \
@@ -439,6 +449,9 @@ void ipod6g_hibernate_set_poweroff_mode(
         enum ipod6g_poweroff_mode mode);
 bool ipod6g_hibernate_poweroff_should_defer(void);
 bool ipod6g_hibernate_poweroff_try(uint32_t sequence);
+#if IPOD6G_HIBERNATE_STAGE3
+void ipod6g_hibernate_runtime_checkpoint(uint32_t breadcrumb);
+#endif
 #else
 enum ipod6g_hibernate_boot_action
 {

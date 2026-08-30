@@ -388,6 +388,9 @@ static void record_commit_crc(
 #ifndef BOOTLOADER
 
 static volatile bool hibernate_poweroff_enabled;
+#if IPOD6G_HIBERNATE_STAGE3
+static volatile bool hibernate_runtime_checkpoints_enabled;
+#endif
 
 bool ipod6g_hibernate_stage1_get_status(
         struct ipod6g_hibernate_status *status)
@@ -579,6 +582,7 @@ extern uint32_t ipod6g_hibernate_stage3_checkpoint(
 void button_hibernate_resume(void);
 void pcm_hibernate_resume(void);
 void power_hibernate_resume(void);
+void ata_hibernate_resume(void);
 #endif
 #endif
 
@@ -822,6 +826,28 @@ static void stage3_commit_boundary(
     commit_dcache();
 }
 
+void ipod6g_hibernate_runtime_checkpoint(uint32_t breadcrumb)
+{
+    volatile struct ipod6g_hibernate_record *record =
+            (volatile struct ipod6g_hibernate_record *)
+            IPOD6G_HIBERNATE_CONTROL_ADDR;
+    int oldlevel;
+
+    if (!hibernate_runtime_checkpoints_enabled)
+        return;
+
+    oldlevel = disable_interrupt_save(IRQ_FIQ_STATUS);
+    if (ipod6g_hibernate_record_valid(record) &&
+        record->state == IPOD6G_HIBERNATE_RECORD_PASSED &&
+        record->mode == IPOD6G_HIBERNATE_MODE_CONTROLLED_CONTEXT)
+    {
+        record->reserved[0] = breadcrumb;
+        record_commit_crc(record);
+        commit_dcache();
+    }
+    restore_interrupt(oldlevel);
+}
+
 static void stage3_lcd_checkpoint(unsigned int checkpoint, void *context)
 {
     volatile struct ipod6g_hibernate_record *record = context;
@@ -904,11 +930,19 @@ bool ipod6g_hibernate_stage3_enter(void)
 
         /* The bootloader CRT replaced these blocks; rebuild hardware only. */
         system_hibernate_resume();
+        ata_hibernate_resume();
         eint_hibernate_resume();
         button_hibernate_resume();
         uart_hibernate_resume();
         pmu_hibernate_resume();
         power_hibernate_resume();
+        stage3_commit_boundary(record,
+                IPOD6G_HIBERNATE_DIAG_USB_RESET_ENTER,
+                IPOD6G_HIBERNATE_PHASE_HARDWARE_RESTORED);
+        usb_hibernate_resume();
+        stage3_commit_boundary(record,
+                IPOD6G_HIBERNATE_DIAG_USB_RESET_DONE,
+                IPOD6G_HIBERNATE_PHASE_HARDWARE_RESTORED);
         pcm_hibernate_resume();
         lcd_hibernate_resume();
 
@@ -958,6 +992,8 @@ bool ipod6g_hibernate_stage3_suspend(uint32_t sequence)
     bool display_ok = false;
     bool resumed;
     int oldlevel;
+
+    hibernate_runtime_checkpoints_enabled = false;
 
     if (!battery_level_safe()
 #if CONFIG_CHARGING
@@ -1101,6 +1137,7 @@ bool ipod6g_hibernate_stage3_suspend(uint32_t sequence)
             stage3_commit_boundary(record,
                     IPOD6G_HIBERNATE_DIAG_APP_COMPLETE,
                     IPOD6G_HIBERNATE_PHASE_RESUME_COMPLETE);
+            hibernate_runtime_checkpoints_enabled = true;
         }
         ipod6g_hibernate_token_clear();
     }

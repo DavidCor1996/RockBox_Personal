@@ -35,6 +35,9 @@
 #include "fs_defines.h"
 #include "logf.h"
 #include "backlight.h"
+#if IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+#include "hibernate-6g.h"
+#endif
 
 #ifndef ATA_RETRIES
 #define ATA_RETRIES 3
@@ -75,6 +78,10 @@ static bool ata_powered;
 static bool ata_ssd_mode = false;
 static long ssd_sleep_tick;
 static bool ssd_deep_asleep;
+#if IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+static bool hibernate_storage_reinit_pending;
+static bool hibernate_storage_io_pending;
+#endif
 static struct semaphore mmc_wakeup;
 static struct semaphore mmc_comp_wakeup;
 #ifdef HAVE_ATA_DMA
@@ -654,6 +661,13 @@ static int ata_get_best_mode(unsigned short identword, int max, int modetype)
  */
 static int ata_power_up(void)
 {
+#if IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+    bool hibernate_reinit = hibernate_storage_reinit_pending;
+
+    if (hibernate_reinit)
+        ipod6g_hibernate_runtime_checkpoint(
+                IPOD6G_HIBERNATE_DIAG_STORAGE_REINIT_ENTER);
+#endif
     logf("ata POWERUP %ld", current_tick);
 
     ata_set_active();
@@ -787,6 +801,14 @@ static int ata_power_up(void)
 
     ata_powered = true;
     ata_set_active();
+#if IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+    if (hibernate_reinit)
+    {
+        ipod6g_hibernate_runtime_checkpoint(
+                IPOD6G_HIBERNATE_DIAG_STORAGE_REINIT_READY);
+        hibernate_storage_reinit_pending = false;
+    }
+#endif
     return 0;
 }
 
@@ -930,8 +952,17 @@ static int ata_rw_chunk(uint64_t sector, uint32_t cnt, void* buffer, bool write)
 
 static int ata_transfer_sectors(uint64_t sector, int count, void* buffer, int write)
 {
+#if IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+    bool hibernate_io = hibernate_storage_io_pending;
+#endif
+
     if (!ata_powered)
         ata_power_up();
+#if IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+    if (hibernate_io)
+        ipod6g_hibernate_runtime_checkpoint(
+                IPOD6G_HIBERNATE_DIAG_STORAGE_IO_ENTER);
+#endif
     if (sector + count > total_sectors)
         RET_ERR(0);
     ata_set_active();
@@ -979,6 +1010,14 @@ static int ata_transfer_sectors(uint64_t sector, int count, void* buffer, int wr
         count -= cnt;
     }
     ata_set_active();
+#if IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+    if (hibernate_io)
+    {
+        ipod6g_hibernate_runtime_checkpoint(
+                IPOD6G_HIBERNATE_DIAG_STORAGE_IO_READY);
+        hibernate_storage_io_pending = false;
+    }
+#endif
     return 0;
 }
 
@@ -1166,6 +1205,22 @@ void ata_sleepnow(void)
 
     mutex_unlock(&ata_mutex);
 }
+
+#if IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+void ata_hibernate_resume(void)
+{
+    /* The software objects and media remain retained, but Standby resets the
+     * ATA/CE-ATA controller. In particular, the ordinary SSD wake fast path
+     * assumes controller registers survived a mere runtime clock gate. Force
+     * the first post-hibernate access through the existing full controller
+     * initialization while still leaving media wake lazy. */
+    ata_powered = false;
+    if (ata_ssd_mode && !ceata)
+        ssd_deep_asleep = true;
+    hibernate_storage_reinit_pending = true;
+    hibernate_storage_io_pending = true;
+}
+#endif
 
 void ata_spin(void)
 {

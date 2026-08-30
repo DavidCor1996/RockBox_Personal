@@ -3082,6 +3082,16 @@ static const char *dbg_hibernate_breadcrumb_name(uint32_t breadcrumb)
         case IPOD6G_HIBERNATE_DIAG_LCD_EVENT_DONE: return "LCD event done";
         case IPOD6G_HIBERNATE_DIAG_LCD_FAILED: return "LCD poll failed";
         case IPOD6G_HIBERNATE_DIAG_APP_COMPLETE: return "resume complete";
+        case IPOD6G_HIBERNATE_DIAG_USB_RESET_ENTER: return "USB reset enter";
+        case IPOD6G_HIBERNATE_DIAG_USB_RESET_DONE: return "USB reset done";
+        case IPOD6G_HIBERNATE_DIAG_USB_CORE_ENTER: return "USB core enter";
+        case IPOD6G_HIBERNATE_DIAG_USB_CORE_READY: return "USB core ready";
+        case IPOD6G_HIBERNATE_DIAG_USB_CORE_EXIT: return "USB core exit";
+        case IPOD6G_HIBERNATE_DIAG_USB_CORE_OFF: return "USB core off";
+        case IPOD6G_HIBERNATE_DIAG_STORAGE_REINIT_ENTER: return "ATA init enter";
+        case IPOD6G_HIBERNATE_DIAG_STORAGE_REINIT_READY: return "ATA init ready";
+        case IPOD6G_HIBERNATE_DIAG_STORAGE_IO_ENTER: return "ATA I/O enter";
+        case IPOD6G_HIBERNATE_DIAG_STORAGE_IO_READY: return "ATA I/O ready";
         default: return "none";
     }
 }
