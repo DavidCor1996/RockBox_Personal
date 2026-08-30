@@ -151,7 +151,7 @@ def main() -> int:
     require_symbol(app_symbols, "i2c_bus_lock", minimum_size=0x10)
     require_symbol(app_symbols, "i2c_bus_unlock", minimum_size=0x10)
     for helper in (
-        "stage3_mask_vic", "stage3_rearm_tick",
+        "stage3_mask_vic", "stage3_rearm_tick", "stage3_verify_tick",
         "stage3_finish_display", "stage3_lcd_checkpoint",
         "stage3_restore_all_vic",
         "system_hibernate_resume_usec_timer",
@@ -183,6 +183,7 @@ def main() -> int:
     button_get = function(app_dis, "button_get_w_tmo")
     enter = function(app_dis, "ipod6g_hibernate_stage3_enter")
     rearm_tick = function(app_dis, "stage3_rearm_tick")
+    verify_tick = function(app_dis, "stage3_verify_tick")
     finish_display = function(app_dis, "stage3_finish_display")
     finish_lcd = function(app_dis, "lcd_hibernate_finish_resume")
     prepare_lcd = function(app_dis, "lcd_hibernate_resume")
@@ -203,6 +204,7 @@ def main() -> int:
             "i2c_bus_lock", "ipod6g_hibernate_stage3_enter",
             "i2c_bus_unlock", "stage3_finish_display",
             "stage3_rearm_tick", "stage3_restore_all_vic",
+            "stage3_verify_tick",
             "pmu_hibernate_resume_complete",
             "lcd_hibernate_resume_complete",
         ],
@@ -256,9 +258,10 @@ def main() -> int:
     display_start = suspend.find("<stage3_finish_display>")
     tick_start = suspend.find("<stage3_rearm_tick>")
     restore_start = suspend.find("<stage3_restore_all_vic>")
+    verify_start = suspend.find("<stage3_verify_tick>")
     pmu_start = suspend.find("<pmu_hibernate_resume_complete>")
     irq_release = suspend[restore_start:pmu_start]
-    if not display_start < tick_start < restore_start:
+    if not display_start < tick_start < restore_start < verify_start < pmu_start:
         raise GateError("scheduler hardware is exposed before display repair")
     if "msr" not in irq_release:
         raise GateError("CPU IRQ/FIQ are not released after full VIC restore")
@@ -269,8 +272,18 @@ def main() -> int:
                 f"pre-interrupt resume path contains scheduler call {forbidden}"
             )
 
-    if "<tick_start>" not in rearm_tick:
-        raise GateError("timer evidence helper does not run the target tick setup")
+    if re.search(r"\bblx?\b", rearm_tick):
+        raise GateError("retained Timer B repair unexpectedly calls another function")
+    for literal in ("#100", "#74", "#4672", "#2", "#1"):
+        if literal not in rearm_tick:
+            raise GateError(
+                f"retained Timer B repair is missing measured literal {literal}"
+            )
+    if len(re.findall(r"\bstr\b", rearm_tick)) < 10:
+        raise GateError("retained Timer B repair omits ordered register writes")
+    for forbidden in ("<sleep>", "<yield>", "<mutex_lock>"):
+        if forbidden in verify_tick:
+            raise GateError(f"Timer B proof contains scheduler call {forbidden}")
 
     require_order(
         finish_display,
@@ -351,8 +364,8 @@ def main() -> int:
         raise GateError("bootloader resume trampoline contains a return path")
 
     app_strings = command("strings", str(args.app_elf))
-    if "Stage 3B-R10 / ABI 11" not in app_strings:
-        raise GateError("application does not identify Stage 3B-R10 / ABI 11")
+    if "Stage 3B-R10C / ABI 11" not in app_strings:
+        raise GateError("application does not identify Stage 3B-R10C / ABI 11")
     if "/.rbtv" not in app_strings:
         raise GateError("application is not isolated to /.rbtv")
 
@@ -366,7 +379,7 @@ def main() -> int:
             f"app={app_contract}, boot={boot_contract}"
         )
 
-    print("PASS: iPod 6G Stage 3B-R10 linked-image gate")
+    print("PASS: iPod 6G Stage 3B-R10C linked-image gate")
     print(f"  app version: {app_version}")
     print(f"  boot version: {boot_version}")
     print(f"  resume contract: {app_contract}")

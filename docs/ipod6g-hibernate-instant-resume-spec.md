@@ -96,6 +96,22 @@ leaves one-shot request/ADC breadcrumbs, because the high-priority power thread
 would otherwise starve the UI forever if a retained conversion never becomes
 ready.
 
+The R10B hardware result cleared the wheel hypothesis but exposed the next
+measured boundary. It reached `PASSED`, phase 28, `request finished`, with raw
+VIC0 reduced from the earlier `0x00800020` to `0x00000020`. No PMU ADC
+breadcrumb followed, and the UI froze. Thus the click-wheel edge was gone and
+the retained request handler returned, but the first ordinary timed queue wait
+did not make progress.
+
+The timer comparison identifies why. Rockbox's cold-start `tick_start()` issued
+Timer B `CLR` before writing `TBDATA0`, `TBPRE`, and `TBCON`. The S5L timer
+documentation says `CLR` is the operation that transfers DATA into the internal
+counter. RetailOS routine `0x08362cd8` follows that contract exactly: disable,
+write DATA/PRE/CON, issue `CLR`, then enable through `0x08362eb8`. R10C uses that
+measured order only in the retained-wake path. After CPU IRQ restoration it
+polls the stock-restored 1 MHz Timer E and requires three distinct Rockbox
+ticks in 100 ms. A stale edge or one-shot timer can no longer produce PASS.
+
 RetailOS also performs an explicit USB transition: recovered code stops the
 OTG PHY clock through `PCGCCTL`, changes PHY power/reset state, and its
 resume-side device manager restarts the clock and performs complete PHY and
@@ -1120,7 +1136,7 @@ RetailOS share higher-level scheduler or driver objects.
 
 ### Stage 3B: Kernel resume with hardware stopped
 
-Stage 3B-R10 / resume ABI 11 is the current true instant-resume implementation:
+Stage 3B-R10C / resume ABI 11 is the current true instant-resume implementation:
 
 1. Veto active core or direct PCM audio, USB, and composite output.
 2. For normal power-off, queue one private request from `sys_poweroff()` and
@@ -1146,18 +1162,21 @@ Stage 3B-R10 / resume ABI 11 is the current true instant-resume implementation:
 11. Copy the complete retained framebuffer, queue one normal PL080 frame, poll
     its raw terminal/error state, service the completed DMA task synchronously,
     and restore the backlight without entering the scheduler.
-12. Reset Timer B, capture raw pending sources, clear stale 32-bit timer
-    status, and restore the complete saved VIC mask before releasing CPU
-    IRQ/FIQ.
-13. Publish the deferred USB edge and LCD activation event only after that
-    release, then commit phase 28 PASS.
+12. Stop Timer B, acknowledge its stale edge, write the normal Rockbox
+    DATA/PRE/CON values, issue `CLR` to load its internal counter, and enable it
+    in the same order used by RetailOS.
+13. Clear stale 32-bit timer status, restore the complete saved VIC mask, and
+    release CPU IRQ/FIQ. Require at least three Timer B ticks against Timer E's
+    1 MHz clock before continuing.
+14. Publish the deferred USB edge and LCD activation event only after that
+    proof, then commit phase 28 PASS.
 
 The linked-binary gate must prove both images were built with all three Stage
 defines. Incremental objects compiled without those defines are invalid even
 if a stale assembly object still contains the trampoline.
 
-For the first hardware attempt, launch the matching R10 image with Rolo, verify
-`Stage 3B-R10 / ABI 11 / /.rbtv`, open `Debug > Test retained context`, and press
+For the first hardware attempt, launch the matching R10C image with Rolo, verify
+`Stage 3B-R10C / ABI 11 / /.rbtv`, open `Debug > Test retained context`, and press
 Select once while undocked and on battery. After the screen goes black, insert
 USB once. Success means the same Rolo screen becomes visible without any boot
 logo or disk image load and reports:
@@ -1305,8 +1324,10 @@ its raw mask measured Timer B already pending and LCD DMA clear. R9 reset that
 timer state and proved the first explicit scheduler block never returns. R10
 therefore reproduces the stock Timer E and polling-controller properties,
 repairs the panel and one full frame with IRQ/FIQ masked, and exposes the
-scheduler only after the full saved VIC is restored. Only a visible,
-responsive phase-28 R10 result authorizes
+scheduler only after the full saved VIC is restored. R10B then proved input
+repair and request completion while isolating the dead recurring tick. R10C
+loads Timer B in RetailOS order and requires three recurring interrupts before
+phase 28. Only a visible, responsive phase-28 R10C result authorizes
 repetition testing. Repeat, duration, wake-source, storage, and
 injected-failure testing remain mandatory before this can become a normal user
 setting.

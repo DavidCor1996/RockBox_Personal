@@ -793,11 +793,60 @@ static void __attribute__((noinline, noclone)) stage3_mask_vic(
     VIC1INTSELECT = record->irq.vic1_select;
 }
 
-static void __attribute__((noinline, noclone)) stage3_rearm_tick(void)
+#define STAGE3_TICK_DATA             (10u * (1000u / HZ))
+#define STAGE3_TICK_PRESCALER        (75u - 1u)
+#define STAGE3_TICK_CONTROL          0x1240u
+#define STAGE3_TICK_PROOF_COUNT      3u
+#define STAGE3_TICK_PROOF_TIMEOUT_US 100000u
+
+static void __attribute__((noinline, noclone)) stage3_rearm_tick(
+        volatile struct ipod6g_hibernate_record *record)
 {
-    /* Acknowledge the old Timer B edge and provide a complete interval before
-     * the saved VIC mask is restored. No scheduler primitive runs here. */
-    tick_start(1000 / HZ);
+    uint32_t control;
+
+    /* RetailOS timer setup at 0x08362cd8 stops the timer, writes DATA/PRE/CON,
+     * issues CLR to transfer those registers into the internal counter, and
+     * only then enables it.  The ordinary Rockbox cold-start helper issues
+     * CLR before DATA; that works across a cold reset but R10B proved it does
+     * not establish a recurring tick after retained Standby. */
+    TBCMD = 0;
+    control = TBCON;
+    TBCON = control;                 /* acknowledge the old Timer B edge */
+    TBDATA0 = STAGE3_TICK_DATA;
+    TBPRE = STAGE3_TICK_PRESCALER;
+    TBCON = STAGE3_TICK_CONTROL;
+    TBCMD = 1u << 1;                 /* load the internal counter */
+    TBCMD = 1u << 0;                 /* enable after the load */
+
+    /* Reuse two historical PMU-entry diagnostics after a successful return;
+     * this preserves the ABI-11 record while making Timer B measurable after
+     * a forced recovery boot. */
+    record->pmu_entry_before = TBCON;
+    record->vic1_raw_before_core = TBDATA0;
+    record->vic1_raw_before_full = TBPRE;
+}
+
+static bool __attribute__((noinline, noclone)) stage3_verify_tick(
+        volatile struct ipod6g_hibernate_record *record)
+{
+    uint32_t start_usec = USEC_TIMER;
+    uint32_t start_tick = (uint32_t)current_tick;
+    uint32_t observed;
+
+    /* Timer E is the stock-restored 1 MHz polling clock.  Require three
+     * distinct Timer B interrupts, not merely the stale edge that R8 saw. */
+    do
+    {
+        observed = (uint32_t)current_tick - start_tick;
+        if (observed >= STAGE3_TICK_PROOF_COUNT)
+            break;
+    }
+    while ((uint32_t)(USEC_TIMER - start_usec) <
+           STAGE3_TICK_PROOF_TIMEOUT_US);
+
+    record->pmu_entry_after = TBCNT;
+    record->lcd_dma_enabled_channels = observed;
+    return observed >= STAGE3_TICK_PROOF_COUNT;
 }
 
 static void __attribute__((noinline, noclone)) stage3_restore_all_vic(
@@ -991,6 +1040,7 @@ bool ipod6g_hibernate_stage3_suspend(uint32_t sequence)
             IPOD6G_HIBERNATE_CONTROL_ADDR;
     bool display_slept = false;
     bool display_ok = false;
+    bool tick_ok = false;
     bool resumed;
     int oldlevel;
 
@@ -1097,7 +1147,7 @@ bool ipod6g_hibernate_stage3_suspend(uint32_t sequence)
         /* Start one fresh Timer B interval immediately before restoring the
          * complete saved interrupt topology. This is the first point at
          * which the retained scheduler is allowed to run. */
-        stage3_rearm_tick();
+        stage3_rearm_tick(record);
         if (display_ok)
         {
             stage3_commit_boundary(record,
@@ -1116,17 +1166,31 @@ bool ipod6g_hibernate_stage3_suspend(uint32_t sequence)
 
         if (display_ok)
         {
-            stage3_commit_boundary(record,
-                    IPOD6G_HIBERNATE_DIAG_CPU_IRQ_LIVE,
-                    IPOD6G_HIBERNATE_PHASE_CPU_IRQ_LIVE);
+            tick_ok = stage3_verify_tick(record);
+            if (tick_ok)
+            {
+                stage3_commit_boundary(record,
+                        IPOD6G_HIBERNATE_DIAG_CPU_IRQ_LIVE,
+                        IPOD6G_HIBERNATE_PHASE_CPU_IRQ_LIVE);
+            }
+            else
+            {
+                record->state = IPOD6G_HIBERNATE_RECORD_FAILED;
+                record->failure =
+                        IPOD6G_HIBERNATE_FAILURE_TICK_STALLED;
+                stage3_commit_boundary(record,
+                        IPOD6G_HIBERNATE_DIAG_TICK_REARMED,
+                        IPOD6G_HIBERNATE_PHASE_TICK_REARMED);
+            }
         }
 
         /* USB insertion is intentionally published only after the normal
          * interrupt topology is live; the USB event may wake another thread
          * immediately. */
-        pmu_hibernate_resume_complete();
+        if (tick_ok)
+            pmu_hibernate_resume_complete();
 
-        if (display_ok)
+        if (display_ok && tick_ok)
         {
             stage3_commit_boundary(record,
                     IPOD6G_HIBERNATE_DIAG_PMU_EVENT_DONE,
@@ -1159,7 +1223,7 @@ bool ipod6g_hibernate_stage3_suspend(uint32_t sequence)
         backlight_hw_on();
     }
 
-    return resumed && display_ok;
+    return resumed && display_ok && tick_ok;
 }
 #else
 bool ipod6g_hibernate_stage3_enter(void)

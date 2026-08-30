@@ -3117,7 +3117,7 @@ static bool dbg_hibernate_stage3(void)
     lcd_set_foreground(LCD_RGBPACK(255, 255, 255));
     lcd_clear_display();
     lcd_puts(0, 0, "*** HIBERNATE TEST CORE ***");
-    lcd_puts(0, 1, "Stage 3B-R10B / ABI 11 / B+A");
+    lcd_puts(0, 1, "Stage 3B-R10C / ABI 11 / TB");
     lcd_putsf(0, 2, "State:%s mode:%lu",
               status.valid ? dbg_hibernate_state_name(status.state) :
                              "invalid record",
@@ -3150,12 +3150,12 @@ static bool dbg_hibernate_stage3(void)
     lcd_putsf(0, 11, "RAW:%08lx/%08lx",
               (unsigned long)status.vic0_raw_before_core,
               (unsigned long)status.vic0_raw_before_full);
-    lcd_putsf(0, 12, "TE:%08lx>%08lx",
-              (unsigned long)status.timer_e_count_before,
-              (unsigned long)status.timer_e_count_after);
-    lcd_putsf(0, 13, "DMA:%02lx/%02lx EN:%02lx",
-              (unsigned long)status.lcd_dma_raw_tc,
-              (unsigned long)status.lcd_dma_raw_error,
+    lcd_putsf(0, 12, "TB C:%08lx N:%08lx",
+              (unsigned long)status.pmu_entry_before,
+              (unsigned long)status.pmu_entry_after);
+    lcd_putsf(0, 13, "D:%03lx P:%02lx ticks:%lu",
+              (unsigned long)status.vic1_raw_before_core,
+              (unsigned long)status.vic1_raw_before_full,
               (unsigned long)status.lcd_dma_enabled_channels);
     if (status.failure ==
         IPOD6G_HIBERNATE_FAILURE_STANDBY_NOT_ENTERED)
