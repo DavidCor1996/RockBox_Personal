@@ -416,10 +416,18 @@ MENUITEM_SETTING(wps_select_action, &global_settings.wps_select_action, NULL);
 MENUITEM_SETTING(governor, &global_settings.governor, NULL);
 #endif
 
+#if defined(IPOD_6G) && !defined(SIMULATOR)
+MENUITEM_SETTING(ipod6g_poweroff_mode,
+                 &global_settings.ipod6g_poweroff_mode, NULL);
+#endif
+
 MAKE_MENU(system_menu, ID2P(LANG_SYSTEM),
           0, Icon_System_menu,
 #if (BATTERY_CAPACITY_INC > 0) || defined(HAVE_USB_CHARGING_ENABLE)
             &battery_menu,
+#endif
+#if defined(IPOD_6G) && !defined(SIMULATOR)
+            &ipod6g_poweroff_mode,
 #endif
 #if defined(HAVE_DIRCACHE) || defined(HAVE_DISK_STORAGE)
             &disk_menu,
