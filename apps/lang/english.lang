@@ -17041,6 +17041,48 @@
   </voice>
 </phrase>
 <phrase>
+  id: LANG_IPOD6G_POWEROFF_MODE
+  desc: selects legacy shutdown or retained-context resume on iPod Classic 6G/7G
+  user: core
+  <source>
+    *: "Power-off Resume Mode"
+  </source>
+  <dest>
+    *: "Power-off Resume Mode"
+  </dest>
+  <voice>
+    *: "Power-off Resume Mode"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_IPOD6G_POWEROFF_LEGACY
+  desc: legacy power-off choice for iPod Classic 6G/7G
+  user: core
+  <source>
+    *: "Legacy power off"
+  </source>
+  <dest>
+    *: "Legacy power off"
+  </dest>
+  <voice>
+    *: "Legacy power off"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_IPOD6G_POWEROFF_RETAINED
+  desc: retained-context power-off choice for iPod Classic 6G/7G
+  user: core
+  <source>
+    *: "Retained resume"
+  </source>
+  <dest>
+    *: "Retained resume"
+  </dest>
+  <voice>
+    *: "Retained resume"
+  </voice>
+</phrase>
+<phrase>
   id: LANG_LINEOUT
   desc: in settings_menu
   user: core

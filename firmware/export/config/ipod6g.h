@@ -197,6 +197,13 @@
 /* define this if the hardware can be powered off while charging */
 #define HAVE_POWEROFF_WHILE_CHARGING
 
+/* The personal iPod 6G/7G build includes the tested retained-context path.
+ * Runtime use remains opt-in through the system setting; legacy shutdown is
+ * still the default. */
+#define IPOD6G_HIBERNATE_STAGE1 1
+#define IPOD6G_HIBERNATE_STAGE2 1
+#define IPOD6G_HIBERNATE_STAGE3 1
+
 /* Define this if you can read an absolute wheel position */
 #define HAVE_WHEEL_POSITION
 

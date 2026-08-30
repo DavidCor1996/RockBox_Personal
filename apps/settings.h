@@ -842,6 +842,7 @@ struct user_settings
 #endif
 #if defined(IPOD_6G) && !defined(SIMULATOR)
     int composite_video_output;
+    int ipod6g_poweroff_mode;
 #endif
 
 #ifdef HAVE_REMOTE_LCD

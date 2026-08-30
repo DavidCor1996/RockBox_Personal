@@ -34,6 +34,7 @@
 #include "settings.h"
 #if defined(IPOD_6G) && !defined(SIMULATOR)
 #include "videoout-6g.h"
+#include "hibernate-6g.h"
 void settings_apply_ipod6g_videoout(int mode);
 #endif
 #include "rbpaths.h"
@@ -1338,6 +1339,13 @@ const struct settings_list settings[] = {
                 "idle poweroff", UNIT_MIN, 0,60,1,
                 formatter_time_unit_0_is_off, getlang_time_unit_0_is_off,
                 set_poweroff_timeout),
+#if defined(IPOD_6G) && !defined(SIMULATOR)
+    CHOICE_SETTING(0, ipod6g_poweroff_mode, LANG_IPOD6G_POWEROFF_MODE,
+                   IPOD6G_POWEROFF_LEGACY, "ipod6g poweroff mode",
+                   "legacy,retained", NULL, 2,
+                   ID2P(LANG_IPOD6G_POWEROFF_LEGACY),
+                   ID2P(LANG_IPOD6G_POWEROFF_RETAINED)),
+#endif
     INT_SETTING(F_BANFROMQS, max_files_in_playlist,
                 LANG_MAX_FILES_IN_PLAYLIST,
 #if CONFIG_CPU == PP5002 || CONFIG_CPU == PP5020 || CONFIG_CPU == PP5022

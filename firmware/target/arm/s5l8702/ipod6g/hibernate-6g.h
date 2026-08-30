@@ -21,11 +21,9 @@
 #ifndef __HIBERNATE_6G_H__
 #define __HIBERNATE_6G_H__
 
-/*
- * Stage 1 is deliberately compile-time gated.  A normal build reserves the
+/* Stage 1 is deliberately compile-time gated.  A normal build reserves the
  * snapshot area and contains the record helpers, but follows the established
- * RetailOS/ONB hibernation path byte-for-byte at boot.
- */
+ * RetailOS/ONB hibernation path byte-for-byte at boot. */
 #ifndef IPOD6G_HIBERNATE_STAGE1
 #define IPOD6G_HIBERNATE_STAGE1 0
 #endif
@@ -189,6 +187,12 @@ enum ipod6g_hibernate_mode
     IPOD6G_HIBERNATE_MODE_RETENTION          = 1,
     IPOD6G_HIBERNATE_MODE_CONTROLLED_PAYLOAD = 2,
     IPOD6G_HIBERNATE_MODE_CONTROLLED_CONTEXT = 3,
+};
+
+enum ipod6g_poweroff_mode
+{
+    IPOD6G_POWEROFF_LEGACY   = 0,
+    IPOD6G_POWEROFF_RETAINED = 1,
 };
 
 enum ipod6g_hibernate_capability

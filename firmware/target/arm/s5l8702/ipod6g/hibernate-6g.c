@@ -36,6 +36,7 @@
 #include "lcd.h"
 #include "lcd-s5l8702.h"
 #include "power.h"
+#include "powermgmt.h"
 #include "storage.h"
 #include "usb.h"
 #include "videoout-6g.h"
@@ -955,7 +956,11 @@ bool ipod6g_hibernate_stage3_suspend(uint32_t sequence)
     bool resumed;
     int oldlevel;
 
-    if (audio_status() != 0 || usb_detect() != USB_EXTRACTED ||
+    if (!battery_level_safe()
+#if CONFIG_CHARGING
+        || power_input_present()
+#endif
+        || audio_status() != 0 || usb_detect() != USB_EXTRACTED ||
         ipod6g_videoout_active())
     {
         return false;
