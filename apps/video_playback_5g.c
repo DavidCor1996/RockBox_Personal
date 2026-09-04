@@ -24,6 +24,7 @@
 #include "sound.h"
 #include "splash.h"
 #include "string-extra.h"
+#include "system.h"
 #include "timefuncs.h"
 #include "video_playback.h"
 
@@ -149,6 +150,7 @@ struct video5_player
     bool finished;
     bool eof_sent;
     bool tv_dac_enabled;
+    bool vc_policy_set;
 };
 
 enum video5_style
@@ -625,6 +627,19 @@ static bool video5_enable_output(struct video5_player *player, bool fill)
             return false;
         player->tv_dac_enabled = true;
     }
+    return true;
+}
+
+static bool video5_set_vc_playback_power(struct video5_player *player)
+{
+    if (player->vc_policy_set)
+        return true;
+
+    /* Apple's 5G MPlayer installs this VideoCore policy before select/play.
+     * The VMCS session ends at teardown, so it only needs to be set once. */
+    if (!video5_gencmd(player, "pm_set_policy min"))
+        return false;
+    player->vc_policy_set = true;
     return true;
 }
 
@@ -1656,6 +1671,7 @@ int video_h264_play(const char *parameter, void *buffer, size_t buffer_size)
     int vmcs_fd = -1;
     bool bcm_started = false;
     bool paused = false;
+    bool cpu_boosted = false;
     bool overlay_visible = false;
     bool overlay_dirty = true;
     int result = -1;
@@ -1794,7 +1810,10 @@ int video_h264_play(const char *parameter, void *buffer, size_t buffer_size)
     clock_start_tick = current_tick;
     overlay_until = current_tick + HZ * 2;
     video5_seek(&player, position_ms);
-    if (!video5_gencmd(&player, "mp_selectplay passthru:rockpod 0") ||
+    cpu_boost(true);
+    cpu_boosted = true;
+    if (!video5_set_vc_playback_power(&player) ||
+        !video5_gencmd(&player, "mp_selectplay passthru:rockpod 0") ||
         !video5_enable_output(&player, launch.fill) ||
         !video5_gencmd(&player, "mp_play"))
     {
@@ -1947,16 +1966,29 @@ int video_h264_play(const char *parameter, void *buffer, size_t buffer_size)
         }
         else if (button == (BUTTON_PLAY | BUTTON_REL) && !launch.live)
         {
-            paused = !paused;
+            bool pause = !paused;
+
             clock_base_ms = position_ms;
             clock_start_tick = current_tick;
             overlay_until = current_tick + HZ * 2;
             overlay_dirty = true;
-            if (!video5_gencmd(&player, paused ? "mp_pause" : "mp_play"))
+            if (!pause && !cpu_boosted)
             {
-                error = "Apple pause failed";
+                cpu_boost(true);
+                cpu_boosted = true;
+            }
+            if ((!pause && !video5_set_vc_playback_power(&player)) ||
+                !video5_gencmd(&player, pause ? "mp_pause" : "mp_play"))
+            {
+                error = "Apple playback power failed";
                 goto cleanup;
             }
+            if (pause && cpu_boosted)
+            {
+                cpu_boost(false);
+                cpu_boosted = false;
+            }
+            paused = pause;
         }
         if (player.eof_sent && !player.finished)
             sleep(1);
@@ -1986,6 +2018,8 @@ cleanup:
         close(vmcs_fd);
     if (player.media_fd >= 0)
         close(player.media_fd);
+    if (cpu_boosted)
+        cpu_boost(false);
     button_clear_queue();
     if (error != NULL)
     {

@@ -8,7 +8,9 @@ while docked but choppy on the iPod LCD. The implemented conclusion is:
 - choose exactly one MPlayer output when playback starts;
 - use display `0` for the iPod LCD and display `2` for TV output;
 - enable the TV DAC only when display `2` is selected; and
-- turn the TV DAC off during teardown if it was enabled.
+- turn the TV DAC off during teardown if it was enabled;
+- install RetailOS's VideoCore playback power policy for the VMCS session; and
+- hold Rockbox's PP5022 performance clock while its host transport is active.
 
 This reproduces the stock player/service topology. Rockpod uses the iPod 5G
 dock-mode GPIO to make the destination choice automatically: docked selects
@@ -79,6 +81,49 @@ This establishes the stock architecture:
 2. MPlayer receives one region for that destination.
 3. The composite DAC is enabled only for the TV-output controller.
 
+### Playback performance policy
+
+The first output-routing fix was not sufficient on physical hardware: the
+reported frame rate remained low only when undocked. A second pass recovered
+the MPlayer power lifecycle that had been missing from Rockpod.
+
+The 5G RetailOS MPlayer calls the power-management singleton at `0x101afd74`
+and its acquire method at `0x101b013c` before both select/play paths:
+
+- `mp_play`: calls at `0x101f8e98` and `0x101f8ea0`;
+- `mp_selectplay`: calls at `0x101fa3e8` and `0x101fa3f0`.
+
+The acquire method submits the exact VideoCore policy command:
+
+```
+pm_set_policy min
+```
+
+RetailOS also contains a conditional policy-release method at `0x101b0094`
+and a default command installed by the power-manager constructor:
+
+```
+power_management set_policy manual 27
+```
+
+The default string is at OSOS offset `0x4f8870`; its pointer is stored by the
+constructor at `0x101b0548`. The release path is conditional on internal
+power-manager client state and is not a simple inverse of MPlayer's one-time
+`pm_set_policy min` initialization, so Rockpod does not issue it speculatively.
+Stopping the BCM2722 terminates the whole VMCS session. Apple's VMCS image
+independently contains the `power_management` and `pm_set_policy` command
+handlers. This establishes a direct MPlayer-to-VideoCore policy call edge,
+rather than merely a nearby clock-management routine.
+
+Rockpod also has a host-side obligation that RetailOS's internal scheduler
+handled: it must service passthrough requests, read MP4 samples, and transfer
+them across the PP5022/BCM2722 interface quickly enough to avoid late packets.
+Rockbox normally runs the PP5022 at 30 MHz and raises it to 80 MHz through its
+balanced CPU-boost API. Rockbox's MPEG player holds that boost throughout
+active playback and releases it on pause/stop. The Apple-backed VideoCore
+policy plus the equivalent Rockbox host-performance hold are therefore both
+applied; neither changes the encoded media or decoder quality.
+
 ### Dock signal available to Rockbox
 
 Rockbox's iPod 5G diagnostic screen labels `GPIOA_INPUT_VAL & 0x10` as
@@ -97,11 +142,10 @@ display_control 2 dac=1 encoding=5
 ```
 
 That diverged from RetailOS by keeping two output/scaler paths active and by
-powering the TV DAC during LCD playback. The reported symptom—smooth composite
-output but choppy undocked LCD playback—is consistent with unnecessary display
-pipeline work. This is a causal inference from the observed symptom plus the
-confirmed command-topology mismatch; RetailOS has no source-level diagnostic
-statement naming the symptom.
+powering the TV DAC during LCD playback. Correcting it reproduced Apple's
+output topology but did not restore undocked frame rate on physical hardware.
+The remaining confirmed mismatch was the omitted MPlayer power-policy acquire;
+Rockpod's host transport also lacked Rockbox's normal active-video CPU hold.
 
 ## Implementation mapping
 
@@ -111,12 +155,14 @@ statement naming the symptom.
 - sends one `mp_region` command for display `0` or `2`;
 - applies fill/letterbox changes only to that selected display;
 - sends `dac=1 encoding=5` only for docked TV playback; and
-- sends `dac=0` during cleanup only if this playback enabled the TV DAC.
+- sends `dac=0` during cleanup only if this playback enabled the TV DAC;
+- sends Apple's `pm_set_policy min` before selecting/playing media;
+- balances `cpu_boost(true/false)` across play, pause, resume, every error path,
+  and normal teardown.
 
-No CPU boost was added. Although RetailOS contains playback-starvation
-diagnostics and dynamic clock-management code, this pass did not prove a
-movie-start clock transition. Adding a permanent Rockbox CPU boost would
-therefore be a workaround, not an Apple-authentic result.
+The CPU hold is not permanent: pause releases it and resume reacquires it. This
+matches Rockbox's established long-form MPEG playback lifecycle and avoids
+changing output resolution, frame rate, profile, bitrate, or decode quality.
 
 ## Evidence-gap matrix
 
@@ -126,13 +172,15 @@ therefore be a workaround, not an Apple-authentic result.
 | Which display IDs are used? | 5G RetailOS selection returns `0` or `2`; TV controller initializes `2`. | High | Symbol names are absent from the stripped image. |
 | Is the TV DAC always on? | DAC-on is in the TV controller; teardown conditionally sends `dac=0`. | High | Exact PAL/NTSC preference mapping to encoding `1`/`5` is not completed. |
 | Does Apple auto-detect the dock? | Apple guide exposes a TV/iPod choice; Rockbox identifies a dock GPIO. | Medium | The exact 5G preference-to-hardware decision path is not fully named. |
-| Does Apple boost the PortalPlayer CPU for movies? | Clock manager and player diagnostics exist, but no proven call edge from movie start. | Low | More call-graph recovery would be required. |
+| Does Apple request a movie performance state? | `mp_play` and `mp_selectplay` directly install `pm_set_policy min`. | High for VideoCore | The separate conditional release client's exact semantics remain unnamed in the stripped image. |
+| Does Rockpod's host transport need a CPU hold? | PP5022 normal/max are 30/80 MHz; Rockbox MPEG playback holds the standard boost while active. | High | Physical undocked validation of this correction remains required. |
 | Does stock hot-switch outputs mid-play? | Apple guide frames selection at play start; MPlayer stores one output. | Medium | A physical RetailOS hot-plug trace was not performed. |
 
 ## Verification
 
 - iPod Video hardware build completed successfully after the change.
 - The linked hardware ELF contains one parameterized `mp_region` format,
+  the stock `pm_set_policy min` command,
   `display_control 2 dac=1 encoding=5`, and the matching DAC-off command.
 - The undocked performance result still requires a physical 5G/5.5G run,
   because the simulator does not emulate the BCM2722 VideoCore/display path.
