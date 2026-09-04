@@ -13,6 +13,7 @@
 
 #include "bcm2722.h"
 #include "button.h"
+#include "cpu.h"
 #include "file.h"
 #include "font.h"
 #include "kernel.h"
@@ -46,6 +47,9 @@
 #define VIDEO5_TAG_DISPLAY      2
 #define VIDEO5_TAG_HOSTFS       5
 #define VIDEO5_TAG_PASSTHRU     7
+
+#define VIDEO5_DISPLAY_LCD      0
+#define VIDEO5_DISPLAY_TV       2
 
 #define VIDEO5_DISPLAY_START    1
 #define VIDEO5_DISPLAY_SUBMIT   2
@@ -140,9 +144,11 @@ struct video5_player
     struct video5_track video;
     uint32_t slot_address[2];
     uint32_t slot_capacity[2];
+    uint8_t output_display;
     bool setup_complete;
     bool finished;
     bool eof_sent;
+    bool tv_dac_enabled;
 };
 
 enum video5_style
@@ -588,6 +594,38 @@ static bool video5_gencmd(struct video5_player *player, const char *command)
         sleep(1);
     }
     return false;
+}
+
+static uint8_t video5_detect_output_display(void)
+{
+    /* The 5G diagnostic screen identifies GPIOA bit 4 as dock mode. Apple's
+     * player selects one MPlayer display at launch: 0 for LCD or 2 for TV. */
+    return (GPIOA_INPUT_VAL & 0x10) != 0 ?
+           VIDEO5_DISPLAY_TV : VIDEO5_DISPLAY_LCD;
+}
+
+static bool video5_set_region(struct video5_player *player, bool fill)
+{
+    char command[80];
+
+    snprintf(command, sizeof(command),
+             "mp_region display=%u dest=fullscreen mode=%s",
+             player->output_display, fill ? "fill" : "letterbox");
+    return video5_gencmd(player, command);
+}
+
+static bool video5_enable_output(struct video5_player *player, bool fill)
+{
+    if (!video5_set_region(player, fill))
+        return false;
+
+    if (player->output_display == VIDEO5_DISPLAY_TV)
+    {
+        if (!video5_gencmd(player, "display_control 2 dac=1 encoding=5"))
+            return false;
+        player->tv_dac_enabled = true;
+    }
+    return true;
 }
 
 static uint32_t video5_serialize_descriptor(uint32_t *out, uint8_t id,
@@ -1692,6 +1730,7 @@ int video_h264_play(const char *parameter, void *buffer, size_t buffer_size)
     }
 
     memset(&player, 0, sizeof(player));
+    player.output_display = video5_detect_output_display();
     memset(surfaces, 0, sizeof(surfaces));
     for (i = 0; i < ARRAYLEN(video5_files); i++)
         video5_files[i].fd = -1;
@@ -1756,12 +1795,7 @@ int video_h264_play(const char *parameter, void *buffer, size_t buffer_size)
     overlay_until = current_tick + HZ * 2;
     video5_seek(&player, position_ms);
     if (!video5_gencmd(&player, "mp_selectplay passthru:rockpod 0") ||
-        !video5_gencmd(&player,
-                       "mp_region display=0 dest=fullscreen mode=letterbox") ||
-        !video5_gencmd(&player,
-                       "mp_region display=2 dest=fullscreen mode=letterbox") ||
-        !video5_gencmd(&player,
-                       "display_control 2 dac=1 encoding=5") ||
+        !video5_enable_output(&player, launch.fill) ||
         !video5_gencmd(&player, "mp_play"))
     {
         error = "Apple MPlayer start failed";
@@ -1900,12 +1934,7 @@ int video_h264_play(const char *parameter, void *buffer, size_t buffer_size)
             if (launch.style == VIDEO5_STYLE_YOUTUBE)
             {
                 launch.fill = !launch.fill;
-                if (!video5_gencmd(&player, launch.fill ?
-                    "mp_region display=0 dest=fullscreen mode=fill" :
-                    "mp_region display=0 dest=fullscreen mode=letterbox") ||
-                    !video5_gencmd(&player, launch.fill ?
-                    "mp_region display=2 dest=fullscreen mode=fill" :
-                    "mp_region display=2 dest=fullscreen mode=letterbox"))
+                if (!video5_set_region(&player, launch.fill))
                 {
                     error = "Apple region change failed";
                     goto cleanup;
@@ -1940,6 +1969,11 @@ int video_h264_play(const char *parameter, void *buffer, size_t buffer_size)
 cleanup:
     if (bcm_started)
         video5_overlay_destroy(&player, surfaces);
+    if (player.tv_dac_enabled)
+    {
+        video5_gencmd(&player, "display_control 2 dac=0");
+        player.tv_dac_enabled = false;
+    }
     if (player.passthru.valid)
     {
         video5_gencmd(&player, "mp_stop");
