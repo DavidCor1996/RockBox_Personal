@@ -52,6 +52,9 @@ extern const char rbversion[];
 #include "language.h"
 #include "statusbar-skinned.h"
 #include "skin_engine/skin_albumart_color.h"
+#if defined(IPOD_6G) || defined(IPOD_VIDEO)
+#include "video_playback.h"
+#endif
 
 #if defined(HAVE_CS42L55)
 #include "cs42l55.h"
@@ -910,6 +913,9 @@ static const struct plugin_api rockbox_api = {
     usb_internet_weather_generation,
     usb_internet_send,
     usb_internet_receive,
+#endif
+#if defined(IPOD_6G) || defined(IPOD_VIDEO)
+    video_h264_play,
 #endif
 };
 

@@ -51,6 +51,21 @@ playlist_viewer.c
 plugin.c
 rockachievements_telemetry.c
 root_menu.c
+#if defined(IPOD_6G) || defined(IPOD_VIDEO)
+mp4_demux.c
+#if defined(IPOD_6G) || defined(SIMULATOR)
+video_pcm.c
+video_audio.c
+#endif
+#if defined(SIMULATOR)
+video_playback_sim.c
+#elif defined(IPOD_VIDEO)
+video_playback_5g.c
+#else
+vpu_h264.c
+video_playback.c
+#endif
+#endif
 screens.c
 settings.c
 settings_list.c

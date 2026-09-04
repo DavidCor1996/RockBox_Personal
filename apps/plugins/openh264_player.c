@@ -8,18 +8,19 @@
  *
  * Copyright (C) 2026 Rockpod Contributors
  *
- * Experimental clean-video viewer entry point for iPod 6G+ video work.
+ * Video viewer entry point for iPod 6G/7G hardware H.264 and legacy RVP.
  *
  * It handles two formats:
  * - .rvp: preconverted raw YUV420 video plus signed 16-bit stereo PCM sidecar.
- * - .h264: Annex-B scan/profile path used while the OpenH264 decoder is being
- *   ported behind this entry point.
+ * - .m4v/.mp4/.mov: measured Apple-iPod H.264/AAC contract decoded by VPU-B.
+ * - .h264: Annex-B scan/profile diagnostic path.
  *
  ****************************************************************************/
 
 #include "plugin.h"
 #include "lib/helper.h"
 #include "netflix_intro.h"
+#include "settings.h"
 
 #define PROFILE_LOG ROCKBOX_DIR "/openh264/openh264_profile.log"
 #define PROFILE_DIR ROCKBOX_DIR "/openh264"
@@ -65,6 +66,10 @@
 #define RAW_NETFLIX_TRACK LCD_RGBPACK(72, 72, 72)
 #define RAW_NETFLIX_INDEX ROCKBOX_DIR "/videolist/index.tsv"
 #define RAW_NETFLIX_MARKER_FIELDS 27
+#define H264_TIKTOK_PREFIX "-ipodtiktok:"
+#define H264_TIKTOK_PREFIX_LEN (sizeof(H264_TIKTOK_PREFIX) - 1)
+#define H264_TIKTOK_STATE \
+    PLUGIN_APPS_DATA_DIR "/.ipodtiktok_h264_state.dat"
 
 enum raw_fit_mode {
     RAW_FIT_UNKNOWN = 0,
@@ -207,6 +212,39 @@ static enum raw_netflix_skip_kind raw_netflix_skip_active;
 static long raw_netflix_intro_start_frame;
 static long raw_netflix_intro_end_frame;
 static long raw_netflix_credits_start_frame;
+
+#if defined(IPOD_6G) && !defined(SIMULATOR)
+static void raw_video_restore_composite_output(void)
+{
+    const struct settings_list *setting;
+    const struct choice_setting *choice;
+    int mode;
+
+    if (!rb || !rb->global_settings)
+        return;
+
+    setting = rb->find_setting(&rb->global_settings->composite_video_output);
+    if (!setting)
+        return;
+    if ((setting->flags & F_CHOICE_SETTING) == 0)
+        return;
+    choice = setting->choice_setting;
+    if (!choice || !choice->option_callback)
+        return;
+
+    mode = rb->global_settings->composite_video_output;
+    if (mode < 0 || mode > 2)
+        mode = 0;
+
+    /*
+     * Toggle composite video output reset path that mirrors Settings →
+     * Composite Video Output off/on behavior (this fixes the post-exit white
+     * frame seen on 6G when exiting MP4/M4V/MOV playback).
+     */
+    choice->option_callback(0);
+    choice->option_callback(mode);
+}
+#endif
 
 static void raw_audio_stop(void);
 
@@ -3306,9 +3344,298 @@ static int play_raw_rvp(const char *path, bool netflix_launch,
     return rc;
 }
 
+#if defined(IPOD_6G) || defined(IPOD_VIDEO)
+static bool h264_tiktok_feed_item(const char *feed_path, int wanted,
+                                  char *path, size_t path_size,
+                                  int *count)
+{
+    char line[1024];
+    int fd = rb->open(feed_path, O_RDONLY);
+    int found = 0;
+
+    if (path != NULL && path_size > 0)
+        path[0] = '\0';
+    if (fd < 0)
+        return false;
+    while (rb->read_line(fd, line, sizeof(line)) > 0)
+    {
+        char *first;
+        char *video;
+        char *end;
+
+        if (!rb->strncmp(line, "id\t", 3) || line[0] == '#')
+            continue;
+        first = rb->strchr(line, '\t');
+        if (first == NULL)
+            continue;
+        video = rb->strchr(first + 1, '\t');
+        if (video == NULL)
+            continue;
+        video++;
+        end = rb->strchr(video, '\t');
+        if (end != NULL)
+            *end = '\0';
+        end = rb->strchr(video, '\r');
+        if (end != NULL)
+            *end = '\0';
+        end = rb->strchr(video, '\n');
+        if (end != NULL)
+            *end = '\0';
+        if (video[0] != '/' || !rb->file_exists(video))
+            continue;
+        if (found == wanted && path != NULL)
+            rb->strlcpy(path, video, path_size);
+        found++;
+    }
+    rb->close(fd);
+    if (count != NULL)
+        *count = found;
+    return found > 0 && (wanted < 0 ||
+                         (wanted < found && path != NULL && path[0]));
+}
+
+static int h264_tiktok_load_index(int count)
+{
+    char line[32];
+    int fd = rb->open(H264_TIKTOK_STATE, O_RDONLY);
+    int index = 0;
+
+    if (fd >= 0)
+    {
+        if (rb->read_line(fd, line, sizeof(line)) > 0)
+            index = rb->atoi(line);
+        rb->close(fd);
+    }
+    return index >= 0 && index < count ? index : 0;
+}
+
+static void h264_tiktok_save_index(int index)
+{
+    int fd = rb->open(H264_TIKTOK_STATE,
+                      O_WRONLY | O_CREAT | O_TRUNC, 0666);
+
+    if (fd >= 0)
+    {
+        rb->fdprintf(fd, "%d\n", index);
+        rb->close(fd);
+    }
+}
+
+static void h264_tiktok_profile(const char *video_path)
+{
+    char metadata[MAX_PATH];
+    char creator[64] = "TikTok creator";
+    char title[96] = "Profile";
+    char line[256];
+    char *dot;
+    int fd;
+
+    rb->strlcpy(metadata, video_path, sizeof(metadata));
+    dot = rb->strrchr(metadata, '.');
+    if (dot != NULL)
+        rb->strlcpy(dot, ".ttm", sizeof(metadata) - (dot - metadata));
+    fd = dot != NULL ? rb->open(metadata, O_RDONLY) : -1;
+    if (fd >= 0)
+    {
+        while (rb->read_line(fd, line, sizeof(line)) > 0)
+        {
+            char *end = line;
+
+            while (*end != '\0' && *end != '\r' && *end != '\n')
+                end++;
+            *end = '\0';
+            if (!rb->strncmp(line, "creator=", 8))
+                rb->strlcpy(creator, line + 8, sizeof(creator));
+            else if (!rb->strncmp(line, "title=", 6))
+                rb->strlcpy(title, line + 6, sizeof(title));
+        }
+        rb->close(fd);
+    }
+    rb->lcd_set_foreground(LCD_WHITE);
+    rb->lcd_set_background(LCD_BLACK);
+    rb->lcd_clear_display();
+    rb->lcd_puts(1, 1, "TikTok Profile");
+    rb->lcd_puts_scroll(1, 4, creator);
+    rb->lcd_puts_scroll(1, 7, title);
+    rb->lcd_puts(1, 12, "MENU returns to video");
+    rb->lcd_update();
+    rb->button_get(true);
+}
+
+static enum plugin_status play_h264_tiktok_feed(const char *feed_path)
+{
+    static char video_path[MAX_PATH];
+    static char launch[MAX_PATH + 16];
+    int count = 0;
+    int index;
+    int rc = 0;
+
+    if (!h264_tiktok_feed_item(feed_path, -1, NULL, 0, &count))
+    {
+        rb->splash(HZ * 2, "TikTok feed missing");
+        return PLUGIN_ERROR;
+    }
+    index = h264_tiktok_load_index(count);
+    raw_capture_playback_state();
+    raw_pool = rb->plugin_get_audio_buffer(&raw_pool_size);
+    raw_pool_acquired = raw_pool != NULL;
+    if (!raw_pool_acquired)
+        return PLUGIN_ERROR;
+    raw_prepare_output();
+    while (h264_tiktok_feed_item(feed_path, index, video_path,
+                                 sizeof(video_path), &count))
+    {
+        rb->snprintf(launch, sizeof(launch), "tiktok-app:%s", video_path);
+        rc = rb->video_h264_play(launch, raw_pool, raw_pool_size);
+        if (rc < 0)
+            break;
+        if (rc == 1)
+            break;
+        if (rc == 4)
+            h264_tiktok_profile(video_path);
+        else if (rc == 2)
+            index = (index + count - 1) % count;
+        else
+            index = (index + 1) % count;
+        h264_tiktok_save_index(index);
+    }
+    raw_audio_shutdown();
+    return rc < 0 ? PLUGIN_ERROR : PLUGIN_OK;
+}
+
+static int play_h264_mp4(const char *launch_parameter, const char *path,
+                         bool netflix_launch)
+{
+    int rc;
+    bool youtube_launch =
+        !rb->strncmp(launch_parameter, "youtube-app:", 12) ||
+        !rb->strncmp(launch_parameter, "youtube-live:", 13);
+    bool youtube_live =
+        !rb->strncmp(launch_parameter, "youtube-live:", 13);
+    bool onlyfans_launch =
+        !rb->strncmp(launch_parameter, "onlyfans-app:", 13);
+    bool instagram_feed =
+        !rb->strncmp(launch_parameter, "instagram-feed:", 15);
+    bool instagram_launch = instagram_feed ||
+        !rb->strncmp(launch_parameter, "instagram-app:", 14);
+    bool reddit_launch =
+        !rb->strncmp(launch_parameter, "reddit-app:", 11);
+    bool spotify_launch =
+        !rb->strncmp(launch_parameter, "spotify-wrapped:", 16);
+    bool maps_launch =
+        !rb->strncmp(launch_parameter, "-mapsdash:", 10);
+
+    raw_capture_playback_state();
+    raw_pool = rb->plugin_get_audio_buffer(&raw_pool_size);
+    raw_pool_acquired = raw_pool != NULL;
+    if (!raw_pool_acquired)
+        return PLUGIN_ERROR;
+    raw_prepare_output();
+    do
+    {
+        rc = rb->video_h264_play(launch_parameter,
+                                 raw_pool, raw_pool_size);
+    }
+    while (youtube_live && rc == 0);
+    if (netflix_launch && rc == 0)
+        raw_netflix_mark_watched(path);
+    raw_audio_shutdown();
+    if (rc < 0)
+        return PLUGIN_ERROR;
+
+#if defined(IPOD_6G) && !defined(SIMULATOR)
+    raw_video_restore_composite_output();
+#endif
+
+    if (youtube_launch)
+    {
+        /* Match MPEG return path behavior on iPod 5G so LCD/composite gets
+         * restored before jumping back into YouTube. */
+#if defined(HAVE_LCD_MODES) && (HAVE_LCD_MODES & LCD_MODE_YUV)
+        rb->lcd_set_mode(LCD_MODE_RGB565);
+#endif
+        rb->lcd_set_foreground(LCD_BLACK);
+        rb->lcd_set_background(LCD_BLACK);
+        rb->lcd_clear_display();
+        rb->lcd_update();
+
+        static char return_parameter[MAX_PATH + 8];
+
+        rb->snprintf(return_parameter, sizeof(return_parameter), "return:%s",
+                     path);
+        return rb->plugin_open(PLUGIN_APPS_DIR "/youtube.rock",
+                               return_parameter);
+    }
+    if (onlyfans_launch)
+    {
+        static char return_parameter[MAX_PATH + 8];
+
+        rb->snprintf(return_parameter, sizeof(return_parameter), "return:%s",
+                     path);
+        return rb->plugin_open(PLUGIN_APPS_DIR "/onlyfans.rock",
+                               return_parameter);
+    }
+    if (instagram_launch)
+    {
+        static char return_parameter[MAX_PATH + 24];
+        const char *prefix = "return:";
+
+        if (instagram_feed)
+            prefix = rc == 3 ? "return-home-next:" :
+                     rc == 2 ? "return-home-prev:" :
+                     rc == 4 ? "return:" : "return-home:";
+        rb->snprintf(return_parameter, sizeof(return_parameter), "%s%s",
+                     prefix, path);
+        return rb->plugin_open(PLUGIN_APPS_DIR "/instagram.rock",
+                               return_parameter);
+    }
+    if (reddit_launch)
+    {
+        static char return_parameter[MAX_PATH + 8];
+
+        rb->snprintf(return_parameter, sizeof(return_parameter), "return:%s",
+                     path);
+        return rb->plugin_open(PLUGIN_APPS_DIR "/reddit.rock",
+                               return_parameter);
+    }
+    if (spotify_launch)
+        return rb->plugin_open(PLUGIN_APPS_DIR "/spotify_wrapped.rock", NULL);
+    if (maps_launch)
+        return rb->plugin_open(PLUGIN_APPS_DIR "/nb_maps.rock", NULL);
+    return PLUGIN_OK;
+}
+#endif
+
+static const char *video_parameter_path(const char *parameter)
+{
+    static const char * const prefixes[] = {
+        "youtube-app:", "youtube:", "reddit-app:", "onlyfans-app:",
+        "instagram-app:", "instagram-feed:", "spotify-wrapped:",
+        "tiktok-app:", "-mapsdash:",
+    };
+    size_t i;
+
+    if (!rb->strncmp(parameter, "youtube-live:", 13))
+    {
+        const char *separator = rb->strchr(parameter + 13, ':');
+
+        return separator != NULL ? separator + 1 : parameter;
+    }
+
+    for (i = 0; i < ARRAYLEN(prefixes); i++)
+    {
+        size_t length = rb->strlen(prefixes[i]);
+
+        if (!rb->strncmp(parameter, prefixes[i], length))
+            return parameter + length;
+    }
+    return parameter;
+}
+
 enum plugin_status plugin_start(const void *parameter)
 {
     const char *path = parameter;
+    const char *launch_parameter = parameter;
     bool netflix_launch;
     bool netflix_restart;
     long bytes = 0;
@@ -3325,6 +3652,11 @@ enum plugin_status plugin_start(const void *parameter)
         return PLUGIN_ERROR;
     }
 
+#if defined(IPOD_6G) || defined(IPOD_VIDEO)
+    if (!rb->strncmp(path, H264_TIKTOK_PREFIX, H264_TIKTOK_PREFIX_LEN))
+        return play_h264_tiktok_feed(path + H264_TIKTOK_PREFIX_LEN);
+#endif
+
     netflix_restart =
         !rb->strncmp(path, NETFLIX_RESTART_PARAMETER_PREFIX,
                      NETFLIX_RESTART_PARAMETER_PREFIX_LEN);
@@ -3336,8 +3668,23 @@ enum plugin_status plugin_start(const void *parameter)
     else if (netflix_launch)
         path += NETFLIX_PARAMETER_PREFIX_LEN;
 
+    path = video_parameter_path(path);
+
     if (has_ext(path, "rvp"))
         return play_raw_rvp(path, netflix_launch, netflix_restart);
+
+#if defined(IPOD_6G) || defined(IPOD_VIDEO)
+    if (has_ext(path, "mp4") || has_ext(path, "m4v") ||
+        has_ext(path, "mov"))
+        return play_h264_mp4(launch_parameter, path, netflix_launch);
+#else
+    if (has_ext(path, "mp4") || has_ext(path, "m4v") ||
+        has_ext(path, "mov"))
+    {
+        rb->splash(HZ * 2, "Hardware H.264 requires video iPod");
+        return PLUGIN_ERROR;
+    }
+#endif
 
     rc = scan_annexb(path, &bytes, &nal_count, &idr_count,
                      &sps_count, &pps_count, &scan_ticks);

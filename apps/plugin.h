@@ -182,7 +182,7 @@ int plugin_open(const char *plugin, const char *parameter);
  * when this happens please take the opportunity to sort in
  * any new functions "waiting" at the end of the list.
  */
-#define PLUGIN_API_VERSION 286
+#define PLUGIN_API_VERSION 287
 
 /* 239 Marks the removal of ARCHOS HWCODEC and CHARCELL */
 
@@ -1062,6 +1062,10 @@ struct plugin_api {
     unsigned long (*usb_internet_weather_generation)(void);
     int (*usb_internet_send)(uint16_t port, const void *data, int length);
     int (*usb_internet_receive)(uint16_t port, void *data, int capacity);
+#endif
+#if defined(IPOD_6G) || defined(IPOD_VIDEO)
+    int (*video_h264_play)(const char *filepath, void *buffer,
+                           size_t buffer_size);
 #endif
 };
 

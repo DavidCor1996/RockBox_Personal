@@ -32,6 +32,7 @@
 #include "lcd.h"
 #include "kernel.h"
 #include "system.h"
+#include "bcm2722.h"
 #ifdef HAVE_LCD_SLEEP
 /* Included only for lcd_awake() prototype */
 #include "backlight-target.h"
@@ -110,6 +111,10 @@ struct
     struct semaphore initwakeup;
 #endif
 } lcd_state IBSS_ATTR;
+
+#ifndef BOOTLOADER
+static bool bcm2722_player_active;
+#endif
 
 #ifdef HAVE_LCD_SLEEP
 const fb_data *flash_vmcs_offset;
@@ -589,13 +594,23 @@ static void bcm_powerdown(void)
     GPO32_VAL &= ~0x4000;
 }
 
+/* Apple's retail VMCS image does not implement the small Rockbox/NOR LCD
+ * command set used by bcm_powerdown().  When the media player owns the
+ * VideoCore, stop it at the power rail and let lcd_awake() perform the same
+ * cold bootstrap used after normal LCD sleep. */
+static void bcm_retail_powerdown(void)
+{
+    _backlight_hw_enable(false);
+    GPO32_VAL &= ~0x4000;
+}
+
 /* Data written to BCM_CONTROL and BCM_ALT_CONTROL */
 const unsigned char bcm_bootstrapdata[] =
 {
     0xA1, 0x81, 0x91, 0x02, 0x12, 0x22, 0x72, 0x62
 };
 
-static void bcm_init(void)
+static void bcm_init_image(const void *image, unsigned length)
 {
     int i;
 
@@ -641,7 +656,7 @@ static void bcm_init(void)
 
     /* Upload firmware to BCM SRAM */
     bcm_write_addr(BCMA_SRAM_BASE);
-    lcd_write_data(flash_vmcs_offset, flash_vmcs_length);
+    lcd_write_data(image, length / sizeof(unsigned short));
 
     bcm_write32(BCMA_COMMAND,  0);
     bcm_write32(0x10000C00, 0xC0000000);
@@ -655,6 +670,12 @@ static void bcm_init(void)
         yield();
 
     /* sleep(HZ/2) apparently unneeded */
+}
+
+static void bcm_init(void)
+{
+    bcm_init_image(flash_vmcs_offset,
+                   flash_vmcs_length * sizeof(unsigned short));
 }
 
 void lcd_awake(void)
@@ -715,3 +736,111 @@ void lcd_shutdown(void)
 }
 #endif /* HAVE_LCD_SHUTDOWN */
 #endif /* HAVE_LCD_SLEEP */
+
+#ifndef BOOTLOADER
+bool bcm2722_video_start(const void *vmcs, size_t length)
+{
+    long sleepwait;
+
+    if (vmcs == NULL || length == 0 || (length & 1) != 0 ||
+        flash_vmcs_length == 0 || bcm2722_player_active)
+        return false;
+
+    if (lcd_state.display_on)
+    {
+        lcd_state.display_on = false;
+        while (lcd_state.state != LCD_INITIAL &&
+               lcd_state.state != LCD_IDLE)
+            yield();
+        tick_remove_task(&lcd_tick);
+        bcm_powerdown();
+        lcd_state.update_timeout = current_tick;
+    }
+
+    sleepwait = lcd_state.update_timeout + HZ/20 - current_tick;
+    if (sleepwait > 0 && sleepwait < HZ/20)
+        sleep(sleepwait);
+
+    bcm_init_image(vmcs, length);
+    bcm2722_player_active = true;
+    return true;
+}
+
+void bcm2722_video_stop(void)
+{
+    if (!bcm2722_player_active)
+        return;
+
+    bcm_retail_powerdown();
+    lcd_state.update_timeout = current_tick;
+    bcm2722_player_active = false;
+    lcd_awake();
+}
+
+bool bcm2722_video_active(void)
+{
+    return bcm2722_player_active;
+}
+
+uint32_t bcm2722_read32(uint32_t address)
+{
+    return bcm_read32(address);
+}
+
+void bcm2722_write32(uint32_t address, uint32_t value)
+{
+    bcm_write32(address, value);
+}
+
+uint16_t bcm2722_read16(uint32_t address)
+{
+    uint32_t value = bcm_read32(address & ~3u);
+
+    return address & 2 ? value >> 16 : value;
+}
+
+void bcm2722_write16(uint32_t address, uint16_t value)
+{
+    BCM_WR_ADDR32 = address;
+    while (!(BCM_CONTROL & 0x2));
+    BCM_DATA = value;
+}
+
+bool bcm2722_read_buffer(uint32_t address, void *buffer, size_t length)
+{
+    uint8_t *destination = buffer;
+
+    if (buffer == NULL || (address & 3) != 0 || (length & 3) != 0)
+        return false;
+
+    while (length != 0)
+    {
+        uint32_t value = bcm_read32(address);
+
+        destination[0] = value;
+        destination[1] = value >> 8;
+        destination[2] = value >> 16;
+        destination[3] = value >> 24;
+        destination += 4;
+        address += 4;
+        length -= 4;
+    }
+    return true;
+}
+
+bool bcm2722_write_buffer(uint32_t address, const void *buffer,
+                          size_t length)
+{
+    if (buffer == NULL || (address & 1) != 0 || (length & 1) != 0)
+        return false;
+
+    bcm_write_addr(address);
+    lcd_write_data(buffer, length / sizeof(unsigned short));
+    return true;
+}
+
+void bcm2722_notify(void)
+{
+    BCM_CONTROL = 0x31;
+}
+#endif /* !BOOTLOADER */
