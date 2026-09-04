@@ -862,6 +862,10 @@ class ThemeDesignerService:
             "statusbar": "off",
             "ui viewport": "-",
         }
+        # iPone designer variants are skins for the native iPodJS interface,
+        # not a request to fall back to Rockbox's stock menu engine.
+        if str(variant.get("base_theme_id") or "").startswith("iPone"):
+            overrides["ui engine"] = "ipodjs"
         right_pane_mode = self._normalize_right_pane_mode(
             variant.get("right_pane_mode"),
             base_default=variant.get("base_right_pane_mode", DEFAULT_RIGHT_PANE_MODE),

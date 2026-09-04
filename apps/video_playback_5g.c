@@ -600,8 +600,15 @@ static bool video5_gencmd(struct video5_player *player, const char *command)
 
 static uint8_t video5_detect_output_display(void)
 {
+    if (global_settings.composite_video_output == IPOD_COMPOSITE_VIDEO_OFF)
+        return VIDEO5_DISPLAY_LCD;
+    if (global_settings.composite_video_output == IPOD_COMPOSITE_VIDEO_ON)
+        return VIDEO5_DISPLAY_TV;
+
     /* The 5G diagnostic screen identifies GPIOA bit 4 as dock mode. Apple's
-     * player selects one MPlayer display at launch: 0 for LCD or 2 for TV. */
+     * player selects one MPlayer display at launch: 0 for LCD or 2 for TV.
+     * Auto preserves that stock launch-time choice; On also supports passive
+     * composite leads whose dock GPIO is not asserted. */
     return (GPIOA_INPUT_VAL & 0x10) != 0 ?
            VIDEO5_DISPLAY_TV : VIDEO5_DISPLAY_LCD;
 }

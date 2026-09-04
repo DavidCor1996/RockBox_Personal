@@ -38,6 +38,9 @@
 void settings_apply_ipod6g_videoout(int mode);
 void settings_apply_ipod6g_poweroff_mode(int mode);
 #endif
+#if defined(IPOD_VIDEO) && !defined(SIMULATOR)
+void settings_apply_ipod_videoout(int mode);
+#endif
 #include "rbpaths.h"
 #include "settings_list.h"
 #include "usb.h"
@@ -1193,6 +1196,12 @@ const struct settings_list settings[] = {
                    IPOD6G_VIDEOOUT_AUTO, "composite video output",
                    "off,auto,on",
                    settings_apply_ipod6g_videoout, 3,
+                   ID2P(LANG_OFF), ID2P(LANG_AUTO), ID2P(LANG_ON)),
+#elif defined(IPOD_VIDEO) && !defined(SIMULATOR)
+    CHOICE_SETTING(0, composite_video_output, LANG_COMPOSITE_VIDEO_OUTPUT,
+                   IPOD_COMPOSITE_VIDEO_AUTO, "composite video output",
+                   "off,auto,on",
+                   settings_apply_ipod_videoout, 3,
                    ID2P(LANG_OFF), ID2P(LANG_AUTO), ID2P(LANG_ON)),
 #endif
     /* display */

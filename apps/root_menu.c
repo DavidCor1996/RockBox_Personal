@@ -19170,6 +19170,8 @@ static int root_menu_video_games_menu(void)
 
 #if defined(IPOD_6G) && !defined(SIMULATOR)
 void settings_apply_ipod6g_videoout(int mode);
+#elif defined(IPOD_VIDEO) && !defined(SIMULATOR)
+void settings_apply_ipod_videoout(int mode);
 #endif
 
 enum root_menu_video_qs_item {
@@ -19193,7 +19195,7 @@ enum root_menu_video_qs_item {
 #ifdef IPOD_ACCESSORY_PROTOCOL
     IPODJS_QS_KOKKIA,
 #endif
-#if defined(IPOD_6G) && !defined(SIMULATOR)
+#if (defined(IPOD_6G) || defined(IPOD_VIDEO)) && !defined(SIMULATOR)
     IPODJS_QS_COMPOSITE_OUT,
 #endif
     IPODJS_QS_CACHE_MEMORY,
@@ -19252,7 +19254,7 @@ static const char *root_menu_video_qs_icon_path(int item)
         case IPODJS_QS_KOKKIA:
             return NULL;
 #endif
-#if defined(IPOD_6G) && !defined(SIMULATOR)
+#if (defined(IPOD_6G) || defined(IPOD_VIDEO)) && !defined(SIMULATOR)
         case IPODJS_QS_COMPOSITE_OUT:
             return NULL;
 #endif
@@ -19346,7 +19348,7 @@ static const char *root_menu_video_qs_label(int item)
         case IPODJS_QS_KOKKIA:
             return "Kokkia";
 #endif
-#if defined(IPOD_6G) && !defined(SIMULATOR)
+#if (defined(IPOD_6G) || defined(IPOD_VIDEO)) && !defined(SIMULATOR)
         case IPODJS_QS_COMPOSITE_OUT:
             return "Composite Out";
 #endif
@@ -19518,15 +19520,24 @@ static void root_menu_video_qs_value(int item, char *buf, size_t buf_size)
         }
 #endif
 
-#if defined(IPOD_6G) && !defined(SIMULATOR)
+#if (defined(IPOD_6G) || defined(IPOD_VIDEO)) && !defined(SIMULATOR)
         case IPODJS_QS_COMPOSITE_OUT:
         {
+#ifdef IPOD_VIDEO
+            static const char * const states[] = {"LCD", "Auto", "TV"};
+            int mode = MAX(IPOD_COMPOSITE_VIDEO_OFF,
+                           MIN(global_settings.composite_video_output,
+                               IPOD_COMPOSITE_VIDEO_ON));
+#else
             static const char * const states[] = {"Off", "Auto", "On"};
             int mode = MAX(IPOD6G_VIDEOOUT_OFF,
                            MIN(global_settings.composite_video_output,
                                IPOD6G_VIDEOOUT_ON));
+#endif
+#ifdef IPOD_6G
 #ifdef IPOD_ACCESSORY_PROTOCOL
-            if (iap_kokkia_present() && mode != IPOD6G_VIDEOOUT_OFF)
+            if (iap_kokkia_present() &&
+                mode != IPOD6G_VIDEOOUT_OFF)
             {
                 strmemccpy(buf, "Blocked", buf_size);
                 break;
@@ -19540,6 +19551,7 @@ static void root_menu_video_qs_value(int item, char *buf, size_t buf_size)
                 strmemccpy(buf, "On", buf_size);
                 break;
             }
+#endif
             strmemccpy(buf, states[mode], buf_size);
             break;
         }
@@ -19705,11 +19717,12 @@ static bool root_menu_video_qs_adjust(int item, int delta)
             changed = true;
             break;
 
-#if defined(IPOD_6G) && !defined(SIMULATOR)
+#if (defined(IPOD_6G) || defined(IPOD_VIDEO)) && !defined(SIMULATOR)
         case IPODJS_QS_COMPOSITE_OUT:
         {
             int value;
 
+#ifdef IPOD_6G
 #ifdef IPOD_ACCESSORY_PROTOCOL
             if (iap_kokkia_present())
                 break;
@@ -19720,8 +19733,16 @@ static bool root_menu_video_qs_adjust(int item, int delta)
             value = global_settings.composite_video_output ==
                     IPOD6G_VIDEOOUT_OFF ? IPOD6G_VIDEOOUT_AUTO :
                                          IPOD6G_VIDEOOUT_OFF;
-            global_settings.composite_video_output = value;
             settings_apply_ipod6g_videoout(value);
+#else
+            /* The 5G selects exactly one Apple MPlayer display at launch.
+             * Cycle all three policies so a passive lead can force TV even
+             * when the dock GPIO is not asserted. */
+            value = global_settings.composite_video_output +
+                    (delta < 0 ? 2 : 1);
+            value %= 3;
+            settings_apply_ipod_videoout(value);
+#endif
             changed = true;
             break;
         }
@@ -19850,7 +19871,7 @@ static bool root_menu_video_draw_qs_icon(int x, int y, int item, bool active)
 {
     struct bitmap *bm;
 
-#if defined(IPOD_6G) && !defined(SIMULATOR)
+#if (defined(IPOD_6G) || defined(IPOD_VIDEO)) && !defined(SIMULATOR)
     if (item == IPODJS_QS_COMPOSITE_OUT)
     {
         /* External display with a dock/composite lead.  This is rendered
@@ -20017,10 +20038,15 @@ static void root_menu_video_draw_qs_footer(int selected, bool adjusting)
     if (adjusting)
         root_menu_video_draw_qs_footer_text(
             "Scroll to adjust - Select when done");
-#if defined(IPOD_6G) && !defined(SIMULATOR)
+#if (defined(IPOD_6G) || defined(IPOD_VIDEO)) && !defined(SIMULATOR)
     else if (selected == IPODJS_QS_COMPOSITE_OUT)
+#ifdef IPOD_VIDEO
+        root_menu_video_draw_qs_footer_text(
+            "Select LCD, automatic dock, or TV");
+#else
         root_menu_video_draw_qs_footer_text(
             "Select for automatic dock output or off");
+#endif
 #endif
     else if (selected == IPODJS_QS_CACHE_MEMORY)
         root_menu_video_draw_qs_footer_text(

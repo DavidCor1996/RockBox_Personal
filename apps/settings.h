@@ -96,6 +96,15 @@ enum ui_engine {
     UI_ENGINE_IPODJS = 1,
 };
 
+/* Shared persistent policy for the iPod 5G VideoCore and iPod 6G DCP750
+ * composite paths.  The target drivers keep their own display identifiers,
+ * but the saved setting must mean the same thing on both generations. */
+enum ipod_composite_video_output {
+    IPOD_COMPOSITE_VIDEO_OFF = 0,
+    IPOD_COMPOSITE_VIDEO_AUTO,
+    IPOD_COMPOSITE_VIDEO_ON,
+};
+
 enum ui_engine_accent {
     UI_ENGINE_ACCENT_BLUE = 0,
     UI_ENGINE_ACCENT_GRAPHITE = 1,
@@ -840,8 +849,10 @@ struct user_settings
 #ifdef HAVE_BACKLIGHT_BRIGHTNESS
     int brightness;
 #endif
-#if defined(IPOD_6G) && !defined(SIMULATOR)
+#if (defined(IPOD_6G) || defined(IPOD_VIDEO)) && !defined(SIMULATOR)
     int composite_video_output;
+#endif
+#if defined(IPOD_6G) && !defined(SIMULATOR)
     int ipod6g_poweroff_mode;
 #endif
 

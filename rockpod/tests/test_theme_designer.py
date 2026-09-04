@@ -295,6 +295,7 @@ def test_wallpaper_cycle_is_optional_and_default_off(tmp_dir):
 
     assert "ipone lock wallpaper:" not in cfg_text
     assert "ipone charge wallpaper:" not in cfg_text
+    assert "ui engine: ipodjs\n" in cfg_text
     assert metadata_data["wallpaper_cycle_enabled"] is False
 
 

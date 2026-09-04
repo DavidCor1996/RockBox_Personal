@@ -39,6 +39,19 @@ def test_iponecustom_packages_the_ipodjs_stock_font():
 
     assert "font.320x240x(16|24|32): 14-Adobe-Helvetica-Bold.fnt" in iponecustom
     assert "font: /.rockbox/fonts/14-Adobe-Helvetica-Bold.fnt" in theme_cfg
+    assert "ui engine: ipodjs" in theme_cfg
+
+
+def test_ipodjs_extras_keeps_applications_submenu_and_files():
+    root_menu = _read("apps/root_menu.c")
+    extras = root_menu.split(
+        "root_menu_video_extras_items[] = {", 1
+    )[1].split("};", 1)[0]
+
+    assert '{ "Applications", IPODJS_EXTRAS_APPLICATIONS }' in extras
+    assert '{ "Files", GO_TO_FILEBROWSER }' in extras
+    assert "ret = root_menu_video_applications_menu();" in root_menu
+    assert "root_menu_video_item_is_extras(item)" in root_menu
 
 
 def test_album_rows_use_representative_albumartist_before_filtered_search():

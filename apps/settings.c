@@ -881,7 +881,19 @@ void settings_apply_ipod6g_videoout(int mode)
     ipod6g_videoout_set_mode((enum ipod6g_videoout_mode)mode, FBADDR(0, 0),
                              LCD_WIDTH, LCD_HEIGHT);
 }
+#elif defined(IPOD_VIDEO) && !defined(SIMULATOR)
+void settings_apply_ipod_videoout(int mode)
+{
+    if (mode < IPOD_COMPOSITE_VIDEO_OFF ||
+        mode > IPOD_COMPOSITE_VIDEO_ON)
+        mode = IPOD_COMPOSITE_VIDEO_AUTO;
 
+    /* The Apple VideoCore selects LCD or TV when movie playback starts. */
+    global_settings.composite_video_output = mode;
+}
+#endif
+
+#if defined(IPOD_6G) && !defined(SIMULATOR)
 void settings_apply_ipod6g_poweroff_mode(int mode)
 {
     if (mode < IPOD6G_POWEROFF_LEGACY ||
@@ -1127,6 +1139,10 @@ void settings_apply(bool read_disk)
 
 #if defined(IPOD_6G) && !defined(SIMULATOR)
     settings_apply_ipod6g_videoout(global_settings.composite_video_output);
+#elif defined(IPOD_VIDEO) && !defined(SIMULATOR)
+    settings_apply_ipod_videoout(global_settings.composite_video_output);
+#endif
+#if defined(IPOD_6G) && !defined(SIMULATOR)
     settings_apply_ipod6g_poweroff_mode(
             global_settings.ipod6g_poweroff_mode);
 #endif
