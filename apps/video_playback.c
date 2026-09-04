@@ -27,6 +27,7 @@
 #include "sound.h"
 #include "splash.h"
 #include "string-extra.h"
+#include "system.h"
 #include "timefuncs.h"
 #include "video_audio.h"
 #include "video_pcm.h"
@@ -764,7 +765,8 @@ static void video_volume_change(int delta)
 
 static enum video_input_action video_input(
     const struct video_launch *launch, bool *paused, long *start_tick,
-    long *pause_started, bool have_audio, long *overlay_until)
+    long *pause_started, bool have_audio, bool *cpu_boosted,
+    long *overlay_until)
 {
     int button = button_get_w_tmo(0);
 
@@ -838,9 +840,19 @@ static enum video_input_action video_input(
                 video_audio_pause();
                 video_pcm_pause(true);
             }
+            if (*cpu_boosted)
+            {
+                cpu_boost(false);
+                *cpu_boosted = false;
+            }
         }
         else
         {
+            if (!*cpu_boosted)
+            {
+                cpu_boost(true);
+                *cpu_boosted = true;
+            }
             *paused = false;
             *start_tick += current_tick - *pause_started;
             if (have_audio)
@@ -1321,6 +1333,7 @@ int video_h264_play(const char *filepath, void *buffer, size_t buffer_size)
     long pause_started = 0;
     long overlay_until;
     bool paused = false;
+    bool cpu_boosted = false;
     bool have_audio = false;
     bool audio_master = false;
     enum video_input_action action = VIDEO_INPUT_NONE;
@@ -1415,6 +1428,11 @@ int video_h264_play(const char *filepath, void *buffer, size_t buffer_size)
     else
         video_timing_for_sample(&demux, 0, &timing);
 
+    /* Composite output already owns a boost because its memory reader
+     * underruns at 54 MHz HClk. Decode plus LCD presentation needs the same
+     * 108 MHz bus clock when undocked, so playback owns a separate reference. */
+    cpu_boost(true);
+    cpu_boosted = true;
     decoder = vpu_h264_open(
         decoder_buffer, decoder_size,
         (demux.width + 15) & ~15, (demux.height + 15) & ~15);
@@ -1450,7 +1468,8 @@ int video_h264_play(const char *filepath, void *buffer, size_t buffer_size)
         while (!video_audio_ready() && wait < HZ && action == VIDEO_INPUT_NONE)
         {
             action = video_input(&launch, &paused, &start_tick,
-                                 &pause_started, true, &overlay_until);
+                                 &pause_started, true, &cpu_boosted,
+                                 &overlay_until);
             sleep(1);
             wait++;
         }
@@ -1481,7 +1500,8 @@ int video_h264_play(const char *filepath, void *buffer, size_t buffer_size)
             uint32_t clock_ms;
 
             action = video_input(&launch, &paused, &start_tick,
-                                 &pause_started, have_audio, &overlay_until);
+                                 &pause_started, have_audio, &cpu_boosted,
+                                 &overlay_until);
             if (action == VIDEO_INPUT_ACTIVATE)
             {
                 uint32_t position_ms = audio_master ?
@@ -1649,6 +1669,8 @@ cleanup:
     lcd_set_foreground(LCD_BLACK);
     lcd_clear_display();
     lcd_update();
+    if (cpu_boosted)
+        cpu_boost(false);
     return result;
 }
 
