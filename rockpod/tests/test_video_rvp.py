@@ -74,6 +74,78 @@ class _MpegRunner(_Runner):
         return super().run(command, cwd=cwd, timeout=timeout, env=env)
 
 
+class _H264Runner(_Runner):
+    def __init__(self, output_profile="Constrained Baseline"):
+        super().__init__()
+        self.output_profile = output_profile
+
+    @staticmethod
+    def _write_minimal_mp4(path):
+        with open(path, "wb") as handle:
+            handle.write(b"\x00\x00\x00\x10ftypM4V \x00\x00\x00\x00")
+            handle.write(b"\x00\x00\x00\x08moov")
+            handle.write(b"\x00\x00\x00\x09mdat\x00")
+
+    def run(self, command, cwd="", timeout=None, env=None):
+        self.commands.append(list(command))
+        if "-show_entries" in command:
+            if str(command[-1]).endswith(".tmp") or str(command[-1]).endswith(".m4v"):
+                return _Result(
+                    stdout=json.dumps(
+                        {
+                            "streams": [
+                                {
+                                    "codec_type": "video",
+                                    "codec_name": "h264",
+                                    "profile": self.output_profile,
+                                    "level": 30,
+                                    "width": 640,
+                                    "height": 480,
+                                    "pix_fmt": "yuv420p",
+                                    "r_frame_rate": "24000/1001",
+                                    "has_b_frames": 0,
+                                    "refs": 1,
+                                    "bit_rate": "1500000",
+                                },
+                                {
+                                    "codec_type": "audio",
+                                    "codec_name": "aac",
+                                    "profile": "LC",
+                                    "sample_rate": "48000",
+                                    "channels": 2,
+                                    "bit_rate": "128000",
+                                },
+                            ],
+                            "format": {
+                                "format_name": "mov,mp4,m4a,3gp,3g2,mj2",
+                                "duration": "60.0",
+                                "bit_rate": "1628000",
+                            },
+                        }
+                    )
+                )
+            return _Result(
+                stdout=json.dumps(
+                    {
+                        "streams": [
+                            {
+                                "codec_type": "video",
+                                "codec_name": "h264",
+                                "width": 1920,
+                                "height": 1080,
+                                "r_frame_rate": "24000/1001",
+                            }
+                        ],
+                        "format": {"duration": "60.0"},
+                    }
+                )
+            )
+        if "libx264" in command:
+            self._write_minimal_mp4(command[-1])
+            return _Result()
+        return _Result()
+
+
 class _BlockingRunner(_Runner):
     def __init__(self):
         super().__init__()
@@ -175,6 +247,194 @@ def test_video_rvp_defaults_to_raw_profile():
     assert RVP_PROFILE_DEFAULT == "raw"
     assert transcoder._profile == "raw"
     assert transcoder._target_fps == 20
+
+
+def test_h264_apple_exact_profile_builds_measured_encode_and_mux_commands(tmp_dir):
+    source = os.path.join(tmp_dir, "Apple Source.mov")
+    with open(source, "wb") as handle:
+        handle.write(b"source-video")
+    transcoder = VideoRvpTranscoder(
+        os.path.join(tmp_dir, "cache"),
+        ffmpeg_path="/bin/true",
+        profile="h264_1500k_compat",
+    )
+    encode = transcoder._h264_encode_command(
+        "/opt/x264-apple-ipod", source, "/tmp/video.h264",
+        640, 480, "24000/1001", 24000, 1001,
+    )
+    mux = transcoder._h264_mux_command(
+        "/usr/bin/ffmpeg", source, "/tmp/video.h264", "/tmp/video.m4v",
+        24000, 1001,
+    )
+
+    assert transcoder._profile == "h264_apple_exact"
+    assert encode[encode.index("--profile") + 1] == "baseline"
+    assert encode[encode.index("--level") + 1] == "3.0"
+    assert encode[encode.index("--bitrate") + 1] == "1500"
+    assert encode[encode.index("--slices") + 1] == "2"
+    assert encode[encode.index("--keyint") + 1] == "96"
+    assert encode[encode.index("--threads") + 1] == "32"
+    assert encode[encode.index("--vbv-maxrate") + 1] == "4006"
+    assert encode[encode.index("--vbv-bufsize") + 1] == "4014"
+    assert encode[encode.index("--nal-hrd") + 1] == "vbr"
+    assert encode[encode.index("--colorprim") + 1] == "smpte170m"
+    assert encode[encode.index("--transfer") + 1] == "bt709"
+    assert encode[encode.index("--chromaloc") + 1] == "2"
+    assert "--no-deblock" in encode
+    assert mux[mux.index("-q:a") + 1] == "0.28"
+    assert mux[mux.index("-ar") + 1] == "44100"
+    assert mux[mux.index("-video_track_timescale") + 1] == "24000"
+    assert mux[mux.index("-brand") + 1] == "M4V "
+
+
+def test_h264_apple_exact_uses_24_threads_when_downscaling_hd_source(tmp_dir):
+    transcoder = VideoRvpTranscoder(
+        os.path.join(tmp_dir, "cache"), profile="h264_apple_exact"
+    )
+
+    command = transcoder._h264_encode_command(
+        "/opt/x264-apple-ipod", "/tmp/source.mp4", "/tmp/video.mp4",
+        640, 360, "30/1", 30, 1,
+        source_width=1920, source_height=1080,
+    )
+
+    assert command[command.index("--threads") + 1] == "24"
+
+
+def test_apple_exact_x264_patch_keeps_threaded_and_odd_mb_slices_canonical():
+    patch = (
+        Path(__file__).resolve().parents[2]
+        / "tools"
+        / "patches"
+        / "x264-apple-ipod-exact.patch"
+    ).read_text(encoding="utf-8")
+
+    assert "RockPod Apple-iPod exact bitstream patch v5" in patch
+    assert "h->fenc->i_frame > 0" in patch
+    assert "(height * width * i_slice_num) / h->param.i_slice_count" in patch
+    assert "height * width * i_slice_num + round_bias" not in patch
+
+
+def test_h264_relative_x264_path_is_resolved_before_cache_cwd(tmp_dir):
+    transcoder = VideoRvpTranscoder(
+        os.path.join(tmp_dir, "cache"),
+        profile="h264_apple_exact",
+        x264_path="rockpod/.tools/x264-apple-ipod",
+    )
+
+    assert os.path.isabs(transcoder._x264_path)
+    assert transcoder._x264_path.endswith(
+        os.path.join("rockpod", ".tools", "x264-apple-ipod")
+    )
+
+
+def test_h264_exact_source_is_validated_and_reused_without_reencoding(
+    tmp_dir, monkeypatch,
+):
+    source = os.path.join(tmp_dir, "already-exact.m4v")
+    with open(source, "wb") as handle:
+        handle.write(b"validated-apple-file")
+    transcoder = VideoRvpTranscoder(
+        os.path.join(tmp_dir, "cache"),
+        ffmpeg_path="/bin/true",
+        profile="h264_apple_exact",
+    )
+    monkeypatch.setattr(
+        transcoder, "_probe_mpeg_info",
+        lambda *_args: {
+            "duration": 60.0,
+            "video": {
+                "width": 640, "height": 360, "r_frame_rate": "30/1",
+            },
+        },
+    )
+    validation = {"digest": "exact", "bitrate_kbps": 1548}
+    monkeypatch.setattr(
+        transcoder, "_validate_h264_file",
+        lambda *_args: validation,
+    )
+    monkeypatch.setattr(
+        transcoder, "_ensure_h264_file",
+        lambda *_args: (_ for _ in ()).throw(
+            AssertionError("exact input was re-encoded")
+        ),
+    )
+
+    row, info = transcoder.prepare_track_for_sync(
+        {"file_path": source, "title": "Exact", "media_type": "Video"},
+        "mock-ipod",
+    )
+
+    assert row["sync_source_path"] == source
+    assert row["sync_output_ext"] == ".m4v"
+    assert row["sync_video_validation_digest"] == "exact"
+    assert info["converted"] is False
+    assert info["reason"] == "already_apple_ipod_exact"
+
+
+def test_h264_apple_exact_small_bucket_and_downrate_filter(tmp_dir):
+    transcoder = VideoRvpTranscoder(
+        os.path.join(tmp_dir, "cache"), profile="h264_apple_exact"
+    )
+    command = transcoder._h264_encode_command(
+        "/opt/x264-apple-ipod", "/tmp/source.mov", "/tmp/video.h264",
+        320, 240, "60/1", 30, 1,
+    )
+
+    assert command[command.index("--level") + 1] == "1.3"
+    assert command[command.index("--bitrate") + 1] == "768"
+    assert command[command.index("--vbv-maxrate") + 1] == "770"
+    assert command[command.index("--vbv-bufsize") + 1] == "1999"
+    assert "--no-deblock" not in command
+    assert "select_every:2,0" in command[command.index("--vf") + 1]
+
+
+def test_h264_ipod_video_target_uses_5g_dimensions_and_contract(tmp_dir):
+    transcoder = VideoRvpTranscoder(
+        os.path.join(tmp_dir, "cache"), profile="h264_apple_exact"
+    )
+
+    assert transcoder._fit_apple_dimensions(
+        1920, 1080, max_width=320, max_height=240
+    ) == (320, 180)
+    width, height, contract, profile_key = transcoder._h264_device_contract(
+        "ipodvideo"
+    )
+    assert (width, height) == (320, 240)
+    assert "ipod-video-5g" in contract
+    assert "ipod-video-5g" in profile_key
+
+
+def test_h264_ipod_video_cache_is_distinct_from_6g_cache(tmp_dir):
+    source = os.path.join(tmp_dir, "same-source.mp4")
+    Path(source).write_bytes(b"same-source")
+    transcoder = VideoRvpTranscoder(
+        os.path.join(tmp_dir, "cache"), profile="h264_apple_exact"
+    )
+    row = {"file_hash": "same-source-hash"}
+    _, _, contract_5g, key_5g = transcoder._h264_device_contract("ipodvideo")
+    _, _, contract_6g, key_6g = transcoder._h264_device_contract("ipod6g")
+
+    path_5g = transcoder._cache_h264_path(
+        source, row, "same-device", 320, 180, 30, 1,
+        contract=contract_5g, profile_key=key_5g,
+    )
+    path_6g = transcoder._cache_h264_path(
+        source, row, "same-device", 640, 360, 30, 1,
+        contract=contract_6g, profile_key=key_6g,
+    )
+
+    assert path_5g != path_6g
+
+
+def test_h264_storage_estimate_is_far_smaller_than_raw():
+    h264 = VideoRvpTranscoder.estimated_profile_bytes(
+        "h264_apple_exact", 3600
+    )
+    raw = VideoRvpTranscoder.estimated_profile_bytes("raw", 3600)
+
+    assert 650_000_000 < h264 < 750_000_000
+    assert raw > h264 * 10
 
 
 def test_compact_raw_profile_keeps_20fps_with_smaller_frames_and_audio(

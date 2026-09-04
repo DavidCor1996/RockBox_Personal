@@ -1,0 +1,406 @@
+diff --git a/encoder/set.c b/encoder/set.c
+index 3baa7ad..2caef63 100644
+--- a/encoder/set.c
++++ b/encoder/set.c
+@@ -130,8 +130,8 @@ void x264_sps_init( x264_sps_t *sps, int i_id, x264_param_t *param )
+     /* x264 doesn't support the features that are in Baseline and not in Main,
+      * namely arbitrary_slice_order and slice_groups. */
+     sps->b_constraint_set1  = sps->i_profile_idc <= PROFILE_MAIN;
+-    /* Never set constraint_set2, it is not necessary and not used in real world. */
+-    sps->b_constraint_set2  = 0;
++    /* QuickTime 7.6.6's iPod preset signals constraint sets 0, 1, and 2. */
++    sps->b_constraint_set2  = 1;
+     sps->b_constraint_set3  = 0;
+
+     sps->i_level_idc = param->i_level_idc;
+@@ -147,9 +147,9 @@ void x264_sps_init( x264_sps_t *sps, int i_id, x264_param_t *param )
+     sps->vui.i_num_reorder_frames = param->i_bframe_pyramid ? 2 : param->i_bframe ? 1 : 0;
+     /* extra slot with pyramid so that we don't have to override the
+      * order of forgetting old pictures */
+-    sps->vui.i_max_dec_frame_buffering =
+-    sps->i_num_ref_frames = X264_MIN(X264_REF_MAX, X264_MAX4(param->i_frame_reference, 1 + sps->vui.i_num_reorder_frames,
+-                            param->i_bframe_pyramid ? 4 : 1, param->i_dpb_size));
++    /* The measured Level 1.3 preset advertises two DPB frames; SD advertises one. */
++    sps->vui.i_max_dec_frame_buffering = sps->i_num_ref_frames =
++        sps->i_level_idc <= 13 ? 2 : 1;
+     sps->i_num_ref_frames -= param->i_bframe_pyramid == X264_B_PYRAMID_STRICT;
+     if( param->i_keyint_max == 1 )
+     {
+@@ -166,17 +166,14 @@ void x264_sps_init( x264_sps_t *sps, int i_id, x264_param_t *param )
+         max_frame_num = X264_MAX( max_frame_num, time_to_recovery+1 );
+     }
+
+-    sps->i_log2_max_frame_num = 4;
++    sps->i_log2_max_frame_num = 5;
+     while( (1 << sps->i_log2_max_frame_num) <= max_frame_num )
+         sps->i_log2_max_frame_num++;
+
+-    sps->i_poc_type = param->i_bframe || param->b_interlaced || param->i_avcintra_class ? 0 : 2;
++    sps->i_poc_type = 0;
+     if( sps->i_poc_type == 0 )
+     {
+-        int max_delta_poc = (param->i_bframe + 2) * (!!param->i_bframe_pyramid + 1) * 2;
+-        sps->i_log2_max_poc_lsb = 4;
+-        while( (1 << sps->i_log2_max_poc_lsb) <= max_delta_poc * 2 )
+-            sps->i_log2_max_poc_lsb++;
++        sps->i_log2_max_poc_lsb = 7;
+     }
+
+     sps->b_vui = 1;
+@@ -216,6 +213,9 @@ void x264_sps_init( x264_sps_t *sps, int i_id, x264_param_t *param )
+         sps->vui.b_fixed_frame_rate = !param->b_vfr_input;
+     }
+
++    /* QuickTime stores timing in MP4 tables, not SPS timing_info. */
++    sps->vui.b_timing_info_present = 0;
++
+     sps->vui.b_vcl_hrd_parameters_present = 0; // we don't support VCL HRD
+     sps->vui.b_nal_hrd_parameters_present = !!param->i_nal_hrd;
+     sps->vui.b_pic_struct_present = param->b_pic_struct;
+@@ -231,7 +231,8 @@ void x264_sps_init( x264_sps_t *sps, int i_id, x264_param_t *param )
+
+     // NOTE: HRD related parts of the SPS are initialised in x264_ratecontrol_init_reconfigurable
+
+-    sps->vui.b_bitstream_restriction = !(sps->b_constraint_set3 && sps->i_profile_idc >= PROFILE_HIGH);
++    /* QuickTime's iPod SPS omits VUI bitstream_restriction. */
++    sps->vui.b_bitstream_restriction = 0;
+     if( sps->vui.b_bitstream_restriction )
+     {
+         sps->vui.b_motion_vectors_over_pic_boundaries = 1;
+@@ -256,7 +254,8 @@ void x264_sps_init_reconfigurable( x264_sps_t *sps, x264_param_t *param )
+                   sps->crop.i_right || sps->crop.i_bottom;
+
+     sps->vui.b_aspect_ratio_info_present = 0;
+-    if( param->vui.i_sar_width > 0 && param->vui.i_sar_height > 0 )
++    /* QuickTime explicitly signals aspect_ratio_idc=0 (unspecified). */
++    if( param->vui.i_sar_width > 0 && param->vui.i_sar_height > 0 )
+     {
+         sps->vui.b_aspect_ratio_info_present = 1;
+         sps->vui.i_sar_width = param->vui.i_sar_width;
+@@ -398,14 +399,17 @@ void x264_sps_write( bs_t *s, x264_sps_t *sps )
+                 // aspect_ratio_idc = [17..254] -> reserved
+                 { 0, 0, 255 }
+             };
+-            for( i = 0; sar[i].sar != 255; i++ )
+-            {
+-                if( sar[i].w == sps->vui.i_sar_width &&
+-                    sar[i].h == sps->vui.i_sar_height )
+-                    break;
+-            }
+-            bs_write( s, 8, sar[i].sar );
+-            if( sar[i].sar == 255 ) /* aspect_ratio_idc (extended) */
++            if( sps->vui.i_sar_width == sps->vui.i_sar_height )
++                i = -1;
++            else
++                for( i = 0; sar[i].sar != 255; i++ )
++                {
++                    if( sar[i].w == sps->vui.i_sar_width &&
++                        sar[i].h == sps->vui.i_sar_height )
++                        break;
++                }
++            bs_write( s, 8, i < 0 ? 0 : sar[i].sar );
++            if( i >= 0 && sar[i].sar == 255 ) /* aspect_ratio_idc (extended) */
+             {
+                 bs_write( s, 16, sps->vui.i_sar_width );
+                 bs_write( s, 16, sps->vui.i_sar_height );
+@@ -482,7 +488,8 @@ void x264_pps_init( x264_pps_t *pps, int i_id, x264_param_t *param, x264_sps_t *
+     pps->i_sps_id = sps->i_id;
+     pps->b_cabac = param->b_cabac;
+
+-    pps->b_pic_order = !param->i_avcintra_class && param->b_interlaced;
++    /* Both measured QuickTime iPod presets signal delta_pic_order_bottom. */
++    pps->b_pic_order = 1;
+     pps->i_num_slice_groups = 1;
+
+     pps->i_num_ref_idx_l0_default_active = param->i_frame_reference;
+@@ -491,11 +498,13 @@ void x264_pps_init( x264_pps_t *pps, int i_id, x264_param_t *param, x264_sps_t *
+     pps->b_weighted_pred = param->analyse.i_weighted_pred > 0;
+     pps->b_weighted_bipred = param->analyse.b_weighted_bipred ? 2 : 0;
+
+-    pps->i_pic_init_qp = param->rc.i_rc_method == X264_RC_ABR || param->b_stitchable ? 26 + QP_BD_OFFSET : SPEC_QP( param->rc.i_qp_constant );
++    pps->i_pic_init_qp = 28 + QP_BD_OFFSET;
+     pps->i_pic_init_qs = 26 + QP_BD_OFFSET;
+
+-    pps->i_chroma_qp_index_offset = param->analyse.i_chroma_qp_offset;
+-    pps->b_deblocking_filter_control = 1;
++    /* QuickTime uses zero chroma offset in both iPod branches. */
++    pps->i_chroma_qp_index_offset = 0;
++    /* Level 1.3 leaves deblocking enabled; the SD preset disables it per slice. */
++    pps->b_deblocking_filter_control = sps->i_level_idc > 13;
+     pps->b_constrained_intra_pred = param->b_constrained_intra;
+     pps->b_redundant_pic_cnt = 0;
+
+@@ -622,6 +630,10 @@ void x264_sei_buffering_period_write( x264_t *h, bs_t *s )
+
+     if( sps->vui.b_nal_hrd_parameters_present )
+     {
++        /* Constants measured from QuickTime's two iPod size buckets. */
++        h->initial_cpb_removal_delay = sps->i_level_idc <= 13 ? 257143 : 600000;
++        h->initial_cpb_removal_delay_offset = 0;
++
+         bs_write( &q, sps->vui.hrd.i_initial_cpb_removal_delay_length, h->initial_cpb_removal_delay );
+         bs_write( &q, sps->vui.hrd.i_initial_cpb_removal_delay_length, h->initial_cpb_removal_delay_offset );
+     }
+diff --git a/encoder/ratecontrol.c b/encoder/ratecontrol.c
+index 1ce3d30..2e2c78a 100644
+--- a/encoder/ratecontrol.c
++++ b/encoder/ratecontrol.c
+@@ -667,5 +667,7 @@ int x264_ratecontrol_new( x264_t *h )
+         if( h->param.i_nal_hrd && b_init )
+         {
++            int apple_small = h->sps->i_level_idc <= 13;
++
+             h->sps->vui.hrd.i_cpb_cnt = 1;
+             h->sps->vui.hrd.b_cbr_hrd = h->param.i_nal_hrd == X264_NAL_HRD_CBR;
+             h->sps->vui.hrd.i_time_offset_length = 0;
+@@ -674,13 +676,18 @@ int x264_ratecontrol_new( x264_t *h )
+             #define BR_SHIFT  6
+             #define CPB_SHIFT 4
+
+-            // normalize HRD size and rate to the value / scale notation
+-            h->sps->vui.hrd.i_bit_rate_scale = x264_clip3( x264_ctz( vbv_max_bitrate ) - BR_SHIFT, 0, 15 );
+-            h->sps->vui.hrd.i_bit_rate_value = vbv_max_bitrate >> ( h->sps->vui.hrd.i_bit_rate_scale + BR_SHIFT );
++            /* QuickTime's fixed iPod HRD/VBV syntax. */
++            h->sps->vui.hrd.i_bit_rate_scale = 7;
++            h->sps->vui.hrd.i_bit_rate_value = apple_small ? 94 : 489;
+             h->sps->vui.hrd.i_bit_rate_unscaled = h->sps->vui.hrd.i_bit_rate_value << ( h->sps->vui.hrd.i_bit_rate_scale + BR_SHIFT );
+-            h->sps->vui.hrd.i_cpb_size_scale = x264_clip3( x264_ctz( vbv_buffer_size ) - CPB_SHIFT, 0, 15 );
+-            h->sps->vui.hrd.i_cpb_size_value = vbv_buffer_size >> ( h->sps->vui.hrd.i_cpb_size_scale + CPB_SHIFT );
++            h->sps->vui.hrd.i_cpb_size_scale = 10;
++            h->sps->vui.hrd.i_cpb_size_value = apple_small ? 122 : 245;
+             h->sps->vui.hrd.i_cpb_size_unscaled = h->sps->vui.hrd.i_cpb_size_value << ( h->sps->vui.hrd.i_cpb_size_scale + CPB_SHIFT );
++            h->sps->vui.hrd.b_cbr_hrd = 0;
++            h->sps->vui.hrd.i_initial_cpb_removal_delay_length = 24;
++            h->sps->vui.hrd.i_cpb_removal_delay_length = 24;
++            h->sps->vui.hrd.i_dpb_output_delay_length = 24;
++            h->sps->vui.hrd.i_time_offset_length = 24;
+
+             #undef CPB_SHIFT
+             #undef BR_SHIFT
+@@ -689,14 +694,6 @@ int x264_ratecontrol_new( x264_t *h )
+             // arbitrary
+             #define MAX_DURATION 0.5
+
+-            int max_cpb_output_delay = X264_MIN( h->param.i_keyint_max * MAX_DURATION * h->sps->vui.i_time_scale / h->sps->vui.i_num_units_in_tick, INT_MAX );
+-            int max_dpb_output_delay = h->sps->vui.i_max_dec_frame_buffering * MAX_DURATION * h->sps->vui.i_time_scale / h->sps->vui.i_num_units_in_tick;
+-            int max_delay = (int)(90000.0 * (double)h->sps->vui.hrd.i_cpb_size_unscaled / h->sps->vui.hrd.i_bit_rate_unscaled + 0.5);
+-
+-            h->sps->vui.hrd.i_initial_cpb_removal_delay_length = 2 + x264_clip3( 32 - x264_clz( max_delay ), 4, 22 );
+-            h->sps->vui.hrd.i_cpb_removal_delay_length = x264_clip3( 32 - x264_clz( max_cpb_output_delay ), 4, 31 );
+-            h->sps->vui.hrd.i_dpb_output_delay_length  = x264_clip3( 32 - x264_clz( max_dpb_output_delay ), 4, 31 );
+-
+             #undef MAX_DURATION
+
+             vbv_buffer_size = h->sps->vui.hrd.i_cpb_size_unscaled;
+diff --git a/encoder/encoder.c b/encoder/encoder.c
+index 9c66ed5..035cfc4 100644
+--- a/encoder/encoder.c
++++ b/encoder/encoder.c
+@@ -1982,8 +1982,9 @@ static void nal_start( x264_t *h, int i_type, int i_ref_idc )
+ {
+     x264_nal_t *nal = &h->out.nal[h->out.i_nal];
+
+-    nal->i_ref_idc        = i_ref_idc;
++    /* QuickTime's iPod preset uses nal_ref_idc=1 for every reference NAL. */
++    nal->i_ref_idc        = i_ref_idc ? NAL_PRIORITY_LOW : i_ref_idc;
+     nal->i_type           = i_type;
+     nal->b_long_startcode = 1;
+
+     nal->i_payload= 0;
+@@ -2116,12 +2117,11 @@ int x264_encoder_headers( x264_t *h, x264_nal_t **pp_nal, int *pi_nal )
+     if( nal_end( h ) )
+         return -1;
+
+-    /* identify ourselves */
+-    nal_start( h, NAL_SEI, NAL_PRIORITY_DISPOSABLE );
+-    if( x264_sei_version_write( h, &h->out.bs ) )
+-        return -1;
+-    if( nal_end( h ) )
+-        return -1;
++    /* L-SMASH moves header SEIs into the first MP4 sample. */
++    nal_start( h, NAL_SEI, NAL_PRIORITY_DISPOSABLE );
++    x264_sei_buffering_period_write( h, &h->out.bs );
++    if( nal_end( h ) )
++        return -1;
+
+     frame_size = encoder_encapsulate_nals( h, 0 );
+     if( frame_size < 0 )
+@@ -3159,7 +3160,6 @@ static void *slices_write( x264_t *h )
+ {
+     int i_slice_num = 0;
+     int last_thread_mb = h->sh.i_last_mb;
+-    int round_bias = h->param.i_avcintra_class ? 0 : h->param.i_slice_count/2;
+
+     /* init stats */
+     memset( &h->stat.frame, 0, sizeof(h->stat.frame) );
+@@ -3193,9 +3193,10 @@ static void *slices_write( x264_t *h )
+             else if( h->param.i_slice_count && !h->param.b_sliced_threads )
+             {
+                 int height = h->mb.i_mb_height >> PARAM_INTERLACED;
+                 int width = h->mb.i_mb_width << PARAM_INTERLACED;
+                 i_slice_num++;
+-                h->sh.i_last_mb = (height * i_slice_num + round_bias) / h->param.i_slice_count * width - 1;
++                /* QuickTime starts slice two at floor(total_mbs / 2). */
++                h->sh.i_last_mb = (height * width * i_slice_num) / h->param.i_slice_count - 1;
+             }
+         }
+         h->sh.i_last_mb = X264_MIN( h->sh.i_last_mb, last_thread_mb );
+@@ -3534,9 +3535,14 @@ static int encoder_encode( x264_t *h, x264_nal_t **pp_nal, int *pi_nal, x264_pic
+     }
+     else if( h->fenc->i_type == X264_TYPE_P )
+     {
+         i_nal_type    = NAL_SLICE;
+-        i_nal_ref_idc = NAL_PRIORITY_HIGH; /* Not completely true but for now it is (as all I/P are kept as ref)*/
++        /* QuickTime's SD preset alternates disposable/reference P pictures.
++         * Its Level 1.3 preset keeps every P picture as a reference. */
++        i_nal_ref_idc = h->sps->i_level_idc > 13 &&
++                        ((h->fenc->i_frame - X264_MAX( h->frames.i_last_idr, 0 )) & 1)
++                      ? NAL_PRIORITY_DISPOSABLE
++                      : NAL_PRIORITY_LOW;
+         h->sh.i_type = SLICE_TYPE_P;
+         reference_hierarchy_reset( h );
+         h->frames.i_poc_last_open_gop = -1;
+
+@@ -3692,7 +3705,8 @@ static int encoder_encode( x264_t *h, x264_nal_t **pp_nal, int *pi_nal, x264_pic
+         }
+
+         /* when frame threading is used, buffering period sei is written in encoder_frame_end */
+-        if( h->i_thread_frames == 1 && h->sps->vui.b_nal_hrd_parameters_present )
++        if( h->i_thread_frames == 1 && h->sps->vui.b_nal_hrd_parameters_present &&
++            h->fenc->i_frame > 0 )
+         {
+             x264_hrd_fullness( h );
+             nal_start( h, NAL_SEI, NAL_PRIORITY_DISPOSABLE );
+@@ -3704,5 +3718,36 @@ static int encoder_encode( x264_t *h, x264_nal_t **pp_nal, int *pi_nal, x264_pic
+             overhead += h->out.nal[h->out.i_nal-1].i_payload + SEI_OVERHEAD;
+         }
++
++        /* QuickTime's SD iPod branch follows the buffering-period SEI with
++         * this fixed 17-byte unregistered payload. */
++        if( h->sps->i_level_idc > 13 )
++        {
++            static const uint8_t apple_sd_uuid[17] = {
++                0x03, 0x87, 0xf4, 0x4e, 0xcd, 0x0a, 0x4b, 0xdc,
++                0xa1, 0x94, 0x3a, 0xc3, 0xd4, 0x9b, 0x17, 0x1f, 0x01
++            };
++            nal_start( h, NAL_SEI, NAL_PRIORITY_DISPOSABLE );
++            x264_sei_write( &h->out.bs, (uint8_t *)apple_sd_uuid,
++                            sizeof(apple_sd_uuid), SEI_USER_DATA_UNREGISTERED );
++            if( nal_end( h ) )
++                return -1;
++            overhead += h->out.nal[h->out.i_nal-1].i_payload + SEI_OVERHEAD;
++        }
+     }
++
++    /* The same Apple SD UUID SEI precedes every non-key picture too. */
++    if( h->sps->i_level_idc > 13 && !h->fenc->b_keyframe )
++    {
++        static const uint8_t apple_sd_uuid[17] = {
++            0x03, 0x87, 0xf4, 0x4e, 0xcd, 0x0a, 0x4b, 0xdc,
++            0xa1, 0x94, 0x3a, 0xc3, 0xd4, 0x9b, 0x17, 0x1f, 0x01
++        };
++        nal_start( h, NAL_SEI, NAL_PRIORITY_DISPOSABLE );
++        x264_sei_write( &h->out.bs, (uint8_t *)apple_sd_uuid,
++                        sizeof(apple_sd_uuid), SEI_USER_DATA_UNREGISTERED );
++        if( nal_end( h ) )
++            return -1;
++        overhead += h->out.nal[h->out.i_nal-1].i_payload + SEI_OVERHEAD;
++    }
+
+     /* write extra sei */
+@@ -3728,20 +3748,9 @@ static int encoder_encode( x264_t *h, x264_nal_t **pp_nal, int *pi_nal, x264_pic
+         h->fenc->extra_sei.sei_free = NULL;
+     }
+
+-    if( h->fenc->b_keyframe )
+-    {
+-        /* Avid's decoder strictly wants two SEIs for AVC-Intra so we can't insert the x264 SEI */
+-        if( h->param.b_repeat_headers && h->fenc->i_frame == 0 && !h->param.i_avcintra_class )
+-        {
+-            /* identify ourself */
+-            nal_start( h, NAL_SEI, NAL_PRIORITY_DISPOSABLE );
+-            if( x264_sei_version_write( h, &h->out.bs ) )
+-                return -1;
+-            if( nal_end( h ) )
+-                return -1;
+-            overhead += h->out.nal[h->out.i_nal-1].i_payload + SEI_OVERHEAD;
+-        }
+-
++    if( h->fenc->b_keyframe )
++    {
++        /* QuickTime does not identify the encoder in its iPod stream. */
+         if( h->fenc->i_type != X264_TYPE_IDR )
+         {
+             int time_to_recovery = h->param.b_open_gop ? 0 : X264_MIN( h->mb.i_mb_width - 1, h->param.i_keyint_max ) + h->param.i_bframe - 1;
+@@ -3788,15 +3797,7 @@ static int encoder_encode( x264_t *h, x264_nal_t **pp_nal, int *pi_nal, x264_pic
+             return -1;
+     }
+
+-    /* generate sei pic timing */
+-    if( h->sps->vui.b_pic_struct_present || h->sps->vui.b_nal_hrd_parameters_present )
+-    {
+-        nal_start( h, NAL_SEI, NAL_PRIORITY_DISPOSABLE );
+-        x264_sei_pic_timing_write( h, &h->out.bs );
+-        if( nal_end( h ) )
+-            return -1;
+-        overhead += h->out.nal[h->out.i_nal-1].i_payload + SEI_OVERHEAD;
+-    }
++    /* QuickTime's iPod preset omits picture-timing SEI messages. */
+
+     /* As required by Blu-ray. */
+     if( !IS_X264_TYPE_B( h->fenc->i_type ) && h->b_sh_backup )
+@@ -3922,7 +3941,8 @@ static int encoder_frame_end( x264_t *h, x264_t *thread_current,
+     x264_emms();
+
+     /* generate buffering period sei and insert it into place */
+-    if( h->i_thread_frames > 1 && h->fenc->b_keyframe && h->sps->vui.b_nal_hrd_parameters_present )
++    if( h->i_thread_frames > 1 && h->fenc->b_keyframe &&
++        h->sps->vui.b_nal_hrd_parameters_present && h->fenc->i_frame > 0 )
+     {
+         x264_hrd_fullness( h );
+         nal_start( h, NAL_SEI, NAL_PRIORITY_DISPOSABLE );
+diff --git a/input/lavf.c b/input/lavf.c
+index 17a13d0..9c76661 100644
+--- a/input/lavf.c
++++ b/input/lavf.c
+@@ -141,8 +141,13 @@ static int read_frame_internal( cli_pic_t *p_pic, lavf_hnd_t *h, int i_frame, vi
+     if( info )
+     {
+         info->fullrange  = is_fullrange;
++#ifdef AV_FRAME_FLAG_INTERLACED
++        info->interlaced = !!(h->frame->flags & AV_FRAME_FLAG_INTERLACED);
++        info->tff        = !!(h->frame->flags & AV_FRAME_FLAG_TOP_FIELD_FIRST);
++#else
+         info->interlaced = h->frame->interlaced_frame;
+         info->tff        = h->frame->top_field_first;
++#endif
+     }
+
+     if( h->vfr_input )
+diff --git a/output/mp4_lsmash.c b/output/mp4_lsmash.c
+index d4ac0fe..a90af64 100644
+--- a/output/mp4_lsmash.c
++++ b/output/mp4_lsmash.c
+@@ -248,7 +248,9 @@ static int set_param( hnd_t handle, x264_param_t *p_param )
+     p_mp4->summary->height = p_param->i_height;
+     uint32_t i_display_width = p_param->i_width << 16;
+     uint32_t i_display_height = p_param->i_height << 16;
+-    if( p_param->vui.i_sar_width && p_param->vui.i_sar_height )
++    /* QuickTime signals aspect_ratio_idc=0 and emits no square-pixel pasp. */
++    if( p_param->vui.i_sar_width && p_param->vui.i_sar_height &&
++        p_param->vui.i_sar_width != p_param->vui.i_sar_height )
+     {
+         double sar = (double)p_param->vui.i_sar_width / p_param->vui.i_sar_height;
+         if( sar > 1.0 )
+diff --git a/x264.c b/x264.c
+index 0d6e0df..555ba46 100644
+--- a/x264.c
++++ b/x264.c
+@@ -310,6 +310,7 @@ static void print_version_info( void )
+ #else
+     printf( "x264 0.%d.X\n", X264_BUILD );
+ #endif
++    printf( "RockPod Apple-iPod exact bitstream patch v5\n" );
+ #if HAVE_SWSCALE
+     printf( "(libswscale %d.%d.%d)\n", LIBSWSCALE_VERSION_MAJOR, LIBSWSCALE_VERSION_MINOR, LIBSWSCALE_VERSION_MICRO );
+ #endif

@@ -189,28 +189,36 @@ class DeviceSettingsDialog(QDialog):
         self._video_sync_profile = QComboBox()
         self._video_sync_profile.addItems(
             [
-                "Seekable MPEG-2 320×240 (recommended)",
+                "H.264 Apple Exact (5G-7G hardware)",
+                "Seekable MPEG-2 320×240 (compatible)",
                 "Compact RVP 160×120 (20 fps)",
                 "Native RVP 320×240 (20 fps)",
                 "Native RVP + HQ audio (20 fps)",
             ]
         )
         self._video_sync_profile.setToolTip(
-            "Seekable MPEG-2 keeps full 320×240 detail and fluid 20 fps motion "
-            "at a practical size; RockPod rebuilds regular seek points."
+            "Apple Exact reproduces the measured iTunes 9.2.1 iPod-video "
+            "bitstream and container contract for the 5G/5.5G VideoCore and "
+            "6G/7G VPU hardware decoders."
         )
         profile_map = {
-            "quality": 0,
-            "compact": 0,
-            "efficient": 0,
-            "compact_raw": 1,
-            "compact_rvp": 1,
-            "balanced": 1,
-            "native_raw": 2,
-            "native": 2,
-            "sharp": 2,
-            "raw": 3,
-            "rvp": 3,
+            "h264_apple_exact": 0,
+            "h264_tv_quality": 0,
+            "h264": 0,
+            "h264_screen_compact": 0,
+            "h264_1500k_compat": 0,
+            "h264_apple_safe": 0,
+            "quality": 1,
+            "compact": 1,
+            "efficient": 1,
+            "compact_raw": 2,
+            "compact_rvp": 2,
+            "balanced": 2,
+            "native_raw": 3,
+            "native": 3,
+            "sharp": 3,
+            "raw": 4,
+            "rvp": 4,
         }
         self._video_sync_profile.setCurrentIndex(
             profile_map.get(
@@ -526,14 +534,23 @@ class DeviceSettingsDialog(QDialog):
         )
         self._video_sync_profile.setCurrentIndex(
             {
-                "quality": 0,
-                "compact": 0,
-                "efficient": 0,
-                "compact_raw": 1,
-                "compact_rvp": 1,
-                "balanced": 1,
-                "raw": 2,
-                "rvp": 2,
+                "h264_apple_exact": 0,
+                "h264_tv_quality": 0,
+                "h264": 0,
+                "h264_screen_compact": 0,
+                "h264_1500k_compat": 0,
+                "h264_apple_safe": 0,
+                "quality": 1,
+                "compact": 1,
+                "efficient": 1,
+                "compact_raw": 2,
+                "compact_rvp": 2,
+                "balanced": 2,
+                "native_raw": 3,
+                "native": 3,
+                "sharp": 3,
+                "raw": 4,
+                "rvp": 4,
             }.get(
                 str(self._config.get("video_sync_profile", "quality")).strip().lower(),
                 0,
@@ -638,13 +655,14 @@ class DeviceSettingsDialog(QDialog):
                 160,
             ),
             "video_sync_profile": {
-                0: "quality",
-                1: "compact_raw",
-                2: "native_raw",
-                3: "raw",
+                0: "h264_apple_exact",
+                1: "quality",
+                2: "compact_raw",
+                3: "native_raw",
+                4: "raw",
             }.get(
                 self._video_sync_profile.currentIndex(),
-                "native_raw",
+                "h264_apple_exact",
             ),
             "rockbox_ui_engine": {0: "rockbox", 1: "ipodjs"}.get(
                 self._rockbox_ui_engine.currentIndex(),

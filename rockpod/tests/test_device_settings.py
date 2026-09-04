@@ -50,3 +50,18 @@ def test_ipodjs_hold_effect_defaults_to_lockscreen(config):
     assert dialog._rockbox_ui_hold_effect.currentIndex() == 0
     assert dialog._rockbox_ui_extras_pane.currentText() == "Clock"
     assert app is not None
+
+
+def test_h264_sync_setting_names_both_hardware_decoder_generations(config):
+    app = QApplication.instance() or QApplication([])
+    create_mock_device(config.mock_device_path)
+    device = DeviceInfo(config.mock_device_path)
+
+    dialog = DeviceSettingsDialog(config, device)
+
+    assert dialog._video_sync_profile.itemText(0) == (
+        "H.264 Apple Exact (5G-7G hardware)"
+    )
+    assert "5G/5.5G VideoCore" in dialog._video_sync_profile.toolTip()
+    assert "6G/7G VPU" in dialog._video_sync_profile.toolTip()
+    assert app is not None
