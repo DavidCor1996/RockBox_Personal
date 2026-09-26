@@ -365,19 +365,27 @@ static struct usb_as_interface
     .wFormatTag         = USB_AS_FORMAT_TYPE_I_PCM
 };
 
+/* The source endpoint carries at most 192 bytes per millisecond. */
+static const int source_freq_indices[] = {
+    HW_HAVE_32_(HW_FREQ_32,)
+    HW_HAVE_44_(HW_FREQ_44,)
+    HW_HAVE_48_(HW_FREQ_48,)
+};
+#define SOURCE_NUM_FREQ ARRAYLEN(source_freq_indices)
+
 static struct usb_as_format_type_i_discrete
     as_source_format_type_i =
 {
-    .bLength            = USB_AS_SIZEOF_FORMAT_TYPE_I_DISCRETE(HW_NUM_FREQ),
+    .bLength            = USB_AS_SIZEOF_FORMAT_TYPE_I_DISCRETE(SOURCE_NUM_FREQ),
     .bDescriptorType    = USB_DT_CS_INTERFACE,
     .bDescriptorSubType = USB_AS_FORMAT_TYPE,
     .bFormatType        = USB_AS_FORMAT_TYPE_I,
     .bNrChannels        = 2, /* Stereo */
     .bSubframeSize      = 2, /* 2 bytes per sample */
     .bBitResolution     = 16,
-    .bSamFreqType       = HW_NUM_FREQ,
+    .bSamFreqType       = SOURCE_NUM_FREQ,
     .tSamFreq           = {
-        [0 ... HW_NUM_FREQ - 1] = {0}, /* filled later */
+        [0 ... SOURCE_NUM_FREQ - 1] = {0}, /* filled later */
     }
 };
 
@@ -729,11 +737,10 @@ void usb_audio_init(void)
         logf("usbaudio: playback %lu Hz", hw_freq_sampr[i]);
         encode3(as_playback_format_type_i.tSamFreq[i], hw_freq_sampr[i]);
     }
-    /* source: all hardware-supported rates in ascending order (matches Apple layout) */
-    for(i = 0; i < HW_NUM_FREQ; i++)
+    /* Source rates in ascending order, matching the advertised packet size. */
+    for(i = 0; i < SOURCE_NUM_FREQ; i++)
     {
-        /* hw_freq_sampr is descending; reverse into ascending for Apple compatibility */
-        int src_idx = HW_NUM_FREQ - 1 - i;
+        int src_idx = source_freq_indices[i];
         logf("usbaudio: source %lu Hz", hw_freq_sampr[src_idx]);
         encode3(as_source_format_type_i.tSamFreq[i], hw_freq_sampr[src_idx]);
     }
@@ -1011,13 +1018,16 @@ static int source_frame_bytes(void)
 
 static void set_source_sampling_frequency(unsigned long f)
 {
-    for(int i = 0; i < HW_NUM_FREQ; i++)
+    int best = source_freq_indices[0];
+    for(unsigned int i = 1; i < SOURCE_NUM_FREQ; i++)
     {
-        int err = abs((long)hw_freq_sampr[i] - (long)f);
-        int best_err = abs((long)hw_freq_sampr[as_source_freq_idx] - (long)f);
+        int idx = source_freq_indices[i];
+        int err = abs((long)hw_freq_sampr[idx] - (long)f);
+        int best_err = abs((long)hw_freq_sampr[best] - (long)f);
         if(err < best_err)
-            as_source_freq_idx = i;
+            best = idx;
     }
+    as_source_freq_idx = best;
 
     source_frac_num = 0;
 
@@ -1391,7 +1401,17 @@ static bool usb_audio_source_endpoint_request(struct usb_ctrlrequest* req, void 
                 return true;
             }
             if (reqdata) {
-                set_source_sampling_frequency(decode3(reqdata));
+                unsigned long freq = decode3(reqdata);
+                bool supported = false;
+                for(unsigned int i = 0; i < SOURCE_NUM_FREQ; i++)
+                    if(freq == hw_freq_sampr[source_freq_indices[i]])
+                        supported = true;
+                if(!supported)
+                {
+                    usb_drv_control_response(USB_CONTROL_STALL, NULL, 0);
+                    return true;
+                }
+                set_source_sampling_frequency(freq);
                 source_freq_set_by_host = true;
                 usb_drv_control_response(USB_CONTROL_ACK, NULL, 0);
                 return true;
