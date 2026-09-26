@@ -1234,6 +1234,21 @@ void ata_spin(void)
     ata_set_active();
 }
 
+/* iFlash reports no rotation rate or TRIM on some firmware versions.
+ * Match the reported model prefix rather than guessing from capacity. */
+static bool ata_is_iflash(void)
+{
+    static const char prefix[] = "iFlash-Platform";
+    for (unsigned int i = 0; i < sizeof(prefix) - 1; i++)
+    {
+        unsigned int word = identify_info[27 + i / 2];
+        char ch = (i & 1) ? (word & 0xff) : (word >> 8);
+        if (ch != prefix[i])
+            return false;
+    }
+    return !ceata;
+}
+
 void ata_set_storage_mode(int mode)
 {
     /* 0=auto, 1=HDD, 2=SSD */
@@ -1242,7 +1257,7 @@ void ata_set_storage_mode(int mode)
     else if (mode == 1)
         ata_ssd_mode = false;
     else /* auto */
-        ata_ssd_mode = ata_disk_isssd();
+        ata_ssd_mode = ata_disk_isssd() || ata_is_iflash();
 }
 
 bool ata_get_ssd_mode(void)
@@ -1275,7 +1290,7 @@ int ata_init(void)
         return rc;
 
     /* Auto-detect SSD before settings are loaded */
-    ata_ssd_mode = ata_disk_isssd();
+    ata_ssd_mode = ata_disk_isssd() || ata_is_iflash();
 
     /* Logical sector size */
     if (ceata)
