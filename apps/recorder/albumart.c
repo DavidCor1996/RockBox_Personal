@@ -245,6 +245,13 @@ bool search_albumart_files(const struct mp3entry *id3, const char *size_string,
                                 "%scover%s." EXT, dir, size_string);
                 found = try_exts(path, pathlen, *size_string != '\0');
             }
+#ifdef USE_JPEG_COVER
+            if (!found && !*size_string)
+            {
+                snprintf(path, sizeof(path), "%sfolder.jpg", dir);
+                found = file_exists(path);
+            }
+#endif
         }
         if (found)
             break;
